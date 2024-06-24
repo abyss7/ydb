@@ -954,6 +954,7 @@ TAutoPtr<IGraphTransformer> CreateDqBuildWideBlockChannelsTransformer(TTypeAnnot
     if (mode == CHANNEL_WIDE_AUTO_BLOCK || mode == CHANNEL_WIDE_FORCE_BLOCK) {
         transformers.push_back(TTransformStage(CreateFunctorTransformer(
             [mode, &typesCtx](const TExprNode::TPtr& input, TExprNode::TPtr& output, TExprContext& ctx) {
+                // TODO(ilezhankin): do we need to support auto-mode for blocks here?
                 const bool forceBlocks = mode == CHANNEL_WIDE_FORCE_BLOCK;
                 return DqEnableWideBlockChannels(forceBlocks, input, output, ctx, typesCtx);
             }),

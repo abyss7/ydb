@@ -5957,6 +5957,7 @@ bool CollectBlockRewrites(const TMultiExprType* multiInputType, bool keepInputCo
 }
 
 bool CanRewriteToBlocksWithInput(const TExprNode& input, const TTypeAnnotationContext& types) {
+    // TODO(ilezhankin): UseBlocks comes from the pragma "UseBlocks" with misleading name - should rename it to "ForceBlocks".
     EBlockEngineMode effectiveMode = types.UseBlocks ? EBlockEngineMode::Force : types.BlockEngineMode;
     switch (effectiveMode) {
         case NYql::EBlockEngineMode::Disable:
@@ -6899,7 +6900,7 @@ template <bool Asc, bool Equals>
 TExprNode::TPtr AggrComparePg(const TExprNode& node, TExprContext& ctx) {
     YQL_CLOG(DEBUG, CorePeepHole) << "Expand '" << node.Content() << "' over Pg.";
     auto op = Asc ? ( Equals ? "<=" : "<") : ( Equals ? ">=" : ">");
-    auto finalPart = (Equals == Asc) ? MakeBool<true>(node.Pos(), ctx) : 
+    auto finalPart = (Equals == Asc) ? MakeBool<true>(node.Pos(), ctx) :
         ctx.NewCallable(node.Pos(), "Exists", { node.TailPtr() });
     if (!Asc) {
         finalPart = ctx.NewCallable(node.Pos(), "Not", { finalPart });
@@ -8409,7 +8410,7 @@ struct TPeepHoleRules {
     const TExtPeepHoleOptimizerMap BlockStageExtFinalRules = {
         {"BlockExtend", &ExpandBlockExtend},
         {"BlockOrderedExtend", &ExpandBlockExtend},
-        {"ReplicateScalars", &ExpandReplicateScalars} 
+        {"ReplicateScalars", &ExpandReplicateScalars}
     };
 
     static const TPeepHoleRules& Instance() {

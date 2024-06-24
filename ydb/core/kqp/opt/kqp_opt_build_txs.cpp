@@ -352,7 +352,7 @@ private:
                 .Build()
             .Done();
 
-        
+
         auto finalChannelSettings = TDqStageSettings::Parse(stage);
         finalChannelSettings.WideChannels = false;
         finalChannelSettings.OutputNarrowType = nullptr;
@@ -578,6 +578,7 @@ public:
             .Add(*BuildTxTransformer, "BuildPhysicalTx")
             .Add(CreateKqpTxPeepholeTransformer(
                 TypeAnnTransformer.Get(), typesCtx, config,
+                // TODO(ilezhankin): support auto-mode for blocks here.
                 /* withFinalStageRules */ config->BlockChannelsMode == NKikimrConfig::TTableServiceConfig_EBlockChannelsMode_BLOCK_CHANNELS_FORCE,
                 {"KqpPeephole-RewriteCrossJoin"}),
                 "Peephole")
@@ -606,6 +607,7 @@ public:
         }
 
         if (!query.Results().Empty()) {
+            // TODO(ilezhankin): do we need to support auto-mode for blocks here?
             auto tx = BuildTx(query.Results().Ptr(), ctx, false, TypesCtx.BlockEngineMode == EBlockEngineMode::Force);
             if (!tx) {
                 return TStatus::Error;
@@ -628,6 +630,7 @@ public:
         }
 
         if (!query.Effects().Empty()) {
+            // TODO(ilezhankin): do we need to support auto-mode for blocks here?
             auto tx = BuildTx(query.Effects().Ptr(), ctx, /* isPrecompute */ false, TypesCtx.BlockEngineMode == EBlockEngineMode::Force);
             if (!tx) {
                 return TStatus::Error;
@@ -820,6 +823,7 @@ private:
             .Add(phaseResults)
             .Done();
 
+        // TODO(ilezhankin): do we need to support auto-mode for blocks here?
         auto tx = BuildTx(phaseResultsNode.Ptr(), ctx, /* isPrecompute */ true, TypesCtx.BlockEngineMode == EBlockEngineMode::Force);
 
         if (!tx.IsValid()) {

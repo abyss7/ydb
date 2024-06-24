@@ -153,7 +153,7 @@ protected:
 
 struct TKqpPeepholePipelineConfigurator : IPipelineConfigurator {
     TKqpPeepholePipelineConfigurator(
-        TKikimrConfiguration::TPtr config, 
+        TKikimrConfiguration::TPtr config,
         TSet<TString> disabledOpts
     )
         : Config(config)
@@ -244,13 +244,44 @@ TMaybeNode<TKqpPhysicalTx> PeepholeOptimize(const TKqpPhysicalTx& tx, TExprConte
     IGraphTransformer& typeAnnTransformer, TTypeAnnotationContext& typesCtx, THashSet<ui64>& optimizedStages,
     TKikimrConfiguration::TPtr config, bool withFinalStageRules, TSet<TString> disabledOpts)
 {
+    // Sort stages in topological order by their inputs, so that we optimize the ones without inputs first.
+    TVector<TDqPhyStage> topSortedStages;
+    topSortedStages.reserve(tx.Stages().Size());
+    {
+        std::function<void(const TDqPhyStage&)> topSort;
+        THashSet<ui64 /*uniqueId*/> visitedStages;
+
+        // Assume there is no cycles.
+        topSort = [&](const TDqPhyStage& stage) {
+            if (visitedStages.contains(stage.Ref().UniqueId())) {
+                return;
+            }
+
+            for (const auto& input : stage.Inputs()) {
+                if (auto connection = input.Maybe<TDqConnection>()) {
+                    // NOTE: somehow `Output()` is actually an input.
+                    if (auto phyStage = connection.Cast().Output().Stage().Maybe<TDqPhyStage>()) {
+                        topSort(phyStage.Cast());
+                    }
+                }
+            }
+
+            visitedStages.insert(stage.Ref().UniqueId());
+            topSortedStages.push_back(stage);
+        };
+
+        for (const auto& stage : tx.Stages()) {
+            topSort(stage);
+        }
+    }
+
     TVector<TDqPhyStage> stages;
     stages.reserve(tx.Stages().Size());
     TNodeOnNodeOwnedMap stagesMap;
     TVector<TKqpParamBinding> bindings(tx.ParamBindings().begin(), tx.ParamBindings().end());
     THashMap<TString, TKqpParamBinding> nonDetParamBindings;
 
-    for (const auto& stage : tx.Stages()) {
+    for (const auto& stage : topSortedStages) {
         YQL_ENSURE(!optimizedStages.contains(stage.Ref().UniqueId()));
 
         TVector<const TTypeAnnotationNode*> argTypes;
@@ -318,7 +349,7 @@ class TKqpTxPeepholeTransformer : public TSyncTransformerBase {
 public:
     TKqpTxPeepholeTransformer(
         IGraphTransformer* typeAnnTransformer,
-        TTypeAnnotationContext& typesCtx, 
+        TTypeAnnotationContext& typesCtx,
         TKikimrConfiguration::TPtr config,
         bool withFinalStageRules,
         TSet<TString> disabledOpts
@@ -444,8 +475,8 @@ private:
 
 TAutoPtr<IGraphTransformer> CreateKqpTxPeepholeTransformer(
     NYql::IGraphTransformer* typeAnnTransformer,
-    TTypeAnnotationContext& typesCtx, 
-    const TKikimrConfiguration::TPtr& config, 
+    TTypeAnnotationContext& typesCtx,
+    const TKikimrConfiguration::TPtr& config,
     bool withFinalStageRules,
     TSet<TString> disabledOpts
 )
@@ -455,7 +486,7 @@ TAutoPtr<IGraphTransformer> CreateKqpTxPeepholeTransformer(
 
 TAutoPtr<IGraphTransformer> CreateKqpTxsPeepholeTransformer(
     TAutoPtr<NYql::IGraphTransformer> typeAnnTransformer,
-    TTypeAnnotationContext& typesCtx, 
+    TTypeAnnotationContext& typesCtx,
     const TKikimrConfiguration::TPtr& config
 )
 {

@@ -191,7 +191,7 @@ enum class ECostBasedOptimizerType {
     Disable /* "disable" */,
     PG /* "pg" */,
     Native /* "native" */
-}; 
+};
 
 enum class EMatchRecognizeStreamingMode {
     Disable,
@@ -266,7 +266,7 @@ struct TTypeAnnotationContext: public TThrRefBase {
     bool YsonCastToString = true;
     ui32 FolderSubDirsLimit = 1000;
     bool UseBlocks = false;
-    EBlockEngineMode BlockEngineMode = EBlockEngineMode::Disable;
+    EBlockEngineMode BlockEngineMode = EBlockEngineMode::Auto;
     TMaybe<bool> PgEmitAggApply;
     IArrowResolver::TPtr ArrowResolver;
     TFileStoragePtr FileStorage;
@@ -372,6 +372,7 @@ struct TTypeAnnotationContext: public TThrRefBase {
     }
 
     bool IsBlockEngineEnabled() const {
+        // TODO(ilezhankin): refactor?
         return BlockEngineMode != EBlockEngineMode::Disable || UseBlocks;
     }
 };
