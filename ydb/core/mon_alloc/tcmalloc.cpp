@@ -592,7 +592,7 @@ private:
         }
     }
 
-    void DumpCurrent(IOutputStream& out, tcmalloc::ProfileType type,
+    static void DumpCurrent(IOutputStream& out, tcmalloc::ProfileType type,
         size_t stackCountLimit = 256, size_t sampleCountLimit = 1024, bool forLog = false)
     {
         auto start = TInstant::Now();
@@ -781,6 +781,41 @@ public:
         out << "======== TCMALLOC HEAP" << Endl;
         DumpCurrent(out, tcmalloc::ProfileType::kHeap, limit, 128, true);
     }
+
+    static void HandleSoftLimit() {
+        Cout << "Starting to fork..." << Endl;
+
+        if (auto childPid = fork(); childPid == 0) {
+            Cout << "Child pid: " << getpid() << " Stopping parent process " << getppid() << Endl;
+
+            kill(getppid(), SIGSTOP);
+
+            // dump into Cout
+            {
+                // auto properties = tcmalloc::MallocExtension::GetProperties();
+                // auto stats = tcmalloc::MallocExtension::GetStats();
+
+                // const char* sep = " | ";
+                // Cout << "======== TCMALLOC PROPERTIES" << sep;
+                // for (const auto& [name, value] : properties) {
+                //     Cout << name << ": " << value.value << sep;
+                // }
+                // Cout << Endl;
+
+                // Cout << "======== TCMALLOC STATISTICS" << Endl;
+                // Cout << stats << Endl;
+
+                Cout << "======== TCMALLOC HEAP" << Endl;
+                DumpCurrent(Cout, tcmalloc::ProfileType::kHeap, 2048, 128, true); // TODO: set proper limit
+            }
+
+            kill(getppid(), SIGCONT);
+        } else if (childPid < 0) {
+            Cout << "Failed to dump current heap: fork failed" << Endl;
+        }
+
+        // TODO: probably should wait for child, but we're going to OOM anyway.
+    }
 };
 
 
@@ -817,7 +852,13 @@ std::unique_ptr<IAllocState> CreateTcMallocState() {
 }
 
 std::unique_ptr<IAllocMonitor> CreateTcMallocMonitor(TDynamicCountersPtr group) {
-    return std::make_unique<TTcMallocMonitor>(std::move(group));
+    auto monitor = std::make_unique<TTcMallocMonitor>(std::move(group));
+
+    // TODO: call once
+    Cout << "Set handler" << Endl;
+    tcmalloc::MallocExtension::SetSoftMemoryLimitHandler(&TTcMallocMonitor::HandleSoftLimit);
+
+    return monitor;
 }
 
 std::unique_ptr<IProfilerLogic> CreateTcMallocProfiler() {
