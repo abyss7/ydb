@@ -9,4 +9,8 @@ library("actor_type") {
         "indexes.cpp",
         "index_constructor.cpp",
     ]
+
+    serialize_enum_headers = [
+        "common.h",
+    ]
 }

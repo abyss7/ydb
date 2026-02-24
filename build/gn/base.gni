@@ -2,8 +2,34 @@ template("library") {
     _path = rebase_path(".", "//")
     _unique_name = exec_script("//build/gn/unique_name.py", [ _path ], "trim string")
 
+    if (defined(invoker.serialize_enum_headers)) {
+        _enum_target = "${target_name}_enum"
+        _enum_config = "${target_name}_enum_config"
+        _output = "{{source_gen_dir}}/{{source_name_part}}_serialized.cpp"
+
+        config(_enum_config) {
+            include_dirs = [ "." ]
+        }
+
+        action_foreach(_enum_target) {
+            script = "//build/gn/run.py"
+            sources = invoker.serialize_enum_headers
+            outputs = [ "$_output" ]
+            
+            _enum_parser_bin = rebase_path("$root_out_dir/enum_parser", root_build_dir)
+            
+            args = [
+                "./$_enum_parser_bin",
+                "{{source}}",
+                "--output", "$_output",
+            ]
+            
+            deps = [ "//tools/enum_parser:enum_parser" ]
+        }
+    }
+
     target(library, target_name) {
-        forward_variables_from(invoker, "*", [ "config", "deps" ])
+        forward_variables_from(invoker, "*", [ "configs", "deps" ])
 
         output_dir = "$root_out_dir/" + rebase_path(".", "//") # TODO: doesn't work for some reason
         output_name = _unique_name
@@ -16,6 +42,15 @@ template("library") {
         # Append to default configs
         if (defined(invoker.configs)) {
            configs += invoker.configs
+        }
+
+        if (defined(invoker.serialize_enum_headers)) {
+            deps += [
+                ":$_enum_target",
+                "//tools/enum_parser:runtime"
+            ]
+            sources += get_target_outputs(":$_enum_target")
+            configs += [ ":$_enum_config" ]
         }
     }
 }
