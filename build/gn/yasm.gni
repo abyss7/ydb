@@ -1,6 +1,5 @@
 template("yasm_source_set") {
     _gen_target = "${target_name}_gen"
-    _main_target = target_name
     _output = "{{source_gen_dir}}/{{source_name_part}}.o"
 
     action_foreach(_gen_target) {
@@ -20,7 +19,7 @@ template("yasm_source_set") {
         deps = [ "//contrib/tools/yasm:yasm" ]
     }
 
-    source_set(_main_target) {
+    source_set(target_name) {
         forward_variables_from(invoker, "*", [ "sources" ])
         
         deps = invoker.deps

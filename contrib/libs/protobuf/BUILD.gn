@@ -13,9 +13,9 @@ config("public_config") {
 }
 
 contrib_library("protobuf") {
+    public_deps = [ "//contrib/restricted/abseil-cpp-tstring" ]
     deps = [
         "//contrib/libs/zlib",
-        "//contrib/restricted/abseil-cpp-tstring",
         "//contrib/restricted/google/utf8_range",
     ]
 

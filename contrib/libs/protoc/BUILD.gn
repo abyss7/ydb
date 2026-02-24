@@ -9,10 +9,7 @@ config("private_config") {
 }
 
 contrib_library("protoc") {
-    public_deps = [
-        "//contrib/libs/protobuf",
-        "//contrib/restricted/abseil-cpp-tstring",
-    ]
+    public_deps = [ "//contrib/libs/protobuf" ]
 
     sources = [
         "src/google/protobuf/compiler/code_generator.cc",
