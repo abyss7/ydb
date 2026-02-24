@@ -1,0 +1,12 @@
+unique_library("actor_type") {
+    deps = [
+        "//ydb/library/actors/prof",
+        "//ydb/library/actors/util",
+    ]
+
+    sources = [
+        "common.cpp",
+        "indexes.cpp",
+        "index_constructor.cpp",
+    ]
+}

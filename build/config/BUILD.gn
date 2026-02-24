@@ -1,0 +1,74 @@
+config("base") {
+    cflags = [
+        "-pipe",
+        "-Wall",
+        "-Werror",
+        "-Wsign-compare",
+        "-Wno-unknown-warning-option",
+    ]
+
+    cflags_cc = [
+        "-std=c++20",
+    ]
+
+    include_dirs = [
+        "//",
+        "$root_gen_dir",
+    ]
+}
+
+config("no_stdlibs") {
+    cflags_cc = [ "-nostdinc++" ]
+
+    ldflags = [ "-nodefaultlibs" ]
+
+    libs = [
+        "c",
+        "dl",
+        "m",
+        "pthread",
+        "rt",
+    ]
+}
+
+config("debug") {
+    cflags = [
+        "-g",
+        "-O0",
+    ]
+}
+
+config("release") {
+    cflags = [
+        "-fomit-frame-pointer",
+        "-O3",
+    ]
+
+    defines = [ "NDEBUG" ]
+}
+
+config("shared_library") {
+    cflags = [
+        "-fPIC",
+    ]
+}
+
+config("static_library") {
+}
+
+config("threads") {
+    cflags = [ "-pthread" ]
+    libs = [ "pthread" ]
+}
+
+config("std_string") {
+    defines = [ "TSTRING_IS_STD_STRING" ]
+}
+
+config("no_custom_char_ptr_std_comparator") {
+    defines = [ "NO_CUSTOM_CHAR_PTR_STD_COMPARATOR" ]
+}
+
+config("no_warnings") {
+    cflags = [ "-Wno-everything" ]
+}

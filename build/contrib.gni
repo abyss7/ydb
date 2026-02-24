@@ -1,0 +1,54 @@
+template("contrib_tool") {
+    executable(target_name) {
+        forward_variables_from(invoker, "*", [ "configs", "deps" ])
+
+        # Override default deps
+        deps = []
+        deps += [ "//contrib/libs/cxxsupp/libcxx" ]
+        if (defined(invoker.deps)) {
+            deps += invoker.deps
+        }
+
+        # Append to default configs
+        if (defined(invoker.configs)) {
+           configs += invoker.configs
+        }
+    }
+}
+
+template("contrib_library") {
+    shared_library(target_name) {
+        forward_variables_from(invoker, "*", [ "configs", "deps" ])
+    
+        # Override default deps
+        deps = []
+        deps += [ "//contrib/libs/cxxsupp/libcxx" ]
+        if (defined(invoker.deps)) {
+            deps += invoker.deps
+        }
+
+        # Append to default configs
+        if (defined(invoker.configs)) {
+           configs += invoker.configs
+        }
+
+        print(public_configs)
+    }
+}
+
+template("system_library") {
+    static_library(target_name) {
+        forward_variables_from(invoker, "*", [ "configs", "deps" ])
+
+        # Override default deps
+        deps = []
+        if (defined(invoker.deps)) {
+            deps += invoker.deps
+        }
+
+        # Append to default configs
+        if (defined(invoker.configs)) {
+           configs += invoker.configs
+        }
+    }
+}

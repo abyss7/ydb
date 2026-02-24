@@ -1,0 +1,67 @@
+# =============================================================================
+# Imports
+# =============================================================================
+
+import("//build/proper_output.gni")
+
+# =============================================================================
+# Arguments
+# =============================================================================
+
+declare_args() {
+  build_type = "debug"
+  compiler = "clang"
+  library = "shared_library"
+}
+
+assert(build_type == "debug" || build_type == "release",
+       "unknown build_type specified: ${build_type}")
+
+assert(compiler == "clang",
+       "unknown compiler specified: ${compiler}")
+
+assert(library == "shared_library" || library == "static_library",
+       "unknown library specified: ${library}")
+
+# =============================================================================
+# Configurations and dependencies
+# =============================================================================
+
+default_configs = [
+  "//build/config:base",
+  "//build/config:no_stdlibs",
+  "//build/config:threads",
+  "//build/config:${build_type}",
+  "//build/config:${library}",
+  "//build/config/${host_os}:base",
+  "//build/config:std_string",
+]
+default_deps = [
+  "//util",
+]
+
+set_defaults("executable") {
+  configs = default_configs
+  deps = default_deps
+}
+
+set_defaults("shared_library") {
+  configs = default_configs
+  deps = default_deps
+}
+
+set_defaults("source_set") {
+  configs = default_configs
+  deps = default_deps
+}
+
+set_defaults("static_library") {
+  configs = default_configs
+  deps = default_deps
+}
+
+# =============================================================================
+# Toolchains
+# =============================================================================
+
+set_default_toolchain("//build/config/${host_os}:${compiler}")

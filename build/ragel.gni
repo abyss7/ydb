@@ -1,0 +1,34 @@
+template("ragel6_source_set") {
+    _gen_target = "${target_name}_gen"
+    _main_target = target_name
+    _output = "{{source_gen_dir}}/{{source_name_part}}.cpp"
+
+    action_foreach(_gen_target) {
+        script = "//build/run.py"
+        sources = invoker.sources
+        outputs = [ "$_output" ]
+        
+        _ragel_bin = rebase_path("$root_out_dir/ragel6", root_build_dir)
+        
+        args = [
+            "./$_ragel_bin",
+            "-C",
+            "-o", "$_output",
+            "{{source}}",
+        ]
+        
+        deps = [ "//contrib/tools/ragel6:ragel6" ]
+    }
+
+    source_set(_main_target) {
+        forward_variables_from(invoker, "*", [ "sources" ])
+        
+        deps = invoker.deps
+        deps += [
+            ":$_gen_target",
+            "//contrib/libs/cxxsupp/libcxx",
+        ]
+        
+        sources = get_target_outputs(":$_gen_target")
+    }
+}

@@ -1,0 +1,23 @@
+template("unique_library") {
+    _path = rebase_path(".", "//")
+    _unique_name = exec_script("//build/unique_name.py", [ _path ], "trim string")
+
+    shared_library(target_name) {
+        forward_variables_from(invoker, "*", [ "config", "deps" ])
+
+        output_dir = "$root_out_dir/" + rebase_path(".", "//")
+        output_name = _unique_name
+
+        # Append to default deps
+        if (defined(invoker.deps)) {
+            deps += invoker.deps
+        }
+
+        # Append to default configs
+        if (defined(invoker.configs)) {
+           configs += invoker.configs
+        }
+
+        print(output_dir)
+    }
+}

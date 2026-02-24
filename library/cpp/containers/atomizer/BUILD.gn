@@ -1,0 +1,5 @@
+unique_library("atomizer") {
+    sources = [
+        "atomizer.cpp",
+    ]
+}

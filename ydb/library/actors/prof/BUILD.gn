@@ -1,0 +1,14 @@
+unique_library("prof") {
+    deps = [
+        "//contrib/libs/tcmalloc:malloc_extension",
+        "//library/cpp/charset:lite",
+        "//library/cpp/containers/atomizer",
+        "//library/cpp/malloc:api",
+    ]
+
+    sources = [
+        "tag.cpp",
+        "tcmalloc.cpp",
+    ]
+}
+

@@ -1,0 +1,13 @@
+config("private_config") {
+    cflags = [ "-msse4.1" ]
+}
+
+source_set("charset") {
+    deps = []
+    deps += [ "//contrib/libs/cxxsupp/libcxx" ]
+    sources = [
+        "wide_sse41.cpp",
+    ]
+
+    configs += [ ":private_config" ]
+}

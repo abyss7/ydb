@@ -1,0 +1,25 @@
+import("//build/contrib.gni")
+
+config("public_config") {
+    include_dirs = [ "." ]
+}
+
+config("private_config") {
+    defines = [ "TCMALLOC_256K_PAGES" ]
+}
+
+contrib_library("malloc_extension") {
+    public_deps = [
+        "//contrib/restricted/abseil-cpp",
+    ]
+
+    sources = [
+        "tcmalloc/malloc_extension.cc",
+    ]
+
+    public_configs = [ ":public_config" ]
+    configs = [
+        ":public_config",
+        ":private_config",
+    ]
+}

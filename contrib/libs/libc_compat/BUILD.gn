@@ -1,0 +1,17 @@
+import("//build/contrib.gni")
+
+config("public_config") {
+    include_dirs = [ "include/readpassphrase" ]
+}
+
+system_library("libc_compat") {
+    sources = [
+        "string.c",
+        "readpassphrase.c",
+        "strlcat.c",
+        "strlcpy.c",
+    ]
+
+    public_configs = [ ":public_config" ]
+    configs = [ ":public_config" ]
+}

@@ -1,0 +1,5 @@
+group("all") {
+    deps = [
+        "//ydb/library/actors/actor_type",
+    ]
+}

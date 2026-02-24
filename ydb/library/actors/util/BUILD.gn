@@ -1,0 +1,18 @@
+unique_library("util") {
+    deps = [
+        "//library/cpp/containers/absl_flat_hash",
+        "//library/cpp/deprecated/atomic",
+    ]
+
+    sources = [
+        "affinity.cpp",
+        "memory_track.cpp",
+        "memory_tracker.cpp",
+        "rope.cpp",
+        "rc_buf.cpp",
+        "shared_data.cpp",
+        "should_continue.cpp",
+        "spinparkpad.cpp",
+        "threadparkpad.cpp",
+    ]
+}

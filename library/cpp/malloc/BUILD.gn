@@ -1,0 +1,6 @@
+unique_library("api") {
+    sources = [
+        "api/malloc.cpp",
+        "tcmalloc/malloc-info.cpp",
+    ]
+}

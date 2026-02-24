@@ -1,0 +1,10 @@
+unique_library("lite") {
+    sources = [
+        "ci_string.cpp",
+        "codepage.cpp",
+        "cp_encrec.cpp",
+        "doccodes.cpp",
+        "generated/cp_data.cpp",
+        "generated/encrec_data.cpp",
+    ]
+}

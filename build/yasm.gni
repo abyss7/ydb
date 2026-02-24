@@ -1,0 +1,31 @@
+template("yasm_source_set") {
+    _gen_target = "${target_name}_gen"
+    _main_target = target_name
+    _output = "{{source_gen_dir}}/{{source_name_part}}.o"
+
+    action_foreach(_gen_target) {
+        script = "//build/run.py"
+        sources = invoker.sources
+        outputs = [ "$_output" ]
+
+        _yasm_bin = rebase_path("$root_out_dir/yasm", root_build_dir)
+        
+        args = [
+            "./$_yasm_bin",
+            "-f", "elf64",
+            "-o", "$_output",
+            "{{source}}",
+        ]
+
+        deps = [ "//contrib/tools/yasm:yasm" ]
+    }
+
+    source_set(_main_target) {
+        forward_variables_from(invoker, "*", [ "sources" ])
+        
+        deps = invoker.deps
+        deps += [ ":$_gen_target" ]
+        
+        sources = get_target_outputs(":$_gen_target")
+    }
+}
