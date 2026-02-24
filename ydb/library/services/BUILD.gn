@@ -1,0 +1,7 @@
+import("//build/gn/protobuf.gni")
+
+protobuf_library("services") {
+    sources = [
+        "services.proto",
+    ]
+}
