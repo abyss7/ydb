@@ -1,6 +1,5 @@
 group("all") {
     deps = [
         "//ydb/library/actors/actor_type",
-        "//contrib/tools/protoc",
     ]
 }
