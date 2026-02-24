@@ -1,4 +1,4 @@
-unique_library("absl_flat_hash") {
+library("absl_flat_hash") {
     public_deps = [ "//contrib/restricted/abseil-cpp" ]
 
     sources = [

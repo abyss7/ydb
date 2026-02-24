@@ -1,5 +1,5 @@
-import("//build/ragel.gni")
-import("//build/yasm.gni")
+import("//build/gn/ragel.gni")
+import("//build/gn/yasm.gni")
 
 config("private_config") {
     cflags = [

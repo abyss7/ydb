@@ -2,7 +2,7 @@
 # Imports
 # =============================================================================
 
-import("//build/proper_output.gni")
+import("//build/gn/base.gni")
 
 # =============================================================================
 # Arguments
@@ -28,13 +28,13 @@ assert(library == "shared_library" || library == "static_library",
 # =============================================================================
 
 default_configs = [
-  "//build/config:base",
-  "//build/config:no_stdlibs",
-  "//build/config:threads",
-  "//build/config:${build_type}",
-  "//build/config:${library}",
-  "//build/config/${host_os}:base",
-  "//build/config:std_string",
+  "//build/gn/config:base",
+  "//build/gn/config:no_stdlibs",
+  "//build/gn/config:threads",
+  "//build/gn/config:${build_type}",
+  "//build/gn/config:${library}",
+  "//build/gn/config/${host_os}:base",
+  "//build/gn/config:std_string",
 ]
 default_deps = [
   "//util",
@@ -64,4 +64,4 @@ set_defaults("static_library") {
 # Toolchains
 # =============================================================================
 
-set_default_toolchain("//build/config/${host_os}:${compiler}")
+set_default_toolchain("//build/gn/toolchain/${host_os}:${compiler}")

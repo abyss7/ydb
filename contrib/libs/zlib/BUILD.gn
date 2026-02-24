@@ -1,4 +1,4 @@
-import("//build/contrib.gni")
+import("//build/gn/contrib.gni")
 
 config("public_config") {
     include_dirs = [ "include" ]

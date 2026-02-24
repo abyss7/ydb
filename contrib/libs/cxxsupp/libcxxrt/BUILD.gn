@@ -1,4 +1,4 @@
-import("//build/contrib.gni")
+import("//build/gn/contrib.gni")
 
 config("public_config") {
     defines = [ "LIBCXXRT" ]
@@ -23,7 +23,7 @@ system_library("libcxxrt") {
     public_configs = [ ":public_config" ]
     configs = [
         ":public_config",
-        "//build/config:no_warnings",
+        "//build/gn/config:no_warnings",
     ]
 
     # TODO: not converted:

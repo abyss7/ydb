@@ -1,11 +1,11 @@
-template("unique_library") {
+template("library") {
     _path = rebase_path(".", "//")
-    _unique_name = exec_script("//build/unique_name.py", [ _path ], "trim string")
+    _unique_name = exec_script("//build/gn/unique_name.py", [ _path ], "trim string")
 
-    shared_library(target_name) {
+    target(library, target_name) {
         forward_variables_from(invoker, "*", [ "config", "deps" ])
 
-        output_dir = "$root_out_dir/" + rebase_path(".", "//")
+        output_dir = "$root_out_dir/" + rebase_path(".", "//") # TODO: doesn't work for some reason
         output_name = _unique_name
 
         # Append to default deps
@@ -17,7 +17,5 @@ template("unique_library") {
         if (defined(invoker.configs)) {
            configs += invoker.configs
         }
-
-        print(output_dir)
     }
 }

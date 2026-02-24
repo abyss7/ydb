@@ -1,4 +1,4 @@
-unique_library("actor_type") {
+library("actor_type") {
     deps = [
         "//ydb/library/actors/prof",
         "//ydb/library/actors/util",

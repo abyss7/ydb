@@ -1,4 +1,4 @@
-unique_library("lite") {
+library("lite") {
     sources = [
         "ci_string.cpp",
         "codepage.cpp",

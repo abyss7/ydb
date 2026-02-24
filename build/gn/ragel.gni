@@ -4,7 +4,7 @@ template("ragel6_source_set") {
     _output = "{{source_gen_dir}}/{{source_name_part}}.cpp"
 
     action_foreach(_gen_target) {
-        script = "//build/run.py"
+        script = "//build/gn/run.py"
         sources = invoker.sources
         outputs = [ "$_output" ]
         

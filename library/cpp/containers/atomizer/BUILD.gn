@@ -1,4 +1,4 @@
-unique_library("atomizer") {
+library("atomizer") {
     sources = [
         "atomizer.cpp",
     ]

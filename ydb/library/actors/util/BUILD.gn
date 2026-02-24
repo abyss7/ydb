@@ -1,4 +1,4 @@
-unique_library("util") {
+library("util") {
     deps = [
         "//library/cpp/containers/absl_flat_hash",
         "//library/cpp/deprecated/atomic",

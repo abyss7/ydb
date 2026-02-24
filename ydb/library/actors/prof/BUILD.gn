@@ -1,4 +1,4 @@
-unique_library("prof") {
+library("prof") {
     deps = [
         "//contrib/libs/tcmalloc:malloc_extension",
         "//library/cpp/charset:lite",
