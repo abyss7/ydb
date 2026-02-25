@@ -2,7 +2,9 @@ import("//build/gn/protobuf.gni")
 
 protobuf_library("protos") {
     public_deps = [
+        "//ydb/core/config:protos",
         "//ydb/library/actors/protos",
+        "//ydb/library/login:protos",
         "//ydb/public/api/protos",
     ]
 

@@ -1,0 +1,5 @@
+import("//build/gn/protobuf.gni")
+
+protobuf_library("protos") {
+    sources = [ "protos/marker.proto" ]
+}

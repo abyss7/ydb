@@ -1,6 +1,5 @@
 group("all") {
     deps = [
-        # "//ydb/apps/ydbd",
-        "//library/cpp/monlib/service",
+        "//ydb/apps/ydbd",
     ]
 }
