@@ -1,0 +1,27 @@
+import("//build/gn/protobuf.gni")
+
+protobuf_library("protos") {
+    sources = [
+        "protos/key_range.proto",
+        "protos/pathid.proto",
+        "protos/type_info.proto",
+    ]
+}
+
+library("scheme") {
+    public_deps = [
+        ":protos",
+        "//ydb/public/api/protos",
+        "//ydb/public/lib/scheme_types",
+    ]
+
+    sources = [
+        "scheme_borders.cpp",
+        "scheme_pathid.cpp",
+        "scheme_tablecell.cpp",
+        "scheme_tabledefs.cpp",
+        "scheme_type_info.cpp",
+        "scheme_types_defs.cpp",
+        "scheme_types_proto.cpp",
+    ]
+}

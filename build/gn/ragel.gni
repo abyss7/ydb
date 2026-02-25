@@ -22,7 +22,11 @@ template("ragel6_source_set") {
     source_set(target_name) {
         forward_variables_from(invoker, "*", [ "sources" ])
         
-        deps = invoker.deps
+        if (defined(invoker.deps)) {
+            deps = invoker.deps
+        } else {
+            deps = []
+        }
         deps += [
             ":$_gen_target",
             "//contrib/libs/cxxsupp/libcxx",

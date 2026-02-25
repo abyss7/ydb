@@ -21,6 +21,7 @@ template("library") {
             args = [
                 "./$_enum_parser_bin",
                 "{{source}}",
+                "--include-path", "{{source}}",
                 "--output", "$_output",
             ]
             
@@ -28,11 +29,11 @@ template("library") {
         }
     }
 
-    target(library, target_name) {
+    target(library_type, target_name) {
         forward_variables_from(invoker, "*", [ "configs", "deps" ])
 
         output_dir = "$root_out_dir/" + rebase_path(".", "//") # TODO: doesn't work for some reason
-        output_name = _unique_name
+        output_name = "${_unique_name}_${target_name}"
 
         # Append to default deps
         if (defined(invoker.deps)) {

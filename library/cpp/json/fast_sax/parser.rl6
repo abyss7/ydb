@@ -300,7 +300,7 @@ bool TParserCtx::Parse() {
         return OnError(e.what());
     }
 
-    return OnAfterVal() && Hndl.OnEnd() || OnError("invalid or truncated", true);
+    return (OnAfterVal() && Hndl.OnEnd()) || OnError("invalid or truncated", true);
 
     TOKEN_ERROR:
     return OnError("invalid syntax");

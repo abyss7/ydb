@@ -1,0 +1,13 @@
+import("//build/gn/contrib.gni")
+
+contrib_library("libbz2") {
+    sources = [
+        "blocksort.c",
+        "bzlib.c",
+        "compress.c",
+        "crctable.c",
+        "decompress.c",
+        "huffman.c",
+        "randtable.c",
+    ]
+}

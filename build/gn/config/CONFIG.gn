@@ -11,7 +11,7 @@ import("//build/gn/base.gni")
 declare_args() {
   build_type = "debug"
   compiler = "clang"
-  library = "shared_library"
+  library_type = "shared_library"
 }
 
 assert(build_type == "debug" || build_type == "release",
@@ -20,8 +20,8 @@ assert(build_type == "debug" || build_type == "release",
 assert(compiler == "clang",
        "unknown compiler specified: ${compiler}")
 
-assert(library == "shared_library" || library == "static_library",
-       "unknown library specified: ${library}")
+assert(library_type == "shared_library" || library_type == "static_library",
+       "unknown library specified: ${library_type}")
 
 # =============================================================================
 # Configurations and dependencies
@@ -32,7 +32,7 @@ default_configs = [
   "//build/gn/config:no_stdlibs",
   "//build/gn/config:threads",
   "//build/gn/config:${build_type}",
-  "//build/gn/config:${library}",
+  "//build/gn/config:${library_type}",
   "//build/gn/config/${host_os}:base",
   "//build/gn/config:std_string",
 ]

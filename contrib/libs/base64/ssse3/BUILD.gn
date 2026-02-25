@@ -1,0 +1,17 @@
+import("//build/gn/contrib.gni")
+
+config("private_config") {
+    cflags_c = [
+        "-mssse3",
+        "-std=c11",
+    ]
+}
+
+contrib_library("ssse3") {
+    sources = [
+        "codec_ssse3.c",
+        "lib.c",
+    ]
+
+    configs = [ ":private_config" ]
+}

@@ -1,0 +1,11 @@
+library("resource") {
+    deps = [
+        "//library/cpp/blockcodecs",
+        "//library/cpp/containers/absl_flat_hash",
+    ]
+
+    sources = [
+        "registry.cpp",
+        "resource.cpp",
+    ]
+}

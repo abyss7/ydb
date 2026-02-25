@@ -1,0 +1,8 @@
+import("//build/gn/contrib.gni")
+
+contrib_library("neon64") {
+    sources = [
+        "codec_neon64.c",
+        "lib.c",
+    ]
+}

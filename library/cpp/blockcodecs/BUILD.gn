@@ -1,0 +1,8 @@
+library("blockcodecs") {
+    sources = [
+        "codecs.cpp",
+        "core/codecs.cpp",
+        "core/stream.cpp",
+        "stream.cpp",
+    ]
+}

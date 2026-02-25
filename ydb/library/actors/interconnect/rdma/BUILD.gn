@@ -1,0 +1,17 @@
+library("rdma") {
+    deps = [
+        "//contrib/libs/ibdrv",
+        "//contrib/libs/protobuf",
+        "//library/cpp/monlib/dynamic_counters",
+        "//ydb/library/actors/interconnect/address",
+        "//ydb/library/actors/util",
+    ]
+
+    sources = [
+        "ctx.cpp",
+        "ctx_open.cpp",
+        "link_manager.cpp",
+        "mem_pool.cpp",
+        "rdma.cpp",
+    ]
+}

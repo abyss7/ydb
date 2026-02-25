@@ -1,0 +1,15 @@
+library("misc") {
+    deps = [
+        "//library/cpp/case_insensitive_string",
+        "//library/cpp/digest/lower_case",
+    ]
+
+    sources = [
+        "httpcodes.cpp",
+        "httpdate.cpp",
+        "httpreqdata.cpp",
+        "parsed_request.cpp",
+    ]
+
+    serialize_enum_headers = [ "httpcodes.h" ]
+}

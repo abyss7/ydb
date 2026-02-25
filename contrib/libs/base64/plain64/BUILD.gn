@@ -1,0 +1,14 @@
+import("//build/gn/contrib.gni")
+
+config("private_config") {
+    cflags_c = [ "-std=c11" ]
+}
+
+contrib_library("plain64") {
+    sources = [
+        "codec_plain.c",
+        "lib.c",
+    ]
+
+    configs = [ ":private_config" ]
+}

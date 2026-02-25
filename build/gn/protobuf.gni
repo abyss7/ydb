@@ -1,7 +1,7 @@
 template("protobuf_library") {
-    _gen_target = "${target_name}_gen"
     _path = rebase_path(".", "//")
     _unique_name = exec_script("//build/gn/unique_name.py", [ _path ], "trim string")
+    _gen_target = "${_unique_name}_${target_name}_gen"
     
     action_foreach(_gen_target) {
         script = "//build/gn/run.py"
@@ -9,27 +9,40 @@ template("protobuf_library") {
         outputs = [ "{{source_gen_dir}}/{{source_name_part}}.pb.cc" ]
 
         _protoc_bin = rebase_path("$root_out_dir/protoc", root_build_dir)
+        _protoc_plugin_cpp_styleguide = rebase_path("$root_out_dir/cpp_styleguide", root_build_dir)
 
         args = [
             "./$_protoc_bin",
             "--proto_path", "{{source_dir}}",
+            "--proto_path", rebase_path("//", root_build_dir),
+            "--proto_path", rebase_path("//contrib/libs/protobuf/src", root_build_dir),
             "--cpp_out", "{{source_gen_dir}}",
+            "--cpp_styleguide_out", "{{source_gen_dir}}",
+            "--plugin=protoc-gen-cpp_styleguide=$_protoc_plugin_cpp_styleguide",
             "{{source}}",
         ]
 
-        deps = [ "//contrib/tools/protoc:protoc" ]
+        deps = [
+            "//contrib/tools/protoc:protoc",
+            "//contrib/tools/protoc/plugins/cpp_styleguide:cpp_styleguide",
+        ]
     }
 
-    target(library, target_name) {
-        forward_variables_from(invoker, "*", [ "sources" ])
+    library(target_name) {
+        forward_variables_from(invoker, "*", [ "deps", "public_deps", "sources" ])
 
         output_dir = "$root_out_dir/" + rebase_path(".", "//") # TODO: doesn't work for some reason
         output_name = _unique_name
 
         public_deps = [ "//contrib/libs/protobuf" ]
-        deps += [
-            ":$_gen_target",
-        ]
+        if (defined(invoker.public_deps)) {
+            public_deps += invoker.public_deps
+        }
+
+        deps = [ ":$_gen_target" ]
+        if (defined(invoker.deps)) {
+            deps += invoker.deps
+        }
 
         sources = get_target_outputs(":$_gen_target")
     }

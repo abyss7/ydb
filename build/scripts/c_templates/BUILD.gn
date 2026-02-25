@@ -1,0 +1,3 @@
+source_set("c_templates") {
+    sources = [ "svn_interface.c" ]
+}

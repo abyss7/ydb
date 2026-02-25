@@ -1,4 +1,8 @@
-library("lite") {
+config("private_config") {
+    defines = [ "USE_ICONV_EXTENSIONS" ]
+}
+
+source_set("lite") {
     sources = [
         "ci_string.cpp",
         "codepage.cpp",
@@ -7,4 +11,19 @@ library("lite") {
         "generated/cp_data.cpp",
         "generated/encrec_data.cpp",
     ]
+}
+
+library("charset") {
+    deps = [
+        ":lite",
+        "//contrib/libs/libiconv"
+    ]
+
+    sources = [
+        "decodeunknownplane.cpp",
+        "iconv.cpp",
+        "wide.cpp",
+    ]
+
+    configs = [ ":private_config" ]
 }

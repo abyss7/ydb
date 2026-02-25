@@ -1,0 +1,27 @@
+library("interconnect") {
+    public_deps = [
+        "//ydb/library/actors/core",
+    ]
+
+    sources = [
+        "interconnect_channel.cpp",
+        "interconnect_common.cpp",
+        "interconnect_counters.cpp",
+        "interconnect_handshake.cpp",
+        "interconnect_mon.cpp",
+        "interconnect_nameserver_dynamic.cpp",
+        "interconnect_nameserver_table.cpp",
+        "interconnect_proxy_wrapper.cpp",
+        "interconnect_resolve.cpp",
+        "interconnect_stream.cpp",
+        "interconnect_tcp_input_session.cpp",
+        "interconnect_tcp_proxy.cpp",
+        "interconnect_tcp_server.cpp",
+        "interconnect_tcp_session.cpp",
+        "interconnect_zc_processor.cpp",
+        "load.cpp",
+        "packet.cpp",
+        "subscription_manager.cpp",
+        "types.cpp",
+    ]
+}

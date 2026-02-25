@@ -1,0 +1,45 @@
+import("//build/gn/ragel.gni")
+
+library("common") {
+    sources = [
+        "common/defs.cpp",
+    ]
+}
+
+ragel6_source_set("fast_parser") {
+    sources = [ "fast_sax/parser.rl6" ]
+}
+
+library("fast") {
+    deps = [ ":fast_parser" ]
+
+    sources = [
+        "fast_sax/unescape.cpp",
+    ]
+}
+
+library("writer") {
+    sources = [
+        "writer/json_value.cpp",
+        "writer/json.cpp",
+    ]
+
+    serialize_enum_headers = [
+        "json_value.h",
+    ]
+}
+
+library("json") {
+    deps = [
+        ":common",
+        ":fast",
+        ":writer",
+    ]
+
+    sources = [
+        "json_writer.cpp",
+        "json_reader.cpp",
+        "json_prettifier.cpp",
+        "rapidjson_helpers.cpp",
+    ]
+}

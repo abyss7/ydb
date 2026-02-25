@@ -1,0 +1,33 @@
+import("//build/gn/protobuf.gni")
+
+protobuf_library("protos") {
+    sources = [
+        "protos/lwtrace.proto",
+    ]
+}
+
+config("private_config") {
+    cflags = [ "-Wno-parentheses" ]
+}
+
+library("lwtrace") {
+    public_deps = [ ":protos" ]
+
+    sources = [
+        "check.cpp",
+        "control.cpp",
+        "custom_action.cpp",
+        "kill_action.cpp",
+        "log_shuttle.cpp",
+        "perf.cpp",
+        "probes.cpp",
+        "shuttle.cpp",
+        "sleep_action.cpp",
+        "start.cpp",
+        "stderr_writer.cpp",
+        "symbol.cpp",
+        "trace.cpp",
+    ]
+
+    configs = [ ":private_config" ]
+}

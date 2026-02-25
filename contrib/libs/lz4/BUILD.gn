@@ -1,0 +1,12 @@
+import("//build/gn/contrib.gni")
+
+contrib_library("lz4") {
+    deps = [ "//contrib/libs/xxhash" ]
+
+    sources = [
+        "lz4.c",
+        "lz4file.c",
+        "lz4frame.c",
+        "lz4hc.c",
+    ]
+}

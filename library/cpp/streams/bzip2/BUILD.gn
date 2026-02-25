@@ -1,0 +1,7 @@
+library("bzip2") {
+    deps = [ "//contrib/libs/libbz2" ]
+
+    sources = [
+        "bzip2.cpp",
+    ]
+}

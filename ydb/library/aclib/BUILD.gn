@@ -1,0 +1,11 @@
+import("//build/gn/protobuf.gni")
+
+protobuf_library("protos") {
+    sources = [ "protos/aclib.proto" ]
+}
+
+library("aclib") {
+    public_deps = [ ":protos" ]
+
+    sources = [ "aclib.cpp" ]
+}

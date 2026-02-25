@@ -1,0 +1,7 @@
+library("lower_case") {
+    sources = [
+        "lciter.cpp",
+        "lchash.cpp",
+        "hash_ops.cpp",
+    ]
+}

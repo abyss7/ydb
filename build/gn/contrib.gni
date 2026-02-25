@@ -17,7 +17,7 @@ template("contrib_tool") {
 }
 
 template("contrib_library") {
-    target(library, target_name) {
+    target(library_type, target_name) {
         forward_variables_from(invoker, "*", [ "configs", "deps" ])
     
         # Override default deps

@@ -1,0 +1,7 @@
+import("//build/gn/protobuf.gni")
+
+protobuf_library("types") {
+    sources = [
+        "yql_types.proto",
+    ]
+}

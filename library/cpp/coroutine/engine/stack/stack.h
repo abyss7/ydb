@@ -53,8 +53,8 @@ namespace NDetails {
     class TStackHolder final : private TMoveOnly {
     public:
         explicit TStackHolder(IAllocator& allocator, uint32_t size, const char* name) noexcept;
-        TStackHolder(TStackHolder&&) = default;
-        TStackHolder& operator=(TStackHolder&&) = default;
+        TStackHolder(TStackHolder&&) = delete;
+        TStackHolder& operator=(TStackHolder&&) = delete;
 
         ~TStackHolder();
 

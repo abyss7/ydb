@@ -1,0 +1,34 @@
+import("//build/gn/ragel.gni")
+
+config("private_config") {
+    cflags = [ "-Wno-deprecated-enum-enum-conversion" ]
+}
+
+ragel6_source_set("httpfsm") {
+    sources = [ "httpfsm.rl6" ]
+}
+
+library("fetch") {
+    deps = [
+        ":httpfsm",
+        "//contrib/libs/zlib",
+        "//library/cpp/charset",
+        "//library/cpp/digest/md5",
+        "//library/cpp/http/misc",
+        "//library/cpp/logger",
+        "//library/cpp/mime/types",
+        "//library/cpp/uri",
+    ]
+
+    sources = [
+        "http_digest.cpp",
+        "http_socket.cpp",
+        "httpheader.cpp",
+        "httpload.cpp",
+        "exthttpcodes.cpp",
+    ]
+
+    serialize_enum_headers = [ "httpheader.h" ]
+
+    configs = [ ":private_config" ]
+}

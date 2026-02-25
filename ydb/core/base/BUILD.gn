@@ -1,0 +1,59 @@
+library("base") {
+    public_deps = [
+        "//ydb/core/scheme",
+        "//ydb/library/actors/interconnect",
+    ]
+
+    deps = [
+        "//ydb/library/aclib",
+    ]
+
+    sources = [
+        "actor_activity_names.cpp",
+        "appdata.cpp",
+        "auth.cpp",
+        "backtrace.cpp",
+        "blobstorage_grouptype.cpp",
+        "blobstorage_relevance.cpp",
+        "blobstorage.cpp",
+        "board_lookup.cpp",
+        "board_publish.cpp",
+        "board_replica.cpp",
+        "boot_type.cpp",
+        "bridge.cpp",
+        "counters.cpp",
+        "domain.cpp",
+        "event_filter.cpp",
+        "feature_flags_service.cpp",
+        "fulltext.cpp",
+        "group_stat.cpp",
+        "kmeans_clusters.cpp",
+        "local_user_token.cpp",
+        "localdb.cpp",
+        "logoblob.cpp",
+        "path.cpp",
+        "pool_stats_collector.cpp",
+        "row_version.cpp",
+        "services_assert.cpp",
+        "statestorage_event_filter.cpp",
+        "statestorage_guardian.cpp",
+        "statestorage_monitoring.cpp",
+        "statestorage_proxy.cpp",
+        "statestorage_replica.cpp",
+        "statestorage.cpp",
+        "storage_pools.cpp",
+        "subdomain.cpp",
+        "table_index.cpp",
+        "tablet_killer.cpp",
+        "tablet_status_checker.cpp",
+        "tablet.cpp",
+        "traceid.cpp",
+        "tx_processing.cpp",
+        "wilson_tracing_control.cpp",
+    ]
+
+    serialize_enum_headers = [
+        "boot_type.h",
+        "memory_controller_iface.h",
+    ]
+}

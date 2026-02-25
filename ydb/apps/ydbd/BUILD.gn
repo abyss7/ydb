@@ -1,0 +1,17 @@
+library("export") {
+    deps = [
+        "//ydb/core/tx/datashard",
+    ]
+
+    sources = [
+        "export/export.cpp",
+    ]
+}
+
+executable("ydbd") {
+    deps += [
+        ":export",
+    ]
+
+    sources = [ "main.cpp" ]
+}
