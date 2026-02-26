@@ -1,5 +1,11 @@
 import("//build/gn/protobuf.gni")
 
 protobuf_library("protos") {
+    skip_config = true
     sources = [ "protos/marker.proto" ]
+}
+
+library("utils") {
+    deps = [ "//contrib/libs/protobuf" ]
+    sources = [ "utils/config_traverse.cpp" ]
 }

@@ -1,0 +1,28 @@
+import("//build/gn/protobuf.gni")
+
+protobuf_library("proto") {
+    skip_config = true
+    sources = [ "proto/enum_options.proto" ]
+}
+
+library("json") {
+    deps = [
+        ":proto",
+        "//library/cpp/json",
+        "//library/cpp/json:writer",
+        "//library/cpp/string_utils/base64",
+    ]
+
+    sources = [
+        "json_output_create.cpp",
+        "json_value_output.cpp",
+        "json_writer_output.cpp",
+        "json2proto.cpp",
+        "name_generator.cpp",
+        "proto2json_printer.cpp",
+        "proto2json.cpp",
+        "string_transform.cpp",
+        "util.cpp",
+        "util.h",
+    ]
+}
