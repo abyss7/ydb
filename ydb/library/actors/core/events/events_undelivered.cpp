@@ -1,5 +1,4 @@
 #include "events.h"
-#include "actorsystem.h"
 
 namespace NActors {
     TString TEvents::TEvUndelivered::ToStringHeader() const {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "events.h"
-#include "event_local.h"
+#include "events/events.h"
+
 #include <library/cpp/monlib/service/monservice.h>
 #include <library/cpp/monlib/service/pages/mon_page.h>
 
@@ -12,7 +12,7 @@ namespace NActorsProto {
 namespace NActors {
     namespace NMon {
         enum {
-            HttpInfo = EventSpaceBegin(NActors::TEvents::ES_MON),
+            HttpInfo = EventSpaceBegin(TEvents::ES_MON),
             HttpInfoRes,
             RemoteHttpInfo,
             RemoteHttpInfoRes,
@@ -21,10 +21,10 @@ namespace NActors {
             End
         };
 
-        static_assert(End < EventSpaceEnd(NActors::TEvents::ES_MON), "expect End < EventSpaceEnd(NActors::TEvents::ES_MON)");
+        static_assert(End < EventSpaceEnd(TEvents::ES_MON), "expect End < EventSpaceEnd(NActors::TEvents::ES_MON)");
 
         // request info from an actor in HTML format
-        struct TEvHttpInfo: public NActors::TEventLocal<TEvHttpInfo, HttpInfo> {
+        struct TEvHttpInfo: public TEventLocal<TEvHttpInfo, HttpInfo> {
             TEvHttpInfo(const NMonitoring::IMonHttpRequest& request, int subReqId = 0)
                 : Request(request)
                 , SubRequestId(subReqId)

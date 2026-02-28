@@ -1,14 +1,17 @@
 #pragma once
 
 #include "defs.h"
-#include "event.h"
+
 #include <library/cpp/containers/absl_flat_hash/flat_hash_map.h>
-#include <atomic>
+
+#include <util/system/hp_timer.h>
+
 #include <mutex>
 
 namespace NActors {
 
     class IActor;
+    class IEventHandle;
     class IExecutorPool;
 
     enum class EMailboxPush {

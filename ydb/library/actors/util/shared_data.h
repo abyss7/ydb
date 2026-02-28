@@ -51,9 +51,7 @@ namespace NActors {
             , Size_(0)
         { }
 
-        ~TSharedData() noexcept {
-            Release();
-        }
+        ~TSharedData() noexcept;
 
         TSharedData(const TSharedData& other) noexcept
             : Data_(other.Data_)
@@ -209,18 +207,7 @@ namespace NActors {
             }
         }
 
-        void Release() noexcept {
-            if (Data_) {
-                auto* header = Header();
-                if (1 == header->RefCount.fetch_sub(1, std::memory_order_acq_rel)) {
-                    if (auto* owner = header->Owner) {
-                        owner->Deallocate(Data_);
-                    } else {
-                        Deallocate(Data_);
-                    }
-                }
-            }
-        }
+        void Release() noexcept;
 
     private:
         static char* Allocate(size_t size);

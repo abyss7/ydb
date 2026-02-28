@@ -1,11 +1,9 @@
 #pragma once
 
-#include "actor.h"
-#include "event_local.h"
-#include "events.h"
-#include "scheduler_basic.h"
+#include <ydb/library/actors/core/scheduler_basic.h>
 
 namespace NActors {
+    // TODO: move to scheduler basic?
     struct TEvSchedulerInitialize : TEventLocal<TEvSchedulerInitialize, TEvents::TSystem::Bootstrap> {
         TVector<NSchedulerQueue::TReader*> ScheduleReaders;
         volatile ui64* CurrentTimestamp;
@@ -21,6 +19,7 @@ namespace NActors {
 
     IActor* CreateSchedulerActor(const TSchedulerConfig& cfg);
 
+    // TODO: move to scheduler basic?
     inline TActorId MakeSchedulerActorId() {
         char x[12] = {'s', 'c', 'h', 'e', 'd', 'u', 'l', 'e', 'r', 's', 'e', 'r'};
         return TActorId(0, TStringBuf(x, 12));

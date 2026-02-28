@@ -1,8 +1,9 @@
 #pragma once
 
-#include <library/cpp/containers/stack_vector/stack_vec.h>
-
+#include "interconnect_common.h"
 #include "packet.h"
+
+#include <library/cpp/containers/stack_vector/stack_vec.h>
 
 namespace NActors {
     struct TEvFreeItems : TEventLocal<TEvFreeItems, EventSpaceBegin(TEvents::ES_PRIVATE)> {

@@ -3,6 +3,10 @@
 # =============================================================================
 
 import("//build/gn/base.gni")
+import("//build/gn/contrib.gni")
+import("//build/gn/protobuf.gni")
+
+import("//build/gn/config/${host_os}/deps.gni")
 
 # =============================================================================
 # Arguments
@@ -27,7 +31,7 @@ assert(library_type == "shared_library" || library_type == "static_library",
 # Configurations and dependencies
 # =============================================================================
 
-default_configs = [
+_default_configs = [
   "//build/gn/config:base",
   "//build/gn/config:no_stdlibs",
   "//build/gn/config:threads",
@@ -36,28 +40,20 @@ default_configs = [
   "//build/gn/config/${host_os}:base",
   "//build/gn/config:std_string",
 ]
-default_deps = [
+_default_deps = [
   "//util",
 ]
 
-set_defaults("executable") {
-  configs = default_configs
-  deps = default_deps
-}
-
-set_defaults("shared_library") {
-  configs = default_configs
-  deps = default_deps
-}
-
-set_defaults("source_set") {
-  configs = default_configs
-  deps = default_deps
-}
-
-set_defaults("static_library") {
-  configs = default_configs
-  deps = default_deps
+foreach(_target_type, [
+  "static_library",
+  "shared_library",
+  "executable",
+  "source_set",
+]) {
+  set_defaults(_target_type) {
+    configs = _default_configs
+    deps = _default_deps + platform_deps
+  }
 }
 
 # =============================================================================

@@ -1,6 +1,10 @@
 config("base") {
-  ldflags = [
-    "-rpath", "\$ORIGIN",
-    "--no-undefined",
-  ]
+    defines = [
+        "_GNU_SOURCE",
+    ]
+
+    ldflags = [
+        "-rpath", "\$ORIGIN",
+        "-Wl,--no-undefined",
+    ]
 }

@@ -3,16 +3,19 @@
 #include "event.h"
 #include "event_load.h"
 
-#include <google/protobuf/io/zero_copy_stream.h>
-#include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/arena.h>
 #include <library/cpp/containers/stack_vector/stack_vec.h>
+
 #include <util/generic/deque.h>
-#include <util/system/context.h>
-#include <util/system/filemap.h>
 #include <util/string/builder.h>
 #include <util/string/hex.h>
+#include <util/system/context.h>
+#include <util/system/filemap.h>
 #include <util/thread/lfstack.h>
+
+#include <google/protobuf/arena.h>
+#include <google/protobuf/io/coded_stream.h>
+#include <google/protobuf/io/zero_copy_stream.h>
+
 #include <array>
 #include <span>
 
@@ -440,7 +443,7 @@ namespace NActors {
             if (!SerializeToArcadiaStreamImpl(chunker, TBase::GetPayload())) {
                 return false;
             }
-            
+
             if (PreSerializedData && !chunker->WriteString(&PreSerializedData)) {
                 return false;
             }

@@ -1,7 +1,4 @@
-import("//build/gn/protobuf.gni")
-
 protobuf_library("protos") {
-    skip_config = true
     sources = [ "protos/marker.proto" ]
 }
 

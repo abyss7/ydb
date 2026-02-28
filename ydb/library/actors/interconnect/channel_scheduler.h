@@ -1,7 +1,7 @@
 #pragma once
 
-#include "interconnect_channel.h"
 #include "event_holder_pool.h"
+#include "interconnect_channel.h"
 
 #include <memory>
 

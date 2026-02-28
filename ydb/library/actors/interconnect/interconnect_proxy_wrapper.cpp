@@ -1,6 +1,7 @@
 #include "interconnect_proxy_wrapper.h"
+
 #include "interconnect_tcp_proxy.h"
-#include <ydb/library/actors/interconnect/mock/ic_mock.h>
+#include "mock/ic_mock.h"
 
 namespace NActors {
 

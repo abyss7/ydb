@@ -1,0 +1,12 @@
+protobuf_library("protos") {
+    public_deps = [
+        "//ydb/library/yql/dq/proto",
+        "//yql/essentials/utils/fetch:proto",
+    ]
+
+    sources = [
+        "protos/dq_events.proto",
+        "protos/dq_stats.proto",
+        "protos/dq_status_codes.proto",
+    ]
+}

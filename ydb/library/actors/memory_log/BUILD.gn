@@ -1,0 +1,11 @@
+library("memory_log") {
+    deps = [
+        "//contrib/libs/linuxvdso",
+        "//library/cpp/threading/queue",
+    ]
+
+    sources = [
+        "memlog.cpp",
+        "mmap.cpp",
+    ]
+}

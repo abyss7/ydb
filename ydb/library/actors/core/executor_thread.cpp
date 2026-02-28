@@ -3,8 +3,6 @@
 #include "actor.h"
 #include "callstack.h"
 #include "mailbox.h"
-#include "event.h"
-#include "events.h"
 #include "executor_pool_base.h"
 #include "executor_pool_basic.h"
 #include "executor_thread_ctx.h"

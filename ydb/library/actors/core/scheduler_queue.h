@@ -3,7 +3,6 @@
 #include "scheduler_cookie.h"
 
 #include <ydb/library/actors/util/queue_chunk.h>
-#include <ydb/library/actors/core/event.h>
 
 namespace NActors {
     class IEventHandle;

@@ -1,6 +1,6 @@
 #include "interconnect_zc_processor.h"
 
-#include <ydb/library/actors/core/events.h>
+// #include <ydb/library/actors/core/events.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <ydb/library/actors/core/actor_bootstrapped.h>
 #include <ydb/library/actors/interconnect/logging/logging.h>
@@ -45,14 +45,15 @@ static bool CmsgIsZeroCopy(const cmsghdr& cmsg) {
 #endif
 
 namespace NInterconnect {
-using NActors::TEvents;
+
+using namespace NActors;
 
 #ifdef YDB_MSG_ZEROCOPY_SUPPORTED
 
 struct TErr {
     explicit TErr(const TString& err)
         : Reason(err)
-    {} 
+    {}
     TString Reason;
 };
 
@@ -167,7 +168,7 @@ void TInterconnectZcProcessor::DoProcessNotification(NInterconnect::TStreamSocke
             Confirmed += res.SendNum;
             ConfirmedWithCopy += res.SendWithCopyNum;
         }}, res);
-    
+
 
     if (ZcState == ZC_CONGESTED && Confirmed == SendAsZc) {
         ZcState = ZC_OK;

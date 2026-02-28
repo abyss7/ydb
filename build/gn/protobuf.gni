@@ -1,60 +1,39 @@
 template("protobuf_library") {
+    _source_dir = rebase_path("//", root_build_dir)
     _path = rebase_path(".", "//")
-    _unique_name = exec_script("//build/gn/unique_name.py", [ _path ], "trim string")
+    _unique_name = exec_script("//build/gn/scripts/unique_name.py", [ _path ], "trim string")
     _gen_target = "${_unique_name}_${target_name}_gen"
-    
+
+    _proto_paths = [
+        "-I", rebase_path("//", root_build_dir),
+        "-I", rebase_path("//contrib/libs/protobuf/src", root_build_dir),
+        # "-I", rebase_path("//contrib/libs/opentelemetry-proto", root_build_dir), # TODO: it's a hack
+    ]
+
+    _protoc_bin = rebase_path("$root_out_dir/protoc", root_build_dir)
+    _protoc_plugin_cpp_styleguide = "$root_out_dir/cpp_styleguide"
+
     action_foreach(_gen_target) {
-        script = "//build/gn/run.py"
+        script = "//build/gn/scripts/protoc.py"
         sources = invoker.sources
         outputs = [
             "{{source_gen_dir}}/{{source_name_part}}.pb.cc",
-            "{{source_gen_dir}}/{{source_name_part}}.grpc.pb.cc",
+            "{{source_gen_dir}}/{{source_name_part}}.pb.h",
         ]
 
-        _protoc_bin = rebase_path("$root_out_dir/protoc", root_build_dir)
-        _protoc_plugin_cpp_styleguide = rebase_path("$root_out_dir/cpp_styleguide", root_build_dir)
-        _protoc_plugin_grpc_cpp = rebase_path("$root_out_dir/grpc_cpp", root_build_dir)
-
-        args = [
-            "./$_protoc_bin",
-            "--proto_path", "{{source_dir}}",
-            "--proto_path", rebase_path("//", root_build_dir),
-            "--proto_path", rebase_path("//contrib/libs/protobuf/src", root_build_dir),
+        args = [ _source_dir ] + outputs + ["--"] + [ "./$_protoc_bin" ] + _proto_paths
+        args += [
             "--fatal_warnings",
-            "--cpp_out", "{{source_gen_dir}}",
-            "--cpp_styleguide_out", "{{source_gen_dir}}",
-            "--grpc_cpp_out", "{{source_gen_dir}}",
+            "--cpp_out", "$root_gen_dir",
+            "--cpp_styleguide_out", "$root_gen_dir",
             "--plugin=protoc-gen-cpp_styleguide=$_protoc_plugin_cpp_styleguide",
-            "--plugin=protoc-gen-grpc_cpp=$_protoc_plugin_grpc_cpp",
             "{{source}}",
         ]
 
         deps = [
             "//contrib/tools/protoc:protoc",
             "//contrib/tools/protoc/plugins/cpp_styleguide:cpp_styleguide",
-            "//contrib/tools/protoc/plugins/grpc_cpp:grpc_cpp",
         ]
-
-        skip_config = false
-        if (defined(invoker.skip_config)) {
-            skip_config = invoker.skip_config
-        }
-        if (!skip_config) {
-            _protoc_plugin_config = rebase_path("$root_out_dir/config_proto_plugin", root_build_dir)
-            
-            args += [
-                "--config_proto_plugin_out", "{{source_gen_dir}}",
-                "--plugin=protoc-gen-config_proto_plugin=$_protoc_plugin_config",
-            ]
-
-            deps += [
-                "//ydb/core/config/tools/protobuf_plugin:config_proto_plugin",
-            ]
-        }
-    }
-
-    config("public_config") {
-        include_dirs = [ "//contrib/libs/grpc/include" ]
     }
 
     library(target_name) {
@@ -74,7 +53,5 @@ template("protobuf_library") {
         }
 
         sources = get_target_outputs(":$_gen_target")
-
-        public_configs = [ ":public_config" ]
     }
 }

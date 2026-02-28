@@ -1,4 +1,6 @@
 #include "interconnect_mon.h"
+
+#include "interconnect.h"
 #include "interconnect_tcp_proxy.h"
 
 #include <library/cpp/json/json_value.h>

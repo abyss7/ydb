@@ -2,7 +2,7 @@
 
 #include <ydb/library/actors/core/defs.h>
 #include <ydb/library/actors/core/actorid.h>
-#include <ydb/library/actors/core/event.h>
+// #include <ydb/library/actors/core/event.h>
 
 #include <util/generic/string.h>
 
@@ -66,10 +66,3 @@ namespace NActors {
     };
 
 } // NActors
-
-using NActors::IEventBase;
-using NActors::IEventHandle;
-using NActors::TActorId;
-using NActors::TConstIoVec;
-using NActors::TEventSerializedData;
-using NActors::TSessionParams;

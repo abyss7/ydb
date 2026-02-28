@@ -1,6 +1,5 @@
 #pragma once
 
-#include <ydb/library/actors/actor_type/common.h>
 #include <ydb/library/actors/actor_type/index_constructor.h>
 #include <ydb/library/actors/util/local_process_key.h>
 #include <ydb/library/actors/util/datetime.h>

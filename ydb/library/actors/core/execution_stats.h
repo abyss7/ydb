@@ -2,8 +2,6 @@
 
 #include "defs.h"
 
-//#include "actorsystem.h"
-#include "event.h"
 #include "executor_pool.h"
 #include "lease.h"
 #include "mailbox.h"
@@ -27,7 +25,7 @@ namespace NActors {
             return Value - prev;
         }
     };
-    
+
     struct TExecutionStats {
         TExecutorThreadStats* Stats = nullptr; // pool stats
         TCpuSensor CpuSensor;

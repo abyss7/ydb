@@ -1,8 +1,10 @@
 #pragma once
 
-#include <ydb/library/actors/core/event_load.h>
+#include <ydb/library/actors/core/events/event_load.h>
 #include <ydb/library/actors/util/rc_buf.h>
+
 #include <library/cpp/containers/stack_vector/stack_vec.h>
+
 #include <deque>
 
 namespace NInterconnect {
@@ -306,7 +308,7 @@ namespace NInterconnect {
             }
         }
     };
-    
+
 
     using TOutgoingStream = TOutgoingStreamT<32768>;
 

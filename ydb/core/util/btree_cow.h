@@ -184,8 +184,8 @@ namespace NKikimr {
 
         static_assert(LeafPageCapacity >= 2, "PageSize is too small");
         static_assert(InnerPageCapacity >= 2, "PageSize is too small");
-        static_assert(LeafPageCapacity <= PageCountMax, "PageSize is too large");
-        static_assert(InnerPageCapacity <= PageCountMax, "PageSize is too large");
+        static_assert((size_t)LeafPageCapacity <= (size_t)PageCountMax, "PageSize is too large");
+        static_assert((size_t)InnerPageCapacity <= (size_t)PageCountMax, "PageSize is too large");
 
     private:
         struct TSnapshotContext {

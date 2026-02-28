@@ -1,5 +1,6 @@
 library("base") {
     public_deps = [
+        "//ydb/core/protos",
         "//ydb/core/scheme",
         "//ydb/library/actors/interconnect",
     ]

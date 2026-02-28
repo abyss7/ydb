@@ -88,7 +88,7 @@ namespace NInterconnect::NRdma {
             EMPTY = 0,
             PAGE_ALIGNED = 1,    // Page alignment allocation
         };
-        
+
         friend class TChunk;
         friend class TMemPoolImpl;
         friend class TCqActor;

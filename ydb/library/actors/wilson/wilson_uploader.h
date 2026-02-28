@@ -1,8 +1,11 @@
 #pragma once
 
+#include <library/cpp/monlib/dynamic_counters/counters.h>
+
 #include <ydb/library/actors/core/actor.h>
-#include <ydb/library/actors/core/event_local.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/event_local.h>
+#include <ydb/library/actors/core/events/events.h>
+
 #include <contrib/libs/opentelemetry-proto/opentelemetry/proto/trace/v1/trace.pb.h>
 #include <grpc++/grpc++.h>
 

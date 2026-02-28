@@ -1,7 +1,6 @@
 #pragma once
 
 #include "actor.h"
-#include "event.h"
 
 #include <library/cpp/threading/future/future.h>
 

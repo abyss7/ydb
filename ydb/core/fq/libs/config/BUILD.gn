@@ -1,0 +1,37 @@
+protobuf_library("protos") {
+    public_deps = [
+        "//ydb/library/folder_service:proto",
+        "//ydb/library/yql/dq/actors:protos",
+        "//yql/essentials/protos",
+        "//yql/essentials/providers/common/proto",
+    ]
+
+    sources = [
+        "protos/activation.proto",
+        "protos/audit.proto",
+        "protos/checkpoint_coordinator.proto",
+        "protos/common.proto",
+        "protos/compute.proto",
+        "protos/control_plane_proxy.proto",
+        "protos/control_plane_storage.proto",
+        "protos/db_pool.proto",
+        "protos/fq_config.proto",
+        "protos/gateways.proto",
+        "protos/health_config.proto",
+        "protos/issue_id.proto",
+        "protos/nodes_manager.proto",
+        "protos/pending_fetcher.proto",
+        "protos/pinger.proto",
+        "protos/private_api.proto",
+        "protos/private_proxy.proto",
+        "protos/quotas_manager.proto",
+        "protos/rate_limiter.proto",
+        "protos/read_actors_factory.proto",
+        "protos/resource_manager.proto",
+        "protos/row_dispatcher.proto",
+        "protos/storage.proto",
+        "protos/task_controller.proto",
+        "protos/test_connection.proto",
+        "protos/token_accessor.proto",
+    ]
+}

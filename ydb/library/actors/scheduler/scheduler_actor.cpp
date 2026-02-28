@@ -1,13 +1,11 @@
-#include "actor_bootstrapped.h"
-#include "hfunc.h"
-#include "probes.h"
 #include "scheduler_actor.h"
-#include "scheduler_queue.h"
+
+#include <ydb/library/actors/core/hfunc.h>
+#include <ydb/library/actors/core/probes.h>
 
 #include <ydb/library/actors/interconnect/poller/poller_actor.h>
-#include <util/system/hp_timer.h>
 
-#ifdef __linux__
+#if defined(__linux__)
 #include <sys/timerfd.h>
 #include <errno.h>
 

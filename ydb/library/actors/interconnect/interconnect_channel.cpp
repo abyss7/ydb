@@ -1,8 +1,8 @@
 #include "interconnect_channel.h"
+
 #include "interconnect_zc_processor.h"
 #include "rdma/mem_pool.h"
 
-#include <ydb/library/actors/core/events.h>
 #include <ydb/library/actors/core/executor_thread.h>
 #include <ydb/library/actors/core/log.h>
 #include <ydb/library/actors/core/probes.h>
@@ -18,7 +18,7 @@ static void AddFakeCredRecord(NActorsInterconnect::TRdmaCreds& creds) noexcept {
     // fixed64, fixed32 - any value
     cred->SetAddress(0);
     cred->SetRkey(12345);
-    // uint64 - protobuf uses VLC - max possible value 
+    // uint64 - protobuf uses VLC - max possible value
     cred->SetSize(Max<ui64>());
 }
 
@@ -404,7 +404,7 @@ namespace NActors {
 
         const NActorsInterconnect::TRdmaCreds* rdmaCreds = &SendViaRdma->RdmaCreds;
 
-        NActorsInterconnect::TRdmaCreds tmpCreds; 
+        NActorsInterconnect::TRdmaCreds tmpCreds;
 
         bool lastPart = true;
 
@@ -430,7 +430,7 @@ namespace NActors {
                 }
                 // Check is it a last part?
                 if (SendViaRdma->PartCredPos + curPartCredLen >= SendViaRdma->RdmaCreds.CredsSize()) {
-                    curPartCredLen = SendViaRdma->RdmaCreds.CredsSize() - SendViaRdma->PartCredPos; 
+                    curPartCredLen = SendViaRdma->RdmaCreds.CredsSize() - SendViaRdma->PartCredPos;
                     lastPart = true;
                 } else {
                     lastPart = false;
@@ -449,7 +449,7 @@ namespace NActors {
             partSize = fixedPartSize + credsSerializedSize;
 
             if (Y_UNLIKELY(partSize > task.GetInternalFreeAmount())) {
-                SendViaRdma->CredsPerByteAvg = rdmaCreds->CredsSize() / (double)credsSerializedSize; 
+                SendViaRdma->CredsPerByteAvg = rdmaCreds->CredsSize() / (double)credsSerializedSize;
                 size_t newLen = calcPartCredLen(task.GetInternalFreeAmount(), SendViaRdma->CredsPerByteAvg);
 
                 // Guarantee progress even in case of huge error of average calculation
@@ -469,7 +469,7 @@ namespace NActors {
                     Metrics->IncRdmaMultipartEvents();
                 }
                 // Shift start position for the next packet
-                SendViaRdma->PartCredPos += curPartCredLen; 
+                SendViaRdma->PartCredPos += curPartCredLen;
                 break;
             }
         }

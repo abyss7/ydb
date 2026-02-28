@@ -4,7 +4,7 @@ template("contrib_tool") {
 
         # Override default deps
         deps = []
-        deps += [ "//contrib/libs/cxxsupp/libcxx" ]
+        deps = platform_deps + [ "//contrib/libs/cxxsupp/libcxx" ]
         if (defined(invoker.deps)) {
             deps += invoker.deps
         }
@@ -19,10 +19,10 @@ template("contrib_tool") {
 template("contrib_library") {
     target(library_type, target_name) {
         forward_variables_from(invoker, "*", [ "configs", "deps" ])
-    
+
         # Override default deps
         deps = []
-        deps += [ "//contrib/libs/cxxsupp/libcxx" ]
+        deps = platform_deps + [ "//contrib/libs/cxxsupp/libcxx" ]
         if (defined(invoker.deps)) {
             deps += invoker.deps
         }
@@ -38,8 +38,9 @@ template("system_library") {
     static_library(target_name) {
         forward_variables_from(invoker, "*", [ "configs", "deps" ])
 
-        # Override default deps
+        # Use only platform deps
         deps = []
+        deps = platform_deps
         if (defined(invoker.deps)) {
             deps += invoker.deps
         }

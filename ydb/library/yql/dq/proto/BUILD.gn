@@ -1,0 +1,7 @@
+protobuf_library("proto") {
+    sources = [
+        "dq_state_load_plan.proto",
+        "dq_tasks.proto",
+        "dq_transport.proto",
+    ]
+}

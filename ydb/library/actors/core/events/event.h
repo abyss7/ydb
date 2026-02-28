@@ -1,16 +1,15 @@
 #pragma once
 
-#include "defs.h"
-#include "actorid.h"
-#ifdef USE_ACTOR_CALLSTACK
-#include "callstack.h"
-#endif
 #include "event_load.h"
 
+#include <ydb/library/actors/core/actorid.h>
+#ifdef USE_ACTOR_CALLSTACK
+#   include <ydb/library/actors/core/callstack.h>
+#endif
 #include <ydb/library/actors/wilson/wilson_trace.h>
 
-#include <util/system/hp_timer.h>
 #include <util/generic/maybe.h>
+#include <util/system/hp_timer.h>
 
 namespace NInterconnect::NRdma {
     class IMemPool;

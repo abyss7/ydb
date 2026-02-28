@@ -1,23 +1,23 @@
 #pragma once
 
-#include <ydb/library/actors/core/event_pb.h>
-#include <ydb/library/actors/core/event_load.h>
-#include <ydb/library/actors/core/events.h>
+#include "outgoing_stream.h"
+#include "types.h"
+
 #include <ydb/library/actors/core/actor.h>
-#include <library/cpp/containers/stack_vector/stack_vec.h>
-#include <ydb/library/actors/util/rope.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/prof/tag.h>
+#include <ydb/library/actors/util/rope.h>
 #include <ydb/library/actors/wilson/wilson_span.h>
+
+#include <library/cpp/containers/stack_vector/stack_vec.h>
 #include <library/cpp/digest/crc32c/crc32c.h>
 #include <library/cpp/lwtrace/shuttle.h>
-#include <util/generic/string.h>
+
 #include <util/generic/list.h>
+#include <util/generic/string.h>
 
 #define XXH_INLINE_ALL
 #include <contrib/libs/xxhash/xxhash.h>
-
-#include "types.h"
-#include "outgoing_stream.h"
 
 #ifndef FORCE_EVENT_CHECKSUM
 #define FORCE_EVENT_CHECKSUM 0
@@ -62,8 +62,8 @@ struct TTcpPacketBuf {
 struct TEventData {
     ui32 Type;
     ui32 Flags;
-    TActorId Recipient;
-    TActorId Sender;
+    NActors::TActorId Recipient;
+    NActors::TActorId Sender;
     ui64 Cookie;
     NWilson::TTraceId TraceId;
     ui32 Checksum;
@@ -77,8 +77,8 @@ struct TEventData {
 struct TEventDescr2 {
     ui32 Type;
     ui32 Flags;
-    TActorId Recipient;
-    TActorId Sender;
+    NActors::TActorId Recipient;
+    NActors::TActorId Sender;
     ui64 Cookie;
     NWilson::TTraceId::TSerializedTraceId TraceId;
     ui32 Checksum;
@@ -91,9 +91,9 @@ struct TEventDescr2 {
 
 struct TEventHolder : TNonCopyable {
     TEventData Descr;
-    TActorId ForwardRecipient;
-    THolder<IEventBase> Event;
-    TIntrusivePtr<TEventSerializedData> Buffer;
+    NActors::TActorId ForwardRecipient;
+    THolder<NActors::IEventBase> Event;
+    TIntrusivePtr<NActors::TEventSerializedData> Buffer;
     ui64 Serial;
     ui32 EventSerializedSize;
     ui32 EventActuallySerialized;
@@ -102,8 +102,8 @@ struct TEventHolder : TNonCopyable {
     ui32 ZcTransferId; //id of zero copy transfer. In case of RDMA it is a place where some internal handle can be stored to identify events
     TInstant EnqueueTime;
 
-    ui32 Fill(IEventHandle& ev);
-    ui32 Fill(IEventHandle& ev, TInstant now);
+    ui32 Fill(NActors::IEventHandle& ev);
+    ui32 Fill(NActors::IEventHandle& ev, TInstant now);
 
     void InitChecksum() {
         Descr.Checksum = 0;
@@ -117,14 +117,14 @@ struct TEventHolder : TNonCopyable {
 
     void ForwardOnNondelivery(bool unsure) {
         TEventData& d = Descr;
-        const TActorId& r = d.Recipient;
-        const TActorId& s = d.Sender;
-        const TActorId *f = ForwardRecipient ? &ForwardRecipient : nullptr;
+        const NActors::TActorId& r = d.Recipient;
+        const NActors::TActorId& s = d.Sender;
+        const NActors::TActorId *f = ForwardRecipient ? &ForwardRecipient : nullptr;
         Span.EndError("nondelivery");
         auto ev = Event
-            ? std::make_unique<IEventHandle>(r, s, Event.Release(), d.Flags, d.Cookie, f, Span.GetTraceId())
-            : std::make_unique<IEventHandle>(d.Type, d.Flags, r, s, std::move(Buffer), d.Cookie, f, Span.GetTraceId());
-        NActors::TActivationContext::Send(IEventHandle::ForwardOnNondelivery(std::move(ev), NActors::TEvents::TEvUndelivered::Disconnected, unsure));
+            ? std::make_unique<NActors::IEventHandle>(r, s, Event.Release(), d.Flags, d.Cookie, f, Span.GetTraceId())
+            : std::make_unique<NActors::IEventHandle>(d.Type, d.Flags, r, s, std::move(Buffer), d.Cookie, f, Span.GetTraceId());
+        NActors::TActivationContext::Send(NActors::IEventHandle::ForwardOnNondelivery(std::move(ev), NActors::TEvents::TEvUndelivered::Disconnected, unsure));
     }
 
     void Clear() {
@@ -140,7 +140,7 @@ namespace NActors {
 }
 
 struct TTcpPacketOutTask : TNonCopyable {
-    const TSessionParams& Params;
+    const NActors::TSessionParams& Params;
     NInterconnect::TOutgoingStream& OutgoingStream;
     NInterconnect::TOutgoingStream& XdcStream;
     NInterconnect::TOutgoingStream::TBookmark HeaderBookmark;
@@ -157,7 +157,7 @@ struct TTcpPacketOutTask : TNonCopyable {
 
     ui32 RdmaPayloadSize = 0;
 
-    TTcpPacketOutTask(const TSessionParams& params, NInterconnect::TOutgoingStream& outgoingStream,
+    TTcpPacketOutTask(const NActors::TSessionParams& params, NInterconnect::TOutgoingStream& outgoingStream,
         NInterconnect::TOutgoingStream& xdcStream);
 
     // Preallocate some space to fill it later.

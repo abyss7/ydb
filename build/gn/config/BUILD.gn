@@ -5,10 +5,18 @@ config("base") {
         "-Werror",
         "-Wsign-compare",
         "-Wno-unknown-warning-option",
+
+        # some disrespected common warnings
+        "-Wno-format",
+        "-Wno-format-security",
+        "-Wno-logical-op-parentheses",
+        "-Wno-parentheses",
+        "-Wno-vla-cxx-extension",
     ]
 
     cflags_cc = [
         "-std=c++20",
+        "-fsized-deallocation",
     ]
 
     include_dirs = [

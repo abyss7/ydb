@@ -1,6 +1,6 @@
 template("library") {
     _path = rebase_path(".", "//")
-    _unique_name = exec_script("//build/gn/unique_name.py", [ _path ], "trim string")
+    _unique_name = exec_script("//build/gn/scripts/unique_name.py", [ _path ], "trim string")
 
     if (defined(invoker.serialize_enum_headers)) {
         _enum_target = "${target_name}_enum"
@@ -12,19 +12,19 @@ template("library") {
         }
 
         action_foreach(_enum_target) {
-            script = "//build/gn/run.py"
+            script = "//build/gn/scripts/run.py"
             sources = invoker.serialize_enum_headers
             outputs = [ "$_output" ]
-            
+
             _enum_parser_bin = rebase_path("$root_out_dir/enum_parser", root_build_dir)
-            
+
             args = [
                 "./$_enum_parser_bin",
                 "{{source}}",
                 "--include-path", "{{source}}",
                 "--output", "$_output",
             ]
-            
+
             deps = [ "//tools/enum_parser:enum_parser" ]
         }
     }

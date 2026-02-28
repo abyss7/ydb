@@ -2,7 +2,6 @@
 
 #include "actor_bootstrapped.h"
 #include "actorid.h"
-#include "event.h"
 #include "hfunc.h"
 
 namespace NActors {

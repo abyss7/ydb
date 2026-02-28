@@ -1,7 +1,6 @@
 #pragma once
 
-#include "events.h"
-#include "event_local.h"
+#include "events/events.h"
 
 namespace NActors {
     namespace NLog {

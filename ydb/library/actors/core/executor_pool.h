@@ -1,7 +1,6 @@
 #pragma once
 
-#include "event.h"
-#include "executor_pool_jail.h"
+#include "actor.h"
 #include "scheduler_queue.h"
 
 namespace NActors {

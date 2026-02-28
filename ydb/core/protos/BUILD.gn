@@ -1,11 +1,23 @@
-import("//build/gn/protobuf.gni")
+protobuf_library("nbs") {
+    sources = [
+        "nbs/blockstore.proto",
+    ]
+}
 
 protobuf_library("protos") {
     public_deps = [
+        ":nbs",
         "//ydb/core/config:protos",
+        "//ydb/core/fq/libs/config:protos",
+        "//ydb/core/tx/columnshard/common:protos",
+        "//ydb/core/tx/columnshard/engines/scheme/defaults:protos",
         "//ydb/library/actors/protos",
+        "//ydb/library/formats/arrow/protos",
         "//ydb/library/login:protos",
+        "//ydb/library/mkql_proto:protos",
+        "//ydb/library/services",
         "//ydb/public/api/protos",
+        "//yql/essentials/core/file_storage:proto",
     ]
 
     sources = [
@@ -132,6 +144,7 @@ protobuf_library("protos") {
         "scheme_type_metadata.proto",
         "scheme_type_operation.proto",
         "schemeshard_config.proto",
+        "schemeshard/operations.proto",
         "serverless_proxy_config.proto",
         "shared_cache.proto",
         "sqs.proto",

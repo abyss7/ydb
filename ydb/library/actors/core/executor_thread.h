@@ -1,7 +1,6 @@
 #pragma once
 
 #include "defs.h"
-#include "event.h"
 #include "thread_context.h"
 #include "execution_stats.h"
 #include "log_settings.h"

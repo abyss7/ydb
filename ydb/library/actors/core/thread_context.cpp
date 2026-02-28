@@ -1,5 +1,6 @@
 #include "thread_context.h"
 
+#include "config.h"
 #include "executor_pool.h"
 #include "executor_pool_base.h"
 

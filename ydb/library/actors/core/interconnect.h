@@ -1,9 +1,10 @@
 #pragma once
 
-#include "events.h"
-#include "event_local.h"
+#include "events/events.h"
+
 #include <ydb/library/actors/util/intrusive_vector.h>
 #include <ydb/library/actors/protos/interconnect.pb.h>
+
 #include <util/string/cast.h>
 #include <util/string/builder.h>
 

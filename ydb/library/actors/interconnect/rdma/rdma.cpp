@@ -1,16 +1,5 @@
 #include "rdma_impl.h"
-#include <util/stream/output.h>
-#include <util/thread/lfqueue.h>
 
-#include <ydb/library/actors/core/actorsystem.h>
-
-#include <util/datetime/base.h>
-
-#include <library/cpp/monlib/metrics/metric_registry.h>
-#include <library/cpp/monlib/metrics/metric_sub_registry.h>
-#include <library/cpp/monlib/dynamic_counters/counters.h>
-
-#include <util/system/thread.h>
 #include <util/system/yield.h>
 
 namespace NInterconnect::NRdma {
@@ -468,7 +457,7 @@ template<>
 void Out<NInterconnect::NRdma::THandshakeData>(IOutputStream& os, const NInterconnect::NRdma::THandshakeData& hd) {
     ibv_gid gid;
     gid.global.subnet_prefix = hd.SubnetPrefix;
-    gid.global.interface_id = hd.InterfaceId; 
+    gid.global.interface_id = hd.InterfaceId;
     os << "[" << hd.QpNum << ", " << gid << ", " << hd.MtuIndex << "]";
 }
 

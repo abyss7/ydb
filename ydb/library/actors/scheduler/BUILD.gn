@@ -1,0 +1,9 @@
+library("scheduler") {
+    deps = [
+        "//ydb/library/actors/core",
+    ]
+
+    sources = [
+        "scheduler_actor.cpp",
+    ]
+}

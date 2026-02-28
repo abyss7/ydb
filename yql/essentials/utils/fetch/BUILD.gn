@@ -1,0 +1,5 @@
+protobuf_library("proto") {
+    sources = [
+        "proto/fetch_config.proto",
+    ]
+}

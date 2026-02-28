@@ -9,6 +9,10 @@ namespace NActors {
 
     static constexpr char MemoryLabelSharedData[] = "Tablet/TSharedData/Buffers";
 
+    TSharedData::~TSharedData() noexcept {
+        Release();
+    }
+
     char* TSharedData::Allocate(size_t size) {
         char* data = nullptr;
         if (size > 0) {
@@ -43,6 +47,19 @@ namespace NActors {
             header->~THeader();
 
             y_deallocate(raw);
+        }
+    }
+
+    void TSharedData::Release() noexcept {
+        if (Data_) {
+            auto* header = Header();
+            if (1 == header->RefCount.fetch_sub(1, std::memory_order_acq_rel)) {
+                if (auto* owner = header->Owner) {
+                    owner->Deallocate(Data_);
+                } else {
+                    Deallocate(Data_);
+                }
+            }
         }
     }
 

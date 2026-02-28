@@ -1,7 +1,8 @@
 #pragma once
 
 #include "actor.h"
-#include "events.h"
+#include "events/events.h"
+
 #include <util/generic/noncopyable.h>
 
 namespace NActors {

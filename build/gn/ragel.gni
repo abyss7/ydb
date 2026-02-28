@@ -3,25 +3,25 @@ template("ragel6_source_set") {
     _output = "{{source_gen_dir}}/{{source_name_part}}.cpp"
 
     action_foreach(_gen_target) {
-        script = "//build/gn/run.py"
+        script = "//build/gn/scripts/run.py"
         sources = invoker.sources
         outputs = [ "$_output" ]
-        
+
         _ragel_bin = rebase_path("$root_out_dir/ragel6", root_build_dir)
-        
+
         args = [
             "./$_ragel_bin",
             "-C",
             "-o", "$_output",
             "{{source}}",
         ]
-        
+
         deps = [ "//contrib/tools/ragel6:ragel6" ]
     }
 
     source_set(target_name) {
         forward_variables_from(invoker, "*", [ "sources" ])
-        
+
         if (defined(invoker.deps)) {
             deps = invoker.deps
         } else {
@@ -31,7 +31,7 @@ template("ragel6_source_set") {
             ":$_gen_target",
             "//contrib/libs/cxxsupp/libcxx",
         ]
-        
+
         sources = get_target_outputs(":$_gen_target")
     }
 }

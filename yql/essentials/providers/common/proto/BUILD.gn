@@ -1,0 +1,6 @@
+protobuf_library("proto") {
+    sources = [
+        "gateways_config.proto",
+        "udf_resolver.proto",
+    ]
+}

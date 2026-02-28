@@ -1,5 +1,3 @@
-import("//build/gn/contrib.gni")
-
 config("private_config") {
     cflags = [ "-Wno-unused-result" ]
 }

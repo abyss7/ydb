@@ -1,7 +1,6 @@
 #pragma once
 
 #include <ydb/library/actors/interconnect/events/events.h>
-#include <ydb/library/actors/core/actor.h>
 
 #include "poller.h"
 

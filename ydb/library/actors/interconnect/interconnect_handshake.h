@@ -1,13 +1,8 @@
 #pragma once
 
-#include <ydb/library/actors/core/hfunc.h>
-#include <ydb/library/actors/core/event_pb.h>
-#include <ydb/library/actors/core/events.h>
-#include <ydb/library/actors/interconnect/poller/poller_tcp.h>
-
 #include "interconnect_common.h"
-#include "interconnect_impl.h"
-#include "events_local.h"
+#include "interconnect_stream.h"
+#include "types.h"
 
 namespace NActors {
     static constexpr TDuration DEFAULT_HANDSHAKE_TIMEOUT = TDuration::Seconds(5);

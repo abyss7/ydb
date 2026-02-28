@@ -2,10 +2,11 @@
 
 #include "event.h"
 #include "event_load.h"
+
 #include <util/system/type_name.h>
 
 namespace NActors {
-    // Non-local event with empty serialization 
+    // Non-local event with empty serialization
     template <typename TEv, ui32 TEventType>
     class TEventSimpleNonLocal: public TEventBase<TEv, TEventType> {
     public:

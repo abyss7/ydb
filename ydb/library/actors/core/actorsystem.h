@@ -3,7 +3,6 @@
 #include "defs.h"
 
 #include "config.h"
-#include "event.h"
 #include "executor_pool.h"
 #include "log_settings.h"
 #include "scheduler_cookie.h"

@@ -1,6 +1,6 @@
 #include "events.h"
-#include "actor.h"
 
+#include <ydb/library/actors/core/actor_runnable_item.h>
 #include <ydb/library/actors/protos/actors.pb.h>
 
 namespace NActors {

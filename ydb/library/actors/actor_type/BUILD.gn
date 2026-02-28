@@ -1,6 +1,9 @@
 library("actor_type") {
-    deps = [
+    public_deps = [
         "//ydb/library/actors/prof",
+    ]
+
+    deps = [
         "//ydb/library/actors/util",
     ]
 

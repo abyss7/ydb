@@ -1,7 +1,5 @@
 #include "actor.h"
-#include "events.h"
 #include "actorsystem.h"
-#include "executor_pool_basic.h"
 #include "scheduler_basic.h"
 #include "debug.h"
 #include "actor_bootstrapped.h"

@@ -1,5 +1,3 @@
-import("//build/gn/protobuf.gni")
-
 protobuf_library("protos") {
     sources = [
         "annotations/sensitive.proto",

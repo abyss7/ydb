@@ -1,9 +1,7 @@
 #pragma once
 
-#include "interconnect.h"
+#include <ydb/library/actors/core/interconnect.h>
 #include <ydb/library/actors/protos/interconnect.pb.h>
-#include <ydb/library/actors/core/event_pb.h>
-#include <library/cpp/monlib/dynamic_counters/counters.h>
 
 namespace NActors {
     // node info

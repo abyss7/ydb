@@ -1,7 +1,8 @@
 #pragma once
 
 #include <functional>
-#include <ydb/library/actors/core/events.h>
+
+#include <util/generic/ptr.h>
 
 namespace NActors {
     class TSharedDescriptor: public TThrRefBase {
