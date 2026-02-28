@@ -1,0 +1,21 @@
+protobuf_library("proto") {
+    sources = [ "proto/merge.proto" ]
+}
+
+library("util") {
+    deps = [
+        ":proto",
+        "//contrib/libs/protobuf",
+        "//library/cpp/binsaver",
+        "//library/cpp/string_utils/base64",
+    ]
+
+    sources = [
+        "is_equal.cpp",
+        "merge.cpp",
+        "path.cpp",
+        "pb_io.cpp",
+        "simple_reflection.cpp",
+        "walk.cpp",
+    ]
+}

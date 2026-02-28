@@ -12,11 +12,14 @@ template("protobuf_library") {
 
     _protoc_bin = rebase_path("$root_out_dir/protoc", root_build_dir)
     _protoc_plugin_cpp_styleguide = "$root_out_dir/cpp_styleguide"
+    _protoc_plugin_grpc_cpp = "$root_out_dir/grpc_cpp"
 
     action_foreach(_gen_target) {
         script = "//build/gn/scripts/protoc.py"
         sources = invoker.sources
         outputs = [
+            "{{source_gen_dir}}/{{source_name_part}}.grpc.pb.cc",
+            "{{source_gen_dir}}/{{source_name_part}}.grpc.pb.h",
             "{{source_gen_dir}}/{{source_name_part}}.pb.cc",
             "{{source_gen_dir}}/{{source_name_part}}.pb.h",
         ]
@@ -26,13 +29,16 @@ template("protobuf_library") {
             "--fatal_warnings",
             "--cpp_out", "$root_gen_dir",
             "--cpp_styleguide_out", "$root_gen_dir",
+            "--grpc_cpp_out", "$root_gen_dir",
             "--plugin=protoc-gen-cpp_styleguide=$_protoc_plugin_cpp_styleguide",
+            "--plugin=protoc-gen-grpc_cpp=$_protoc_plugin_grpc_cpp",
             "{{source}}",
         ]
 
         deps = [
             "//contrib/tools/protoc:protoc",
-            "//contrib/tools/protoc/plugins/cpp_styleguide:cpp_styleguide",
+            "//contrib/tools/protoc/plugins/cpp_styleguide",
+            "//contrib/tools/protoc/plugins/grpc_cpp",
         ]
     }
 
@@ -42,7 +48,10 @@ template("protobuf_library") {
         output_dir = "$root_out_dir/" + rebase_path(".", "//") # TODO: doesn't work for some reason
         output_name = _unique_name
 
-        public_deps = [ "//contrib/libs/protobuf" ]
+        public_deps = [
+            "//contrib/libs/grpc",
+            "//contrib/libs/protobuf",
+        ]
         if (defined(invoker.public_deps)) {
             public_deps += invoker.public_deps
         }

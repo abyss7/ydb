@@ -4,6 +4,7 @@ protobuf_library("protos") {
 
 library("aclib") {
     public_deps = [ ":protos" ]
+    deps = [ "//library/cpp/protobuf/util" ]
 
     sources = [ "aclib.cpp" ]
 }

@@ -16,16 +16,17 @@ library("events") {
 
 library("core") {
     public_deps = [
+        ":events",
         "//contrib/libs/protobuf",
         "//library/cpp/containers/absl_flat_hash",
         "//library/cpp/lwtrace",
         "//library/cpp/monlib/service",
         "//ydb/library/actors/actor_type",
+        "//ydb/library/actors/memory_log",
         "//ydb/library/actors/queues",
     ]
 
     deps = [
-        ":events",
         "//build/scripts/c_templates",
         "//library/cpp/cgiparam",
         "//library/cpp/json:writer",
@@ -36,7 +37,6 @@ library("core") {
         "//library/cpp/threading/future",
         "//library/cpp/time_provider",
         "//ydb/library/actors/interconnect:rdma",
-        "//ydb/library/actors/memory_log",
         "//ydb/library/actors/prof",
         "//ydb/library/actors/protos",
         "//ydb/library/actors/util",

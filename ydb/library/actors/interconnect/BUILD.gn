@@ -4,6 +4,19 @@ library("address") {
     ]
 }
 
+library("cq_actor") {
+    deps = [
+        ":poller",
+        ":rdma",
+        "//contrib/libs/ibdrv",
+        "//ydb/library/actors/core",
+    ]
+
+    sources = [
+        "rdma/cq_actor/cq_actor.cpp",
+    ]
+}
+
 library("mock") {
     deps = [
         "//ydb/library/actors/core",
@@ -62,16 +75,21 @@ library("interconnect") {
 
     deps = [
         ":address",
+        ":cq_actor",
         ":mock",
         ":poller",
         ":rdma",
         "//contrib/libs/openssl",
         "//library/cpp/cgiparam",
+        "//library/cpp/digest/crc32c",
         "//library/cpp/json",
         "//library/cpp/monlib/dynamic_counters",
         "//library/cpp/monlib/metrics",
+        "//library/cpp/monlib/service:pages",
+        "//library/cpp/time_provider",
         "//ydb/library/actors/core:events",
         "//ydb/library/actors/protos",
+        "//ydb/library/actors/util",
         "//ydb/library/actors/wilson",
     ]
 

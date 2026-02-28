@@ -5,7 +5,7 @@ library("dynamic_counters") {
         "//library/cpp/monlib/encode/prometheus",
         "//library/cpp/monlib/encode/spack",
         "//library/cpp/monlib/service:pages",
-        "//library/cpp/string_utils/quote",
+        "//library/cpp/string_utils:quote",
     ]
 
     sources = [

@@ -1,6 +1,6 @@
 library("cgiparam") {
     deps = [
-        "//library/cpp/string_utils/quote",
+        "//library/cpp/string_utils:quote",
     ]
 
     sources = [

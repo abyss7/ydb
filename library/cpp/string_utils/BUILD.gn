@@ -1,0 +1,11 @@
+library("quote") {
+    sources = [
+        "quote/quote.cpp",
+    ]
+}
+
+library("url") {
+    sources =[
+        "url/url.cpp",
+    ]
+}
