@@ -1,15 +1,14 @@
 #pragma once
+
 #include "defs.h"
-#include <ydb/library/actors/core/events.h>
-#include <ydb/library/actors/core/event_local.h>
-#include <ydb/library/actors/core/event_pb.h>
-#include <ydb/library/yql/dq/actors/dq_events_ids.h>
 
 #include <ydb/core/fq/libs/events/event_ids.h>
+#include <ydb/library/actors/core/events/events.h>
+#include <ydb/library/yql/dq/actors/dq_events_ids.h>
 
 namespace NKikimr {
 
-struct TKikimrEvents : TEvents {
+struct TKikimrEvents : NActors::TEvents {
     enum EEventSpaceKikimr {
         /* WARNING:
            Please mind that you should never change values,

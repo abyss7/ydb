@@ -1,0 +1,13 @@
+config("public_config") {
+    defines = [ "FMT_EXPORT" ]
+    include_dirs = [ "include" ]
+}
+
+contrib_library("fmt") {
+    sources = [
+        "src/format.cc",
+        "src/os.cc",
+    ]
+
+    public_configs = [ ":public_config" ]
+}

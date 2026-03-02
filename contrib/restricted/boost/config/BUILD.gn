@@ -1,0 +1,8 @@
+config("public_config") {
+    defines = [ "BOOST_ALL_NO_LIB" ]
+    include_dirs = [ "include" ]
+}
+
+contrib_library("config") {
+    public_configs = [ ":public_config" ]
+}

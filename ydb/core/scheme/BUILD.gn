@@ -15,6 +15,7 @@ library("scheme") {
 
     deps = [
         "//library/cpp/containers/absl_flat_hash",
+        "//yql/essentials/parser/pg_wrapper:interface",
     ]
 
     sources = [

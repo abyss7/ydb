@@ -1,6 +1,9 @@
 library("datashard") {
-    deps = [
+    public_deps = [
         "//ydb/core/base",
+    ]
+
+    deps = [
         "//ydb/core/protos",
         "//ydb/library/actors/core",
     ]

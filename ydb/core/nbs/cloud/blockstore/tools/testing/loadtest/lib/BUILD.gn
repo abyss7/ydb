@@ -1,0 +1,3 @@
+protobuf_library("protos") {
+    sources = [ "protos/nbs2_load.proto" ]
+}

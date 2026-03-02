@@ -1,0 +1,53 @@
+executable("codegen") {
+    _path = rebase_path(".", "//")
+    _unique_name = exec_script("//build/gn/scripts/unique_name.py", [ _path ], "trim string")
+    output_name = "${_unique_name}_${target_name}"
+
+    deps += [
+        "//contrib/libs/jinja2cpp",
+        "//ydb/core/protos",
+    ]
+    sources = [ "codegen/main.cpp" ]
+}
+
+template("codegen") {
+    _gen_target = "${target_name}_gen"
+    _output = "{{source_gen_dir}}/{{source_name_part}}"
+
+    action_foreach(_gen_target) {
+        script = "//build/gn/scripts/run.py"
+        sources = invoker.sources
+        outputs = [ "$_output" ]
+
+        _codegen_bin = rebase_path("$root_out_dir/codegen", root_build_dir)
+
+        args = [
+            "./$_codegen_bin",
+            "{{source}}",
+            "$_output",
+        ]
+
+        deps = [ ":codegen" ]
+    }
+
+    library(target_name) {
+        forward_variables_from(invoker, "*", [ "deps", "sources" ])
+
+        # Append to default deps
+        deps = [ ":$_gen_target" ]
+        if (defined(invoker.deps)) {
+            deps += invoker.deps
+        }
+
+        sources = get_target_outputs(":$_gen_target")
+    }
+}
+
+codegen("generated") {
+    deps = [ "//ydb/core/protos" ]
+
+    sources = [
+        "control_board_proto.cpp.in",
+        "control_board_proto.h.in",
+    ]
+}

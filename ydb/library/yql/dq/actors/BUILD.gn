@@ -1,6 +1,7 @@
 protobuf_library("protos") {
     public_deps = [
         "//ydb/library/yql/dq/proto",
+        "//ydb/public/api/protos",
         "//yql/essentials/utils/fetch:proto",
     ]
 

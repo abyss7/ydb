@@ -56,6 +56,7 @@ template("protobuf_library") {
             public_deps += invoker.public_deps
         }
 
+        # TODO: losing default deps here?
         deps = [ ":$_gen_target" ]
         if (defined(invoker.deps)) {
             deps += invoker.deps

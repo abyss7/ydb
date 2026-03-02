@@ -1,0 +1,9 @@
+library("lib") {
+    deps = [ "generated" ]
+
+    sources = [
+        "dynamic_control_board_impl.cpp",
+        "immediate_control_board_html_renderer.cpp",
+        "immediate_control_board_impl.cpp",
+    ]
+}

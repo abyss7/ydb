@@ -1,8 +1,8 @@
 #pragma once
-// unique tag to fix pragma once gcc glueing: ./ydb/core/node_whiteboard/defs.h
+
 #include <ydb/library/actors/core/defs.h>
 #include <ydb/library/actors/core/actor.h>
-#include <ydb/library/actors/core/event.h>
+#include <ydb/library/actors/core/events/event.h>
 #include <ydb/library/actors/core/actorid.h>
 #include <ydb/library/services/services.pb.h>
 #include <ydb/core/debug/valgrind_check.h>
