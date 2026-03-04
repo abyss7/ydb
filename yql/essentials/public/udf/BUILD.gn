@@ -1,0 +1,30 @@
+config("udf_abi_version") {
+    defines = [ "USE_CURRENT_UDF_ABI_VERSION" ]
+}
+
+library("udf") {
+    public_deps = [
+        "//yql/essentials/public/types",
+    ]
+
+    sources = [
+        "udf_allocator.cpp",
+        "udf_counter.cpp",
+        "udf_data_type.cpp",
+        "udf_helpers.cpp",
+        "udf_log.cpp",
+        "udf_registrator.cpp",
+        "udf_static_registry.cpp",
+        "udf_string.cpp",
+        "udf_type_builder.cpp",
+        "udf_type_inspection.cpp",
+        "udf_type_printer.cpp",
+        "udf_types.cpp",
+        "udf_validate.cpp",
+        "udf_value.cpp",
+        "udf_value_builder.cpp",
+        "udf_version.cpp",
+    ]
+
+    configs = [ ":udf_abi_version" ]
+}

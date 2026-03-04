@@ -1,0 +1,39 @@
+config("private_config") {
+    defines = [ "HAVE_CONFIG_H" ]
+}
+
+contrib_library("libevent") {
+    deps = [
+        "//contrib/libs/libc_compat",
+        "//contrib/libs/openssl",
+    ]
+
+    sources = [
+        "buffer.c",
+        "bufferevent_filter.c",
+        "bufferevent_openssl.c",
+        "bufferevent_pair.c",
+        "bufferevent_ratelim.c",
+        "bufferevent_sock.c",
+        "bufferevent.c",
+        "epoll.c",
+        "evdns.c",
+        "event_tagging.c",
+        "event.c",
+        "evmap.c",
+        "evrpc.c",
+        "evthread_pthread.c",
+        "evthread.c",
+        "evutil_rand.c",
+        "evutil_time.c",
+        "evutil.c",
+        "http.c",
+        "listener.c",
+        "log.c",
+        "poll.c",
+        "select.c",
+        "signal.c",
+    ]
+
+    configs = [ ":private_config" ]
+}
