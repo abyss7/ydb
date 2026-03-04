@@ -1,4 +1,9 @@
 library("arrow") {
+    deps = [
+        "//contrib/libs/apache/arrow",
+        "//yql/essentials/public/udf",
+    ]
+
     sources = [
         "args_dechunker.cpp",
         "bit_util.cpp",

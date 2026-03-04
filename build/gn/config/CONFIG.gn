@@ -4,7 +4,9 @@
 
 import("//build/gn/base.gni")
 import("//build/gn/contrib.gni")
+import("//build/gn/flatbuffers.gni")
 import("//build/gn/protobuf.gni")
+import("//build/gn/rodata.gni")
 
 import("//build/gn/config/${host_os}/deps.gni")
 

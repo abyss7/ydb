@@ -1,8 +1,8 @@
 template("yasm_source_set") {
-    _gen_target = "${target_name}_gen"
+    _gen_target_yasm = "${target_name}_gen_yasm"
     _output = "{{source_gen_dir}}/{{source_name_part}}.o"
 
-    action_foreach(_gen_target) {
+    action_foreach(_gen_target_yasm) {
         script = "//build/gn/scripts/run.py"
         sources = invoker.sources
         outputs = [ "$_output" ]
@@ -22,9 +22,14 @@ template("yasm_source_set") {
     source_set(target_name) {
         forward_variables_from(invoker, "*", [ "sources" ])
 
-        deps = invoker.deps
-        deps += [ ":$_gen_target" ]
+        deps = []
+        if (defined(invoker.deps)) {
+            deps += invoker.deps
+        }
+        deps += [ ":$_gen_target_yasm" ]
 
-        sources = get_target_outputs(":$_gen_target")
+        print(deps)
+
+        sources = get_target_outputs(":$_gen_target_yasm")
     }
 }
