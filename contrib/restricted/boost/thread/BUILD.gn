@@ -14,6 +14,28 @@ config("private_config") {
 }
 
 contrib_library("thread") {
+    public_deps = [
+        "//contrib/restricted/boost/atomic",
+        "//contrib/restricted/boost/bind",
+        "//contrib/restricted/boost/chrono",
+        "//contrib/restricted/boost/config",
+        "//contrib/restricted/boost/container_hash",
+        "//contrib/restricted/boost/core",
+        "//contrib/restricted/boost/date_time",
+        "//contrib/restricted/boost/exception",
+        "//contrib/restricted/boost/function",
+        "//contrib/restricted/boost/io",
+        "//contrib/restricted/boost/move",
+        "//contrib/restricted/boost/optional",
+        "//contrib/restricted/boost/system",
+        "//contrib/restricted/boost/tuple",
+    ]
+
+    deps = [
+        "//contrib/restricted/boost/predef",
+        "//contrib/restricted/boost/type_traits",
+    ]
+
     sources = [
         "src/future.cpp",
         "src/pthread/once.cpp",

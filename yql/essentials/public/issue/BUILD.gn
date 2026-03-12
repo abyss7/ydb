@@ -4,3 +4,19 @@ protobuf_library("protos") {
         "protos/issue_severity.proto",
     ]
 }
+
+library("issue") {
+    public_deps = [
+        "//contrib/libs/protobuf",
+    ]
+
+    deps = [ ":protos" ]
+
+    sources = [
+        "yql_issue_manager.cpp",
+        "yql_issue_message.cpp",
+        "yql_issue_utils.cpp",
+        "yql_issue.cpp",
+        "yql_warning.cpp",
+    ]
+}

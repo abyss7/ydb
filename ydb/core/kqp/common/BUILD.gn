@@ -1,0 +1,52 @@
+library("common") {
+    public_deps = [
+        ":events",
+    ]
+
+    deps = [
+        "//ydb/core/base",
+        "//yql/essentials/public/issue",
+    ]
+
+    sources = [
+        "control.cpp",
+        "kqp_batch_operations.cpp",
+        "kqp_event_impl.cpp",
+        "kqp_lwtrace_probes.cpp",
+        "kqp_resolve.cpp",
+        "kqp_row_builder.cpp",
+        "kqp_ru_calc.cpp",
+        "kqp_script_executions.cpp",
+        "kqp_timeouts.cpp",
+        "kqp_tx_manager.cpp",
+        "kqp_tx.cpp",
+        "kqp_types.cpp",
+        "kqp_user_request_context.cpp",
+        "kqp_yql.cpp",
+        "kqp.cpp",
+    ]
+}
+
+library("events") {
+    public_deps = [
+        ":result_set_format",
+    ]
+
+    sources = [
+        "events/events.cpp",
+        "events/query.cpp",
+        "events/script_executions.cpp",
+        "events/workload_service.cpp",
+    ]
+}
+
+library("result_set_format") {
+    public_deps = [
+        "//contrib/libs/apache/arrow",
+    ]
+
+    sources = [
+        "result_set_format/kqp_formats_arrow.cpp",
+        "result_set_format/kqp_result_set_builders.cpp",
+    ]
+}

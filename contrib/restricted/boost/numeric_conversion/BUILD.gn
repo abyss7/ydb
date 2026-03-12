@@ -5,6 +5,8 @@ config("public_config") {
 contrib_library("numeric_conversion") {
     public_deps = [
         "//contrib/restricted/boost/conversion",
+        "//contrib/restricted/boost/mpl",
+        "//contrib/restricted/boost/throw_exception",
     ]
 
     public_configs = [ ":public_config" ]

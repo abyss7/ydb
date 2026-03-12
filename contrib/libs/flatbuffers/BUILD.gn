@@ -1,3 +1,7 @@
+config("public_config") {
+    include_dirs = [ "include" ]
+}
+
 config("private_config") {
     defines = [ "FLATBUFFERS_LOCALE_INDEPENDENT=1" ]
     include_dirs = [
@@ -48,5 +52,17 @@ contrib_tool("flatc") {
         "src/util.cpp",
     ]
 
+    configs = [ ":private_config" ]
+}
+
+contrib_library("flatbuffers") {
+    sources = [
+        "src/idl_gen_text.cpp",
+        "src/idl_parser.cpp",
+        "src/reflection.cpp",
+        "src/util.cpp",
+    ]
+
+    public_configs = [ ":public_config" ]
     configs = [ ":private_config" ]
 }

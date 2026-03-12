@@ -1014,6 +1014,7 @@ library("pg_wrapper") {
 
 library("interface") {
     deps = [
+        "//yql/essentials/providers/common/codec:yt_arrow_converter_interface",
         "//yql/essentials/public/udf/arrow",
     ]
 

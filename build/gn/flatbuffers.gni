@@ -21,6 +21,12 @@ template("flatbuffers_library") {
         sources = invoker.sources
         outputs = [ "{{source_gen_dir}}/{{source_name_part}}.fbs.h" ]
 
+        if (defined(invoker.flatc_flags)) {
+            flatc_flags = invoker.flatc_flags
+        } else {
+            flatc_flags = []
+        }
+
         args = [
             "./$_flatc_bin",
             "--no-warnings", "--cpp", "--keep-prefix", "--gen-mutable",
@@ -28,6 +34,7 @@ template("flatbuffers_library") {
             "--gen-object-api",
             "--filename-suffix", ".fbs",
             "-o", "{{source_gen_dir}}",
+        ] + flatc_flags + [
             "{{source}}",
         ]
 
@@ -36,11 +43,18 @@ template("flatbuffers_library") {
         ]
     }
 
-    config("include") {
-        include_dirs = [ "{{source_gen_dir}}" ]
+    config("public_config") {
+        include_dirs = [ target_gen_dir ]
     }
 
     source_set(target_name) {
-        public_configs = [ ":include" ]
+        public_deps = [ "//contrib/libs/flatbuffers" ]
+
+        deps = []
+        deps += [ ":$_gen_target" ]
+
+        sources = get_target_outputs(":$_gen_target")
+
+        public_configs = [ ":public_config" ]
     }
 }

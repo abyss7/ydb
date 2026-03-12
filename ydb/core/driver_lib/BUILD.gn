@@ -1,0 +1,34 @@
+library("cli_config_base") {
+    public_deps = [
+        "//yql/essentials/minikql",
+    ]
+
+    sources = [
+        "cli_config_base/config_base.cpp",
+    ]
+}
+
+library("run") {
+    public_deps = [
+        "//ydb/core/base",
+        "//ydb/core/config:init",
+        "//ydb/core/kqp/common",
+    ]
+
+    deps = [
+        ":cli_config_base",
+        "//ydb/core/protos",
+    ]
+
+    sources = [
+        "run/auto_config_initializer.cpp",
+        "run/config_helpers.cpp",
+        "run/config_parser.cpp",
+        "run/config.cpp",
+        "run/factories.cpp",
+        "run/kikimr_services_initializers.cpp",
+        "run/main.cpp",
+        "run/run.cpp",
+        "run/service_initializer.cpp",
+    ]
+}

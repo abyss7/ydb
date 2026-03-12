@@ -1,10 +1,9 @@
-import("//build/gn/flatbuffers.gni")
-
 config("public_config") {
     defines = [
         "ARROW_STATIC",
         "PARQUET_STATIC",
     ]
+    include_dirs = [ "cpp/src", "src" ]
 }
 
 config("private_config") {
@@ -26,25 +25,24 @@ config("private_config") {
         "PARQUET_EXPORTING",
         "URI_STATIC_BUILD",
     ]
-    include_dirs = [ "cpp/src", "src" ]
-}
-
-flatbuffers_library("fbs") {
-    sources = [
-        "cpp/src/generated/feather.fbs",
-        "cpp/src/generated/File.fbs",
-        "cpp/src/generated/Message.fbs",
-        "cpp/src/generated/Schema.fbs",
-        "cpp/src/generated/SparseTensor.fbs",
-        "cpp/src/generated/Tensor.fbs",
-    ]
 }
 
 contrib_library("arrow") {
     deps = [
-        ":fbs",
+        "cpp/src:generated",
         "//contrib/libs/apache/orc",
+        "//contrib/libs/brotli:dec",
+        "//contrib/libs/brotli:enc",
+        "//contrib/libs/double-conversion",
+        "//contrib/libs/lz4",
+        "//contrib/libs/rapidjson",
+        "//contrib/libs/re2",
+        "//contrib/libs/snappy",
+        "//contrib/libs/utf8proc",
+        "//contrib/libs/zlib",
+        "//contrib/libs/zstd",
         "//contrib/restricted/thrift",
+        "//contrib/restricted/uriparser",
     ]
 
     sources = [

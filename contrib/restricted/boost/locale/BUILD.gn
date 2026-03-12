@@ -10,13 +10,16 @@ config("private_config") {
 }
 
 contrib_library("locale") {
+    public_deps = [
+        "//contrib/restricted/boost/iterator",
+    ]
+
     deps = [
         "//contrib/libs/icu",
         "//contrib/restricted/boost/assert",
         "//contrib/restricted/boost/charconv",
         "//contrib/restricted/boost/config",
         "//contrib/restricted/boost/core",
-        "//contrib/restricted/boost/iterator",
         "//contrib/restricted/boost/predef",
         "//contrib/restricted/boost/thread",
     ]

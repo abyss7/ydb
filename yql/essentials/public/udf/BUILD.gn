@@ -26,5 +26,5 @@ library("udf") {
         "udf_version.cpp",
     ]
 
-    configs = [ ":udf_abi_version" ]
+    public_configs = [ ":udf_abi_version" ]
 }

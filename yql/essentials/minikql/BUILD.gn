@@ -1,0 +1,36 @@
+library("minikql") {
+    public_deps = [
+        "//contrib/libs/apache/arrow",
+        "//yql/essentials/public/udf",
+    ]
+
+    sources = [
+        "aligned_page_pool.cpp",
+        "compact_hash.cpp",
+        "mkql_alloc.cpp",
+        "mkql_block_map_join_utils.cpp",
+        "mkql_buffer.cpp",
+        "mkql_function_metadata.cpp",
+        "mkql_function_registry.cpp",
+        "mkql_mem_info.cpp",
+        "mkql_node_builder.cpp",
+        "mkql_node_cast.cpp",
+        "mkql_node_printer.cpp",
+        "mkql_node_serialization.cpp",
+        "mkql_node_visitor.cpp",
+        "mkql_node.cpp",
+        "mkql_opt_literal.cpp",
+        "mkql_program_builder.cpp",
+        "mkql_rh_hash_utils.cpp",
+        "mkql_runtime_version.cpp",
+        "mkql_stats_registry.cpp",
+        "mkql_string_util.cpp",
+        "mkql_terminator.cpp",
+        "mkql_type_builder.cpp",
+        "mkql_type_ops.cpp",
+        "mkql_unboxed_value_stream.cpp",
+        "pack_num.cpp",
+        "primes.cpp",
+        "watermark_tracker.cpp",
+    ]
+}

@@ -1,10 +1,14 @@
 config("public_config") {
+    cflags = [
+        "-Wno-macro-redefined",
+    ]
     include_dirs = [ "." ]
 }
 
 config("private_config") {
     cflags = [
         "-Wno-deprecated-declarations",
+        "-Wno-unused-const-variable",
         "-Wno-unused-function",
         "-Wno-unused-parameter",
         "-Wno-unused-private-field",
@@ -13,15 +17,27 @@ config("private_config") {
 }
 
 contrib_library("thrift") {
+    public_deps = [
+        "//contrib/restricted/boost/core",
+        "//contrib/restricted/boost/numeric_conversion",
+        "//contrib/restricted/boost/smart_ptr",
+        "//contrib/restricted/boost/type_traits",
+    ]
+
     deps = [
         "//contrib/libs/libevent",
         "//contrib/libs/openssl",
         "//contrib/libs/zlib",
+        "//contrib/restricted/boost/algorithm",
+        "//contrib/restricted/boost/atomic",
+        "//contrib/restricted/boost/config",
         "//contrib/restricted/boost/interprocess",
         "//contrib/restricted/boost/locale",
         "//contrib/restricted/boost/math",
         "//contrib/restricted/boost/system",
         "//contrib/restricted/boost/thread",
+        "//contrib/restricted/boost/tokenizer",
+        "//contrib/restricted/boost/utility",
     ]
 
     sources = [
@@ -74,4 +90,7 @@ contrib_library("thrift") {
         "thrift/transport/TZlibTransport.cpp",
         "thrift/VirtualProfiling.cpp",
     ]
+
+    public_configs = [ ":public_config" ]
+    configs = [ ":private_config" ]
 }

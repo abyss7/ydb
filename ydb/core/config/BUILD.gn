@@ -1,3 +1,17 @@
+library("init") {
+    public_deps = [
+        "//ydb/library/yaml_config",
+    ]
+
+    sources = [
+        "init/init.cpp",
+        "init/init_noop.cpp",
+        "init/dummy.cpp",
+    ]
+
+    serialize_enum_headers = [ "init/init.h" ]
+}
+
 protobuf_library("protos") {
     sources = [ "protos/marker.proto" ]
 }

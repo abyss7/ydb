@@ -2,10 +2,13 @@ config("public_config") {
     include_dirs = [ "include" ]
 }
 
-contrib_library("core") {
-    public_deps = [
+contrib_library("exception") {
+    deps = [
         "//contrib/restricted/boost/config",
-        "//contrib/restricted/boost/throw_exception",
+    ]
+
+    sources = [
+        "src/clone_current_exception_non_intrusive.cpp",
     ]
 
     public_configs = [ ":public_config" ]

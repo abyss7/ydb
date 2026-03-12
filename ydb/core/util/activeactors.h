@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb/library/actors/core/actor.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/log.h>
 #include <util/generic/hash_set.h>
 #include <ydb/library/services/services.pb.h>

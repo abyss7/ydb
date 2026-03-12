@@ -11,6 +11,7 @@ library("export") {
 executable("ydbd") {
     deps += [
         ":export",
+        "//ydb/core/driver_lib:run",
     ]
 
     sources = [ "main.cpp" ]

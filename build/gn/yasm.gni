@@ -17,18 +17,16 @@ template("yasm_source_set") {
         ]
 
         deps = [ "//contrib/tools/yasm:yasm" ]
-    }
-
-    source_set(target_name) {
-        forward_variables_from(invoker, "*", [ "sources" ])
-
-        deps = []
         if (defined(invoker.deps)) {
             deps += invoker.deps
         }
-        deps += [ ":$_gen_target_yasm" ]
+    }
 
-        print(deps)
+    source_set(target_name) {
+        forward_variables_from(invoker, "*", [ "deps", "sources" ])
+
+        deps = []
+        deps += [ ":$_gen_target_yasm" ]
 
         sources = get_target_outputs(":$_gen_target_yasm")
     }

@@ -1,0 +1,13 @@
+library("yaml_config") {
+    public_deps = [
+        "//contrib/libs/openssl",
+    ]
+
+    sources = [
+        "console_dumper.cpp",
+        "serialize_deserialize.cpp",
+        "yaml_config_helpers.cpp",
+        "yaml_config_parser.cpp",
+        "yaml_config.cpp",
+    ]
+}

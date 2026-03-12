@@ -1,9 +1,20 @@
+
+config("public_config") {
+    include_dirs = [ "include" ]
+}
 config("private_config") {
+    cflags = [
+        "-Wno-deprecated-declarations",
+    ]
     defines = [
         "U_COMMON_IMPLEMENTATION",
         "U_I18N_IMPLEMENTATION",
         "U_IO_IMPLEMENTATION",
         "U_STATIC_IMPLEMENTATION",
+    ]
+    include_dirs = [
+        "common",
+        "i18n",
     ]
 }
 
@@ -485,5 +496,6 @@ contrib_library("icu") {
         "io/ustream.cpp",
     ]
 
+    public_configs = [ ":public_config" ]
     configs = [ ":private_config" ]
 }
