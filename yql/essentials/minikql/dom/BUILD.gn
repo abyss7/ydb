@@ -1,0 +1,17 @@
+library("dom") {
+    public_deps = [ "//yql/essentials/public/udf" ]
+    deps = [
+        "//library/cpp/json",
+    ]
+
+    sources = [
+        "hash.cpp",
+        "json.cpp",
+        "make.cpp",
+        "node.cpp",
+        "peel.cpp",
+        "yson.cpp",
+    ]
+
+    allow_undefined = true
+}

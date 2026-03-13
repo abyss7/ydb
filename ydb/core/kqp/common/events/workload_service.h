@@ -5,7 +5,7 @@
 #include <ydb/core/scheme/scheme_pathid.h>
 
 #include <ydb/library/aclib/aclib.h>
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/event_local.h>
 #include <yql/essentials/public/issue/yql_issue.h>
 
 #include <ydb/public/api/protos/ydb_status_codes.pb.h>

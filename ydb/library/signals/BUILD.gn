@@ -1,0 +1,13 @@
+library("signals") {
+    public_deps = [ "//ydb/library/actors/core" ]
+
+    sources = [
+        "agent.cpp",
+        "client.cpp",
+        "histogram.cpp",
+        "object_counter.cpp",
+        "owner.cpp",
+        "private.cpp",
+        "states.cpp",
+    ]
+}

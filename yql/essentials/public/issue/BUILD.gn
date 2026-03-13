@@ -10,7 +10,11 @@ library("issue") {
         "//contrib/libs/protobuf",
     ]
 
-    deps = [ ":protos" ]
+    deps = [
+        ":protos",
+        "//library/cpp/colorizer",
+        "//yql/essentials/utils",
+    ]
 
     sources = [
         "yql_issue_manager.cpp",
@@ -19,4 +23,6 @@ library("issue") {
         "yql_issue.cpp",
         "yql_warning.cpp",
     ]
+
+    serialize_enum_headers = [ "yql_warning.h" ]
 }

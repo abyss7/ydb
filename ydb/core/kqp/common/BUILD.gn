@@ -6,6 +6,7 @@ library("common") {
     deps = [
         "//ydb/core/base",
         "//yql/essentials/public/issue",
+        "//yql/essentials/public/udf",
     ]
 
     sources = [
@@ -30,6 +31,11 @@ library("common") {
 library("events") {
     public_deps = [
         ":result_set_format",
+        ":simple",
+    ]
+
+    deps = [
+        "//yql/essentials/core/issue",
     ]
 
     sources = [
@@ -45,8 +51,28 @@ library("result_set_format") {
         "//contrib/libs/apache/arrow",
     ]
 
+    deps = [
+        "//yql/essentials/minikql",
+    ]
+
     sources = [
         "result_set_format/kqp_formats_arrow.cpp",
         "result_set_format/kqp_result_set_builders.cpp",
+    ]
+}
+
+library("simple") {
+    public_deps = [
+        "//ydb/core/base",
+    ]
+
+    sources = [
+        "simple/helpers.cpp",
+        "simple/kqp_event_ids.cpp",
+        "simple/query_id.cpp",
+        "simple/reattach.cpp",
+        "simple/services.cpp",
+        "simple/settings.cpp",
+        "simple/temp_tables.cpp",
     ]
 }

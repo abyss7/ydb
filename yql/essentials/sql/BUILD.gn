@@ -1,0 +1,9 @@
+source_set("pg_dummy") {
+    deps += [
+        "//yql/essentials/providers/common/codec:yt_arrow_converter_interface", # TODO: circular through `pg_wrapper:interface`
+    ]
+
+    sources = [
+        "pg_dummy/pg_sql_dummy.cpp"
+    ]
+}

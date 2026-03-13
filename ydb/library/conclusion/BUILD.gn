@@ -1,0 +1,12 @@
+library("conclusion") {
+    deps = [ ":generic" ]
+
+    sources = [
+        "result.cpp",
+        "status.cpp",
+    ]
+}
+
+library("generic") {
+    public_deps = [ "//yql/essentials/public/issue" ]
+}

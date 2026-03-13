@@ -10,7 +10,7 @@
 #include <ydb/public/api/protos/ydb_status_codes.pb.h>
 #include <ydb/public/sdk/cpp/include/ydb-cpp-sdk/library/operation_id/operation_id.h>
 
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/event_local.h>
 
 #include <util/generic/maybe.h>
 
@@ -57,12 +57,12 @@ struct TEvForgetScriptExecutionOperation : public TEventWithDatabaseId<TEvForget
 };
 
 struct TEvForgetScriptExecutionOperationResponse : public TEventLocal<TEvForgetScriptExecutionOperationResponse, TKqpScriptExecutionEvents::EvForgetScriptExecutionOperationResponse> {
-    TEvForgetScriptExecutionOperationResponse(Ydb::StatusIds::StatusCode status,  NYql::TIssues issues) 
+    TEvForgetScriptExecutionOperationResponse(Ydb::StatusIds::StatusCode status,  NYql::TIssues issues)
         : Status(status)
         , Issues(issues)
     {
     }
-    
+
     Ydb::StatusIds::StatusCode Status;
     NYql::TIssues Issues;
 };

@@ -10,13 +10,13 @@ library("cli_config_base") {
 
 library("run") {
     public_deps = [
+        ":cli_config_base",
         "//ydb/core/base",
         "//ydb/core/config:init",
         "//ydb/core/kqp/common",
     ]
 
     deps = [
-        ":cli_config_base",
         "//ydb/core/protos",
     ]
 

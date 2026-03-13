@@ -31,11 +31,11 @@ library("writer") {
 
 library("json") {
     public_deps = [
+        ":common",
         ":writer",
     ]
 
     deps = [
-        ":common",
         ":fast",
     ]
 

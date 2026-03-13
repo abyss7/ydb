@@ -4,6 +4,7 @@
 
 #include <library/cpp/iterator/enumerate.h>
 
+#include <util/generic/map.h>
 #include <util/generic/string.h>
 
 namespace NKikimr {
@@ -20,8 +21,8 @@ void TControlBoard::RestoreDefaults() {
 
 void TControlBoard::RenderAsHtml(TControlBoardTableHtmlRenderer& renderer) const {
     auto availableControls = GetAllAvailableControls();
-    TMap<TString, TIntrusivePtr<TControl>> soredControls(availableControls.begin(), availableControls.end());
-    for (const auto& [name, control]: soredControls) {
+    TMap<TString, TIntrusivePtr<TControl>> sortedControls(availableControls.begin(), availableControls.end());
+    for (const auto& [name, control]: sortedControls) {
         if (control) {
             renderer.AddTableItem(name, control);
         }

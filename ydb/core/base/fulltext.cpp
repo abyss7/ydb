@@ -3,7 +3,11 @@
 #include <contrib/libs/snowball/include/libstemmer.h>
 
 #include <util/charset/utf8.h>
+#include <util/generic/scope.h>
 #include <util/generic/xrange.h>
+#include <util/string/builder.h>
+#include <util/string/cast.h>
+#include <util/string/split.h>
 
 #include <algorithm>
 

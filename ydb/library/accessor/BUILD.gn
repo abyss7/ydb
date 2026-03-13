@@ -1,0 +1,10 @@
+library("accessor") {
+    deps = [ "//ydb/library/actors/core" ]
+
+    sources = [
+        "accessor.cpp",
+        "positive_integer.cpp",
+        "validator_simple.cpp",
+        "validator.cpp",
+    ]
+}

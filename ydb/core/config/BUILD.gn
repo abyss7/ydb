@@ -3,6 +3,11 @@ library("init") {
         "//ydb/library/yaml_config",
     ]
 
+    deps = [
+        "//ydb/core/base",
+        "//ydb/core/protos",
+    ]
+
     sources = [
         "init/init.cpp",
         "init/init_noop.cpp",

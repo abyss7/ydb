@@ -1,6 +1,6 @@
 #pragma once
 #include <ydb/core/base/events.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/log.h>
 #include <ydb/library/services/services.pb.h>
 #include <ydb/library/conclusion/status.h>

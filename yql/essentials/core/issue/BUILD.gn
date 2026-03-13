@@ -1,0 +1,13 @@
+protobuf_library("protos") {
+    sources = [
+        "protos/issue_id.proto",
+    ]
+}
+
+library("issue") {
+    public_deps = [ ":protos" ]
+
+    sources = [
+        "yql_issue.cpp",
+    ]
+}

@@ -5,6 +5,5 @@ config("base") {
 
     ldflags = [
         "-rpath", "\$ORIGIN",
-        "-Wl,--no-undefined",
     ]
 }

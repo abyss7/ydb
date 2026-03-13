@@ -1,0 +1,25 @@
+library("arrow") {
+    deps = [
+        ":validation",
+        "//library/cpp/json",
+    ]
+
+    sources = [
+        "arrow_helpers.cpp",
+        "permutations.cpp",
+        "replace_key.cpp",
+        "simple_arrays_cache.cpp",
+        "size_calcer.cpp",
+    ]
+}
+
+source_set("validation") {
+    public_deps = [
+        "//contrib/libs/apache/arrow",
+        "//ydb/library/actors/core",
+    ]
+
+    sources = [
+        "validation/validation.cpp",
+    ]
+}

@@ -1,0 +1,24 @@
+library("yson") {
+    deps = [
+        "//library/cpp/json",
+    ]
+
+    sources = [
+        "json/json_writer.cpp",
+        "json/yson2json_adapter.cpp",
+        "node/node_builder.cpp",
+        "node/node_io.cpp",
+        "node/node_visitor.cpp",
+        "node/node.cpp",
+        "node/serialize.cpp",
+        "consumer.cpp",
+        "lexer.cpp",
+        "parser.cpp",
+        "token.cpp",
+        "tokenizer.cpp",
+        "varint.cpp",
+        "writer.cpp",
+    ]
+
+    serialize_enum_headers = [ "node/node.h" ]
+}

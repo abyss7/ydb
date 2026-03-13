@@ -4,6 +4,15 @@ library("minikql") {
         "//yql/essentials/public/udf",
     ]
 
+    deps = [
+        "//contrib/libs/cctz",
+        "//library/cpp/monlib/dynamic_counters",
+        "//yql/essentials/ast",
+        "//yql/essentials/parser/pg_catalog",
+        "//yql/essentials/sql:pg_dummy",
+        "//yql/essentials/utils",
+    ]
+
     sources = [
         "aligned_page_pool.cpp",
         "compact_hash.cpp",

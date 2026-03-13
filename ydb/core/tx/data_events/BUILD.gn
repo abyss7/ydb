@@ -1,0 +1,27 @@
+library("common") {
+    public_deps = [
+        "//ydb/library/signals",
+        "//yql/essentials/core/issue:protos",
+    ]
+
+    sources = [
+        "common/modification_type.cpp",
+        "common/error_codes.cpp",
+        "common/signals_flow.cpp",
+    ]
+}
+
+library("data_events") {
+    public_deps = [ ":common" ]
+
+    deps = [
+        "//ydb/core/formats/arrow",
+    ]
+
+    sources = [
+        "columnshard_splitter.cpp",
+        "shard_writer.cpp",
+        "shards_splitter.cpp",
+        "write_data.cpp",
+    ]
+}

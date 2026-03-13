@@ -1,0 +1,7 @@
+library("base") {
+    public_deps = [ "//library/cpp/messagebus" ]
+
+    sources = [
+        "msgbus.cpp",
+    ]
+}

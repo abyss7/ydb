@@ -1,6 +1,7 @@
 library("datashard") {
     public_deps = [
         "//ydb/core/base",
+        "//ydb/core/tx/data_events",
     ]
 
     deps = [

@@ -1,0 +1,21 @@
+library("ast") {
+    deps = [
+        "//contrib/libs/openssl",
+        "//library/cpp/yson",
+        "//yql/essentials/public/issue",
+        "//yql/essentials/public/udf",
+    ]
+
+    sources = [
+        "yql_ast_annotation.cpp",
+        "yql_ast_escaping.cpp",
+        "yql_ast.cpp",
+        "yql_constraint.cpp",
+        "yql_errors.cpp",
+        "yql_expr_builder.cpp",
+        "yql_expr_types.cpp",
+        "yql_expr.cpp",
+        "yql_gc_nodes.cpp",
+        "yql_type_string.cpp",
+    ]
+}

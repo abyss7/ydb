@@ -80,3 +80,7 @@ config("no_custom_char_ptr_std_comparator") {
 config("no_warnings") {
     cflags = [ "-Wno-everything" ]
 }
+
+config("no_undefined") {
+    ldflags = [ "-Wl,--no-undefined" ]
+}

@@ -7,6 +7,10 @@ library("udf") {
         "//yql/essentials/public/types",
     ]
 
+    deps = [
+        "//library/cpp/resource",
+    ]
+
     sources = [
         "udf_allocator.cpp",
         "udf_counter.cpp",
@@ -27,4 +31,5 @@ library("udf") {
     ]
 
     public_configs = [ ":udf_abi_version" ]
+    allow_undefined = true
 }

@@ -1,0 +1,24 @@
+protobuf_library("proto") {
+    deps = [
+        "//yql/essentials/protos",
+    ]
+
+    sources = [
+        "proto/pg_catalog.proto",
+    ]
+}
+
+library("pg_catalog") {
+    deps = [
+        ":proto",
+        "//library/cpp/digest/md5",
+        "//library/cpp/resource",
+        "//yql/essentials/protos",
+        "//yql/essentials/public/issue",
+        "//yql/essentials/utils/log",
+    ]
+
+    sources = [
+        "catalog.cpp",
+    ]
+}

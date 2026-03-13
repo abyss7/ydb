@@ -7,7 +7,7 @@
 #include <ydb/core/base/blobstorage.h>
 #include <ydb/core/base/appdata.h>
 
-#include <ydb/library/actors/core/event_pb.h>
+#include <ydb/library/actors/core/events/event_pb.h>
 
 namespace NKikimr {
 struct TEvTxProxy {

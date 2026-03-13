@@ -1,8 +1,6 @@
 library("json") {
     deps = [
         "//library/cpp/json",
-        "//library/cpp/json:common",
-        "//library/cpp/json:writer",
         "//library/cpp/monlib/encode",
         "//library/cpp/monlib/encode/buffered",
         "//library/cpp/monlib/metrics",

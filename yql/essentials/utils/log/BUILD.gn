@@ -1,0 +1,23 @@
+protobuf_library("proto") {
+    sources = [
+        "proto/logger_config.proto",
+    ]
+}
+
+library("log") {
+    deps = [
+        ":proto",
+        "//library/cpp/json",
+        "//library/cpp/logger",
+        "//yql/essentials/utils/backtrace",
+    ]
+
+    sources = [
+        "context.cpp",
+        "format.cpp",
+        "fwd_backend.cpp",
+        "log.cpp",
+        "profile.cpp",
+        "tls_backend.cpp",
+    ]
+}

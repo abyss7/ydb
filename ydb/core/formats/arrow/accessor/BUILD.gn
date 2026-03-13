@@ -1,0 +1,14 @@
+source_set("abstract") {
+    public_deps = [
+        "//contrib/libs/apache/arrow",
+        "//ydb/library/accessor",
+        "//ydb/library/actors/core",
+    ]
+
+    sources = [
+        "abstract/accessor.cpp",
+        "abstract/common.cpp",
+        "abstract/constructor.cpp",
+        "abstract/request.cpp",
+    ]
+}

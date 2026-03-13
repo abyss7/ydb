@@ -2,8 +2,19 @@ config("public_config") {
     cflags = [ "-Wno-deprecated-volatile" ]
 }
 
+library("base") {
+    sources = [
+        "base/immediate_control_board_control.cpp",
+    ]
+}
+
 library("lib") {
-    deps = [ "generated" ]
+    deps = [
+        ":base",
+        "generated",
+        "//library/cpp/monlib/service:pages",
+        "//library/cpp/threading/hot_swap",
+    ]
 
     sources = [
         "dynamic_control_board_impl.cpp",

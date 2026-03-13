@@ -53,5 +53,9 @@ template("library") {
             sources += get_target_outputs(":$_enum_target")
             configs += [ ":$_enum_config" ]
         }
+
+        if (defined(allow_undefined) && allow_undefined == true) {
+            configs -= [ "//build/gn/config:no_undefined" ]
+        }
     }
 }

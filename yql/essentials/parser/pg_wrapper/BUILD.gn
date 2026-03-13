@@ -1016,9 +1016,12 @@ library("interface") {
     deps = [
         "//yql/essentials/providers/common/codec:yt_arrow_converter_interface",
         "//yql/essentials/public/udf/arrow",
+        "//yql/essentials/sql:pg_dummy",
     ]
 
     sources = [
         "interface/interface.cpp",
     ]
+
+    allow_undefined = true
 }

@@ -20,4 +20,6 @@ library("arrow") {
         "udf_arrow_helpers.cpp",
         "util.cpp",
     ]
+
+    allow_undefined = true
 }
