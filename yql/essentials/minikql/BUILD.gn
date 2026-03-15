@@ -10,6 +10,8 @@ library("minikql") {
         "//yql/essentials/ast",
         "//yql/essentials/parser/pg_catalog",
         "//yql/essentials/sql:pg_dummy",
+        "//yql/essentials/types:binary_json",
+        "//yql/essentials/types:dynumber",
         "//yql/essentials/utils",
     ]
 

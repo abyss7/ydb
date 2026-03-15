@@ -1,9 +1,12 @@
 library("ast") {
     deps = [
         "//contrib/libs/openssl",
+        "//library/cpp/json",
         "//library/cpp/yson",
+        "//yql/essentials/parser/pg_catalog",
         "//yql/essentials/public/issue",
         "//yql/essentials/public/udf",
+        "//yql/essentials/utils",
     ]
 
     sources = [

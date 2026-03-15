@@ -17,3 +17,9 @@ library("binary_json") {
 
     allow_undefined = true
 }
+
+library("dynumber") {
+    sources = [
+        "dynumber/dynumber.cpp",
+    ]
+}
