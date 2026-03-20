@@ -1,7 +1,12 @@
 library("dom") {
-    public_deps = [ "//yql/essentials/public/udf" ]
+    public_deps = [
+        "//yql/essentials/public/udf",
+    ]
+
     deps = [
         "//library/cpp/json",
+        "//library/cpp/yson_pull",
+        "//yql/essentials/utils",
     ]
 
     sources = [
@@ -12,6 +17,4 @@ library("dom") {
         "peel.cpp",
         "yson.cpp",
     ]
-
-    allow_undefined = true
 }

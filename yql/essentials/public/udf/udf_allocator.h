@@ -1,9 +1,8 @@
 #pragma once
+
 #include "udf_version.h"
+
 #include <util/system/types.h>
-#include <new>
-#include <cstddef>
-#include <limits>
 
 #if UDF_ABI_COMPATIBILITY_VERSION_CURRENT >= UDF_ABI_COMPATIBILITY_VERSION(2, 37)
 extern "C" void* UdfArrowAllocate(ui64 size);

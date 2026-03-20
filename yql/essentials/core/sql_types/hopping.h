@@ -16,7 +16,7 @@ struct TSettings {
     EPolicy EarlyPolicy = EPolicy::Close;
     TDuration FarFutureTimeLimit = TDuration::Zero(); // ahead of current watermark (effective only when watermark is set)
     ui64 FarFutureSizeLimit = Max<ui64>();            // number of "far future" hops
-    auto operator<=>(const TSettings&) const = default;
+    auto operator<=>(const TSettings&) const = delete;
 };
 
 } // namespace NYql::NHoppingWindow

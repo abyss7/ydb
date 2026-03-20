@@ -14,12 +14,24 @@ library("binary_json") {
     ]
 
     serialize_enum_headers = [ "binary_json/format.h" ]
-
-    allow_undefined = true
 }
 
 library("dynumber") {
     sources = [
         "dynumber/dynumber.cpp",
+    ]
+}
+
+library("uuid") {
+    sources = [
+        "uuid/uuid.cpp",
+    ]
+}
+
+group("types") {
+    public_deps = [
+        ":binary_json",
+        ":dynumber",
+        ":uuid",
     ]
 }

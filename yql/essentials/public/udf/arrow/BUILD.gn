@@ -1,10 +1,10 @@
 library("arrow") {
     public_deps = [
-        "//yql/essentials/public/udf",
+        "//contrib/libs/apache/arrow",
     ]
 
     deps = [
-        "//contrib/libs/apache/arrow",
+        "//yql/essentials/public/udf",
     ]
 
     sources = [
@@ -20,6 +20,4 @@ library("arrow") {
         "udf_arrow_helpers.cpp",
         "util.cpp",
     ]
-
-    allow_undefined = true
 }

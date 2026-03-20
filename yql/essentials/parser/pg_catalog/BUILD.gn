@@ -9,12 +9,15 @@ protobuf_library("proto") {
 }
 
 library("pg_catalog") {
+    public_deps = [
+        "//yql/essentials/public/issue",
+    ]
+
     deps = [
         ":proto",
         "//library/cpp/digest/md5",
         "//library/cpp/resource",
         "//yql/essentials/protos",
-        "//yql/essentials/public/issue",
         "//yql/essentials/utils/log",
     ]
 

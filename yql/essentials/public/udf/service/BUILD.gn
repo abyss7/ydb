@@ -1,0 +1,11 @@
+source_set("exception_policy") {
+    deps += [
+        "//yql/essentials/minikql:alloc",
+        "//yql/essentials/minikql:terminator",
+        "//yql/essentials/public/udf:_udf",
+    ]
+
+    sources = [
+        "exception_policy/udf_service.cpp",
+    ]
+}

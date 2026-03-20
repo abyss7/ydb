@@ -1,6 +1,6 @@
-library("yt_arrow_converter_interface") {
+group("yt_arrow_converter_interface") {
     public_deps = [
         "//contrib/libs/apache/arrow",
-        "//yql/essentials/public/udf/arrow",
+        # "//yql/essentials/public/udf/arrow:types",
     ]
 }

@@ -2,7 +2,7 @@ config("udf_abi_version") {
     defines = [ "USE_CURRENT_UDF_ABI_VERSION" ]
 }
 
-library("udf") {
+library("_udf") {
     public_deps = [
         "//yql/essentials/public/types",
     ]
@@ -31,5 +31,13 @@ library("udf") {
     ]
 
     public_configs = [ ":udf_abi_version" ]
+
     allow_undefined = true
+}
+
+library("udf") {
+    public_deps = [
+        ":_udf",
+        "service:exception_policy",
+    ]
 }

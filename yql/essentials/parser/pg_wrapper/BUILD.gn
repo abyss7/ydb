@@ -1022,6 +1022,4 @@ library("interface") {
     sources = [
         "interface/interface.cpp",
     ]
-
-    allow_undefined = true
 }

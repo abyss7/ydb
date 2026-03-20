@@ -8,11 +8,13 @@ protobuf_library("protos") {
 library("issue") {
     public_deps = [
         "//contrib/libs/protobuf",
+        "//library/cpp/resource",
     ]
 
     deps = [
         ":protos",
         "//library/cpp/colorizer",
+        "//yql/essentials/core/issue:protos",
         "//yql/essentials/utils",
     ]
 
