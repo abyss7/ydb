@@ -1,0 +1,4 @@
+library("argonish") {
+    deps = [ "internal/proxies" ]
+    sources = [ "factory/factory.cpp" ]
+}

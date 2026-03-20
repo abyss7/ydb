@@ -1,0 +1,17 @@
+library("abstract") {
+    deps = [
+        ":protos",
+        "//ydb/core/base",
+        "//ydb/library/actors/core",
+    ]
+
+    sources = [
+        "abstract/interface.cpp",
+    ]
+}
+
+protobuf_library("protos") {
+    sources = [
+        "protos/container.proto",
+    ]
+}

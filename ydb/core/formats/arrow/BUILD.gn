@@ -1,11 +1,13 @@
 library("arrow") {
     deps = [
         ":common",
-        "//ydb/core/kqp/common:result_set_format",
+        ":serializer",
+        "//ydb/core/kqp/common:arrow",
         "//ydb/core/scheme",
         "//ydb/library/conclusion",
         "//ydb/library/formats/arrow",
         "//yql/essentials/types:binary_json",
+        "//yql/essentials/types:dynumber",
     ]
 
     sources = [
@@ -28,5 +30,21 @@ source_set("common") {
     sources = [
         "common/adapter.cpp",
         "common/container.cpp",
+    ]
+}
+
+library("serializer") {
+    deps = [
+        "//contrib/libs/apache/arrow",
+        "//ydb/core/protos",
+        "//ydb/services/bg_tasks:abstract",
+    ]
+
+    sources = [
+        "serializer/abstract.cpp",
+        "serializer/native.cpp",
+        "serializer/parsing.cpp",
+        "serializer/stream.cpp",
+        "serializer/utils.cpp",
     ]
 }

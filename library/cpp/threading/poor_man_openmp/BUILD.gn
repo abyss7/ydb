@@ -1,0 +1,5 @@
+library("poor_man_openmp") {
+    sources = [
+        "thread_helper.cpp",
+    ]
+}

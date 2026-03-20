@@ -3,6 +3,7 @@ source_set("pg_dummy") {
         ":settings",
         "//contrib/libs/apache/arrow",
         "//yql/essentials/ast",
+        "//yql/essentials/public/issue",
         "//yql/essentials/public/udf:_udf", # TODO: no linkage deps - just the include files hell.
     ]
 

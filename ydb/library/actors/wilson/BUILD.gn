@@ -1,6 +1,5 @@
 library("wilson") {
     deps = [
-        # "//contrib/libs/grpc",
         "//contrib/libs/opentelemetry-proto:protos",
         "//library/cpp/json",
         "//library/cpp/monlib/dynamic_counters",

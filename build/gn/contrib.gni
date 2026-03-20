@@ -17,8 +17,14 @@ template("contrib_tool") {
 }
 
 template("contrib_library") {
+    _path = rebase_path(".", "//")
+    _unique_name = exec_script("//build/gn/scripts/unique_name.py", [ _path ], "trim string")
+
     target(library_type, target_name) {
         forward_variables_from(invoker, "*", [ "configs", "deps" ])
+
+        output_dir = "$root_out_dir/" + rebase_path(".", "//") # TODO: doesn't work for some reason
+        output_name = "${_unique_name}_${target_name}"
 
         # Override default deps
         deps = []

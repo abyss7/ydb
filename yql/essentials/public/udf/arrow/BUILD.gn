@@ -1,9 +1,6 @@
 library("arrow") {
     public_deps = [
         "//contrib/libs/apache/arrow",
-    ]
-
-    deps = [
         "//yql/essentials/public/udf",
     ]
 

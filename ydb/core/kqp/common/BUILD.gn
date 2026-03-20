@@ -1,3 +1,17 @@
+library("arrow") {
+    deps = [
+        "//contrib/libs/apache/arrow",
+        "//yql/essentials/minikql",
+        "//yql/essentials/types:binary_json",
+        "//yql/essentials/types:dynumber",
+        "//yql/essentials/utils",
+    ]
+
+    sources = [
+        "arrow/kqp_formats_arrow.cpp",
+    ]
+}
+
 library("common") {
     public_deps = [
         ":events",
@@ -47,16 +61,13 @@ library("events") {
 }
 
 library("result_set_format") {
-    public_deps = [
-        "//contrib/libs/apache/arrow",
-    ]
-
     deps = [
+        "//ydb/core/formats/arrow",
         "//yql/essentials/minikql",
+        "//yql/essentials/utils",
     ]
 
     sources = [
-        "result_set_format/kqp_formats_arrow.cpp",
         "result_set_format/kqp_result_set_builders.cpp",
     ]
 }

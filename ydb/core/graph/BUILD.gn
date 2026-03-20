@@ -1,0 +1,9 @@
+library("api") {
+    public_deps = [ ":protos" ]
+}
+
+protobuf_library("protos") {
+    sources = [
+        "protos/graph.proto",
+    ]
+}

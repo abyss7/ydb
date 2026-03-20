@@ -1,0 +1,14 @@
+library("jaeger_tracing") {
+    deps = [
+        "//ydb/core/protos",
+        "//ydb/library/actors/wilson",
+    ]
+
+    sources = [
+        "request_discriminator.cpp",
+        "sampling_throttling_configurator.cpp",
+        "sampling_throttling_control_internals.cpp",
+        "sampling_throttling_control.cpp",
+        "throttler.cpp",
+    ]
+}

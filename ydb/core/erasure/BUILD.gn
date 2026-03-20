@@ -1,0 +1,12 @@
+library("erasure") {
+    deps = [
+        "//library/cpp/digest/crc32c",
+        "//ydb/library/actors/util",
+    ]
+
+    sources = [
+        "erasure_restore.cpp",
+        "erasure_split.cpp",
+        "erasure.cpp",
+    ]
+}

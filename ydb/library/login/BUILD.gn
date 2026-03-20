@@ -1,3 +1,67 @@
+library("account_lockout") {
+    sources = [
+        "account_lockout/account_lockout.cpp",
+    ]
+}
+
+library("cache") {
+    sources = [
+        "cache/lru.cpp",
+    ]
+}
+
+library("hashes_checker") {
+    public_deps = [ ":protos" ]
+
+    deps = [
+        "//library/cpp/json",
+        "//library/cpp/string_utils/base64",
+    ]
+
+    sources = [
+        "hashes_checker/hash_types.cpp",
+        "hashes_checker/hashes_checker.cpp",
+    ]
+}
+
+library("login") {
+    deps = [
+        ":account_lockout",
+        ":cache",
+        ":hashes_checker",
+        ":password_checker",
+        ":sasl",
+        "//contrib/libs/jwt-cpp",
+        "//library/cpp/digest/argonish",
+        "//library/cpp/json",
+        "//library/cpp/string_utils/base64",
+    ]
+
+    sources = [
+        "login.cpp",
+    ]
+}
+
+library("password_checker") {
+    sources = [
+        "password_checker/password_checker.cpp",
+    ]
+}
+
 protobuf_library("protos") {
     sources = [ "protos/login.proto" ]
+}
+
+library("sasl") {
+    deps = [
+        "//contrib/libs/openssl",
+        "//library/cpp/string_utils/base64",
+        "//library/cpp/unicode/normalization",
+    ]
+
+    sources = [
+        "sasl/plain.cpp",
+        "sasl/saslprep.cpp",
+        "sasl/scram.cpp",
+    ]
 }

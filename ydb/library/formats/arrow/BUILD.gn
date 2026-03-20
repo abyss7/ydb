@@ -1,25 +1,19 @@
 library("arrow") {
     deps = [
-        ":validation",
-        "//library/cpp/json",
-    ]
-
-    sources = [
-        "arrow_helpers.cpp",
-        "permutations.cpp",
-        "replace_key.cpp",
-        "simple_arrays_cache.cpp",
-        "size_calcer.cpp",
-    ]
-}
-
-source_set("validation") {
-    public_deps = [
         "//contrib/libs/apache/arrow",
+        "//library/cpp/json",
+        "//ydb/core/protos",
         "//ydb/library/actors/core",
     ]
 
     sources = [
+        "arrow_helpers.cpp",
+        "modifier/schema.cpp",
+        "modifier/subset.cpp",
+        "permutations.cpp",
+        "replace_key.cpp",
+        "simple_arrays_cache.cpp",
+        "size_calcer.cpp",
         "validation/validation.cpp",
     ]
 }

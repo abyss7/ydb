@@ -1,0 +1,9 @@
+library("config") {
+    deps = [
+        "//ydb/core/protos",
+    ]
+
+    sources = [
+        "audit_config/audit_config.cpp",
+    ]
+}
