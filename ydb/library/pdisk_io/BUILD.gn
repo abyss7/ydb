@@ -1,0 +1,30 @@
+protobuf_library("protos") {
+    sources = [
+        "protos/sector_map.proto"
+    ]
+}
+
+library("pdisk_io") {
+    deps = [
+        ":protos",
+        "//contrib/libs/libaio",
+        "//contrib/libs/liburing",
+        "//contrib/libs/lz4",
+        "//ydb/library/actors/core",
+    ]
+
+    sources = [
+        "aio_linux.cpp",
+        "aio_map.cpp",
+        "aio.cpp",
+        "buffers.cpp",
+        "device_type.cpp",
+        "drivedata.cpp",
+        "file_params_linux.cpp",
+        "sector_map.cpp",
+        "uring_router.cpp",
+        "wcache.cpp",
+    ]
+
+    serialize_enum_headers = [ "aio.h" ]
+}
