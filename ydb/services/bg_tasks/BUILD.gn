@@ -1,8 +1,12 @@
 library("abstract") {
+    public_deps = [
+        "//ydb/library/actors/core",
+    ]
+
     deps = [
         ":protos",
+        "//library/cpp/string_utils/base64",
         "//ydb/core/base",
-        "//ydb/library/actors/core",
     ]
 
     sources = [

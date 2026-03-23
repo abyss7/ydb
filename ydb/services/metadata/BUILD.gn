@@ -1,0 +1,16 @@
+library("abstract") {
+    deps = [
+        "//yql/essentials/core/expr_nodes",
+    ]
+
+    sources = [
+        "abstract/common.cpp",
+        "abstract/decoder.cpp",
+        "abstract/events.cpp",
+        "abstract/fetcher.cpp",
+        "abstract/initialization.cpp",
+        "abstract/kqp_common.cpp",
+        "abstract/parsing.cpp",
+        "abstract/request_features.cpp",
+    ]
+}

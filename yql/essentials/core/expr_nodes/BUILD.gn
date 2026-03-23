@@ -1,0 +1,9 @@
+library("expr_nodes") {
+    deps = [
+        "//yql/essentials/core/expr_nodes_gen",
+    ]
+
+    sources = [
+        "yql_expr_nodes.cpp",
+    ]
+}

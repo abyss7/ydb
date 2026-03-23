@@ -13,13 +13,14 @@ executable("codegen") {
 template("codegen") {
     _gen_target = "${target_name}_gen"
     _output = "{{source_gen_dir}}/{{source_name_part}}"
+    _codegen_name = exec_script("//build/gn/scripts/unique_name.py", [ rebase_path(".", "//") ], "trim string") + "_codegen"
 
     action_foreach(_gen_target) {
         script = "//build/gn/scripts/run.py"
         sources = invoker.sources
         outputs = [ "$_output" ]
 
-        _codegen_bin = rebase_path("$root_out_dir/codegen", root_build_dir)
+        _codegen_bin = rebase_path("$root_out_dir/$_codegen_name", root_build_dir)
 
         args = [
             "./$_codegen_bin",
@@ -45,6 +46,11 @@ template("codegen") {
 
 codegen("generated") {
     public_deps = [ "//ydb/core/protos" ]
+
+    deps = [
+        "//library/cpp/threading/hot_swap",
+        "//ydb/core/control/lib:base",
+    ]
 
     sources = [
         "control_board_proto.cpp.in",

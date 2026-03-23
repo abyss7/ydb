@@ -37,7 +37,9 @@ library("serializer") {
     deps = [
         "//contrib/libs/apache/arrow",
         "//ydb/core/protos",
+        "//ydb/library/formats/arrow",
         "//ydb/services/bg_tasks:abstract",
+        "//ydb/services/metadata:abstract",
     ]
 
     sources = [

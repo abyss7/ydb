@@ -1,0 +1,9 @@
+library("expr_nodes_gen") {
+    deps = [
+        "//contrib/tools/python3",
+    ]
+
+    sources = [
+        "yql_expr_nodes_gen.cpp",
+    ]
+}
