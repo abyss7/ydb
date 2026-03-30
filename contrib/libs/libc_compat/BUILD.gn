@@ -3,6 +3,7 @@ import("//build/gn/config/linux/deps.gni")
 config("public_config") {
     include_dirs = [
         "include/readpassphrase",
+        "memfd_create",
         "random",
     ]
 }

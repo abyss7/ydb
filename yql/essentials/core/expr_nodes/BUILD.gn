@@ -1,4 +1,18 @@
+run_python_program("gen") {
+    python_binary = "//yql/essentials/core/expr_nodes_gen:gen"
+    sources = [ "yql_expr_nodes.json" ]
+    outputs = [
+        "yql_expr_nodes.gen.h",
+        "yql_expr_nodes.decl.inl.h",
+        "yql_expr_nodes.defs.inl.h",
+    ]
+}
+
 library("expr_nodes") {
+    public_deps = [
+        "//yql/essentials/core/issue",
+    ]
+
     deps = [
         "//yql/essentials/core/expr_nodes_gen",
     ]

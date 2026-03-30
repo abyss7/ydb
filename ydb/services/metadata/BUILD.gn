@@ -1,5 +1,6 @@
 library("abstract") {
     deps = [
+        "//ydb/library/actors/core",
         "//yql/essentials/core/expr_nodes",
     ]
 

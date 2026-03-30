@@ -1,0 +1,36 @@
+template("python_binary") {
+    group(target_name) {
+        forward_variables_from(invoker, [ "visibility", "testonly" ])
+
+        data = invoker.sources
+
+        if (defined(invoker.deps)) {
+            public_deps = invoker.deps
+        }
+    }
+}
+
+template("run_python_program") {
+    assert(defined(invoker.python_binary), "python_binary is required for run_python_program")
+
+    _binary_dir = get_label_info(invoker.python_binary, "dir")
+    _binary_source_dir = rebase_path(_binary_dir, "//")
+
+    action(target_name) {
+        script = "//build/gn/scripts/run_python_program.py"
+
+        outputs = invoker.outputs
+
+        args = [
+            "--source-root", rebase_path("//", root_build_dir),
+            "--package-dir", _binary_source_dir,
+            "--main", invoker.main,
+        ]
+
+        if (defined(invoker.args)) {
+            args += invoker.args
+        }
+
+        deps = [ invoker.py3_binary ]
+    }
+}

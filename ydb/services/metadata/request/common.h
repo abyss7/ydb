@@ -1,7 +1,7 @@
 #pragma once
 #include <ydb/library/actors/core/actor.h>
 #include <ydb/library/actors/core/actorid.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/actor_virtual.h>
 #include <ydb/library/actors/core/actor_bootstrapped.h>
 #include <ydb/library/accessor/accessor.h>

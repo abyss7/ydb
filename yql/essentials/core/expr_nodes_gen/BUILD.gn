@@ -1,6 +1,6 @@
 library("expr_nodes_gen") {
     deps = [
-        "//contrib/tools/python3",
+        "//yql/essentials/ast",
     ]
 
     sources = [

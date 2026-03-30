@@ -1,0 +1,27 @@
+template("generate_expr_nodes") {
+    _gen_target = "${target_name}_gen"
+    _output_prefix = "{{source_gen_dir}}/{{source_name_part}}"
+
+    action_foreach(_gen_target) {
+        script = "//build/gn/scripts/run_python_binary.py"
+        sources = invoker.sources
+        outputs = [
+            "$_output_prefix.gen.h",
+            "$_output_prefix.decl.inl.h",
+            "$_output_prefix.defs.inl.h",
+        ]
+
+        _binary_source_dir = rebase_path(get_label_info(":gen", "dir"), "//")
+
+        args = [
+            "--source-root", rebase_path("//", root_build_dir),
+            "--package-dir", _binary_source_dir,
+            "--main", invoker.main,
+            rebase_path("yql_expr_nodes_gen.jnj", "//"),
+        ] + outputs
+
+        deps = [ ":gen" ]
+    }
+
+    sources = [ "gen/__main__.py" ]
+}
