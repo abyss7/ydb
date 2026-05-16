@@ -86,6 +86,7 @@ extern PyObject* PyInit__typing(void); // _typing
 extern PyObject* PyInit__weakref(void); // _weakref
 extern PyObject* PyInit__xxtestfuzz(void); // _xxtestfuzz
 extern PyObject* PyInit__zoneinfo(void); // _zoneinfo
+extern PyObject* PyInit___res(void); // __res (stub for Yandex Arcadia resource module)
 extern PyObject* PyInit_array(void); // array
 extern PyObject* PyInit_atexit(void); // atexit
 extern PyObject* PyInit_binascii(void); // binascii
@@ -217,6 +218,7 @@ struct _inittab _PyImport_Inittab[] = {
     {"_weakref", PyInit__weakref},
     {"_xxtestfuzz", PyInit__xxtestfuzz},
     {"_zoneinfo", PyInit__zoneinfo},
+    {"__res", PyInit___res},
     {"array", PyInit_array},
     {"atexit", PyInit_atexit},
     {"binascii", PyInit_binascii},

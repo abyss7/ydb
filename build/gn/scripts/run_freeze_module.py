@@ -32,7 +32,7 @@ def main() -> int:
     os.makedirs(os.path.dirname(args.output), exist_ok=True)
 
     result = subprocess.run(
-        [args.freeze, args.name, args.input, args.output],
+        [os.path.abspath(args.freeze), args.name, args.input, args.output],
         check=False,
     )
     return result.returncode

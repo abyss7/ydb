@@ -10,6 +10,7 @@ config("public_config") {
 
 config("private_config") {
     cflags = [
+        "-Wno-#warnings",
         "-Wno-implicit-function-declaration",
     ]
 }

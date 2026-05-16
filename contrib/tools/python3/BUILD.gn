@@ -161,6 +161,10 @@ system_library("python3_core") {
         "Modules/_weakref.c",
         "Modules/_xxtestfuzz/_xxtestfuzz.c",
         "Modules/_xxtestfuzz/fuzzer.c",
+        # Stub for the Yandex Arcadia __res module (see __res_stub.c). The
+        # patched init_importlib_external in Python/import.c hard-requires
+        # `import __res`, so a no-op implementation must be linked in.
+        "Modules/__res_stub.c",
         "Modules/_zoneinfo.c",
         "Modules/arraymodule.c",
         "Modules/atexitmodule.c",
@@ -385,7 +389,7 @@ template("freeze_python_module") {
 
         args = [
             "--freeze",
-            _freeze_bin,
+            rebase_path(_freeze_bin, root_build_dir),
             "--name",
             invoker.module_name,
             "--input",

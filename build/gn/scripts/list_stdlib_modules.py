@@ -42,9 +42,12 @@ SKIP_PATH_COMPONENTS = frozenset({
     "__pycache__",
 })
 
-# Specific filenames to skip regardless of location.
+# Specific filenames to skip regardless of location. `__main__.py` files
+# are NOT skipped — they are package entry points for `python -m pkg`
+# (e.g. `_pyrepl/__main__.py` is what Python 3.13 spawns for the
+# interactive REPL) and only execute when invoked explicitly, not at
+# import time.
 SKIP_FILENAMES = frozenset({
-    "__main__.py",
     "__hello__.py",
 })
 

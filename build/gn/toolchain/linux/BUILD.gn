@@ -1,10 +1,11 @@
 toolchain("clang") {
-  cc = "clang-18"
-  cxx = "clang++-18"
+  cc = "clang-19"
+  cxx = "clang++-19"
   ar = "ar"
-  ld = cxx
+  ld = cxx + " -fuse-ld=/usr/bin/ld.lld-19"
 
-  sysroot = "--sysroot=/home/ilezhankin/.ya/tools/v4/243881345"
+  # sysroot = "--sysroot=/home/ilezhankin/.ya/tools/v4/243881345"
+  sysroot = ""
 
   tool("stamp") {
     command = "touch {{output}}"
@@ -62,7 +63,7 @@ toolchain("clang") {
     tocname = sofile + ".TOC"
     temporary_tocname = tocname + ".tmp"
 
-    link_command = "$ld -fuse-ld=/usr/bin/ld.lld-18 -shared {{ldflags}} -o $sofile -Wl,-soname=$soname -Wl,--whole-archive {{inputs}} -Wl,--no-whole-archive {{solibs}} {{libs}}"
+    link_command = "$ld -shared {{ldflags}} -o $sofile -Wl,-soname=$soname -Wl,--whole-archive {{inputs}} -Wl,--no-whole-archive {{solibs}} {{libs}}"
     toc_command = "{ readelf -d $sofile | grep SONAME ; nm -gD -f p $soname | cut -f1-2 -d' '; } > $temporary_tocname"
     replace_command = "if ! cmp -s $temporary_tocname $tocname; then mv $temporary_tocname $tocname; fi"
 
@@ -84,7 +85,7 @@ toolchain("clang") {
 
   tool("link") {
     outfile = "{{root_out_dir}}/{{target_output_name}}{{output_extension}}"
-    command = "$ld -fuse-ld=/usr/bin/ld.lld-18 {{ldflags}} -o $outfile -Wl,--whole-archive -Wl,--start-group {{inputs}} {{solibs}} -Wl,--end-group -Wl,--no-whole-archive {{libs}}"
+    command = "$ld {{ldflags}} -o $outfile -Wl,--whole-archive -Wl,--start-group {{inputs}} {{solibs}} -Wl,--end-group -Wl,--no-whole-archive {{libs}}"
     description = "LINK $outfile"
     outputs = [
       outfile,
