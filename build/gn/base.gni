@@ -21,7 +21,7 @@ template("library") {
             args = [
                 "./$_enum_parser_bin",
                 "{{source}}",
-                "--include-path", "{{source}}",
+                # "--include-path", "{{source}}",
                 "--output", "$_output",
             ]
 

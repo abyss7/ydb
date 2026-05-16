@@ -7,3 +7,11 @@ library("expr_nodes_gen") {
         "yql_expr_nodes_gen.cpp",
     ]
 }
+
+python_binary("gen") {
+    deps = [
+        "//contrib/python/Jinja2",
+    ]
+
+    main_source = "gen/main.py"
+}

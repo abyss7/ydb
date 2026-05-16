@@ -1,27 +1,27 @@
 template("generate_expr_nodes") {
-    _gen_target = "${target_name}_gen"
-    _output_prefix = "{{source_gen_dir}}/{{source_name_part}}"
+    _path = rebase_path(".", "//")
+    _unique_name = exec_script("//build/gn/scripts/unique_name.py", [ _path ], "trim string")
+    _gen_target = "${_unique_name}_${target_name}_gen"
 
-    action_foreach(_gen_target) {
-        script = "//build/gn/scripts/run_python_binary.py"
+    python_action_foreach(_gen_target) {
+        binary_label = "//yql/essentials/core/expr_nodes_gen:gen"
         sources = invoker.sources
+        inputs = [
+            "//yql/essentials/core/expr_nodes_gen/yql_expr_nodes_gen.jnj",
+        ]
         outputs = [
-            "$_output_prefix.gen.h",
-            "$_output_prefix.decl.inl.h",
-            "$_output_prefix.defs.inl.h",
+            "{{source_gen_dir}}/{{source_name_part}}.gen.h",
+            "{{source_gen_dir}}/{{source_name_part}}.decl.inl.h",
+            "{{source_gen_dir}}/{{source_name_part}}.defs.inl.h",
         ]
 
-        _binary_source_dir = rebase_path(get_label_info(":gen", "dir"), "//")
-
         args = [
-            "--source-root", rebase_path("//", root_build_dir),
-            "--package-dir", _binary_source_dir,
-            "--main", invoker.main,
-            rebase_path("yql_expr_nodes_gen.jnj", "//"),
+            rebase_path("yql_expr_nodes_gen.jnj", root_build_dir),
+            "{{source}}",
         ] + outputs
-
-        deps = [ ":gen" ]
     }
 
-    sources = [ "gen/__main__.py" ]
+    library(target_name) {
+        deps = [ ":$_gen_target" ]
+    }
 }
