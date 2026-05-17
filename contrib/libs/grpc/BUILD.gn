@@ -6,6 +6,7 @@ config("private_config") {
     cflags = [
         "-Wno-extra-tokens",
         "-Wno-invalid-noreturn",
+        "-Wno-missing-template-arg-list-after-template-kw",
         "-Wno-sign-compare",
     ]
     defines = [ "GRPC_POSIX_FORK_ALLOW_PTHREAD_ATFORK=1" ]

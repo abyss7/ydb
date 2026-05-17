@@ -3,6 +3,10 @@ python_library("Jinja2") {
 
     source_root = "py3/jinja2"
 
+    library_deps = [
+        "//contrib/python/MarkupSafe",
+    ]
+
     sources = [
         "__init__.py",
         "_identifier.py",
