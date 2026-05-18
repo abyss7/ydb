@@ -16,7 +16,12 @@ template("generate_expr_nodes") {
         ]
 
         args = [
-            rebase_path("yql_expr_nodes_gen.jnj", root_build_dir),
+            # Use //-rooted path: a bare "yql_expr_nodes_gen.jnj" would be
+            # resolved against the BUILD.gn that invoked this template, but
+            # the .jnj actually lives next to the template (expr_nodes_gen/),
+            # not next to the invoker.
+            rebase_path("//yql/essentials/core/expr_nodes_gen/yql_expr_nodes_gen.jnj",
+                        root_build_dir),
             "{{source}}",
         ] + outputs
     }

@@ -1,3 +1,5 @@
+import("//build/gn/python.gni")
+
 config("public_config") {
     include_dirs = [ "Include" ]
 }
@@ -362,101 +364,34 @@ system_library("python3_core") {
 # .py under contrib/tools/python3/Lib/. Any consumer linking :python3
 # automatically gets the full stdlib resolved through frozen imports — no
 # filesystem lookup required.
+#
+# Module enumeration happens at gen time via list_stdlib_modules.py; the
+# resulting list is mirrored to a JSON file that the reusable
+# `_python_freeze_modules` template (see //build/gn/python.gni) feeds to
+# the one-shot freezer driver.
 
-# Wrapper around :_freeze_module that produces a single
-#   $target_gen_dir/frozen_modules/<dotted_name>.h
-# from one .py source. The header path is fixed so the generated
-# frozen_index.c can #include each entry by module name alone.
-template("freeze_python_module") {
-    assert(defined(invoker.module_name),
-           "freeze_python_module requires module_name")
-    assert(defined(invoker.source),
-           "freeze_python_module requires source")
-
-    _freeze_label = ":_freeze_module"
-    _freeze_bin = get_label_info(_freeze_label, "root_out_dir") + "/" +
-                  get_label_info(_freeze_label, "name")
-
-    action(target_name) {
-        forward_variables_from(invoker, [ "testonly", "visibility" ])
-
-        script = "//build/gn/scripts/run_freeze_module.py"
-        sources = [ invoker.source ]
-        outputs = [
-            "$target_gen_dir/frozen_modules/${invoker.module_name}.h",
-        ]
-        deps = [ _freeze_label ]
-
-        args = [
-            "--freeze",
-            rebase_path(_freeze_bin, root_build_dir),
-            "--name",
-            invoker.module_name,
-            "--input",
-            rebase_path(invoker.source, root_build_dir),
-            "--output",
-            rebase_path(outputs[0], root_build_dir),
-        ]
-    }
-}
-
-# Enumerate stdlib modules at gen time. Returns a list of scopes:
-#   { name = "..."; target_suffix = "..."; path = "..."; package = ...; }
 _stdlib_modules = exec_script(
     "//build/gn/scripts/list_stdlib_modules.py",
     [ rebase_path("//contrib/tools/python3/Lib") ],
     "json"
 )
 
-# Mirror the gen-time list to disk so the codegen action can read it at build time.
-_frozen_list = "$target_gen_dir/frozen_list.json"
-write_file(_frozen_list, _stdlib_modules, "json")
+_stdlib_modules_json = "$target_gen_dir/stdlib_modules.json"
+write_file(_stdlib_modules_json, _stdlib_modules, "json")
 
-# One freeze action per stdlib module → frozen_modules/<name>.h.
-_freeze_targets = []
-foreach(_mod, _stdlib_modules) {
-    _t = "freeze__${_mod.target_suffix}"
-    freeze_python_module(_t) {
-        module_name = _mod.name
-        source = _mod.path
-    }
-    _freeze_targets += [ ":$_t" ]
-}
-
-# C source defining _PyImport_FrozenBootstrap / Stdlib / Test / Aliases that
-# CPython's interpreter pulls in from python3_core's import.c. Drop-in
-# replacement for Python/frozen.c.
-action("frozen_index") {
-    script = "//build/gn/scripts/gen_frozen_index.py"
-    inputs = [ _frozen_list ]
-    outputs = [ "$target_gen_dir/frozen_index.c" ]
-    args = [
-        "--list",
-        rebase_path(_frozen_list, root_build_dir),
-        "--output",
-        rebase_path(outputs[0], root_build_dir),
-    ]
-
-    # frozen_index.c #includes every per-module header, so all freeze
-    # actions must complete before whoever compiles the .c does.
-    deps = _freeze_targets
-}
-
-# frozen_index.c uses #include "frozen_modules/<name>.h"; target_gen_dir
-# must be on the include path for that to resolve.
-config("frozen_includes") {
-    include_dirs = [ target_gen_dir ]
+python_freeze_modules("frozen_stdlib") {
+    modules_json = _stdlib_modules_json
+    mode = "full"
+    output = "$target_gen_dir/frozen_stdlib.c"
+    workdir = "$target_gen_dir/frozen_stdlib"
 }
 
 contrib_library("python3") {
-    sources = [ "$target_gen_dir/frozen_index.c" ]
+    sources = [ "$target_gen_dir/frozen_stdlib.c" ]
     deps = [
         ":python3_core",
-        ":frozen_index",
+        ":frozen_stdlib",
     ]
     public_configs = [ ":public_config" ]
-    configs = [
-        ":private_config",
-        ":frozen_includes",
-    ]
+    configs = [ ":private_config" ]
 }
