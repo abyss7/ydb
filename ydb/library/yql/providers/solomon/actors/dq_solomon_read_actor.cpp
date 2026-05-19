@@ -31,8 +31,8 @@
 #include <yql/essentials/utils/yql_panic.h>
 
 #include <ydb/library/actors/core/actor.h>
-#include <ydb/library/actors/core/event_local.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/event_local.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <ydb/library/actors/core/log.h>
 #include <ydb/library/actors/http/http_proxy.h>
@@ -170,7 +170,7 @@ public:
             RequestData();
         }
     }
-    
+
     STRICT_STFUNC(LimitlessModeState,
         hFunc(TEvSolomonProvider::TEvMetricsBatch, HandleMetricsBatch);
         hFunc(TEvSolomonProvider::TEvMetricsReadError, HandleMetricsReadError);
@@ -280,7 +280,7 @@ public:
     void HandleRetryDataRequest(TEvSolomonProvider::TEvRetryDataRequest::TPtr& retryDataRequest) {
         auto& retryDataEvent = *retryDataRequest->Get();
         NThreading::TFuture<NSo::TGetDataResponse> dataRequestFuture;
-        
+
         auto request = std::move(retryDataEvent.Request);
         try {
             if (UseMetricsQueue) {
@@ -577,7 +577,7 @@ private:
         IngressStats.Resume();
         PendingDataRequests_.erase(request);
         CurrentInflight--;
-        
+
         if (batch.Response.Status != NSo::EStatus::STATUS_OK) {
             TIssues issues { TIssue(batch.Response.Error) };
             SOURCE_LOG_W("Got " << "error data response[" << newDataBatch->Cookie << "] from solomon: " << issues.ToOneLineString());

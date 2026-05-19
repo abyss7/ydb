@@ -9,7 +9,7 @@
 
 #include <library/cpp/monlib/dynamic_counters/counters.h>
 #include <ydb/library/actors/core/actorid.h>
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/event_local.h>
 
 #include <util/generic/vector.h>
 

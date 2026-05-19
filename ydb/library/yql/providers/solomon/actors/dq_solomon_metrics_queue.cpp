@@ -2,7 +2,7 @@
 
 #include <ydb/core/base/events.h>
 #include <ydb/library/actors/core/actorsystem.h>
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/event_local.h>
 #include <ydb/library/services/services.pb.h>
 
 #include <ydb/library/actors/core/actor_bootstrapped.h>
@@ -244,7 +244,7 @@ private:
                 selectors[label.Name] = { "=", "-" };
                 PendingLabelRequests.push_back(selectors);
             }
-            
+
         }
 
         while (TryFetch()) {}
@@ -341,22 +341,22 @@ private:
         YQL_ENSURE(!PendingLabelRequests.empty() || !PendingListingRequests.empty());
         NActors::TActorSystem* actorSystem = NActors::TActivationContext::ActorSystem();
         CurrentInflight++;
-        
+
         if (!PendingLabelRequests.empty()) {
             auto selectors = PendingLabelRequests.back();
             PendingLabelRequests.pop_back();
-            
+
             auto labelsListingFuture = SolomonClient->ListMetricsLabels(selectors, TrueRangeFrom, TrueRangeTo);
             labelsListingFuture.Subscribe([actorSystem, selectors = std::move(selectors), selfId = SelfId()]
                 (NThreading::TFuture<NSo::TListMetricsLabelsResponse> future) mutable {
                 actorSystem->Send(
-                    selfId, 
+                    selfId,
                     new TEvPrivatePrivate::TEvNextLabelsListingChunkReceived(std::move(selectors), future.ExtractValue()));
             });
 
             return;
         }
-        
+
         if (!PendingListingRequests.empty()) {
             auto selectors = PendingListingRequests.back();
             PendingListingRequests.pop_back();
@@ -365,7 +365,7 @@ private:
             metricsListingFuture.Subscribe([actorSystem, selfId = SelfId()]
                 (NThreading::TFuture<NSo::TListMetricsResponse> future) {
                 actorSystem->Send(
-                    selfId, 
+                    selfId,
                     new TEvPrivatePrivate::TEvNextMetricsListingChunkReceived(future.ExtractValue()));
             });
 
@@ -419,7 +419,7 @@ private:
     bool HasEnoughToSend() const {
         return Metrics.size() >= BatchCountLimit;
     }
-    
+
     bool HasNoMoreItems() const {
         return CurrentInflight == 0 && PendingLabelRequests.empty() && PendingListingRequests.empty() && Metrics.empty();
     }
@@ -497,7 +497,7 @@ private:
     std::vector<NSo::MetricQueue::TMetric> Metrics;
     ui64 DownloadedBytes = 0;
     TMaybe<TString> MaybeIssues;
-    
+
     const TDqSolomonReadParams ReadParams;
     const bool EnableSolomonClientPostApi;
     const ui64 BatchCountLimit;

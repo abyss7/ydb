@@ -5,7 +5,6 @@
 #include <ydb/core/base/appdata.h>
 
 #include <ydb/public/api/protos/ydb_table.pb.h>
-#include <ydb/services/metadata/service.h>
 
 namespace NKikimr::NMetadata::NModifications {
 

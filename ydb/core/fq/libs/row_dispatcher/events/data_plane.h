@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb/library/actors/core/actorid.h>
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/event_local.h>
 #include <ydb/core/fq/libs/events/event_subspace.h>
 #include <ydb/core/fq/libs/row_dispatcher/protos/events.pb.h>
 #include <ydb/library/yql/providers/pq/proto/dq_io.pb.h>

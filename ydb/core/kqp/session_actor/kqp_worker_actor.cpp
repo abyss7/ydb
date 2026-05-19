@@ -17,7 +17,7 @@
 #include <ydb/library/yql/utils/actor_log/log.h>
 
 #include <ydb/library/actors/core/actor_bootstrapped.h>
-#include <ydb/library/actors/core/event_pb.h>
+#include <ydb/library/actors/core/events/event_pb.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <ydb/library/actors/core/log.h>
 

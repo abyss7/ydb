@@ -1,5 +1,7 @@
 library("abstract") {
     deps = [
+        ":initializer",
+        ":manager",
         "//ydb/library/actors/core",
         "//yql/essentials/core/expr_nodes",
     ]
@@ -13,5 +15,74 @@ library("abstract") {
         "abstract/kqp_common.cpp",
         "abstract/parsing.cpp",
         "abstract/request_features.cpp",
+    ]
+}
+
+library("initializer") {
+    deps = [
+        ":manager",
+        ":request",
+    ]
+
+    sources = [
+        "initializer/accessor_init.cpp",
+        "initializer/behaviour.cpp",
+        "initializer/common.cpp",
+        "initializer/events.cpp",
+        "initializer/fetcher.cpp",
+        "initializer/initializer.cpp",
+        "initializer/manager.cpp",
+        "initializer/object.cpp",
+        "initializer/snapshot.cpp",
+    ]
+}
+
+library("manager") {
+    public_deps = [
+        "//contrib/libs/apache/arrow",
+    ]
+
+    deps = [
+        "//ydb/core/base",
+    ]
+
+    sources = [
+        "manager/abstract.cpp",
+        "manager/alter_impl.cpp",
+        "manager/alter.cpp",
+        "manager/common.cpp",
+        "manager/fetch_database.cpp",
+        "manager/generic_manager.cpp",
+        "manager/modification_controller.cpp",
+        "manager/modification.cpp",
+        "manager/object.cpp",
+        "manager/preparation_controller.cpp",
+        "manager/restore_controller.cpp",
+        "manager/restore.cpp",
+        "manager/table_record.cpp",
+        "manager/ydb_value_operator.cpp",
+    ]
+}
+
+library("request") {
+    public_deps = [
+        "//ydb/core/base",
+    ]
+
+    sources = [
+        "request/common.cpp",
+        "request/config.cpp",
+        "request/request_actor_cb.cpp",
+        "request/request_actor.cpp",
+    ]
+}
+
+library("service") {
+    public_deps = [
+        "//ydb/library/actors/core",
+    ]
+
+    sources = [
+        "service.cpp",
     ]
 }

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <ydb/core/external_sources/hive_metastore/hive_metastore_native/gen-cpp/ThriftHiveMetastore.h>
-#include <ydb/library/actors/core/event_local.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/event_local.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/yql/providers/generic/connector/api/service/protos/connector.pb.h>
 #include <yql/essentials/public/issue/yql_issue.h>
 #include <ydb/public/api/protos/ydb_value.pb.h>

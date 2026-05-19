@@ -14,7 +14,7 @@
 #include <ydb/core/nbs/cloud/storage/core/libs/diagnostics/histogram.h>
 #include <ydb/core/nbs/cloud/storage/core/libs/diagnostics/logging.h>
 
-#include <ydb/library/actors/core/event.h>
+#include <ydb/library/actors/core/events/event.h>
 #include <ydb/library/workload/abstract/workload_factory.h>
 #include <ydb/library/workload/stock/stock.h>
 #include <ydb/library/workload/kv/kv.h>

@@ -3,7 +3,7 @@
 
 #include <ydb/core/fq/libs/events/events.h>
 
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <ydb/library/actors/core/actor_bootstrapped.h>
 #include <ydb/core/fq/libs/config/yq_issue.h>

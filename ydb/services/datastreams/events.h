@@ -2,7 +2,7 @@
 
 #include <ydb/public/api/protos/draft/persqueue_error_codes.pb.h>
 
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/event_local.h>
 
 namespace NKikimr::NDataStreams::V1 {
 

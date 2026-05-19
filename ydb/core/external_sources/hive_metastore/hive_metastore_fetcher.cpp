@@ -3,7 +3,7 @@
 #include <ydb/core/external_sources/hive_metastore/hive_metastore_converters.h>
 
 #include <ydb/library/actors/core/actor.h>
-#include <ydb/library/actors/core/event.h>
+#include <ydb/library/actors/core/events/event.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <ydb/library/actors/core/log.h>
 

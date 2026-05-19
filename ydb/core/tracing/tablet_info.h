@@ -2,7 +2,7 @@
 #include <ydb/core/base/defs.h>
 #include <ydb/library/actors/core/defs.h>
 #include <ydb/library/actors/core/actor.h>
-#include <ydb/library/actors/core/event.h>
+#include <ydb/library/actors/core/events/event.h>
 
 namespace NKikimr {
 namespace NTabletInfo {

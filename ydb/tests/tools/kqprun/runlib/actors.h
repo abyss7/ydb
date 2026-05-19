@@ -6,7 +6,7 @@
 #include <library/cpp/threading/future/core/future.h>
 
 #include <ydb/library/actors/core/actor.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <ydb/public/api/protos/ydb_status_codes.pb.h>
 

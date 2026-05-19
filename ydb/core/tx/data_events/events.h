@@ -9,7 +9,7 @@
 #include <ydb/public/api/protos/ydb_issue_message.pb.h>
 
 #include <ydb/library/accessor/accessor.h>
-#include <ydb/library/actors/core/event_pb.h>
+#include <ydb/library/actors/core/events/event_pb.h>
 #include <ydb/library/actors/core/log.h>
 #include <yql/essentials/core/issue/yql_issue.h>
 

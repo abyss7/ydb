@@ -1,6 +1,25 @@
+protobuf_library("protos") {
+    deps = [
+        "//ydb/core/protos",
+    ]
+
+    sources = [
+        "protos/blobstorage_config.proto",
+        "protos/config.proto",
+    ]
+}
+
 library("yaml_config") {
     public_deps = [
         "//contrib/libs/openssl",
+    ]
+
+    deps = [
+        ":protos",
+        "//library/cpp/yaml",
+        "//ydb/core/base",
+        "//ydb/core/protos",
+        "//ydb/library/actors/core",
     ]
 
     sources = [

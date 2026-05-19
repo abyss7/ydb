@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb/library/actors/core/actor.h>
-#include <ydb/library/actors/core/event.h>
+#include <ydb/library/actors/core/events/event.h>
 #include <ydb/core/base/tablet.h>
 #include <ydb/core/base/tablet_pipe.h>
 #include <ydb/core/tablet_flat/tablet_flat_executed.h>

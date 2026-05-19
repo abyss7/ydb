@@ -1,7 +1,7 @@
 #pragma once
 #include "async.h"
 #include "decorator.h"
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 
 namespace NActors::NDetail {
 

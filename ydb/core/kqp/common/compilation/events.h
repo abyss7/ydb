@@ -2,7 +2,7 @@
 #include "result.h"
 
 #include <library/cpp/lwtrace/shuttle.h>
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/event_local.h>
 #include <ydb/library/aclib/aclib.h>
 #include <yql/essentials/ast/yql_expr.h>
 #include <ydb/core/kqp/common/simple/temp_tables.h>

@@ -1,0 +1,21 @@
+library("http_proxy") {
+    public_deps = [
+        "//ydb/public/api:grpc",
+    ]
+
+    deps = [
+        "//ydb/core/security",
+        "//ydb/library/actors/http",
+    ]
+
+    sources = [
+        "auth_actors.cpp",
+        "auth_factory.cpp",
+        "discovery_actor.cpp",
+        "exceptions_mapping.cpp",
+        "grpc_service.cpp",
+        "http_req.cpp",
+        "http_service.cpp",
+        "metrics_actor.cpp",
+    ]
+}

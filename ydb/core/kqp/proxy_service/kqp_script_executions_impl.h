@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb/core/kqp/common/events/script_executions.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/public/api/protos/ydb_query.pb.h>
 #include <ydb/public/api/protos/ydb_status_codes.pb.h>
 

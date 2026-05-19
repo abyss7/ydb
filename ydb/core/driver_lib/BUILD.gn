@@ -3,6 +3,10 @@ library("cli_config_base") {
         "//yql/essentials/minikql",
     ]
 
+    deps = [
+        "//ydb/public/lib/deprecated/client",
+    ]
+
     sources = [
         "cli_config_base/config_base.cpp",
     ]
@@ -13,10 +17,12 @@ library("run") {
         ":cli_config_base",
         "//ydb/core/base",
         "//ydb/core/config:init",
+        "//ydb/core/http_proxy",
         "//ydb/core/kqp/common",
     ]
 
     deps = [
+        "//ydb/core/http_proxy",
         "//ydb/core/protos",
     ]
 

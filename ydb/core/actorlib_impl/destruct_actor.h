@@ -3,7 +3,7 @@
 #include <ydb/library/actors/core/actor.h>
 #include <ydb/library/actors/protos/services_common.pb.h>
 #include <ydb/library/services/services.pb.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 
 namespace NActors {
 

@@ -19,8 +19,8 @@
 #include <ydb/core/protos/http_config.pb.h>
 #include <ydb/public/api/protos/ydb_issue_message.pb.h>
 
-#include <ydb/library/actors/core/event_pb.h>
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/event_pb.h>
+#include <ydb/library/actors/core/events/event_local.h>
 #include <library/cpp/monlib/dynamic_counters/counters.h>
 
 #include <util/generic/hash.h>

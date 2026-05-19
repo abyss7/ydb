@@ -10,7 +10,7 @@
 #include <ydb/core/kqp/proxy_service/kqp_script_executions.h>
 #include <ydb/core/kqp/proxy_service/proto/result_set_meta.pb.h>
 #include <ydb/library/actors/core/actor_bootstrapped.h>
-#include <ydb/library/actors/core/event_pb.h>
+#include <ydb/library/actors/core/events/event_pb.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <ydb/library/actors/core/log.h>
 #include <ydb/library/ydb_issue/issue_helpers.h>
@@ -562,7 +562,7 @@ private:
         if (SaveResultMetaInflight) {
             PendingResultMeta = true;
             return;
-        } 
+        }
         SaveResultMetaInflight++;
 
         NJson::TJsonValue resultSetMetas;

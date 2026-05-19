@@ -4,7 +4,7 @@
 #include <ydb/core/protos/schemeshard/operations.pb.h>
 #include <ydb/core/tx/tx_proxy/proxy.h>
 
-#include <ydb/library/actors/core/event.h>
+#include <ydb/library/actors/core/events/event.h>
 #include <ydb/public/api/protos/ydb_table.pb.h>
 
 #include <yql/essentials/types/binary_json/write.h>

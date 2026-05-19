@@ -1,5 +1,5 @@
 #pragma once
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/core/base/events.h>
 
 namespace NKikimr::NSchemeShard::NBackground {

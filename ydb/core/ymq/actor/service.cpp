@@ -29,7 +29,7 @@
 #include <ydb/core/base/counters.h>
 #include <library/cpp/lwtrace/mon/mon_lwtrace.h>
 
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <library/cpp/logger/global/global.h>
 

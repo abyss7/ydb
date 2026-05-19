@@ -8,7 +8,7 @@
 #include <ydb/services/metadata/ds_table/registration.h>
 
 #include <ydb/library/actors/core/actor_bootstrapped.h>
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/event_local.h>
 #include <library/cpp/threading/future/core/future.h>
 #include <ydb/library/actors/core/av_bootstrapped.h>
 

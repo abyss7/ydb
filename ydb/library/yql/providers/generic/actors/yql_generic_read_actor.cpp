@@ -5,8 +5,8 @@
 #include <ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/types/credentials/credentials.h>
 #include <ydb/library/actors/core/actor_bootstrapped.h>
 #include <ydb/library/actors/core/actorsystem.h>
-#include <ydb/library/actors/core/event_local.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/event_local.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <ydb/library/actors/core/log.h>
 #include <ydb/library/yql/providers/generic/connector/api/service/protos/connector.pb.h>
@@ -412,7 +412,7 @@ namespace NYql::NDq {
             for (const auto& readRange : readRanges) {
                 Generic::TPartition partition;
                 YQL_ENSURE(
-                    partition.ParseFromString(readRange), 
+                    partition.ParseFromString(readRange),
                     "Failed to parse partition from read ranges: " << partition.InitializationErrorString()
                 );
                 partitions.emplace_back(std::move(partition));
@@ -423,7 +423,7 @@ namespace NYql::NDq {
                 Generic::TPartition partition;
                 TStringInput input(iter->first);
                 YQL_ENSURE(
-                    partition.ParseFromString(iter->second), 
+                    partition.ParseFromString(iter->second),
                     "Failed to parse partition from task params: " << partition.InitializationErrorString()
                 );
                 partitions.emplace_back(std::move(partition));

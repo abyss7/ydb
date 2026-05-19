@@ -9,7 +9,7 @@
 #include <ydb/core/kqp/common/simple/services.h>
 #include <ydb/core/kqp/proxy_service/kqp_script_executions.h>
 #include <ydb/library/actors/core/actor_bootstrapped.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <ydb/library/actors/core/interconnect.h>
 #include <ydb/library/ydb_issue/issue_helpers.h>

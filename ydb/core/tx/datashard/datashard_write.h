@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb/core/tx/datashard/operation.h>
-#include <ydb/library/actors/core/event.h>
+#include <ydb/library/actors/core/events/event.h>
 #include <ydb/core/protos/data_events.pb.h>
 #include <ydb/core/protos/tx_datashard.pb.h>
 

@@ -10,8 +10,8 @@
 
 #include <yql/essentials/public/issue/yql_issue.h>
 
-#include <ydb/library/actors/core/event_pb.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/event_pb.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/interconnect/events_local.h>
 
 #include <util/generic/set.h>
@@ -286,7 +286,7 @@ struct TEvYdbCompute {
         explicit TEvExecuterResponse(NYql::TIssues issues, NYdb::EStatus status)
             : Status(status)
             , Issues(std::move(issues))
-            
+
         {}
 
         NYdb::TOperation::TOperationId OperationId;

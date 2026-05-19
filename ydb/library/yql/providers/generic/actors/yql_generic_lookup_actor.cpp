@@ -4,8 +4,8 @@
 
 #include <ydb/library/actors/core/actor_bootstrapped.h>
 #include <ydb/library/actors/core/actorsystem.h>
-#include <ydb/library/actors/core/event_local.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/event_local.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <ydb/library/actors/core/log.h>
 #include <ydb/library/mkql_proto/mkql_proto.h>
@@ -482,7 +482,7 @@ namespace NYql::NDq {
             return result;
         }
 
-        void AddClause(NConnector::NApi::TPredicate::TDisjunction &disjunction, 
+        void AddClause(NConnector::NApi::TPredicate::TDisjunction &disjunction,
                        ui32 columnsCount, const NUdf::TUnboxedValue& keys) {
             NConnector::NApi::TPredicate::TConjunction& conjunction = *disjunction.mutable_operands()->Add()->mutable_conjunction();
             for (ui32 c = 0; c != columnsCount; ++c) {

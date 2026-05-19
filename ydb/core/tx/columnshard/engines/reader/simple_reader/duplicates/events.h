@@ -5,7 +5,7 @@
 #include <ydb/core/formats/arrow/arrow_filter.h>
 #include <ydb/core/tx/columnshard/columnshard_private_events.h>
 
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/event_local.h>
 #include <ydb/library/conclusion/result.h>
 
 namespace NKikimr::NOlap::NReader::NSimple {

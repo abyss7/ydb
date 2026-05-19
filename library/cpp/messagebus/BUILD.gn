@@ -1,4 +1,32 @@
+library("config") {
+    deps = [
+        "//library/cpp/getopt/small",
+    ]
+
+    sources = [
+        "config/netaddr.cpp",
+        "config/session_config.cpp",
+    ]
+}
+
+protobuf_library("monitoring") {
+    public_deps = [
+        "//library/cpp/monlib/encode:protos",
+    ]
+
+    sources = [
+        "monitoring/mon_proto.proto",
+    ]
+}
+
 library("messagebus") {
+    deps = [
+        ":config",
+        ":monitoring",
+        "//contrib/libs/sparsehash",
+        "//library/cpp/lwtrace",
+    ]
+
     sources = [
         "acceptor_status.cpp",
         "acceptor.cpp",

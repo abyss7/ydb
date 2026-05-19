@@ -12,7 +12,7 @@
 #include <ydb/core/fq/libs/control_plane_proxy/events/events.h>
 #include <ydb/core/fq/libs/control_plane_storage/events/events.h>
 #include <ydb/core/fq/libs/rate_limiter/events/control_plane_events.h>
-#include <ydb/library/actors/core/event.h>
+#include <ydb/library/actors/core/events/event.h>
 #include <ydb/library/protobuf_printer/security_printer.h>
 
 #include <yql/essentials/public/issue/yql_issue.h>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "tablet_flat_executor.h"
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/actorsystem.h>
 
 namespace NKikimr {

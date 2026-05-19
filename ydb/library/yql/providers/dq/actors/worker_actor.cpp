@@ -14,7 +14,7 @@
 #include <yql/essentials/minikql/mkql_string_util.h>
 #include <yql/essentials/minikql/mkql_program_builder.h>
 
-#include <ydb/library/actors/core/event_pb.h>
+#include <ydb/library/actors/core/events/event_pb.h>
 #include <ydb/library/actors/core/hfunc.h>
 
 #include <util/stream/file.h>

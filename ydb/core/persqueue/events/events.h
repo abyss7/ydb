@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb/core/base/events.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 
 namespace NKikimr::NPQ::NEvents {
 

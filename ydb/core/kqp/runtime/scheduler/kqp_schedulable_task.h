@@ -3,7 +3,7 @@
 #include "fwd.h"
 
 #include <ydb/library/actors/core/actorid.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 
 namespace NKikimr::NKqp::NScheduler {
 

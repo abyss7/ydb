@@ -14,7 +14,7 @@
 #include <ydb/public/lib/base/msgbus_status.h>
 
 #include <ydb/library/actors/core/actorid.h>
-#include <ydb/library/actors/core/event.h>
+#include <ydb/library/actors/core/events/event.h>
 #include <library/cpp/testing/unittest/registar.h>
 #include <library/cpp/json/json_reader.h>
 
@@ -3315,7 +3315,7 @@ Y_UNIT_TEST_F(Multiple_Transactions_Different_Ranges, TFixture)
     AddReadRange();
     AddPairFromPQ(101, {1});
     AddPairFromPartition(101, 1);
-    
+
     AddReadRange();
     AddPairFromPQ(102, {1, 2});
     AddPairFromPartition(102, 1);
@@ -3330,7 +3330,7 @@ Y_UNIT_TEST_F(Transaction_Adjacent_ReadRanges, TFixture)
 {
     AddReadRange();
     AddPairFromPQ(101, {1, 2});
-    
+
     AddReadRange();
     AddPairFromPartition(101, 1);
     AddPairFromPartition(101, 2);
@@ -3344,10 +3344,10 @@ Y_UNIT_TEST_F(Transaction_Multiple_ReadRanges, TFixture)
 {
     AddReadRange();
     AddPairFromPQ(101, {1, 2, 3});
-    
+
     AddReadRange();
     AddPairFromPartition(101, 1);
-    
+
     AddReadRange();
     AddPairFromPartition(101, 2);
     AddPairFromPartition(101, 3);
@@ -3360,7 +3360,7 @@ Y_UNIT_TEST_F(Transaction_Multiple_ReadRanges, TFixture)
 Y_UNIT_TEST_F(Empty_ReadRange_In_Vector, TFixture)
 {
     AddReadRange();
-    
+
     AddReadRange();
     AddPairFromPQ(101, {1});
 
@@ -3373,29 +3373,29 @@ Y_UNIT_TEST_F(Comprehensive_Test_Set_For_Complete_CollectTransactions_Testing, T
 {
     // Пустой readRange (краевой случай)
     AddReadRange();
-    
+
     // Транзакция без субтранзакций
     AddReadRange();
     AddPairFromPQ(101, {1});             // tx 101: 1 партиция, не записала -> PREPARED
-    
+
     // Транзакция tx 102 полная в одном readRange
     AddReadRange();
     AddPairFromPQ(102, {1, 2, 3});       // tx 102: 3 партиции
     AddPairFromPartition(102, 1);        // tx 102: партиция 1 записала
     AddPairFromPartition(102, 2);        // tx 102: партиция 2 записала
     AddPairFromPartition(102, 3);        // tx 102: партиция 3 записала -> все 3/3 -> EXECUTED
-    
+
     // Основная транзакция tx 103
     AddReadRange();
     AddPairFromPQ(103, {1, 2});          // tx 103: 2 партиции в другом readRange
-    
+
     // Субтранзакции tx 103 + транзакция tx 104 (частичная)
     AddReadRange();
     AddPairFromPartition(103, 1);        // tx 103: партиция 1 записала -> 1/2 -> PLANNED
     AddPairFromPQ(104, {1, 2, 3, 4, 5}); // tx 104: много партиций
     AddPairFromPartition(104, 1);        // tx 104: партиция 1 записала
     AddPairFromPartition(104, 5);        // tx 104: партиция 5 записала (крайняя)
-    
+
     // Транзакции tx 105 (полная) и tx 106 (частичная)
     AddReadRange();
     AddPairFromPQ(105, {1, 2});          // tx 105: 2 партиции

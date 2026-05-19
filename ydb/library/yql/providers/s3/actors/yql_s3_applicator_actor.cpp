@@ -13,8 +13,8 @@
 
 #include <ydb/library/actors/core/actor.h>
 #include <ydb/library/actors/core/actor_bootstrapped.h>
-#include <ydb/library/actors/core/events.h>
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/events.h>
+#include <ydb/library/actors/core/events/event_local.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <ydb/library/actors/core/log.h>
 
@@ -131,7 +131,7 @@ struct TListParts {
     TString PartNumberMarker;
     TCompleteMultipartUpload::TPtr CompleteState;
 
-    TListParts(const TString& requestId, const TString& url, const TString& uploadId, const TString& token, 
+    TListParts(const TString& requestId, const TString& url, const TString& uploadId, const TString& token,
         TCompleteMultipartUpload::TPtr completeState)
         : RequestId(requestId), Url(url), UploadId(uploadId), Token(token), CompleteState(completeState) {
     }
@@ -222,7 +222,7 @@ public:
         ISecuredServiceAccountCredentialsFactory::TPtr credentialsFactory,
         const NYql::NDqProto::TExternalEffect& externalEffect)
     : ParentId(parentId)
-    , Gateway(gateway) 
+    , Gateway(gateway)
     , QueryId(queryId)
     , KeyPrefix(jobId ? jobId + "_" : "")
     , KeySubPrefix(restartNumber ? ToString(*restartNumber) + "_" : "")

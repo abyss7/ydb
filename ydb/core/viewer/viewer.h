@@ -6,7 +6,7 @@
 #include <ydb/core/sys_view/common/events.h>
 #include <ydb/library/actors/core/actor.h>
 #include <ydb/library/actors/core/defs.h>
-#include <ydb/library/actors/core/event.h>
+#include <ydb/library/actors/core/events/event.h>
 #include <ydb/library/actors/http/http_proxy.h>
 #include <ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/types/status/status.h>
 #include <util/string/strip.h>

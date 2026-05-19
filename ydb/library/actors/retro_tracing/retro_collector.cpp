@@ -2,7 +2,7 @@
 #include "span_buffer.h"
 
 #include <ydb/library/actors/core/actor_bootstrapped.h>
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/event_local.h>
 #include <ydb/library/actors/core/hfunc.h>
 
 namespace NRetroTracing {

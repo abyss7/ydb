@@ -11,8 +11,8 @@
 #include <ydb/library/grpc/server/grpc_server.h>
 
 #include <ydb/library/actors/core/actorsystem.h>
-#include <ydb/library/actors/core/event_local.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/event_local.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <library/cpp/monlib/dynamic_counters/counters.h>
 #include <library/cpp/threading/future/future.h>
 

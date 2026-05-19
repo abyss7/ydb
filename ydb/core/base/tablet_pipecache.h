@@ -4,7 +4,7 @@
 #include "counters.h"
 
 #include <ydb/core/base/tablet_pipe.h>
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/event_local.h>
 #include <util/stream/str.h>
 
 namespace NKikimr {
@@ -111,7 +111,7 @@ struct TEvPipeCache {
     struct TEvForcePipeReconnect : public TEventLocal<TEvForcePipeReconnect, EvForcePipeReconnect> {
         const ui64 TabletId;
 
-        explicit TEvForcePipeReconnect(ui64 tabletId) 
+        explicit TEvForcePipeReconnect(ui64 tabletId)
             : TabletId(tabletId)
         {
         }

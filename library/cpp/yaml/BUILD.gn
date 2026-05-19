@@ -1,0 +1,3 @@
+library("yaml") {
+    public_deps = [ "//contrib/libs/yaml-cpp" ]
+}

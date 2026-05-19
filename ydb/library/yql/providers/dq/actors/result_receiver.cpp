@@ -14,7 +14,7 @@
 #include <ydb/public/lib/yson_value/ydb_yson_value.h>
 
 #include <ydb/library/actors/core/actorsystem.h>
-#include <ydb/library/actors/core/event_pb.h>
+#include <ydb/library/actors/core/events/event_pb.h>
 #include <ydb/library/actors/core/executor_pool_basic.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <ydb/library/actors/core/scheduler_basic.h>

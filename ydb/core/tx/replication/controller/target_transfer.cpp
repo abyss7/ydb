@@ -3,7 +3,7 @@
 
 #include <ydb/core/base/path.h>
 #include <ydb/core/tx/replication/service/service.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 
 namespace NKikimr::NReplication::NController {
 

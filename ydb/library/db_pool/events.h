@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ydb/library/actors/core/events.h>
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/events.h>
+#include <ydb/library/actors/core/events/event_local.h>
 
 #include <ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/table/table.h>
 
@@ -18,7 +18,7 @@ struct TEvents {
     };
 
     static_assert(EvEnd < EventSpaceEnd(NActors::TEvents::ES_PRIVATE), "expect EvEnd < EventSpaceEnd(NActors::TEvents::ES_PRIVATE)");
-    
+
     struct TEvDbRequest : NActors::TEventLocal<TEvDbRequest, EvDbRequest> {
         TString Sql;
         NYdb::TParams Params;

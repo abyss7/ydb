@@ -5,7 +5,7 @@
 #include <ydb/core/tx/columnshard/bg_tasks/events/events.h>
 
 #include <ydb/library/accessor/accessor.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 
 namespace NKikimr::NOlap::NBackground {
 

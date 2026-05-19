@@ -2,7 +2,7 @@
 
 #include <ydb/core/fq/libs/control_plane_proxy/events/events.h>
 #include <ydb/library/actors/core/actor.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/tests/tools/kqprun/runlib/actors.h>
 
 namespace NFqRun {

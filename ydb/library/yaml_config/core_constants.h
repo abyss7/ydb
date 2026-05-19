@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ydb/core/base/domain.h>
+
 #include <util/generic/string.h>
 
 #include <utility>

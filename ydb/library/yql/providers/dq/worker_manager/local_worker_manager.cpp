@@ -13,7 +13,7 @@
 #include <yql/essentials/utils/log/log.h>
 
 #include <ydb/library/actors/core/hfunc.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/interconnect/interconnect.h>
 
 #include "worker_manager_common.h"
@@ -374,7 +374,7 @@ private:
                 ui64 taskId = 0;
                 if (createComputeActor) {
                     YQL_CLOG(DEBUG, ProviderDq) << "Create compute actor: " << computeActorType;
-                    
+
                     NYql::NDqProto::TDqTask* taskPtr = &(tasks[i]);
                     taskId = taskPtr->id();
                     actor.Reset(NYql::CreateComputeActor(

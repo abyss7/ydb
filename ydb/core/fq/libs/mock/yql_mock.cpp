@@ -7,7 +7,7 @@
 #include <yql/essentials/public/issue/yql_issue_message.h>
 
 #include <ydb/library/actors/core/actorsystem.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <ydb/library/actors/http/http.h>
 #include <ydb/library/actors/http/http_proxy.h>

@@ -46,6 +46,7 @@ library("events") {
     public_deps = [
         ":result_set_format",
         ":simple",
+        "//ydb/core/grpc_services:cancelation",
     ]
 
     deps = [
@@ -61,6 +62,10 @@ library("events") {
 }
 
 library("result_set_format") {
+    public_deps = [
+        "//contrib/libs/apache/arrow",
+    ]
+
     deps = [
         "//ydb/core/formats/arrow",
         "//yql/essentials/minikql",

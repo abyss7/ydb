@@ -1,6 +1,6 @@
 #pragma once
 #include "async.h"
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 
 namespace NActors::NDetail {
 

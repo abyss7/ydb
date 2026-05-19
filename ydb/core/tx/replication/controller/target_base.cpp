@@ -5,7 +5,7 @@
 #include "target_base.h"
 #include "util.h"
 
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 
 namespace NKikimr::NReplication::NController {
 

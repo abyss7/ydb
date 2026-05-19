@@ -2,7 +2,7 @@
 
 #include <util/datetime/base.h>
 #include <ydb/core/security/token_manager/token_manager.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 
 namespace NKikimr::NTokenManager {
 

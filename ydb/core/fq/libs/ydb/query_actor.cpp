@@ -1,7 +1,7 @@
 #include <ydb/core/fq/libs/ydb/query_actor.h>
 #include <ydb/core/fq/libs/actors/logging/log.h>
 
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/query_actor/query_actor.h>
 
 #include <ydb/public/api/protos/ydb_status_codes.pb.h>
@@ -40,7 +40,7 @@ private:
         Become(&TQuerySession::StateWork);
         return new NActors::IEventHandle(self, self, new NActors::TEvents::TEvBootstrap());
     }
-    
+
     STATEFN(StateWork) {
         switch (ev->GetTypeRewrite()) {
             cFunc(NActors::TEvents::TEvBootstrap::EventType, DoBootstrap);
@@ -51,7 +51,7 @@ private:
                 TBase::StateFunc(ev);
         }
     }
-    
+
     void DoBootstrap() {
         TBase::Bootstrap();
         Become(&TQuerySession::StateWork);
@@ -80,7 +80,7 @@ private:
         auto promise = DataQuery->Promise;
         DataQuery = std::nullopt;
         auto status = NYdb::TStatus(NYdb::EStatus::SUCCESS, NYdb::NIssue::TIssues());
-        
+
         IsExecuting = false;
         promise.SetValue(NYdb::NTable::TDataQueryResult(std::move(status), std::move(ResultSets), std::nullopt, std::nullopt, false, std::nullopt));
         if (IsFinishing) {
@@ -89,7 +89,7 @@ private:
     }
 
     void OnFinish(Ydb::StatusIds::StatusCode statusCode, NYql::TIssues&& issues) final {
-        if (DataQuery) {          
+        if (DataQuery) {
             NYdb::TStatus status(static_cast<NYdb::EStatus>(statusCode), NYdb::NAdapters::ToSdkIssues(issues));
             DataQuery->Promise.SetValue(NYdb::NTable::TDataQueryResult(std::move(status), std::move(ResultSets), std::nullopt, std::nullopt, false, std::nullopt));
         }

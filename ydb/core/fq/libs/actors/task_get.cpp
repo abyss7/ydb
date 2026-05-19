@@ -6,7 +6,7 @@
 #include <yql/essentials/public/issue/yql_issue_message.h>
 
 #include <library/cpp/yson/node/node_io.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <ydb/library/actors/core/actor_bootstrapped.h>
 #include <ydb/library/actors/core/log.h>

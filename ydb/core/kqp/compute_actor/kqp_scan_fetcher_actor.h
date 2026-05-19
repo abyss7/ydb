@@ -16,7 +16,7 @@
 #include <ydb/core/tx/scheme_cache/scheme_cache.h>
 
 #include <ydb/library/actors/core/actor_bootstrapped.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/interconnect.h>
 #include <ydb/library/actors/wilson/wilson_trace.h>
 #include <ydb/library/yql/dq/actors/compute/dq_compute_actor.h>

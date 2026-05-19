@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb/library/actors/core/actor.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/log.h>
 #include <ydb/library/actors/core/mon.h>
 
@@ -32,11 +32,11 @@ class TScanDiagnosticsActor: public NActors::TActorBootstrapped<TScanDiagnostics
         hFunc(NColumnShard::TEvPrivate::TEvReportScanIteratorDiagnostics, Handle)
         cFunc(TEvents::TEvPoisonPill::EventType, PassAway)
     )
-    
+
     void Handle(const NMon::TEvRemoteHttpInfo::TPtr& ev);
     void Handle(const NColumnShard::TEvPrivate::TEvReportScanDiagnostics::TPtr& ev);
     void Handle(const NColumnShard::TEvPrivate::TEvReportScanIteratorDiagnostics::TPtr& ev);
-    
+
     TString RenderScanDiagnosticsInfo(const TScanDiagnosticsInfo& info, int id, const TString& tag);
     TString RenderScanDiagnostics(const std::deque<std::shared_ptr<TScanDiagnosticsInfo>>& lastScans, const TString& tag);
     void AddScanDiagnostics(const std::shared_ptr<TScanDiagnosticsInfo>& info, std::deque<std::shared_ptr<TScanDiagnosticsInfo>>& lastScans);

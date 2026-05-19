@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ydb/library/actors/core/event_pb.h>
+#include <ydb/library/actors/core/events/event_pb.h>
 #include <ydb/library/protobuf_printer/security_printer.h>
 
 #include <util/string/builder.h>

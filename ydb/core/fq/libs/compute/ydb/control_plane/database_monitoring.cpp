@@ -10,7 +10,7 @@
 #include <ydb/library/grpc/actor_client/grpc_service_client.h>
 
 #include <ydb/library/actors/core/actor.h>
-#include <ydb/library/actors/core/event.h>
+#include <ydb/library/actors/core/events/event.h>
 #include <ydb/library/actors/core/hfunc.h>
 
 #include <util/generic/queue.h>

@@ -8,7 +8,7 @@
 #include <ydb/library/aclib/aclib.h>
 
 #include <ydb/library/actors/core/actor.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <library/cpp/testing/unittest/registar.h>
 
 #include <util/generic/ptr.h>

@@ -1,7 +1,9 @@
+_path = rebase_path(".", "//")
+_unique_name = exec_script("//build/gn/scripts/unique_name.py", [ _path ], "trim string")
+_codegen_name = "${_unique_name}_codegen"
+
 executable("codegen") {
-    _path = rebase_path(".", "//")
-    _unique_name = exec_script("//build/gn/scripts/unique_name.py", [ _path ], "trim string")
-    output_name = "${_unique_name}_${target_name}"
+    output_name = "${_codegen_name}"
 
     deps += [
         "//contrib/libs/jinja2cpp",
@@ -19,7 +21,7 @@ template("codegen") {
         sources = invoker.sources
         outputs = [ "$_output" ]
 
-        _codegen_bin = rebase_path("$root_out_dir/codegen", root_build_dir)
+        _codegen_bin = rebase_path("$root_out_dir/$_codegen_name", root_build_dir)
 
         args = [
             "./$_codegen_bin",

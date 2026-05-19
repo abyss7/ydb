@@ -2,7 +2,7 @@
 #include <ydb/core/security/ut_common.h>
 #include <ydb/core/testlib/audit_helpers/audit_helper.h>
 
-#include <ydb/library/actors/core/event.h>
+#include <ydb/library/actors/core/events/event.h>
 #include <ydb/library/actors/http/http_proxy.h>
 
 #include <ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/query/client.h>

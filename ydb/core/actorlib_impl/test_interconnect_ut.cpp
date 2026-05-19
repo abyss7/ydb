@@ -4,8 +4,8 @@
 #include <ydb/core/testlib/basics/runtime.h>
 #include <ydb/core/testlib/basics/appdata.h>
 #include <ydb/core/driver_lib/version/version.h>
-#include <ydb/library/actors/core/event_local.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/event_local.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/protos/services_common.pb.h>
 #include <ydb/library/actors/protos/unittests.pb.h>
 #include <library/cpp/http/io/headers.h>

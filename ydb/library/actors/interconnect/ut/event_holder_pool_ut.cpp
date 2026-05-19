@@ -1,8 +1,8 @@
 #include <library/cpp/malloc/api/malloc.h>
 #include <library/cpp/monlib/dynamic_counters/counters.h>
 #include <library/cpp/testing/unittest/registar.h>
-#include <ydb/library/actors/core/events.h>
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/events.h>
+#include <ydb/library/actors/core/events/event_local.h>
 #include <ydb/library/actors/interconnect/interconnect_common.h>
 #include <ydb/library/actors/interconnect/event_holder_pool.h>
 

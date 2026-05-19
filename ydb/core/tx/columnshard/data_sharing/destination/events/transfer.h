@@ -8,7 +8,7 @@
 #include <ydb/core/tx/columnshard/engines/scheme/versions/versioned_index.h>
 #include <ydb/core/tx/columnshard/common/path_id.h>
 
-#include <ydb/library/actors/core/event_pb.h>
+#include <ydb/library/actors/core/events/event_pb.h>
 namespace NKikimr::NOlap::NDataSharing {
 class TSharedBlobsManager;
 class TTaskForTablet;

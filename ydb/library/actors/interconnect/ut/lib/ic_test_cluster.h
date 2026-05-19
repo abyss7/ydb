@@ -5,7 +5,7 @@
 #include "port_manager.h"
 
 #include <ydb/library/actors/interconnect/interconnect_tcp_proxy.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/actor_bootstrapped.h>
 
 #include <util/generic/noncopyable.h>
@@ -130,7 +130,7 @@ public:
             NThreading::TPromise<TString> Promise;
         };
 
-        IActor* actor = new TGetHttpInfoActor(Nodes[me]->InterconnectProxy(peer), promise); 
+        IActor* actor = new TGetHttpInfoActor(Nodes[me]->InterconnectProxy(peer), promise);
         Nodes[me]->RegisterActor(actor);
 
         return promise.GetFuture();

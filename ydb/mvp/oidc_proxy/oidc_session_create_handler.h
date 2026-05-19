@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb/library/actors/core/actorid.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <ydb/library/actors/http/http_proxy.h>
 #include "oidc_settings.h"

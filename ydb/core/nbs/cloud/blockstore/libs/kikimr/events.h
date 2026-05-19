@@ -5,9 +5,9 @@
 #include <ydb/core/nbs/cloud/blockstore/libs/service/context.h>
 #include <ydb/core/nbs/cloud/storage/core/libs/common/error.h>
 
-#include <ydb/library/actors/core/event.h>
-#include <ydb/library/actors/core/event_local.h>
-#include <ydb/library/actors/core/event_pb.h>
+#include <ydb/library/actors/core/events/event.h>
+#include <ydb/library/actors/core/events/event_local.h>
+#include <ydb/library/actors/core/events/event_pb.h>
 
 #include <library/cpp/lwtrace/shuttle.h>
 

@@ -11,7 +11,7 @@
 
 #include <ydb/core/protos/replication.pb.h>
 #include <ydb/core/tx/replication/ydb_proxy/ydb_proxy.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/yverify_stream/yverify_stream.h>
 
 #include <util/generic/hash.h>

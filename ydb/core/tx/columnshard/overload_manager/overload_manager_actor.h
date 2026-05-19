@@ -2,7 +2,7 @@
 
 #include <ydb/library/actors/core/actor.h>
 #include <ydb/library/actors/core/log.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 
 #include <ydb/core/tx/columnshard/overload_manager/overload_manager_counters.h>
 #include <ydb/core/tx/columnshard/overload_manager/overload_manager_events.h>

@@ -2,8 +2,8 @@
 
 #include "actorsystem.h"
 #include "actor_bootstrapped.h"
-#include "events.h"
-#include "event_local.h"
+#include "events/events.h"
+#include "events/event_local.h"
 
 #include <any>
 #include <type_traits>

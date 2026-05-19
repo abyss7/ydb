@@ -10,8 +10,8 @@
 
 #include <ydb/library/actors/core/actor_bootstrapped.h>
 #include <ydb/library/actors/core/actor_coroutine.h>
-#include <ydb/library/actors/core/events.h>
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/events.h>
+#include <ydb/library/actors/core/events/event_local.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <ydb/library/actors/core/log.h>
 #include <ydb/library/actors/util/datetime.h>
@@ -176,10 +176,10 @@ struct TReadSpec {
     NDB::ColumnsWithTypeAndName CHColumns;
     std::shared_ptr<arrow::Schema> ArrowSchema;
     NDB::FormatSettings Settings;
-    // It's very important to keep here std::string instead of TString 
+    // It's very important to keep here std::string instead of TString
     // because of the cast from TString to std::string is using the MutRef (it isn't thread-safe).
     // This behaviour can be found in the getInputFormat call
-    std::string Format;  
+    std::string Format;
     TString Compression;
     ui64 SizeLimit = 0;
     ui32 BlockLengthPosition = 0;
@@ -796,7 +796,7 @@ public:
                 if (isCancelled) {
                     LOG_CORO_D("RunCoroBlockArrowParserOverHttp - STOPPED ON SATURATION, downloaded " <<
                                SourceContext->GetDownloadedBytes() << " bytes");
-                    break;        
+                    break;
                 }
             }
         }
@@ -1492,7 +1492,7 @@ public:
         if (ReadSpec->ParallelDownloadCount && splitCount >= ReadSpec->ParallelDownloadCount) {
             // explicit limit
             return false;
-        } 
+        }
         if (splitCount && DownloadSize * SourceContext->Ratio() > ReadActorFactoryCfg.DataInflight * 2) {
             // dynamic limit
             return false;
@@ -1860,7 +1860,7 @@ private:
             }
         }
     }
-    
+
     void Handle(TEvS3Provider::TEvAck::TPtr& ev) {
         FileQueueEvents.OnEventReceived(ev);
     }

@@ -934,7 +934,7 @@ protected:
     }
 
     TOperation(const TOperation &other) = delete;
-    TOperation(TOperation &&other) = default;
+    TOperation(TOperation &&other) = delete;
 
     TOutputOpData &OutputDataRef()
     {

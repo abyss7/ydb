@@ -11,7 +11,7 @@
 
 #include <ydb/core/util/source_location.h>
 
-#include <ydb/library/actors/core/event.h>  // for TEventHandler
+#include <ydb/library/actors/core/events/event.h>  // for TEventHandler
 
 #include <util/generic/ptr.h>
 #include <util/generic/set.h>

@@ -1,0 +1,21 @@
+library("cancelation") {
+    public_deps = [ ":protos" ]
+
+    deps = [
+        "//ydb/library/actors/core",
+    ]
+
+    sources = [
+        "cancelation/cancelation.cpp",
+    ]
+}
+
+protobuf_library("protos") {
+    deps = [
+        "//ydb/library/actors/protos",
+    ]
+
+    sources = [
+        "cancelation/protos/event.proto",
+    ]
+}

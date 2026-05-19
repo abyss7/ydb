@@ -3,8 +3,8 @@
 #include "extension.h"
 #include "context.h"
 #include "oidc_settings.h"
-#include <ydb/library/actors/core/events.h>
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/events.h>
+#include <ydb/library/actors/core/events/event_local.h>
 #include <ydb/library/actors/http/http.h>
 #include <ydb/public/sdk/cpp/src/library/grpc/client/grpc_client_low.h>
 #include <ydb/mvp/core/appdata.h>

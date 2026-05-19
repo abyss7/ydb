@@ -18,10 +18,9 @@
 #include <util/generic/set.h>
 #include <util/generic/map.h>
 #include <util/stream/str.h>
+#include <util/string/cast.h>
 
-#include <unordered_map>
 #include <map>
-#include <string>
 
 namespace NKikimr::NYamlConfig {
 

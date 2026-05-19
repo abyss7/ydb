@@ -5,7 +5,7 @@
 #include "db_key_resolver.h"
 
 #include <ydb/library/actors/core/actor.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <yql/essentials/ast/yql_expr.h>
 
 #include <library/cpp/threading/future/future.h>

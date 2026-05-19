@@ -1,0 +1,21 @@
+library("http") {
+    public_deps = [
+        "//ydb/library/actors/core",
+    ]
+
+    deps = [
+        "//contrib/libs/openssl",
+        "//contrib/libs/zlib",
+    ]
+
+    sources = [
+        "http_cache.cpp",
+        "http_compress.cpp",
+        "http_proxy_acceptor.cpp",
+        "http_proxy_incoming.cpp",
+        "http_proxy_outgoing.cpp",
+        "http_proxy.cpp",
+        "http_static.cpp",
+        "http.cpp",
+    ]
+}

@@ -4,8 +4,8 @@
 #include <util/generic/map.h>
 #include <util/generic/maybe.h>
 
-#include <ydb/library/actors/core/event_pb.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/event_pb.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/interconnect/events_local.h>
 
 #include <ydb/core/fq/libs/protos/fq_private.pb.h>

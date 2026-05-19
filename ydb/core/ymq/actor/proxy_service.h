@@ -12,7 +12,7 @@
 #include <ydb/library/actors/core/actor_bootstrapped.h>
 #include <ydb/library/actors/core/actor.h>
 #include <ydb/library/actors/core/interconnect.h>
-#include <ydb/library/actors/core/event_pb.h>
+#include <ydb/library/actors/core/events/event_pb.h>
 #include <ydb/library/actors/core/hfunc.h>
 
 #include <util/generic/hash.h>
@@ -118,7 +118,7 @@ private:
     TDeque<std::pair<TInstant, TReloadStateRequestsInfoPtr>> ReloadStatePlanningToSend_;
     TMap<TInstant, THashSet<TReloadStateRequestsInfoPtr>> ReloadStateRequestSended_;
     TString ReloadStateRequestId_;
-    
+
 };
 
 } // namespace NKikimr::NSQS

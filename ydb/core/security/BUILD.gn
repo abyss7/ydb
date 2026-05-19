@@ -1,0 +1,31 @@
+library("certificate_check") {
+    public_deps = [
+        "//contrib/libs/openssl",
+    ]
+
+    deps = [
+        "//ydb/core/protos",
+    ]
+
+    sources = [
+        "certificate_check/cert_auth_utils.cpp",
+        "certificate_check/cert_auth_processor.cpp",
+        "certificate_check/cert_check.cpp",
+    ]
+}
+
+library("security") {
+    public_deps = [
+        ":certificate_check",
+    ]
+
+    deps = [
+        "//ydb/core/base",
+    ]
+
+    sources = [
+        "login_page.cpp",
+        "login_shared_func.cpp",
+        "ticket_parser.cpp",
+    ]
+}

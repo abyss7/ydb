@@ -1,5 +1,7 @@
 #include "yaml_config_helpers.h"
 
+#include <util/string/split.h>
+
 #define XXH_INLINE_ALL
 #include <contrib/libs/xxhash/xxhash.h>
 

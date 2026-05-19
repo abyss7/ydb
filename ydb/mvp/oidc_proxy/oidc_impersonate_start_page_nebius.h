@@ -2,7 +2,7 @@
 
 #include "oidc_settings.h"
 #include "context.h"
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 
 namespace NMVP::NOIDC {
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <ydb/library/actors/core/event_pb.h>
+#include <ydb/library/actors/core/events/event_pb.h>
 #include <ydb/core/tx/columnshard/blobs_action/protos/events.pb.h>
 #include <ydb/core/tx/columnshard/blob.h>
 #include <ydb/core/tx/columnshard/columnshard.h>

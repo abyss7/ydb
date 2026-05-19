@@ -9,7 +9,7 @@
 #include <yql/essentials/utils/log/log.h>
 
 #include <ydb/library/actors/core/actor.h>
-#include <ydb/library/actors/core/event.h>
+#include <ydb/library/actors/core/events/event.h>
 #include <ydb/library/actors/core/hfunc.h>
 
 #include <library/cpp/yson/node/node.h>

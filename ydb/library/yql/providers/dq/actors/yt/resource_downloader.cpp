@@ -9,7 +9,7 @@
 #include <ydb/library/yql/providers/dq/actors/yt/resource_manager.h>
 #include <ydb/library/yql/providers/dq/actors/events/events.h>
 
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <library/cpp/yson/node/node_io.h>
 

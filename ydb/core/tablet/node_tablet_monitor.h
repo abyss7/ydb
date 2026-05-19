@@ -3,7 +3,7 @@
 #include "defs.h"
 #include <ydb/library/actors/core/defs.h>
 #include <ydb/library/actors/core/actor.h>
-#include <ydb/library/actors/core/event.h>
+#include <ydb/library/actors/core/events/event.h>
 #include <ydb/library/actors/core/interconnect.h>
 #include <ydb/core/base/events.h>
 #include <ydb/core/protos/node_whiteboard.pb.h>

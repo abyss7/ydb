@@ -37,10 +37,6 @@ struct TEvDq {
 
         TEvAbortExecution() = default;
 
-        TEvAbortExecution(TEvAbortExecution&&) = default;
-
-        TEvAbortExecution(const TEvAbortExecution&) = default;
-
         TEvAbortExecution(NYql::NDqProto::StatusIds::StatusCode code, const TIssues& issues) {
             Record.SetStatusCode(code);
             Record.SetYdbStatusCode(DqStatusToYdbStatus(code));

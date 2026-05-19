@@ -26,7 +26,7 @@
 #include <yql/essentials/core/services/yql_transform_pipeline.h>
 #include <yql/essentials/minikql/aligned_page_pool.h>
 #include <yql/essentials/minikql/mkql_node_serialization.h>
-#include <ydb/library/actors/core/event_pb.h>
+#include <ydb/library/actors/core/events/event_pb.h>
 
 #include <stack>
 

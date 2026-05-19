@@ -1,6 +1,6 @@
 #include "async.h"
 #include <ydb/library/actors/core/actorsystem.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/executor_thread.h>
 
 namespace NActors::NDetail {

@@ -4,7 +4,7 @@
 
 #include <ydb/core/tablet/tablet_counters.h>  // for TTabletCountersBase
 
-#include <ydb/library/actors/core/event.h>  // for TEventHandle
+#include <ydb/library/actors/core/events/event.h>  // for TEventHandle
 
 #include <util/datetime/base.h>
 #include <util/generic/ptr.h>

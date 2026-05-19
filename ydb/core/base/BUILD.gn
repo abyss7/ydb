@@ -1,7 +1,14 @@
+config("public_config") {
+    cflags = [
+        "-Wno-deprecated-volatile",
+    ]
+}
+
 library("base") {
     public_deps = [
         "generated",
         "//ydb/core/control/lib",
+        "//ydb/core/fq/libs/events",
         "//ydb/core/protos",
         "//ydb/core/scheme",
         "//ydb/library/actors/interconnect",
@@ -78,4 +85,6 @@ library("base") {
         "boot_type.h",
         "memory_controller_iface.h",
     ]
+
+    public_configs = [ ":public_config" ]
 }

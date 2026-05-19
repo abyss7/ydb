@@ -6,7 +6,7 @@
 #include <ydb/core/tx/columnshard/operations/common/context.h>
 #include <ydb/core/tx/data_events/write_data.h>
 
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/event_local.h>
 #include <ydb/library/actors/testlib/common/events_scheduling.h>
 
 namespace NKikimr::NOlap::NWritingPortions {

@@ -4,7 +4,7 @@
 #include <ydb/core/scheme/scheme_pathid.h>
 #include <ydb/core/protos/statistics.pb.h>
 #include <ydb/public/api/protos/ydb_status_codes.pb.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <yql/essentials/public/issue/yql_issue.h>
 
 

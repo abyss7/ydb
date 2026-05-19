@@ -1,6 +1,6 @@
 #include "resource_manager.h"
 
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/hfunc.h>
 
 #include <ydb/library/yql/providers/dq/global_worker_manager/coordination_helper.h>

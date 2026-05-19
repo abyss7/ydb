@@ -1,0 +1,18 @@
+library("engine") {
+    public_deps = [
+        "//yql/essentials/minikql",
+    ]
+
+    deps = [
+        "//ydb/core/tablet_flat",
+    ]
+
+    sources = [
+        "kikimr_program_builder.cpp",
+        "mkql_engine_flat.cpp",
+        "mkql_engine_flat_extfunc.cpp",
+        "mkql_engine_flat_host.cpp",
+        "mkql_keys.cpp",
+        "mkql_proto.cpp",
+    ]
+}

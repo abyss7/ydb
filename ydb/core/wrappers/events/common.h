@@ -3,7 +3,7 @@
 #include "abstract.h"
 #include "s3_out.h"
 
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/event_local.h>
 
 namespace NKikimr::NWrappers::NExternalStorage {
 

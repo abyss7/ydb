@@ -1,3 +1,9 @@
+protobuf_library("protos") {
+    sources = [
+        "legacy_protobuf/protos/metric_meta.proto",
+    ]
+}
+
 library("encode") {
     deps = [
         "//library/cpp/monlib/metrics",

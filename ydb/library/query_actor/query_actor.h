@@ -11,8 +11,8 @@
 #include <ydb/library/actors/core/actor.h>
 #include <ydb/library/actors/core/actorid.h>
 #include <ydb/library/actors/core/actorsystem.h>
-#include <ydb/library/actors/core/event_local.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/event_local.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <yql/essentials/public/issue/yql_issue.h>
 
 #include <ydb/public/api/protos/ydb_status_codes.pb.h>
@@ -265,7 +265,7 @@ public:
     explicit TQueryRetryActor(const NActors::TActorId& replyActorId, const TArgs&... args)
         : ReplyActorId(replyActorId)
         , RetryPolicy(IRetryPolicy::GetExponentialBackoffPolicy(
-            Retryable, TDuration::MilliSeconds(10), 
+            Retryable, TDuration::MilliSeconds(10),
             TDuration::MilliSeconds(200), TDuration::Seconds(1),
             std::numeric_limits<size_t>::max(), TDuration::Seconds(1)
         ))

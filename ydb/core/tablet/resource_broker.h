@@ -6,7 +6,7 @@
 
 #include <ydb/library/actors/core/defs.h>
 #include <ydb/library/actors/core/actor.h>
-#include <ydb/library/actors/core/event.h>
+#include <ydb/library/actors/core/events/event.h>
 #include <library/cpp/monlib/dynamic_counters/counters.h>
 
 #include <array>

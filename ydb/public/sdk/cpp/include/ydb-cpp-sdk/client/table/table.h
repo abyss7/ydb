@@ -129,7 +129,7 @@ struct TTableColumn {
     std::optional<bool> NotNull;
     std::optional<TSequenceDescription> SequenceDescription;
 
-    TTableColumn() = default;
+    TTableColumn() = delete;
 
     TTableColumn(std::string name,
                  TType type,

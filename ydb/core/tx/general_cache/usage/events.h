@@ -5,7 +5,7 @@
 #include <ydb/core/tx/general_cache/source/abstract.h>
 
 #include <ydb/library/accessor/accessor.h>
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/event_local.h>
 #include <ydb/library/actors/core/log.h>
 
 namespace NKikimr::NGeneralCache::NPublic {

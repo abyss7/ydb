@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/core/tx/defs.h>
 
 namespace NKikimr {

@@ -1,7 +1,7 @@
 #pragma once
 #include <util/generic/ptr.h>
 #include <util/generic/string.h>
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/event_local.h>
 #include <ydb/public/sdk/cpp/src/library/grpc/client/grpc_client_low.h>
 
 namespace NNebiusCloud {

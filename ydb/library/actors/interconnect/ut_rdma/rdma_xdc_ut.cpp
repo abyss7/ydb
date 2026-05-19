@@ -1,4 +1,4 @@
-#include <ydb/library/actors/core/event_pb.h>
+#include <ydb/library/actors/core/events/event_pb.h>
 #include <ydb/library/actors/interconnect/rdma/ut/utils/utils.h>
 #include <ydb/library/actors/interconnect/rdma/mem_pool.h>
 
@@ -196,7 +196,7 @@ TEvTestSerialization* MakeMultuGlueTestEvent(ui64 blobId, NInterconnect::NRdma::
     ev->AddPayload(TRcBuf(std::move(rcbuf3)));
 
     bool done = ev->AllowExternalDataChannel();
-    UNIT_ASSERT_VALUES_EQUAL(done, true); 
+    UNIT_ASSERT_VALUES_EQUAL(done, true);
     return ev;
 }
 
@@ -385,7 +385,7 @@ TEST_F(XdcRdmaTest, SendRdmaWithGlueWithRegionOffset) {
         UNIT_ASSERT_VALUES_EQUAL(ev->Get()->GetPayload()[0].GetSize(), 3499u);
         UNIT_ASSERT_VALUES_EQUAL(ev->Get()->GetPayload()[1].GetSize(), 3499u);
         const TString pattern1 = TString(999, 'Z') + TString(2500, 'X');
-        const TString pattern2 = TString(2500, 'X') + TString(999, 'Z'); 
+        const TString pattern2 = TString(2500, 'X') + TString(999, 'Z');
         UNIT_ASSERT_VALUES_EQUAL(ev->Get()->GetPayload()[0].ConvertToString(), pattern1);
         UNIT_ASSERT_VALUES_EQUAL(ev->Get()->GetPayload()[1].ConvertToString(), pattern2);
     });

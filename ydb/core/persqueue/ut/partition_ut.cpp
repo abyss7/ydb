@@ -12,7 +12,7 @@
 #include <ydb/core/jaeger_tracing/sampling_throttling_configurator.h>
 
 #include <ydb/library/actors/core/actorid.h>
-#include <ydb/library/actors/core/event.h>
+#include <ydb/library/actors/core/events/event.h>
 #include <library/cpp/testing/unittest/registar.h>
 
 #include <util/generic/hash.h>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb/library/actors/core/actor_bootstrapped.h>
-#include <ydb/library/actors/core/event.h>
+#include <ydb/library/actors/core/events/event.h>
 #include <ydb/core/kafka_proxy/kafka_events.h>
 #include "ydb/library/aclib/aclib.h"
 #include <ydb/core/kafka_proxy/kqp_helper.h>

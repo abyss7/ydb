@@ -2,7 +2,7 @@
 
 #include <ydb/core/base/events.h>
 
-#include <ydb/library/actors/core/event_pb.h>
+#include <ydb/library/actors/core/events/event_pb.h>
 #include <ydb/library/yql/dq/actors/protos/dq_events.pb.h>
 #include <ydb/library/yql/providers/s3/proto/file_queue.pb.h>
 
@@ -59,10 +59,10 @@ struct TEvS3Provider {
         EvEnd
     };
     static_assert(EvEnd < EventSpaceEnd(NKikimr::TKikimrEvents::ES_S3_PROVIDER), "expect EvEnd < EventSpaceEnd(TEvents::ES_S3_PROVIDER)");
-    
+
     struct TEvUpdateConsumersCount :
         public NActors::TEventPB<TEvUpdateConsumersCount, NS3::FileQueue::TEvUpdateConsumersCount, EvUpdateConsumersCount> {
-        
+
         explicit TEvUpdateConsumersCount(ui64 consumersCountDelta = 0) {
             Record.SetConsumersCountDelta(consumersCountDelta);
         }
@@ -70,7 +70,7 @@ struct TEvS3Provider {
 
     struct TEvAck :
         public NActors::TEventPB<TEvAck, NS3::FileQueue::TEvAck, EvAck> {
-        
+
         TEvAck() = default;
 
         explicit TEvAck(const NDqProto::TMessageTransportMeta& transportMeta) {
@@ -215,12 +215,12 @@ struct TEvS3Provider {
     };
 
     struct TEvDecompressDataResult : public NActors::TEventLocal<TEvDecompressDataResult, EvDecompressDataResult> {
-        TEvDecompressDataResult(TString&& data, const TDuration& cpuTime) 
+        TEvDecompressDataResult(TString&& data, const TDuration& cpuTime)
             : Data(std::move(data))
             , CpuTime(cpuTime)
         {}
 
-        TEvDecompressDataResult(std::exception_ptr exception, const TDuration& cpuTime) 
+        TEvDecompressDataResult(std::exception_ptr exception, const TDuration& cpuTime)
             : Exception(std::move(exception))
             , CpuTime(cpuTime)
         {}

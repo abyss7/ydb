@@ -12,7 +12,7 @@
 #include <yql/essentials/public/issue/yql_issue.h>
 
 #include <ydb/library/actors/core/actor.h>
-#include <ydb/library/actors/core/event_pb.h>
+#include <ydb/library/actors/core/events/event_pb.h>
 #include <ydb/library/accessor/accessor.h>
 #include <ydb/core/protos/tx_datashard.pb.h>
 

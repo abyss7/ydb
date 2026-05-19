@@ -2,7 +2,7 @@
 
 #include <ydb/core/fq/libs/events/event_subspace.h>
 
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 
 namespace NFq {
 

@@ -17,8 +17,8 @@
 
 #include <ydb/library/actors/core/actor_bootstrapped.h>
 #include <ydb/library/actors/core/actorsystem.h>
-#include <ydb/library/actors/core/event_local.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/event_local.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <ydb/library/actors/core/log.h>
 
@@ -53,7 +53,7 @@ THashMap<TStringBuf, size_t> MemberToIndex(const NKikimr::NMiniKQL::TStructType*
 
 class TYtLookupActor
     : public NYql::NDq::IDqAsyncLookupSource,
-        public NActors::TActorBootstrapped<TYtLookupActor> 
+        public NActors::TActorBootstrapped<TYtLookupActor>
 {
     using TBase = NActors::TActorBootstrapped<TYtLookupActor>;
 public:
@@ -225,7 +225,7 @@ private:
     const size_t MaxKeysInRequest;
     const bool IsMultiMatches;
     std::atomic_bool InProgress;
-    
+
     IDqAsyncLookupSource::TUnboxedValueMap Data;
 };
 

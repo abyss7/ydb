@@ -2,8 +2,8 @@
 #include <ydb/core/testlib/actors/block_events.h>
 #include <ydb/core/testlib/actors/wait_events.h>
 #include <ydb/core/base/appdata.h>
-#include <ydb/library/actors/core/event_local.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/event_local.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <library/cpp/testing/unittest/registar.h>
 #include <util/thread/factory.h>
 
@@ -885,7 +885,7 @@ Y_UNIT_TEST_SUITE(TActorTest) {
             TWaitForFirstEvent<TEvTrigger> waiter(runtime, [](const TEvTrigger::TPtr& ev){ return ev->Get()->Value == 10; });
             waiter.Wait();
         }
-    }    
+    }
 }
 
 }

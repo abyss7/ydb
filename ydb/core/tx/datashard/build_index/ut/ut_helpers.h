@@ -2,7 +2,7 @@
 #include <ydb/core/testlib/test_client.h>
 #include <ydb/core/tx/datashard/datashard_ut_common_kqp.h>
 #include <ydb/core/tx/datashard/ut_common/datashard_ut_common.h>
-#include <ydb/library/actors/core/event.h>
+#include <ydb/library/actors/core/events/event.h>
 
 #include <yql/essentials/public/issue/yql_issue_message.h>
 

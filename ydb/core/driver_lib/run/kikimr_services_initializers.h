@@ -20,7 +20,7 @@
 
 #include <ydb/library/actors/core/defs.h>
 #include <ydb/library/actors/core/log_settings.h>
-#include <ydb/library/actors/core/scheduler_actor.h>
+#include <ydb/library/actors/scheduler/scheduler_actor.h>
 #include <ydb/library/actors/core/scheduler_basic.h>
 #include <ydb/library/actors/interconnect/poller/poller_tcp.h>
 #include <library/cpp/monlib/dynamic_counters/counters.h>

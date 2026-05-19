@@ -4,7 +4,7 @@
 #include <ydb/core/tx/columnshard/blobs_action/abstract/write.h>
 #include <ydb/library/accessor/accessor.h>
 
-#include <ydb/library/actors/core/event.h>
+#include <ydb/library/actors/core/events/event.h>
 
 namespace NKikimr {
 

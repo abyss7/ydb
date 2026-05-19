@@ -4,8 +4,8 @@
 
 #include <ydb/core/base/events.h>
 
-#include <ydb/library/actors/core/event_local.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/event_local.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/conclusion/result.h>
 
 namespace NKikimr::NConveyorComposite {

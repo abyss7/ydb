@@ -6,8 +6,8 @@
 #include <ydb/core/fq/libs/control_plane_config/events/events.h>
 #include <ydb/core/fq/libs/control_plane_storage/events/events.h>
 
-#include <ydb/library/actors/core/event_pb.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/event_pb.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/interconnect/events_local.h>
 
 #include <yql/essentials/public/issue/yql_issue.h>

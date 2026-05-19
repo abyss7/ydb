@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb/core/base/events.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <yql/essentials/public/issue/yql_issue.h>
 
 namespace NKikimr::NSasl {

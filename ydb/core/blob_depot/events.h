@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ydb/library/actors/core/event.h>
+#include <ydb/library/actors/core/events/event.h>
 #include <ydb/library/actors/core/interconnect.h>
 #include <ydb/core/protos/blob_depot.pb.h>
 

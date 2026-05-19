@@ -1,6 +1,6 @@
 #include "kqp_planner_strategy.h"
 
-#include <ydb/library/actors/core/event_pb.h>
+#include <ydb/library/actors/core/events/event_pb.h>
 
 #include <util/generic/queue.h>
 #include <util/string/builder.h>

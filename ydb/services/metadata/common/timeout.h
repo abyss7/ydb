@@ -4,7 +4,7 @@
 #include <ydb/services/metadata/abstract/events.h>
 
 #include <ydb/library/actors/core/actor_bootstrapped.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <library/cpp/time_provider/time_provider.h>
 
 namespace NKikimr::NMetadata::NInternal {

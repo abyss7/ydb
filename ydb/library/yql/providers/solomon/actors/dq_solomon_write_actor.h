@@ -8,7 +8,7 @@
 #include <ydb/library/yql/providers/solomon/proto/dq_solomon_shard.pb.h>
 
 #include <ydb/library/actors/core/actor.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/http/http_proxy.h>
 
 #include <util/generic/size_literals.h>

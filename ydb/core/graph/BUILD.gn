@@ -7,3 +7,9 @@ protobuf_library("protos") {
         "protos/graph.proto",
     ]
 }
+
+protobuf_library("shard_protos") {
+    sources = [
+        "shard/protos/counters_shard.proto",
+    ]
+}

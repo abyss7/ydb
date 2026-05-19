@@ -4,8 +4,8 @@
 #include <yql/essentials/public/udf/udf_data_type.h>
 
 #include <ydb/library/actors/core/actor.h>
-#include <ydb/library/actors/core/event_local.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/event_local.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/http/http_proxy.h>
 
 namespace NYql::NDq {

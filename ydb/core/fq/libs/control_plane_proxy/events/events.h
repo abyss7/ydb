@@ -9,8 +9,8 @@
 
 #include <ydb/public/api/protos/draft/fq.pb.h>
 
-#include <ydb/library/actors/core/event_pb.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/event_pb.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/interconnect/events_local.h>
 
 #include <yql/essentials/public/issue/yql_issue.h>

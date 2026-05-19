@@ -5,7 +5,7 @@
 #include <ydb/core/tx/conveyor_composite/usage/common.h>
 
 #include <ydb/library/accessor/accessor.h>
-#include <ydb/library/actors/core/events.h>
+#include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/monotonic.h>
 #include <ydb/library/conclusion/result.h>
 

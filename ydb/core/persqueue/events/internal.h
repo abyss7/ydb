@@ -15,8 +15,8 @@
 #include <ydb/core/tablet/tablet_counters.h>
 #include <ydb/library/persqueue/topic_parser/topic_parser.h>
 
-#include <ydb/library/actors/core/event.h>
-#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events/event.h>
+#include <ydb/library/actors/core/events/event_local.h>
 #include <ydb/library/actors/core/actorid.h>
 #include <ydb/core/grpc_services/rpc_calls.h>
 #include <ydb/public/api/protos/persqueue_error_codes_v1.pb.h>
