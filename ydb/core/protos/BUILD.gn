@@ -1,10 +1,22 @@
 protobuf_library("nbs") {
+    extra_plugins = [
+        {
+            name = "config_proto_plugin"
+            target = "//ydb/core/config/tools/protobuf_plugin:config_proto_plugin"
+        },
+    ]
     sources = [
         "nbs/blockstore.proto",
     ]
 }
 
 protobuf_library("protos") {
+    extra_plugins = [
+        {
+            name = "config_proto_plugin"
+            target = "//ydb/core/config/tools/protobuf_plugin:config_proto_plugin"
+        },
+    ]
     public_deps = [
         ":nbs",
         "//ydb/core/config:protos",

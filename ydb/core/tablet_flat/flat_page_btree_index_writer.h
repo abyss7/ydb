@@ -120,9 +120,9 @@ namespace NKikimr::NTable::NPage {
             for (auto &key : Keys) {
                 PlaceBytes(std::move(key));
             }
-            Y_ENSURE(Ptr == buf.mutable_begin() + 
-                sizeof(TLabel) + sizeof(THeader) + 
-                (IsFixedFormat() ? 0 : sizeof(TRecordsEntry) * Keys.size()) + 
+            Y_ENSURE(Ptr == buf.mutable_begin() +
+                sizeof(TLabel) + sizeof(THeader) +
+                (IsFixedFormat() ? 0 : sizeof(TRecordsEntry) * Keys.size()) +
                 KeysSize);
             Keys.clear();
             KeysSize = 0;
@@ -157,9 +157,9 @@ namespace NKikimr::NTable::NPage {
         }
 
         TPgSize CalcKeySizeWithMeta(TCellsRef cells) const noexcept {
-            return 
-                sizeof(TRecordsEntry) + 
-                CalcKeySize(cells) + 
+            return
+                sizeof(TRecordsEntry) +
+                CalcKeySize(cells) +
                 (IsShortChildFormat() ? sizeof(TShortChild) : sizeof(TChild));
         }
 
@@ -184,7 +184,7 @@ namespace NKikimr::NTable::NPage {
             return size;
         }
 
-        void PlaceKey(TCellsRef cells) 
+        void PlaceKey(TCellsRef cells)
         {
             if (IsFixedFormat()) {
                 for (TPos pos : xrange(cells.size())) {
@@ -310,7 +310,7 @@ namespace NKikimr::NTable::NPage {
                 TString key = std::move(Keys.front());
                 KeysSize -= key.size();
                 Keys.pop_front();
-                return std::move(key);
+                return key;
             }
 
             void PushChild(TChild child) {
@@ -389,7 +389,7 @@ namespace NKikimr::NTable::NPage {
 
             Levels[0].PushChild(child);
         }
-        
+
         void Flush(IPageWriter &pager) {
             for (ui32 levelIndex = 0; levelIndex < Levels.size(); levelIndex++) {
                 bool hasChanges = false;
@@ -441,14 +441,14 @@ namespace NKikimr::NTable::NPage {
 
             // Note: size checks are approximate and flush might not produce 2 full-sized pages
 
-            return 
+            return
                 Levels[levelIndex].GetKeysCount() > waitFullNodes * NodeKeysMax ||
                 CalcPageSize(Levels[levelIndex]) > waitFullNodes * NodeTargetSize;
         }
 
         void DoFlush(ui32 levelIndex, IPageWriter &pager, bool last) {
             Writer.EnsureEmpty();
-            
+
             if (last) {
                 // Note: for now we build last nodes from all remaining level's keys
                 // we may to try splitting them more evenly later

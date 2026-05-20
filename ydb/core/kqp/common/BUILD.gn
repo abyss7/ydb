@@ -67,7 +67,9 @@ library("result_set_format") {
     ]
 
     deps = [
+        ":arrow",
         "//ydb/core/formats/arrow",
+        "//ydb/core/kqp/expr_nodes",
         "//yql/essentials/minikql",
         "//yql/essentials/utils",
     ]
@@ -80,6 +82,10 @@ library("result_set_format") {
 library("simple") {
     public_deps = [
         "//ydb/core/base",
+    ]
+
+    deps = [
+        "//yql/essentials/core:pg_settings",
     ]
 
     sources = [

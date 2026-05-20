@@ -1,0 +1,9 @@
+library("ncloud") {
+    public_deps = [
+        "//ydb/public/api/client/nc_private/iam:v1",
+    ]
+
+    sources = [
+        "impl/access_service.cpp",
+    ]
+}

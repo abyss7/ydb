@@ -22,6 +22,24 @@ def parse_outputs(args):
     return outputs
 
 
+# replaces `--proto-include-paths-file FILE` with `-I PATH` pairs read from FILE.
+def expand_include_paths_files(args):
+    result = []
+    i = 0
+    while i < len(args):
+        if args[i] == "--proto-include-paths-file":
+            with open(args[i + 1], "rt", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line:
+                        result.extend(["-I", line])
+            i += 2
+        else:
+            result.append(args[i])
+            i += 1
+    return result
+
+
 # returns patched content and number of changes.
 def patch_output(content):
     num_patches = 0
@@ -38,6 +56,7 @@ def patch_output(content):
 # Main script
 args = sys.argv[2:]
 outputs = parse_outputs(args)
+args = expand_include_paths_files(args)
 make_absolute_path(args)
 os.chdir(source_dir)
 exit = subprocess.call(args)

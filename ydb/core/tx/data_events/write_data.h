@@ -2,7 +2,6 @@
 #include "common/modification_type.h"
 #include "common/signals_flow.h"
 
-#include <ydb/core/formats/arrow/arrow_helpers.h>
 #include <ydb/core/formats/arrow/reader/position.h>
 #include <ydb/core/tx/columnshard/common/path_id.h>
 #include <ydb/core/tx/long_tx_service/public/types.h>

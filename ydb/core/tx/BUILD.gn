@@ -1,0 +1,11 @@
+library("tx") {
+    public_deps = [
+        "//ydb/core/base",
+    ]
+
+    sources = [
+        "message_seqno.cpp",
+        "tx.cpp",
+        "tx_proxy_schemereq.cpp",
+    ]
+}

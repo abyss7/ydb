@@ -3,6 +3,8 @@ template("protobuf_library") {
     _path = rebase_path(".", "//")
     _unique_name = exec_script("//build/gn/scripts/unique_name.py", [ _path ], "trim string")
     _gen_target = "${_unique_name}_${target_name}_gen"
+    _proto_includes_target = "${_unique_name}_${target_name}_proto_includes"
+    _proto_includes_file = "$target_gen_dir/${target_name}.proto_includes"
 
     _proto_paths = [
         "-I", rebase_path("//", root_build_dir),
@@ -14,9 +16,57 @@ template("protobuf_library") {
     _protoc_plugin_cpp_styleguide = "$root_out_dir/cpp_styleguide"
     _protoc_plugin_grpc_cpp = "$root_out_dir/grpc_cpp"
 
+    _extra_plugins = []
+    if (defined(invoker.extra_plugins)) {
+        _extra_plugins = invoker.extra_plugins
+    }
+
+    # Include dirs this library both uses for its own protoc invocation and
+    # advertises to consumers via metadata (`generated_file` below).
+    _self_proto_paths = []
+    if (defined(invoker.proto_public_include_dirs)) {
+        foreach(_dir, invoker.proto_public_include_dirs) {
+            _self_proto_paths += [ "-I", rebase_path(_dir, root_build_dir) ]
+        }
+    }
+
+    # C++ side of the same story: when a foreign proto resolves an `import` via
+    # a non-default `-I`, the corresponding `.pb.h` ends up at the long path
+    # ($root_gen_dir/<full source path>/foo.pb.h), but the generated `#include`
+    # uses the short form (foo.pb.h relative to that `-I`). Mirror each
+    # protoc `-I` with a matching $root_gen_dir/<rel> on the C++ include path.
+    _public_config_target = ""
+    if (defined(invoker.proto_public_include_dirs)) {
+        _public_config_target = "${target_name}_proto_public_config"
+        config(_public_config_target) {
+            include_dirs = []
+            foreach(_dir, invoker.proto_public_include_dirs) {
+                include_dirs += [ "$root_gen_dir/" + rebase_path(_dir, "//") ]
+            }
+        }
+    }
+
+    # Collect transitive `proto_include_dirs` metadata from all deps. Each
+    # protobuf_library may declare `proto_public_include_dirs` to advertise
+    # additional `-I` paths to its consumers (analogue of ya make's
+    # PROTO_NAMESPACE(GLOBAL ...)).
+    generated_file(_proto_includes_target) {
+        outputs = [ _proto_includes_file ]
+        data_keys = [ "proto_include_dirs" ]
+        output_conversion = "list lines"
+        deps = []
+        if (defined(invoker.deps)) {
+            deps += invoker.deps
+        }
+        if (defined(invoker.public_deps)) {
+            deps += invoker.public_deps
+        }
+    }
+
     action_foreach(_gen_target) {
         script = "//build/gn/scripts/protoc.py"
         sources = invoker.sources
+        inputs = [ _proto_includes_file ]
         outputs = [
             "{{source_gen_dir}}/{{source_name_part}}.grpc.pb.cc",
             "{{source_gen_dir}}/{{source_name_part}}.grpc.pb.h",
@@ -24,7 +74,7 @@ template("protobuf_library") {
             "{{source_gen_dir}}/{{source_name_part}}.pb.h",
         ]
 
-        args = [ _source_dir ] + outputs + ["--"] + [ "./$_protoc_bin" ] + _proto_paths
+        args = [ _source_dir ] + outputs + ["--"] + [ "./$_protoc_bin" ] + _proto_paths + _self_proto_paths
         args += [
             "--fatal_warnings",
             "--cpp_out", "$root_gen_dir",
@@ -32,18 +82,29 @@ template("protobuf_library") {
             "--grpc_cpp_out", "$root_gen_dir",
             "--plugin=protoc-gen-cpp_styleguide=$_protoc_plugin_cpp_styleguide",
             "--plugin=protoc-gen-grpc_cpp=$_protoc_plugin_grpc_cpp",
-            "{{source}}",
+            "--proto-include-paths-file", rebase_path(_proto_includes_file, root_build_dir),
         ]
 
         deps = [
+            ":$_proto_includes_target",
             "//contrib/tools/protoc:protoc",
             "//contrib/tools/protoc/plugins/cpp_styleguide",
             "//contrib/tools/protoc/plugins/grpc_cpp",
         ]
+
+        foreach(_plugin, _extra_plugins) {
+            args += [
+                "--plugin=protoc-gen-${_plugin.name}=$root_out_dir/${_plugin.name}",
+                "--${_plugin.name}_out", "$root_gen_dir",
+            ]
+            deps += [ _plugin.target ]
+        }
+
+        args += [ "{{source}}" ]
     }
 
     library(target_name) {
-        forward_variables_from(invoker, "*", [ "deps", "public_deps", "sources" ])
+        forward_variables_from(invoker, "*", [ "deps", "public_configs", "public_deps", "sources", "extra_plugins", "proto_public_include_dirs" ])
 
         output_dir = "$root_out_dir/" + rebase_path(".", "//") # TODO: doesn't work for some reason
         output_name = _unique_name
@@ -60,6 +121,28 @@ template("protobuf_library") {
         deps = [ ":$_gen_target" ]
         if (defined(invoker.deps)) {
             deps += invoker.deps
+        }
+
+        public_configs = []
+        if (defined(invoker.public_configs)) {
+            public_configs += invoker.public_configs
+        }
+        if (_public_config_target != "") {
+            # Self: own .pb.cc files need the include path too (their .pb.h
+            # imports siblings via the short form). Public: consumers compiling
+            # against this library inherit it via public_deps.
+            public_configs += [ ":$_public_config_target" ]
+        }
+
+        # Expose this library's own protoc include paths (if any) and its
+        # transitive ones so downstream consumers pick them up via metadata walk.
+        metadata = {
+            proto_include_dirs = []
+            if (defined(invoker.proto_public_include_dirs)) {
+                foreach(_dir, invoker.proto_public_include_dirs) {
+                    proto_include_dirs += [ rebase_path(_dir, root_build_dir) ]
+                }
+            }
         }
 
         sources = get_target_outputs(":$_gen_target")

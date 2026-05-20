@@ -3,6 +3,7 @@ library("cancelation") {
 
     deps = [
         "//ydb/library/actors/core",
+        "//ydb/library/actors/util",
     ]
 
     sources = [
@@ -11,7 +12,7 @@ library("cancelation") {
 }
 
 protobuf_library("protos") {
-    deps = [
+    public_deps = [
         "//ydb/library/actors/protos",
     ]
 

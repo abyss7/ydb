@@ -4,6 +4,8 @@
 #include <ydb/library/conclusion/result.h>
 
 #include <util/generic/string.h>
+#include <util/string/builder.h>
+#include <util/string/cast.h>
 
 namespace NKikimrColumnShardProto {
 class TBlobRange;

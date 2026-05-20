@@ -1,5 +1,4 @@
 protobuf_library("proto") {
-    skip_config = true
     sources = [ "proto/enum_options.proto" ]
 }
 

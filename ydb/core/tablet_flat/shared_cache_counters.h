@@ -1,6 +1,7 @@
 #pragma once
 
 #include "defs.h"
+#include <library/cpp/monlib/dynamic_counters/counters.h>
 #include <ydb/core/protos/shared_cache.pb.h>
 
 namespace NKikimr::NSharedCache {

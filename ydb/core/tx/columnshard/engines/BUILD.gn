@@ -1,0 +1,14 @@
+library("engines") {
+    public_deps = [
+        "//ydb/core/formats/arrow",
+    ]
+
+    sources = [
+        "column_engine_logs.cpp",
+        "column_engine.cpp",
+        "db_wrapper.cpp",
+        "defs.cpp",
+        "filter.cpp",
+        "metadata_accessor.cpp",
+    ]
+}

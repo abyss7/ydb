@@ -1,4 +1,11 @@
 protobuf_library("protos") {
+    extra_plugins = [
+        {
+            name = "config_proto_plugin"
+            target = "//ydb/core/config/tools/protobuf_plugin:config_proto_plugin"
+        },
+    ]
+
     deps = [
         "//ydb/core/protos",
     ]
@@ -12,14 +19,16 @@ protobuf_library("protos") {
 library("yaml_config") {
     public_deps = [
         "//contrib/libs/openssl",
+        "//library/cpp/yaml",
     ]
 
     deps = [
         ":protos",
-        "//library/cpp/yaml",
+        "//library/cpp/json",
         "//ydb/core/base",
         "//ydb/core/protos",
         "//ydb/library/actors/core",
+        "//ydb/library/fyamlcpp",
     ]
 
     sources = [

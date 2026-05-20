@@ -57,7 +57,7 @@ THashMap<TLogoBlobID, THashSet<TPageId>> TPrivatePageCache::AddPageCollection(TI
     THashMap<TLogoBlobID, THashSet<TPageId>> sharedCacheTouches;
     for (const auto& [pageId, page] : pageCollection->GetPageMap()) {
         Y_ASSERT(page);
-        
+
         Stats.SharedBodyBytes += page->Size;
         if (pageCollection->IsStickyPage(pageId)) {
             Stats.StickyBytes += page->Size;
@@ -106,7 +106,7 @@ TSharedPageRef TPrivatePageCache::TryGetPage(TPageId pageId, TPageCollection *pa
         return {};
     }
 
-    return std::move(sharedBody);
+    return sharedBody;
 }
 
 void TPrivatePageCache::DropPage(TPageId pageId, TPageCollection *pageCollection) {

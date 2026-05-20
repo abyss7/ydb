@@ -1,11 +1,14 @@
 #pragma once
+
 #include "defs.h"
 #include "events.h"
 
 #include <ydb/core/protos/base.pb.h>
 #include <ydb/library/actors/core/events/event_local.h>
+
 #include <util/stream/str.h>
 #include <util/string/builder.h>
+#include <util/string/cast.h>
 
 namespace NKikimr {
 

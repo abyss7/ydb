@@ -18,7 +18,6 @@ namespace NBoot {
 
         static constexpr NBoot::EStep StepKind = NBoot::EStep::Blobs;
 
-        TLoadBlobs() = default;
         TLoadBlobs(IStep *owner, NPageCollection::TLargeGlobId largeGlobId, ui64 cookie);
 
         void Start() override { }

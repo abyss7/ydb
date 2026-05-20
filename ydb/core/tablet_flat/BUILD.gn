@@ -1,13 +1,29 @@
+protobuf_library("protos") {
+    deps = [
+        "//ydb/core/protos",
+        "//ydb/core/scheme:protos",
+    ]
+
+    sources = [
+        "protos/flat_table_part.proto",
+        "protos/flat_table_shard.proto",
+    ]
+}
+
 library("tablet_flat") {
     public_deps = [
         "//library/cpp/containers/absl_flat_hash",
     ]
 
     deps = [
+        ":protos",
+        ":table_flat_proto",
+        "//library/cpp/monlib/dynamic_counters",
         "//ydb/core/base",
         "//ydb/core/scheme",
         "//ydb/core/scheme_types",
         "//ydb/core/tablet",
+        "//yql/essentials/types",
     ]
 
     sources = [
@@ -71,5 +87,11 @@ library("tablet_flat") {
         "shared_sausagecache.cpp",
         "tablet_flat_executor.cpp",
         "tablet_flat_executed.cpp",
+    ]
+}
+
+protobuf_library("table_flat_proto") {
+    sources = [
+        "flat_executor.proto",
     ]
 }

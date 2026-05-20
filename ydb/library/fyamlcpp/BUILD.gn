@@ -1,0 +1,5 @@
+library("fyamlcpp") {
+    sources = [
+        "fyamlcpp.cpp",
+    ]
+}

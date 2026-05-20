@@ -9,6 +9,7 @@
 #include "flat_part_pinout.h"
 
 #include <ydb/core/base/defs.h>
+#include <ydb/library/actors/util/shared_data.h>
 
 #include <util/generic/ptr.h>
 #include <util/generic/hash.h>

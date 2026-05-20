@@ -1,0 +1,17 @@
+protobuf_library("v1") {
+    public_deps = [
+        "//contrib/libs/googleapis-common-protos",
+    ]
+
+    sources = [
+        "v1/access.proto",
+        "v1/access_service.proto",
+        "v1/profile_service.proto",
+        "v1/service_account.proto",
+        "v1/tenant_user_account.proto",
+        "v1/token.proto",
+        "v1/token_exchange_service.proto",
+        "v1/token_service.proto",
+        "v1/user_account.proto",
+    ]
+}

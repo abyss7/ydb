@@ -1,0 +1,9 @@
+library("pg_settings") {
+    deps = [
+        "//library/cpp/json",
+    ]
+
+    sources = [
+        "pg_settings/guc_settings.cpp",
+    ]
+}
