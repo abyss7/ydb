@@ -1,16 +1,21 @@
 #pragma once
+
+#include "kqp_common.h"
+
+#include <ydb/core/base/events.h>
+#include <ydb/library/accessor/accessor.h>
+#include <ydb/library/actors/core/actor_bootstrapped.h>
+#include <ydb/library/actors/core/actor_virtual.h>
 #include <ydb/library/actors/core/actor.h>
 #include <ydb/library/actors/core/actorid.h>
 #include <ydb/library/actors/core/events/events.h>
-#include <ydb/library/actors/core/actor_virtual.h>
-#include <ydb/library/actors/core/actor_bootstrapped.h>
-#include <library/cpp/object_factory/object_factory.h>
-#include <ydb/core/base/events.h>
-#include <ydb/library/accessor/accessor.h>
-#include <ydb/services/metadata/initializer/common.h>
+#include <ydb/library/actors/core/log.h>
 #include <ydb/services/metadata/manager/common.h>
 #include <ydb/services/metadata/manager/table_record.h>
-#include <ydb/services/metadata/manager/alter.h>
+#include <ydb/library/services/services.pb.h>
+
+#include <library/cpp/object_factory/object_factory.h>
+
 #include <util/system/type_name.h>
 
 namespace NKikimr::NMetadata::NFetcher {

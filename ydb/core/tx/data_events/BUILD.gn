@@ -1,35 +1,3 @@
-library("columnshard") {
-    sources = [
-        "columnshard/background_controller.cpp",
-        "columnshard/blob_cache.cpp",
-        "columnshard/blob.cpp",
-        "columnshard/columnshard__init.cpp",
-        "columnshard/columnshard__locks.cpp",
-        "columnshard/columnshard__notify_tx_completion.cpp",
-        "columnshard/columnshard__overload.cpp",
-        "columnshard/columnshard__plan_step.cpp",
-        "columnshard/columnshard__progress_tx.cpp",
-        "columnshard/columnshard__propose_cancel.cpp",
-        "columnshard/columnshard__propose_transaction.cpp",
-        "columnshard/columnshard__scan.cpp",
-        "columnshard/columnshard__statistics.cpp",
-        "columnshard/columnshard__tx_abort.cpp",
-        "columnshard/columnshard__write_index.cpp",
-        "columnshard/columnshard__write.cpp",
-        "columnshard/columnshard_impl.cpp",
-        "columnshard/columnshard_private_events.cpp",
-        "columnshard/columnshard_schema.cpp",
-        "columnshard/columnshard_subdomain_path_id.cpp",
-        "columnshard/columnshard_view.cpp",
-        "columnshard/columnshard.cpp",
-        "columnshard/counters.cpp",
-        "columnshard/defs.cpp",
-        "columnshard/inflight_request_tracker.cpp",
-        "columnshard/tables_manager.cpp",
-        "columnshard/write_actor.cpp",
-    ]
-}
-
 library("common") {
     public_deps = [
         "//ydb/library/signals",

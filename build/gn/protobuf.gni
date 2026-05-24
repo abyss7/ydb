@@ -63,6 +63,18 @@ template("protobuf_library") {
         }
     }
 
+    # When `proto_public_include_dirs` is set, protoc canonicalizes the source
+    # via the matching `-I` (see protoc.py:relativize_proto_sources), so the
+    # output path under `--cpp_out` uses the *short* form (e.g. `google/api/x`
+    # instead of `contrib/libs/foo/google/api/x`). To keep emitted files at
+    # `{{source_gen_dir}}` (the long path GN expects), prepend the include dir
+    # to `--cpp_out`. Assumes all sources live under the first include dir.
+    _cpp_out = "$root_gen_dir"
+    if (defined(invoker.proto_public_include_dirs)) {
+        _public_dirs = invoker.proto_public_include_dirs
+        _cpp_out = "$root_gen_dir/" + rebase_path(_public_dirs[0], "//")
+    }
+
     action_foreach(_gen_target) {
         script = "//build/gn/scripts/protoc.py"
         sources = invoker.sources
@@ -77,9 +89,9 @@ template("protobuf_library") {
         args = [ _source_dir ] + outputs + ["--"] + [ "./$_protoc_bin" ] + _proto_paths + _self_proto_paths
         args += [
             "--fatal_warnings",
-            "--cpp_out", "$root_gen_dir",
-            "--cpp_styleguide_out", "$root_gen_dir",
-            "--grpc_cpp_out", "$root_gen_dir",
+            "--cpp_out", _cpp_out,
+            "--cpp_styleguide_out", _cpp_out,
+            "--grpc_cpp_out", _cpp_out,
             "--plugin=protoc-gen-cpp_styleguide=$_protoc_plugin_cpp_styleguide",
             "--plugin=protoc-gen-grpc_cpp=$_protoc_plugin_grpc_cpp",
             "--proto-include-paths-file", rebase_path(_proto_includes_file, root_build_dir),
@@ -95,7 +107,7 @@ template("protobuf_library") {
         foreach(_plugin, _extra_plugins) {
             args += [
                 "--plugin=protoc-gen-${_plugin.name}=$root_out_dir/${_plugin.name}",
-                "--${_plugin.name}_out", "$root_gen_dir",
+                "--${_plugin.name}_out", _cpp_out,
             ]
             deps += [ _plugin.target ]
         }

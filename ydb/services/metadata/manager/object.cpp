@@ -1,5 +1,7 @@
 #include "object.h"
 
+#include "table_record.h"
+
 namespace NKikimr::NMetadata::NModifications {
 
 namespace {

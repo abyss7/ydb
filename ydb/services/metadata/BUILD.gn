@@ -44,6 +44,7 @@ library("manager") {
 
     deps = [
         "//ydb/core/base",
+        "//ydb/library/aclib",
     ]
 
     sources = [
@@ -78,11 +79,10 @@ library("request") {
 }
 
 library("service") {
-    public_deps = [
-        "//ydb/library/actors/core",
-    ]
-
-    sources = [
-        "service.cpp",
+    public_deps = [ 
+        ":abstract",
+        # ":ds_table",
+        ":manager",
+        "//ydb/library/actors/core:events",
     ]
 }

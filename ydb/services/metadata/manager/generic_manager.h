@@ -1,5 +1,9 @@
 #pragma once
-#include <ydb/services/metadata/manager/common.h>
+
+#include "alter.h"
+#include "common.h"
+
+#include <ydb/services/metadata/events.h>
 #include <ydb/services/metadata/service.h>
 
 namespace NKikimr::NMetadata::NModifications {
