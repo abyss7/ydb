@@ -45,6 +45,7 @@ library("manager") {
     deps = [
         "//ydb/core/base",
         "//ydb/library/aclib",
+        "//ydb/library/table_creator",
     ]
 
     sources = [

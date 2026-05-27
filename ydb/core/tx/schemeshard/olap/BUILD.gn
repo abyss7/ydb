@@ -1,0 +1,55 @@
+library("columns") {
+    public_deps = [
+        "//ydb/core/formats/arrow/accessor:abstract",
+    ]
+
+    deps = [
+        "//yql/essentials/minikql",
+    ]
+
+    sources = [ 
+        "columns/schema.cpp",
+        "columns/update.cpp",
+    ]
+}
+
+library("common") {
+    public_deps = [
+        "//ydb/core/"
+    ]
+
+    sources = [
+        "common/common.cpp",
+    ]
+}
+
+library("manager") {
+    public_deps = [
+        ":store",
+    ]
+
+    sources = [
+        "manager/manager.cpp",
+    ]
+}
+
+library("schema") {
+    public_deps = [
+        ":columns",
+    ]
+
+    sources = [
+        "schema/schema.cpp",
+        "schema/update.cpp",
+    ]
+}
+
+library("store") {
+    public_deps = [
+        ":schema",
+    ]
+
+    sources = [
+        "store/store.cpp",
+    ]
+}

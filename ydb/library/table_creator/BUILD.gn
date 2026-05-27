@@ -1,0 +1,10 @@
+library("table_creator") {
+    deps = [ 
+        "//ydb/core/base",
+        "//ydb/core/tx/schemeshard",
+    ]
+
+    sources = [
+        "table_creator.cpp",
+    ]
+}
