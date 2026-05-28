@@ -1,4 +1,8 @@
 library("fyamlcpp") {
+    deps = [
+        "//contrib/libs/libfyaml",
+    ]
+
     sources = [
         "fyamlcpp.cpp",
     ]

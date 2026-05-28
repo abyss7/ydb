@@ -1,0 +1,15 @@
+library("comptrie") {
+    sources = [
+        "comptrie.cpp",
+        "comptrie_builder.cpp",
+        "comptrie_impl.cpp",
+        "make_fast_layout.cpp",
+        "minimize.cpp",
+        "node.cpp",
+        "opaque_trie_iterator.cpp",
+        "prefix_iterator.cpp",
+        "search_iterator.cpp",
+        "write_trie_backwards.cpp",
+        "writeable_node.cpp",
+    ]
+}

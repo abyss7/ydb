@@ -9,6 +9,10 @@ protobuf_library("protos") {
 }
 
 protobuf_library("shard_protos") {
+    deps = [
+        "//ydb/core/protos",
+    ]
+
     sources = [
         "shard/protos/counters_shard.proto",
     ]

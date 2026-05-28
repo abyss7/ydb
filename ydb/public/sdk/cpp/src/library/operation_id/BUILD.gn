@@ -1,0 +1,5 @@
+protobuf_library("protos") {
+    sources = [
+        "protos/operation_id.proto",
+    ]
+}

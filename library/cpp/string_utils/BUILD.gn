@@ -1,3 +1,9 @@
+library("indent_text") {
+    sources = [
+        "indent_text/indent_text.cpp",
+    ]
+}
+
 library("quote") {
     sources = [
         "quote/quote.cpp",

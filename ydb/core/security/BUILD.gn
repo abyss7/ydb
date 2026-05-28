@@ -5,6 +5,7 @@ library("certificate_check") {
 
     deps = [
         "//ydb/core/protos",
+        "//ydb/public/lib/ydb_cli:common",
     ]
 
     sources = [

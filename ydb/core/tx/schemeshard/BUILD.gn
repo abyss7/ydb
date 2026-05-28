@@ -2,6 +2,7 @@ library("schemeshard") {
     deps = [
         "olap:manager",
         "//ydb/core/base",
+        "//ydb/core/cms:console",
     ]
 
     sources = [

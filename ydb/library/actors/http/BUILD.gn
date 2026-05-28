@@ -5,7 +5,14 @@ library("http") {
 
     deps = [
         "//contrib/libs/openssl",
+        "//contrib/libs/opentelemetry-cpp",
         "//contrib/libs/zlib",
+        "//library/cpp/mime/types",
+        "//library/cpp/monlib/metrics",
+        "//library/cpp/resource",
+        "//library/cpp/string_utils:quote",
+        "//ydb/library/actors/interconnect:poller",
+        "//ydb/library/actors/wilson",
     ]
 
     sources = [

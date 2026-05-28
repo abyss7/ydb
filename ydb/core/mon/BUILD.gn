@@ -1,0 +1,23 @@
+library("audit") {
+    public_deps = [
+        "//ydb/library/actors/http",
+    ]
+
+    sources = [
+        "audit/audit_denylist.cpp",
+        "audit/audit.cpp",
+        "audit/url_matcher.cpp",
+    ]
+}
+
+library("mon") {
+    deps = [
+        ":audit",
+        "//ydb/core/base",
+    ]
+
+    sources = [
+        "crossref.cpp",
+        "mon.cpp",
+    ]
+}
