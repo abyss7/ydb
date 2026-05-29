@@ -820,7 +820,7 @@
 /* #undef USE_APPLE_IDN */
 
 /* Define to enable c-ares support */
-#define USE_ARES 1
+/* #define USE_ARES 1 */
 
 /* if ECH support is available */
 /* #undef USE_ECH */

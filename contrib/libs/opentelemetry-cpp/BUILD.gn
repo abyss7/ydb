@@ -6,16 +6,20 @@ config("private_config") {
     ]
     include_dirs = [
         "api/include",
+        "exporters/memory/include",
         "exporters/ostream/include",
         "exporters/otlp/include",
         "ext/include",
+        "sdk",
         "sdk/include",
     ]
 }
 
 contrib_library("opentelemetry-cpp") {
     deps = [
+        "//contrib/libs/curl",
         "//contrib/libs/opentelemetry-proto:protos",
+        "//contrib/restricted/nlohmann_json",
     ]
 
     sources = [
