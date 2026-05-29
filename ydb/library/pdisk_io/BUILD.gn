@@ -10,7 +10,6 @@ library("pdisk_io") {
         "//contrib/libs/libaio",
         "//contrib/libs/liburing",
         "//contrib/libs/lz4",
-        "//ydb/core/blobstorage:pdisk",
         "//ydb/library/actors/core",
     ]
 

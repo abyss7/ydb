@@ -1,5 +1,6 @@
 #pragma once
-#include <ydb/core/audit/audit_log.h>
+
+#include "audit_log.h"
 
 namespace NKikimr::NAudit {
 

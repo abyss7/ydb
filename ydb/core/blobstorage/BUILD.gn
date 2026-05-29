@@ -1,6 +1,9 @@
 library("pdisk") {
     deps = [
+        "//ydb/core/control/lib",
+        "//ydb/core/protos",
         "//ydb/library/actors/core",
+        "//ydb/library/pdisk_io",
     ]
 
     sources = [

@@ -1,3 +1,17 @@
+library("audit") {
+    deps = [
+        "//library/cpp/json",
+        "//ydb/core/util",
+        "//ydb/library/actors/core",
+        "//ydb/public/api/protos",
+    ]
+
+    sources = [
+        "audit_log_impl.cpp",
+        "login_op.cpp",
+    ]
+}
+
 library("config") {
     deps = [
         "//ydb/core/protos",

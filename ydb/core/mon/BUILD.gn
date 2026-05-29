@@ -4,6 +4,8 @@ library("audit") {
     ]
 
     deps = [
+        "//ydb/core/audit",
+        "//ydb/core/audit:config",
         "//ydb/core/base",
         "//ydb/core/util",
     ]
