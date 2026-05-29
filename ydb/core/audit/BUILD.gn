@@ -3,6 +3,7 @@ library("audit") {
         "//library/cpp/json",
         "//ydb/core/util",
         "//ydb/library/actors/core",
+        "//ydb/library/services",
         "//ydb/public/api/protos",
     ]
 

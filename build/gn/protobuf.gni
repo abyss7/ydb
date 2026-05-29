@@ -115,8 +115,44 @@ template("protobuf_library") {
         args += [ "{{source}}" ]
     }
 
+    # Opt-in enum serialization for proto enums, analogous to the `library`
+    _enum_targets = []
+    _enum_sources = []
+    if (defined(invoker.serialize_enum_headers)) {
+        _enum_idx = 0
+        foreach(_header, invoker.serialize_enum_headers) {
+            _gen_header = "$target_gen_dir/$_header"
+            _enum_t = "${_unique_name}_${target_name}_enum_${_enum_idx}"
+            _enum_out = "$target_gen_dir/" + get_path_info(_header, "name") + "_serialized.cpp"
+
+            action(_enum_t) {
+                script = "//build/gn/scripts/run.py"
+                inputs = [ _gen_header ]
+                outputs = [ _enum_out ]
+
+                _enum_parser_bin = rebase_path("$root_out_dir/enum_parser", root_build_dir)
+
+                args = [
+                    "./$_enum_parser_bin",
+                    rebase_path(_gen_header, root_build_dir),
+                    "--include-path", rebase_path(_gen_header, root_gen_dir),
+                    "--output", rebase_path(_enum_out, root_build_dir),
+                ]
+
+                deps = [
+                    ":$_gen_target",
+                    "//tools/enum_parser:enum_parser",
+                ]
+            }
+
+            _enum_targets += [ ":$_enum_t" ]
+            _enum_sources += [ _enum_out ]
+            _enum_idx += 1
+        }
+    }
+
     library(target_name) {
-        forward_variables_from(invoker, "*", [ "deps", "public_configs", "public_deps", "sources", "extra_plugins", "proto_public_include_dirs" ])
+        forward_variables_from(invoker, "*", [ "deps", "public_configs", "public_deps", "sources", "extra_plugins", "proto_public_include_dirs", "serialize_enum_headers" ])
 
         output_dir = "$root_out_dir/" + rebase_path(".", "//") # TODO: doesn't work for some reason
         output_name = _unique_name
@@ -131,6 +167,10 @@ template("protobuf_library") {
 
         # TODO: losing default deps here?
         deps = [ ":$_gen_target" ]
+        deps += _enum_targets
+        if (_enum_targets != []) {
+            deps += [ "//tools/enum_parser:runtime" ]
+        }
         if (defined(invoker.deps)) {
             deps += invoker.deps
         }
@@ -157,6 +197,6 @@ template("protobuf_library") {
             }
         }
 
-        sources = get_target_outputs(":$_gen_target")
+        sources = get_target_outputs(":$_gen_target") + _enum_sources
     }
 }
