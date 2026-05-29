@@ -1,7 +1,6 @@
 #include "aio.h"
 #include "buffers.h"
 
-//#include <ydb/core/blobstorage/base/wilson_events.h>
 #include <ydb/core/debug/valgrind_check.h>
 #include <ydb/library/yverify_stream/yverify_stream.h>
 
@@ -159,7 +158,7 @@ public:
         int ret = io_destroy(IoContext);
         if (ret < 0) {
             switch (-ret) {
-                case EFAULT: 
+                case EFAULT:
                     result = EIoResult::BadAddress;
                     break;
                 case EINVAL:
@@ -168,7 +167,7 @@ public:
                 case ENOSYS:
                     result = EIoResult::FunctionNotImplemented;
                     break;
-                default: 
+                default:
                     Y_FAIL_S(PDiskInfo << " unexpected error in io_destroy, error# " << -ret << " strerror# " << strerror(-ret));
             }
         }

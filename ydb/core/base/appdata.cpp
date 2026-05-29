@@ -34,7 +34,6 @@
 #include <ydb/core/protos/shared_cache.pb.h>
 #include <ydb/core/protos/stream.pb.h>
 #include <ydb/core/protos/workload_manager_config.pb.h>
-#include <ydb/library/pdisk_io/aio.h>
 
 #include <ydb/library/actors/interconnect/poller/poller_tcp.h>
 #include <ydb/library/actors/core/monotonic_provider.h>

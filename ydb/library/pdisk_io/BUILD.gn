@@ -4,12 +4,20 @@ protobuf_library("protos") {
     ]
 }
 
+library("device_type") {
+    sources = [
+        "device_type.cpp",
+    ]
+}
+
 library("pdisk_io") {
     deps = [
+        ":device_type",
         ":protos",
         "//contrib/libs/libaio",
         "//contrib/libs/liburing",
         "//contrib/libs/lz4",
+        "//ydb/core/blobstorage:pdisk",
         "//ydb/library/actors/core",
     ]
 
@@ -18,7 +26,6 @@ library("pdisk_io") {
         "aio_map.cpp",
         "aio.cpp",
         "buffers.cpp",
-        "device_type.cpp",
         "drivedata.cpp",
         "file_params_linux.cpp",
         "sector_map.cpp",

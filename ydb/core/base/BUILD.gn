@@ -33,7 +33,7 @@ library("base") {
         "//ydb/library/actors/util",
         "//ydb/library/actors/wilson",
         "//ydb/library/login",
-        "//ydb/library/pdisk_io",
+        "//ydb/library/pdisk_io:device_type",
         "//yql/essentials/minikql",
     ]
 

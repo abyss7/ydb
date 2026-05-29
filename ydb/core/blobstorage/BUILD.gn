@@ -1,9 +1,12 @@
 library("pdisk") {
+    public_deps = [
+        "//ydb/library/actors/wilson",
+    ]
+
     deps = [
         "//ydb/core/control/lib",
         "//ydb/core/protos",
         "//ydb/library/actors/core",
-        "//ydb/library/pdisk_io",
     ]
 
     sources = [
