@@ -24,6 +24,7 @@ library("run") {
     deps = [
         "//ydb/core/http_proxy",
         "//ydb/core/protos",
+        "//ydb/core/util:memory_tracker",
     ]
 
     sources = [

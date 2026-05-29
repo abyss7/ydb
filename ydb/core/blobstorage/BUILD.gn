@@ -1,0 +1,33 @@
+library("pdisk") {
+    deps = [
+        "//ydb/library/actors/core",
+    ]
+
+    sources = [
+        "pdisk/blobstorage_pdisk_actor.cpp",
+        "pdisk/blobstorage_pdisk_blockdevice_async.cpp",
+        "pdisk/blobstorage_pdisk_completion_impl.cpp",
+        "pdisk/blobstorage_pdisk_delayed_cost_loop.cpp",
+        "pdisk/blobstorage_pdisk_driveestimator.cpp",
+        "pdisk/blobstorage_pdisk_drivemodel_db.cpp",
+        "pdisk/blobstorage_pdisk_impl_http.cpp",
+        "pdisk/blobstorage_pdisk_impl_log.cpp",
+        "pdisk/blobstorage_pdisk_impl_metadata.cpp",
+        "pdisk/blobstorage_pdisk_impl.cpp",
+        "pdisk/blobstorage_pdisk_internal_interface.cpp",
+        "pdisk/blobstorage_pdisk_log_cache.cpp",
+        "pdisk/blobstorage_pdisk_logreader.cpp",
+        "pdisk/blobstorage_pdisk_mon.cpp",
+        "pdisk/blobstorage_pdisk_params.cpp",
+        "pdisk/blobstorage_pdisk_requestimpl.cpp",
+        "pdisk/blobstorage_pdisk_sectorrestorator.cpp",
+        "pdisk/blobstorage_pdisk_syslogreader.cpp",
+        "pdisk/blobstorage_pdisk_tools.cpp",
+        "pdisk/blobstorage_pdisk_util_atomicblockcounter.cpp",
+        "pdisk/blobstorage_pdisk_util_flightcontrol.cpp",
+        "pdisk/blobstorage_pdisk_util_signal_event.cpp",
+        "pdisk/blobstorage_pdisk_writer.cpp",
+        "pdisk/blobstorage_pdisk.cpp",
+        "pdisk/drivedata_serializer.cpp",
+    ]
+}

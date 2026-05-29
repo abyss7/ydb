@@ -1,3 +1,20 @@
+library("memory_tracker") {
+    deps = [
+    #     ":util",
+    #     "//library/cpp/html/escape",
+    #     "//library/cpp/monlib/service:pages",
+        "//ydb/core/base",
+    #     "//ydb/core/mon",
+    #     "//ydb/library/actors/core",
+    #     "//ydb/library/actors/util",
+    #     "//ydb/library/services",
+    ]
+
+    sources = [
+        "memory_tracker.cpp",
+    ]
+}
+
 library("util") {
     deps = [
         "//library/cpp/cgiparam",
@@ -7,7 +24,6 @@ library("util") {
         "//library/cpp/monlib/dynamic_counters",
         "//library/cpp/monlib/service:pages",
         "//ydb/core/base",
-        "//ydb/core/mon",
         "//ydb/library/actors/core",
         "//ydb/library/actors/util",
         "//ydb/library/services",
@@ -29,7 +45,6 @@ library("util") {
         "hazard.cpp",
         "hyperlog_counter.cpp",
         "intrusive_heap.cpp",
-        "memory_tracker.cpp",
         "page_map.cpp",
         "random.cpp",
         "source_location.cpp",
