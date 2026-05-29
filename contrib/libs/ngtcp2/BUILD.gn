@@ -6,6 +6,9 @@ config("public_config") {
 }
 
 config("private_config") {
+    cflags = [
+        "-Wno-implicit-function-declaration",
+    ]
     defines = [
         "BUILDING_NGTCP2",
         "HAVE_CONFIG_H",

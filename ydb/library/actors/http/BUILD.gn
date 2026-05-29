@@ -1,10 +1,10 @@
 library("http") {
     public_deps = [
+        "//contrib/libs/openssl",
         "//ydb/library/actors/core",
     ]
 
     deps = [
-        "//contrib/libs/openssl",
         "//contrib/libs/opentelemetry-cpp",
         "//contrib/libs/zlib",
         "//library/cpp/digest/md5",

@@ -3,6 +3,11 @@ library("audit") {
         "//ydb/library/actors/http",
     ]
 
+    deps = [
+        "//ydb/core/base",
+        "//ydb/core/util",
+    ]
+
     sources = [
         "audit/audit_denylist.cpp",
         "audit/audit.cpp",

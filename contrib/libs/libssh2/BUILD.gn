@@ -1,5 +1,5 @@
 config("public_config") {
-    include_dirs = [ "lib/includes" ]
+    include_dirs = [ "include" ]
 }
 
 config("private_config") {

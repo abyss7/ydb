@@ -1,0 +1,10 @@
+library("ipmath") {
+    deps = [
+        "//library/cpp/ipv6_address",
+    ]
+
+    sources = [
+        "ipmath.cpp",
+        "range_set.cpp",
+    ]
+}
