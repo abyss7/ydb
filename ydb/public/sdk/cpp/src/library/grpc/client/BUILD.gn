@@ -1,0 +1,13 @@
+library("client") {
+    public_deps = [
+        "//contrib/libs/grpc",
+    ]
+
+    deps = [
+        "//ydb/public/sdk/cpp/src/library/time",
+    ]
+
+    sources = [
+        "grpc_client_low.cpp",
+    ]
+}

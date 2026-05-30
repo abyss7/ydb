@@ -1,0 +1,5 @@
+library("helpers") {
+    sources = [
+        "helpers/helpers.cpp",
+    ]
+}

@@ -4,6 +4,7 @@ library("audit") {
     ]
 
     deps = [
+        "//library/cpp/cgiparam",
         "//ydb/core/audit",
         "//ydb/core/audit:config",
         "//ydb/core/base",
@@ -20,7 +21,10 @@ library("audit") {
 library("mon") {
     deps = [
         ":audit",
+        "//library/cpp/json",
         "//ydb/core/base",
+        "//ydb/library/aclib",
+        "//ydb/public/sdk/cpp/src/client/types:status",
     ]
 
     sources = [

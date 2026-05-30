@@ -1,0 +1,5 @@
+library("time") {
+    sources = [
+        "time.cpp",
+    ]
+}

@@ -20,13 +20,16 @@ config("private_config") {
 }
 
 contrib_library("grpc") {
+    public_deps = [
+        "//contrib/restricted/abseil-cpp-tstring",
+    ]
+
     deps = [
         "//contrib/libs/c-ares",
         "//contrib/libs/openssl",
         "//contrib/libs/re2",
         "//contrib/libs/xxhash",
         "//contrib/libs/zlib",
-        "//contrib/restricted/abseil-cpp-tstring",
         "//contrib/restricted/google/utf8_range",
         "//library/cpp/resource",
     ]

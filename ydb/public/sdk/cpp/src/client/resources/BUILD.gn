@@ -1,0 +1,10 @@
+library("resources") {
+    deps = [
+        "//library/cpp/resource",
+    ]
+
+    sources = [
+        "ydb_ca.cpp",
+        "ydb_resources.cpp",
+    ]
+}
