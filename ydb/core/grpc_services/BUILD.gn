@@ -1,3 +1,11 @@
+library("base") {
+    public_deps = [
+        "//ydb/core/jaeger_tracing",
+        "//ydb/library/actors/wilson",
+        "//yql/essentials/public/issue",
+    ]
+}
+
 library("cancelation") {
     public_deps = [ ":protos" ]
 

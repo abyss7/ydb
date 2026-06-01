@@ -21,9 +21,21 @@ library("audit") {
 library("mon") {
     deps = [
         ":audit",
+        "//library/cpp/cgiparam",
+        "//library/cpp/http/io",
         "//library/cpp/json",
+        "//library/cpp/lwtrace:mon",
+        "//library/cpp/mime/types",
+        "//library/cpp/monlib/dynamic_counters",
+        "//library/cpp/monlib/metrics",
+        "//library/cpp/monlib/service:pages",
+        "//library/cpp/protobuf/json",
         "//ydb/core/base",
+        "//ydb/core/grpc_services:base",
         "//ydb/library/aclib",
+        "//ydb/library/actors/core",
+        "//ydb/library/yql/public/ydb_issue",
+        "//ydb/public/sdk/cpp/adapters:issue",
         "//ydb/public/sdk/cpp/src/client/types:status",
     ]
 

@@ -1,0 +1,10 @@
+library("issue") {
+    deps = [
+        "//ydb/library/yql/public/ydb_issue",
+        "//ydb/public/sdk/cpp/src/library/issue",
+    ]
+
+    sources = [
+        "issue/issue.cpp",
+    ]
+}

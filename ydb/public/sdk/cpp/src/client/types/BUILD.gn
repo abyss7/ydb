@@ -26,4 +26,8 @@ library("status") {
     sources = [
         "status/status.cpp",
     ]
+
+    serialize_enum_headers = [
+        "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/types/status_codes.h",
+    ]
 }
