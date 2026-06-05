@@ -4,6 +4,7 @@ library("arrow") {
     ]
 
     deps = [
+        ":arrow_type",
         ":common",
         ":serializer",
         "//ydb/core/kqp/common:arrow",
@@ -25,6 +26,23 @@ library("arrow") {
         "process_columns.cpp",
         "size_calcer.cpp",
         "special_keys.cpp",
+    ]
+}
+
+library("arrow_type") {
+    public_deps = [
+        "//contrib/libs/apache/arrow",
+    ]
+
+    deps = [
+        "//ydb/core/scheme",
+        "//ydb/core/scheme_types",
+        "//ydb/library/formats/arrow",
+        "//yql/essentials/parser/pg_wrapper",
+    ]
+
+    sources = [
+        "arrow_type.cpp",
     ]
 }
 

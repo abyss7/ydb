@@ -14,10 +14,37 @@ source_set("alloc") {
     ]
 }
 
+library("computation") {
+    deps = [
+        ":minikql",
+        "//yql/essentials/public/udf/arrow",
+    ]
+
+    sources = [
+        "computation/mkql_block_builder.cpp",
+        "computation/mkql_block_impl.cpp",
+        "computation/mkql_block_reader.cpp",
+        "computation/mkql_block_transport.cpp",
+        "computation/mkql_block_trimmer.cpp",
+        "computation/mkql_computation_node_holders.cpp",
+        "computation/mkql_computation_node_impl.cpp",
+        "computation/mkql_computation_node_pack_impl.cpp",
+        "computation/mkql_computation_node_pack.cpp",
+        "computation/mkql_computation_node.cpp",
+        "computation/mkql_computation_pattern_cache.cpp",
+        "computation/mkql_custom_list.cpp",
+        "computation/mkql_datum_validate.cpp",
+        "computation/mkql_validate.cpp",
+        "computation/mkql_value_builder.cpp",
+        "computation/presort.cpp",
+    ]
+}
+
 library("minikql") {
     public_deps = [
         "//contrib/libs/apache/arrow",
         "//yql/essentials/public/udf",
+        "//yql/essentials/utils",
     ]
 
     deps = [
@@ -32,7 +59,6 @@ library("minikql") {
         "//yql/essentials/public/udf/arrow",
         "//yql/essentials/sql:pg_dummy",
         "//yql/essentials/types",
-        "//yql/essentials/utils",
     ]
 
     sources = [

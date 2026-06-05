@@ -1,3 +1,17 @@
+library("common") {
+    deps = [
+        ":protos",
+        "//contrib/libs/apache/arrow",
+        "//ydb/core/formats/arrow:arrow_type",
+        "//ydb/core/scheme_types",
+        "//ydb/library/actors/core",
+    ]
+
+    sources = [
+        "common/scalar.cpp",
+    ]
+}
+
 protobuf_library("protos") {
     sources = [ "protos/data.proto" ]
 }

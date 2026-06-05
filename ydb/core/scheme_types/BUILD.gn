@@ -1,6 +1,9 @@
 library("scheme_types") {
-    deps = [
+    public_deps = [
         "//ydb/public/lib/scheme_types",
+    ]
+
+    deps = [
         "//yql/essentials/public/decimal",
     ]
 

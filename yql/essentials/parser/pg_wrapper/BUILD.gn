@@ -155,7 +155,46 @@ config("private_config") {
     ]
 }
 
+config("sse42_config") {
+    cflags = [
+        "-msse4.2",
+    ]
+    defines = [
+        "HAVE__GET_CPUID=1",
+        "USE_SSE42_CRC32C_WITH_RUNTIME_CHECK=1",
+    ]
+}
+
+source_set("sse42") {
+    sources = [
+        "postgresql/src/port/pg_crc32c_sse42_choose.c",
+        "postgresql/src/port/pg_crc32c_sse42.c",
+    ]
+
+    configs += [
+        ":private_config",
+        ":sse42_config",
+    ]
+}
+
 library("pg_wrapper") {
+    deps = [
+        ":interface",
+        ":sse42",
+        "//contrib/libs/icu",
+        "//contrib/libs/libxml",
+        "//contrib/libs/lz4",
+        "//contrib/libs/openssl",
+        "//contrib/libs/zlib",
+        "//library/cpp/string_utils/base64",
+        "//yql/essentials/core:pg_settings",
+        "//yql/essentials/minikql",
+        "//yql/essentials/minikql:computation",
+        "//yql/essentials/parser/pg_catalog",
+        "//yql/essentials/providers/common/codec",
+        "//yql/essentials/public/udf/arrow",
+    ]
+
     sources = [
         "arena_ctx.cpp",
         "arrow_impl.cpp",
@@ -979,8 +1018,6 @@ library("pg_wrapper") {
         "postgresql/src/port/path.c",
         "postgresql/src/port/pg_bitutils.c",
         "postgresql/src/port/pg_crc32c_sb8.c",
-        "postgresql/src/port/pg_crc32c_sse42_choose.c",
-        "postgresql/src/port/pg_crc32c_sse42.c",
         "postgresql/src/port/pg_strong_random.c",
         "postgresql/src/port/pgcheckdir.c",
         "postgresql/src/port/pgmkdirp.c",
@@ -1013,8 +1050,11 @@ library("pg_wrapper") {
 }
 
 library("interface") {
-    deps = [
+    public_deps = [
         "//yql/essentials/providers/common/codec:yt_arrow_converter_interface",
+    ]
+
+    deps = [
         "//yql/essentials/public/udf/arrow",
         "//yql/essentials/sql:pg_dummy",
     ]

@@ -1,6 +1,19 @@
+library("codec") {
+    deps = [
+        "//yql/essentials/minikql",
+    ]
+
+    sources = [
+        "yql_codec.cpp",
+        "yql_codec_buf.cpp",
+        "yql_codec_type_flags.cpp",
+        "yql_json_codec.cpp",
+    ]
+}
+
 group("yt_arrow_converter_interface") {
     public_deps = [
         "//contrib/libs/apache/arrow",
-        # "//yql/essentials/public/udf/arrow:types",
+        "//yql/essentials/public/udf",
     ]
 }
