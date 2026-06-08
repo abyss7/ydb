@@ -490,7 +490,6 @@ Y_UNIT_TEST_SUITE(TKqpTasksGraphBuild) {
         UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 2), 1);
     }
 
-    /*
     Y_UNIT_TEST_F(TpchQuery02, TKqpTasksGraphTpchFixture) {
         const TString& queryText = R"(
             $r = (
@@ -619,22 +618,20 @@ Y_UNIT_TEST_SUITE(TKqpTasksGraphBuild) {
 
         auto dist = BuildTasks(queryText);
 
-        UNIT_ASSERT_VALUES_EQUAL(dist.TasksPerStage.size(), 13u);
-        UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 0), 8);
-        UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 1), 1);
-        UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 2), 256);
-        UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 3), 960);
-        UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 4), 256);
-        UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 5), 256);
+        UNIT_ASSERT_VALUES_EQUAL(dist.TasksPerStage.size(), 12u);
+        UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 0), 960);
+        UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 1), 256);
+        UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 2), 8);
+        UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 3), 1);
+        UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 4), 1);
+        UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 5), 960);
         UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 6), 256);
-        UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 7), 1);
-        UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 8), 1);
-        UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 9), 960);
+        UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 7), 256);
+        UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 8), 256);
+        UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 9), 1);
         UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 10), 960);
-        UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 11), 960);
-        UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 12), 1);
+        UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 11), 1);
     }
-    */
 
     Y_UNIT_TEST_F(TpchQuery03, TKqpTasksGraphTpchFixture) {
         const TString& queryText = R"(
