@@ -1,3 +1,19 @@
+template("avx2_source_set") {
+    config("_avx2_config") {
+        cflags = [
+            "-mavx2",
+            "-mfma",
+            "-mbmi",
+            "-mbmi2",
+        ]
+    }
+
+    source_set(target_name) {
+        forward_variables_from(invoker, "*")
+        configs += [ ":_avx2_config" ]
+    }
+}
+
 template("library") {
     _path = rebase_path(".", "//")
     _unique_name = exec_script("//build/gn/scripts/unique_name.py", [ _path ], "trim string")

@@ -1,0 +1,16 @@
+protobuf_library("audit") {
+    deps = [
+        ":v1",
+    ]
+
+    sources = [
+        "annotations.proto",
+    ]
+}
+
+protobuf_library("v1") {
+    sources = [
+        "v1/common/action.proto",
+        "v1/common/action_type.proto",
+    ]
+}

@@ -1,0 +1,18 @@
+protobuf_library("common") {
+    sources = [
+        "common/validation.proto",
+    ]
+}
+
+protobuf_library("events") {
+    deps = [
+        ":common",
+        "//contrib/libs/googleapis-common-protos",
+    ]
+
+    sources = [
+        "events/common.proto",
+        "events/options.proto",
+        "events/yq.proto",
+    ]
+}

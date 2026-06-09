@@ -1,11 +1,10 @@
 toolchain("clang") {
-  cc = "clang-19"
-  cxx = "clang++-19"
+  cc = "clang-18"
+  cxx = "clang++-18"
   ar = "ar"
-  ld = cxx + " -fuse-ld=/usr/bin/ld.lld-19"
+  ld = cxx + " -fuse-ld=/usr/bin/ld.lld-18"
 
-  # sysroot = "--sysroot=/home/ilezhankin/.ya/tools/v4/243881345"
-  sysroot = ""
+  sysroot = "--sysroot=/home/ilezhankin/.ya/tools/v4/243881345"
 
   tool("stamp") {
     command = "touch {{output}}"

@@ -4,7 +4,10 @@ library("http_proxy") {
     ]
 
     deps = [
+        "//contrib/restricted/nlohmann_json",
+        "//ydb/core/base",
         "//ydb/core/security",
+        "//ydb/core/ymq/actor",
         "//ydb/library/actors/http",
     ]
 

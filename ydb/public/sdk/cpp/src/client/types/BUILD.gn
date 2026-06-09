@@ -15,12 +15,15 @@ library("fatal_error_handlers") {
 }
 
 library("status") {
+    public_deps = [
+        "//ydb/public/sdk/cpp/src/library/issue",
+    ]
+
     deps = [
         ":exceptions",
         ":fatal_error_handlers",
         "//ydb/public/api/protos",
         "//ydb/public/sdk/cpp/src/client/impl/internal:plain_status",
-        "//ydb/public/sdk/cpp/src/library/issue",
     ]
 
     sources = [

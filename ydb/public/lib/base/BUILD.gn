@@ -4,6 +4,10 @@ library("base") {
         "//ydb/library/actors/core",
     ]
 
+    deps = [
+        "//ydb/core/protos",
+    ]
+
     sources = [
         "msgbus.cpp",
     ]

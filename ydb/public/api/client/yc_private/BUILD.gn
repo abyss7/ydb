@@ -1,0 +1,48 @@
+protobuf_library("access_service") {
+    sources = [
+        "accessservice/access_service.proto",
+        "accessservice/resource.proto",
+        "accessservice/sensitive.proto",
+    ]
+}
+
+protobuf_library("iam") {
+    public_deps = [
+        ":operation",
+    ]
+
+    deps = [
+        ":access_service",
+        "//contrib/libs/googleapis-common-protos",
+    ]
+
+    sources = [
+        "iam/iam_token.proto",
+        "iam/iam_token_service.proto",
+        "iam/iam_token_service_subject.proto",
+        "iam/oauth_request.proto",
+        "iam/reference.proto",
+        "iam/service_account.proto",
+        "iam/service_account_service.proto",
+        "iam/user_account.proto",
+        "iam/user_account_service.proto",
+        "iam/yandex_passport_cookie.proto",
+    ]
+}
+
+protobuf_library("operation") {
+    deps = [
+        "//contrib/libs/googleapis-common-protos",
+    ]
+
+    sources = [
+        "operation/operation.proto",
+    ]
+}
+
+protobuf_library("service_control") {
+    sources = [
+        "servicecontrol/access_service.proto",
+        "servicecontrol/resource.proto",
+    ]
+}

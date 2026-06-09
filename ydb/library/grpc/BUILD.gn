@@ -1,0 +1,9 @@
+library("actor_client") {
+    public_deps = [
+        "//library/cpp/containers/absl_flat_hash",
+        "//library/cpp/digest/crc32c",
+        "//ydb/library/actors/core",
+        "//ydb/public/sdk/cpp/src/library/grpc/client",
+        "//ydb/public/sdk/cpp/src/library/time",
+    ]
+}

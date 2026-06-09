@@ -1,0 +1,95 @@
+library("actor") {
+    public_deps = [
+        "//ydb/core/ymq/proto",
+    ]
+
+    deps = [
+        ":cloud_events",
+        "//contrib/libs/openssl",
+        "//ydb/core/client/minikql_compile",
+        "//ydb/core/tx",
+        "//ydb/library/actors/core",
+    ]
+
+    sources = [
+        "actor.cpp",
+        "auth_factory.cpp",
+        "auth_mocks.cpp",
+        "auth_multi_factory.cpp",
+        "change_visibility.cpp",
+        "cleanup_queue_data.cpp",
+        "count_queues.cpp",
+        "create_queue.cpp",
+        "create_user.cpp",
+        "delete_message.cpp",
+        "delete_queue.cpp",
+        "delete_user.cpp",
+        "error.cpp",
+        "executor.cpp",
+        "fifo_cleanup.cpp",
+        "garbage_collector.cpp",
+        "get_queue_attributes.cpp",
+        "get_queue_url.cpp",
+        "index_events_processor.cpp",
+        "infly.cpp",
+        "list_dead_letter_source_queues.cpp",
+        "list_permissions.cpp",
+        "list_queue_tags.cpp",
+        "list_queues.cpp",
+        "list_users.cpp",
+        "local_rate_limiter_allocator.cpp",
+        "log.cpp",
+        "message_delay_stats.cpp",
+        "metering.cpp",
+        "modify_permissions.cpp",
+        "monitoring.cpp",
+        "node_tracker.cpp",
+        "proxy_actor.cpp",
+        "proxy_service.cpp",
+        "purge_queue.cpp",
+        "purge.cpp",
+        "queue_leader.cpp",
+        "queue_schema.cpp",
+        "queues_list_reader.cpp",
+        "receive_message.cpp",
+        "retention.cpp",
+        "schema.cpp",
+        "send_message.cpp",
+        "service.cpp",
+        "set_queue_attributes.cpp",
+        "sha256.cpp",
+        "tag_queue.cpp",
+        "untag_queue.cpp",
+        "user_settings_names.cpp",
+        "user_settings_reader.cpp",
+    ]
+}
+
+library("cloud_events") {
+    public_deps = [
+        ":proto",
+    ]
+
+    deps = [
+        "//ydb/core/kqp/common",
+    ]
+
+    sources = [
+        "cloud_events/cloud_events.cpp",
+    ]
+}
+
+protobuf_library("proto") {
+    public_deps = [
+        "//contrib/libs/googleapis-common-protos",
+    ]
+
+    deps = [
+        "//ydb/public/api/client/yc_public:common",
+        "//ydb/public/api/client/yc_public:events",
+    ]
+
+    sources = [
+        "cloud_events/proto/ymq.proto",
+    ]
+}

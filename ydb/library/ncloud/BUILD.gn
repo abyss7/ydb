@@ -1,5 +1,8 @@
 library("ncloud") {
     public_deps = [
+        "//ydb/library/grpc:actor_client",
+        "//ydb/library/services",
+        "//ydb/public/api/client/nc_private",
         "//ydb/public/api/client/nc_private/iam:v1",
     ]
 

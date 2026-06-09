@@ -1,0 +1,10 @@
+protobuf_library("proto") {
+    deps = [
+        "//ydb/core/protos",
+    ]
+
+    sources = [
+        "events.proto",
+        "records.proto",
+    ]
+}

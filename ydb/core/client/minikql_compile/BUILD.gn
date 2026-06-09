@@ -1,0 +1,20 @@
+library("minikql_compile") {
+    public_deps = [
+        "//yql/essentials/minikql",
+    ]
+
+    deps = [
+        "//ydb/core/base",
+        "//ydb/core/kqp/provider",
+        "//ydb/library/actors/core",
+        "//yql/essentials/ast",
+    ]
+
+    sources = [
+        "compile_context.cpp",
+        "compile_result.cpp",
+        "db_key_resolver.cpp",
+        "mkql_compile_service.cpp",
+        "yql_expr_minikql.cpp",
+    ]
+}

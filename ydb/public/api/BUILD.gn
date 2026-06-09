@@ -1,4 +1,8 @@
 protobuf_library("grpc") {
+    deps = [
+        "protos",
+    ]
+
     sources = [
         "grpc/draft/dummy.proto",
         "grpc/draft/fq_v1.proto",

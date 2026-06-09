@@ -1,0 +1,7 @@
+library("api") {
+    public_deps = [
+        "//ydb/public/api/client/yc_private:access_service",
+        "//ydb/public/api/client/yc_private:iam",
+        "//ydb/public/api/client/yc_private:service_control",
+    ]
+}

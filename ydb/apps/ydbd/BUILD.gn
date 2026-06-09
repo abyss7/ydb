@@ -12,6 +12,7 @@ executable("ydbd") {
     deps += [
         ":export",
         "//ydb/core/driver_lib:run",
+        "//ydb/core/ymq/actor",
     ]
 
     sources = [ "main.cpp" ]

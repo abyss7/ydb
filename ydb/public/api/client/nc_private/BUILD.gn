@@ -1,0 +1,5 @@
+protobuf_library("nc_private") {
+    sources = [
+        "annotations.proto",
+    ]
+}

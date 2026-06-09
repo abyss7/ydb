@@ -1,4 +1,13 @@
 library("common") {
+    deps = [
+        "//contrib/libs/aws-sdk-cpp:core",
+        "//contrib/libs/aws-sdk-cpp:s3",
+        "//contrib/libs/ftxui",
+        "//contrib/libs/openssl",
+        "//library/cpp/yaml",
+        "//ydb/public/sdk/cpp/src/client/types:status",
+    ]
+
     sources = [
         "common/aws.cpp",
         "common/cert_format_converter.cpp",

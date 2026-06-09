@@ -19,6 +19,7 @@ library("security") {
     public_deps = [
         ":certificate_check",
         "//ydb/library/ncloud",
+        "//ydb/library/ycloud:api",
     ]
 
     deps = [
