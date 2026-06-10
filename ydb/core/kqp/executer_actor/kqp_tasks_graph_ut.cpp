@@ -275,6 +275,7 @@ public:
 
         // settings.AppConfig.MutableTableServiceConfig()->MutableResourceManager()->SetMaxChannelCountPerNode(100);
         // settings.AppConfig.MutableTableServiceConfig()->SetEnableNewRBO(true);
+        settings.AppConfig.MutableTableServiceConfig()->SetUseKqpTasksGraphV2(true);
 
         if constexpr (N > 0) {
             using TExecutor = NKikimrConfig::TActorSystemConfig::TExecutor;
@@ -401,7 +402,7 @@ private:
     TTestActorRuntime* Runtime = nullptr;
 };
 
-class TKqpTasksGraphTpchFixture : public TKqpTasksGraphBuildFixture<32> {
+class TKqpTasksGraphTpchFixture : public TKqpTasksGraphBuildFixture<8> {
 public:
     void SetUp(NUnitTest::TTestContext& ctx) override {
         TKqpTasksGraphBuildFixture::SetUp(ctx);
@@ -410,7 +411,7 @@ public:
 
     TTaskDistribution BuildTasks(const TString& query) {
         TBuildConfig cfg;
-        cfg.NodeCount = 120;
+        cfg.NodeCount = 72;
 
         return TKqpTasksGraphBuildFixture::BuildTasks(OptimizerHints + query, cfg);
     }
@@ -752,7 +753,6 @@ Y_UNIT_TEST_SUITE(TKqpTasksGraphBuild) {
         UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 5), 1);
     }
 
-    /*
     Y_UNIT_TEST_F(TpchQuery05, TKqpTasksGraphTpchFixture) {
         const TString& queryText = R"(
             $z1_12 = cast(1 as decimal(12,2));
@@ -849,7 +849,6 @@ Y_UNIT_TEST_SUITE(TKqpTasksGraphBuild) {
         UNIT_ASSERT_VALUES_EQUAL(dist.Count(0,  9), 240);
         UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 10), 1);
     }
-    */
 
     Y_UNIT_TEST_F(TpchQuery06, TKqpTasksGraphTpchFixture) {
         const TString& queryText = R"(
@@ -875,7 +874,6 @@ Y_UNIT_TEST_SUITE(TKqpTasksGraphBuild) {
         UNIT_ASSERT_VALUES_EQUAL(dist.Count(0,  2), 1);
     }
 
-    /*
     Y_UNIT_TEST_F(TpchQuery07, TKqpTasksGraphTpchFixture) {
         const TString& queryText = R"(
             $z1_12 = cast(1 as decimal(12,2));
@@ -968,7 +966,6 @@ Y_UNIT_TEST_SUITE(TKqpTasksGraphBuild) {
         UNIT_ASSERT_VALUES_EQUAL(dist.Count(0,  8), 240);
         UNIT_ASSERT_VALUES_EQUAL(dist.Count(0,  9), 1);
     }
-    */
 
     Y_UNIT_TEST_F(TpchQuery08, TKqpTasksGraphTpchFixture) {
         const TString& queryText = R"(
@@ -1099,7 +1096,6 @@ Y_UNIT_TEST_SUITE(TKqpTasksGraphBuild) {
         UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 13), 1);
     }
 
-    /*
     Y_UNIT_TEST_F(TpchQuery09, TKqpTasksGraphTpchFixture) {
         const TString& queryText = R"(
             $z1_12 = cast(1 as decimal(12,2));
@@ -1268,7 +1264,6 @@ Y_UNIT_TEST_SUITE(TKqpTasksGraphBuild) {
         UNIT_ASSERT_VALUES_EQUAL(dist.Count(0,  6), 240);
         UNIT_ASSERT_VALUES_EQUAL(dist.Count(0,  7), 1);
     }
-    */
 
     Y_UNIT_TEST_F(TpchQuery11, TKqpTasksGraphTpchFixture) {
         const TString& queryText = R"(
@@ -1607,7 +1602,6 @@ Y_UNIT_TEST_SUITE(TKqpTasksGraphBuild) {
         UNIT_ASSERT_VALUES_EQUAL(dist.Count(0,  7), 1);
     }
 
-    /*
     Y_UNIT_TEST_F(TpchQuery17, TKqpTasksGraphTpchFixture) {
         const TString& queryText = R"(
             $z7_35 = cast("7." as decimal(35,2));
@@ -1661,7 +1655,6 @@ Y_UNIT_TEST_SUITE(TKqpTasksGraphBuild) {
         UNIT_ASSERT_VALUES_EQUAL(dist.Count(0,  6), 1);
         UNIT_ASSERT_VALUES_EQUAL(dist.Count(1,  0), 1);
     }
-    */
 
     Y_UNIT_TEST_F(TpchQuery18, TKqpTasksGraphTpchFixture) {
         const TString& queryText = R"(
@@ -1871,7 +1864,6 @@ Y_UNIT_TEST_SUITE(TKqpTasksGraphBuild) {
         UNIT_ASSERT_VALUES_EQUAL(dist.Count(0, 10), 1);
     }
 
-    /*
     Y_UNIT_TEST_F(TpchQuery21, TKqpTasksGraphTpchFixture) {
         const TString& queryText = R"(
             $n = select n_nationkey from `/Root/nation`
@@ -2001,7 +1993,6 @@ Y_UNIT_TEST_SUITE(TKqpTasksGraphBuild) {
         UNIT_ASSERT_VALUES_EQUAL(dist.Count(0,  5), 1920);
         UNIT_ASSERT_VALUES_EQUAL(dist.Count(0,  6), 1);
     }
-    */
 
     /*
     Y_UNIT_TEST_F(CustomQuery01, TKqpTasksGraphTpchFixture) {
