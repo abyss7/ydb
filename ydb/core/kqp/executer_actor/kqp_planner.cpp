@@ -325,8 +325,9 @@ ui32 TKqpPlanner::GetCurrentRetryDelay(ui32 requestId) {
 }
 
 std::unique_ptr<IEventHandle> TKqpPlanner::AssignTasksToNodes() {
-    if (ComputeTasks.empty())
+    if (ComputeTasks.empty()) {
         return nullptr;
+    }
 
     PrepareToProcess();
 
