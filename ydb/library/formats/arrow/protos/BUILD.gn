@@ -1,7 +1,0 @@
-protobuf_library("protos") {
-    sources = [
-        "accessor.proto",
-        "fields.proto",
-        "ssa.proto",
-    ]
-}

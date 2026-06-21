@@ -36,7 +36,7 @@ library("mon") {
         "//library/cpp/cgiparam",
         "//library/cpp/html:pcdata",
         "//library/cpp/lwtrace",
-        "//library/cpp/monlib/service:pages",
+        "//library/cpp/monlib/service/pages",
         "//library/cpp/resource",
         "//library/cpp/string_utils/base64",
     ]

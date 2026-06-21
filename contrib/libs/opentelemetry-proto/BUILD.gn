@@ -1,4 +1,4 @@
-protobuf_library("protos") {
+protobuf_library("opentelemetry-proto") {
     sources = [
         "opentelemetry/proto/collector/logs/v1/logs_service.proto",
         "opentelemetry/proto/collector/metrics/v1/metrics_service.proto",

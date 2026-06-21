@@ -1,0 +1,3 @@
+contrib_library("api") {
+    sources = [ "malloc.cpp" ]
+}

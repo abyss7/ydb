@@ -12,15 +12,10 @@ PEERDIR(
 
 YQL_LAST_ABI_VERSION()
 
-SET(
-    SOURCE
+SRCS(
     events.cpp
     worker_info.cpp
     counters.cpp
-)
-
-SRCS(
-    ${SOURCE}
 )
 
 END()

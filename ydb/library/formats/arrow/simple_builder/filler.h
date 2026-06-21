@@ -3,13 +3,22 @@
 #include <contrib/libs/apache/arrow/cpp/src/arrow/type_traits.h>
 #include <contrib/libs/apache/arrow/cpp/src/arrow/util/string_view.h>
 
-#include <library/cpp/testing/unittest/registar.h>
-
 #include <util/generic/string.h>
-#include <util/system/types.h>
+#include <util/random/fast.h>
 #include <util/random/random.h>
+#include <util/system/types.h>
 
 namespace NKikimr::NArrow::NConstruction {
+
+static inline TString MakeRandomString(ui32 len, ui32 seed) {
+    TReallyFastRng32 rng(seed);
+    TString s;
+    s.reserve(len);
+    for (ui32 i = 0; i < len; ++i) {
+        s.push_back(char(rng.Uniform(1, 128)));
+    }
+    return s;
+}
 
 template <class TArrowInt>
 class TIntSeqFiller {
@@ -69,7 +78,7 @@ public:
             if (RandomNumber<double>() < defaultValueFrq) {
                 Data.emplace_back(defaultValue);
             } else {
-                Data.emplace_back(NUnitTest::RandomString(strLen, i));
+                Data.emplace_back(MakeRandomString(strLen, i));
             }
         }
     }

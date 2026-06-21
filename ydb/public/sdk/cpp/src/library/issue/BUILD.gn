@@ -1,17 +1,11 @@
 library("issue") {
-    public_deps = [
-        "//contrib/libs/protobuf",
-        "//ydb/public/api/protos",
-    ]
+  public_deps = [ "//ydb/public/api/protos" ]
 
-    deps = [
-        "//library/cpp/colorizer",
-        "//ydb/public/sdk/cpp/src/library/string_utils:helpers",
-    ]
+  deps = [ "//library/cpp/colorizer" ]
 
-    sources = [
-        "utf8.cpp",
-        "yql_issue.cpp",
-        "yql_issue_message.cpp",
-    ]
+  sources = [
+    "utf8.cpp",
+    "yql_issue.cpp",
+    "yql_issue_message.cpp",
+  ]
 }

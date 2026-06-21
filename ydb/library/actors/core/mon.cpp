@@ -1,5 +1,6 @@
 #include "mon.h"
 
+#include <library/cpp/cgiparam/cgiparam.h>
 #include <ydb/library/actors/protos/actors.pb.h>
 
 namespace NActors::NMon {

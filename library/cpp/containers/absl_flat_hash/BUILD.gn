@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("absl_flat_hash") {
     public_deps = [ "//contrib/restricted/abseil-cpp" ]
 

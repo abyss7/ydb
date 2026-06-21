@@ -9,7 +9,6 @@
 #include "scheduler_queue.h"
 #include "executor_pool_base.h"
 #include <memory>
-#include <ydb/library/actors/core/harmonizer/harmonizer.h>
 #include <ydb/library/actors/actor_type/indexes.h>
 #include <ydb/library/actors/util/unordered_cache.h>
 #include <ydb/library/actors/util/threadparkpad.h>

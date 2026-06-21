@@ -1,13 +1,8 @@
 library("client") {
-    public_deps = [
-        "//contrib/libs/grpc",
-    ]
+  deps = [
+    "//library/cpp/containers/stack_vector",
+    "//ydb/public/sdk/cpp/src/library/time",
+  ]
 
-    deps = [
-        "//ydb/public/sdk/cpp/src/library/time",
-    ]
-
-    sources = [
-        "grpc_client_low.cpp",
-    ]
+  sources = [ "grpc_client_low.cpp" ]
 }

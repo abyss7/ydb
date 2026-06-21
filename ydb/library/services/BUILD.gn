@@ -1,9 +1,3 @@
 protobuf_library("services") {
-    sources = [
-        "services.proto",
-    ]
-
-    serialize_enum_headers = [
-        "services.pb.h",
-    ]
+  sources = [ "services.proto" ]
 }

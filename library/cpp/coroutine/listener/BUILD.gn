@@ -1,7 +1,5 @@
 library("listener") {
-    public_deps = [ "//library/cpp/coroutine/engine" ]
+  public_deps = [ "//library/cpp/coroutine/engine" ]
 
-    sources = [
-        "listen.cpp",
-    ]
+  sources = [ "listen.cpp" ]
 }

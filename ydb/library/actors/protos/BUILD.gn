@@ -1,8 +1,8 @@
 protobuf_library("protos") {
-    sources = [
-        "actors.proto",
-        "interconnect.proto",
-        "services_common.proto",
-        "unittests.proto",
-    ]
+  sources = [
+    "actors.proto",
+    "interconnect.proto",
+    "services_common.proto",
+    "unittests.proto",
+  ]
 }

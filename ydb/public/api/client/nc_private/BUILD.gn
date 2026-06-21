@@ -1,5 +1,5 @@
 protobuf_library("nc_private") {
-    sources = [
-        "annotations.proto",
-    ]
+  public_deps = [ "//contrib/libs/googleapis-common-protos" ]
+
+  sources = [ "annotations.proto" ]
 }

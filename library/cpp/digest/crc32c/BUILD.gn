@@ -1,7 +1,5 @@
 library("crc32c") {
-    deps = [ "//contrib/libs/crcutil" ]
+  deps = [ "//contrib/libs/crcutil" ]
 
-    sources = [
-        "crc32c.cpp",
-    ]
+  sources = [ "crc32c.cpp" ]
 }

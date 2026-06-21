@@ -1,6 +1,11 @@
 library("case_insensitive_string") {
-    sources = [
-        "case_insensitive_char_traits.cpp",
-        "case_insensitive_string.cpp",
-    ]
+  deps = [
+    "//contrib/libs/libc_compat",
+    "//library/cpp/digest/murmur",
+  ]
+
+  sources = [
+    "case_insensitive_char_traits.cpp",
+    "case_insensitive_string.cpp",
+  ]
 }

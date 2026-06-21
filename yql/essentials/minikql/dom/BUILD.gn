@@ -1,20 +1,19 @@
 library("dom") {
-    public_deps = [
-        "//yql/essentials/public/udf",
-    ]
+  public_deps = [ "//yql/essentials/public/udf" ]
 
-    deps = [
-        "//library/cpp/json",
-        "//library/cpp/yson_pull",
-        "//yql/essentials/utils",
-    ]
+  deps = [
+    "//library/cpp/containers/stack_vector",
+    "//library/cpp/json",
+    "//library/cpp/yson_pull",
+    "//yql/essentials/utils",
+  ]
 
-    sources = [
-        "hash.cpp",
-        "json.cpp",
-        "make.cpp",
-        "node.cpp",
-        "peel.cpp",
-        "yson.cpp",
-    ]
+  sources = [
+    "hash.cpp",
+    "json.cpp",
+    "make.cpp",
+    "node.cpp",
+    "peel.cpp",
+    "yson.cpp",
+  ]
 }

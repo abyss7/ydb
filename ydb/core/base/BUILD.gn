@@ -20,7 +20,7 @@ library("base") {
         "//library/cpp/dwarf_backtrace",
         "//library/cpp/l2_distance",
         "//library/cpp/monlib/dynamic_counters",
-        "//library/cpp/monlib/service:pages",
+        "//library/cpp/monlib/service/pages",
         "//library/cpp/random_provider",
         "//library/cpp/threading/hot_swap",
         "//library/cpp/time_provider",

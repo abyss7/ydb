@@ -45,6 +45,8 @@ _default_configs = [
   "//build/gn/config:no_undefined",
 ]
 _default_deps = [
+  # "//contrib/libs/tcmalloc:default", # TODO: repair this
+  "//library/cpp/malloc/tcmalloc",
   "//util",
 ]
 

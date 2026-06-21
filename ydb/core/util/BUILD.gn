@@ -2,7 +2,7 @@ library("memory_tracker") {
     deps = [
     #     ":util",
     #     "//library/cpp/html/escape",
-    #     "//library/cpp/monlib/service:pages",
+    #     "//library/cpp/monlib/service/pages",
         "//ydb/core/base",
     #     "//ydb/core/mon",
     #     "//ydb/library/actors/core",
@@ -22,7 +22,7 @@ library("util") {
         "//library/cpp/ipv6_address",
         "//library/cpp/json",
         "//library/cpp/monlib/dynamic_counters",
-        "//library/cpp/monlib/service:pages",
+        "//library/cpp/monlib/service/pages",
         "//ydb/core/base",
         "//ydb/library/actors/core",
         "//ydb/library/actors/util",

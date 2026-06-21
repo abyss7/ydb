@@ -12,7 +12,7 @@ library("lib") {
     deps = [
         ":base",
         "generated",
-        "//library/cpp/monlib/service:pages",
+        "//library/cpp/monlib/service/pages",
         "//library/cpp/threading/hot_swap",
     ]
 

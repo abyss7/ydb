@@ -1,91 +1,22 @@
-library("address") {
-    sources = [
-        "address/interconnect_address.cpp",
-    ]
-}
-
-library("cq_actor") {
-    deps = [
-        ":poller",
-        ":rdma",
-        "//contrib/libs/ibdrv",
-        "//ydb/library/actors/core",
-    ]
-
-    sources = [
-        "rdma/cq_actor/cq_actor.cpp",
-    ]
-}
-
-library("mock") {
-    deps = [
-        "//ydb/library/actors/core",
-        "//ydb/library/actors/core:events",
-    ]
-
-    sources = [
-        "mock/ic_mock.cpp",
-    ]
-}
-
-library("poller") {
-    deps = [
-        "//ydb/library/actors/core",
-        "//ydb/library/actors/core:events", # TODO: transition thru ":interconnect"
-        "//ydb/library/actors/prof",
-    ]
-
-    sources = [
-        "poller/poller_actor.cpp",
-        "poller/poller_tcp.cpp",
-        "poller/poller_tcp_unit.cpp",
-        "poller/poller_tcp_unit_epoll.cpp",
-        "poller/poller_tcp_unit_select.cpp",
-
-    ]
-}
-
-library("rdma") {
-    public_deps = [
-        "//contrib/libs/ibdrv",
-    ]
-
-    deps = [
-        ":address",
-        "//contrib/libs/protobuf", # TODO: transition thru "//ydb/library/actors/core:events"
-        "//library/cpp/monlib/dynamic_counters",
-        "//library/cpp/monlib/metrics",
-        "//ydb/library/actors/util",
-    ]
-
-    sources = [
-        "rdma/ctx.cpp",
-        "rdma/ctx_open.cpp",
-        "rdma/link_manager.cpp",
-        "rdma/mem_pool.cpp",
-        "rdma/rdma.cpp",
-    ]
-}
-
 library("interconnect") {
     public_deps = [
-        "//contrib/libs/opentelemetry-proto:protos",
+        "//contrib/libs/opentelemetry-proto",
         "//ydb/library/actors/core",
     ]
 
     deps = [
-        ":address",
-        ":cq_actor",
-        ":mock",
-        ":poller",
-        ":rdma",
+        "address",
+        "mock",
+        "poller",
+        "rdma",
+        "rdma:cq_actor",
         "//contrib/libs/openssl",
         "//library/cpp/cgiparam",
         "//library/cpp/digest/crc32c",
         "//library/cpp/json",
         "//library/cpp/monlib/dynamic_counters",
         "//library/cpp/monlib/metrics",
-        "//library/cpp/monlib/service:pages",
+        "//library/cpp/monlib/service/pages",
         "//library/cpp/time_provider",
         "//ydb/library/actors/core:events",
         "//ydb/library/actors/protos",

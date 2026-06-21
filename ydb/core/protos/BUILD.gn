@@ -26,7 +26,7 @@ protobuf_library("protos") {
         "//ydb/core/tx/columnshard/common:protos",
         "//ydb/core/tx/columnshard/engines/scheme/defaults:protos",
         "//ydb/library/actors/protos",
-        "//ydb/library/formats/arrow/protos",
+        "//ydb/library/formats/arrow:protos",
         "//ydb/library/login:protos",
         "//ydb/library/mkql_proto:protos",
         "//ydb/library/services",

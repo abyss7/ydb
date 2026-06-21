@@ -1,7 +1,6 @@
 #pragma once
 
 #include <ydb/library/actors/util/rope.h>
-#include <ydb/library/actors/wilson/wilson_trace.h>
 
 #include <util/generic/string.h>
 #include <util/stream/walk.h>

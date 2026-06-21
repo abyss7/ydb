@@ -1,19 +1,138 @@
 library("arrow") {
-    deps = [
-        "//contrib/libs/apache/arrow",
-        "//library/cpp/json",
-        "//ydb/core/protos",
-        "//ydb/library/actors/core",
-    ]
+  public_deps = [
+    ":switch",
+    "//library/cpp/cache",
+    "//library/cpp/json:writer",
+    "//library/cpp/string_utils/base64",
+    "//ydb/library/accessor",
+    "//ydb/library/conclusion",
+  ]
 
-    sources = [
-        "arrow_helpers.cpp",
-        "modifier/schema.cpp",
-        "modifier/subset.cpp",
-        "permutations.cpp",
-        "replace_key.cpp",
-        "simple_arrays_cache.cpp",
-        "size_calcer.cpp",
-        "validation/validation.cpp",
-    ]
+  deps = [
+    ":validation",
+    "//contrib/libs/apache/arrow",
+    "//contrib/libs/xxhash",
+    "//library/cpp/containers/stack_vector",
+    "//ydb/core/scheme_types",
+    "//ydb/library/actors/core",
+    "//ydb/library/services",
+    "//ydb/library/yverify_stream",
+  ]
+
+  sources = [
+    "arrow_helpers.cpp",
+    "permutations.cpp",
+    "replace_key.cpp",
+    "simple_arrays_cache.cpp",
+    "size_calcer.cpp",
+  ]
+}
+
+group("common") {
+}
+
+library("hash") {
+  public_deps = [ "//contrib/libs/xxhash" ]
+
+  sources = [ "hash/xx_hash.cpp" ]
+}
+
+library("modifier") {
+  public_deps = [
+    ":common",
+    ":protos",
+    "//contrib/libs/apache/arrow",
+    "//ydb/library/accessor",
+    "//ydb/library/actors/core",
+    "//ydb/library/conclusion",
+  ]
+
+  sources = [
+    "modifier/schema.cpp",
+    "modifier/subset.cpp",
+  ]
+}
+
+protobuf_library("protos") {
+  sources = [
+    "protos/accessor.proto",
+    "protos/fields.proto",
+    "protos/ssa.proto",
+  ]
+}
+
+library("scalar") {
+  public_deps = [
+    "//contrib/libs/apache/arrow",
+    "//ydb/library/conclusion",
+  ]
+
+  deps = [
+    ":switch",
+    "//ydb/library/actors/core",
+  ]
+
+  sources = [ "scalar/serialization.cpp" ]
+}
+
+library("simple_builder") {
+  public_deps = [
+    "//contrib/libs/apache/arrow",
+    "//ydb/library/accessor",
+  ]
+
+  sources = [
+    "simple_builder/array.cpp",
+    "simple_builder/batch.cpp",
+    "simple_builder/filler.cpp",
+  ]
+}
+
+library("splitter") {
+  public_deps = [
+    "//contrib/libs/apache/arrow",
+    "//ydb/library/accessor",
+    "//ydb/library/actors/core",
+  ]
+
+  sources = [
+    "splitter/similar_packer.cpp",
+    "splitter/stats.cpp",
+  ]
+
+  serialize_enum_headers = [ "splitter/stats.h" ]
+}
+
+library("switch") {
+  public_deps = [
+    ":validation",
+    "//contrib/libs/apache/arrow",
+    "//contrib/libs/xxhash",
+    "//ydb/library/actors/core",
+    "//ydb/library/yverify_stream",
+    "//yql/essentials/parser/pg_wrapper",
+    "//yql/essentials/parser/pg_wrapper:interface",
+  ]
+
+  sources = [
+    "switch/compare.cpp",
+    "switch/switch_type.cpp",
+  ]
+}
+
+library("transformer") {
+  public_deps = [ "//contrib/libs/apache/arrow" ]
+
+  sources = [
+    "transformer/abstract.cpp",
+    "transformer/composite.cpp",
+  ]
+}
+
+library("validation") {
+  public_deps = [ "//contrib/libs/apache/arrow" ]
+
+  deps = [ "//ydb/library/actors/core" ]
+
+  sources = [ "validation/validation.cpp" ]
 }

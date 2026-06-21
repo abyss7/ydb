@@ -1,9 +1,5 @@
 library("ipv6_address") {
-    deps = [
-        "//library/cpp/int128",
-    ]
+  deps = [ "//library/cpp/int128" ]
 
-    sources = [
-        "ipv6_address.cpp",
-    ]
+  sources = [ "ipv6_address.cpp" ]
 }

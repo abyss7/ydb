@@ -2,7 +2,6 @@
 #include "buffers.h"
 
 #include <ydb/core/debug/valgrind_check.h>
-#include <ydb/library/yverify_stream/yverify_stream.h>
 
 #include <ydb/library/pdisk_io/spdk_state.h>
 #include <ydb/library/actors/util/intrinsics.h>

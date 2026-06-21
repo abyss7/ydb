@@ -1,19 +1,13 @@
 library("actor_type") {
-    public_deps = [
-        "//ydb/library/actors/prof",
-    ]
+  public_deps = [ "//ydb/library/actors/prof" ]
 
-    deps = [
-        "//ydb/library/actors/util",
-    ]
+  deps = [ "//ydb/library/actors/util" ]
 
-    sources = [
-        "common.cpp",
-        "indexes.cpp",
-        "index_constructor.cpp",
-    ]
+  sources = [
+    "common.cpp",
+    "index_constructor.cpp",
+    "indexes.cpp",
+  ]
 
-    serialize_enum_headers = [
-        "common.h",
-    ]
+  serialize_enum_headers = [ "common.h" ]
 }

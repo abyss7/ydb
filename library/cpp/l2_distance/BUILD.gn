@@ -1,5 +1,5 @@
 library("l2_distance") {
-    sources = [
-        "l2_distance.cpp",
-    ]
+  deps = [ "//library/cpp/sse" ]
+
+  sources = [ "l2_distance.cpp" ]
 }

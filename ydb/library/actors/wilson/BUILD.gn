@@ -1,12 +1,12 @@
 library("wilson") {
     public_deps = [
-        "//contrib/libs/opentelemetry-proto:protos",
+        "//contrib/libs/opentelemetry-proto",
     ]
 
     deps = [
         "//library/cpp/json",
         "//library/cpp/monlib/dynamic_counters",
-        "//library/cpp/monlib/service:pages",
+        "//library/cpp/monlib/service/pages",
         "//library/cpp/string_utils:url",
         "//ydb/library/actors/core",
     ]

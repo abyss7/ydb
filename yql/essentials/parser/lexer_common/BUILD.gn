@@ -1,16 +1,12 @@
 library("lexer_common") {
-    public_deps = [
-        "//yql/essentials/public/issue",
-    ]
+  public_deps = [ "//yql/essentials/public/issue" ]
 
-    deps = [
-        "//yql/essentials/utils",
-    ]
+  deps = [ "//yql/essentials/utils" ]
 
-    sources = [
-        "hints.cpp",
-        "lexer.cpp",
-        "parse_hints_impl.cpp",
-        "tokens.cpp",
-    ]
+  sources = [
+    "hints.cpp",
+    "lexer.cpp",
+    "parse_hints_impl.cpp",
+    "tokens.cpp",
+  ]
 }

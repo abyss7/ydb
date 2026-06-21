@@ -1,5 +1,5 @@
 library("types") {
-    sources = [
-        "mime.cpp",
-    ]
+  sources = [ "mime.cpp" ]
+
+  serialize_enum_headers = [ "mime.h" ]
 }

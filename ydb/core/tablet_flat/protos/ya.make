@@ -1,4 +1,4 @@
-LIBRARY()
+PROTO_LIBRARY()
 
 SRCS(
     flat_table_part.proto

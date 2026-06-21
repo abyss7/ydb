@@ -1,15 +1,15 @@
 library("io") {
-    deps = [
-        "//library/cpp/blockcodecs",
-        "//library/cpp/streams/brotli",
-        "//library/cpp/streams/bzip2",
-        "//library/cpp/streams/lzma",
-    ]
+  deps = [
+    "//library/cpp/blockcodecs",
+    "//library/cpp/streams/brotli",
+    "//library/cpp/streams/bzip2",
+    "//library/cpp/streams/lzma",
+  ]
 
-    sources = [
-        "chunk.cpp",
-        "compression.cpp",
-        "headers.cpp",
-        "stream.cpp",
-    ]
+  sources = [
+    "chunk.cpp",
+    "compression.cpp",
+    "headers.cpp",
+    "stream.cpp",
+  ]
 }

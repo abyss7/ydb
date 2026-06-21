@@ -1,4 +1,4 @@
-LIBRARY()
+PROTO_LIBRARY()
 
 SRCS(
     result_set_meta.proto

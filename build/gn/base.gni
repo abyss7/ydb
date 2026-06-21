@@ -14,6 +14,45 @@ template("avx2_source_set") {
     }
 }
 
+template("sse2_source_set") {
+    config("_sse2_config") {
+        cflags = [
+            "-msse2",
+        ]
+    }
+
+    source_set(target_name) {
+        forward_variables_from(invoker, "*")
+        configs += [ ":_sse2_config" ]
+    }
+}
+
+template("sse41_source_set") {
+    config("_sse41_config") {
+        cflags = [
+            "-msse4.1",
+        ]
+    }
+
+    source_set(target_name) {
+        forward_variables_from(invoker, "*")
+        configs += [ ":_sse41_config" ]
+    }
+}
+
+template("ssse3_source_set") {
+    config("_ssse3_config") {
+        cflags = [
+            "-mssse3",
+        ]
+    }
+
+    source_set(target_name) {
+        forward_variables_from(invoker, "*")
+        configs += [ ":_ssse3_config" ]
+    }
+}
+
 template("library") {
     _path = rebase_path(".", "//")
     _unique_name = exec_script("//build/gn/scripts/unique_name.py", [ _path ], "trim string")
@@ -66,6 +105,9 @@ template("library") {
                 ":$_enum_target",
                 "//tools/enum_parser:runtime"
             ]
+            if (!defined(sources)) {
+                sources = []
+            }
             sources += get_target_outputs(":$_enum_target")
             configs += [ ":$_enum_config" ]
         }

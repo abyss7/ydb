@@ -1,10 +1,10 @@
 library("dynamic_counters") {
     deps = [
         "//library/cpp/monlib/encode",
-        "//library/cpp/monlib/encode/json",
-        "//library/cpp/monlib/encode/prometheus",
-        "//library/cpp/monlib/encode/spack",
-        "//library/cpp/monlib/service:pages",
+        "//library/cpp/monlib/encode:json",
+        "//library/cpp/monlib/encode:prometheus",
+        "//library/cpp/monlib/encode:spack",
+        "//library/cpp/monlib/service/pages",
         "//library/cpp/string_utils:quote",
     ]
 

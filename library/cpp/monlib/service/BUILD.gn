@@ -1,52 +1,29 @@
-library("pages") {
-    deps = [
-        "//library/cpp/build_info",
-        "//library/cpp/http/server",
-        "//library/cpp/malloc:api",
-        "//library/cpp/monlib/encode",
-        "//library/cpp/monlib/encode/json",
-        "//library/cpp/monlib/encode/prometheus",
-        "//library/cpp/monlib/encode/spack",
-        "//library/cpp/monlib/encode/text",
-        "//library/cpp/resource",
-        "//library/cpp/svnversion",
-    ]
-
-    sources = [
-        "pages/diag_mon_page.cpp",
-        "pages/html_mon_page.cpp",
-        "pages/index_mon_page.cpp",
-        "pages/mon_page.cpp",
-        "pages/pre_mon_page.cpp",
-        "pages/registry_mon_page.cpp",
-        "pages/resource_mon_page.cpp",
-        "pages/templates.cpp",
-        "pages/version_mon_page.cpp",
-    ]
-}
-
 library("service") {
-    public_deps = [
-        "//library/cpp/coroutine/engine",
-    ]
+  public_deps = [
+    "//library/cpp/coroutine/engine",
+    "//library/cpp/monlib/encode",
+    "//library/cpp/monlib/service/pages",
+  ]
 
-    deps = [
-        ":pages",
-        "//contrib/libs/protobuf",
-        "//library/cpp/cgiparam",
-        "//library/cpp/coroutine/listener",
-        "//library/cpp/http/fetch",
-        "//library/cpp/http/io",
-        "//library/cpp/http/server",
-        "//library/cpp/logger",
-        "//library/cpp/uri",
-    ]
+  deps = [
+    "//contrib/libs/protobuf",
+    "//library/cpp/cgiparam",
+    "//library/cpp/coroutine/listener",
+    "//library/cpp/http/fetch",
+    "//library/cpp/http/io",
+    "//library/cpp/http/server",
+    "//library/cpp/logger",
+    "//library/cpp/malloc/api",
+    "//library/cpp/string_utils/base64",
+    "//library/cpp/svnversion",
+    "//library/cpp/uri",
+  ]
 
-    sources = [
-        "auth.cpp",
-        "format.cpp",
-        "mon_service_http_request.cpp",
-        "monservice.cpp",
-        "service.cpp",
-    ]
+  sources = [
+    "auth.cpp",
+    "format.cpp",
+    "mon_service_http_request.cpp",
+    "monservice.cpp",
+    "service.cpp",
+  ]
 }

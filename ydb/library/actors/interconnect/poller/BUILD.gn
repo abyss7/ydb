@@ -1,0 +1,9 @@
+library("poller") {
+    sources = [
+        "poller_actor.cpp",
+        "poller_tcp.cpp",
+        "poller_tcp_unit.cpp",
+        "poller_tcp_unit_epoll.cpp",
+        "poller_tcp_unit_select.cpp",
+    ]
+}

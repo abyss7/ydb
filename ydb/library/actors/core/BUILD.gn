@@ -1,91 +1,95 @@
-library("events") {
-    public_deps = [ "//contrib/libs/protobuf" ]
-
-    deps = [
-        "//ydb/library/actors/interconnect:rdma", # TODO: dependency cycle.
-        "//ydb/library/actors/util",
-    ]
-
-    sources = [
-        "events/event_pb.cpp",
-        "events/event.cpp",
-        "events/events.cpp",
-        "events/events_undelivered.cpp",
-    ]
-}
+# yamake2gn: keep  -- hand-written, do not regenerate
 
 library("core") {
-    public_deps = [
-        ":events",
-        "//contrib/libs/protobuf",
-        "//library/cpp/containers/absl_flat_hash",
-        "//library/cpp/lwtrace",
-        "//library/cpp/monlib/service",
-        "//ydb/library/actors/actor_type",
-        "//ydb/library/actors/memory_log",
-        "//ydb/library/actors/queues",
-        "//ydb/library/actors/util",
-    ]
+  public_deps = [
+    ":events",
+    "//library/cpp/containers/absl_flat_hash",
+    "//library/cpp/lwtrace",
+    "//library/cpp/monlib/service",
+    "//library/cpp/svnversion",
+    "//library/cpp/threading/chunk_queue",
+    "//ydb/library/actors/actor_type",
+    "//ydb/library/actors/memory_log",
+    "//ydb/library/actors/util",
+    "//ydb/library/services",
+  ]
 
-    deps = [
-        "//build/scripts/c_templates",
-        "//library/cpp/cgiparam",
-        "//library/cpp/json:writer",
-        "//library/cpp/logger",
-        "//library/cpp/monlib/dynamic_counters",
-        "//library/cpp/monlib/metrics",
-        "//library/cpp/monlib/service:pages",
-        "//library/cpp/threading/future",
-        "//library/cpp/time_provider",
-        "//ydb/library/actors/interconnect:rdma",
-        "//ydb/library/actors/prof",
-        "//ydb/library/actors/protos",
-    ]
+  deps = [
+    "//library/cpp/cgiparam",
+    "//library/cpp/json:writer",
+    "//library/cpp/logger",
+    "//library/cpp/monlib/dynamic_counters",
+    "//library/cpp/monlib/metrics",
+    "//library/cpp/monlib/service/pages",
+    "//library/cpp/threading/future",
+    "//library/cpp/time_provider",
+    "//ydb/library/actors/interconnect/rdma",
+    "//ydb/library/actors/prof",
+    "//ydb/library/actors/protos",
+  ]
 
-    sources = [
-        "activity_guard.cpp",
-        "actor_bootstrapped.cpp",
-        "actor_coroutine.cpp",
-        "actor.cpp",
-        "actorid.cpp",
-        "actorsystem.cpp",
-        "ask.cpp",
-        "buffer.cpp",
-        "callstack.cpp",
-        "cpu_manager.cpp",
-        "execution_stats.cpp",
-        "executor_pool_base.cpp",
-        "executor_pool_basic.cpp",
-        "executor_pool_io.cpp",
-        "executor_pool_shared.cpp",
-        "executor_thread_ctx.cpp",
-        "executor_thread.cpp",
-        "harmonizer/cpu_consumption.cpp",
-        "harmonizer/harmonizer.cpp",
-        "harmonizer/pool.cpp",
-        "harmonizer/shared_info.cpp",
-        "harmonizer/waiting_stats.cpp",
-        "interconnect.cpp",
-        "io_dispatcher.cpp",
-        "log_buffer.cpp",
-        "log_settings.cpp",
-        "log.cpp",
-        "mailbox_lockfree.cpp",
-        "mailbox.cpp",
-        "mon_stats.cpp",
-        "mon.cpp",
-        "monotonic_provider.cpp",
-        "monotonic.cpp",
-        "probes.cpp",
-        "process_stats.cpp",
-        "scheduler_basic.cpp",
-        "scheduler_cookie.cpp",
-        "thread_context.cpp",
-    ]
+  sources = [
+    "activity_guard.cpp",
+    "actor.cpp",
+    "actor_bootstrapped.cpp",
+    "actor_coroutine.cpp",
+    "actorid.cpp",
+    "actorsystem.cpp",
+    "ask.cpp",
+    "buffer.cpp",
+    "callstack.cpp",
+    "cpu_manager.cpp",
+    "execution_stats.cpp",
+    "executor_pool_base.cpp",
+    "executor_pool_basic.cpp",
+    "executor_pool_io.cpp",
+    "executor_pool_shared.cpp",
+    "executor_thread.cpp",
+    "executor_thread_ctx.cpp",
+    "harmonizer/cpu_consumption.cpp",
+    "harmonizer/harmonizer.cpp",
+    "harmonizer/pool.cpp",
+    "harmonizer/shared_info.cpp",
+    "harmonizer/waiting_stats.cpp",
+    "interconnect.cpp",
+    "io_dispatcher.cpp",
+    "log.cpp",
+    "log_buffer.cpp",
+    "log_settings.cpp",
+    "mailbox.cpp",
+    "mailbox_lockfree.cpp",
+    "mon.cpp",
+    "mon_stats.cpp",
+    "monotonic.cpp",
+    "monotonic_provider.cpp",
+    "probes.cpp",
+    "process_stats.cpp",
+    "scheduler_basic.cpp",
+    "scheduler_cookie.cpp",
+    "thread_context.cpp",
+  ]
 
-    serialize_enum_headers = [
-        "actor.h",
-        "defs.h",
-        "log_iface.h",
-    ]
+  serialize_enum_headers = [
+    "actor.h",
+    "defs.h",
+    "log_iface.h",
+  ]
+}
+
+library("events") {
+  # public_deps = [ "//ydb/library/actors/wilson" ]
+
+  deps = [
+    "//library/cpp/containers/stack_vector",
+    "//ydb/library/actors/interconnect/rdma",
+    "//ydb/library/actors/protos",
+    "//ydb/library/actors/util",
+  ]
+
+  sources = [
+    "events/event.cpp",
+    "events/event_pb.cpp",
+    "events/events.cpp",
+    "events/events_undelivered.cpp",
+  ]
 }

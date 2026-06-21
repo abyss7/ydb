@@ -1,0 +1,37 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
+library("cq_actor") {
+  public_deps = [ "//ydb/library/actors/core" ]
+
+  deps = [
+    "//contrib/libs/ibdrv",
+    # "//ydb/library/actors/interconnect",
+    "//ydb/library/actors/interconnect/poller",
+    "//ydb/library/actors/interconnect/rdma",
+  ]
+
+  sources = [ "cq_actor/cq_actor.cpp" ]
+}
+
+library("rdma") {
+  public_deps = [
+    "//contrib/libs/ibdrv",
+    "//library/cpp/time_provider",
+    "//ydb/library/actors/util",
+  ]
+
+  deps = [
+    "//contrib/libs/protobuf", # TODO: transition thru cycle deps of "//ydb/library/actors/core:events"
+    "//library/cpp/monlib/dynamic_counters",
+    "//library/cpp/monlib/metrics",
+    "//ydb/library/actors/interconnect/address",
+  ]
+
+  sources = [
+    "ctx.cpp",
+    "ctx_open.cpp",
+    "link_manager.cpp",
+    "mem_pool.cpp",
+    "rdma.cpp",
+  ]
+}

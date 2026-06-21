@@ -1,8 +1,15 @@
 library("blockcodecs") {
-    sources = [
-        "codecs.cpp",
-        "core/codecs.cpp",
-        "core/stream.cpp",
-        "stream.cpp",
-    ]
+  public_deps = [ ":core" ]
+
+  sources = [
+    "codecs.cpp",
+    "stream.cpp",
+  ]
+}
+
+library("core") {
+  sources = [
+    "core/codecs.cpp",
+    "core/stream.cpp",
+  ]
 }

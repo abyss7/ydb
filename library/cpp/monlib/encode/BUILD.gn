@@ -1,21 +1,87 @@
-protobuf_library("protos") {
-    sources = [
-        "legacy_protobuf/protos/metric_meta.proto",
-    ]
+library("buffered") {
+  public_deps = [
+    "//library/cpp/monlib/encode",
+    "//library/cpp/monlib/metrics",
+  ]
+
+  sources = [
+    "buffered/buffered_encoder_base.cpp",
+    "buffered/string_pool.cpp",
+  ]
 }
 
 library("encode") {
-    deps = [
-        "//library/cpp/monlib/metrics",
-    ]
+  deps = [ "//library/cpp/monlib/metrics" ]
 
-    sources = [
-        "encoder.cpp",
-        "encoder_state.cpp",
-        "format.cpp",
-    ]
+  sources = [
+    "encoder.cpp",
+    "encoder_state.cpp",
+    "format.cpp",
+  ]
 
-    serialize_enum_headers = [
-        "encoder_state_enum.h",
-    ]
+  serialize_enum_headers = [
+    "encoder_state_enum.h",
+  ]
+}
+
+library("json") {
+  public_deps = [ "//library/cpp/monlib/encode" ]
+
+  deps = [
+    ":buffered",
+    "//library/cpp/json",
+    "//library/cpp/json:writer",
+    "//library/cpp/monlib/exception",
+    "//library/cpp/monlib/metrics",
+  ]
+
+  sources = [
+    "json/json_decoder.cpp",
+    "json/json_encoder.cpp",
+  ]
+}
+
+library("prometheus") {
+  public_deps = [ "//library/cpp/monlib/encode" ]
+
+  deps = [
+    ":buffered",
+    "//library/cpp/monlib/metrics",
+  ]
+
+  sources = [
+    "prometheus/prometheus_decoder.cpp",
+    "prometheus/prometheus_encoder.cpp",
+  ]
+}
+
+library("spack") {
+  public_deps = [
+    "//library/cpp/monlib/encode",
+    "//library/cpp/monlib/metrics",
+  ]
+
+  deps = [
+    ":buffered",
+    "//contrib/libs/zlib",
+    "//contrib/libs/lz4",
+    "//contrib/libs/xxhash",
+    "//contrib/libs/zstd",
+    "//library/cpp/monlib/exception",
+  ]
+
+  sources = [
+    "spack/compression.cpp",
+    "spack/spack_v1_decoder.cpp",
+    "spack/spack_v1_encoder.cpp",
+    "spack/varint.cpp",
+  ]
+}
+
+library("text") {
+  public_deps = [ "//library/cpp/monlib/encode" ]
+
+  deps = [ "//library/cpp/monlib/metrics" ]
+
+  sources = [ "text/text_encoder.cpp" ]
 }

@@ -1,16 +1,16 @@
 library("server") {
-    deps = [
-        "//library/cpp/deprecated/atomic",
-        "//library/cpp/http/io",
-        "//library/cpp/http/misc",
-        "//library/cpp/threading/equeue",
-    ]
+  deps = [
+    "//library/cpp/deprecated/atomic",
+    "//library/cpp/http/io",
+    "//library/cpp/http/misc",
+    "//library/cpp/threading/equeue",
+  ]
 
-    sources = [
-        "conn.cpp",
-        "http.cpp",
-        "http_ex.cpp",
-        "options.cpp",
-        "response.cpp",
-    ]
+  sources = [
+    "conn.cpp",
+    "http.cpp",
+    "http_ex.cpp",
+    "options.cpp",
+    "response.cpp",
+  ]
 }
