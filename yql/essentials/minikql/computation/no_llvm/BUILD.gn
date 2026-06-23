@@ -1,0 +1,66 @@
+_gen_subdir = "$target_gen_dir/yql/essentials/minikql/computation"
+
+copy("mkql_computation_node_codegen_h") {
+  sources = [ "../mkql_computation_node_codegen.h.txt" ]
+  outputs = [ "$_gen_subdir/mkql_computation_node_codegen.h" ]
+}
+
+copy("mkql_llvm_base_h") {
+  sources = [ "../mkql_llvm_base.h.txt" ]
+  outputs = [ "$_gen_subdir/mkql_llvm_base.h" ]
+}
+
+copy("mkql_block_impl_codegen_h") {
+  sources = [ "../mkql_block_impl_codegen.h.txt" ]
+  outputs = [ "$_gen_subdir/mkql_block_impl_codegen.h" ]
+}
+
+config("_llvm_stub") {
+  include_dirs = [ "//yql/essentials/minikql/codegen/llvm_stub" ]
+}
+
+config("_includes") {
+  include_dirs = [
+    target_gen_dir,
+    _gen_subdir,
+    "//yql/essentials/minikql/codegen/llvm_stub",
+  ]
+}
+
+library("no_llvm") {
+  sources = [
+    "../mkql_computation_node_codegen.cpp",
+    "../mkql_computation_node_graph.cpp",
+    "../mkql_computation_node_graph_saveload.cpp",
+    "../mkql_computation_node_holders_codegen.cpp",
+    "../mkql_llvm_base.cpp",
+  ]
+
+  defines = [ "MKQL_DISABLE_CODEGEN" ]
+
+  configs = [ ":_includes" ]
+  public_configs = [ ":_llvm_stub" ]
+
+  deps = [
+    ":mkql_block_impl_codegen_h",
+    ":mkql_computation_node_codegen_h",
+    ":mkql_llvm_base_h",
+  ]
+
+  public_deps = [
+    "//contrib/libs/apache/arrow",
+    "//library/cpp/enumbitset",
+    "//library/cpp/packedtypes",
+    "//library/cpp/random_provider",
+    "//library/cpp/threading/future",
+    "//library/cpp/time_provider",
+    "//yql/essentials/minikql",
+    "//yql/essentials/minikql/arrow",
+    "//yql/essentials/minikql/computation",
+    "//yql/essentials/parser/pg_wrapper/interface",
+    "//yql/essentials/public/langver",
+    "//yql/essentials/public/udf",
+    "//yql/essentials/public/udf/arrow",
+    "//yql/essentials/utils",
+  ]
+}

@@ -1,23 +1,27 @@
-protobuf_library("proto") {
-    sources = [
-        "proto/logger_config.proto",
-    ]
+library("log") {
+  public_deps = [
+    "//library/cpp/deprecated/atomic",
+    "//library/cpp/logger:global",
+  ]
+
+  deps = [
+    ":proto",
+    "//library/cpp/json",
+    "//library/cpp/logger",
+    # "//yql/essentials/utils",
+    "//yql/essentials/utils/backtrace",
+  ]
+
+  sources = [
+    "context.cpp",
+    "format.cpp",
+    "fwd_backend.cpp",
+    "log.cpp",
+    "profile.cpp",
+    "tls_backend.cpp",
+  ]
 }
 
-library("log") {
-    deps = [
-        ":proto",
-        "//library/cpp/json",
-        "//library/cpp/logger",
-        "//yql/essentials/utils/backtrace",
-    ]
-
-    sources = [
-        "context.cpp",
-        "format.cpp",
-        "fwd_backend.cpp",
-        "log.cpp",
-        "profile.cpp",
-        "tls_backend.cpp",
-    ]
+protobuf_library("proto") {
+  sources = [ "proto/logger_config.proto" ]
 }

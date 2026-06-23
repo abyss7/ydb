@@ -1,0 +1,21 @@
+config("private_config") {
+    include_dirs = [ "src" ]
+}
+
+contrib_library("replxx") {
+    sources = [
+        "src/conversion.cxx",
+        "src/ConvertUTF.cpp",
+        "src/escape.cxx",
+        "src/history.cxx",
+        "src/prompt.cxx",
+        "src/replxx_impl.cxx",
+        "src/replxx.cxx",
+        "src/terminal.cxx",
+        "src/util.cxx",
+        "src/wcwidth.cpp",
+        "src/windows.cxx",
+    ]
+
+    configs = [ ":private_config" ]
+}

@@ -1,2 +1,2 @@
-library("yverify_stream") {
+group("yverify_stream") {
 }

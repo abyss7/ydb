@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 config("udf_abi_version") {
     defines = [ "USE_CURRENT_UDF_ABI_VERSION" ]
 }
@@ -33,6 +35,28 @@ library("_udf") {
     public_configs = [ ":udf_abi_version" ]
 
     allow_undefined = true
+}
+
+library("arrow") {
+  public_deps = [
+    "//yql/essentials/public/decimal",
+    "//yql/essentials/public/udf",
+    "//yql/essentials/utils",
+  ]
+
+  sources = [
+    "arrow/args_dechunker.cpp",
+    "arrow/bit_util.cpp",
+    "arrow/block_builder.cpp",
+    "arrow/block_item.cpp",
+    "arrow/block_item_comparator.cpp",
+    "arrow/block_item_hasher.cpp",
+    "arrow/block_reader.cpp",
+    "arrow/block_type_helper.cpp",
+    "arrow/memory_pool.cpp",
+    "arrow/udf_arrow_helpers.cpp",
+    "arrow/util.cpp",
+  ]
 }
 
 library("udf") {

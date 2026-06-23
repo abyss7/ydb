@@ -1,0 +1,8 @@
+config("_includes") {
+  include_dirs = [ "//yql/essentials/minikql/codegen" ]
+}
+
+library("no_llvm") {
+  sources = [ "codegen_dummy.cpp" ]
+  configs = [ ":_includes" ]
+}

@@ -1,15 +1,20 @@
 library("comptrie") {
-    sources = [
-        "comptrie.cpp",
-        "comptrie_builder.cpp",
-        "comptrie_impl.cpp",
-        "make_fast_layout.cpp",
-        "minimize.cpp",
-        "node.cpp",
-        "opaque_trie_iterator.cpp",
-        "prefix_iterator.cpp",
-        "search_iterator.cpp",
-        "write_trie_backwards.cpp",
-        "writeable_node.cpp",
-    ]
+  deps = [
+    "//library/cpp/on_disk/chunks",
+    "//library/cpp/packers",
+  ]
+
+  sources = [
+    "comptrie.cpp",
+    "comptrie_builder.cpp",
+    "comptrie_impl.cpp",
+    "make_fast_layout.cpp",
+    "minimize.cpp",
+    "node.cpp",
+    "opaque_trie_iterator.cpp",
+    "prefix_iterator.cpp",
+    "search_iterator.cpp",
+    "write_trie_backwards.cpp",
+    "writeable_node.cpp",
+  ]
 }

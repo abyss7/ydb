@@ -1,15 +1,15 @@
 library("backtrace") {
-    deps = [
-        "//contrib/libs/backtrace",
-        "//contrib/libs/libunwind",
-        "//library/cpp/malloc:api",
-    ]
+  deps = [
+    "//contrib/libs/backtrace",
+    "//library/cpp/deprecated/atomic",
+    "//library/cpp/malloc/api",
+  ]
 
-    sources = [
-        "backtrace.cpp",
-        "backtrace_lib.cpp",
-        "backtrace_linux.cpp",
-        "symbolize.cpp",
-        "symbolizer_linux.cpp",
-    ]
+  sources = [
+    "backtrace.cpp",
+    "backtrace_lib.cpp",
+    "backtrace_linux.cpp",
+    "symbolize.cpp",
+    "symbolizer_linux.cpp",
+  ]
 }

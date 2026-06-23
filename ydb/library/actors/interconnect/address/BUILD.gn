@@ -1,3 +1,0 @@
-library("address") {
-    sources = [ "interconnect_address.cpp" ]
-}

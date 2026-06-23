@@ -1,3 +1,0 @@
-library("mock") {
-    sources = [ "ic_mock.cpp" ]
-}

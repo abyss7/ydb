@@ -5,8 +5,7 @@ library("cq_actor") {
 
   deps = [
     "//contrib/libs/ibdrv",
-    # "//ydb/library/actors/interconnect",
-    "//ydb/library/actors/interconnect/poller",
+    "//ydb/library/actors/interconnect:poller",
     "//ydb/library/actors/interconnect/rdma",
   ]
 
@@ -24,7 +23,7 @@ library("rdma") {
     "//contrib/libs/protobuf", # TODO: transition thru cycle deps of "//ydb/library/actors/core:events"
     "//library/cpp/monlib/dynamic_counters",
     "//library/cpp/monlib/metrics",
-    "//ydb/library/actors/interconnect/address",
+    "//ydb/library/actors/interconnect:address",
   ]
 
   sources = [

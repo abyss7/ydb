@@ -1,3 +1,3 @@
 library("stack_vector") {
-    sources = [ "stack_vec.cpp" ]
+  sources = [ "stack_vec.cpp" ]
 }

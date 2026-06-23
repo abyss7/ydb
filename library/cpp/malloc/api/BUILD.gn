@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 contrib_library("api") {
-    sources = [ "malloc.cpp" ]
+  sources = [ "malloc.cpp" ]
 }

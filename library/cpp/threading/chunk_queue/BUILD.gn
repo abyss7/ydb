@@ -1,3 +1,5 @@
 library("chunk_queue") {
-    sources = [ "queue.cpp" ]
+  deps = [ "//library/cpp/deprecated/atomic" ]
+
+  sources = [ "queue.cpp" ]
 }

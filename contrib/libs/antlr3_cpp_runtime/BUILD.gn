@@ -1,0 +1,2 @@
+contrib_library("antlr3_cpp_runtime") {
+}

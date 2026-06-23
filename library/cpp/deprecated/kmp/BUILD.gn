@@ -1,5 +1,3 @@
 library("kmp") {
-    sources = [
-        "kmp.cpp",
-    ]
+  sources = [ "kmp.cpp" ]
 }

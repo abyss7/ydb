@@ -1,6 +1,6 @@
 library("cache") {
-    sources = [
-        "cache.cpp",
-        "thread_safe_cache.cpp",
-    ]
+  sources = [
+    "cache.cpp",
+    "thread_safe_cache.cpp",
+  ]
 }

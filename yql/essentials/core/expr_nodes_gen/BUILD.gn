@@ -1,11 +1,11 @@
-library("expr_nodes_gen") {
-    deps = [
-        "//yql/essentials/ast",
-    ]
+# yamake2gn: keep  -- hand-written, do not regenerate
 
-    sources = [
-        "yql_expr_nodes_gen.cpp",
-    ]
+library("expr_nodes_gen") {
+  public_deps = [ "//yql/essentials/utils" ]
+
+  deps = [ "//yql/essentials/ast" ]
+
+  sources = [ "yql_expr_nodes_gen.cpp" ]
 }
 
 python_binary("gen") {

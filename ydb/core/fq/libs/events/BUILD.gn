@@ -1,3 +1,6 @@
 library("events") {
-    public_deps = [ "//ydb/library/actors/core:events" ]
+  serialize_enum_headers = [
+    "event_ids.h",
+    "events.h",
+  ]
 }

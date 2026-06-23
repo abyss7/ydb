@@ -192,7 +192,7 @@ library("pg_wrapper") {
         "//yql/essentials/minikql:computation",
         "//yql/essentials/parser/pg_catalog",
         "//yql/essentials/providers/common/codec",
-        "//yql/essentials/public/udf/arrow",
+        "//yql/essentials/public/udf:arrow",
     ]
 
     sources = [
@@ -1055,7 +1055,7 @@ library("interface") {
     ]
 
     deps = [
-        "//yql/essentials/public/udf/arrow",
+        "//yql/essentials/public/udf:arrow",
         "//yql/essentials/sql:pg_dummy",
     ]
 

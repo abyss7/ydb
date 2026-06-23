@@ -1,10 +1,11 @@
-protobuf_library("protos") {
-    sources = [ "protos/aclib.proto" ]
+library("aclib") {
+  public_deps = [ ":protos" ]
+
+  deps = [ "//library/cpp/protobuf/util" ]
+
+  sources = [ "aclib.cpp" ]
 }
 
-library("aclib") {
-    public_deps = [ ":protos" ]
-    deps = [ "//library/cpp/protobuf/util" ]
-
-    sources = [ "aclib.cpp" ]
+protobuf_library("protos") {
+  sources = [ "protos/aclib.proto" ]
 }

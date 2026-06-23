@@ -44,8 +44,8 @@ TRIVIAL_MACROS = MODULE_MACROS | {
     "GENERATE_ENUM_SERIALIZATION",   # -> serialize_enum_headers
     "SRCDIR", "ADDINCL", "YQL_LAST_ABI_VERSION", "NO_WSHADOW", "ENABLE", "NO_COMPILER_WARNINGS", "SUPPRESSIONS", "NEED_CHECK", "ENV",
     "GENERATE_ENUM_SERIALIZATION_WITH_HEADER", # TODO: temporary ignore
-    "RESOURCE", "CFLAGS", "YQL_ABI_VERSION", "ALLOCATOR_IMPL", "GRPC", # TODO: temporary ignore
-    "CHECK_DEPENDENT_DIRS", # TODO: temporary ignore
+    "RESOURCE", "CFLAGS", "CXXFLAGS", "YQL_ABI_VERSION", "ALLOCATOR_IMPL", "GRPC", # TODO: temporary ignore
+    "CHECK_DEPENDENT_DIRS", "PROVIDES", # TODO: temporary ignore
     "NO_UTIL",   # LIBRARY -> contrib_library (no default //util dep)
 }
 # PROTO_LIBRARY macros that are pure noise in GN (template always does grpc +
@@ -260,10 +260,11 @@ def scan_macros(text):
 # of True reads as "yes" in string comparisons (e.g. `OS_LINUX == "yes"`),
 # a string value is compared as-is (e.g. `BUILD_TYPE == "RELEASE"`).
 CONDITION_VARS = {
-    "OS_LINUX": True,
-    "LINUX": True,
     "ARCH_X86_64": True,
     "CLANG": True,
+    "LINUX": True,
+    "OPENSOURCE": True,
+    "OS_LINUX": True,
     "YQL_DISABLE_YT": True,
 }
 
@@ -541,7 +542,7 @@ def parse_yamake(path, directory, root):
             mod.srcdirs.extend(args)
         elif name == "PEERDIR":
             mod.peerdirs.extend(args)
-        elif name == "GENERATE_ENUM_SERIALIZATION":
+        elif name == "GENERATE_ENUM_SERIALIZATION" or name == "GENERATE_ENUM_SERIALIZATION_WITH_HEADER": # TODO: improve WITH_HEADER macros
             mod.enum_headers.extend(args)
         elif name == "NO_UTIL":
             mod.no_util = True
