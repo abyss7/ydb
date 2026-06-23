@@ -1,24 +1,25 @@
 library("audit") {
-    deps = [
-        "//library/cpp/json",
-        "//ydb/core/util",
-        "//ydb/library/actors/core",
-        "//ydb/library/services",
-        "//ydb/public/api/protos",
-    ]
+  public_deps = [ "//ydb/core/protos" ]
 
-    sources = [
-        "audit_log_impl.cpp",
-        "login_op.cpp",
-    ]
+  deps = [
+    "//library/cpp/json",
+    "//library/cpp/logger",
+    "//ydb/core/util",
+    "//ydb/library/actors/core",
+    "//ydb/library/services",
+    "//ydb/public/api/protos",
+  ]
+
+  sources = [
+    "audit_log_impl.cpp",
+    "login_op.cpp",
+  ]
 }
 
-library("config") {
-    deps = [
-        "//ydb/core/protos",
-    ]
+library("audit_config") {
+  public_deps = [ "//ydb/library/aclib:protos" ]
 
-    sources = [
-        "audit_config/audit_config.cpp",
-    ]
+  deps = [ "//ydb/core/protos" ]
+
+  sources = [ "audit_config/audit_config.cpp" ]
 }

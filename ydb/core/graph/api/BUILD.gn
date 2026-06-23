@@ -1,0 +1,3 @@
+group("api") {
+  public_deps = [ "//ydb/core/graph/protos" ]
+}
