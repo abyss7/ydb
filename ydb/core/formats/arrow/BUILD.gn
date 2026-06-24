@@ -1,74 +1,320 @@
 library("arrow") {
-    public_deps = [
-        "//contrib/libs/apache/arrow",
-    ]
+  public_deps = [
+    # ":rows",
+    # "//contrib/libs/apache/arrow",
+    # "//library/cpp/json:writer",
+    # "//ydb/core/formats",
+    # "//ydb/library/accessor",
+  ]
 
-    deps = [
-        ":arrow_type",
-        ":common",
-        ":serializer",
-        "//ydb/core/kqp/common:arrow",
-        "//ydb/core/scheme",
-        "//ydb/library/conclusion",
-        "//ydb/library/formats/arrow",
-        "//yql/essentials/types:binary_json",
-        "//yql/essentials/types:dynumber",
-    ]
+  deps = [
+    # ":common",
+    # ":dictionary",
+    # ":hash",
+    # ":reader",
+    # ":serializer",
+    # ":switch",
+    # "//library/cpp/containers/stack_vector",
+    # "//ydb/core/kqp/common",
+    # "//ydb/core/scheme",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/conclusion",
+    # "//ydb/library/formats/arrow",
+    # "//ydb/library/formats/arrow:modifier",
+    # "//ydb/library/formats/arrow:validation",
+    # "//ydb/library/services",
+    # "//ydb/library/yverify_stream",
+    # "//yql/essentials/minikql",
+    # "//yql/essentials/types/binary_json",
+    # "//yql/essentials/types/dynumber",
+  ]
 
-    sources = [
-        "arrow_batch_builder.cpp",
-        "arrow_filter.cpp",
-        "arrow_helpers_minikql.cpp",
-        "arrow_helpers.cpp",
-        "converter.cpp",
-        "converter.h",
-        "permutations.cpp",
-        "process_columns.cpp",
-        "size_calcer.cpp",
-        "special_keys.cpp",
-    ]
+  sources = [
+    "arrow_batch_builder.cpp",
+    "arrow_filter.cpp",
+    "arrow_helpers.cpp",
+    "arrow_helpers_minikql.cpp",
+    "converter.cpp",
+    "permutations.cpp",
+    "process_columns.cpp",
+    "size_calcer.cpp",
+    "special_keys.cpp",
+  ]
 }
 
-library("arrow_type") {
-    public_deps = [
-        "//contrib/libs/apache/arrow",
-    ]
+library("common") {
+  public_deps = [
+    # "//contrib/libs/apache/arrow",
+    # "//ydb/core/formats/arrow",
+    # "//ydb/core/formats/arrow/accessor/abstract",
+    # "//ydb/core/formats/arrow/accessor/plain",
+    # "//ydb/library/accessor",
+    # "//ydb/library/conclusion",
+    # "//ydb/library/formats/arrow",
+    # "//ydb/library/formats/arrow:modifier",
+    # "//ydb/library/formats/arrow:validation",
+    # "//ydb/library/yverify_stream",
+  ]
 
-    deps = [
-        "//ydb/core/scheme",
-        "//ydb/core/scheme_types",
-        "//ydb/library/formats/arrow",
-        "//yql/essentials/parser/pg_wrapper",
-    ]
+  deps = [
+    # "//ydb/library/actors/core",
+    # "//ydb/library/formats/arrow:common",
+  ]
 
-    sources = [
-        "arrow_type.cpp",
-    ]
+  sources = [
+    "common/adapter.cpp",
+    "common/container.cpp",
+  ]
 }
 
-source_set("common") {
-    public_deps = [ "accessor:abstract" ]
+library("dictionary") {
+  public_deps = [
+    # "//contrib/libs/apache/arrow",
+    # "//ydb/core/protos",
+    # "//ydb/library/conclusion",
+    # "//ydb/library/formats/arrow:transformer",
+    # "//ydb/services/metadata/abstract",
+  ]
 
-    sources = [
-        "common/adapter.cpp",
-        "common/container.cpp",
-    ]
+  deps = [
+    # ":switch",
+    # ":transformer",
+    # "//ydb/core/formats/arrow",
+    # "//ydb/library/formats/arrow:simple_builder",
+    # "//ydb/library/formats/arrow:validation",
+  ]
+
+  sources = [
+    "dictionary/conversion.cpp",
+    "dictionary/diff.cpp",
+    "dictionary/object.cpp",
+  ]
+}
+
+library("hash") {
+  public_deps = [
+    # ":common",
+    # ":reader",
+    # "//contrib/libs/apache/arrow",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/formats/arrow:hash",
+    # "//ydb/library/formats/arrow:validation",
+    # "//ydb/library/services",
+  ]
+
+  deps = [
+    # ":switch",
+    # "//ydb/core/formats/arrow",
+  ]
+
+  sources = [ "hash/calcer.cpp" ]
+}
+
+library("printer") {
+  public_deps = [ "//ydb/library/formats/arrow:protos" ]
+
+  deps = [ "//yql/essentials/core/arrow_kernels/request" ]
+
+  sources = [ "printer/printer.cpp" ]
+}
+
+library("program") {
+  public_deps = [
+    # ":common",
+    # "//contrib/libs/apache/arrow",
+    # "//library/cpp/json:writer",
+    # "//library/cpp/string_utils/quote",
+    # "//ydb/core/formats/arrow",
+    # "//ydb/core/formats/arrow/accessor/abstract",
+    # "//ydb/core/formats/arrow/accessor/common",
+    # "//ydb/core/formats/arrow/accessor/composite",
+    # "//ydb/library/accessor",
+    # "//ydb/library/arrow_kernels",
+    # "//ydb/library/conclusion",
+    # "//ydb/library/formats/arrow:validation",
+    # "//yql/essentials/core/arrow_kernels/request",
+  ]
+
+  deps = [
+    # ":serializer",
+    # "//ydb/core/formats/arrow/accessor/plain",
+    # "//ydb/core/formats/arrow/accessor/sparsed",
+    # "//ydb/core/formats/arrow/accessor/sub_columns",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/formats/arrow",
+    # "//ydb/library/formats/arrow:switch",
+    # "//yql/essentials/core/arrow_kernels/registry",
+    # "//yql/essentials/minikql",
+    # "//yql/essentials/minikql/comp_nodes",
+    # "//yql/essentials/minikql/computation",
+    # "//yql/essentials/minikql/invoke_builtins",
+    # "//yql/essentials/types/binary_json",
+  ]
+
+  sources = [
+    "program/abstract.cpp",
+    "program/aggr_common.cpp",
+    "program/aggr_keys.cpp",
+    "program/assign_const.cpp",
+    "program/assign_internal.cpp",
+    "program/collection.cpp",
+    "program/custom_registry.cpp",
+    "program/execution.cpp",
+    "program/filter.cpp",
+    "program/functions.cpp",
+    "program/graph_execute.cpp",
+    "program/graph_optimization.cpp",
+    "program/header.cpp",
+    "program/index.cpp",
+    "program/kernel_logic.cpp",
+    "program/original.cpp",
+    "program/projection.cpp",
+    "program/reserve.cpp",
+    "program/stream_logic.cpp",
+    "program/visitor.cpp",
+  ]
+
+  serialize_enum_headers = [
+    "program/abstract.h",
+    "program/aggr_common.h",
+    "program/execution.h",
+  ]
+}
+
+library("reader") {
+  public_deps = [
+    # ":common",
+    # ":switch",
+    # "//contrib/libs/apache/arrow",
+    # "//library/cpp/json:writer",
+    # "//ydb/core/formats/arrow",
+    # "//ydb/core/formats/arrow/accessor/abstract",
+    # "//ydb/core/scheme_types",
+    # "//ydb/library/accessor",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//ydb/core/formats/arrow/accessor/plain",
+    # "//ydb/library/formats/arrow",
+    # "//ydb/library/formats/arrow:validation",
+    # "//ydb/library/services",
+  ]
+
+  sources = [
+    "reader/batch_iterator.cpp",
+    "reader/heap.cpp",
+    "reader/merger.cpp",
+    "reader/position.cpp",
+    "reader/result_builder.cpp",
+  ]
+}
+
+library("rows") {
+  public_deps = [
+    # "//contrib/libs/apache/arrow",
+    # "//ydb/library/accessor",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/conclusion",
+    # "//ydb/library/formats/arrow:switch",
+  ]
+
+  deps = [
+    # ":reader",
+    # "//ydb/library/formats/arrow",
+  ]
+
+  sources = [
+    "rows/collection.cpp",
+    "rows/view.cpp",
+    "rows/view_v0.cpp",
+  ]
+}
+
+library("save_load") {
+  public_deps = [
+    # ":serializer",
+    # "//contrib/libs/apache/arrow",
+    # "//ydb/core/formats/arrow/accessor/abstract",
+    # "//ydb/library/accessor",
+    # "//ydb/library/formats/arrow:splitter",
+  ]
+
+  deps = [
+    # "//ydb/library/formats/arrow:switch",
+    # "//ydb/library/formats/arrow:validation",
+  ]
+
+  sources = [
+    "save_load/loader.cpp",
+    "save_load/saver.cpp",
+  ]
 }
 
 library("serializer") {
-    deps = [
-        "//contrib/libs/apache/arrow",
-        "//ydb/core/protos",
-        "//ydb/library/formats/arrow",
-        "//ydb/services/bg_tasks:abstract",
-        "//ydb/services/metadata:abstract",
-    ]
+  public_deps = [
+    # "//ydb/core/base",
+    # "//ydb/library/accessor",
+    # "//ydb/library/conclusion",
+    # "//ydb/library/formats/arrow:validation",
+    # "//ydb/services/bg_tasks/abstract",
+    # "//ydb/services/metadata/abstract",
+  ]
 
-    sources = [
-        "serializer/abstract.cpp",
-        "serializer/native.cpp",
-        "serializer/parsing.cpp",
-        "serializer/stream.cpp",
-        "serializer/utils.cpp",
-    ]
+  deps = [
+    # ":dictionary",
+    # "//contrib/libs/apache/arrow",
+    # "//ydb/core/protos",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/services",
+  ]
+
+  sources = [
+    "serializer/abstract.cpp",
+    "serializer/native.cpp",
+    "serializer/parsing.cpp",
+    "serializer/stream.cpp",
+    "serializer/utils.cpp",
+  ]
+}
+
+library("splitter") {
+  public_deps = [
+    # ":save_load",
+    # ":serializer",
+    # "//contrib/libs/apache/arrow",
+    # "//ydb/library/accessor",
+    # "//ydb/library/formats/arrow:splitter",
+  ]
+
+  deps = [
+    # "//ydb/core/formats/arrow",
+    # "//ydb/library/formats/arrow:validation",
+  ]
+
+  sources = [
+    "splitter/scheme_info.cpp",
+    "splitter/simple.cpp",
+  ]
+}
+
+library("switch") {
+  public_deps = [
+    # "//contrib/libs/apache/arrow",
+    # "//ydb/core/scheme",
+    # "//ydb/core/scheme_types",
+    # "//ydb/library/formats/arrow:switch",
+    # "//yql/essentials/parser/pg_wrapper",
+    # "//yql/essentials/parser/pg_wrapper/interface",
+  ]
+
+  sources = [ "switch/switch_type.cpp" ]
+}
+
+library("transformer") {
+  public_deps = [ "//ydb/library/formats/arrow:transformer" ]
+
+  deps = [ ":dictionary" ]
+
+  sources = [ "transformer/dictionary.cpp" ]
 }

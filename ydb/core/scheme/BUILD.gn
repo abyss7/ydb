@@ -1,32 +1,35 @@
 protobuf_library("protos") {
-    sources = [
-        "protos/key_range.proto",
-        "protos/pathid.proto",
-        "protos/type_info.proto",
-    ]
+  sources = [
+    "protos/key_range.proto",
+    "protos/pathid.proto",
+    "protos/type_info.proto",
+  ]
 }
 
 library("scheme") {
-    public_deps = [
-        ":protos",
-        "//ydb/public/api/protos",
-        "//ydb/public/lib/scheme_types",
-    ]
+  public_deps = [
+    ":protos",
+    "//library/cpp/deprecated/enum_codegen",
+    "//ydb/library/aclib",
+    "//ydb/public/api/protos",
+    "//ydb/public/lib/scheme_types",
+    "//yql/essentials/parser/pg_wrapper/interface",
+  ]
 
-    deps = [
-        "//library/cpp/containers/absl_flat_hash",
-        "//ydb/core/scheme_types",
-        "//ydb/library/actors/core",
-        "//yql/essentials/parser/pg_wrapper:interface",
-    ]
+  deps = [
+    "//library/cpp/containers/absl_flat_hash",
+    "//ydb/core/protos",
+    "//ydb/core/scheme_types",
+    "//ydb/library/actors/core",
+  ]
 
-    sources = [
-        "scheme_borders.cpp",
-        "scheme_pathid.cpp",
-        "scheme_tablecell.cpp",
-        "scheme_tabledefs.cpp",
-        "scheme_type_info.cpp",
-        "scheme_types_defs.cpp",
-        "scheme_types_proto.cpp",
-    ]
+  sources = [
+    "scheme_borders.cpp",
+    "scheme_pathid.cpp",
+    "scheme_tablecell.cpp",
+    "scheme_tabledefs.cpp",
+    "scheme_type_info.cpp",
+    "scheme_types_defs.cpp",
+    "scheme_types_proto.cpp",
+  ]
 }

@@ -1,7 +1,2 @@
-config("public_config") {
-    include_dirs = [ "." ]
-}
-
-source_set("atomic") {
-    public_configs = [ ":public_config" ]
+group("atomic") {
 }

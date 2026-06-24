@@ -1,14 +1,21 @@
 library("tracing") {
-    deps = [
-        "//library/cpp/monlib/dynamic_counters",
-        "//ydb/core/base",
-        "//ydb/core/mon",
-    ]
+  public_deps = [
+    "//library/cpp/monlib/service/pages",
+    "//ydb/library/actors/core",
+  ]
 
-    sources = [
-        "http.cpp",
-        "tablet_info.cpp",
-        "trace_collection.cpp",
-        "trace.cpp",
-    ]
+  deps = [
+    "//ydb/core/base",
+    "//ydb/core/mon",
+    "//ydb/core/node_whiteboard",
+    "//ydb/core/protos",
+    "//ydb/library/actors/interconnect",
+  ]
+
+  sources = [
+    "http.cpp",
+    "tablet_info.cpp",
+    "trace.cpp",
+    "trace_collection.cpp",
+  ]
 }

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <library/cpp/yt/misc/guid.h>
-
 #include <util/generic/string.h>
 
 #include <variant>

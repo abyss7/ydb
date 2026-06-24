@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("address") {
   sources = [ "address/interconnect_address.cpp" ]
 }
@@ -54,17 +56,11 @@ library("interconnect") {
 }
 
 library("mock") {
-  public_deps = [
-    "//ydb/library/actors/core",
-    # "//ydb/library/actors/interconnect",
-  ]
-
+  public_deps = [ "//ydb/library/actors/core" ]
   sources = [ "mock/ic_mock.cpp" ]
 }
 
 library("poller") {
-  # public_deps = [ "//ydb/library/actors/interconnect" ]
-
   deps = [
     "//ydb/library/actors/core",
     "//ydb/library/actors/prof",

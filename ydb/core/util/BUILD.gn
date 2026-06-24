@@ -1,56 +1,56 @@
-library("memory_tracker") {
-    deps = [
-    #     ":util",
-    #     "//library/cpp/html/escape",
-    #     "//library/cpp/monlib/service/pages",
-        "//ydb/core/base",
-    #     "//ydb/core/mon",
-    #     "//ydb/library/actors/core",
-    #     "//ydb/library/actors/util",
-    #     "//ydb/library/services",
-    ]
+# yamake2gn: keep  -- hand-written, do not regenerate
 
-    sources = [
-        "memory_tracker.cpp",
-    ]
+library("evlog") {
+  public_deps = [
+    "//ydb/library/accessor",
+    "//ydb/library/actors/core",
+  ]
+
+  sources = [ "evlog/log.cpp" ]
+}
+
+library("memory_tracker") {
+  deps = [ "//ydb/core/base" ]
+  sources = [ "memory_tracker.cpp" ]
 }
 
 library("util") {
-    deps = [
-        "//library/cpp/cgiparam",
-        "//library/cpp/ipmath",
-        "//library/cpp/ipv6_address",
-        "//library/cpp/json",
-        "//library/cpp/monlib/dynamic_counters",
-        "//library/cpp/monlib/service/pages",
-        "//ydb/core/base",
-        "//ydb/library/actors/core",
-        "//ydb/library/actors/util",
-        "//ydb/library/services",
-    ]
+  deps = [
+    "//library/cpp/cgiparam",
+    "//library/cpp/ipmath",
+    "//library/cpp/ipv6_address",
+    "//library/cpp/json",
+    "//library/cpp/monlib/dynamic_counters",
+    "//library/cpp/monlib/service/pages",
+    "//ydb/core/base",
+    "//ydb/library/actors/core",
+    "//ydb/library/actors/util",
+    "//ydb/library/services",
+  ]
 
-    sources = [
-        "address_classifier.cpp",
-        "backoff.cpp",
-        "cache.cpp",
-        "concurrent_rw_hash.cpp",
-        "console.cpp",
-        "cpuinfo.cpp",
-        "exceptions.cpp",
-        "failure_injection.cpp",
-        "fast_tls.cpp",
-        "format.cpp",
-        "fragmented_buffer.cpp",
-        "gen_step.cpp",
-        "hazard.cpp",
-        "hyperlog_counter.cpp",
-        "intrusive_heap.cpp",
-        "page_map.cpp",
-        "random.cpp",
-        "source_location.cpp",
-        "stlog.cpp",
-        "text.cpp",
-        "ui64id.cpp",
-        "ulid.cpp",
-    ]
+  sources = [
+    "address_classifier.cpp",
+    "aws.cpp",
+    "backoff.cpp",
+    "cache.cpp",
+    "concurrent_rw_hash.cpp",
+    "console.cpp",
+    "cpuinfo.cpp",
+    "exceptions.cpp",
+    "failure_injection.cpp",
+    "fast_tls.cpp",
+    "format.cpp",
+    "fragmented_buffer.cpp",
+    "gen_step.cpp",
+    "hazard.cpp",
+    "hyperlog_counter.cpp",
+    "intrusive_heap.cpp",
+    "page_map.cpp",
+    "random.cpp",
+    "source_location.cpp",
+    "stlog.cpp",
+    "text.cpp",
+    "ui64id.cpp",
+    "ulid.cpp",
+  ]
 }

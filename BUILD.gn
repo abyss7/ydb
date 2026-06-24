@@ -1,5 +1,5 @@
 group("all") {
     deps = [
-        "//ydb/core/base",
+        "//ydb/apps/ydbd",
     ]
 }

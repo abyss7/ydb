@@ -1,26 +1,23 @@
-config("public_config") {
-    cflags = [ "-Wno-deprecated-volatile" ]
-}
+# yamake2gn: keep  -- hand-written, do not regenerate
 
 library("base") {
-    sources = [
-        "base/immediate_control_board_control.cpp",
-    ]
+  public_deps = [ "//library/cpp/deprecated/atomic" ]
+
+  sources = [ "base/immediate_control_board_control.cpp" ]
 }
 
 library("lib") {
-    deps = [
-        ":base",
-        "generated",
-        "//library/cpp/monlib/service/pages",
-        "//library/cpp/threading/hot_swap",
-    ]
+  deps = [
+    ":base",
+    "generated",
+    "//library/cpp/iterator",
+    "//library/cpp/monlib/service/pages",
+    "//library/cpp/threading/hot_swap",
+  ]
 
-    sources = [
-        "dynamic_control_board_impl.cpp",
-        "immediate_control_board_html_renderer.cpp",
-        "immediate_control_board_impl.cpp",
-    ]
-
-    public_configs = [ ":public_config" ]
+  sources = [
+    "dynamic_control_board_impl.cpp",
+    "immediate_control_board_html_renderer.cpp",
+    "immediate_control_board_impl.cpp",
+  ]
 }

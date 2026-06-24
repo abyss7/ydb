@@ -1,27 +1,18 @@
-protobuf_library("proto") {
-    deps = [
-        "//yql/essentials/protos",
-    ]
+library("pg_catalog") {
+  public_deps = [ "//yql/essentials/public/issue" ]
 
-    sources = [
-        "proto/pg_catalog.proto",
-    ]
+  deps = [
+    ":proto",
+    "//library/cpp/digest/md5",
+    "//library/cpp/resource",
+    "//yql/essentials/utils/log",
+  ]
+
+  sources = [ "catalog.cpp" ]
 }
 
-library("pg_catalog") {
-    public_deps = [
-        "//yql/essentials/public/issue",
-    ]
+protobuf_library("proto") {
+  deps = [ "//yql/essentials/protos" ]
 
-    deps = [
-        ":proto",
-        "//library/cpp/digest/md5",
-        "//library/cpp/resource",
-        "//yql/essentials/protos",
-        "//yql/essentials/utils/log",
-    ]
-
-    sources = [
-        "catalog.cpp",
-    ]
+  sources = [ "proto/pg_catalog.proto" ]
 }

@@ -111,7 +111,7 @@ library("switch") {
     "//ydb/library/actors/core",
     "//ydb/library/yverify_stream",
     "//yql/essentials/parser/pg_wrapper",
-    "//yql/essentials/parser/pg_wrapper:interface",
+    "//yql/essentials/parser/pg_wrapper/interface",
   ]
 
   sources = [

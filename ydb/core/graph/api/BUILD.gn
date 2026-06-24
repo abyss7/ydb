@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 group("api") {
   public_deps = [ "//ydb/core/graph/protos" ]
 }

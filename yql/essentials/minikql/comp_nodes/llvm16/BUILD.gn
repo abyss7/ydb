@@ -233,7 +233,7 @@ library("llvm16") {
     "//yql/essentials/minikql/invoke_builtins/llvm16",
     "//yql/essentials/parser/pg_wrapper/interface",
     "//yql/essentials/public/issue:protos",
-    "//yql/essentials/public/udf/arrow",
+    "//yql/essentials/public/udf:arrow",
     "//yql/essentials/types/binary_json",
     "//yql/essentials/utils",
   ]

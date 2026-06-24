@@ -4,6 +4,7 @@ library("audit") {
   deps = [
     "//library/cpp/json",
     "//library/cpp/logger",
+    "//ydb/core/base",
     "//ydb/core/util",
     "//ydb/library/actors/core",
     "//ydb/library/services",
@@ -22,4 +23,15 @@ library("audit_config") {
   deps = [ "//ydb/core/protos" ]
 
   sources = [ "audit_config/audit_config.cpp" ]
+}
+
+library("heartbeat_actor") {
+  deps = [
+    ":audit_config",
+    "//ydb/core/audit",
+    "//ydb/library/actors/core",
+    "//ydb/library/yverify_stream",
+  ]
+
+  sources = [ "heartbeat_actor/heartbeat_actor.cpp" ]
 }

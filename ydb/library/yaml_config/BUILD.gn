@@ -1,41 +1,43 @@
-protobuf_library("protos") {
-    extra_plugins = [
-        {
-            name = "config_proto_plugin"
-            target = "//ydb/core/config/tools/protobuf_plugin:config_proto_plugin"
-        },
-    ]
+library("public") {
+  public_deps = [
+    "//ydb/library/actors/core",
+    "//ydb/library/fyamlcpp",
+  ]
 
-    deps = [
-        "//ydb/core/protos",
-    ]
-
-    sources = [
-        "protos/blobstorage_config.proto",
-        "protos/config.proto",
-    ]
+  sources = [ "public/yaml_config.cpp" ]
 }
 
 library("yaml_config") {
-    public_deps = [
-        "//contrib/libs/openssl",
-        "//library/cpp/yaml",
-    ]
+  public_deps = [
+    ":public",
+    "//library/cpp/json:writer",
+    "//library/cpp/protobuf/json",
+    "//library/cpp/yaml/as",
+    "//ydb/core/erasure",
+    "//ydb/library/yaml_config/protos",
+    "//ydb/public/api/protos",
+    "//yql/essentials/public/issue",
+  ]
 
-    deps = [
-        ":protos",
-        "//library/cpp/json",
-        "//ydb/core/base",
-        "//ydb/core/protos",
-        "//ydb/library/actors/core",
-        "//ydb/library/fyamlcpp",
-    ]
+  deps = [
+    "//contrib/libs/xxhash",
+    "//library/cpp/json",
+    "//ydb/core/base",
+    "//ydb/core/cms/console:util",
+    "//ydb/core/config/validation",
+    "//ydb/core/protos",
+    "//ydb/core/viewer:json",
+    "//ydb/library/actors/core",
+    "//ydb/library/fyamlcpp",
+    "//ydb/library/pdisk_io",
+    "//ydb/library/yaml_json",
+  ]
 
-    sources = [
-        "console_dumper.cpp",
-        "serialize_deserialize.cpp",
-        "yaml_config_helpers.cpp",
-        "yaml_config_parser.cpp",
-        "yaml_config.cpp",
-    ]
+  sources = [
+    "console_dumper.cpp",
+    "serialize_deserialize.cpp",
+    "yaml_config.cpp",
+    "yaml_config_helpers.cpp",
+    "yaml_config_parser.cpp",
+  ]
 }

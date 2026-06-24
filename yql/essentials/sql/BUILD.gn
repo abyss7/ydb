@@ -1,29 +1,55 @@
-source_set("pg_dummy") {
-    deps += [
-        ":settings",
-        "//contrib/libs/apache/arrow",
-        "//yql/essentials/ast",
-        "//yql/essentials/public/issue",
-        "//yql/essentials/public/udf:_udf", # TODO: no linkage deps - just the include files hell.
-    ]
+# yamake2gn: keep  -- hand-written, do not regenerate
 
-    sources = [
-        "pg_dummy/pg_sql_dummy.cpp"
-    ]
+source_set("pg_dummy") {
+  deps += [
+    ":settings",
+    "//contrib/libs/apache/arrow",
+    "//yql/essentials/ast",
+    "//yql/essentials/public/issue",
+    "//yql/essentials/public/udf:_udf", # TODO: no linkage deps - just the include files hell.
+  ]
+
+  sources = [ "pg_dummy/pg_sql_dummy.cpp" ]
+}
+
+library("sql") {
+  public_deps = [
+    "//yql/essentials/ast",
+    "//yql/essentials/parser/lexer_common",
+    "//yql/essentials/parser/proto_ast",
+    "//yql/essentials/public/issue",
+    "//yql/essentials/sql/settings",
+  ]
+
+  deps = [
+    "//yql/essentials/core/issue",
+  ]
+
+  sources = [
+    "cluster_mapping.cpp",
+    "sql.cpp",
+  ]
 }
 
 library("settings") {
-    deps = [
-        "//library/cpp/deprecated/split",
-        "//library/cpp/json",
-        "//yql/essentials/core/issue",
-        "//yql/essentials/parser/lexer_common",
-        "//yql/essentials/utils",
-    ]
+  public_deps = [
+    "//yql/essentials/ast",
+    "//yql/essentials/core/pg_settings",
+    "//yql/essentials/parser/lexer_common",
+    "//yql/essentials/public/issue",
+    "//yql/essentials/public/langver",
+  ]
 
-    sources = [
-        "settings/partitioning.cpp",
-        "settings/translation_settings.cpp",
-        "settings/translator.cpp",
-    ]
+  deps = [
+    "//library/cpp/deprecated/split",
+    "//library/cpp/json",
+    "//yql/essentials/core/issue",
+    "//yql/essentials/utils",
+  ]
+
+  sources = [
+    "settings/partitioning.cpp",
+    "settings/translation_settings.cpp",
+    "settings/translator.cpp",
+  ]
 }

@@ -1,24 +1,48 @@
+library("json") {
+  public_deps = [
+    "//library/cpp/json",
+    "//library/cpp/yson",
+  ]
+
+  sources = [
+    "json/json_writer.cpp",
+    "json/yson2json_adapter.cpp",
+  ]
+}
+
+library("node") {
+  public_deps = [
+    "//library/cpp/json",
+    "//library/cpp/yson",
+  ]
+
+  deps = [ ":json" ]
+
+  sources = [
+    "node/node.cpp",
+    "node/node_builder.cpp",
+    "node/node_io.cpp",
+    "node/node_visitor.cpp",
+    "node/serialize.cpp",
+  ]
+
+  serialize_enum_headers = [ "node/node.h" ]
+}
+
 library("yson") {
-    deps = [
-        "//library/cpp/json",
-    ]
+  public_deps = [
+    "//library/cpp/yt/misc",
+    "//library/cpp/yt/yson",
+    "//library/cpp/yt/yson_string",
+  ]
 
-    sources = [
-        "json/json_writer.cpp",
-        "json/yson2json_adapter.cpp",
-        "node/node_builder.cpp",
-        "node/node_io.cpp",
-        "node/node_visitor.cpp",
-        "node/node.cpp",
-        "node/serialize.cpp",
-        "consumer.cpp",
-        "lexer.cpp",
-        "parser.cpp",
-        "token.cpp",
-        "tokenizer.cpp",
-        "varint.cpp",
-        "writer.cpp",
-    ]
-
-    serialize_enum_headers = [ "node/node.h" ]
+  sources = [
+    "consumer.cpp",
+    "lexer.cpp",
+    "parser.cpp",
+    "token.cpp",
+    "tokenizer.cpp",
+    "varint.cpp",
+    "writer.cpp",
+  ]
 }

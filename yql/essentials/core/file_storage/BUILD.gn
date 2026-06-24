@@ -1,5 +1,72 @@
+library("defs") {
+  public_deps = [ "//library/cpp/uri" ]
+
+  sources = [
+    "defs/downloader.cpp",
+    "defs/provider.cpp",
+  ]
+}
+
+library("download") {
+  deps = [
+    ":proto",
+    "//library/cpp/protobuf/util",
+  ]
+
+  sources = [
+    "download/download_config.cpp",
+    "download/download_stream.cpp",
+  ]
+}
+
+library("file_storage") {
+  public_deps = [
+    ":defs",
+    "//library/cpp/threading/future",
+    "//library/cpp/uri",
+  ]
+
+  deps = [
+    ":download",
+    ":http_download",
+    ":proto",
+    "//library/cpp/cache",
+    "//library/cpp/digest/md5",
+    "//library/cpp/http/io",
+    "//library/cpp/protobuf/util",
+    "//library/cpp/resource",
+    "//yql/essentials/public/issue",
+    "//yql/essentials/utils",
+    "//yql/essentials/utils/fetch",
+    "//yql/essentials/utils/log",
+  ]
+
+  sources = [
+    "file_storage.cpp",
+    "file_storage_decorator.cpp",
+    "sized_cache.cpp",
+    "storage.cpp",
+    "url_meta.cpp",
+  ]
+}
+
+library("http_download") {
+  public_deps = [ ":defs" ]
+
+  deps = [
+    ":download",
+    ":proto",
+    "//library/cpp/digest/md5",
+    "//library/cpp/http/misc",
+    "//yql/essentials/utils",
+    "//yql/essentials/utils/fetch",
+    "//yql/essentials/utils/fetch:proto",
+    "//yql/essentials/utils/log",
+  ]
+
+  sources = [ "http_download/http_download.cpp" ]
+}
+
 protobuf_library("proto") {
-    sources = [
-        "proto/file_storage.proto",
-    ]
+  sources = [ "proto/file_storage.proto" ]
 }

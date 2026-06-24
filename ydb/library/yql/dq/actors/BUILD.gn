@@ -1,13 +1,157 @@
-protobuf_library("protos") {
-    public_deps = [
-        "//ydb/library/yql/dq/proto",
-        "//ydb/public/api/protos",
-        "//yql/essentials/utils/fetch:proto",
-    ]
+library("actors") {
+  public_deps = [
+    ":protos",
+    "//ydb/library/actors/core",
+    "//ydb/public/api/protos",
+    "//yql/essentials/public/issue",
+    "//yql/essentials/utils",
+  ]
 
-    sources = [
-        "protos/dq_events.proto",
-        "protos/dq_stats.proto",
-        "protos/dq_status_codes.proto",
-    ]
+  deps = [ "//yql/essentials/core/issue" ]
+
+  sources = [
+    "dq.cpp",
+    "dq_events_ids.cpp",
+  ]
+}
+
+library("common") {
+  public_deps = [
+    ":protos",
+    "//ydb/library/actors/core",
+    "//ydb/library/yql/dq/common",
+  ]
+
+  sources = [ "common/retry_queue.cpp" ]
+}
+
+library("compute") {
+  public_deps = [
+    # ":common",
+    # ":protos",
+    # ":task_runner",
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/actors/wilson",
+    # "//ydb/library/services",
+    # "//ydb/library/wilson_ids",
+    # "//ydb/library/ydb_issue",
+    # "//ydb/library/yql/dq/actors",
+    # "//ydb/library/yql/dq/common",
+    # "//ydb/library/yql/dq/proto",
+    # "//ydb/library/yql/dq/runtime",
+    # "//ydb/library/yql/providers/dq/counters",
+    # "//yql/essentials/core/issue",
+    # "//yql/essentials/minikql",
+    # "//yql/essentials/minikql/comp_nodes",
+    # "//yql/essentials/minikql/computation",
+    # "//yql/essentials/public/issue",
+    # "//yql/essentials/utils",
+  ]
+
+  deps = [
+    # ":spilling",
+    # "//library/cpp/protobuf/interop",
+    # "//ydb/core/quoter:public",
+    # "//ydb/library/actors/interconnect",
+    # "//ydb/library/yverify_stream",
+  ]
+
+  sources = [
+    "compute/dq_async_compute_actor.cpp",
+    "compute/dq_compute_actor.cpp",
+    "compute/dq_compute_actor_async_io_factory.cpp",
+    "compute/dq_compute_actor_channels.cpp",
+    "compute/dq_compute_actor_checkpoints.cpp",
+    "compute/dq_compute_actor_metrics.cpp",
+    "compute/dq_compute_actor_stats.cpp",
+    "compute/dq_compute_actor_watermarks.cpp",
+    "compute/dq_compute_issues_buffer.cpp",
+    "compute/dq_info_aggregation_actor.cpp",
+    "compute/dq_request_context.cpp",
+    "compute/dq_task_runner_exec_ctx.cpp",
+  ]
+}
+
+library("input_transforms") {
+  public_deps = [ ":compute" ]
+
+  deps = [
+    "//ydb/library/actors/core",
+    "//ydb/library/yql/dq/proto",
+    "//yql/essentials/minikql",
+    "//yql/essentials/minikql/computation",
+  ]
+
+  sources = [
+    "input_transforms/dq_input_transform_lookup.cpp",
+    "input_transforms/dq_input_transform_lookup_factory.cpp",
+  ]
+}
+
+protobuf_library("protos") {
+  public_deps = [
+    "//ydb/library/actors/protos",
+    "//ydb/library/yql/dq/proto",
+    "//ydb/public/api/protos",
+  ]
+
+  sources = [
+    "protos/dq_events.proto",
+    "protos/dq_stats.proto",
+    "protos/dq_status_codes.proto",
+  ]
+}
+
+library("spilling") {
+  public_deps = [
+    "//library/cpp/monlib/dynamic_counters",
+    "//ydb/library/actors/core",
+    "//ydb/library/yql/dq/actors",
+    "//ydb/library/yql/dq/common",
+    "//ydb/library/yql/dq/runtime",
+    "//yql/essentials/utils",
+  ]
+
+  deps = [
+    "//library/cpp/monlib/service/pages",
+    "//library/cpp/threading/future",
+    "//ydb/library/services",
+    "//yql/essentials/minikql/computation",
+  ]
+
+  sources = [
+    "spilling/channel_storage.cpp",
+    "spilling/channel_storage_actor.cpp",
+    "spilling/compute_storage.cpp",
+    "spilling/compute_storage_actor.cpp",
+    "spilling/spilling.cpp",
+    "spilling/spilling_counters.cpp",
+    "spilling/spilling_file.cpp",
+  ]
+}
+
+library("task_runner") {
+  public_deps = [
+    ":compute",
+    "//ydb/library/actors/core",
+    "//ydb/library/yql/dq/common",
+    "//ydb/library/yql/dq/proto",
+    "//ydb/library/yql/dq/runtime",
+    "//yql/essentials/minikql",
+    "//yql/essentials/minikql/computation",
+  ]
+
+  deps = [
+    ":spilling",
+    "//ydb/library/services",
+    "//ydb/library/yql/dq/actors",
+    "//yql/essentials/core/issue",
+    "//yql/essentials/core/issue:protos",
+  ]
+
+  sources = [
+    "task_runner/events.cpp",
+    "task_runner/task_runner_actor_local.cpp",
+  ]
 }

@@ -19,9 +19,7 @@ library("encode") {
     "format.cpp",
   ]
 
-  serialize_enum_headers = [
-    "encoder_state_enum.h",
-  ]
+  serialize_enum_headers = [ "encoder_state_enum.h" ]
 }
 
 library("json") {
@@ -53,6 +51,8 @@ library("prometheus") {
     "prometheus/prometheus_decoder.cpp",
     "prometheus/prometheus_encoder.cpp",
   ]
+
+  serialize_enum_headers = [ "prometheus/prometheus.h" ]
 }
 
 library("spack") {
@@ -63,7 +63,6 @@ library("spack") {
 
   deps = [
     ":buffered",
-    "//contrib/libs/zlib",
     "//contrib/libs/lz4",
     "//contrib/libs/xxhash",
     "//contrib/libs/zstd",

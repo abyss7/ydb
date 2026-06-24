@@ -1,16 +1,18 @@
 library("scheme_types") {
-    public_deps = [
-        "//ydb/public/lib/scheme_types",
-    ]
+  public_deps = [
+    "//ydb/library/accessor",
+    "//ydb/public/lib/scheme_types",
+  ]
 
-    deps = [
-        "//yql/essentials/public/decimal",
-    ]
+  deps = [
+    "//yql/essentials/parser/pg_wrapper/interface",
+    "//yql/essentials/public/decimal",
+  ]
 
-    sources = [
-        "scheme_decimal_type.cpp",
-        "scheme_type_metadata.cpp",
-        "scheme_type_registry.cpp",
-        "scheme_types_defs.cpp",
-    ]
+  sources = [
+    "scheme_decimal_type.cpp",
+    "scheme_type_metadata.cpp",
+    "scheme_type_registry.cpp",
+    "scheme_types_defs.cpp",
+  ]
 }

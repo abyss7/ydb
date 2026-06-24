@@ -1,34 +1,127 @@
 library("certificate_check") {
-    public_deps = [
-        "//contrib/libs/openssl",
-    ]
+  public_deps = [ "//ydb/core/base" ]
 
-    deps = [
-        "//ydb/core/protos",
-        "//ydb/public/lib/ydb_cli:common",
-    ]
+  deps = [
+    "//ydb/core/protos",
+    "//ydb/library/aclib",
+    "//ydb/public/lib/ydb_cli/common",
+  ]
 
-    sources = [
-        "certificate_check/cert_auth_utils.cpp",
-        "certificate_check/cert_auth_processor.cpp",
-        "certificate_check/cert_check.cpp",
-    ]
+  sources = [
+    "certificate_check/cert_auth_processor.cpp",
+    "certificate_check/cert_auth_utils.cpp",
+    "certificate_check/cert_check.cpp",
+  ]
+}
+
+library("ldap_auth_provider") {
+  public_deps = [
+    "//ydb/core/base",
+    "//ydb/core/protos",
+  ]
+
+  deps = [
+    "//ydb/core/security",
+    "//ydb/core/util",
+    "//ydb/library/actors/core",
+    "//ydb/library/login:protos",
+  ]
+
+  sources = [
+    "ldap_auth_provider/ldap_auth_provider.cpp",
+    "ldap_auth_provider/ldap_auth_provider_linux.cpp",
+    "ldap_auth_provider/ldap_utils.cpp",
+  ]
+}
+
+library("sasl") {
+  public_deps = [
+    "//library/cpp/threading/atomic_shared_ptr",
+    "//ydb/core/base",
+    "//ydb/library/actors/core",
+    "//ydb/library/login:password_checker",
+    "//ydb/library/login:protos",
+    "//yql/essentials/public/issue",
+  ]
+
+  deps = [
+    ":ldap_auth_provider",
+    "//library/cpp/digest/argonish",
+    "//library/cpp/json",
+    "//library/cpp/string_utils/base64",
+    "//ydb/core/protos",
+    "//ydb/core/security",
+    "//ydb/core/tx/scheme_cache",
+    "//ydb/core/tx/schemeshard",
+    "//ydb/library/login:hashes_checker",
+    "//ydb/library/login:sasl",
+    "//ydb/library/services",
+  ]
+
+  sources = [
+    "sasl/base_auth_actors.cpp",
+    "sasl/hasher.cpp",
+    "sasl/plain_auth_actor.cpp",
+    "sasl/plain_ldap_auth_proxy_actor.cpp",
+    "sasl/scram_auth_actor.cpp",
+    "sasl/static_credentials_provider.cpp",
+  ]
 }
 
 library("security") {
-    public_deps = [
-        ":certificate_check",
-        "//ydb/library/ncloud",
-        "//ydb/library/ycloud:api",
-    ]
+  public_deps = [
+    ":certificate_check",
+    ":ldap_auth_provider",
+    ":token_manager",
+    "//library/cpp/digest/md5",
+    "//library/cpp/monlib/service/pages",
+    "//ydb/core/mon",
+    "//ydb/core/protos",
+    "//ydb/library/aclib",
+    "//ydb/library/actors/core",
+    "//ydb/library/grpc/actor_client",
+    "//ydb/library/login:protos",
+    "//ydb/library/ncloud/impl",
+    "//ydb/library/security",
+    "//ydb/library/ycloud/api",
+    "//ydb/library/ycloud/impl",
+  ]
 
-    deps = [
-        "//ydb/core/base",
-    ]
+  deps = [
+    "//library/cpp/json",
+    "//ydb/core/audit",
+    "//ydb/core/base",
+    "//ydb/core/grpc_services/base",
+    "//ydb/core/grpc_services/local_rpc",
+    "//ydb/core/util",
+    "//ydb/library/actors/http",
+    "//ydb/library/login",
+    "//ydb/public/api/grpc",
+  ]
 
-    sources = [
-        "login_page.cpp",
-        "login_shared_func.cpp",
-        "ticket_parser.cpp",
-    ]
+  sources = [
+    "login_page.cpp",
+    "login_shared_func.cpp",
+    "ticket_parser.cpp",
+  ]
+}
+
+library("token_manager") {
+  public_deps = [
+    "//ydb/core/base",
+    "//ydb/core/protos",
+    "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    "//library/cpp/json",
+    "//library/cpp/json:writer",
+    "//ydb/library/actors/http",
+  ]
+
+  sources = [
+    "token_manager/token_manager.cpp",
+    "token_manager/token_provider.cpp",
+    "token_manager/vm_metadata_token_provider_handler.cpp",
+  ]
 }

@@ -1,4 +1,7 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("argonish") {
-    deps = [ "internal/proxies" ]
-    sources = [ "factory/factory.cpp" ]
+  deps = [ "internal/proxies" ]
+
+  sources = [ "factory/factory.cpp" ]
 }

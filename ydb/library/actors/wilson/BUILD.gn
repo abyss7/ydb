@@ -1,21 +1,22 @@
 library("wilson") {
-    public_deps = [
-        "//contrib/libs/opentelemetry-proto",
-    ]
+  public_deps = [
+    "//contrib/libs/opentelemetry-proto",
+    "//library/cpp/json:writer",
+    "//library/cpp/string_utils/base64",
+  ]
 
-    deps = [
-        "//library/cpp/json",
-        "//library/cpp/monlib/dynamic_counters",
-        "//library/cpp/monlib/service/pages",
-        "//library/cpp/string_utils:url",
-        "//ydb/library/actors/core",
-    ]
+  deps = [
+    "//library/cpp/monlib/dynamic_counters",
+    "//library/cpp/string_utils/url",
+    "//ydb/library/actors/core",
+    "//ydb/library/actors/protos",
+  ]
 
-    sources = [
-        "wilson_event.cpp",
-        "wilson_span.cpp",
-        "wilson_profile_span.cpp",
-        "wilson_trace.cpp",
-        "wilson_uploader.cpp",
-    ]
+  sources = [
+    "wilson_event.cpp",
+    "wilson_profile_span.cpp",
+    "wilson_span.cpp",
+    "wilson_trace.cpp",
+    "wilson_uploader.cpp",
+  ]
 }

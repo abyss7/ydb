@@ -1,20 +1,33 @@
 library("minikql_compile") {
-    public_deps = [
-        "//yql/essentials/minikql",
-    ]
+  public_deps = [
+    # "//library/cpp/threading/future",
+    # "//ydb/core/client/scheme_cache_lib",
+    # "//ydb/core/engine",
+    # "//ydb/core/scheme",
+    # "//yql/essentials/minikql",
+  ]
 
-    deps = [
-        "//ydb/core/base",
-        "//ydb/core/kqp/provider",
-        "//ydb/library/actors/core",
-        "//yql/essentials/ast",
-    ]
+  deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/kqp/provider",
+    # "//ydb/core/tx/scheme_board",
+    # "//ydb/core/tx/scheme_cache",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/services",
+    # "//ydb/library/ydb_issue:proto",
+    # "//ydb/public/lib/scheme_types",
+    # "//yql/essentials/ast",
+    # "//yql/essentials/core",
+    # "//yql/essentials/core/type_ann",
+    # "//yql/essentials/minikql/invoke_builtins",
+    # "//yql/essentials/providers/common/mkql",
+  ]
 
-    sources = [
-        "compile_context.cpp",
-        "compile_result.cpp",
-        "db_key_resolver.cpp",
-        "mkql_compile_service.cpp",
-        "yql_expr_minikql.cpp",
-    ]
+  sources = [
+    "compile_context.cpp",
+    "compile_result.cpp",
+    "db_key_resolver.cpp",
+    "mkql_compile_service.cpp",
+    "yql_expr_minikql.cpp",
+  ]
 }

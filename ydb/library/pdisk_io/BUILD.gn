@@ -1,37 +1,38 @@
-protobuf_library("protos") {
-    sources = [
-        "protos/sector_map.proto"
-    ]
-}
-
-library("device_type") {
-    sources = [
-        "device_type.cpp",
-    ]
-}
-
 library("pdisk_io") {
-    deps = [
-        ":device_type",
-        ":protos",
-        "//contrib/libs/libaio",
-        "//contrib/libs/liburing",
-        "//contrib/libs/lz4",
-        "//ydb/core/blobstorage:pdisk",
-        "//ydb/library/actors/core",
-    ]
+  public_deps = [
+    "//ydb/core/blobstorage/pdisk",
+    "//ydb/core/debug",
+    "//ydb/library/actors/util",
+    "//ydb/library/actors/wilson",
+    "//ydb/library/yverify_stream",
+  ]
 
-    sources = [
-        "aio_linux.cpp",
-        "aio_map.cpp",
-        "aio.cpp",
-        "buffers.cpp",
-        "drivedata.cpp",
-        "file_params_linux.cpp",
-        "sector_map.cpp",
-        "uring_router.cpp",
-        "wcache.cpp",
-    ]
+  deps = [
+    ":protos",
+    "//contrib/libs/lz4",
+    "//library/cpp/containers/stack_vector",
+    "//library/cpp/deprecated/atomic",
+    "//library/cpp/monlib/dynamic_counters",
+    "//library/cpp/threading/queue",
+    "//ydb/library/actors/core",
+  ]
 
-    serialize_enum_headers = [ "aio.h" ]
+  sources = [
+    "aio.cpp",
+    "aio_linux.cpp",
+    "aio_map.cpp",
+    "buffers.cpp",
+    "device_type.cpp",
+    "drivedata.cpp",
+    "file_params_linux.cpp",
+    "sector_map.cpp",
+    "uring_router.cpp",
+    "wcache.cpp",
+  ]
+
+  serialize_enum_headers = [ "aio.h" ]
+}
+
+protobuf_library("protos") {
+  sources = [ "protos/sector_map.proto" ]
 }

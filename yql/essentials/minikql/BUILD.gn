@@ -1,99 +1,71 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 source_set("alloc") {
-    deps += [
-        "//contrib/libs/apache/arrow",
-        "//library/cpp/monlib/dynamic_counters",
-        "//yql/essentials/parser/pg_catalog",
-        "//yql/essentials/public/udf:_udf",
-        "//yql/essentials/sql:pg_dummy",
-    ]
+  deps += [
+    "//contrib/libs/apache/arrow",
+    "//library/cpp/monlib/dynamic_counters",
+    "//yql/essentials/parser/pg_catalog",
+    "//yql/essentials/public/udf:_udf",
+    "//yql/essentials/sql:pg_dummy",
+  ]
 
-    sources = [
-        "aligned_page_pool.cpp",
-        "mkql_alloc.cpp",
-        "mkql_mem_info.cpp",
-    ]
-}
-
-library("computation") {
-    deps = [
-        ":minikql",
-        "//yql/essentials/public/udf:arrow",
-    ]
-
-    sources = [
-        "computation/mkql_block_builder.cpp",
-        "computation/mkql_block_impl.cpp",
-        "computation/mkql_block_reader.cpp",
-        "computation/mkql_block_transport.cpp",
-        "computation/mkql_block_trimmer.cpp",
-        "computation/mkql_computation_node_holders.cpp",
-        "computation/mkql_computation_node_impl.cpp",
-        "computation/mkql_computation_node_pack_impl.cpp",
-        "computation/mkql_computation_node_pack.cpp",
-        "computation/mkql_computation_node.cpp",
-        "computation/mkql_computation_pattern_cache.cpp",
-        "computation/mkql_custom_list.cpp",
-        "computation/mkql_datum_validate.cpp",
-        "computation/mkql_validate.cpp",
-        "computation/mkql_value_builder.cpp",
-        "computation/presort.cpp",
-    ]
+  sources = [
+    "aligned_page_pool.cpp",
+    "mkql_alloc.cpp",
+    "mkql_mem_info.cpp",
+  ]
 }
 
 library("minikql") {
-    public_deps = [
-        "//contrib/libs/apache/arrow",
-        "//yql/essentials/public/udf",
-        "//yql/essentials/utils",
-    ]
+  public_deps = [
+    "//contrib/libs/apache/arrow",
+    "//yql/essentials/public/udf",
+    "//yql/essentials/utils",
+  ]
 
-    deps = [
-        "//contrib/libs/cctz",
-        "//library/cpp/monlib/dynamic_counters",
-        "//library/cpp/type_info:tz",
-        "//library/cpp/yson",
-        "//yql/essentials/ast",
-        "//yql/essentials/core/sql_types",
-        "//yql/essentials/parser/pg_catalog",
-        "//yql/essentials/public/decimal",
-        "//yql/essentials/public/udf:arrow",
-        "//yql/essentials/sql:pg_dummy",
-        "//yql/essentials/types",
-    ]
+  deps = [
+    "//contrib/libs/cctz",
+    "//library/cpp/monlib/dynamic_counters",
+    "//library/cpp/type_info:tz",
+    "//library/cpp/yson",
+    "//yql/essentials/ast",
+    "//yql/essentials/core/sql_types",
+    "//yql/essentials/parser/pg_catalog",
+    "//yql/essentials/public/decimal",
+    "//yql/essentials/public/udf:arrow",
+    "//yql/essentials/types/binary_json",
+    "//yql/essentials/types/dynumber",
+    "//yql/essentials/types/uuid",
+  ]
 
-    sources = [
-        "compact_hash.cpp",
-        "mkql_block_map_join_utils.cpp",
-        "mkql_buffer.cpp",
-        "mkql_function_metadata.cpp",
-        "mkql_function_registry.cpp",
-        "mkql_node_builder.cpp",
-        "mkql_node_cast.cpp",
-        "mkql_node_printer.cpp",
-        "mkql_node_serialization.cpp",
-        "mkql_node_visitor.cpp",
-        "mkql_node.cpp",
-        "mkql_opt_literal.cpp",
-        "mkql_program_builder.cpp",
-        "mkql_rh_hash_utils.cpp",
-        "mkql_runtime_version.cpp",
-        "mkql_stats_registry.cpp",
-        "mkql_string_util.cpp",
-        "mkql_type_builder.cpp",
-        "mkql_type_ops.cpp",
-        "mkql_unboxed_value_stream.cpp",
-        "pack_num.cpp",
-        "primes.cpp",
-        "watermark_tracker.cpp",
-    ]
+  sources = [
+    "compact_hash.cpp",
+    "mkql_block_map_join_utils.cpp",
+    "mkql_buffer.cpp",
+    "mkql_function_metadata.cpp",
+    "mkql_function_registry.cpp",
+    "mkql_node.cpp",
+    "mkql_node_builder.cpp",
+    "mkql_node_cast.cpp",
+    "mkql_node_printer.cpp",
+    "mkql_node_serialization.cpp",
+    "mkql_node_visitor.cpp",
+    "mkql_opt_literal.cpp",
+    "mkql_program_builder.cpp",
+    "mkql_rh_hash_utils.cpp",
+    "mkql_runtime_version.cpp",
+    "mkql_stats_registry.cpp",
+    "mkql_string_util.cpp",
+    "mkql_type_builder.cpp",
+    "mkql_type_ops.cpp",
+    "mkql_unboxed_value_stream.cpp",
+    "pack_num.cpp",
+    "primes.cpp",
+    "watermark_tracker.cpp",
+  ]
 }
 
 source_set("terminator") {
-    deps += [
-        "//yql/essentials/public/issue",
-    ]
-
-    sources = [
-        "mkql_terminator.cpp",
-    ]
+  deps += [ "//yql/essentials/public/issue" ]
+  sources = [ "mkql_terminator.cpp" ]
 }

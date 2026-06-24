@@ -1,46 +1,58 @@
 library("audit") {
-    public_deps = [
-        "//ydb/library/actors/http",
-    ]
+  public_deps = [
+    "//ydb/core/protos",
+    "//ydb/library/aclib",
+    "//ydb/library/actors/http",
+  ]
 
-    deps = [
-        "//library/cpp/cgiparam",
-        "//ydb/core/audit",
-        "//ydb/core/audit:config",
-        "//ydb/core/base",
-        "//ydb/core/util",
-    ]
+  deps = [
+    "//library/cpp/cgiparam",
+    "//ydb/core/audit",
+    "//ydb/core/audit:audit_config",
+    "//ydb/core/base",
+    "//ydb/core/util",
+  ]
 
-    sources = [
-        "audit/audit_denylist.cpp",
-        "audit/audit.cpp",
-        "audit/url_matcher.cpp",
-    ]
+  sources = [
+    "audit/audit.cpp",
+    "audit/audit_denylist.cpp",
+    "audit/url_matcher.cpp",
+  ]
 }
 
 library("mon") {
-    deps = [
-        ":audit",
-        "//library/cpp/cgiparam",
-        "//library/cpp/http/io",
-        "//library/cpp/json",
-        "//library/cpp/lwtrace:mon",
-        "//library/cpp/mime/types",
-        "//library/cpp/monlib/dynamic_counters",
-        "//library/cpp/monlib/metrics",
-        "//library/cpp/monlib/service/pages",
-        "//library/cpp/protobuf/json",
-        "//ydb/core/base",
-        "//ydb/core/grpc_services:base",
-        "//ydb/library/aclib",
-        "//ydb/library/actors/core",
-        "//ydb/library/yql/public/ydb_issue",
-        "//ydb/public/sdk/cpp/adapters:issue",
-        "//ydb/public/sdk/cpp/src/client/types:status",
-    ]
+  public_deps = [
+    "//library/cpp/monlib/service",
+    "//library/cpp/monlib/service/pages:resources",
+    "//library/cpp/monlib/service/pages:tablesorter",
+    "//ydb/library/actors/http",
+    "//ydb/public/sdk/cpp/src/client/types/status",
+    "//yql/essentials/public/issue",
+  ]
 
-    sources = [
-        "crossref.cpp",
-        "mon.cpp",
-    ]
+  deps = [
+    ":audit",
+    "//library/cpp/cgiparam",
+    "//library/cpp/json",
+    "//library/cpp/lwtrace",
+    "//library/cpp/lwtrace/mon",
+    "//library/cpp/monlib/dynamic_counters",
+    "//library/cpp/monlib/metrics",
+    "//library/cpp/monlib/service/pages",
+    "//library/cpp/protobuf/json",
+    "//ydb/core/base",
+    # "//ydb/core/grpc_services/base",
+    "//ydb/core/node_whiteboard",
+    "//ydb/core/protos",
+    "//ydb/core/util",
+    "//ydb/library/actors/core",
+    "//ydb/library/actors/interconnect",
+    "//ydb/library/services",
+    "//ydb/public/sdk/cpp/adapters/issue",
+  ]
+
+  sources = [
+    "crossref.cpp",
+    "mon.cpp",
+  ]
 }

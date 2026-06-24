@@ -1,13 +1,15 @@
-library("prof") {
-    deps = [
-        "//contrib/libs/tcmalloc:malloc_extension",
-        "//library/cpp/charset:lite",
-        "//library/cpp/containers/atomizer",
-        "//library/cpp/malloc:api",
-    ]
+# yamake2gn: keep  -- hand-written, do not regenerate
 
-    sources = [
-        "tag.cpp",
-        "tcmalloc.cpp",
-    ]
+library("prof") {
+  deps = [
+    "//contrib/libs/tcmalloc:malloc_extension",
+    "//library/cpp/charset",
+    "//library/cpp/containers/atomizer",
+    "//library/cpp/malloc/api",
+  ]
+
+  sources = [
+    "tag.cpp",
+    "tcmalloc.cpp",
+  ]
 }

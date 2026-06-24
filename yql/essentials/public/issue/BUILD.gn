@@ -1,30 +1,26 @@
-protobuf_library("protos") {
-    sources = [
-        "protos/issue_message.proto",
-        "protos/issue_severity.proto",
-    ]
+library("issue") {
+  public_deps = [ "//library/cpp/resource" ]
+
+  deps = [
+    ":protos",
+    "//library/cpp/colorizer",
+    "//yql/essentials/utils",
+  ]
+
+  sources = [
+    "yql_issue.cpp",
+    "yql_issue_manager.cpp",
+    "yql_issue_message.cpp",
+    "yql_issue_utils.cpp",
+    "yql_warning.cpp",
+  ]
+
+  serialize_enum_headers = [ "yql_warning.h" ]
 }
 
-library("issue") {
-    public_deps = [
-        "//contrib/libs/protobuf",
-        "//library/cpp/resource",
-    ]
-
-    deps = [
-        ":protos",
-        "//library/cpp/colorizer",
-        "//yql/essentials/core/issue:protos",
-        "//yql/essentials/utils",
-    ]
-
-    sources = [
-        "yql_issue_manager.cpp",
-        "yql_issue_message.cpp",
-        "yql_issue_utils.cpp",
-        "yql_issue.cpp",
-        "yql_warning.cpp",
-    ]
-
-    serialize_enum_headers = [ "yql_warning.h" ]
+protobuf_library("protos") {
+  sources = [
+    "protos/issue_message.proto",
+    "protos/issue_severity.proto",
+  ]
 }

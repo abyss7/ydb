@@ -10,8 +10,6 @@ PEERDIR(
 
 SRCS(
     batched_vec.h
-    blobstorage_events.cpp
-    blobstorage_events.h
     blobstorage_host_record.h
     blobstorage_oos_defs.h
     blobstorage_vdiskid.cpp

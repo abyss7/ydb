@@ -1,5 +1,25 @@
+library("folder_service") {
+  public_deps = [
+    ":proto",
+    "//ydb/core/base",
+    "//ydb/library/actors/core",
+    "//ydb/public/sdk/cpp/src/library/grpc/client",
+  ]
+
+  sources = [ "folder_service.cpp" ]
+}
+
+library("mock") {
+  public_deps = [
+    ":proto",
+    "//ydb/library/actors/core",
+  ]
+
+  deps = [ "//ydb/library/folder_service" ]
+
+  sources = [ "mock/mock_folder_service_adapter.cpp" ]
+}
+
 protobuf_library("proto") {
-    sources = [
-        "proto/config.proto",
-    ]
+  sources = [ "proto/config.proto" ]
 }

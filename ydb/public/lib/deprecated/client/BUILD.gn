@@ -1,8 +1,14 @@
 library("client") {
-    public_deps = [ "//ydb/public/lib/base" ]
+  public_deps = [
+    "//library/cpp/getopt",
+    "//library/cpp/messagebus",
+    "//ydb/core/protos",
+    "//ydb/public/lib/base",
+    "//ydb/public/sdk/cpp/src/library/grpc/client",
+  ]
 
-    sources = [
-        "grpc_client.cpp",
-        "msgbus_client.cpp",
-    ]
+  sources = [
+    "grpc_client.cpp",
+    "msgbus_client.cpp",
+  ]
 }

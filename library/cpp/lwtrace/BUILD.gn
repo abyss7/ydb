@@ -1,47 +1,23 @@
-protobuf_library("protos") {
-    sources = [
-        "protos/lwtrace.proto",
-    ]
-}
-
-config("private_config") {
-    cflags = [ "-Wno-parentheses" ]
-}
-
 library("lwtrace") {
-    public_deps = [ ":protos" ]
+  public_deps = [
+    "//library/cpp/containers/stack_vector",
+    "//library/cpp/deprecated/atomic",
+    "//library/cpp/lwtrace/protos",
+  ]
 
-    sources = [
-        "check.cpp",
-        "control.cpp",
-        "custom_action.cpp",
-        "kill_action.cpp",
-        "log_shuttle.cpp",
-        "perf.cpp",
-        "probes.cpp",
-        "shuttle.cpp",
-        "sleep_action.cpp",
-        "start.cpp",
-        "stderr_writer.cpp",
-        "symbol.cpp",
-        "trace.cpp",
-    ]
-
-    configs = [ ":private_config" ]
-}
-
-library("mon") {
-    deps = [
-        ":protos",
-        "//library/cpp/cgiparam",
-        "//library/cpp/html:pcdata",
-        "//library/cpp/lwtrace",
-        "//library/cpp/monlib/service/pages",
-        "//library/cpp/resource",
-        "//library/cpp/string_utils/base64",
-    ]
-
-    sources = [
-        "mon/mon_lwtrace.cpp"
-    ]
+  sources = [
+    "check.cpp",
+    "control.cpp",
+    "custom_action.cpp",
+    "kill_action.cpp",
+    "log_shuttle.cpp",
+    "perf.cpp",
+    "probes.cpp",
+    "shuttle.cpp",
+    "sleep_action.cpp",
+    "start.cpp",
+    "stderr_writer.cpp",
+    "symbol.cpp",
+    "trace.cpp",
+  ]
 }

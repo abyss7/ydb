@@ -1,8 +1,6 @@
 library("metrics") {
   public_deps = [ "//library/cpp/threading/light_rw_lock" ]
 
-  serialize_enum_headers = [ "metric_value_type.h" ]
-
   sources = [
     "ewma.cpp",
     "fake.cpp",
@@ -19,4 +17,6 @@ library("metrics") {
     "summary_collector.cpp",
     "summary_snapshot.cpp",
   ]
+
+  serialize_enum_headers = [ "metric_value_type.h" ]
 }

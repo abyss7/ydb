@@ -1,16 +1,8 @@
 protobuf_library("audit") {
-    deps = [
-        ":v1",
-    ]
+  public_deps = [
+    "//contrib/libs/googleapis-common-protos",
+    "//ydb/public/api/client/nc_private/audit/v1/common",
+  ]
 
-    sources = [
-        "annotations.proto",
-    ]
-}
-
-protobuf_library("v1") {
-    sources = [
-        "v1/common/action.proto",
-        "v1/common/action_type.proto",
-    ]
+  sources = [ "annotations.proto" ]
 }

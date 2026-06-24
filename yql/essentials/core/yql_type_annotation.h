@@ -7,8 +7,6 @@
 #include "yql_arrow_resolver.h"
 #include "yql_statistics.h"
 
-#include <yql/essentials/core/cbo/cbo_interesting_orderings.h>
-
 #include <yql/essentials/public/udf/udf_validate.h>
 #include <yql/essentials/public/udf/udf_log.h>
 #include <yql/essentials/public/langver/yql_langver.h>

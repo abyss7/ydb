@@ -1,29 +1,28 @@
 library("http") {
-    public_deps = [
-        "//contrib/libs/openssl",
-        "//ydb/library/actors/core",
-    ]
+  public_deps = [
+    "//library/cpp/dns",
+    "//ydb/library/actors/core",
+  ]
 
-    deps = [
-        "//contrib/libs/opentelemetry-cpp",
-        "//contrib/libs/zlib",
-        "//library/cpp/digest/md5",
-        "//library/cpp/mime/types",
-        "//library/cpp/monlib/metrics",
-        "//library/cpp/resource",
-        "//library/cpp/string_utils:quote",
-        "//ydb/library/actors/interconnect:poller",
-        "//ydb/library/actors/wilson",
-    ]
+  deps = [
+    "//library/cpp/digest/md5",
+    "//library/cpp/monlib/metrics",
+    "//library/cpp/resource",
+    "//library/cpp/string_utils/quote",
+    "//ydb/library/actors/interconnect:poller",
+    "//ydb/library/actors/protos",
+    "//ydb/library/actors/wilson",
+    "//ydb/library/wilson_ids",
+  ]
 
-    sources = [
-        "http_cache.cpp",
-        "http_compress.cpp",
-        "http_proxy_acceptor.cpp",
-        "http_proxy_incoming.cpp",
-        "http_proxy_outgoing.cpp",
-        "http_proxy.cpp",
-        "http_static.cpp",
-        "http.cpp",
-    ]
+  sources = [
+    "http.cpp",
+    "http_cache.cpp",
+    "http_compress.cpp",
+    "http_proxy.cpp",
+    "http_proxy_acceptor.cpp",
+    "http_proxy_incoming.cpp",
+    "http_proxy_outgoing.cpp",
+    "http_static.cpp",
+  ]
 }

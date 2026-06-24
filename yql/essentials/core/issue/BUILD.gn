@@ -1,20 +1,14 @@
-protobuf_library("protos") {
-    public_deps = [
-        "//yql/essentials/public/issue:protos",
-    ]
+library("issue") {
+  public_deps = [
+    ":protos",
+    "//yql/essentials/public/issue",
+  ]
 
-    sources = [
-        "protos/issue_id.proto",
-    ]
+  sources = [ "yql_issue.cpp" ]
 }
 
-library("issue") {
-    public_deps = [
-        ":protos",
-        "//yql/essentials/public/issue",
-    ]
+protobuf_library("protos") {
+  public_deps = [ "//yql/essentials/public/issue:protos" ]
 
-    sources = [
-        "yql_issue.cpp",
-    ]
+  sources = [ "protos/issue_id.proto" ]
 }

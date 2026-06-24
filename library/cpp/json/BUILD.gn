@@ -1,48 +1,64 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 import("//build/gn/ragel.gni")
 
 library("common") {
-    sources = [
-        "common/defs.cpp",
-    ]
+  sources = [ "common/defs.cpp" ]
 }
 
-ragel6_source_set("fast_parser") {
-    sources = [ "fast_sax/parser.rl6" ]
+library("easy_parse") {
+  deps = [ "//library/cpp/json" ]
+
+  sources = [ "easy_parse/json_easy_parser.cpp" ]
 }
 
-library("fast") {
-    deps = [ ":fast_parser" ]
-
-    sources = [
-        "fast_sax/unescape.cpp",
-    ]
+ragel6_source_set("fast_sax_parser") {
+  sources = [ "fast_sax/parser.rl6" ]
 }
 
-library("writer") {
-    sources = [
-        "writer/json_value.cpp",
-        "writer/json.cpp",
-    ]
-
-    serialize_enum_headers = [
-        "json_value.h",
-    ]
+library("fast_sax") {
+  deps = [ ":fast_sax_parser" ]
+  sources = [ "fast_sax/unescape.cpp" ]
 }
 
 library("json") {
-    public_deps = [
-        ":common",
-        ":writer",
-    ]
+  public_deps = [
+    ":common",
+    ":fast_sax",
+    ":writer",
+  ]
 
-    deps = [
-        ":fast",
-    ]
+  deps = [
+    "//contrib/libs/rapidjson",
+    "//library/cpp/string_utils/relaxed_escaper",
+  ]
 
-    sources = [
-        "json_writer.cpp",
-        "json_reader.cpp",
-        "json_prettifier.cpp",
-        "rapidjson_helpers.cpp",
-    ]
+  sources = [
+    "json_prettifier.cpp",
+    "json_reader.cpp",
+    "json_writer.cpp",
+    "rapidjson_helpers.cpp",
+  ]
+}
+
+library("writer") {
+  public_deps = [ ":common" ]
+
+  sources = [
+    "writer/json.cpp",
+    "writer/json_value.cpp",
+  ]
+
+  serialize_enum_headers = [ "writer/json_value.h" ]
+}
+
+library("yson") {
+  public_deps = [
+    "//library/cpp/json",
+    "//library/cpp/yson",
+  ]
+
+  deps = [ "//library/cpp/yson:json" ]
+
+  sources = [ "yson/json2yson.cpp" ]
 }

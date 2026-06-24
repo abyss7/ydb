@@ -1,13 +1,26 @@
 library("future") {
-    sources = [
-        "async_semaphore.cpp",
-        "async.cpp",
-        "core/future.cpp",
-        "core/fwd.cpp",
-        "fwd.cpp",
-        "wait/fwd.cpp",
-        "wait/wait.cpp",
-        "wait/wait_group.cpp",
-        "wait/wait_policy.cpp",
-    ]
+  public_deps = [ "//library/cpp/deprecated/atomic" ]
+
+  deps = [ "//library/cpp/threading/cancellation" ]
+
+  sources = [
+    "async.cpp",
+    "async_semaphore.cpp",
+    "core/future.cpp",
+    "core/fwd.cpp",
+    "fwd.cpp",
+    "wait/fwd.cpp",
+    "wait/wait.cpp",
+    "wait/wait_group.cpp",
+    "wait/wait_policy.cpp",
+  ]
+}
+
+library("subscription") {
+  sources = [
+    "subscription/subscription.cpp",
+    "subscription/wait_all.cpp",
+    "subscription/wait_all_or_exception.cpp",
+    "subscription/wait_any.cpp",
+  ]
 }

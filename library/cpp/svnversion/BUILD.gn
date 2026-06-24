@@ -1,11 +1,8 @@
-static_library("svnversion") {
-    deps = []
-    deps += [
-        "//build/scripts/c_templates",
-        "//contrib/libs/cxxsupp/libcxx",
-    ]
+library("svnversion") {
+  public_deps = [ "//build/scripts/c_templates" ]
 
-    sources = [
-        "svnversion.cpp",
-    ]
+  sources = [
+    "svn_interface.c",
+    "svnversion.cpp",
+  ]
 }
