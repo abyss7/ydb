@@ -6,6 +6,7 @@ library("service") {
   ]
 
   deps = [
+    "//contrib/libs/protobuf",
     "//library/cpp/cgiparam",
     "//library/cpp/coroutine/listener",
     "//library/cpp/http/fetch",

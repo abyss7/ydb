@@ -8,19 +8,19 @@ protobuf_library("protos") {
 
 library("scheme") {
   public_deps = [
-    ":protos",
-    "//library/cpp/deprecated/enum_codegen",
-    "//ydb/library/aclib",
-    "//ydb/public/api/protos",
-    "//ydb/public/lib/scheme_types",
+    # "//library/cpp/deprecated/enum_codegen",
+    # "//ydb/library/aclib",
+    # "//ydb/public/api/protos",
+    # "//ydb/public/lib/scheme_types",
     "//yql/essentials/parser/pg_wrapper/interface",
+    ":protos",
   ]
 
   deps = [
     "//library/cpp/containers/absl_flat_hash",
-    "//ydb/core/protos",
-    "//ydb/core/scheme_types",
-    "//ydb/library/actors/core",
+    # "//ydb/core/protos",
+    # "//ydb/core/scheme_types",
+    # "//ydb/library/actors/core",
   ]
 
   sources = [

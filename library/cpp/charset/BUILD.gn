@@ -1,7 +1,21 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("charset") {
+  public_deps = [ ":lite" ]
   sources = [
     "decodeunknownplane.cpp",
     "iconv.cpp",
     "wide.cpp",
+  ]
+}
+
+library("lite") {
+  sources = [
+    "ci_string.cpp",
+    "codepage.cpp",
+    "cp_encrec.cpp",
+    "doccodes.cpp",
+    "generated/cp_data.cpp",
+    "generated/encrec_data.cpp",
   ]
 }

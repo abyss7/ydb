@@ -1,0 +1,6 @@
+protobuf_library("formats") {
+    sources = [
+        "extension.proto",
+        "yamr.proto",
+    ]
+}

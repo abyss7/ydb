@@ -105,13 +105,13 @@ library("splitter") {
 
 library("switch") {
   public_deps = [
-    ":validation",
-    "//contrib/libs/apache/arrow",
-    "//contrib/libs/xxhash",
-    "//ydb/library/actors/core",
-    "//ydb/library/yverify_stream",
-    "//yql/essentials/parser/pg_wrapper",
-    "//yql/essentials/parser/pg_wrapper/interface",
+    # "//contrib/libs/apache/arrow",
+    # "//contrib/libs/xxhash",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/yverify_stream",
+    # "//yql/essentials/parser/pg_wrapper",
+    # "//yql/essentials/parser/pg_wrapper/interface",
+    # ":validation",
   ]
 
   sources = [

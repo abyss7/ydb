@@ -14,8 +14,10 @@ library("interconnect") {
 
   deps = [
     ":mock",
+    "//contrib/libs/openssl",
     "//contrib/libs/xxhash",
     "//contrib/restricted/abseil-cpp-tstring",
+    "//library/cpp/cgiparam",
     "//library/cpp/containers/stack_vector",
     "//library/cpp/digest/crc32c",
     "//library/cpp/json",
@@ -23,7 +25,7 @@ library("interconnect") {
     "//library/cpp/monlib/dynamic_counters",
     "//library/cpp/monlib/metrics",
     "//library/cpp/monlib/service/pages",
-    "//ydb/library/actors/dnsresolver",
+    # "//ydb/library/actors/dnsresolver",
     "//ydb/library/actors/interconnect/rdma:cq_actor",
     "//ydb/library/actors/memory_log",
     "//ydb/library/actors/prof",

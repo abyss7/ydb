@@ -31,9 +31,9 @@ library("node") {
 
 library("yson") {
   public_deps = [
-    "//library/cpp/yt/misc",
-    "//library/cpp/yt/yson",
-    "//library/cpp/yt/yson_string",
+    # "//library/cpp/yt/misc",
+    # "//library/cpp/yt/yson",
+    # "//library/cpp/yt/yson_string",
   ]
 
   sources = [

@@ -1,5 +1,6 @@
 library("build_info") {
     sources = [
         "build_info_static.cpp",
+        "sandbox_static.cpp",
     ]
 }

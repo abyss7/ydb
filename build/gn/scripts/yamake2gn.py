@@ -996,6 +996,44 @@ def parse_existing_buildgn(path):
     return out
 
 
+def _list_uncommented(body, key):
+    """Labels in body's `key = [ ... ]` list that are NOT commented out. A label
+    counts as commented when a `#` precedes it on its line (GN comments run to
+    end of line), so we keep only quoted strings sitting before any `#`."""
+    m = re.search(r'(?<![\w])' + key + r'\s*=\s*\[(.*?)\]', body, re.S)
+    if not m:
+        return set()
+    out = set()
+    for line in m.group(1).splitlines():
+        code = line.split("#", 1)[0]
+        out.update(re.findall(r'"([^"]+)"', code))
+    return out
+
+
+def parse_existing_buildgn_uncommented(path):
+    """Per target, the set of deps/public_deps labels left UNcommented in the
+    existing file -- i.e. the dependencies the user has manually re-enabled.
+    Everything else (commented, or absent) is re-emitted commented out on regen.
+    Comment state is tracked separately from visibility (parse_existing_buildgn,
+    which counts commented labels too), so deps<->public_deps reclassification
+    keeps working regardless of comments."""
+    try:
+        with open(path, encoding="utf-8") as f:
+            text = f.read()
+    except OSError:
+        return {}
+    out = {}
+    for m in _TARGET_RE.finditer(text):
+        depth, j, n = 1, m.end(), len(text)
+        while j < n and depth:
+            depth += {"{": 1, "}": -1}.get(text[j], 0)
+            j += 1
+        body = text[m.end():j - 1]
+        out[m.group(1)] = (_list_uncommented(body, "deps")
+                           | _list_uncommented(body, "public_deps"))
+    return out
+
+
 def shorten(label, host):
     prefix = "//%s:" % host
     if label.startswith(prefix):
@@ -1003,7 +1041,8 @@ def shorten(label, host):
     return label
 
 
-def _render_target(tmpl, name, public_deps, deps, sources, serialize_enum_headers=()):
+def _render_target(tmpl, name, public_deps, deps, sources,
+                   serialize_enum_headers=(), commented=frozenset()):
     lines = ['%s("%s") {' % (tmpl, name)]
 
     def block(key, items):
@@ -1011,7 +1050,8 @@ def _render_target(tmpl, name, public_deps, deps, sources, serialize_enum_header
             return
         lines.append("    %s = [" % key)
         for it in items:
-            lines.append('        "%s",' % it)
+            prefix = "# " if it in commented else ""
+            lines.append('        %s"%s",' % (prefix, it))
         lines.append("    ]")
         lines.append("")
 
@@ -1025,7 +1065,7 @@ def _render_target(tmpl, name, public_deps, deps, sources, serialize_enum_header
     return "\n".join(lines)
 
 
-def render_spec(spec, host, remap, existing):
+def render_spec(spec, host, remap, existing, uncommented):
     tmpl = {"PROGRAM": "executable", "GROUP": "group",
             "PROTO_LIBRARY": "protobuf_library"}.get(spec.kind, "library")
     if tmpl == "library" and spec.no_util:
@@ -1074,18 +1114,34 @@ def render_spec(spec, host, remap, existing):
     if tmpl in ("library", "contrib_library") and not srcs and not split_proto and not enums:
         tmpl = "group"
 
+    # New deps default to commented-out: a freshly derived dependency is emitted
+    # disabled so it can be re-enabled by hand (otherwise it is redundant and
+    # closes the dep cycles GN forbids). Only the user's own choices survive a
+    # regen -- a label left UNcommented in the existing file stays uncommented;
+    # everything else (new, or previously commented) is re-emitted commented.
+    # Scoped to library/executable targets: group() aggregators and the
+    # private_proto sub-target are left intact, and the library's own
+    # :private_proto edge (an internal artifact, never a cycle) is never hidden.
+    commented = frozenset()
+    if tmpl in ("library", "contrib_library", "executable"):
+        keep = uncommented.get(spec.name, set())
+        commented = frozenset(l for l in pub + dep
+                              if l not in keep and l != ":private_proto")
+
     out = []
     if split_proto:
         proto_pub = sorted({shorten(remap.get(l, l), host) for l in spec.proto_public})
         proto_srcs = sorted(os.path.relpath(s, host) for s in spec.proto_sources)
         out.append(_render_target("protobuf_library", "private_proto", proto_pub, [], proto_srcs))
-    out.append(_render_target(tmpl, spec.name, pub, dep, srcs, enums))
+    out.append(_render_target(tmpl, spec.name, pub, dep, srcs, enums, commented=commented))
     return "\n\n".join(out)
 
 
 def render_file(root, host, specs, remap):
-    existing = parse_existing_buildgn(os.path.join(root, host, "BUILD.gn"))
-    return "\n\n".join(render_spec(s, host, remap, existing)
+    path = os.path.join(root, host, "BUILD.gn")
+    existing = parse_existing_buildgn(path)
+    uncommented = parse_existing_buildgn_uncommented(path)
+    return "\n\n".join(render_spec(s, host, remap, existing, uncommented)
                        for s in sorted(specs, key=lambda s: s.name)) + "\n"
 
 

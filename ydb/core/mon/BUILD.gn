@@ -41,6 +41,7 @@ library("mon") {
     "//library/cpp/monlib/service/pages",
     "//library/cpp/protobuf/json",
     "//ydb/core/base",
+
     # "//ydb/core/grpc_services/base",
     "//ydb/core/node_whiteboard",
     "//ydb/core/protos",

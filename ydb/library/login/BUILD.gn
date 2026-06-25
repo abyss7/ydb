@@ -48,6 +48,7 @@ protobuf_library("protos") {
 
 library("sasl") {
   deps = [
+    "//contrib/libs/openssl",
     "//library/cpp/string_utils/base64",
     "//library/cpp/unicode/normalization",
   ]

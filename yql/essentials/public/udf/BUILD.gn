@@ -44,6 +44,8 @@ library("arrow") {
     "//yql/essentials/utils",
   ]
 
+  deps = [ "//contrib/libs/apache/arrow" ]
+
   sources = [
     "arrow/args_dechunker.cpp",
     "arrow/bit_util.cpp",

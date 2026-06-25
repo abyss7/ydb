@@ -1,0 +1,8 @@
+config("_includes") {
+  include_dirs = [ "//yt/yql/providers/yt/codec/codegen" ]
+}
+
+library("no_llvm") {
+  sources = [ "../yt_codec_cg_dummy.cpp" ]
+  configs = [ ":_includes" ]
+}

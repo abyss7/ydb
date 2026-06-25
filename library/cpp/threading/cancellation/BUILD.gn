@@ -1,0 +1,3 @@
+library("cancellation") {
+  sources = [ "cancellation_token.cpp" ]
+}

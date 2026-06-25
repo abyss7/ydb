@@ -1,3 +1,7 @@
+library("device_type") {
+  sources = [ "device_type.cpp" ]
+}
+
 library("pdisk_io") {
   public_deps = [
     "//ydb/core/blobstorage/pdisk",
@@ -8,7 +12,10 @@ library("pdisk_io") {
   ]
 
   deps = [
+    ":device_type",
     ":protos",
+    "//contrib/libs/libaio",
+    "//contrib/libs/liburing",
     "//contrib/libs/lz4",
     "//library/cpp/containers/stack_vector",
     "//library/cpp/deprecated/atomic",
@@ -22,7 +29,6 @@ library("pdisk_io") {
     "aio_linux.cpp",
     "aio_map.cpp",
     "buffers.cpp",
-    "device_type.cpp",
     "drivedata.cpp",
     "file_params_linux.cpp",
     "sector_map.cpp",

@@ -65,6 +65,7 @@ library("spack") {
     ":buffered",
     "//contrib/libs/lz4",
     "//contrib/libs/xxhash",
+    "//contrib/libs/zlib",
     "//contrib/libs/zstd",
     "//library/cpp/monlib/exception",
   ]

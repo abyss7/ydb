@@ -1,0 +1,7 @@
+executable("validation") {
+    deps += [
+        "//ydb/public/lib/protobuf",
+        "//ydb/public/api/protos",
+    ]
+    sources = [ "main.cpp" ]
+}

@@ -17,9 +17,9 @@ library("actors") {
 
 library("common") {
   public_deps = [
-    ":protos",
-    "//ydb/library/actors/core",
-    "//ydb/library/yql/dq/common",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/yql/dq/common",
+    # ":protos",
   ]
 
   sources = [ "common/retry_queue.cpp" ]
@@ -27,9 +27,6 @@ library("common") {
 
 library("compute") {
   public_deps = [
-    # ":common",
-    # ":protos",
-    # ":task_runner",
     # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/wilson",
@@ -47,14 +44,17 @@ library("compute") {
     # "//yql/essentials/minikql/computation",
     # "//yql/essentials/public/issue",
     # "//yql/essentials/utils",
+    # ":common",
+    # ":protos",
+    # ":task_runner",
   ]
 
   deps = [
-    # ":spilling",
     # "//library/cpp/protobuf/interop",
     # "//ydb/core/quoter:public",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/yverify_stream",
+    # ":spilling",
   ]
 
   sources = [
@@ -77,10 +77,10 @@ library("input_transforms") {
   public_deps = [ ":compute" ]
 
   deps = [
-    "//ydb/library/actors/core",
-    "//ydb/library/yql/dq/proto",
-    "//yql/essentials/minikql",
-    "//yql/essentials/minikql/computation",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/yql/dq/proto",
+    # "//yql/essentials/minikql",
+    # "//yql/essentials/minikql/computation",
   ]
 
   sources = [
@@ -105,19 +105,19 @@ protobuf_library("protos") {
 
 library("spilling") {
   public_deps = [
-    "//library/cpp/monlib/dynamic_counters",
-    "//ydb/library/actors/core",
-    "//ydb/library/yql/dq/actors",
-    "//ydb/library/yql/dq/common",
-    "//ydb/library/yql/dq/runtime",
-    "//yql/essentials/utils",
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/yql/dq/actors",
+    # "//ydb/library/yql/dq/common",
+    # "//ydb/library/yql/dq/runtime",
+    # "//yql/essentials/utils",
   ]
 
   deps = [
-    "//library/cpp/monlib/service/pages",
-    "//library/cpp/threading/future",
-    "//ydb/library/services",
-    "//yql/essentials/minikql/computation",
+    # "//library/cpp/monlib/service/pages",
+    # "//library/cpp/threading/future",
+    # "//ydb/library/services",
+    # "//yql/essentials/minikql/computation",
   ]
 
   sources = [
@@ -133,21 +133,21 @@ library("spilling") {
 
 library("task_runner") {
   public_deps = [
-    ":compute",
-    "//ydb/library/actors/core",
-    "//ydb/library/yql/dq/common",
-    "//ydb/library/yql/dq/proto",
-    "//ydb/library/yql/dq/runtime",
-    "//yql/essentials/minikql",
-    "//yql/essentials/minikql/computation",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/yql/dq/common",
+    # "//ydb/library/yql/dq/proto",
+    # "//ydb/library/yql/dq/runtime",
+    # "//yql/essentials/minikql",
+    # "//yql/essentials/minikql/computation",
+    # ":compute",
   ]
 
   deps = [
-    ":spilling",
-    "//ydb/library/services",
-    "//ydb/library/yql/dq/actors",
-    "//yql/essentials/core/issue",
-    "//yql/essentials/core/issue:protos",
+    # "//ydb/library/services",
+    # "//ydb/library/yql/dq/actors",
+    # "//yql/essentials/core/issue",
+    # "//yql/essentials/core/issue:protos",
+    # ":spilling",
   ]
 
   sources = [

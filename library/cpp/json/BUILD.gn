@@ -30,7 +30,7 @@ library("json") {
 
   deps = [
     "//contrib/libs/rapidjson",
-    "//library/cpp/string_utils/relaxed_escaper",
+    # "//library/cpp/string_utils/relaxed_escaper",
   ]
 
   sources = [

@@ -17,7 +17,6 @@ library("tablet") {
     # "//library/cpp/random_provider",
     # "//library/cpp/svnversion",
     # "//library/cpp/time_provider",
-    # "//ydb/core/blobstorage/base",
     # "//ydb/core/graph/shard/protos",
     # "//ydb/core/mind",
     # "//ydb/core/mon",

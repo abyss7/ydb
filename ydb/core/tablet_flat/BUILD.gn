@@ -36,8 +36,6 @@ library("tablet_flat") {
   ]
 
   deps = [
-    # ":private_proto",
-    # ":protos",
     # "//library/cpp/blockcodecs",
     # "//library/cpp/digest/crc32c",
     # "//library/cpp/html/pcdata",
@@ -62,6 +60,8 @@ library("tablet_flat") {
     # "//ydb/library/actors/util",
     # "//yql/essentials/types/binary_json",
     # "//yql/essentials/types/dynumber",
+    ":private_proto",
+    # ":protos",
   ]
 
   sources = [

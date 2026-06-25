@@ -1,4 +1,4 @@
-library("svnversion") {
+static_library("svnversion") {
   public_deps = [ "//build/scripts/c_templates" ]
 
   sources = [

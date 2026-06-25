@@ -1,0 +1,9 @@
+protobuf_library("protos") {
+    extra_plugins = [
+        {
+            name = "validation"
+            target = "//ydb/public/lib/validation:validation"
+        }
+    ]
+    sources = [ "nbs2_load.proto" ]
+}

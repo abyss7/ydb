@@ -10,10 +10,6 @@ library("buffer") {
 
 library("common") {
   public_deps = [
-    # ":compilation",
-    # ":events",
-    # ":shutdown",
-    # ":simple",
     # "//library/cpp/json:writer",
     # "//library/cpp/lwtrace",
     # "//library/cpp/string_utils/base64",
@@ -43,6 +39,10 @@ library("common") {
     # "//ydb/public/sdk/cpp/src/library/operation_id",
     # "//yql/essentials/ast",
     # "//yql/essentials/minikql",
+    # ":compilation",
+    # ":events",
+    # ":shutdown",
+    # ":simple",
   ]
 
   deps = [
@@ -86,17 +86,19 @@ library("common") {
 
 library("compilation") {
   public_deps = [
-    ":simple",
-    "//library/cpp/lwtrace",
-    "//ydb/core/kqp/common",
-    "//ydb/core/kqp/counters",
-    "//ydb/library/aclib",
-    "//ydb/library/actors/core",
-    "//yql/essentials/ast",
-    "//yql/essentials/public/issue",
+    # "//library/cpp/lwtrace",
+    # "//ydb/core/kqp/common",
+    # "//ydb/core/kqp/counters",
+    # "//ydb/library/aclib",
+    # "//ydb/library/actors/core",
+    # "//yql/essentials/ast",
+    # "//yql/essentials/public/issue",
+    # ":simple",
   ]
 
-  deps = [ "//ydb/core/util" ]
+  deps = [
+    # "//ydb/core/util",
+  ]
 
   sources = [
     "compilation/events.cpp",
@@ -106,26 +108,26 @@ library("compilation") {
 
 library("events") {
   public_deps = [
-    ":compilation",
-    ":result_set_format",
-    ":shutdown",
-    ":simple",
-    "//ydb/core/protos",
-    "//ydb/core/resource_pools",
-    "//ydb/core/scheme",
-    "//ydb/library/aclib",
-    "//ydb/library/actors/core",
-    "//ydb/library/yql/dq/actors",
-    "//ydb/public/api/protos",
-    "//ydb/public/sdk/cpp/src/library/operation_id",
-    "//yql/essentials/public/issue",
+    # "//ydb/core/protos",
+    # "//ydb/core/resource_pools",
+    # "//ydb/core/scheme",
+    # "//ydb/library/aclib",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/yql/dq/actors",
+    # "//ydb/public/api/protos",
+    # "//ydb/public/sdk/cpp/src/library/operation_id",
+    # "//yql/essentials/public/issue",
+    # ":compilation",
+    # ":result_set_format",
+    # ":shutdown",
+    # ":simple",
   ]
 
   deps = [
-    "//ydb/core/grpc_services/base",
-    "//ydb/core/grpc_services/cancelation",
-    "//ydb/core/kqp/common",
-    "//yql/essentials/core/issue",
+    # "//ydb/core/grpc_services/base",
+    # "//ydb/core/grpc_services/cancelation",
+    # "//ydb/core/kqp/common",
+    # "//yql/essentials/core/issue",
   ]
 
   sources = [
@@ -138,17 +140,17 @@ library("events") {
 
 library("result_set_format") {
   public_deps = [
-    "//ydb/library/yql/dq/runtime",
-    "//ydb/public/api/protos",
+    # "//ydb/library/yql/dq/runtime",
+    # "//ydb/public/api/protos",
   ]
 
   deps = [
-    "//ydb/core/formats/arrow",
-    "//ydb/core/kqp/common",
-    "//ydb/library/mkql_proto",
-    "//ydb/public/lib/scheme_types",
-    "//yql/essentials/minikql",
-    "//yql/essentials/utils",
+    # "//ydb/core/formats/arrow",
+    # "//ydb/core/kqp/common",
+    # "//ydb/library/mkql_proto",
+    # "//ydb/public/lib/scheme_types",
+    # "//yql/essentials/minikql",
+    # "//yql/essentials/utils",
   ]
 
   sources = [
@@ -175,15 +177,17 @@ library("shutdown") {
 
 library("simple") {
   public_deps = [
-    "//ydb/core/base",
-    "//ydb/core/protos",
-    "//ydb/library/aclib",
-    "//ydb/library/actors/core",
-    "//ydb/public/api/protos",
-    "//yql/essentials/core/pg_settings",
+    # "//ydb/core/base",
+    # "//ydb/core/protos",
+    # "//ydb/library/aclib",
+    # "//ydb/library/actors/core",
+    # "//ydb/public/api/protos",
+    # "//yql/essentials/core/pg_settings",
   ]
 
-  deps = [ "//library/cpp/random_provider" ]
+  deps = [
+    # "//library/cpp/random_provider",
+  ]
 
   sources = [
     "simple/helpers.cpp",

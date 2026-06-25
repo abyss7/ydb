@@ -1,5 +1,5 @@
 library("protobuf") {
-    deps = [ "//contrib/libs/protoc" ]
+    public_deps = [ "//contrib/libs/protoc" ]
 
     sources = [
         "helpers.cpp",

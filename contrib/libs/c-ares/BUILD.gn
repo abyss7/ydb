@@ -13,7 +13,7 @@ config("private_config") {
     ]
 }
 
-contrib_library("c-ares") {
+library("c-ares") {
     deps = [
         "//contrib/libs/libc_compat",
         "//library/cpp/deprecated/atomic",

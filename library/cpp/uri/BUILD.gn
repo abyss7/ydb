@@ -1,14 +1,38 @@
-library("uri") {
-  deps = [ "//library/cpp/charset" ]
+# yamake2gn: keep  -- hand-written, do not regenerate
 
-  sources = [
-    "assign.cpp",
-    "common.cpp",
-    "encode.cpp",
-    "location.cpp",
-    "other.cpp",
-    "parse.cpp",
-    "qargs.cpp",
-    "uri.cpp",
-  ]
+import("//build/gn/ragel.gni")
+
+config("private_config") {
+    cflags = [
+        "-Wno-deprecated-enum-enum-conversion",
+    ]
+}
+
+ragel6_source_set("parse") {
+    sources = [
+        "encodefsm.rl6",
+        "parsefsm.rl6",
+    ]
+}
+
+library("uri") {
+    deps = [
+        ":parse",
+        "//contrib/libs/libidn",
+        "//library/cpp/charset",
+    ]
+
+    sources = [
+        "assign.cpp",
+        "common.cpp",
+        "encode.cpp",
+        "http_url.h",
+        "location.cpp",
+        "other.cpp",
+        "parse.cpp",
+        "qargs.cpp",
+        "uri.cpp",
+    ]
+
+    configs = [ ":private_config" ]
 }

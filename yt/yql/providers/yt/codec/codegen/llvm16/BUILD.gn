@@ -1,0 +1,50 @@
+_comp_gen_dir = "$target_gen_dir/yql/essentials/minikql/computation"
+
+copy("mkql_computation_node_codegen_h") {
+  sources = [
+    "//yql/essentials/minikql/computation/mkql_computation_node_codegen.h.txt",
+  ]
+  outputs = [ "$_comp_gen_dir/mkql_computation_node_codegen.h" ]
+}
+
+copy("mkql_llvm_base_h") {
+  sources = [ "//yql/essentials/minikql/computation/mkql_llvm_base.h.txt" ]
+  outputs = [ "$_comp_gen_dir/mkql_llvm_base.h" ]
+}
+
+copy("mkql_block_impl_codegen_h") {
+  sources =
+      [ "//yql/essentials/minikql/computation/mkql_block_impl_codegen.h.txt" ]
+  outputs = [ "$_comp_gen_dir/mkql_block_impl_codegen.h" ]
+}
+
+config("_includes") {
+  include_dirs = [
+    target_gen_dir,
+    _comp_gen_dir,
+    "//yt/yql/providers/yt/codec/codegen",
+  ]
+}
+
+library("llvm16") {
+  sources = [
+    "../yt_codec_bc.cpp",
+    "../yt_codec_cg.cpp",
+  ]
+
+  configs = [ ":_includes" ]
+
+  deps = [
+    ":mkql_block_impl_codegen_h",
+    ":mkql_computation_node_codegen_h",
+    ":mkql_llvm_base_h",
+  ]
+
+  public_deps = [
+    "//library/cpp/resource",
+    "//yql/essentials/minikql/codegen/llvm16",
+    "//yql/essentials/parser/pg_wrapper:interface",
+    "//yql/essentials/types/binary_json",
+    "//yql/essentials/utils",
+  ]
+}

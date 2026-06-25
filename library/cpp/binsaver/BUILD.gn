@@ -1,5 +1,7 @@
 library("binsaver") {
-  public_deps = [ "//library/cpp/containers/2d_array" ]
+  public_deps = [
+    # "//library/cpp/containers/2d_array",
+  ]
 
   sources = [
     "bin_saver.cpp",

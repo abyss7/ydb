@@ -24,6 +24,7 @@
 #include <ydb/library/ycloud/impl/user_account_service.h>
 
 #include <library/cpp/digest/md5/md5.h>
+#include <library/cpp/string_utils/base64/base64.h>
 
 #include <util/generic/queue.h>
 #include <util/stream/file.h>

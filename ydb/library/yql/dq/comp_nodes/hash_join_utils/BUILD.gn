@@ -1,0 +1,22 @@
+config("private_config") {
+    cflags = [
+        "-mavx2",
+        "-mprfchw",
+    ]
+}
+
+library("hash_join_utils") {
+    sources = [
+        "accumulator.cpp",
+        "alloc.cpp",
+        "block_layout_converter.cpp",
+        "join_defs.cpp",
+        "layout_converter_common.cpp",
+        "page_hash_table.cpp",
+        "print_unboxed_value.cpp",
+        "scalar_layout_converter.cpp",
+        "spilled_storage.cpp",
+        "tuple.cpp",
+    ]
+    configs = [ ":private_config" ]
+}

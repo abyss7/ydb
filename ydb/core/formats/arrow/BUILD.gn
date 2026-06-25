@@ -1,19 +1,13 @@
 library("arrow") {
   public_deps = [
-    # ":rows",
     # "//contrib/libs/apache/arrow",
     # "//library/cpp/json:writer",
     # "//ydb/core/formats",
     # "//ydb/library/accessor",
+    # ":rows",
   ]
 
   deps = [
-    # ":common",
-    # ":dictionary",
-    # ":hash",
-    # ":reader",
-    # ":serializer",
-    # ":switch",
     # "//library/cpp/containers/stack_vector",
     # "//ydb/core/kqp/common",
     # "//ydb/core/scheme",
@@ -27,6 +21,12 @@ library("arrow") {
     # "//yql/essentials/minikql",
     # "//yql/essentials/types/binary_json",
     # "//yql/essentials/types/dynumber",
+    # ":common",
+    # ":dictionary",
+    # ":hash",
+    # ":reader",
+    # ":serializer",
+    # ":switch",
   ]
 
   sources = [
@@ -77,11 +77,11 @@ library("dictionary") {
   ]
 
   deps = [
-    # ":switch",
-    # ":transformer",
     # "//ydb/core/formats/arrow",
     # "//ydb/library/formats/arrow:simple_builder",
     # "//ydb/library/formats/arrow:validation",
+    # ":switch",
+    # ":transformer",
   ]
 
   sources = [
@@ -93,18 +93,18 @@ library("dictionary") {
 
 library("hash") {
   public_deps = [
-    # ":common",
-    # ":reader",
     # "//contrib/libs/apache/arrow",
     # "//ydb/library/actors/core",
     # "//ydb/library/formats/arrow:hash",
     # "//ydb/library/formats/arrow:validation",
     # "//ydb/library/services",
+    # ":common",
+    # ":reader",
   ]
 
   deps = [
-    # ":switch",
     # "//ydb/core/formats/arrow",
+    # ":switch",
   ]
 
   sources = [ "hash/calcer.cpp" ]
@@ -113,14 +113,15 @@ library("hash") {
 library("printer") {
   public_deps = [ "//ydb/library/formats/arrow:protos" ]
 
-  deps = [ "//yql/essentials/core/arrow_kernels/request" ]
+  deps = [
+    # "//yql/essentials/core/arrow_kernels/request",
+  ]
 
   sources = [ "printer/printer.cpp" ]
 }
 
 library("program") {
   public_deps = [
-    # ":common",
     # "//contrib/libs/apache/arrow",
     # "//library/cpp/json:writer",
     # "//library/cpp/string_utils/quote",
@@ -133,10 +134,10 @@ library("program") {
     # "//ydb/library/conclusion",
     # "//ydb/library/formats/arrow:validation",
     # "//yql/essentials/core/arrow_kernels/request",
+    # ":common",
   ]
 
   deps = [
-    # ":serializer",
     # "//ydb/core/formats/arrow/accessor/plain",
     # "//ydb/core/formats/arrow/accessor/sparsed",
     # "//ydb/core/formats/arrow/accessor/sub_columns",
@@ -149,6 +150,7 @@ library("program") {
     # "//yql/essentials/minikql/computation",
     # "//yql/essentials/minikql/invoke_builtins",
     # "//yql/essentials/types/binary_json",
+    # ":serializer",
   ]
 
   sources = [
@@ -183,8 +185,6 @@ library("program") {
 
 library("reader") {
   public_deps = [
-    # ":common",
-    # ":switch",
     # "//contrib/libs/apache/arrow",
     # "//library/cpp/json:writer",
     # "//ydb/core/formats/arrow",
@@ -192,6 +192,8 @@ library("reader") {
     # "//ydb/core/scheme_types",
     # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
+    # ":common",
+    # ":switch",
   ]
 
   deps = [
@@ -220,8 +222,8 @@ library("rows") {
   ]
 
   deps = [
-    # ":reader",
     # "//ydb/library/formats/arrow",
+    # ":reader",
   ]
 
   sources = [
@@ -233,11 +235,11 @@ library("rows") {
 
 library("save_load") {
   public_deps = [
-    # ":serializer",
     # "//contrib/libs/apache/arrow",
     # "//ydb/core/formats/arrow/accessor/abstract",
     # "//ydb/library/accessor",
     # "//ydb/library/formats/arrow:splitter",
+    # ":serializer",
   ]
 
   deps = [
@@ -262,11 +264,11 @@ library("serializer") {
   ]
 
   deps = [
-    # ":dictionary",
     # "//contrib/libs/apache/arrow",
     # "//ydb/core/protos",
     # "//ydb/library/actors/core",
     # "//ydb/library/services",
+    # ":dictionary",
   ]
 
   sources = [
@@ -280,11 +282,11 @@ library("serializer") {
 
 library("splitter") {
   public_deps = [
-    # ":save_load",
-    # ":serializer",
     # "//contrib/libs/apache/arrow",
     # "//ydb/library/accessor",
     # "//ydb/library/formats/arrow:splitter",
+    # ":save_load",
+    # ":serializer",
   ]
 
   deps = [

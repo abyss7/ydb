@@ -1,5 +1,8 @@
 library("issue") {
-  public_deps = [ "//library/cpp/resource" ]
+  public_deps = [
+    "//contrib/libs/protobuf",
+    "//library/cpp/resource",
+  ]
 
   deps = [
     ":protos",

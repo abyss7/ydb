@@ -1,8 +1,8 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("lwtrace") {
   public_deps = [
-    "//library/cpp/containers/stack_vector",
-    "//library/cpp/deprecated/atomic",
-    "//library/cpp/lwtrace/protos",
+    ":protos",
   ]
 
   sources = [
@@ -20,4 +20,8 @@ library("lwtrace") {
     "symbol.cpp",
     "trace.cpp",
   ]
+}
+
+protobuf_library("protos") {
+  sources = [ "protos/lwtrace.proto" ]
 }
