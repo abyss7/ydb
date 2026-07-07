@@ -1,0 +1,10 @@
+library("manager") {
+  public_deps = [
+    # "//ydb/core/scheme",
+    # "//ydb/core/tx/schemeshard/olap/layout",
+    # "//ydb/core/tx/schemeshard/olap/store",
+    # "//ydb/core/tx/schemeshard/olap/table",
+  ]
+
+  sources = [ "manager.cpp" ]
+}

@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 protobuf_library("protos") {
   sources = [
     "protos/key_range.proto",
@@ -8,19 +10,15 @@ protobuf_library("protos") {
 
 library("scheme") {
   public_deps = [
-    # "//library/cpp/deprecated/enum_codegen",
-    # "//ydb/library/aclib",
-    # "//ydb/public/api/protos",
-    # "//ydb/public/lib/scheme_types",
-    "//yql/essentials/parser/pg_wrapper/interface",
+    "//ydb/public/api/protos",
     ":protos",
+    "//yql/essentials/parser/pg_wrapper/interface",
   ]
 
   deps = [
     "//library/cpp/containers/absl_flat_hash",
-    # "//ydb/core/protos",
-    # "//ydb/core/scheme_types",
-    # "//ydb/library/actors/core",
+    "//ydb/core/scheme_types",
+    "//ydb/library/actors/core",
   ]
 
   sources = [

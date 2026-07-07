@@ -1,0 +1,8 @@
+protobuf_library("servicecontrol") {
+  public_deps = [ "//contrib/libs/googleapis-common-protos" ]
+
+  sources = [
+    "access_service.proto",
+    "resource.proto",
+  ]
+}

@@ -1,0 +1,16 @@
+library("common") {
+  public_deps = [
+    # "//library/cpp/threading/future",
+    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
+  ]
+
+  deps = [
+    # "//ydb/public/sdk/cpp/src/client/common_client:impl",
+    # "//ydb/public/sdk/cpp/src/client/impl/internal/thread_pool",
+  ]
+
+  sources = [
+    "executor_impl.cpp",
+    "retry_policy.cpp",
+  ]
+}

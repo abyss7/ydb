@@ -1,0 +1,14 @@
+library("plain_status") {
+  public_deps = [
+    # "//ydb/public/api/protos",
+    # "//ydb/public/sdk/cpp/src/client/types",
+    # "//ydb/public/sdk/cpp/src/library/grpc/client",
+    # "//ydb/public/sdk/cpp/src/library/issue",
+  ]
+
+  deps = [
+    # "//ydb/public/sdk/cpp/src/client/resources",
+  ]
+
+  sources = [ "status.cpp" ]
+}

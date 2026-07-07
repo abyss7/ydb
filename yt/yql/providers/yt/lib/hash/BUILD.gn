@@ -1,0 +1,15 @@
+library("hash") {
+  deps = [
+    # "//yql/essentials/ast",
+    # "//yql/essentials/core",
+    # "//yql/essentials/core/expr_nodes",
+    # "//yql/essentials/minikql",
+    # "//yql/essentials/utils",
+    # "//yql/essentials/utils/log",
+  ]
+
+  sources = [
+    "yql_hash_builder.cpp",
+    "yql_op_hash.cpp",
+  ]
+}

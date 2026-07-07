@@ -1,0 +1,15 @@
+library("abstract") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard/data_accessor",
+    # "//ydb/core/tx/columnshard/engines/portions",
+  ]
+
+  deps = [
+    # "//ydb/library/accessor",
+  ]
+
+  sources = [
+    "abstract.cpp",
+    "context.cpp",
+  ]
+}

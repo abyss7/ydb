@@ -4,7 +4,7 @@
 
 #include <ydb/core/base/path.h>
 #include <ydb/core/tx/schemeshard/schemeshard_impl.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/tablet/tablet_impl.h>
 
 

@@ -1,0 +1,14 @@
+library("transactions") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/columnshard/engines/writer",
+    # "//ydb/core/tx/columnshard/tablet",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard/data_sharing/modification/events",
+    # "//ydb/core/tx/columnshard/data_sharing/modification/tasks",
+  ]
+
+  sources = [ "tx_change_blobs_owning.cpp" ]
+}

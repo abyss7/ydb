@@ -1,10 +1,10 @@
 #pragma once
-#include "defs.h"
 
-#include "blobstorage_vdiskid.h"
 #include <ydb/core/base/blobstorage.h>
 #include <ydb/core/base/bridge.h>
 #include <ydb/core/blobstorage/base/blobstorage_host_record.h>
+#include <ydb/core/blobstorage/base/blobstorage_vdiskid.h>
+#include <ydb/core/blobstorage/base/defs.h>
 #include <ydb/core/blobstorage/pdisk/blobstorage_pdisk_config.h>
 #include <ydb/core/blobstorage/pdisk/blobstorage_pdisk_defs.h>
 #include <ydb/core/blobstorage/pdisk/drivedata_serializer.h>

@@ -1,0 +1,27 @@
+library("parser") {
+  public_deps = [
+    # "//yql/essentials/minikql/jsonpath/rewrapper",
+  ]
+
+  deps = [
+    # "//contrib/libs/double-conversion",
+    # "//library/cpp/json",
+    # "//yql/essentials/ast",
+    # "//yql/essentials/core/issue:protos",
+    # "//yql/essentials/minikql/jsonpath/rewrapper:proto",
+    # "//yql/essentials/parser/proto_ast/antlr3",
+    "//yql/essentials/public/issue",
+    # "//yql/essentials/utils",
+  ]
+
+  sources = [
+    "ast_builder.cpp",
+    "ast_nodes.cpp",
+    "binary.cpp",
+    "parse_double.cpp",
+    "parser.cpp",
+    "type_check.cpp",
+  ]
+
+  serialize_enum_headers = [ "ast_nodes.h" ]
+}

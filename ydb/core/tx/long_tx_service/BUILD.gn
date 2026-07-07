@@ -1,0 +1,49 @@
+library("long_tx_service") {
+  public_deps = [
+    # "//library/cpp/monlib/dynamic_counters",
+  ]
+
+  deps = [
+    # "//library/cpp/lwtrace",
+    # "//library/cpp/lwtrace/mon",
+    # "//ydb/core/actorlib_impl",
+    # "//ydb/core/base",
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/tx_proxy",
+    # "//ydb/core/util",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/services",
+    # ":public",
+  ]
+
+  sources = [
+    "acquire_snapshot_impl.cpp",
+    "commit_impl.cpp",
+    "long_tx_service.cpp",
+    "long_tx_service_impl.cpp",
+    "lwtrace_probes.cpp",
+  ]
+}
+
+library("public") {
+  public_deps = [
+    # "//library/cpp/lwtrace",
+    # "//ydb/core/base",
+    # "//ydb/core/protos",
+    # "//ydb/core/util",
+    # "//ydb/public/api/protos",
+    # "//yql/essentials/public/issue",
+  ]
+
+  deps = [
+    # "//library/cpp/cgiparam",
+    # "//library/cpp/uri",
+    # "//ydb/library/actors/core",
+  ]
+
+  sources = [
+    "public/events.cpp",
+    "public/lock_handle.cpp",
+    "public/types.cpp",
+  ]
+}

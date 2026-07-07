@@ -4,7 +4,7 @@
 #include <ydb/core/base/tablet_pipe.h>
 #include <ydb/core/base/domain.h>
 #include <ydb/core/cms/console/configs_dispatcher.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/mind/tenant_pool.h>
 #include <ydb/core/node_whiteboard/node_whiteboard.h>
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ydb/core/base/defs.h>
+#include <ydb/library/actors/core/actorsystem_fwd.h>
 
 #include <util/generic/string.h>
 

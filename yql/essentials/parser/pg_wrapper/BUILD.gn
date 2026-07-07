@@ -179,7 +179,7 @@ source_set("sse42") {
 
 library("pg_wrapper") {
     deps = [
-        ":interface",
+        "interface",
         ":sse42",
         "//contrib/libs/icu",
         "//contrib/libs/libxml",
@@ -1047,19 +1047,4 @@ library("pg_wrapper") {
     ]
 
     configs = [ ":private_config" ]
-}
-
-library("interface") {
-    public_deps = [
-        "//yql/essentials/providers/common/codec:yt_arrow_converter_interface",
-    ]
-
-    deps = [
-        "//yql/essentials/public/udf:arrow",
-        "//yql/essentials/sql:pg_dummy",
-    ]
-
-    sources = [
-        "interface/interface.cpp",
-    ]
 }

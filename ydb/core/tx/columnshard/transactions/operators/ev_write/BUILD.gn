@@ -1,0 +1,18 @@
+library("ev_write") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/columnshard/tablet",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard/tracing",
+  ]
+
+  sources = [
+    "abstract.cpp",
+    "primary.cpp",
+    "secondary.cpp",
+    "simple.cpp",
+    "sync.cpp",
+  ]
+}

@@ -1,0 +1,228 @@
+library("abstract") {
+  public_deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/protos",
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/columnshard/blobs_action",
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/data_sharing/manager",
+    # "//ydb/core/tx/tiering:abstract",
+    # "//ydb/core/util",
+    # "//ydb/library/accessor",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/conclusion",
+    # "//ydb/library/services",
+    # ":common",
+    # ":counters",
+    # ":events",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard/engines/portions",
+    # "//ydb/core/tx/columnshard/hooks/abstract",
+    # "//ydb/core/tx/tiering",
+    # ":protos",
+  ]
+
+  sources = [
+    "abstract/action.cpp",
+    "abstract/blob_set.cpp",
+    "abstract/common.cpp",
+    "abstract/gc.cpp",
+    "abstract/gc_actor.cpp",
+    "abstract/read.cpp",
+    "abstract/remove.cpp",
+    "abstract/storage.cpp",
+    "abstract/storages_manager.cpp",
+    "abstract/write.cpp",
+  ]
+}
+
+library("blobs_action") {
+  public_deps = [
+    # "//ydb/core/tablet_flat",
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/util",
+    # ":abstract",
+  ]
+
+  sources = [ "blob_manager_db.cpp" ]
+}
+
+library("bs") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard",
+    # ":abstract",
+  ]
+
+  deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/protos",
+    # "//ydb/core/tablet_flat",
+    # "//ydb/core/tx/columnshard/blobs_action",
+    # "//ydb/core/tx/columnshard/counters",
+    # "//ydb/core/tx/columnshard/data_sharing/manager",
+    # "//ydb/core/tx/columnshard/hooks/abstract",
+    # "//ydb/core/util",
+    # "//ydb/library/accessor",
+    # "//ydb/library/actors/core",
+    # ":counters",
+  ]
+
+  sources = [
+    "bs/address.cpp",
+    "bs/blob_manager.cpp",
+    "bs/gc.cpp",
+    "bs/gc_actor.cpp",
+    "bs/read.cpp",
+    "bs/remove.cpp",
+    "bs/storage.cpp",
+    "bs/write.cpp",
+  ]
+}
+
+library("common") {
+  public_deps = [
+    # "//ydb/core/protos",
+    # "//ydb/core/tx/data_events:common",
+  ]
+
+  sources = [
+    "common/const.cpp",
+    "common/statistics.cpp",
+  ]
+}
+
+library("counters") {
+  public_deps = [
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//ydb/library/signals",
+  ]
+
+  deps = [
+    # "//ydb/library/actors/core",
+  ]
+
+  sources = [
+    "counters/read.cpp",
+    "counters/remove_declare.cpp",
+    "counters/remove_gc.cpp",
+    "counters/storage.cpp",
+    "counters/write.cpp",
+  ]
+
+  serialize_enum_headers = [ "counters/storage.h" ]
+}
+
+library("events") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/library/actors/core",
+    # ":protos",
+  ]
+
+  sources = [ "events/delete_blobs.cpp" ]
+}
+
+library("local") {
+  public_deps = [
+    # ":abstract",
+  ]
+
+  sources = [ "local/storage.cpp" ]
+}
+
+protobuf_library("protos") {
+  public_deps = [ "//ydb/library/actors/protos" ]
+
+  sources = [
+    "protos/blobs.proto",
+    "protos/events.proto",
+  ]
+}
+
+library("storages_manager") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/data_sharing/manager",
+    # ":abstract",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/wrappers",
+    # ":bs",
+    # ":local",
+    # ":tier",
+  ]
+
+  sources = [ "storages_manager/manager.cpp" ]
+}
+
+library("tier") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/columnshard/counters",
+    # "//ydb/core/tx/tiering",
+    # "//ydb/core/wrappers",
+    # ":abstract",
+  ]
+
+  deps = [
+    # "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-s3",
+    # "//library/cpp/retry",
+    # "//ydb/core/base",
+    # "//ydb/core/tx/columnshard/blobs_action",
+    # "//ydb/core/wrappers:events",
+    # "//ydb/library/accessor",
+    # "//ydb/library/actors/core",
+    # ":counters",
+  ]
+
+  sources = [
+    "tier/adapter.cpp",
+    "tier/common.cpp",
+    "tier/gc.cpp",
+    "tier/gc_actor.cpp",
+    "tier/gc_info.cpp",
+    "tier/read.cpp",
+    "tier/remove.cpp",
+    "tier/storage.cpp",
+    "tier/write.cpp",
+  ]
+}
+
+library("transaction") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/columnshard/data_sharing/manager",
+    # "//ydb/core/tx/columnshard/engines/portions",
+    # "//ydb/core/tx/columnshard/engines/writer",
+    # "//ydb/core/tx/columnshard/operations",
+    # "//ydb/core/tx/columnshard/tablet",
+    # "//ydb/core/tx/columnshard/tracing",
+    # "//ydb/core/tx/data_events",
+    # ":abstract",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard/blobs_action",
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/engines",
+    # "//ydb/core/tx/columnshard/engines/changes/abstract",
+    # "//ydb/core/tx/columnshard/hooks/abstract",
+    # "//ydb/core/tx/columnshard/transactions:locks",
+    # ":common",
+    # ":events",
+  ]
+
+  sources = [
+    "transaction/tx_blobs_written.cpp",
+    "transaction/tx_draft.cpp",
+    "transaction/tx_gc_indexed.cpp",
+    "transaction/tx_remove_blobs.cpp",
+    "transaction/tx_write_index.cpp",
+  ]
+}

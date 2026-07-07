@@ -1,0 +1,96 @@
+library("common") {
+  public_deps = [
+    # "//ydb/core/tx/schemeshard/olap/operations/alter/abstract",
+    # "//ydb/core/tx/schemeshard/olap/operations/alter/common",
+    # "//ydb/core/tx/schemeshard/olap/ttl",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/schemeshard",
+    # "//ydb/core/tx/schemeshard/olap/operations/alter/in_store",
+  ]
+
+  sources = [ "common/update.cpp" ]
+}
+
+library("config_shards") {
+  public_deps = [
+    # "//ydb/core/tx/schemeshard/olap/operations/alter/abstract",
+    # "//ydb/core/tx/schemeshard/olap/operations/alter/in_store",
+    # "//ydb/core/tx/schemeshard/olap/ttl",
+    # ":common",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/schemeshard",
+  ]
+
+  sources = [ "config_shards/update.cpp" ]
+}
+
+library("in_store") {
+  public_deps = [
+    # "//ydb/core/tx/schemeshard/olap/operations/alter/common",
+    # "//ydb/core/tx/schemeshard/olap/schema",
+    # "//ydb/core/tx/schemeshard/olap/store",
+    # "//ydb/core/tx/schemeshard/olap/table",
+    # "//ydb/core/tx/schemeshard/olap/ttl",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/schemeshard",
+    # ":config_shards",
+    # ":resharding",
+    # ":schema",
+    # ":transfer",
+  ]
+
+  sources = [ "object.cpp" ]
+}
+
+library("resharding") {
+  public_deps = [
+    # "//ydb/core/tx/schemeshard/olap/bg_tasks/tx_chain",
+    # "//ydb/core/tx/schemeshard/olap/operations/alter/abstract",
+    # "//ydb/core/tx/schemeshard/olap/operations/alter/in_store",
+    # "//ydb/core/tx/schemeshard/olap/ttl",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard/bg_tasks/abstract",
+    # "//ydb/core/tx/schemeshard",
+    # "//ydb/core/tx/sharding",
+  ]
+
+  sources = [ "resharding/update.cpp" ]
+}
+
+library("schema") {
+  public_deps = [
+    # "//ydb/core/protos",
+    # "//ydb/core/tx/schemeshard/olap/operations/alter/abstract",
+    # "//ydb/core/tx/schemeshard/olap/operations/alter/in_store",
+    # "//ydb/core/tx/schemeshard/olap/ttl",
+    # ":common",
+  ]
+
+  sources = [ "schema/update.cpp" ]
+}
+
+library("transfer") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard/data_sharing/protos",
+    # "//ydb/core/tx/schemeshard/olap/operations/alter/abstract",
+    # "//ydb/core/tx/schemeshard/olap/operations/alter/in_store",
+    # "//ydb/core/tx/schemeshard/olap/ttl",
+    # ":common",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/data_sharing/initiator/controller",
+    # "//ydb/core/tx/schemeshard",
+  ]
+
+  sources = [ "transfer/update.cpp" ]
+}

@@ -1,0 +1,45 @@
+library("antlr4") {
+  public_deps = [
+    # "//yql/essentials/parser/proto_ast",
+  ]
+
+  deps = [
+    # "//yql/essentials/parser/proto_ast/antlr4",
+    # "//yql/essentials/utils",
+  ]
+
+  sources = [ "antlr4/proto_parser.cpp" ]
+}
+
+library("antlr4_ansi") {
+  public_deps = [
+    # "//yql/essentials/parser/proto_ast",
+  ]
+
+  deps = [
+    # "//yql/essentials/parser/proto_ast/antlr4",
+    # "//yql/essentials/utils",
+  ]
+
+  sources = [ "antlr4_ansi/proto_parser.cpp" ]
+}
+
+library("proto_parser") {
+  public_deps = [
+    # "//yql/essentials/parser/proto_ast",
+    # "//yql/essentials/public/issue",
+    # "//yql/essentials/sql:settings",
+  ]
+
+  deps = [
+    # "//yql/essentials/parser/proto_ast/collect_issues",
+    # "//yql/essentials/utils",
+    # ":antlr4",
+    # ":antlr4_ansi",
+  ]
+
+  sources = [
+    "parse_tree.cpp",
+    "proto_parser.cpp",
+  ]
+}

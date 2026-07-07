@@ -1,0 +1,7 @@
+library("make_request") {
+  public_deps = [
+    # "//ydb/public/api/protos",
+  ]
+
+  sources = [ "make.cpp" ]
+}

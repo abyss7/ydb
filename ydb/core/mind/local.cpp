@@ -5,7 +5,7 @@
 #include <ydb/core/base/hive.h>
 #include <ydb/core/base/domain.h>
 #include <ydb/core/base/tablet_pipe.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/node_whiteboard/node_whiteboard.h>
 #include <ydb/library/services/services.pb.h>
 #include <ydb/core/tx/schemeshard/schemeshard.h>

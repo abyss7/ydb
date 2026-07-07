@@ -6,7 +6,7 @@
 #include <ydb/core/mind/hive/hive_events.h>
 #include <ydb/core/node_whiteboard/node_whiteboard.h>
 #include <ydb/core/base/statestorage_impl.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/protos/config.pb.h>
 #include <ydb/core/testlib/actors/block_events.h>
 #include <ydb/core/tx/schemeshard/schemeshard.h>

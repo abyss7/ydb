@@ -1,0 +1,76 @@
+library("common") {
+  public_deps = [
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//ydb/library/conclusion",
+    # "//ydb/library/conclusion:generic",
+    # "//ydb/library/yql/dq/actors:protos",
+  ]
+
+  sources = [ "common/common.cpp" ]
+}
+
+library("filters") {
+  public_deps = [
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//ydb/core/fq/libs/row_dispatcher/events",
+    # "//yql/essentials/public/udf",
+    # ":common",
+  ]
+
+  deps = [
+    # "//ydb/core/fq/libs/actors:logging",
+    # "//yql/essentials/minikql/computation",
+    # "//yql/essentials/providers/common/schema/parser",
+    # "//yql/essentials/public/purecalc/common",
+  ]
+
+  sources = [
+    "filters/filters_set.cpp",
+    "filters/purecalc_filter.cpp",
+  ]
+}
+
+library("format_handler") {
+  public_deps = [
+    # "//ydb/core/fq/libs/row_dispatcher/common",
+    # "//ydb/core/fq/libs/row_dispatcher/events",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/actors/util",
+    # ":filters",
+    # ":parsers",
+  ]
+
+  deps = [
+    # "//ydb/core/fq/libs/actors:logging",
+    # "//ydb/library/yql/dq/common",
+    # "//yql/essentials/minikql/computation",
+  ]
+
+  sources = [ "format_handler.cpp" ]
+}
+
+library("parsers") {
+  public_deps = [
+    # "//ydb/core/fq/libs/row_dispatcher/common",
+    # "//yql/essentials/minikql",
+  ]
+
+  deps = [
+    # "//contrib/libs/simdjson",
+    # "//library/cpp/containers/absl_flat_hash",
+    # "//ydb/core/fq/libs/actors:logging",
+    # "//ydb/core/fq/libs/row_dispatcher/events",
+    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
+    # "//yql/essentials/minikql/dom",
+    # "//yql/essentials/providers/common/schema/mkql",
+    # "//yql/essentials/public/udf",
+    # ":common",
+  ]
+
+  sources = [
+    "parsers/json_parser.cpp",
+    "parsers/parser_abstract.cpp",
+    "parsers/parser_base.cpp",
+    "parsers/raw_parser.cpp",
+  ]
+}

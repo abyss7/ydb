@@ -1,0 +1,88 @@
+library("actors") {
+  public_deps = [
+    # "//ydb/core/kqp/common:events",
+    # "//ydb/core/protos",
+  ]
+
+  deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/kqp/common:simple",
+    # "//ydb/core/protos/schemeshard",
+    # "//ydb/core/tx/schemeshard",
+    # "//ydb/core/tx/tx_proxy",
+    # "//ydb/library/query_actor",
+    # "//ydb/library/table_creator",
+    # ":common",
+    # ":tables",
+  ]
+
+  sources = [
+    "actors/cpu_load_actors.cpp",
+    "actors/pool_handlers_actors.cpp",
+    "actors/scheme_actors.cpp",
+  ]
+}
+
+library("common") {
+  public_deps = [
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//library/cpp/retry",
+    # "//ydb/core/kqp/common:events",
+    # "//ydb/core/protos",
+    # "//ydb/core/resource_pools",
+    # "//ydb/core/scheme",
+    # "//ydb/core/tx/scheme_cache",
+    # "//ydb/library/actors/core",
+    # "//ydb/public/api/protos",
+    # "//ydb/public/sdk/cpp/src/client/types",
+    # "//yql/essentials/public/issue",
+  ]
+
+  deps = [
+    # "//ydb/core/base",
+  ]
+
+  sources = [
+    "common/cpu_quota_manager.cpp",
+    "common/events.cpp",
+    "common/helpers.cpp",
+  ]
+}
+
+library("tables") {
+  public_deps = [
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/kqp/common:simple",
+    # "//ydb/library/query_actor",
+    # "//ydb/library/table_creator",
+    # ":common",
+  ]
+
+  sources = [ "tables/table_queries.cpp" ]
+}
+
+library("workload_service") {
+  public_deps = [
+    # "//ydb/core/resource_pools",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/cms/console",
+    # "//ydb/core/kqp/common:events",
+    # "//ydb/core/kqp/common:simple",
+    # "//ydb/core/mind",
+    # "//ydb/core/protos",
+    # "//ydb/library/actors/interconnect",
+    # ":actors",
+    # ":common",
+    # ":tables",
+  ]
+
+  sources = [ "kqp_workload_service.cpp" ]
+}

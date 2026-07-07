@@ -1,0 +1,16 @@
+library("local_discovery") {
+  public_deps = [
+    # "//ydb/core/grpc_services/base",
+    # "//ydb/core/protos",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/grpc/server",
+    # "//ydb/public/api/grpc",
+  ]
+
+  deps = [
+    # "//ydb/core/grpc_services",
+    # "//ydb/core/tx/scheme_board",
+  ]
+
+  sources = [ "grpc_service.cpp" ]
+}

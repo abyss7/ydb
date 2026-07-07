@@ -1,0 +1,137 @@
+library("console") {
+  public_deps = [
+    "//ydb/core/base",
+    "//ydb/core/config/init",
+    # "//ydb/core/control/lib",
+    # "//ydb/core/jaeger_tracing",
+    # "//ydb/core/protos",
+    # "//ydb/core/tablet_flat",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/grpc/server",
+    # "//ydb/public/api/protos",
+  ]
+
+  deps = [
+    # "//library/cpp/json",
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//library/cpp/monlib/service/pages",
+    # "//ydb/core/actorlib_impl",
+    # "//ydb/core/audit",
+    # "//ydb/core/blobstorage/base",
+    # "//ydb/core/config/validation",
+    # "//ydb/core/engine:minikql",
+    # "//ydb/core/mind",
+    # "//ydb/core/mon",
+    # "//ydb/core/node_whiteboard",
+    # "//ydb/core/protos/schemeshard",
+    # "//ydb/core/scheme",
+    # "//ydb/core/tx/schemeshard",
+    # "//ydb/core/tx/tx_proxy",
+    # "//ydb/core/util",
+    # "//ydb/library/aclib",
+    # "//ydb/library/actors/http",
+    # "//ydb/library/actors/interconnect",
+    # "//ydb/library/protobuf_printer",
+    # "//ydb/library/wilson_ids",
+    "//ydb/library/yaml_config",
+    # "//ydb/library/yverify_stream",
+    # "//ydb/public/api/grpc:draft",
+    # "//ydb/public/sdk/cpp/src/library/operation_id",
+    # "//ydb/public/sdk/cpp/src/library/operation_id:protos",
+    # "//yql/essentials/public/issue:protos",
+    # ":util",
+    # ":validators",
+  ]
+
+  sources = [
+    "config_helpers.cpp",
+    "configs_cache.cpp",
+    "configs_config.cpp",
+    "configs_dispatcher.cpp",
+    "configs_dispatcher_proxy.cpp",
+    "console.cpp",
+    "console__add_config_subscription.cpp",
+    "console__alter_tenant.cpp",
+    "console__cleanup_subscriptions.cpp",
+    "console__configure.cpp",
+    "console__create_tenant.cpp",
+    "console__drop_yaml_config.cpp",
+    "console__get_log_tail.cpp",
+    "console__get_yaml_config.cpp",
+    "console__get_yaml_metadata.cpp",
+    "console__init_scheme.cpp",
+    "console__load_state.cpp",
+    "console__log_cleanup.cpp",
+    "console__remove_computational_units.cpp",
+    "console__remove_config_subscription.cpp",
+    "console__remove_config_subscriptions.cpp",
+    "console__remove_tenant.cpp",
+    "console__remove_tenant_done.cpp",
+    "console__remove_tenant_failed.cpp",
+    "console__replace_config_subscriptions.cpp",
+    "console__replace_yaml_config.cpp",
+    "console__revert_pool_state.cpp",
+    "console__set_config.cpp",
+    "console__toggle_config_validator.cpp",
+    "console__update_confirmed_subdomain.cpp",
+    "console__update_last_provided_config.cpp",
+    "console__update_pool_state.cpp",
+    "console__update_subdomain_key.cpp",
+    "console__update_tenant_pool_config.cpp",
+    "console__update_tenant_state.cpp",
+    "console_audit.cpp",
+    "console_configs_manager.cpp",
+    "console_configs_provider.cpp",
+    "console_configs_subscriber.cpp",
+    "console_configuration_info_collector.cpp",
+    "console_handshake.cpp",
+    "console_tenants_manager.cpp",
+    "feature_flags_configurator.cpp",
+    "grpc_library_helper.cpp",
+    "http.cpp",
+    "immediate_controls_configurator.cpp",
+    "jaeger_tracing_configurator.cpp",
+    "log_settings_configurator.cpp",
+    "logger.cpp",
+    "modifications_validator.cpp",
+    "net_classifier_updater.cpp",
+    "tx_processor.cpp",
+    "util.cpp",
+  ]
+}
+
+library("util") {
+  public_deps = [
+    # "//ydb/core/protos",
+  ]
+
+  deps = [
+    # "//ydb/core/base",
+    # "//ydb/library/yverify_stream",
+  ]
+
+  sources = [ "util/config_index.cpp" ]
+}
+
+library("validators") {
+  public_deps = [
+    # "//library/cpp/deprecated/atomic",
+  ]
+
+  deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/protos",
+    # "//ydb/core/tablet",
+    # "//ydb/library/actors/interconnect",
+    # "//ydb/public/api/protos",
+    # "//yql/essentials/public/issue:protos",
+  ]
+
+  sources = [
+    "validators/core_validators.cpp",
+    "validators/registry.cpp",
+    "validators/validator.cpp",
+    "validators/validator_bootstrap.cpp",
+    "validators/validator_nameservice.cpp",
+  ]
+}

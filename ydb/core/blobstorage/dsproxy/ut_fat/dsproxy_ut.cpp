@@ -1,6 +1,6 @@
 #include "defs.h"
 
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/blobstorage/dsproxy/dsproxy.h>
 #include <ydb/core/blobstorage/dsproxy/dsproxy_nodemon.h>
 #include <ydb/core/blobstorage/dsproxy/dsproxy_test_helpers.h>

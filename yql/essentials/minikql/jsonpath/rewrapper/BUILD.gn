@@ -1,0 +1,11 @@
+protobuf_library("proto") {
+  sources = [ "proto/serialization.proto" ]
+}
+
+library("rewrapper") {
+  deps = [
+    # ":proto",
+  ]
+
+  sources = [ "dispatcher.cpp" ]
+}

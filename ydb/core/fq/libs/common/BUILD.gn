@@ -1,0 +1,29 @@
+library("common") {
+  public_deps = [
+    # "//library/cpp/iterator",
+    # "//ydb/core/fq/libs/config",
+    # "//ydb/core/fq/libs/config:protos",
+    # "//ydb/public/api/protos",
+    # "//ydb/public/sdk/cpp/src/client/params",
+    # "//ydb/public/sdk/cpp/src/client/types/status",
+    # "//yql/essentials/providers/common/proto",
+    # "//yql/essentials/public/issue",
+  ]
+
+  deps = [
+    # "//contrib/libs/fmt",
+    # "//ydb/core/external_sources",
+    # "//ydb/core/fq/libs/result_formatter",
+    # "//ydb/public/sdk/cpp/src/client/proto",
+  ]
+
+  sources = [
+    "debug_info.cpp",
+    "entity_id.cpp",
+    "iceberg_processor.cpp",
+    "rows_proto_splitter.cpp",
+    "util.cpp",
+  ]
+
+  serialize_enum_headers = [ "util.h" ]
+}

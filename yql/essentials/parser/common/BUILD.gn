@@ -1,0 +1,20 @@
+library("antlr4") {
+  public_deps = [
+    # "//contrib/libs/antlr4_cpp_runtime",
+    # "//yql/essentials/parser/common",
+  ]
+
+  deps = [
+    # "//yql/essentials/core/issue",
+  ]
+
+  sources = [ "antlr4/error_listener.cpp" ]
+}
+
+library("common") {
+  public_deps = [
+    # "//yql/essentials/public/issue",
+  ]
+
+  sources = [ "error.cpp" ]
+}

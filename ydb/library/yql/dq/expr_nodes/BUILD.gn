@@ -1,0 +1,9 @@
+import("//yql/essentials/core/expr_nodes_gen/gen.gni")
+
+generate_expr_nodes("gen") {
+    sources = [ "dq_expr_nodes.json" ]
+}
+
+library("expr_nodes") {
+    public_deps = [ ":gen" ]
+}

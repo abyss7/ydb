@@ -1,0 +1,31 @@
+library("rbo") {
+  public_deps = [
+    # "//ydb/core/kqp/common",
+    # "//ydb/core/kqp/opt",
+    # "//yql/essentials/ast",
+    # "//yql/essentials/core",
+  ]
+
+  deps = [
+    # "//ydb/core/kqp/opt/logical",
+    # "//ydb/core/kqp/provider",
+    # "//ydb/library/yql/dq/opt",
+    # "//yql/essentials/core/cbo",
+    # "//yql/essentials/core/type_ann",
+    # "//yql/essentials/utils/log",
+  ]
+
+  sources = [
+    "kqp_expression.cpp",
+    "kqp_operator.cpp",
+    "kqp_plan_conversion_utils.cpp",
+    "kqp_rbo.cpp",
+    "kqp_rbo_compute_statistics.cpp",
+    "kqp_rbo_statistics.cpp",
+    "kqp_rbo_transformer.cpp",
+    "kqp_rbo_type_ann.cpp",
+    "kqp_rbo_utils.cpp",
+    "kqp_rewrite_select.cpp",
+    "kqp_stage_graph.cpp",
+  ]
+}

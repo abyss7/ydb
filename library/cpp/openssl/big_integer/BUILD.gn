@@ -1,0 +1,3 @@
+library("big_integer") {
+  sources = [ "big_integer.cpp" ]
+}

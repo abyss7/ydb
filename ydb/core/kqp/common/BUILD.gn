@@ -10,6 +10,7 @@ library("buffer") {
 
 library("common") {
   public_deps = [
+    "//contrib/libs/openssl",
     # "//library/cpp/json:writer",
     # "//library/cpp/lwtrace",
     # "//library/cpp/string_utils/base64",
@@ -18,12 +19,12 @@ library("common") {
     # "//ydb/core/grpc_services/cancelation",
     # "//ydb/core/kqp/counters",
     # "//ydb/core/kqp/executer_actor",
-    # "//ydb/core/kqp/expr_nodes",
+    "//ydb/core/kqp/expr_nodes",
     # "//ydb/core/kqp/gateway",
-    # "//ydb/core/kqp/provider",
+    "//ydb/core/kqp/provider",
     # "//ydb/core/protos",
     # "//ydb/core/resource_pools",
-    # "//ydb/core/scheme",
+    "//ydb/core/scheme",
     # "//ydb/core/scheme_types",
     # "//ydb/core/tx/data_events",
     # "//ydb/core/tx/datashard",
@@ -46,8 +47,9 @@ library("common") {
   ]
 
   deps = [
+    "//contrib/libs/openssl",
     # "//library/cpp/protobuf/json",
-    # "//ydb/core/base",
+    "//ydb/core/base",
     # "//ydb/core/tx/locks",
     # "//ydb/public/sdk/cpp/src/library/operation_id:protos",
     # "//yql/essentials/core",
@@ -55,7 +57,7 @@ library("common") {
     # "//yql/essentials/core/expr_nodes",
     # "//yql/essentials/core/services",
     # "//yql/essentials/parser/pg_wrapper/interface",
-    # "//yql/essentials/public/issue",
+    "//yql/essentials/public/issue",
     # "//yql/essentials/public/udf",
   ]
 

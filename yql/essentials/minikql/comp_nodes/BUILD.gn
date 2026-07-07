@@ -1,0 +1,6 @@
+group("comp_nodes") {
+  public_deps = [
+    "//yql/essentials/minikql/comp_nodes/llvm16",
+    "//yql/essentials/minikql/comp_nodes/no_llvm",
+  ]
+}

@@ -1,0 +1,19 @@
+library("events") {
+  public_deps = [
+    # "//ydb/core/tablet_flat",
+    # "//ydb/library/accessor",
+  ]
+
+  deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/tx/columnshard/bg_tasks/abstract",
+    # "//ydb/core/tx/columnshard/bg_tasks/protos",
+  ]
+
+  sources = [
+    "common.cpp",
+    "events.cpp",
+    "global.cpp",
+    "local.cpp",
+  ]
+}

@@ -1,0 +1,8 @@
+protobuf_library("protos") {
+  public_deps = [ "//ydb/core/tx/columnshard/common:protos" ]
+
+  sources = [
+    "index.proto",
+    "portion_info.proto",
+  ]
+}

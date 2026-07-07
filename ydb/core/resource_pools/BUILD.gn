@@ -1,0 +1,10 @@
+library("resource_pools") {
+  deps = [
+    # "//ydb/library/aclib",
+  ]
+
+  sources = [
+    "resource_pool_classifier_settings.cpp",
+    "resource_pool_settings.cpp",
+  ]
+}

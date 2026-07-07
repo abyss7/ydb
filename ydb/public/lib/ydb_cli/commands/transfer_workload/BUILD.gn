@@ -1,0 +1,20 @@
+library("transfer_workload") {
+  public_deps = [
+    # "//ydb/public/lib/ydb_cli/common",
+  ]
+
+  deps = [
+    # "//ydb/public/lib/ydb_cli/commands",
+    # "//ydb/public/lib/ydb_cli/commands/topic_workload",
+    # "//ydb/public/sdk/cpp/src/client/impl/internal/logger",
+  ]
+
+  sources = [
+    "transfer_workload.cpp",
+    "transfer_workload_defines.cpp",
+    "transfer_workload_topic_to_table.cpp",
+    "transfer_workload_topic_to_table_clean.cpp",
+    "transfer_workload_topic_to_table_init.cpp",
+    "transfer_workload_topic_to_table_run.cpp",
+  ]
+}

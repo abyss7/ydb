@@ -1,0 +1,27 @@
+library("scrub") {
+  deps = [
+    # "//ydb/core/blobstorage/backpressure",
+    # "//ydb/core/blobstorage/groupinfo",
+    # "//ydb/core/blobstorage/vdisk",
+    # "//ydb/core/blobstorage/vdisk/common",
+    # "//ydb/core/blobstorage/vdisk/hulldb:base",
+    # "//ydb/core/blobstorage/vdisk/skeleton",
+    # "//ydb/core/util",
+    # "//ydb/library/actors/core",
+  ]
+
+  sources = [
+    "blob_recovery.cpp",
+    "blob_recovery_process.cpp",
+    "blob_recovery_queue.cpp",
+    "blob_recovery_request.cpp",
+    "restore_corrupted_blob_actor.cpp",
+    "scrub_actor.cpp",
+    "scrub_actor_huge.cpp",
+    "scrub_actor_mon.cpp",
+    "scrub_actor_pdisk.cpp",
+    "scrub_actor_snapshot.cpp",
+    "scrub_actor_sst.cpp",
+    "scrub_actor_unreadable.cpp",
+  ]
+}

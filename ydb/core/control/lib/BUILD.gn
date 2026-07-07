@@ -1,5 +1,9 @@
 # yamake2gn: keep  -- hand-written, do not regenerate
 
+config("public_config") {
+  cflags = [ "-Wno-deprecated-volatile" ]
+}
+
 library("base") {
   public_deps = [ "//library/cpp/deprecated/atomic" ]
 
@@ -20,4 +24,6 @@ library("lib") {
     "immediate_control_board_html_renderer.cpp",
     "immediate_control_board_impl.cpp",
   ]
+
+  public_configs = [ ":public_config" ]
 }

@@ -1,0 +1,22 @@
+library("dq_integration") {
+  public_deps = [
+    # "//library/cpp/yson",
+    # "//yql/essentials/ast",
+    # "//yql/essentials/core",
+    # "//yql/essentials/core/expr_nodes",
+    # "//yql/essentials/public/issue",
+  ]
+
+  sources = [
+    "yql_dq_integration.cpp",
+    "yql_dq_optimization.cpp",
+  ]
+}
+
+library("transform") {
+  public_deps = [
+    # "//yql/essentials/minikql",
+  ]
+
+  sources = [ "transform/yql_dq_task_transform.cpp" ]
+}

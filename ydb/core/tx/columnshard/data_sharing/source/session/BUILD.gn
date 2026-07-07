@@ -1,0 +1,23 @@
+library("session") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/data_sharing/common/session",
+    # "//ydb/core/tx/columnshard/engines/scheme",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/columnshard/data_locks/locks",
+    # "//ydb/core/tx/columnshard/data_locks/manager",
+    # "//ydb/core/tx/columnshard/data_sharing/destination/events",
+    # "//ydb/core/tx/columnshard/data_sharing/modification/tasks",
+    # "//ydb/core/tx/columnshard/data_sharing/source/transactions",
+    # "//ydb/core/tx/columnshard/engines",
+    # "//ydb/library/formats/arrow:hash",
+  ]
+
+  sources = [
+    "cursor.cpp",
+    "source.cpp",
+  ]
+}

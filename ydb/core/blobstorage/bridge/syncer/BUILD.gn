@@ -1,0 +1,16 @@
+library("syncer") {
+  public_deps = [
+    # "//ydb/core/blobstorage/groupinfo",
+    # "//ydb/core/blobstorage/vdisk/common",
+  ]
+
+  deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/blobstorage",
+    # "//ydb/core/blobstorage/nodewarden",
+    # "//ydb/core/util",
+    # "//ydb/library/actors/core",
+  ]
+
+  sources = [ "syncer.cpp" ]
+}

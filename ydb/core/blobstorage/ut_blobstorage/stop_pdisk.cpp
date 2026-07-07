@@ -1,4 +1,4 @@
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/blobstorage/nodewarden/node_warden_impl.h>
 #include <ydb/core/blobstorage/ut_blobstorage/lib/env.h>
 

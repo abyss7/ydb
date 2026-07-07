@@ -1,0 +1,3 @@
+library("common") {
+  sources = [ "events_scheduling.cpp" ]
+}

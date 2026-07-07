@@ -1,0 +1,8 @@
+library("adapter") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/columnshard/bg_tasks/templates",
+  ]
+
+  sources = [ "adapter.cpp" ]
+}

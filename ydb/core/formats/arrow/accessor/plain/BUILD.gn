@@ -1,0 +1,23 @@
+library("plain") {
+  public_deps = [
+    # "//ydb/core/formats/arrow/accessor/abstract",
+    # "//ydb/core/formats/arrow/accessor/common",
+    # "//ydb/library/formats/arrow",
+    # "//ydb/library/formats/arrow:switch",
+    # "//ydb/library/formats/arrow:validation",
+  ]
+
+  deps = [
+    # "//contrib/libs/apache/arrow",
+    # "//ydb/core/formats/arrow",
+    # "//ydb/core/formats/arrow:save_load",
+    # "//ydb/core/formats/arrow:serializer",
+    # "//ydb/core/formats/arrow:splitter",
+  ]
+
+  sources = [
+    "accessor.cpp",
+    "constructor.cpp",
+    "request.cpp",
+  ]
+}

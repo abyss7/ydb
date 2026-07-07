@@ -1,0 +1,29 @@
+library("service") {
+  public_deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/tx/limiter/grouped_memory/usage",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/signals",
+  ]
+
+  deps = [
+    # "//library/cpp/lwtrace/mon",
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//ydb/core/mon",
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/limiter/grouped_memory/tracing",
+    # "//ydb/library/accessor",
+  ]
+
+  sources = [
+    "actor.cpp",
+    "allocation.cpp",
+    "counters.cpp",
+    "group.cpp",
+    "ids.cpp",
+    "manager.cpp",
+    "process.cpp",
+  ]
+
+  serialize_enum_headers = [ "allocation.h" ]
+}

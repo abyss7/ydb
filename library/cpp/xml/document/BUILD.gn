@@ -1,0 +1,16 @@
+library("document") {
+  public_deps = [
+    # "//library/cpp/string_utils/ztstrbuf",
+  ]
+
+  deps = [
+    # "//contrib/libs/libxml",
+    # "//library/cpp/xml/init",
+  ]
+
+  sources = [
+    "xml-document.cpp",
+    "xml-options.cpp",
+    "xml-textreader.cpp",
+  ]
+}

@@ -20,7 +20,7 @@
 #include <ydb/core/cms/console/configs_dispatcher.h>
 #include <ydb/core/mon/mon.h>
 #include <ydb/core/base/nameservice.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/cms/console/console.h>
 #include <ydb/core/mind/tenant_slot_broker.h>
 #include <ydb/core/tx/scheme_cache/scheme_cache.h>

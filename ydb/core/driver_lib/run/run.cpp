@@ -186,7 +186,7 @@
 
 #include <ydb/core/tracing/tablet_info.h>
 
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 
 namespace NKikimr {
 

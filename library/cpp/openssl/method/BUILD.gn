@@ -1,0 +1,7 @@
+library("method") {
+  public_deps = [
+    "//library/cpp/openssl/holders",
+  ]
+
+  sources = [ "io.cpp" ]
+}

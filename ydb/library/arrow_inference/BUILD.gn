@@ -1,0 +1,14 @@
+library("arrow_inference") {
+  public_deps = [
+    # "//ydb/public/api/protos",
+  ]
+
+  deps = [
+    # "//contrib/libs/apache/arrow",
+  ]
+
+  sources = [
+    "arrow_inference.cpp",
+    "config.cpp",
+  ]
+}

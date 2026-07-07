@@ -1,0 +1,12 @@
+library("lwtrace_probes") {
+  public_deps = [
+    # "//library/cpp/lwtrace",
+  ]
+
+  deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/blobstorage/pdisk",
+  ]
+
+  sources = [ "blobstorage_probes.cpp" ]
+}

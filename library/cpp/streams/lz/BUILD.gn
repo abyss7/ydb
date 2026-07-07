@@ -1,0 +1,28 @@
+library("lz") {
+  public_deps = [
+    # ":lz4",
+    # ":snappy",
+  ]
+
+  deps = [
+    # "//contrib/libs/fastlz",
+  ]
+
+  sources = [ "lz.cpp" ]
+}
+
+library("lz4") {
+  public_deps = [
+    # "//contrib/libs/lz4",
+  ]
+
+  sources = [ "lz4/lz4.cpp" ]
+}
+
+library("snappy") {
+  public_deps = [
+    # "//contrib/libs/snappy",
+  ]
+
+  sources = [ "snappy/snappy.cpp" ]
+}

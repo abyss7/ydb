@@ -24,7 +24,7 @@
 #include <ydb/public/api/protos/ydb_monitoring.pb.h>
 #include <ydb/core/protos/cluster_state_info.pb.h>
 #include <ydb/core/node_whiteboard/node_whiteboard.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/blobstorage/nodewarden/node_warden_events.h>
 #include <google/protobuf/util/json_util.h>
 

@@ -1,0 +1,16 @@
+library("path_generator") {
+  public_deps = [
+    # "//yql/essentials/public/udf",
+  ]
+
+  deps = [
+    # "//library/cpp/scheme",
+    # "//yql/essentials/minikql",
+    # "//yql/essentials/minikql/computation",
+    # "//yql/essentials/minikql/datetime",
+  ]
+
+  sources = [ "yql_s3_path_generator.cpp" ]
+
+  serialize_enum_headers = [ "yql_s3_path_generator.h" ]
+}

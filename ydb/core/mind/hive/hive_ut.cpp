@@ -8,7 +8,7 @@
 #include <ydb/core/base/statestorage_impl.h>
 #include <ydb/core/blobstorage/nodewarden/node_warden.h>
 #include <ydb/core/blobstorage/nodewarden/node_warden_events.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/blobstorage/pdisk/blobstorage_pdisk_tools.h>
 #include <ydb/core/protos/counters_hive.pb.h>
 #include <ydb/core/protos/follower_group.pb.h>

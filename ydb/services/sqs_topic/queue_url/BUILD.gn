@@ -1,0 +1,23 @@
+library("holder") {
+  public_deps = [
+    # "//ydb/services/sqs_topic/queue_url",
+  ]
+
+  deps = [
+    # "//ydb/core/base",
+  ]
+
+  sources = [ "holder/queue_url_holder.cpp" ]
+}
+
+library("queue_url") {
+  deps = [
+    # "//library/cpp/string_utils/url",
+  ]
+
+  sources = [
+    "arn.cpp",
+    "consumer.cpp",
+    "utils.cpp",
+  ]
+}

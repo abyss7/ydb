@@ -9,7 +9,7 @@
 #include <ydb/core/base/counters.h>
 #include <ydb/core/base/domain.h>
 #include <ydb/core/base/statestorage.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/load_test/ycsb/test_load_actor.h>
 
 #include <ydb/public/lib/base/msgbus.h>

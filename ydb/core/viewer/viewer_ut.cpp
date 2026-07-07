@@ -11,7 +11,7 @@
 #include <util/stream/null.h>
 #include <util/string/join.h>
 #include <ydb/core/viewer/protos/viewer.pb.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include "viewer_tabletinfo.h"
 #include "viewer_vdiskinfo.h"
 #include "viewer_pdiskinfo.h"

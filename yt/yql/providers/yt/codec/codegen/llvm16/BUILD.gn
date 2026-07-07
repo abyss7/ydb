@@ -43,7 +43,7 @@ library("llvm16") {
   public_deps = [
     "//library/cpp/resource",
     "//yql/essentials/minikql/codegen/llvm16",
-    "//yql/essentials/parser/pg_wrapper:interface",
+    "//yql/essentials/parser/pg_wrapper/interface",
     "//yql/essentials/types/binary_json",
     "//yql/essentials/utils",
   ]

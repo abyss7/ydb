@@ -3,7 +3,7 @@
 #include "skeleton_mon_dbmainpage.h"
 #include "skeleton_mon_util.h"
 
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 
 #include <ydb/library/actors/core/hfunc.h>
 #include <ydb/library/actors/core/actor_bootstrapped.h>

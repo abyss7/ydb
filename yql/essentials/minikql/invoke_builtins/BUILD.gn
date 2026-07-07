@@ -1,0 +1,6 @@
+group("invoke_builtins") {
+  public_deps = [
+    "//yql/essentials/minikql/invoke_builtins/llvm16",
+    "//yql/essentials/minikql/invoke_builtins/no_llvm",
+  ]
+}

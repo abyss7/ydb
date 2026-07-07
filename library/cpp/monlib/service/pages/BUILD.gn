@@ -2,14 +2,15 @@ library("pages") {
   public_deps = [ "//library/cpp/resource" ]
 
   deps = [
+    "//build/scripts/c_templates",
     "//library/cpp/build_info",
-    "//library/cpp/malloc/api",
+    # "//library/cpp/malloc/api",
     "//library/cpp/monlib/encode:json",
     "//library/cpp/monlib/encode:prometheus",
     "//library/cpp/monlib/encode:spack",
     "//library/cpp/monlib/encode:text",
-    "//library/cpp/monlib/metrics",
-    "//library/cpp/svnversion",
+    # "//library/cpp/monlib/metrics",
+    # "//library/cpp/svnversion",
   ]
 
   sources = [

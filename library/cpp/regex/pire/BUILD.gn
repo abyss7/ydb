@@ -1,0 +1,23 @@
+library("pire") {
+  public_deps = [
+    # "//library/cpp/charset",
+  ]
+
+  sources = [
+    "extraencodings.cpp",
+    "pcre2pire.cpp",
+    "pire/approx_matching.cpp",
+    "pire/classes.cpp",
+    "pire/easy.cpp",
+    "pire/encoding.cpp",
+    "pire/extra/capture.cpp",
+    "pire/extra/count.cpp",
+    "pire/extra/glyphs.cpp",
+    "pire/fsm.cpp",
+    "pire/half_final_fsm.cpp",
+    "pire/re_lexer.cpp",
+    "pire/read_unicode.cpp",
+    "pire/scanner_io.cpp",
+    "pire/scanners/null.cpp",
+  ]
+}

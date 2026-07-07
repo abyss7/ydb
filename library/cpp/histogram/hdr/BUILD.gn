@@ -1,0 +1,10 @@
+library("hdr") {
+  deps = [
+    # "//contrib/libs/hdr_histogram",
+  ]
+
+  sources = [
+    "histogram.cpp",
+    "histogram_iter.cpp",
+  ]
+}

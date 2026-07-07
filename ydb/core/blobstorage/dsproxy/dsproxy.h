@@ -11,7 +11,7 @@
 #include <ydb/core/blobstorage/storagepoolmon/storagepool_counters.h>
 #include <ydb/core/blobstorage/vdisk/ingress/blobstorage_ingress.h>
 #include <ydb/core/blobstorage/base/batched_vec.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/blobstorage/base/transparent.h>
 #include <ydb/core/blobstorage/backpressure/queue_backpressure_client.h>
 #include <ydb/core/blobstorage/common/immediate_control_defaults.h>

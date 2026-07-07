@@ -1,0 +1,12 @@
+library("manager") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard/data_locks/locks",
+    # "//ydb/core/tx/columnshard/hooks/abstract",
+  ]
+
+  deps = [
+    # "//ydb/library/actors/core",
+  ]
+
+  sources = [ "manager.cpp" ]
+}

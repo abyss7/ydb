@@ -1,0 +1,17 @@
+library("readproxy") {
+  public_deps = [
+    # "//ydb/core/persqueue/public",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//ydb/core/persqueue",
+    # "//ydb/core/persqueue/common",
+    # "//ydb/core/persqueue/events",
+    # "//ydb/core/persqueue/pqtablet/common",
+    # "//ydb/core/protos",
+    # "//ydb/public/lib/base",
+  ]
+
+  sources = [ "readproxy.cpp" ]
+}

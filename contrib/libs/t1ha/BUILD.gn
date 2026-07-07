@@ -2,7 +2,7 @@ config("private_config") {
     cflags = [ "-maes" ]
 }
 
-contrib_library("t1ha") {
+static_library("t1ha") {
     sources = [
         "src/t1ha_selfcheck_all.c",
         "src/t1ha_selfcheck.c",
@@ -17,5 +17,5 @@ contrib_library("t1ha") {
         "src/t1ha2.c",
     ]
 
-    configs = [ ":private_config" ]
+    configs += [ ":private_config" ]
 }

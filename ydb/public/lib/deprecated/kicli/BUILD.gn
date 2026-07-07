@@ -1,0 +1,29 @@
+library("kicli") {
+  public_deps = [
+    # "//library/cpp/messagebus",
+    # "//library/cpp/threading/future",
+    # "//ydb/core/protos",
+    # "//ydb/library/actors/core",
+    # "//ydb/public/api/protos",
+    # "//ydb/public/lib/base",
+    # "//ydb/public/lib/deprecated/client",
+    # "//ydb/public/lib/scheme_types",
+    # "//ydb/public/lib/value",
+  ]
+
+  deps = [
+    # "//ydb/core/protos/schemeshard",
+    # "//yql/essentials/public/decimal",
+    # "//yql/essentials/public/issue",
+  ]
+
+  sources = [
+    "configurator.cpp",
+    "dynamic_node.cpp",
+    "error.cpp",
+    "kikimr.cpp",
+    "query.cpp",
+    "result.cpp",
+    "schema.cpp",
+  ]
+}

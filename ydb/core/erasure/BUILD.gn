@@ -1,7 +1,8 @@
 library("erasure") {
   public_deps = [
     "//library/cpp/containers/stack_vector",
-    "//ydb/core/debug",
+
+    # "//ydb/core/debug",
     "//ydb/library/yverify_stream",
   ]
 

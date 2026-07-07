@@ -1,7 +1,8 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("http") {
   public_deps = [
     "//contrib/libs/openssl",
-    "//library/cpp/dns",
     "//ydb/library/actors/core",
   ]
 
@@ -15,7 +16,6 @@ library("http") {
     "//ydb/library/actors/interconnect:poller",
     "//ydb/library/actors/protos",
     "//ydb/library/actors/wilson",
-    "//ydb/library/wilson_ids",
   ]
 
   sources = [

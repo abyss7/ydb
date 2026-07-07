@@ -1,0 +1,59 @@
+library("checkpoint_storage") {
+  public_deps = [
+    # "//ydb/core/fq/libs/shared_resources",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/security",
+  ]
+
+  deps = [
+    # "//library/cpp/retry",
+    # "//library/cpp/threading/future",
+    # "//ydb/core/base",
+    # "//ydb/core/cms/console",
+    # "//ydb/core/fq/libs/actors:logging",
+    # "//ydb/core/fq/libs/checkpointing_common",
+    # "//ydb/core/fq/libs/common",
+    # "//ydb/core/fq/libs/config:protos",
+    # "//ydb/core/fq/libs/control_plane_storage",
+    # "//ydb/core/fq/libs/ydb",
+    # "//ydb/core/protos",
+    # "//ydb/library/accessor",
+    # "//ydb/library/aclib",
+    # "//ydb/library/yql/dq/actors:compute",
+    # "//ydb/public/sdk/cpp/adapters/issue",
+    # "//ydb/public/sdk/cpp/src/client/scheme",
+    # "//yql/essentials/minikql/comp_nodes",
+    # "//yql/essentials/public/issue",
+    # ":events",
+    # ":proto",
+  ]
+
+  sources = [
+    "gc.cpp",
+    "storage_proxy.cpp",
+    "storage_service.cpp",
+    "storage_settings.cpp",
+    "ydb_checkpoint_storage.cpp",
+    "ydb_state_storage.cpp",
+  ]
+}
+
+library("events") {
+  public_deps = [
+    # "//ydb/core/fq/libs/checkpointing_common",
+    # "//ydb/core/fq/libs/events",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/actors/interconnect",
+    # "//ydb/library/yql/dq/actors:protos",
+    # "//yql/essentials/public/issue",
+    # ":proto",
+  ]
+
+  sources = [ "events/events.cpp" ]
+}
+
+protobuf_library("proto") {
+  public_deps = [ "//ydb/core/fq/libs/graph_params/proto" ]
+
+  sources = [ "proto/graph_description.proto" ]
+}

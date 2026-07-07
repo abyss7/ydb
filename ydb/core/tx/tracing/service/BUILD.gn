@@ -1,0 +1,15 @@
+library("service") {
+  public_deps = [
+    # "//ydb/core/tx/tracing/usage",
+  ]
+
+  deps = [
+    # "//ydb/library/actors/core",
+    # "//ydb/library/services",
+  ]
+
+  sources = [
+    "actor.cpp",
+    "global.cpp",
+  ]
+}

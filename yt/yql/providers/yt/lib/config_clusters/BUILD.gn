@@ -1,0 +1,7 @@
+library("config_clusters") {
+  deps = [
+    # "//yql/essentials/providers/common/proto",
+  ]
+
+  sources = [ "config_clusters.cpp" ]
+}

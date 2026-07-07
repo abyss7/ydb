@@ -1,0 +1,62 @@
+library("ai") {
+  public_deps = [
+    # "//ydb/public/lib/ydb_cli/commands/interactive/common",
+    # "//ydb/public/lib/ydb_cli/common",
+    # ":models",
+    # ":tools",
+  ]
+
+  deps = [
+    # "//ydb/library/yverify_stream",
+  ]
+
+  sources = [ "ai_model_handler.cpp" ]
+}
+
+library("models") {
+  public_deps = [
+    # "//library/cpp/json:writer",
+  ]
+
+  deps = [
+    # "//library/cpp/json",
+    # "//library/cpp/string_utils/url",
+    # "//library/cpp/threading/future",
+    # "//ydb/library/yverify_stream",
+    # "//ydb/public/lib/ydb_cli/commands/interactive/common",
+    # "//ydb/public/lib/ydb_cli/common",
+  ]
+
+  sources = [
+    "models/model_anthropic.cpp",
+    "models/model_base.cpp",
+    "models/model_openai.cpp",
+  ]
+}
+
+library("tools") {
+  public_deps = [
+    # "//library/cpp/json:writer",
+    # "//ydb/public/lib/ydb_cli/common",
+    # "//ydb/public/sdk/cpp/src/client/driver",
+  ]
+
+  deps = [
+    # "//ydb/library/yverify_stream",
+    # "//ydb/public/lib/json_value",
+    # "//ydb/public/lib/ydb_cli/commands/interactive/common",
+    # "//ydb/public/lib/ydb_cli/commands/interactive/highlight",
+    # "//ydb/public/sdk/cpp/src/client/query",
+    # "//ydb/public/sdk/cpp/src/client/scheme",
+  ]
+
+  sources = [
+    "tools/describe_tool.cpp",
+    "tools/exec_query_tool.cpp",
+    "tools/exec_shell_tool.cpp",
+    "tools/list_directory_tool.cpp",
+    "tools/tool_base.cpp",
+    "tools/tool_interface.cpp",
+    "tools/ydb_help_tool.cpp",
+  ]
+}

@@ -1,0 +1,29 @@
+library("incrhuge") {
+  public_deps = [
+    # "//ydb/core/base",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//library/cpp/containers/intrusive_rb_tree",
+    # "//library/cpp/digest/crc32c",
+    # "//library/cpp/monlib/service/pages",
+    # "//ydb/core/blobstorage",
+    # "//ydb/core/blobstorage/pdisk",
+    # "//ydb/core/protos",
+  ]
+
+  sources = [
+    "incrhuge_keeper.cpp",
+    "incrhuge_keeper_alloc.cpp",
+    "incrhuge_keeper_common.cpp",
+    "incrhuge_keeper_defrag.cpp",
+    "incrhuge_keeper_delete.cpp",
+    "incrhuge_keeper_log.cpp",
+    "incrhuge_keeper_read.cpp",
+    "incrhuge_keeper_recovery.cpp",
+    "incrhuge_keeper_recovery_read_log.cpp",
+    "incrhuge_keeper_recovery_scan.cpp",
+    "incrhuge_keeper_write.cpp",
+  ]
+}

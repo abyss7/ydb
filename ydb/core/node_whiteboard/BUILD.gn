@@ -1,0 +1,14 @@
+group("node_whiteboard") {
+  public_deps = [
+    "//ydb/core/base",
+    "//ydb/core/blobstorage/groupinfo",
+    "//ydb/core/protos",
+    "//ydb/library/actors/core",
+    "//ydb/library/actors/interconnect",
+  ]
+
+  deps = [
+    "//ydb/core/debug",
+    "//ydb/library/services",
+  ]
+}

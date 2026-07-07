@@ -1,0 +1,12 @@
+library("url_lister") {
+  public_deps = [
+    # "//yql/essentials/core/qplayer/storage/interface",
+    # "//yql/essentials/core/url_lister/interface",
+  ]
+
+  deps = [
+    # "//library/cpp/yson:node",
+  ]
+
+  sources = [ "qplayer_url_lister_manager.cpp" ]
+}

@@ -1,0 +1,15 @@
+library("proxy") {
+  public_deps = [
+    # "//ydb/core/blobstorage/groupinfo",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//ydb/core/blobstorage",
+    # "//ydb/core/blobstorage/dsproxy",
+    # "//ydb/core/util",
+    # "//ydb/library/actors/async",
+  ]
+
+  sources = [ "bridge_proxy.cpp" ]
+}

@@ -1,7 +1,7 @@
 #include "tenant_runtime.h"
 
 #include <ydb/core/base/feature_flags_service.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/cms/console/configs_dispatcher.h>
 #include <ydb/core/cms/console/console.h>
 #include <ydb/core/cms/console/feature_flags_configurator.h>

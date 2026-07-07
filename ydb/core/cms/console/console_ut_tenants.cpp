@@ -4,7 +4,7 @@
 #include <ydb/core/base/counters.h>
 #include <ydb/core/node_whiteboard/node_whiteboard.h>
 #include <ydb/core/base/path.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/mind/tenant_pool.h>
 #include <ydb/core/mind/tenant_slot_broker.h>
 #include <ydb/core/mind/tenant_slot_broker_impl.h>
@@ -2217,7 +2217,7 @@ Y_UNIT_TEST_SUITE(TConsoleTests) {
                     )"
                 )
         );
-        
+
         CheckCreateTenant(runtime, Ydb::StatusIds::BAD_REQUEST,
             TCreateTenantRequest(TENANT1_1_NAME, TCreateTenantRequest::EType::Common)
                 .WithPools({{"hdd", 1}})

@@ -1,0 +1,25 @@
+library("events") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/data_sharing/common/context",
+    # "//ydb/core/tx/columnshard/data_sharing/protos",
+    # "//ydb/core/tx/columnshard/engines/portions",
+    # "//ydb/core/tx/columnshard/engines/scheme",
+    # "//ydb/core/tx/columnshard/engines/scheme/versions",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard/data_sharing/destination/session",
+    # "//ydb/core/tx/columnshard/data_sharing/manager",
+    # "//ydb/core/tx/columnshard/data_sharing/modification/tasks",
+    # "//ydb/core/tx/columnshard/engines",
+  ]
+
+  sources = [
+    "control.cpp",
+    "status.cpp",
+    "transfer.cpp",
+  ]
+}

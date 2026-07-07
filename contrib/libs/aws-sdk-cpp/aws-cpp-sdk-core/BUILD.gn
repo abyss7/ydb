@@ -1,7 +1,5 @@
 config("public_config") {
-    include_dirs = [
-        "aws-cpp-sdk-core/include",
-    ]
+    include_dirs = [ "include" ]
 }
 
 config("private_config") {
@@ -24,9 +22,7 @@ config("private_config") {
 }
 
 contrib_library("aws-cpp-sdk-core") {
-    public_deps = [
-        "//contrib/restricted/aws:crt-cpp",
-    ]
+    public_deps = [ "//contrib/restricted/aws:crt-cpp" ]
 
     deps = [
         "//contrib/libs/curl",

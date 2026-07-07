@@ -1,0 +1,3 @@
+group("dq") {
+  public_deps = [ "//yt/yql/providers/yt/comp_nodes/dq/llvm16" ]
+}

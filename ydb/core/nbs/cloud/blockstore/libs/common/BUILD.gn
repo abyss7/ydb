@@ -1,0 +1,7 @@
+library("common") {
+  deps = [
+    # "//ydb/core/nbs/cloud/storage/core/libs/common",
+  ]
+
+  sources = [ "block_range.cpp" ]
+}

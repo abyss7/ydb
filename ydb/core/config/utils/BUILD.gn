@@ -1,0 +1,4 @@
+library("utils") {
+    deps = [ "//contrib/libs/protobuf" ]
+    sources = [ "config_traverse.cpp" ]
+}

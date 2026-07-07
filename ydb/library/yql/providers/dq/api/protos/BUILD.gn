@@ -1,0 +1,14 @@
+protobuf_library("protos") {
+  public_deps = [
+    "//ydb/library/actors/protos",
+    "//ydb/library/yql/dq/actors:protos",
+    "//ydb/library/yql/dq/proto",
+    "//ydb/public/api/protos",
+  ]
+
+  sources = [
+    "dqs.proto",
+    "service.proto",
+    "task_command_executor.proto",
+  ]
+}

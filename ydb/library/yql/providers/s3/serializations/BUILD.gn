@@ -1,0 +1,5 @@
+library("serializations") {
+  sources = [ "serialization_interval.cpp" ]
+
+  serialize_enum_headers = [ "serialization_interval.h" ]
+}

@@ -4,7 +4,7 @@
 #include "rpc_deferrable.h"
 
 #include <ydb/public/api/protos/ydb_config.pb.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/blobstorage/base/blobstorage_console_events.h>
 #include <ydb/core/blobstorage/nodewarden/node_warden_events.h>
 #include <ydb/core/protos/blobstorage_base3.pb.h>
@@ -30,10 +30,10 @@ public:
         return Type;
     }
 
-    TDriveDevice(TString path, NKikimrBlobStorage::EPDiskType type) 
+    TDriveDevice(TString path, NKikimrBlobStorage::EPDiskType type)
         : Path(path), Type(type) {}
 
-    auto operator<=>(const TDriveDevice &) const = default;
+    auto operator<=>(const TDriveDevice &) const = delete;
 
 private:
     TString Path;
@@ -381,7 +381,7 @@ protected:
         auto *self = Self();
         self->Reply(ev->Get()->Record.GetYdbStatus(), ev->Get()->Record.GetIssues(), self->ActorContext());
     }
-    
+
     void HandleConsole(TEvTabletPipe::TEvClientDestroyed::TPtr&) {
         auto *self = Self();
         self->Reply(Ydb::StatusIds::UNAVAILABLE, "Connection to Console was lost",

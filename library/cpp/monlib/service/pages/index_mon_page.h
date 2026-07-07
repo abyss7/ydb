@@ -2,6 +2,9 @@
 
 #include "mon_page.h"
 
+#include <util/generic/hash.h>
+#include <util/system/mutex.h>
+
 #include <list>
 
 namespace NMonitoring {

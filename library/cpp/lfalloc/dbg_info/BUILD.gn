@@ -1,0 +1,7 @@
+library("dbg_info") {
+  deps = [
+    # "//library/cpp/malloc/api",
+  ]
+
+  sources = [ "dbg_info.cpp" ]
+}

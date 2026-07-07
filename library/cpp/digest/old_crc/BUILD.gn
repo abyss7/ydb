@@ -1,0 +1,3 @@
+library("old_crc") {
+  sources = [ "crc.cpp" ]
+}

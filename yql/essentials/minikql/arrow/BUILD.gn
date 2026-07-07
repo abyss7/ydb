@@ -1,0 +1,11 @@
+library("arrow") {
+  public_deps = [
+    # "//yql/essentials/minikql",
+    # "//yql/essentials/public/udf:arrow",
+  ]
+
+  sources = [
+    "arrow_util.cpp",
+    "mkql_functions.cpp",
+  ]
+}

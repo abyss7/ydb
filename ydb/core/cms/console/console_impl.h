@@ -5,7 +5,7 @@
 #include "tx_processor.h"
 
 #include <ydb/core/base/blobstorage.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/blobstorage/base/blobstorage_console_events.h>
 #include <ydb/core/base/location.h>
 #include <ydb/core/base/tablet_pipe.h>

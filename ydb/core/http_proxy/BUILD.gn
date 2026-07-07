@@ -13,6 +13,7 @@ library("http_proxy") {
   ]
 
   deps = [
+    "//contrib/restricted/nlohmann_json",
     # "//library/cpp/cache",
     # "//library/cpp/cgiparam",
     # "//library/cpp/digest/old_crc",

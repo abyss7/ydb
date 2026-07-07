@@ -1,0 +1,29 @@
+library("sharding") {
+  public_deps = [
+    # "//ydb/core/formats/arrow",
+    # "//ydb/core/scheme_types",
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/schemeshard/olap/schema",
+    # "//ydb/library/accessor",
+    # "//ydb/library/formats/arrow:hash",
+    # "//yql/essentials/public/udf",
+  ]
+
+  deps = [
+    # "//ydb/core/formats/arrow:hash",
+    # "//ydb/core/protos",
+    # "//ydb/core/tx/columnshard/common:protos",
+    # "//yql/essentials/minikql",
+    # "//yql/essentials/utils",
+  ]
+
+  sources = [
+    "hash.cpp",
+    "hash_intervals.cpp",
+    "hash_modulo.cpp",
+    "hash_slider.cpp",
+    "random.cpp",
+    "sharding.cpp",
+    "unboxed_reader.cpp",
+  ]
+}

@@ -1,0 +1,163 @@
+library("barriers") {
+  public_deps = [
+    # "//ydb/core/blobstorage/vdisk/hulldb",
+    # ":base",
+    # ":fresh",
+    # ":generic",
+  ]
+
+  deps = [
+    # "//ydb/core/blobstorage/vdisk",
+    # "//ydb/core/blobstorage/vdisk/ingress",
+    # "//ydb/library/actors/util",
+  ]
+
+  sources = [
+    "barriers/barriers_chain.cpp",
+    "barriers/barriers_essence.cpp",
+    "barriers/barriers_public.cpp",
+    "barriers/barriers_tree.cpp",
+  ]
+}
+
+library("base") {
+  public_deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/blobstorage/base",
+    # "//ydb/core/blobstorage/groupinfo",
+    # "//ydb/core/blobstorage/pdisk",
+    # "//ydb/core/blobstorage/vdisk/common",
+    # "//ydb/core/blobstorage/vdisk/ingress",
+    # "//ydb/core/blobstorage/vdisk/protos",
+    # "//ydb/core/protos",
+    # "//ydb/library/actors/util",
+    # ":fresh",
+    # ":generic",
+  ]
+
+  deps = [
+    # "//contrib/libs/xxhash",
+    # "//library/cpp/monlib/service/pages",
+    # "//ydb/core/blobstorage/vdisk",
+  ]
+
+  sources = [
+    "base/blobstorage_blob.cpp",
+    "base/blobstorage_hulldefs.cpp",
+    "base/blobstorage_hullsatisfactionrank.cpp",
+    "base/hullbase_barrier.cpp",
+  ]
+}
+
+library("bulksst_add") {
+  public_deps = [
+    # "//ydb/core/blobstorage/vdisk/hulldb",
+    # ":generic",
+  ]
+
+  sources = [ "bulksst_add/hulldb_bulksst_add.cpp" ]
+}
+
+library("cache_block") {
+  public_deps = [
+    # "//ydb/core/blobstorage/vdisk/hulldb",
+  ]
+
+  deps = [
+    # ":base",
+  ]
+
+  sources = [ "cache_block/cache_block.cpp" ]
+}
+
+library("compstrat") {
+  public_deps = [
+    # "//ydb/core/blobstorage/vdisk/hulldb",
+    # ":generic",
+  ]
+
+  deps = [
+    # "//ydb/core/blobstorage/vdisk",
+    # "//ydb/core/blobstorage/vdisk/common",
+  ]
+
+  sources = [
+    "compstrat/hulldb_compstrat_defs.cpp",
+    "compstrat/hulldb_compstrat_selector.cpp",
+  ]
+}
+
+library("fresh") {
+  public_deps = [
+    # "//library/cpp/monlib/service/pages",
+    # "//ydb/core/blobstorage/base",
+    # "//ydb/core/blobstorage/vdisk/protos",
+    # ":base",
+    # ":generic",
+  ]
+
+  deps = [
+    # "//library/cpp/threading/skip_list",
+    # "//ydb/core/base",
+    # "//ydb/core/blobstorage/vdisk",
+  ]
+
+  sources = [
+    "fresh/fresh_appendix.cpp",
+    "fresh/fresh_data.cpp",
+    "fresh/fresh_datasnap.cpp",
+    "fresh/fresh_segment.cpp",
+  ]
+}
+
+library("generic") {
+  public_deps = [
+    # "//ydb/core/blobstorage/base",
+    # "//ydb/core/blobstorage/pdisk",
+    # "//ydb/core/blobstorage/vdisk/common",
+    # "//ydb/core/blobstorage/vdisk/hullop:hullcompdelete",
+    # "//ydb/core/blobstorage/vdisk/protos",
+    # "//ydb/core/util",
+    # ":base",
+    # ":bulksst_add",
+    # ":fresh",
+  ]
+
+  deps = [
+    # "//library/cpp/monlib/service/pages",
+    # "//ydb/core/blobstorage/vdisk",
+    # "//ydb/core/blobstorage/vdisk/huge",
+    # "//ydb/core/blobstorage/vdisk/hullop",
+  ]
+
+  sources = [
+    "generic/blobstorage_hulloptlsn.cpp",
+    "generic/hulldb_bulksstmngr.cpp",
+    "generic/hullds_idx.cpp",
+    "generic/hullds_idxsnap.cpp",
+    "generic/hullds_sst.cpp",
+    "generic/hullds_sstslice.cpp",
+    "generic/hullds_sstvec.cpp",
+  ]
+}
+
+group("hulldb") {
+  public_deps = [
+    ":barriers",
+    ":base",
+    ":generic",
+    "//ydb/core/blobstorage/vdisk",
+  ]
+}
+
+library("recovery") {
+  public_deps = [
+    # "//ydb/core/blobstorage/vdisk/hulldb",
+    # "//ydb/core/blobstorage/vdisk/protos",
+    # ":barriers",
+    # ":bulksst_add",
+    # ":cache_block",
+  ]
+
+  sources = [ "recovery/hulldb_recovery.cpp" ]
+}

@@ -1,0 +1,16 @@
+library("vhost") {
+  sources = [
+    "blockdev.c",
+    "event.c",
+    "fs.c",
+    "logging.c",
+    "memlog.c",
+    "memmap.c",
+    "platform.c",
+    "server.c",
+    "vdev.c",
+    "virtio/virt_queue.c",
+    "virtio/virtio_blk.c",
+    "virtio/virtio_fs.c",
+  ]
+}

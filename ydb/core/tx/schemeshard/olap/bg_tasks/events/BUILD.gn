@@ -1,0 +1,15 @@
+library("events") {
+  public_deps = [
+    # "//ydb/core/tx/schemeshard/olap/bg_tasks/protos",
+  ]
+
+  deps = [
+    # "//ydb/core/base",
+    # "//ydb/library/actors/core",
+  ]
+
+  sources = [
+    "common.cpp",
+    "global.cpp",
+  ]
+}

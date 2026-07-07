@@ -1,0 +1,19 @@
+library("diagnostics") {
+  public_deps = [
+    # "//library/cpp/deprecated/atomic",
+    # "//library/cpp/histogram/hdr",
+    # "//library/cpp/logger",
+    # "//ydb/core/nbs/cloud/storage/core/libs/common",
+  ]
+
+  deps = [
+    # "//library/cpp/unified_agent_client",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/actors/prof",
+  ]
+
+  sources = [
+    "histogram.cpp",
+    "logging.cpp",
+  ]
+}

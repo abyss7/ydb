@@ -1,0 +1,15 @@
+library("common") {
+  public_deps = [
+    # "//yql/essentials/public/udf",
+  ]
+
+  deps = [
+    # "//yql/essentials/minikql",
+  ]
+
+  sources = [
+    "pq_meta_fields.cpp",
+    "pq_partition_key.cpp",
+    "yql_names.cpp",
+  ]
+}

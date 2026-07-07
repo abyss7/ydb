@@ -1,0 +1,116 @@
+library("aggregator") {
+  public_deps = [
+    # "//ydb/core/base",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//library/cpp/monlib/service/pages",
+    # "//ydb/core/cms/console",
+    # "//ydb/core/engine:minikql",
+    # "//ydb/core/protos",
+    # "//ydb/core/scheme",
+    # "//ydb/core/scheme_types",
+    # "//ydb/core/statistics",
+    # "//ydb/core/tablet",
+    # "//ydb/core/tablet_flat",
+    # "//ydb/core/tx",
+    # "//ydb/core/tx/datashard",
+    # "//ydb/core/tx/scheme_cache",
+    # "//ydb/core/util",
+    # "//ydb/library/query_actor",
+    # "//ydb/public/api/protos",
+    # "//ydb/public/sdk/cpp/src/client/value",
+    # "//yql/essentials/core/histogram",
+    # "//yql/essentials/core/minsketch",
+    # "//yql/essentials/public/udf",
+    # ":database",
+    # ":service",
+  ]
+
+  sources = [
+    "aggregator/aggregator.cpp",
+    "aggregator/aggregator_impl.cpp",
+    "aggregator/analyze_actor.cpp",
+    "aggregator/column_statistic_eval.cpp",
+    "aggregator/schema.cpp",
+    "aggregator/select_builder.cpp",
+    "aggregator/tx_ack_timeout.cpp",
+    "aggregator/tx_aggr_stat_response.cpp",
+    "aggregator/tx_analyze.cpp",
+    "aggregator/tx_analyze_deadline.cpp",
+    "aggregator/tx_analyze_shard_delivery_problem.cpp",
+    "aggregator/tx_analyze_shard_request.cpp",
+    "aggregator/tx_analyze_shard_response.cpp",
+    "aggregator/tx_configure.cpp",
+    "aggregator/tx_datashard_scan_response.cpp",
+    "aggregator/tx_finish_trasersal.cpp",
+    "aggregator/tx_init.cpp",
+    "aggregator/tx_init_schema.cpp",
+    "aggregator/tx_navigate.cpp",
+    "aggregator/tx_resolve.cpp",
+    "aggregator/tx_response_tablet_distribution.cpp",
+    "aggregator/tx_schedule_traversal.cpp",
+    "aggregator/tx_schemeshard_stats.cpp",
+  ]
+}
+
+library("database") {
+  public_deps = [
+    # "//ydb/core/protos",
+    # "//ydb/core/scheme",
+    # "//ydb/core/statistics",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//ydb/library/query_actor",
+    # "//ydb/library/table_creator",
+    # "//ydb/public/lib/scheme_types",
+  ]
+
+  sources = [ "database/database.cpp" ]
+}
+
+library("service") {
+  public_deps = [
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//library/cpp/json",
+    # "//library/cpp/monlib/service/pages",
+    # "//ydb/core/base",
+    # "//ydb/core/cms/console",
+    # "//ydb/core/grpc_services/local_rpc",
+    # "//ydb/core/io_formats/cell_maker",
+    # "//ydb/core/mon",
+    # "//ydb/core/protos",
+    # "//ydb/core/statistics",
+    # "//ydb/core/tx/scheme_cache",
+    # "//ydb/core/util",
+    # "//ydb/library/services",
+    # "//ydb/public/sdk/cpp/src/client/proto",
+    # "//yql/essentials/core/histogram",
+    # "//yql/essentials/core/minsketch",
+    # "//yql/essentials/public/issue",
+    # ":database",
+  ]
+
+  sources = [
+    "service/http_request.cpp",
+    "service/service.cpp",
+    "service/service_impl.cpp",
+  ]
+}
+
+group("statistics") {
+  public_deps = [
+    "//ydb/core/base",
+    "//ydb/core/protos",
+    "//ydb/core/scheme",
+    "//ydb/library/actors/core",
+    "//ydb/public/api/protos",
+    "//yql/essentials/public/issue",
+  ]
+}

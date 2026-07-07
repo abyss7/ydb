@@ -1,0 +1,13 @@
+library("authorization") {
+  deps = [
+    # "//library/cpp/cgiparam",
+    # "//library/cpp/http/io",
+    # "//library/cpp/http/misc",
+    # "//ydb/library/http_proxy/error",
+  ]
+
+  sources = [
+    "auth_helpers.cpp",
+    "signature.cpp",
+  ]
+}

@@ -6,7 +6,7 @@
 #include <ydb/core/nbs/cloud/blockstore/tools/testing/loadtest/lib/test_runner.h>
 
 #include <ydb/core/base/counters.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/nbs/cloud/blockstore/libs/common/block_range.h>
 #include <ydb/core/nbs/cloud/blockstore/libs/service/request.h>
 #include <ydb/core/nbs/cloud/blockstore/libs/storage/api/service.h>

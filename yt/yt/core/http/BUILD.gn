@@ -1,0 +1,29 @@
+library("http") {
+  public_deps = [
+    # "//library/cpp/yt/memory",
+    # "//library/cpp/yt/misc",
+    # "//yt/yt/core",
+    # "//yt/yt/library/profiling",
+  ]
+
+  deps = [
+    # "//contrib/deprecated/http-parser",
+    # "//library/cpp/blockcodecs",
+    # "//library/cpp/streams/brotli",
+    # "//library/cpp/yt/threading",
+  ]
+
+  sources = [
+    "client.cpp",
+    "compression.cpp",
+    "compression_opensource.cpp",
+    "config.cpp",
+    "connection_pool.cpp",
+    "connection_reuse_helpers.cpp",
+    "helpers.cpp",
+    "http.cpp",
+    "retrying_client.cpp",
+    "server.cpp",
+    "stream.cpp",
+  ]
+}

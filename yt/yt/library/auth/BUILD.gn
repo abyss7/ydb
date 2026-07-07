@@ -1,0 +1,14 @@
+library("auth") {
+  deps = [
+    # "//library/cpp/yt/memory",
+    # "//yt/yt/core",
+    # "//yt/yt/library/tvm",
+    # "//yt/yt_proto/yt/core",
+  ]
+
+  sources = [
+    "auth.cpp",
+    "authentication_options.cpp",
+    "credentials_injecting_channel.cpp",
+  ]
+}

@@ -105,7 +105,7 @@ public:
         ~TCountedContent();
 
         TCountedContent(TCountedContent&&) = default;
-        TCountedContent& operator=(TCountedContent&& src) = default;
+        TCountedContent& operator=(TCountedContent&& src) = delete;
 
         TString Extract();
     private:
@@ -131,7 +131,7 @@ public:
         TOnNewDataPart onNewData,
         TOnDownloadFinish onFinish,
         const ::NMonitoring::TDynamicCounters::TCounterPtr& inflightCounter) = 0;
-        
+
     virtual ui64 GetBuffersSizePerStream() = 0;
 
     static THeaders MakeYcHeaders(

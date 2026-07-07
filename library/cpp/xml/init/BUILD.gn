@@ -1,0 +1,10 @@
+library("init") {
+  deps = [
+    # "//library/cpp/charset",
+  ]
+
+  sources = [
+    "init.cpp",
+    "ptr.cpp",
+  ]
+}

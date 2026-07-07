@@ -1,0 +1,10 @@
+library("raw_socket") {
+  public_deps = [
+    # "//ydb/library/actors/core",
+    # "//ydb/library/actors/interconnect:poller",
+    # "//ydb/library/actors/protos",
+    # "//ydb/library/services",
+  ]
+
+  sources = [ "sock_listener.cpp" ]
+}

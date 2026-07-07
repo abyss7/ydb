@@ -1,0 +1,11 @@
+library("session") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard/bg_tasks/abstract",
+    # "//ydb/library/accessor",
+  ]
+
+  sources = [
+    "session.cpp",
+    "storage.cpp",
+  ]
+}

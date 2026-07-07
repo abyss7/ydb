@@ -1,0 +1,16 @@
+library("events") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/columnshard/data_sharing/protos",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard/data_sharing/source/session",
+  ]
+
+  sources = [
+    "control.cpp",
+    "transfer.cpp",
+  ]
+}

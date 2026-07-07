@@ -8,6 +8,10 @@ namespace NKikimrIndexBuilder {
     class TIndexBuild;
 }
 
+namespace NActors {
+    struct TActorContext;
+}
+
 namespace Ydb {
 namespace Operations {
     class Operation;

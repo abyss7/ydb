@@ -39,9 +39,9 @@ library("_udf") {
 
 library("arrow") {
   public_deps = [
-    "//yql/essentials/public/decimal",
+    # "//yql/essentials/public/decimal",
     "//yql/essentials/public/udf",
-    "//yql/essentials/utils",
+    # "//yql/essentials/utils",
   ]
 
   deps = [ "//contrib/libs/apache/arrow" ]

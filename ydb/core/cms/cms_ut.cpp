@@ -4,7 +4,7 @@
 #include "walle.h"
 #include "cms_ut_common.h"
 
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/base/ticket_parser.h>
 #include <ydb/core/testlib/tablet_helpers.h>
 
@@ -581,7 +581,7 @@ Y_UNIT_TEST_SUITE(TCmsTest) {
             for (const auto& req : reqs) {
                 UNIT_ASSERT_VALUES_UNEQUAL(req.GetRequestId(), "user-r-1");
             }
-         
+
             // Check that manually approved permission was cleaned up
             env.CheckGetPermission("user", permissionId, false, TStatus::WRONG_REQUEST);
         }
@@ -639,7 +639,7 @@ Y_UNIT_TEST_SUITE(TCmsTest) {
         UNIT_ASSERT_VALUES_EQUAL(rec2.GetPermissions(0).GetId(), rec1.GetPermissions(0).GetId());
 
         auto rid1 = rec1.GetRequestId();
-        
+
         // Manual approval
         auto approveResp = env.CheckApproveRequest("user", rid1, false, TStatus::OK);
         UNIT_ASSERT_VALUES_EQUAL(approveResp.ManuallyApprovedPermissionsSize(), 2);
@@ -649,7 +649,7 @@ Y_UNIT_TEST_SUITE(TCmsTest) {
             UNIT_ASSERT_VALUES_EQUAL(rec3.PermissionsSize(), 1);
             UNIT_ASSERT_VALUES_EQUAL(rec3.GetPermissions(0).GetId(), permissionId);
         }
-        
+
         // Check that request is now allowed
         env.CheckRequest("user", rid1, false, TStatus::ALLOW);
     }
@@ -686,9 +686,9 @@ Y_UNIT_TEST_SUITE(TCmsTest) {
 
         {
             auto pdiskId = env.PDiskId(0, 0);
-    
+
             TString pdiskPath = "/" + std::to_string(pdiskId.NodeId) + "/pdisk-" + std::to_string(pdiskId.DiskId) + ".data";
-    
+
             env.CheckPermissionRequest(
                 MakePermissionRequest(TRequestOptions("user", false, false, false),
                         MakeAction(TAction::REPLACE_DEVICES, "::1", 60000000, pdiskPath)
@@ -699,9 +699,9 @@ Y_UNIT_TEST_SUITE(TCmsTest) {
 
         {
             auto pdiskId = env.PDiskId(1, 0);
-    
+
             TString pdiskPath = "/" + std::to_string(pdiskId.NodeId) + "/pdisk-" + std::to_string(pdiskId.DiskId) + ".data";
-    
+
             env.CheckPermissionRequest(
                 MakePermissionRequest(TRequestOptions("user", false, false, false),
                         MakeAction(TAction::REPLACE_DEVICES, "::1", 60000000, pdiskPath)
@@ -718,9 +718,9 @@ Y_UNIT_TEST_SUITE(TCmsTest) {
 
         for (ui32 i = 0; i < 8; ++i) {
             auto pdiskId = env.PDiskId(i, 0);
-    
+
             TString pdiskPath = "/" + std::to_string(pdiskId.NodeId) + "/pdisk-" + std::to_string(pdiskId.DiskId) + ".data";
-    
+
             auto rec = env.CheckPermissionRequest(
                 MakePermissionRequest(TRequestOptions("user", false, false, false),
                         MakeAction(TAction::REPLACE_DEVICES, "::1", 60000000, pdiskPath)
@@ -925,7 +925,7 @@ Y_UNIT_TEST_SUITE(TCmsTest) {
              MakeAction(TAction::SHUTDOWN_HOST, env.GetNodeId(9), 60000000),
              MakeAction(TAction::SHUTDOWN_HOST, env.GetNodeId(1), 60000000));
         UNIT_ASSERT_VALUES_EQUAL(rec.PermissionsSize(), 0);
-    
+
         auto rid = rec.GetRequestId();
 
         // Get scheduled request
@@ -983,7 +983,7 @@ Y_UNIT_TEST_SUITE(TCmsTest) {
         UNIT_ASSERT_VALUES_EQUAL(scheduledRec.GetRequests(0).ActionsSize(), 1);
         auto action = scheduledRec.GetRequests(0).GetActions(0);
         UNIT_ASSERT_VALUES_EQUAL(action.GetIssue().GetType(), TAction::TIssue::TOO_MANY_UNAVAILABLE_VDISKS);
-        
+
         // Try to check request
         env.CheckRequest("user", rid, false, TStatus::DISALLOW_TEMP);
 
@@ -2230,7 +2230,7 @@ Y_UNIT_TEST_SUITE(TCmsTest) {
             ),
             TStatus::DISALLOW_TEMP // ok, waiting for move VDisks
         );
-     
+
         // Check that FAULTY BSC request is sent
         env.CheckBSCUpdateRequests({ env.GetNodeId(0) }, NKikimrBlobStorage::FAULTY);
 
@@ -2270,7 +2270,7 @@ Y_UNIT_TEST_SUITE(TCmsTest) {
         auto emergency = env.CheckPermissionRequest
             ("user", true, false, true, true, -100, TStatus::ALLOW,
              MakeAction(TAction::RESTART_SERVICES, env.GetNodeId(1), 60000000, "storage"));
-    
+
         // Rolling restart is blocked by emergency request
         env.CheckRequest("user", rollingRestart.GetRequestId(), false, TStatus::DISALLOW_TEMP, 0);
 
@@ -2296,7 +2296,7 @@ Y_UNIT_TEST_SUITE(TCmsTest) {
         auto emergency = env.CheckPermissionRequest
             ("user", true, false, true, true, -100, TStatus::DISALLOW_TEMP,
              MakeAction(TAction::RESTART_SERVICES, env.GetNodeId(1), 60000000, "storage"));
-    
+
         // Done with restarting first node
         env.CheckDonePermission("user", rollingRestart.GetPermissions(0).GetId());
 
@@ -2329,7 +2329,7 @@ Y_UNIT_TEST_SUITE(TCmsTest) {
 
         // Wall-E task is blocked by rolling restart
         env.CheckWalleCreateTask("task-1", "reboot", false, TStatus::DISALLOW_TEMP, env.GetNodeId(1));
-    
+
         // Rolling restart is not blocked
         rollingRestart = env.CheckRequest("user", rollingRestart.GetRequestId(), false, TStatus::ALLOW, 1);
         UNIT_ASSERT_VALUES_EQUAL(rollingRestart.PermissionsSize(), 1);
@@ -2400,7 +2400,7 @@ Y_UNIT_TEST_SUITE(TCmsTest) {
         auto samePriorityRequest = env.CheckPermissionRequest
             ("user", true, false, true, true, -80, TStatus::DISALLOW_TEMP,
              MakeAction(TAction::RESTART_SERVICES, env.GetNodeId(1), 60000000, "storage"));
-    
+
         // Done with restarting first node
         env.CheckDonePermission("user", rollingRestart.GetPermissions(0).GetId());
 
@@ -2430,7 +2430,7 @@ Y_UNIT_TEST_SUITE(TCmsTest) {
         auto samePriorityRequest = env.CheckPermissionRequest
             ("user", true, false, true, true, -80, TStatus::DISALLOW_TEMP,
              MakeAction(TAction::RESTART_SERVICES, env.GetNodeId(1), 60000000, "storage"));
-    
+
         // Done with restarting first node
         env.CheckDonePermission("user", rollingRestart.GetPermissions(0).GetId());
 
@@ -2450,14 +2450,14 @@ Y_UNIT_TEST_SUITE(TCmsTest) {
         TCmsTestEnv env(8);
 
         const TString expectedReason = "Priority value is out of range";
-        
+
         // Out of range priority
         auto request = env.CheckPermissionRequest
             ("user", true, false, true, true, -101, TStatus::WRONG_REQUEST,
              MakeAction(TAction::RESTART_SERVICES, env.GetNodeId(0), 60000000, "storage"),
              MakeAction(TAction::RESTART_SERVICES, env.GetNodeId(1), 60000000, "storage"));
         UNIT_ASSERT_VALUES_EQUAL(request.GetStatus().GetReason(), expectedReason);
-        
+
         // Out of range priority
         request = env.CheckPermissionRequest
             ("user", true, false, true, true, 101, TStatus::WRONG_REQUEST,
@@ -2485,7 +2485,7 @@ Y_UNIT_TEST_SUITE(TCmsTest) {
 
         // Done with restarting first node
         env.CheckDonePermission("user", rollingRestart.GetPermissions(0).GetId());
-    
+
         // Rolling restart is continue
         rollingRestart = env.CheckRequest("user", rollingRestart.GetRequestId(), false, TStatus::ALLOW, 1);
         UNIT_ASSERT_VALUES_EQUAL(rollingRestart.PermissionsSize(), 1);
@@ -2726,14 +2726,14 @@ Y_UNIT_TEST_SUITE(TCmsTest) {
                                    MakeAction(TAction::RESTART_SERVICES, env.GetNodeId(3), 60000000, "storage"));
         env.CheckPermissionRequest("user", false, false, false, true, MODE_MAX_AVAILABILITY, TStatus::ALLOW,
                                    MakeAction(TAction::RESTART_SERVICES, env.GetNodeId(5), 60000000, "storage"));
-        
+
         // Pile #1: tablet 'FLAT_BS_CONTROLLER' has too many unavailable nodes. Locked: 3, down: 0, limit: 3
         env.CheckPermissionRequest("user", false, false, false, true, MODE_MAX_AVAILABILITY, TStatus::DISALLOW_TEMP,
                                    MakeAction(TAction::RESTART_SERVICES, env.GetNodeId(6), 60000000, "storage"));
         // Pile #2: tablet 'FLAT_BS_CONTROLLER' has too many unavailable nodes. Locked: 3, down: 0, limit: 3
         env.CheckPermissionRequest("user", false, false, false, true, MODE_MAX_AVAILABILITY, TStatus::DISALLOW_TEMP,
                                    MakeAction(TAction::RESTART_SERVICES, env.GetNodeId(7), 60000000, "storage"));
-        
+
         // Locking 5 nodes in each pile (MODE_KEEP_AVAILABLE)
         env.CheckPermissionRequest("user", false, false, false, true, MODE_KEEP_AVAILABLE, TStatus::ALLOW,
                                    MakeAction(TAction::RESTART_SERVICES, env.GetNodeId(6), 60000000, "storage"));
@@ -2744,14 +2744,14 @@ Y_UNIT_TEST_SUITE(TCmsTest) {
                                    MakeAction(TAction::RESTART_SERVICES, env.GetNodeId(8), 60000000, "storage"));
         env.CheckPermissionRequest("user", false, false, false, true, MODE_KEEP_AVAILABLE, TStatus::ALLOW,
                                    MakeAction(TAction::RESTART_SERVICES, env.GetNodeId(9), 60000000, "storage"));
-        
+
         // Pile #1: tablet 'FLAT_BS_CONTROLLER' has too many unavailable nodes. Locked: 5, down: 0, limit: 5 (MODE_KEEP_AVAILABLE)
         env.CheckPermissionRequest("user", false, false, false, true, MODE_KEEP_AVAILABLE, TStatus::DISALLOW_TEMP,
                                    MakeAction(TAction::RESTART_SERVICES, env.GetNodeId(10), 60000000, "storage"));
         // Pile #0: tablet 'FLAT_BS_CONTROLLER' has too many unavailable nodes. Locked: 5, down: 0, limit: 5 (MODE_KEEP_AVAILABLE)
         env.CheckPermissionRequest("user", false, false, false, true, MODE_KEEP_AVAILABLE, TStatus::DISALLOW_TEMP,
                                    MakeAction(TAction::RESTART_SERVICES, env.GetNodeId(11), 60000000, "storage"));
-        
+
     }
 
     Y_UNIT_TEST(CheckSysTabletsOnNodesWithPDisks) {

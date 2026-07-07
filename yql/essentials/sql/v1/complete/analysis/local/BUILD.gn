@@ -1,0 +1,21 @@
+library("local") {
+  public_deps = [
+    # "//yql/essentials/sql/v1/complete",
+    # "//yql/essentials/sql/v1/complete:core",
+    # "//yql/essentials/sql/v1/lexer",
+  ]
+
+  deps = [
+    # "//yql/essentials/core/issue",
+    # "//yql/essentials/parser/lexer_common",
+    # "//yql/essentials/sql/v1/complete:antlr4",
+    # "//yql/essentials/sql/v1/complete:syntax",
+    # "//yql/essentials/sql/v1/complete:text",
+  ]
+
+  sources = [
+    "cursor_token_context.cpp",
+    "local.cpp",
+    "parser_call_stack.cpp",
+  ]
+}

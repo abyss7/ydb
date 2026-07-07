@@ -1,0 +1,17 @@
+library("abstract") {
+  public_deps = [
+    # "//ydb/core/tablet_flat",
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/engines/writer",
+    # "//ydb/core/tx/columnshard/splitter",
+    # "//ydb/core/tx/tiering:tier",
+    # "//ydb/library/accessor",
+    # "//ydb/services/metadata/abstract",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard",
+  ]
+
+  sources = [ "abstract.cpp" ]
+}

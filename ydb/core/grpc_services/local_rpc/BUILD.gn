@@ -1,0 +1,10 @@
+group("local_rpc") {
+  public_deps = [
+    "//library/cpp/threading/future",
+    "//ydb/core/base",
+    "//ydb/core/grpc_services",
+    "//ydb/core/grpc_services/base",
+    "//ydb/library/actors/wilson",
+    "//ydb/library/wilson_ids",
+  ]
+}

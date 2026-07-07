@@ -1,0 +1,9 @@
+library("arrow_kernels") {
+  deps = [
+    # "//contrib/libs/apache/arrow",
+  ]
+
+  sources = [ "func_cast.cpp" ]
+
+  serialize_enum_headers = [ "operations.h" ]
+}

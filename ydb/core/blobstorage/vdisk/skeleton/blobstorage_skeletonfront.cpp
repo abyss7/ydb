@@ -2,7 +2,7 @@
 #include "blobstorage_skeletonfront.h"
 #include "blobstorage_skeletonerr.h"
 #include "blobstorage_skeleton.h"
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/blobstorage/base/utility.h>
 #include <ydb/core/blobstorage/base/html.h>
 

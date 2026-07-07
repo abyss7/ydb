@@ -6,7 +6,7 @@
 #include <ydb/core/base/statestorage.h>
 #include <ydb/core/base/appdata.h>
 #include <ydb/core/node_whiteboard/node_whiteboard.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 
 #include <ydb/library/actors/core/actor_bootstrapped.h>
 #include <ydb/library/actors/core/interconnect.h>

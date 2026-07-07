@@ -1,0 +1,23 @@
+library("http_gateway") {
+  public_deps = [
+    # "//contrib/libs/curl",
+    # "//library/cpp/containers/stack_vector",
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//library/cpp/retry",
+    # "//yql/essentials/public/issue",
+  ]
+
+  deps = [
+    # "//contrib/libs/openssl",
+    # "//ydb/library/actors/http",
+    # "//ydb/library/actors/prof",
+    # "//yql/essentials/providers/common/proto",
+    # "//yql/essentials/utils/log",
+  ]
+
+  sources = [
+    "yql_aws_signature.cpp",
+    "yql_http_default_retry_policy.cpp",
+    "yql_http_gateway.cpp",
+  ]
+}

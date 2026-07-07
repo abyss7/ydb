@@ -3,7 +3,7 @@
 #include "defs.h"
 #include "vdisk_context.h"
 #include "vdisk_mongroups.h"
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 
 namespace NKikimr {
 

@@ -1,0 +1,5 @@
+protobuf_library("grpc") {
+  public_deps = [ "//ydb/library/yql/providers/dq/api/protos" ]
+
+  sources = [ "api.proto" ]
+}

@@ -1,0 +1,11 @@
+library("misc") {
+  deps = [
+    "//library/cpp/yt/exception",
+  ]
+
+  sources = [
+    "guid.cpp",
+    "source_location.cpp",
+    "thread_name.cpp",
+  ]
+}

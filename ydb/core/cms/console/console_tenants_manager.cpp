@@ -7,7 +7,7 @@
 #include <ydb/core/base/auth.h>
 #include <ydb/core/base/hive.h>
 #include <ydb/core/base/path.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/protos/msgbus.pb.h>
 #include <ydb/core/protos/schemeshard/operations.pb.h>
 #include <ydb/core/util/pb.h>

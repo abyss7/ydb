@@ -1,0 +1,19 @@
+library("tablet") {
+  deps = [
+    # "//library/cpp/protobuf/json",
+    # "//ydb/core/base",
+    # "//ydb/core/grpc_services",
+    # "//ydb/core/grpc_services/base",
+    # "//ydb/core/protos",
+    # "//ydb/library/mkql_proto",
+    # "//ydb/public/api/protos",
+    # "//yql/essentials/minikql",
+    # "//yql/essentials/minikql/computation",
+  ]
+
+  sources = [
+    "rpc_change_schema.cpp",
+    "rpc_execute_mkql.cpp",
+    "rpc_restart_tablet.cpp",
+  ]
+}

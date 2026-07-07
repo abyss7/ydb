@@ -1,7 +1,10 @@
 library("issue") {
   public_deps = [ "//ydb/public/api/protos" ]
 
-  deps = [ "//library/cpp/colorizer" ]
+  deps = [
+    "//library/cpp/colorizer",
+    "//ydb/public/sdk/cpp/src/library/string_utils:helpers",
+  ]
 
   sources = [
     "utf8.cpp",

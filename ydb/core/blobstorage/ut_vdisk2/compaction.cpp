@@ -1,6 +1,6 @@
 #include "env.h"
 
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/util/lz4_data_generator.h>
 
 using namespace NKikimr;

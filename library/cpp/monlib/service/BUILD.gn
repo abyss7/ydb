@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("service") {
   public_deps = [
     "//library/cpp/coroutine/engine",

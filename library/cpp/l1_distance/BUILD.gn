@@ -1,0 +1,3 @@
+group("l1_distance") {
+  deps = [ "//library/cpp/sse" ]
+}

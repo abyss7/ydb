@@ -1,0 +1,124 @@
+library("mirrorer") {
+  deps = [
+    # "//ydb/core/persqueue/common",
+    # "//ydb/core/persqueue/common:proxy",
+    # "//ydb/core/persqueue/events",
+    # "//ydb/core/persqueue/public:counters",
+    # "//ydb/core/persqueue/public:write_meta",
+    # "//ydb/core/persqueue/writer",
+    # "//ydb/core/protos",
+    # "//ydb/library/persqueue/counter_time_keeper",
+    # "//ydb/library/persqueue/topic_parser",
+    # "//ydb/public/lib/base",
+    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
+  ]
+
+  sources = [ "mirrorer/mirrorer.cpp" ]
+}
+
+library("mlp") {
+  public_deps = [
+    # "//ydb/core/persqueue/public",
+    # "//ydb/core/tablet",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//library/cpp/packedtypes",
+    # "//library/cpp/time_provider",
+    # "//ydb/core/base",
+    # "//ydb/core/keyvalue",
+    # "//ydb/core/persqueue/common",
+    # "//ydb/core/persqueue/events",
+    # "//ydb/core/persqueue/public:describer",
+    # "//ydb/core/persqueue/writer",
+    # "//ydb/core/protos",
+    # "//ydb/core/util",
+    # "//ydb/library/persqueue/counter_time_keeper",
+    # "//ydb/public/lib/base",
+  ]
+
+  sources = [
+    "mlp/mlp_common.cpp",
+    "mlp/mlp_consumer.cpp",
+    "mlp/mlp_consumer_app.cpp",
+    "mlp/mlp_consumer_metrics.cpp",
+    "mlp/mlp_dlq_mover.cpp",
+    "mlp/mlp_message_enricher.cpp",
+    "mlp/mlp_storage.cpp",
+    "mlp/mlp_storage__serialization.cpp",
+  ]
+
+  serialize_enum_headers = [ "mlp/mlp_storage.h" ]
+}
+
+library("partition") {
+  public_deps = [
+    # "//library/cpp/sliding_window",
+    # "//ydb/core/jaeger_tracing",
+    # "//ydb/core/keyvalue",
+    # "//ydb/core/persqueue/common",
+    # "//ydb/core/persqueue/pqtablet/blob",
+    # "//ydb/core/persqueue/pqtablet/quota",
+    # "//ydb/core/persqueue/public",
+    # "//ydb/core/persqueue/public:partition_key_range",
+    # "//ydb/core/protos",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/persqueue/counter_time_keeper",
+  ]
+
+  deps = [
+    # "//library/cpp/containers/absl_flat_hash",
+    # "//library/cpp/containers/stack_vector",
+    # "//library/cpp/html/escape",
+    # "//library/cpp/html/pcdata",
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//library/cpp/monlib/service/pages",
+    # "//library/cpp/time_provider",
+    # "//ydb/core/backup/impl",
+    # "//ydb/core/base",
+    # "//ydb/core/persqueue",
+    # "//ydb/core/persqueue/events",
+    # "//ydb/core/persqueue/pqtablet",
+    # "//ydb/core/persqueue/pqtablet/cache",
+    # "//ydb/core/persqueue/pqtablet/common",
+    # "//ydb/core/persqueue/public:counters",
+    # "//ydb/core/persqueue/public:write_meta",
+    # "//ydb/core/persqueue/writer",
+    # "//ydb/core/quoter:public",
+    # "//ydb/core/scheme",
+    # "//ydb/core/tablet",
+    # "//ydb/core/tx/replication/service",
+    # "//ydb/core/tx/replication/ydb_proxy",
+    # "//ydb/core/tx/scheme_cache",
+    # "//ydb/library/persqueue/topic_parser",
+    # "//ydb/library/protobuf_printer",
+    # "//ydb/library/services",
+    # "//ydb/library/wilson_ids",
+    # "//ydb/library/yverify_stream",
+    # "//ydb/public/lib/base",
+    # ":mirrorer",
+    # ":mlp",
+  ]
+
+  sources = [
+    "autopartitioning_manager.cpp",
+    "consumer_offset_tracker.cpp",
+    "message_id_deduplicator.cpp",
+    "offload_actor.cpp",
+    "ownerinfo.cpp",
+    "partition.cpp",
+    "partition_blob_encoder.cpp",
+    "partition_compactification.cpp",
+    "partition_compaction.cpp",
+    "partition_init.cpp",
+    "partition_mlp.cpp",
+    "partition_monitoring.cpp",
+    "partition_read.cpp",
+    "partition_sourcemanager.cpp",
+    "partition_write.cpp",
+    "sourceid.cpp",
+    "subscriber.cpp",
+    "user_info.cpp",
+  ]
+}

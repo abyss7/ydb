@@ -1,0 +1,35 @@
+library("load_actor_adapter") {
+  public_deps = [
+    # "//ydb/core/nbs/cloud/blockstore/libs/service/fast_path_service",
+    # "//ydb/core/nbs/cloud/blockstore/libs/storage/api",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//ydb/core/nbs/cloud/blockstore/libs/service",
+    # "//ydb/core/nbs/cloud/blockstore/public/api/protos",
+    # "//ydb/core/nbs/cloud/storage/core/libs/common",
+  ]
+
+  sources = [ "load_actor_adapter/load_actor_adapter.cpp" ]
+}
+
+library("partition_direct") {
+  deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/mind:bscontroller",
+    # "//ydb/core/nbs/cloud/blockstore/bootstrap",
+    # "//ydb/core/nbs/cloud/blockstore/config",
+    # "//ydb/core/nbs/cloud/blockstore/libs/service/fast_path_service",
+    # "//ydb/core/nbs/cloud/blockstore/libs/storage/api",
+    # "//ydb/core/nbs/cloud/blockstore/libs/vhost",
+    # "//ydb/core/protos",
+    # "//ydb/library/actors/core",
+    # ":load_actor_adapter",
+  ]
+
+  sources = [
+    "partition_direct.cpp",
+    "partition_direct_actor.cpp",
+  ]
+}

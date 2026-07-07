@@ -1,0 +1,9 @@
+library("resources") {
+  public_deps = [
+    # "//ydb/library/actors/core",
+    # "//ydb/library/services",
+    # "//ydb/library/signals",
+  ]
+
+  sources = [ "memory.cpp" ]
+}

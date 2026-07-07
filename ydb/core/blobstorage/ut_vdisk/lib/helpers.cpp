@@ -3,7 +3,7 @@
 #include <util/generic/set.h>
 #include <util/random/shuffle.h>
 
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/blobstorage/vdisk/common/vdisk_private_events.h>
 #include <ydb/core/blobstorage/vdisk/synclog/blobstorage_synclog.h>
 #include <ydb/core/blobstorage/vdisk/synclog/blobstorage_synclogreader.h>

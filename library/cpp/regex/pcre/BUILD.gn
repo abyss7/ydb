@@ -1,0 +1,14 @@
+library("pcre") {
+  public_deps = [
+    # "//contrib/libs/pcre",
+  ]
+
+  deps = [
+    # "//library/cpp/containers/stack_array",
+  ]
+
+  sources = [
+    "pcre.cpp",
+    "regexp.cpp",
+  ]
+}

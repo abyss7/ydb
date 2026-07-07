@@ -1,0 +1,47 @@
+library("keyvalue") {
+  public_deps = [
+    # "//library/cpp/json",
+    # "//ydb/core/base",
+    # "//ydb/core/engine:minikql",
+    # "//ydb/core/protos",
+    # "//ydb/core/tablet",
+    # "//ydb/core/tablet_flat",
+    # "//ydb/core/util",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/services",
+    # "//ydb/library/wilson_ids",
+    # "//ydb/public/lib/base",
+    # ":protos",
+  ]
+
+  deps = [
+    # "//library/cpp/json:writer",
+    # "//library/cpp/monlib/service/pages",
+    # "//library/cpp/time_provider",
+    # "//ydb/core/mind",
+    # "//ydb/core/scheme",
+    # "//ydb/library/actors/protos",
+    # "//ydb/library/actors/wilson",
+  ]
+
+  sources = [
+    "keyvalue.cpp",
+    "keyvalue_collect_operation.cpp",
+    "keyvalue_collector.cpp",
+    "keyvalue_data.cpp",
+    "keyvalue_helpers.cpp",
+    "keyvalue_index_record.cpp",
+    "keyvalue_intermediate.cpp",
+    "keyvalue_simple_db_flat.cpp",
+    "keyvalue_state.cpp",
+    "keyvalue_state_collect.cpp",
+    "keyvalue_storage_read_request.cpp",
+    "keyvalue_storage_request.cpp",
+    "keyvalue_stored_state_data.cpp",
+    "keyvalue_utils.cpp",
+  ]
+}
+
+protobuf_library("protos") {
+  sources = [ "protos/events.proto" ]
+}

@@ -1,0 +1,20 @@
+library("ttl") {
+  public_deps = [
+    # "//ydb/core/protos",
+    # "//ydb/core/tx/schemeshard/olap/columns",
+    # "//ydb/core/tx/schemeshard/olap/indexes",
+    # "//ydb/library/conclusion",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/schemeshard",
+    # "//ydb/core/tx/schemeshard:common",
+    # "//ydb/core/tx/tiering:tier",
+  ]
+
+  sources = [
+    "schema.cpp",
+    "update.cpp",
+    "validator.cpp",
+  ]
+}

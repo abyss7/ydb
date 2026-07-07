@@ -1,0 +1,8 @@
+library("counters") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard/engines/portions",
+    # "//ydb/library/signals",
+  ]
+
+  sources = [ "counters.cpp" ]
+}

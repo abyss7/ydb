@@ -1,0 +1,36 @@
+library("control_plane_config") {
+  public_deps = [
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//ydb/core/fq/libs/actors:logging",
+    # "//ydb/core/fq/libs/config:protos",
+    # "//ydb/core/fq/libs/shared_resources",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//ydb/core/fq/libs/common",
+    # "//ydb/core/fq/libs/control_plane_storage",
+    # "//ydb/core/fq/libs/control_plane_storage:events",
+    # "//ydb/core/fq/libs/db_schema",
+    # "//ydb/core/fq/libs/quota_manager",
+    # "//ydb/core/fq/libs/ydb",
+    # "//ydb/library/db_pool",
+    # "//yql/essentials/public/issue",
+  ]
+
+  sources = [ "control_plane_config.cpp" ]
+}
+
+library("events") {
+  public_deps = [
+    # "//ydb/core/fq/libs/compute/common",
+    # "//ydb/core/fq/libs/events",
+    # "//ydb/core/fq/libs/quota_manager:events",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/actors/interconnect",
+    # "//ydb/public/api/protos",
+    # "//yql/essentials/public/issue",
+  ]
+
+  sources = [ "events/events.cpp" ]
+}

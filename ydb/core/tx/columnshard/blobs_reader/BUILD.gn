@@ -1,0 +1,19 @@
+library("blobs_reader") {
+  public_deps = [
+    # "//ydb/core/protos",
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/columnshard/blobs_action:abstract",
+    # "//ydb/core/tx/columnshard/resource_subscriber",
+    # "//ydb/library/accessor",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/conclusion",
+    # "//ydb/library/signals",
+  ]
+
+  sources = [
+    "actor.cpp",
+    "events.cpp",
+    "read_coordinator.cpp",
+    "task.cpp",
+  ]
+}

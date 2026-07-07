@@ -1,0 +1,23 @@
+library("actorlib_impl") {
+  public_deps = [
+    # "//ydb/library/actors/core",
+    # "//ydb/library/actors/protos",
+    # "//ydb/library/services",
+  ]
+
+  deps = [
+    # "//ydb/core/base",
+    # "//ydb/library/actors/interconnect",
+    # "//ydb/library/actors/memory_log",
+  ]
+
+  sources = [
+    "actor_tracker.cpp",
+    "connect_socket_protocol.cpp",
+    "long_timer.cpp",
+    "name_service_client_protocol.cpp",
+    "read_data_protocol.cpp",
+    "read_http_reply_protocol.cpp",
+    "send_data_protocol.cpp",
+  ]
+}

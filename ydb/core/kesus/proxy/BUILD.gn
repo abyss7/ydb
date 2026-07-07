@@ -1,0 +1,22 @@
+library("proxy") {
+  public_deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/protos",
+    # "//ydb/core/scheme",
+    # "//ydb/public/api/protos",
+  ]
+
+  deps = [
+    # "//ydb/core/kesus/tablet",
+    # "//ydb/core/tx/scheme_cache",
+    # "//ydb/core/tx/schemeshard",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/services",
+  ]
+
+  sources = [
+    "events.cpp",
+    "proxy.cpp",
+    "proxy_actor.cpp",
+  ]
+}

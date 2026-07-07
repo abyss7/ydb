@@ -1,0 +1,5 @@
+protobuf_library("operation") {
+  public_deps = [ "//contrib/libs/googleapis-common-protos" ]
+
+  sources = [ "operation.proto" ]
+}

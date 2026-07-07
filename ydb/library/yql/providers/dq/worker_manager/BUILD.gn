@@ -1,0 +1,44 @@
+library("interface") {
+  public_deps = [
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/actors/interconnect",
+    # "//ydb/library/yql/dq/common",
+    # "//ydb/library/yql/providers/dq/api/protos",
+    # "//yql/essentials/utils/log",
+  ]
+
+  deps = [
+    # "//ydb/library/yql/providers/dq/api/grpc",
+    # "//yql/essentials/providers/common/metrics",
+  ]
+
+  sources = [
+    "interface/counters.cpp",
+    "interface/events.cpp",
+    "interface/worker_info.cpp",
+  ]
+}
+
+library("worker_manager") {
+  public_deps = [
+    # "//ydb/library/actors/core",
+    # "//ydb/library/yql/dq/actors:compute",
+    # "//ydb/library/yql/providers/dq/task_runner",
+    # "//ydb/library/yql/providers/dq/task_runner_actor",
+    # "//yql/essentials/minikql",
+    # ":interface",
+  ]
+
+  deps = [
+    # "//ydb/library/actors/helpers",
+    # "//ydb/library/actors/interconnect",
+    # "//ydb/library/yql/dq/common",
+    # "//ydb/library/yql/providers/dq/actors",
+    # "//ydb/library/yql/providers/dq/runtime",
+    # "//yql/essentials/utils/failure_injector",
+    # "//yql/essentials/utils/log",
+  ]
+
+  sources = [ "local_worker_manager.cpp" ]
+}

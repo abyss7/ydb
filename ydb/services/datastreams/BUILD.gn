@@ -1,0 +1,43 @@
+library("codes") {
+  sources = [ "codes/datastreams_codes.cpp" ]
+}
+
+library("datastreams") {
+  public_deps = [
+    # "//library/cpp/string_utils/base64",
+    # "//ydb/core/client/server",
+    # "//ydb/core/grpc_services",
+    # "//ydb/core/grpc_services/base",
+    # "//ydb/core/protos",
+    # "//ydb/library/grpc/server",
+    # "//ydb/public/api/grpc:draft",
+  ]
+
+  deps = [
+    # "//library/cpp/digest/md5",
+    # "//ydb/core/base",
+    # "//ydb/core/persqueue/events",
+    # "//ydb/core/persqueue/pqtablet/partition",
+    # "//ydb/core/persqueue/public",
+    # "//ydb/core/persqueue/public:list_topics",
+    # "//ydb/core/persqueue/public:partition_key_range",
+    # "//ydb/core/persqueue/public:write_meta",
+    # "//ydb/core/persqueue/writer",
+    # "//ydb/core/tx/scheme_board",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/cloud_permissions",
+    # "//ydb/public/api/protos",
+    # "//ydb/services/lib/actors",
+    # "//ydb/services/lib/sharding",
+    # "//ydb/services/persqueue_v1:actors",
+    # ":codes",
+  ]
+
+  sources = [
+    "datastreams_proxy.cpp",
+    "grpc_service.cpp",
+    "next_token.cpp",
+    "put_records_actor.cpp",
+    "shard_iterator.cpp",
+  ]
+}

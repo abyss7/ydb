@@ -1,0 +1,51 @@
+library("sub_columns") {
+  public_deps = [
+    # "//contrib/libs/apache/arrow",
+    # "//ydb/core/formats/arrow",
+    # "//ydb/core/formats/arrow/accessor/abstract",
+    # "//ydb/core/formats/arrow/accessor/common",
+    # "//ydb/core/formats/arrow:common",
+    # "//ydb/library/accessor",
+    # "//ydb/library/conclusion",
+    # "//yql/essentials/minikql/jsonpath/parser",
+  ]
+
+  deps = [
+    # "//contrib/libs/simdjson",
+    # "//contrib/libs/xxhash",
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//ydb/core/formats/arrow/accessor/composite_serial",
+    # "//ydb/core/formats/arrow/accessor/plain",
+    # "//ydb/core/formats/arrow/accessor/sparsed",
+    # "//ydb/core/formats/arrow:save_load",
+    # "//ydb/core/formats/arrow:serializer",
+    # "//ydb/core/formats/arrow:splitter",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/formats/arrow",
+    # "//ydb/library/formats/arrow:protos",
+    # "//ydb/library/formats/arrow:validation",
+    # "//ydb/library/signals",
+    # "//ydb/services/bg_tasks/abstract",
+    # "//ydb/services/metadata/abstract",
+    # "//yql/essentials/minikql/jsonpath",
+    # "//yql/essentials/types/binary_json",
+  ]
+
+  sources = [
+    "accessor.cpp",
+    "columns_storage.cpp",
+    "constructor.cpp",
+    "data_extractor.cpp",
+    "direct_builder.cpp",
+    "header.cpp",
+    "iterators.cpp",
+    "json_extractors.cpp",
+    "json_value_path.cpp",
+    "others_storage.cpp",
+    "partial.cpp",
+    "request.cpp",
+    "settings.cpp",
+    "signals.cpp",
+    "stats.cpp",
+  ]
+}

@@ -1,0 +1,12 @@
+library("signals") {
+  deps = [
+    # "//library/cpp/json:yson",
+    # "//library/cpp/protobuf/json",
+    # "//yql/essentials/utils/backtrace",
+  ]
+
+  sources = [
+    "signals.cpp",
+    "utils.cpp",
+  ]
+}

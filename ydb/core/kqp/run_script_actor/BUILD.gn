@@ -1,0 +1,24 @@
+library("run_script_actor") {
+  public_deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/kqp/counters",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//library/cpp/protobuf/json",
+    # "//ydb/core/fq/libs/checkpointing:events",
+    # "//ydb/core/kqp/common",
+    # "//ydb/core/kqp/common:events",
+    # "//ydb/core/kqp/executer_actor",
+    # "//ydb/core/kqp/federated_query",
+    # "//ydb/core/kqp/proxy_service",
+    # "//ydb/core/kqp/proxy_service:proto",
+    # "//ydb/library/ydb_issue",
+    # "//ydb/library/ydb_issue:proto",
+    # "//ydb/library/yql/providers/pq/proto",
+    # "//ydb/public/api/protos",
+  ]
+
+  sources = [ "kqp_run_script_actor.cpp" ]
+}

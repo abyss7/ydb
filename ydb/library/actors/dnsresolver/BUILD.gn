@@ -1,0 +1,16 @@
+library("dnsresolver") {
+  public_deps = [
+    "//library/cpp/monlib/dynamic_counters",
+    "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    "//contrib/libs/c-ares",
+  ]
+
+  sources = [
+    "dnsresolver.cpp",
+    "dnsresolver_caching.cpp",
+    "dnsresolver_ondemand.cpp",
+  ]
+}

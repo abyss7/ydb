@@ -1,0 +1,12 @@
+library("retro_tracing_impl") {
+  deps = [
+    # "//ydb/core/base",
+    # "//ydb/library/actors/retro_tracing",
+    # "//ydb/library/actors/wilson",
+  ]
+
+  sources = [
+    "named_span.cpp",
+    "retro_tracing.cpp",
+  ]
+}

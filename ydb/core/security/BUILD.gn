@@ -70,11 +70,8 @@ library("sasl") {
 
 library("security") {
   public_deps = [
-    # ":certificate_check",
-    # ":ldap_auth_provider",
-    # ":token_manager",
     # "//library/cpp/digest/md5",
-    # "//library/cpp/monlib/service/pages",
+    "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/mon",
     # "//ydb/core/protos",
     # "//ydb/library/aclib",
@@ -85,15 +82,18 @@ library("security") {
     # "//ydb/library/security",
     "//ydb/library/ycloud/api",
     # "//ydb/library/ycloud/impl",
+    # ":certificate_check",
+    # ":ldap_auth_provider",
+    # ":token_manager",
   ]
 
   deps = [
-    # "//library/cpp/json",
+    "//library/cpp/json",
     "//library/cpp/string_utils/base64",
     # "//ydb/core/audit",
     "//ydb/core/base",
     # "//ydb/core/grpc_services/base",
-    # "//ydb/core/grpc_services/local_rpc",
+    "//ydb/core/grpc_services/local_rpc",
     # "//ydb/core/util",
     "//ydb/library/actors/http",
     # "//ydb/library/login",

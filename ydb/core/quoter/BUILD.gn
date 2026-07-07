@@ -1,0 +1,37 @@
+library("public") {
+  public_deps = [
+    # "//ydb/library/actors/core",
+    # "//ydb/library/time_series_vec",
+  ]
+
+  sources = [ "public/quoter.cpp" ]
+
+  serialize_enum_headers = [ "public/quoter.h" ]
+}
+
+library("quoter") {
+  public_deps = [
+    # ":public",
+  ]
+
+  deps = [
+    # "//library/cpp/containers/ring_buffer",
+    # "//library/cpp/lwtrace",
+    # "//library/cpp/lwtrace/mon",
+    # "//ydb/core/base",
+    # "//ydb/core/kesus/tablet",
+    # "//ydb/core/mon",
+    # "//ydb/core/protos",
+    # "//ydb/core/tx/scheme_cache",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/time_series_vec",
+    # "//yql/essentials/public/issue",
+  ]
+
+  sources = [
+    "debug_info.cpp",
+    "kesus_quoter_proxy.cpp",
+    "probes.cpp",
+    "quoter_service.cpp",
+  ]
+}

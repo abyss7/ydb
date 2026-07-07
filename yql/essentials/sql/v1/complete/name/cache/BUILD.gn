@@ -1,0 +1,21 @@
+library("cache") {
+  public_deps = [
+    # "//library/cpp/threading/future",
+  ]
+
+  sources = [
+    "byte_size.cpp",
+    "cache.cpp",
+    "cached.cpp",
+  ]
+}
+
+library("local") {
+  public_deps = [
+    # "//library/cpp/cache",
+    # "//library/cpp/time_provider",
+    # "//yql/essentials/sql/v1/complete/name/cache",
+  ]
+
+  sources = [ "local/cache.cpp" ]
+}

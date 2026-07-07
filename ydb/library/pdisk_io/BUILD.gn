@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("device_type") {
   sources = [ "device_type.cpp" ]
 }

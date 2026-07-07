@@ -1,0 +1,3 @@
+library("levenshtein_diff") {
+  sources = [ "levenshtein_diff.cpp" ]
+}

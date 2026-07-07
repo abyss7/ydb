@@ -1,5 +1,5 @@
 #include <library/cpp/testing/unittest/registar.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/blobstorage/crypto/default.h>
 #include <ydb/core/blobstorage/nodewarden/node_warden_impl.h>
 #include <ydb/core/blobstorage/pdisk/blobstorage_pdisk_tools.h>

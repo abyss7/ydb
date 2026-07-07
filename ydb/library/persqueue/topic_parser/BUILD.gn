@@ -1,0 +1,18 @@
+library("topic_parser") {
+  public_deps = [
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//ydb/core/base",
+    # "//ydb/core/protos",
+    # "//ydb/library/actors/core",
+    # "//ydb/public/sdk/cpp/src/library/persqueue/topic_parser_public",
+  ]
+
+  deps = [
+    # "//ydb/library/yverify_stream",
+  ]
+
+  sources = [
+    "counters.cpp",
+    "topic_parser.cpp",
+  ]
+}

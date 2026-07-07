@@ -1,0 +1,11 @@
+library("cli_config_base") {
+  public_deps = [
+    # "//library/cpp/deprecated/enum_codegen",
+    # "//ydb/core/fq/libs/config:protos",
+    # "//ydb/core/protos",
+    # "//ydb/core/util",
+    # "//ydb/public/lib/deprecated/client",
+  ]
+
+  sources = [ "config_base.cpp" ]
+}

@@ -1,0 +1,10 @@
+library("crypto") {
+  deps = [
+    # "//library/cpp/openssl/big_integer",
+  ]
+
+  sources = [
+    "rsa.cpp",
+    "sha.cpp",
+  ]
+}

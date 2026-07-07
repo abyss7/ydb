@@ -1,0 +1,53 @@
+library("tpcc") {
+  public_deps = [
+    # "//library/cpp/logger",
+    # "//ydb/public/lib/ydb_cli/common",
+    # "//ydb/public/sdk/cpp/src/client/query",
+  ]
+
+  deps = [
+    # "//contrib/libs/ftxui",
+    # "//library/cpp/colorizer",
+    # "//library/cpp/json",
+    # "//library/cpp/threading/future",
+    # "//library/cpp/time_provider",
+    # "//ydb/public/lib/ydb_cli/commands",
+    # "//ydb/public/sdk/cpp/src/client/driver",
+    # "//ydb/public/sdk/cpp/src/client/operation",
+    # "//ydb/public/sdk/cpp/src/client/scheme",
+    # "//ydb/public/sdk/cpp/src/client/table",
+    # "//ydb/public/sdk/cpp/src/client/types/status",
+  ]
+
+  sources = [
+    "check.cpp",
+    "clean.cpp",
+    "common_queries.cpp",
+    "data_splitter.cpp",
+    "histogram.cpp",
+    "import.cpp",
+    "import_tui.cpp",
+    "init.cpp",
+    "log_backend.cpp",
+    "logs_scroller.cpp",
+    "path_checker.cpp",
+    "runner.cpp",
+    "runner_tui.cpp",
+    "scroller.cpp",
+    "task_queue.cpp",
+    "terminal.cpp",
+    "transaction_delivery.cpp",
+    "transaction_neworder.cpp",
+    "transaction_orderstatus.cpp",
+    "transaction_payment.cpp",
+    "transaction_simulation.cpp",
+    "transaction_stocklevel.cpp",
+    "tui_base.cpp",
+    "util.cpp",
+  ]
+
+  serialize_enum_headers = [
+    "constants.h",
+    "runner.h",
+  ]
+}

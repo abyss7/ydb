@@ -1,0 +1,22 @@
+library("jsonpath") {
+  public_deps = [
+    # "//yql/essentials/minikql/jsonpath/parser",
+    # "//yql/essentials/public/udf",
+    # "//yql/essentials/types/binary_json",
+  ]
+
+  deps = [
+    # "//library/cpp/containers/stack_vector",
+    # "//library/cpp/json",
+    # "//yql/essentials/core/issue:protos",
+    # "//yql/essentials/minikql/dom",
+    # "//yql/essentials/public/issue",
+    # "//yql/essentials/utils",
+  ]
+
+  sources = [
+    "executor.cpp",
+    "jsonpath.cpp",
+    "value.cpp",
+  ]
+}

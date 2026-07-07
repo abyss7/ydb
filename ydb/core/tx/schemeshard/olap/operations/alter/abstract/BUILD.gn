@@ -1,0 +1,19 @@
+library("abstract") {
+  public_deps = [
+    # "//ydb/core/protos",
+    # "//ydb/core/protos/schemeshard",
+    # "//ydb/core/scheme",
+    # "//ydb/core/scheme:protos",
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/schemeshard",
+    # "//ydb/core/tx/schemeshard/olap/common",
+    # "//ydb/library/accessor",
+  ]
+
+  sources = [
+    "context.cpp",
+    "converter.cpp",
+    "object.cpp",
+    "update.cpp",
+  ]
+}

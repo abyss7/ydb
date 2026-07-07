@@ -1,0 +1,19 @@
+library("topic") {
+  public_deps = [
+    # "//ydb/public/lib/ydb_cli/commands",
+    # "//ydb/public/lib/ydb_cli/common",
+    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
+  ]
+
+  deps = [
+    # "//library/cpp/json",
+    # "//library/cpp/string_utils/base64",
+  ]
+
+  sources = [
+    "topic_read.cpp",
+    "topic_write.cpp",
+  ]
+
+  serialize_enum_headers = [ "topic_metadata_fields.h" ]
+}

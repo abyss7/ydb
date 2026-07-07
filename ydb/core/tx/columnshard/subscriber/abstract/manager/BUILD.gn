@@ -1,0 +1,9 @@
+library("manager") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard/subscriber/abstract/events",
+    # "//ydb/core/tx/columnshard/subscriber/abstract/subscriber",
+    # "//ydb/library/actors/core",
+  ]
+
+  sources = [ "manager.cpp" ]
+}

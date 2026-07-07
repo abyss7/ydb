@@ -1,0 +1,7 @@
+library("counter_time_keeper") {
+  public_deps = [
+    # "//ydb/core/tablet",
+  ]
+
+  sources = [ "counter_time_keeper.cpp" ]
+}

@@ -1,0 +1,21 @@
+library("base") {
+  public_deps = [
+    # "//library/cpp/containers/stack_vector",
+    # "//ydb/core/base",
+    # "//ydb/core/blobstorage/vdisk/common",
+    # "//ydb/core/protos",
+    # "//ydb/core/util",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//library/cpp/monlib/service/pages",
+  ]
+
+  sources = [
+    "blobstorage_syncstate.cpp",
+    "blobstorage_vdiskid.cpp",
+    "html.cpp",
+    "vdisk_priorities.cpp",
+  ]
+}

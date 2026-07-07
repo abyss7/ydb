@@ -1,0 +1,15 @@
+library("purecalc_compilation") {
+  public_deps = [
+    # "//ydb/core/fq/libs/row_dispatcher/common",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//ydb/core/fq/libs/actors:logging",
+    # "//ydb/core/fq/libs/row_dispatcher/events",
+    # "//ydb/core/fq/libs/row_dispatcher/format_handler:common",
+    # "//yql/essentials/public/purecalc/common",
+  ]
+
+  sources = [ "compile_service.cpp" ]
+}

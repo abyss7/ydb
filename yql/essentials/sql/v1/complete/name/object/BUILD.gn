@@ -1,0 +1,7 @@
+library("object") {
+  public_deps = [
+    # "//library/cpp/threading/future",
+  ]
+
+  sources = [ "schema.cpp" ]
+}

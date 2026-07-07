@@ -1,0 +1,3 @@
+group("util") {
+  public_deps = [ "//library/cpp/protobuf/json" ]
+}

@@ -1,10 +1,11 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("pg_catalog") {
   public_deps = [ "//yql/essentials/public/issue" ]
 
   deps = [
     ":proto",
     "//library/cpp/digest/md5",
-    "//library/cpp/resource",
     "//yql/essentials/utils/log",
   ]
 
@@ -12,7 +13,7 @@ library("pg_catalog") {
 }
 
 protobuf_library("proto") {
-  deps = [ "//yql/essentials/protos" ]
+  public_deps = [ "//yql/essentials/protos" ]
 
   sources = [ "proto/pg_catalog.proto" ]
 }

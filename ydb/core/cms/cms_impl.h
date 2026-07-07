@@ -23,7 +23,7 @@
 #include <util/datetime/base.h>
 #include <util/generic/queue.h>
 #include <util/generic/stack.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 
 namespace NKikimr::NCms {
 

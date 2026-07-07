@@ -1,0 +1,17 @@
+library("table") {
+  public_deps = [
+    # "//ydb/core/protos",
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/schemeshard",
+    # "//ydb/core/tx/sharding",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard/common:protos",
+    # "//ydb/core/tx/schemeshard/olap/operations/alter/abstract",
+    # "//ydb/core/tx/schemeshard/olap/operations/alter/in_store",
+    # "//ydb/core/tx/schemeshard/olap/operations/alter/standalone",
+  ]
+
+  sources = [ "table.cpp" ]
+}

@@ -1,12 +1,12 @@
 library("scheme_types") {
   public_deps = [
     # "//ydb/library/accessor",
-    # "//ydb/public/lib/scheme_types",
+    "//ydb/public/lib/scheme_types",
   ]
 
   deps = [
     # "//yql/essentials/parser/pg_wrapper/interface",
-    # "//yql/essentials/public/decimal",
+    "//yql/essentials/public/decimal",
   ]
 
   sources = [

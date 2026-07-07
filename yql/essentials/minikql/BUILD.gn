@@ -4,7 +4,7 @@ source_set("alloc") {
   deps += [
     "//contrib/libs/apache/arrow",
     "//library/cpp/monlib/dynamic_counters",
-    "//yql/essentials/parser/pg_catalog",
+    # "//yql/essentials/parser/pg_catalog",
     "//yql/essentials/public/udf:_udf",
     "//yql/essentials/sql:pg_dummy",
   ]
@@ -18,24 +18,22 @@ source_set("alloc") {
 
 library("minikql") {
   public_deps = [
-    # "//contrib/libs/apache/arrow",
-    # "//yql/essentials/public/udf",
-    # "//yql/essentials/utils",
+    "//contrib/libs/apache/arrow",
+    "//yql/essentials/public/udf",
+    "//yql/essentials/utils",
   ]
 
   deps = [
-    # "//contrib/libs/cctz",
-    # "//library/cpp/monlib/dynamic_counters",
-    # "//library/cpp/type_info:tz",
-    # "//library/cpp/yson",
-    # "//yql/essentials/ast",
-    # "//yql/essentials/core/sql_types",
-    # "//yql/essentials/parser/pg_catalog",
-    # "//yql/essentials/public/decimal",
-    # "//yql/essentials/public/udf:arrow",
-    # "//yql/essentials/types/binary_json",
-    # "//yql/essentials/types/dynumber",
-    # "//yql/essentials/types/uuid",
+    "//contrib/libs/cctz",
+    "//library/cpp/type_info:tz",
+    "//library/cpp/yson",
+    "//yql/essentials/core/sql_types",
+    "//yql/essentials/parser/pg_catalog",
+    "//yql/essentials/public/decimal",
+    "//yql/essentials/public/udf:arrow",
+    "//yql/essentials/types/binary_json",
+    "//yql/essentials/types/dynumber",
+    "//yql/essentials/types/uuid",
   ]
 
   sources = [

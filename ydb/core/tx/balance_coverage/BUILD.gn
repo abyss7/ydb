@@ -1,0 +1,11 @@
+library("balance_coverage") {
+  public_deps = [
+    # "//ydb/core/protos",
+  ]
+
+  deps = [
+    # "//ydb/core/base",
+  ]
+
+  sources = [ "balance_coverage_builder.cpp" ]
+}

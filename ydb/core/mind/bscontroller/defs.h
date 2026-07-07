@@ -11,7 +11,7 @@
 #include <ydb/core/base/group_stat.h>
 #include <ydb/core/base/services/blobstorage_service_id.h>
 #include <ydb/core/base/tablet_pipe.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/blobstorage/base/blobstorage_console_events.h>
 #include <ydb/core/blobstorage/base/blobstorage_shred_events.h>
 #include <ydb/core/blobstorage/base/blobstorage_vdiskid.h>

@@ -7,7 +7,7 @@
 #include <ydb/core/base/counters.h>
 #include <ydb/core/base/domain.h>
 #include <ydb/core/base/tablet_pipe.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/blobstorage/nodewarden/node_warden_events.h>
 #include <ydb/core/node_whiteboard/node_whiteboard.h>
 #include <ydb/library/services/services.pb.h>

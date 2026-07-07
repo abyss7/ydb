@@ -1,11 +1,13 @@
 library("types") {
-  deps = [ "//ydb/public/sdk/cpp/src/client/impl/internal/common" ]
+  deps = [
+    "//ydb/public/sdk/cpp/src/client/impl/internal/common",
+  ]
 
   sources = [ "ydb.cpp" ]
 
   serialize_enum_headers = [
-    "ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/types/s3_settings.h",
-    "ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/types/status_codes.h",
-    "ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/types/ydb.h",
+    "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/types/s3_settings.h",
+    "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/types/status_codes.h",
+    "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/types/ydb.h",
   ]
 }

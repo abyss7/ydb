@@ -1,0 +1,20 @@
+library("audit") {
+  deps = [
+    # "//ydb/library/actors/core",
+  ]
+
+  sources = [ "yq_audit_service.cpp" ]
+}
+
+library("events") {
+  public_deps = [
+    # "//ydb/core/fq/libs/checkpointing_common",
+    # "//ydb/core/fq/libs/control_plane_storage:events",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/actors/interconnect",
+    # "//ydb/public/api/protos",
+    # "//yql/essentials/public/issue",
+  ]
+
+  sources = [ "events/events.cpp" ]
+}

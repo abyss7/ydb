@@ -1,0 +1,10 @@
+library("kikimr") {
+  public_deps = [
+    # "//library/cpp/lwtrace",
+    # "//ydb/core/nbs/cloud/blockstore/libs/service",
+    # "//ydb/core/nbs/cloud/storage/core/libs/common",
+    # "//ydb/library/actors/core",
+  ]
+
+  sources = [ "events.cpp" ]
+}

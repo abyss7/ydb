@@ -1,0 +1,19 @@
+library("metrics") {
+  public_deps = [
+    # "//library/cpp/monlib/dynamic_counters",
+  ]
+
+  deps = [
+    # ":protos",
+  ]
+
+  sources = [
+    "metrics_registry.cpp",
+    "sensors_group.cpp",
+    "service_counters.cpp",
+  ]
+}
+
+protobuf_library("protos") {
+  sources = [ "protos/metrics_registry.proto" ]
+}

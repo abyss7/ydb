@@ -8,6 +8,7 @@
 #include <util/generic/bitmap.h>
 #include <util/generic/hash.h>
 #include <util/generic/hash_set.h>
+#include <util/generic/map.h>
 #include <util/generic/ptr.h>
 #include <util/generic/set.h>
 #include <util/stream/str.h>

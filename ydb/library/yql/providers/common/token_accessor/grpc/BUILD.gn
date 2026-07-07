@@ -1,0 +1,3 @@
+protobuf_library("grpc") {
+  sources = [ "token_accessor_pb.proto" ]
+}

@@ -6,7 +6,7 @@
 #include <ydb/core/base/tablet_pipe.h>
 #include <ydb/core/base/tablet_resolver.h>
 #include <ydb/core/blobstorage/pdisk/blobstorage_pdisk_tools.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/tablet/bootstrapper.h>
 #include <ydb/core/tablet/resource_broker.h>
 #include <ydb/core/tablet_flat/tablet_flat_executed.h>

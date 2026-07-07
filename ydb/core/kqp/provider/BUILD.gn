@@ -5,9 +5,15 @@ generate_expr_nodes("gen") {
 }
 
 library("provider") {
+    public_deps = [
+        "//ydb/services/metadata/manager",
+    ]
+
     deps = [
         ":gen",
         "//ydb/core/protos",
+        "//yql/essentials/providers/common/config",
+        "//yql/essentials/providers/result/expr_nodes",
     ]
 
     sources = [

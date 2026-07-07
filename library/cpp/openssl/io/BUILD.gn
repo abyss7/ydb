@@ -1,0 +1,8 @@
+library("io") {
+  deps = [
+    "//library/cpp/openssl/method",
+    "//library/cpp/resource",
+  ]
+
+  sources = [ "stream.cpp" ]
+}

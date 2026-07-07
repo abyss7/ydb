@@ -1,0 +1,15 @@
+library("composite_serial") {
+  public_deps = [
+    # "//ydb/core/formats/arrow/accessor/abstract",
+    # "//ydb/core/formats/arrow/accessor/composite",
+    # "//ydb/core/formats/arrow:save_load",
+  ]
+
+  deps = [
+    # "//ydb/core/formats/arrow/accessor/sparsed",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/actors/prof",
+  ]
+
+  sources = [ "accessor.cpp" ]
+}

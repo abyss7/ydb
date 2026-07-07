@@ -1,0 +1,17 @@
+library("version") {
+  public_deps = [
+    "//ydb/core/protos",
+    "//ydb/library/actors/interconnect",
+  ]
+
+  deps = [
+    "//contrib/libs/protobuf",
+    "//library/cpp/svnversion",
+    "//ydb/core/viewer:json",
+  ]
+
+  sources = [
+    "version.cpp",
+    "//ydb/apps/version/version_definition.cpp",
+  ]
+}

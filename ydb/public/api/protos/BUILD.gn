@@ -1,7 +1,7 @@
 protobuf_library("protos") {
+    public_deps = [ "annotations" ]
+
     sources = [
-        "annotations/sensitive.proto",
-        "annotations/validation.proto",
         "draft/datastreams.proto",
         "draft/field_transformation.proto",
         "draft/fq.proto",

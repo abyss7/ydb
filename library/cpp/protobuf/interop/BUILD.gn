@@ -1,0 +1,3 @@
+library("interop") {
+  sources = [ "cast.cpp" ]
+}

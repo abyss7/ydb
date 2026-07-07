@@ -164,12 +164,12 @@ TStored TCompatibilityInfo::MakeStored(TComponentId componentId) const {
 // rules to compare versions with and without Patch, all versions without Patch (<=24.4)
 // are < than versions with Patch (>=25.1)
 // Absent component is equal to any other, including other absent
-// 
+//
 // Some examples:
 // 25.1.1.1.1 < 26.1.2.1.0
 // 22.2.1.0.1 > 22.1._._._
 // 23.1._._._ == 23.1.1.0.1
-// 
+//
 
 // Function returns -1 if left < right, 0 if left == right, 1 if left > right
 i32 CompareVersions(const NKikimrConfig::TYdbVersion& left, const NKikimrConfig::TYdbVersion& right) {
@@ -177,7 +177,7 @@ i32 CompareVersions(const NKikimrConfig::TYdbVersion& left, const NKikimrConfig:
         return 0;
     }
     if (left.GetYear() < right.GetYear()) {
-        return -1; 
+        return -1;
     } else if (left.GetYear() > right.GetYear()) {
         return 1;
     }
@@ -186,7 +186,7 @@ i32 CompareVersions(const NKikimrConfig::TYdbVersion& left, const NKikimrConfig:
         return 0;
     }
     if (left.GetMajor() < right.GetMajor()) {
-        return -1; 
+        return -1;
     } else if (left.GetMajor() > right.GetMajor()) {
         return 1;
     }
@@ -195,7 +195,7 @@ i32 CompareVersions(const NKikimrConfig::TYdbVersion& left, const NKikimrConfig:
         return 0;
     }
     if (left.GetMinor() < right.GetMinor()) {
-        return -1; 
+        return -1;
     } else if (left.GetMinor() > right.GetMinor()) {
         return 1;
     }
@@ -205,7 +205,7 @@ i32 CompareVersions(const NKikimrConfig::TYdbVersion& left, const NKikimrConfig:
         return 0;
     } else if (left.HasPatch() && right.HasPatch()) {
         if (left.GetPatch() < right.GetPatch()) {
-            return -1; 
+            return -1;
         } else if (left.GetPatch() > right.GetPatch()) {
             return 1;
         }
@@ -215,7 +215,7 @@ i32 CompareVersions(const NKikimrConfig::TYdbVersion& left, const NKikimrConfig:
         return 0;
     }
     if (left.GetHotfix() < right.GetHotfix()) {
-        return -1; 
+        return -1;
     } else if (left.GetHotfix() > right.GetHotfix()) {
         return 1;
     }
@@ -299,7 +299,7 @@ bool CheckRule(std::optional<TString> app, const NKikimrConfig::TYdbVersion* ver
             return false;
         }
     }
-    
+
     return (!rule.HasLowerLimit() || CompareVersions(*version, rule.GetLowerLimit()) > -1) &&
             (!rule.HasUpperLimit() || CompareVersions(*version, rule.GetUpperLimit()) < 1);
 }
@@ -333,7 +333,7 @@ bool TCompatibilityInfo::CheckCompatibility(const TCurrent* current, const TStor
         }
         return true;
     };
-    
+
     if (componentId == EComponentId::Interconnect) {
         if (!checkRuleList(current->GetCanConnectTo(), storedApplication, storedVersion, "Peer version is explicitly prohibited, ")) {
             return false;
@@ -463,13 +463,13 @@ std::optional<NKikimrConfig::TYdbVersion> ParseVersionFromTag(TString tag, TStri
         version.SetHotfix(0);
         return version;
     }
-    
+
     if (TryIntFromString<10, ui32>(parts.front(), hotfix)) {
         // example: stable-23-1-1-4 == 23.1.1.4
         version.SetHotfix(hotfix);
         return version;
     }
-    
+
     if (parts.front() == "hotfix" || parts.front() == "fix") {
         parts.pop_front();
     }
@@ -479,18 +479,18 @@ std::optional<NKikimrConfig::TYdbVersion> ParseVersionFromTag(TString tag, TStri
         version.SetHotfix(1);
         return version;
     }
-    
+
     if (TryIntFromString<10, ui32>(parts.front(), hotfix)) {
         // example: stable-23-1-1-hotfix-7 == 23.1.1.7
         version.SetHotfix(hotfix);
         return version;
     }
-    
+
     if (TryIntFromString<10, ui32>(parts.back(), hotfix)) {
         // example: stable-23-1-1-fix-something-important-2 == 23.1.1.2
         version.SetHotfix(hotfix);
         return version;
-    } 
+    }
 
     // example: stable-23-1-1-whatever == 23.1.1.0
     version.SetHotfix(0);
@@ -531,7 +531,7 @@ TString GetTagString() {
         }
     }
 
-    return std::move(tag);
+    return tag;
 }
 
 bool TCompatibilityInfo::CompleteFromTag(NKikimrConfig::TCurrentCompatibilityInfo& current) {
@@ -550,7 +550,7 @@ bool TCompatibilityInfo::CompleteFromTag(NKikimrConfig::TCurrentCompatibilityInf
             } else {
                 version->SetYear(versionFromTag.GetYear());
             }
-            
+
             if (version->HasMajor()) {
                 Y_ABORT_UNLESS(version->GetMajor() == versionFromTag.GetMajor());
             } else {
@@ -788,7 +788,7 @@ TString TCompatibilityInfo::PrintHumanReadable(const NKikimrConfig::TCurrentComp
         str << "    Compatible by default with versions in range ";
         ui32 year = version.GetYear();
         ui32 major = version.GetMajor();
-    
+
         str << "[" << year << "-";
         if (major > 1) {
             str << major - 1;

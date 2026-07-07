@@ -1,0 +1,17 @@
+library("constructor") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard/engines/reader/abstract",
+    # "//ydb/core/tx/columnshard/engines/reader/common_reader/constructor",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/columnshard/engines/predicate",
+    # "//ydb/core/tx/columnshard/engines/reader/plain_reader/iterator",
+  ]
+
+  sources = [
+    "constructor.cpp",
+    "read_metadata.cpp",
+  ]
+}

@@ -1,5 +1,6 @@
 library("public") {
   public_deps = [
+    "//contrib/libs/openssl",
     "//ydb/library/actors/core",
     "//ydb/library/fyamlcpp",
   ]
@@ -11,12 +12,12 @@ library("yaml_config") {
   public_deps = [
     # "//library/cpp/json:writer",
     # "//library/cpp/protobuf/json",
-    # "//library/cpp/yaml/as",
+    "//library/cpp/yaml/as",
     # "//ydb/core/erasure",
     # "//ydb/library/yaml_config/protos",
     # "//ydb/public/api/protos",
     # "//yql/essentials/public/issue",
-    # ":public",
+    ":public",
   ]
 
   deps = [

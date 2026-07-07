@@ -1,0 +1,19 @@
+library("db_pool") {
+  public_deps = [
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/security",
+    # "//ydb/public/sdk/cpp/src/client/table",
+    # ":protos",
+  ]
+
+  deps = [
+    # "//ydb/library/services",
+  ]
+
+  sources = [ "db_pool.cpp" ]
+}
+
+protobuf_library("protos") {
+  sources = [ "protos/config.proto" ]
+}

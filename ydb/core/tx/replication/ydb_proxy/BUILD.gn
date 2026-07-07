@@ -1,0 +1,48 @@
+library("local_proxy") {
+  public_deps = [
+    # "//ydb/core/grpc_services/base",
+    # "//ydb/core/tx/replication/ydb_proxy",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//ydb/core/grpc_services",
+    # "//ydb/core/persqueue/events",
+    # "//ydb/core/persqueue/writer",
+    # "//ydb/core/protos",
+    # "//ydb/core/tx/scheme_cache",
+    # "//ydb/library/services",
+    # "//ydb/library/yverify_stream",
+    # "//ydb/public/api/protos",
+  ]
+
+  sources = [
+    "local_proxy/local_partition_actor.cpp",
+    "local_proxy/local_partition_committer.cpp",
+    "local_proxy/local_partition_reader.cpp",
+    "local_proxy/local_proxy.cpp",
+  ]
+}
+
+library("ydb_proxy") {
+  public_deps = [
+    # "//ydb/core/base",
+    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
+    # "//ydb/public/sdk/cpp/src/client/scheme",
+    # "//ydb/public/sdk/cpp/src/client/table",
+  ]
+
+  deps = [
+    # "//ydb/core/protos",
+    # "//ydb/library/actors/core",
+    # "//ydb/public/sdk/cpp/src/client/driver",
+    # "//ydb/public/sdk/cpp/src/client/iam",
+    # "//ydb/public/sdk/cpp/src/client/iam_private",
+    # "//ydb/public/sdk/cpp/src/client/types/credentials",
+  ]
+
+  sources = [
+    "topic_message.cpp",
+    "ydb_proxy.cpp",
+  ]
+}

@@ -1,0 +1,24 @@
+library("request") {
+  public_deps = [
+    "//ydb/core/base",
+    # "//ydb/core/grpc_services/base",
+    # "//ydb/core/grpc_services/local_rpc",
+    # "//ydb/core/protos",
+    # "//ydb/library/accessor",
+    # "//ydb/library/aclib",
+    "//ydb/library/actors/core",
+    # "//ydb/library/conclusion",
+    # "//yql/essentials/public/issue",
+  ]
+
+  deps = [
+    # "//ydb/public/api/protos",
+  ]
+
+  sources = [
+    "common.cpp",
+    "config.cpp",
+    "request_actor.cpp",
+    "request_actor_cb.cpp",
+  ]
+}

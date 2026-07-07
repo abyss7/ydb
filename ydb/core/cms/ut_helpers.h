@@ -2,7 +2,7 @@
 
 #include "cms.h"
 
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/protos/cms.pb.h>
 #include <ydb/public/api/protos/draft/ydb_maintenance.pb.h>
 #include <ydb/library/aclib/aclib.h>
@@ -345,7 +345,7 @@ inline NKikimrWhiteboard::TSystemStateInfo MakeSystemStateInfo(const TString &ve
 
 inline void AddActionsToGroup(
         Ydb::Maintenance::ActionGroup &group,
-        const Ydb::Maintenance::Action &action) 
+        const Ydb::Maintenance::Action &action)
 {
     group.add_actions()->CopyFrom(action);
 }
@@ -353,21 +353,21 @@ inline void AddActionsToGroup(
 template <typename... Ts>
 void AddActionsToGroup(
         Ydb::Maintenance::ActionGroup &group,
-        const Ydb::Maintenance::Action &action, Ts... actions) 
+        const Ydb::Maintenance::Action &action, Ts... actions)
 {
     AddActionsToGroup(group, action);
     AddActionsToGroup(group, actions...);
 }
 
 template <typename... Ts>
-Ydb::Maintenance::ActionGroup MakeActionGroup(Ts... actions) 
+Ydb::Maintenance::ActionGroup MakeActionGroup(Ts... actions)
 {
     Ydb::Maintenance::ActionGroup group;
     AddActionsToGroup(group, actions...);
     return group;
 }
 
-inline Ydb::Maintenance::ActionGroup MakeActionGroup(const Ydb::Maintenance::Action &action) 
+inline Ydb::Maintenance::ActionGroup MakeActionGroup(const Ydb::Maintenance::Action &action)
 {
     Ydb::Maintenance::ActionGroup group;
     AddActionsToGroup(group, action);
@@ -404,7 +404,7 @@ inline Ydb::Maintenance::Action MakeCordonAction(ui32 nodeId) {
 
 inline void AddActionGroups(
         Ydb::Maintenance::CreateMaintenanceTaskRequest &req,
-        const Ydb::Maintenance::ActionGroup &actionGroup) 
+        const Ydb::Maintenance::ActionGroup &actionGroup)
 {
     req.add_action_groups()->CopyFrom(actionGroup);
 }
@@ -412,7 +412,7 @@ inline void AddActionGroups(
 template <typename... Ts>
 void AddActionGroups(
         Ydb::Maintenance::CreateMaintenanceTaskRequest &req,
-        const Ydb::Maintenance::ActionGroup &actionGroup, Ts... actionGroups) 
+        const Ydb::Maintenance::ActionGroup &actionGroup, Ts... actionGroups)
 {
     AddActionGroups(req, actionGroup);
     AddActionGroups(req, actionGroups...);

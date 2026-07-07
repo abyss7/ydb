@@ -1,0 +1,99 @@
+library("abstract") {
+  public_deps = [
+    # "//library/cpp/cache",
+    # "//library/cpp/json:writer",
+    # "//ydb/core/protos",
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/data_accessor",
+    # "//ydb/core/tx/columnshard/engines/portions",
+    # "//ydb/core/tx/columnshard/tx_reader",
+    # "//ydb/library/accessor",
+    # "//ydb/library/conclusion",
+    # "//ydb/services/bg_tasks/abstract",
+    # ":cache_policy",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard/engines/storage/granule",
+    # ":local_db",
+  ]
+
+  sources = [
+    "abstract/collector.cpp",
+    "abstract/constructor.cpp",
+    "abstract/manager.cpp",
+  ]
+}
+
+library("cache_policy") {
+  public_deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/tx/columnshard/engines/portions",
+    # "//ydb/core/tx/general_cache/source",
+    # "//ydb/core/tx/general_cache/usage",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard",
+    # ":abstract",
+  ]
+
+  sources = [ "cache_policy/policy.cpp" ]
+}
+
+library("data_accessor") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/engines/portions",
+    # "//ydb/core/tx/columnshard/resource_subscriber",
+    # "//ydb/core/tx/general_cache/usage",
+    # "//ydb/library/signals",
+    # "//ydb/services/bg_tasks/abstract",
+    # ":abstract",
+    # ":cache_policy",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard/hooks/abstract",
+    # "//ydb/library/accessor",
+  ]
+
+  sources = [
+    "manager.cpp",
+    "request.cpp",
+  ]
+}
+
+library("in_mem") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/tx_reader",
+    # ":abstract",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard/engines/storage/granule",
+  ]
+
+  sources = [
+    "in_mem/constructor.cpp",
+    "in_mem/manager.cpp",
+  ]
+}
+
+library("local_db") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard/common",
+    # ":abstract",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard/engines/storage/granule",
+  ]
+
+  sources = [
+    "local_db/constructor.cpp",
+    "local_db/manager.cpp",
+  ]
+}

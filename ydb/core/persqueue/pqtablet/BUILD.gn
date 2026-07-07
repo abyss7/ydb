@@ -1,0 +1,47 @@
+library("pqtablet") {
+  public_deps = [
+    # "//ydb/core/persqueue/common",
+  ]
+
+  deps = [
+    # "//library/cpp/json",
+    # "//library/cpp/monlib/service/pages",
+    # "//ydb/core/base",
+    # "//ydb/core/jaeger_tracing",
+    # "//ydb/core/keyvalue",
+    # "//ydb/core/metering",
+    # "//ydb/core/persqueue",
+    # "//ydb/core/persqueue/events",
+    # "//ydb/core/persqueue/pqtablet/cache",
+    # "//ydb/core/persqueue/pqtablet/common",
+    # "//ydb/core/persqueue/pqtablet/partition",
+    # "//ydb/core/persqueue/pqtablet/quota",
+    # "//ydb/core/persqueue/pqtablet/readproxy",
+    # "//ydb/core/persqueue/public",
+    # "//ydb/core/persqueue/public:counters",
+    # "//ydb/core/persqueue/public:partition_key_range",
+    # "//ydb/core/persqueue/writer",
+    # "//ydb/core/protos",
+    # "//ydb/core/scheme",
+    # "//ydb/core/sys_view:service",
+    # "//ydb/core/tablet",
+    # "//ydb/core/tx",
+    # "//ydb/core/tx/long_tx_service:public",
+    # "//ydb/core/tx/scheme_cache",
+    # "//ydb/core/tx/time_cast",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/actors/interconnect",
+    # "//ydb/library/persqueue/topic_parser",
+    # "//ydb/library/protobuf_printer",
+    # "//ydb/library/wilson_ids",
+  ]
+
+  sources = [
+    "fix_transaction_states.cpp",
+    "metering_sink.cpp",
+    "pq_impl.cpp",
+    "pq_impl_app.cpp",
+    "pq_impl_app_sendreadset.cpp",
+    "transaction.cpp",
+  ]
+}

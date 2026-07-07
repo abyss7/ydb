@@ -2,7 +2,7 @@
 
 #include <ydb/library/actors/core/actor_bootstrapped.h>
 #include <ydb/core/protos/blockstore_config.pb.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 
 #include <ydb/core/nbs/cloud/blockstore/config/storage.pb.h>
 #include <ydb/core/nbs/cloud/blockstore/libs/storage/api/service.h>

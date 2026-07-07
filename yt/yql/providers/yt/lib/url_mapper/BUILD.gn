@@ -1,0 +1,13 @@
+library("url_mapper") {
+  public_deps = [
+    # "//library/cpp/regex/pcre",
+  ]
+
+  deps = [
+    # "//library/cpp/cgiparam",
+    # "//library/cpp/uri",
+    # "//yql/essentials/providers/common/proto",
+  ]
+
+  sources = [ "yql_yt_url_mapper.cpp" ]
+}

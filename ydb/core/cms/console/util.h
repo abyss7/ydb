@@ -5,6 +5,8 @@
 
 #include <ydb/core/base/tablet_pipe.h>
 
+#include <util/generic/bitmap.h>
+
 namespace NKikimr::NConsole {
 
 NTabletPipe::TClientRetryPolicy FastConnectRetryPolicy();

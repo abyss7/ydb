@@ -268,7 +268,7 @@ public:
             const NKikimrCms::TAction &action)
     {
         AddLockByRequest(notification.NotificationId);
-    
+
         TExternalLock lock(notification, action);
         auto pos = LowerBound(ExternalLocks.begin(), ExternalLocks.end(), lock, [](auto &l, auto &r) {
                 return l.LockStart < r.LockStart;
@@ -540,8 +540,8 @@ public:
     TStateStorageRingInfo(const TStateStorageRingInfo &other) = default;
     TStateStorageRingInfo(TStateStorageRingInfo &&other) = default;
 
-    TStateStorageRingInfo &operator=(const TStateStorageRingInfo &other) = default;
-    TStateStorageRingInfo &operator=(TStateStorageRingInfo &&other) = default;
+    TStateStorageRingInfo &operator=(const TStateStorageRingInfo &other) = delete;
+    TStateStorageRingInfo &operator=(TStateStorageRingInfo &&other) = delete;
 
     static TString RingStateToString(RingState state) {
         switch (state) {
@@ -941,7 +941,7 @@ public:
     }
 
     ui64 AddExternalLocks(const TNotificationInfo &notification, const TActorContext *ctx);
-    
+
     TSet<TLockableItem *> FindLockedItems(const NKikimrCms::TAction &action, const TActorContext *ctx);
 
     void SetHostMarkers(const TString &hostName, const THashSet<NKikimrCms::EMarker> &markers);

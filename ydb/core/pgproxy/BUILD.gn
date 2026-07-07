@@ -1,0 +1,24 @@
+library("pgproxy") {
+  public_deps = [
+    # "//ydb/core/raw_socket",
+    # "//ydb/library/actors/core",
+    # ":protos",
+  ]
+
+  deps = [
+    # "//library/cpp/string_utils/base64",
+    # "//ydb/core/base",
+    # "//ydb/library/actors/interconnect:poller",
+    # "//ydb/library/services",
+  ]
+
+  sources = [
+    "pg_connection.cpp",
+    "pg_proxy.cpp",
+    "pg_proxy_types.cpp",
+  ]
+}
+
+protobuf_library("protos") {
+  sources = [ "protos/pgproxy.proto" ]
+}

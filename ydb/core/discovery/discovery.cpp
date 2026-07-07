@@ -5,7 +5,7 @@
 #include <ydb/core/base/path.h>
 #include <ydb/core/base/feature_flags.h>
 #include <ydb/core/base/statestorage.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/tx/scheme_cache/scheme_cache.h>
 #include <ydb/public/api/protos/ydb_discovery.pb.h>
 

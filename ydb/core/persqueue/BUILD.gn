@@ -1,0 +1,25 @@
+library("persqueue") {
+  public_deps = [
+    # "//ydb/core/persqueue/events",
+    # "//ydb/core/persqueue/pqrb",
+    # "//ydb/core/persqueue/pqtablet",
+    # "//ydb/core/persqueue/pqtablet/cache",
+    # "//ydb/core/persqueue/public:cluster_tracker",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//ydb/core/persqueue/common",
+    # "//ydb/core/persqueue/public:write_meta",
+    # "//ydb/core/persqueue/writer",
+    # "//ydb/core/protos",
+    # "//ydb/public/api/protos",
+    # "//ydb/public/lib/base",
+    # "//ydb/services/persqueue_v1:actors",
+  ]
+
+  sources = [
+    "dread_cache_service/caching_service.cpp",
+    "pq.cpp",
+  ]
+}

@@ -1,0 +1,13 @@
+library("gateway") {
+  public_deps = [
+    # "//library/cpp/threading/future",
+    # "//yql/essentials/core/issue",
+    # "//yql/essentials/public/issue",
+  ]
+
+  deps = [
+    # "//yql/essentials/utils/log",
+  ]
+
+  sources = [ "yql_provider_gateway.cpp" ]
+}

@@ -1,0 +1,26 @@
+library("backpressure") {
+  public_deps = [
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//ydb/core/base",
+    # "//ydb/core/blobstorage/groupinfo",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//ydb/core/blobstorage",
+    # "//ydb/core/blobstorage/lwtrace_probes",
+    # "//ydb/core/blobstorage/vdisk/common",
+    # "//ydb/core/protos",
+    # "//ydb/core/retro_tracing_impl",
+    # "//ydb/library/actors/wilson",
+    # "//ydb/library/wilson_ids",
+  ]
+
+  sources = [
+    "event.cpp",
+    "load_based_timeout.cpp",
+    "queue.cpp",
+    "queue_backpressure_client.cpp",
+    "unisched.cpp",
+  ]
+}

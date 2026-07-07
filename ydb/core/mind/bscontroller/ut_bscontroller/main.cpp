@@ -1,6 +1,6 @@
 #include <ydb/core/base/tablet.h>
 #include <ydb/core/base/blobstorage_common.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/blobstorage/dsproxy/mock/dsproxy_mock.h>
 #include <ydb/core/mind/bscontroller/bsc.h>
 #include <ydb/core/mind/bscontroller/indir.h>

@@ -7,12 +7,6 @@ config("public_config") {
 library("base") {
   public_deps = [
     "generated",
-    # "//library/cpp/containers/stack_vector",
-    # "//library/cpp/deprecated/enum_codegen",
-    # "//library/cpp/lwtrace",
-    # "//library/cpp/threading/light_rw_lock",
-    # "//ydb/core/control/lib",
-    # "//ydb/core/fq/libs/events",
     "//ydb/core/protos",
     "//ydb/core/scheme",
     "//ydb/library/actors/interconnect",
@@ -20,27 +14,22 @@ library("base") {
 
   deps = [
     "//contrib/libs/snowball",
-    # "//library/cpp/dot_product",
+    "//library/cpp/dot_product",
     "//library/cpp/dwarf_backtrace",
-    # "//library/cpp/l1_distance",
-    # "//library/cpp/l2_distance",
+    "//library/cpp/l2_distance",
     "//library/cpp/monlib/dynamic_counters",
-    # "//library/cpp/monlib/service/pages",
+    "//library/cpp/monlib/service/pages",
     "//library/cpp/random_provider",
     "//library/cpp/threading/hot_swap",
-    # "//library/cpp/time_provider",
     "//ydb/core/audit:audit_config",
     "//ydb/core/erasure",
-    # "//ydb/core/graph/api",
     "//ydb/core/jaeger_tracing",
     "//ydb/library/aclib",
-    # "//ydb/library/actors/helpers",
-    # "//ydb/library/actors/util",
+    "//ydb/library/actors/helpers",
     "//ydb/library/actors/wilson",
     "//ydb/library/actors/protos",
     "//ydb/library/login",
     "//ydb/library/pdisk_io:device_type",
-    # "//yql/essentials/minikql",
   ]
 
   sources = [

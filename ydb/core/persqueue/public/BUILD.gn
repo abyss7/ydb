@@ -1,0 +1,174 @@
+library("cluster_tracker") {
+  public_deps = [
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//ydb/core/base",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//ydb/core/kqp/common",
+    # "//ydb/core/persqueue/public",
+    # "//ydb/library/mkql_proto:protos",
+    # "//ydb/public/sdk/cpp/src/client/result",
+  ]
+
+  sources = [ "cluster_tracker/cluster_tracker.cpp" ]
+}
+
+library("codecs") {
+  public_deps = [
+    # "//ydb/public/api/protos",
+    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
+    # "//ydb/public/sdk/cpp/src/client/persqueue_public",
+  ]
+
+  sources = [ "codecs/pqv1.cpp" ]
+}
+
+library("counters") {
+  public_deps = [
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//ydb/library/persqueue/topic_parser",
+  ]
+
+  deps = [
+    # "//ydb/core/base",
+    # "//ydb/library/actors/core",
+  ]
+
+  sources = [ "counters/percentile_counter.cpp" ]
+}
+
+library("describer") {
+  public_deps = [
+    # "//ydb/core/persqueue/events",
+    # "//ydb/core/tx/scheme_cache",
+    # "//ydb/library/actors/core",
+    # "//ydb/public/api/protos",
+  ]
+
+  sources = [ "describer/describer.cpp" ]
+
+  serialize_enum_headers = [ "describer/describer.h" ]
+}
+
+library("fetcher") {
+  public_deps = [
+    # "//ydb/core/persqueue/public",
+    # "//ydb/library/aclib",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//ydb/core/actorlib_impl",
+    # "//ydb/core/base",
+    # "//ydb/core/client/server",
+    # "//ydb/core/persqueue/events",
+    # "//ydb/core/tx/replication/ydb_proxy",
+    # ":describer",
+    # ":write_meta",
+  ]
+
+  sources = [ "fetcher/fetch_request_actor.cpp" ]
+}
+
+library("list_topics") {
+  deps = [
+    # "//ydb/core/persqueue/events",
+    # "//ydb/core/tx/scheme_cache",
+    # "//ydb/library/actors/core",
+  ]
+
+  sources = [ "list_topics/list_all_topics_actor.cpp" ]
+}
+
+library("mlp") {
+  public_deps = [
+    # "//ydb/core/persqueue/events",
+    # "//ydb/library/actors/core",
+    # "//ydb/public/api/protos",
+    # ":describer",
+  ]
+
+  deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/persqueue/common",
+    # "//ydb/core/persqueue/public",
+    # "//ydb/core/protos",
+    # "//ydb/core/util",
+    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
+  ]
+
+  sources = [
+    "mlp/mlp.cpp",
+    "mlp/mlp_changer.cpp",
+    "mlp/mlp_purger.cpp",
+    "mlp/mlp_reader.cpp",
+    "mlp/mlp_writer.cpp",
+  ]
+}
+
+library("partition_index_generator") {
+  sources = [ "partition_index_generator/partition_index_generator.cpp" ]
+}
+
+library("partition_key_range") {
+  public_deps = [
+    # "//ydb/core/scheme",
+    # "//yql/essentials/public/decimal",
+  ]
+
+  deps = [
+    # "//library/cpp/digest/md5",
+    # "//ydb/core/protos",
+    # "//ydb/library/actors/core",
+    # "//ydb/services/lib/sharding",
+  ]
+
+  sources = [
+    "partition_key_range/partition_key_range.cpp",
+    "partition_key_range/partition_key_range_sequence.cpp",
+  ]
+}
+
+library("public") {
+  public_deps = [
+    # "//library/cpp/sliding_window",
+    # "//ydb/core/base",
+    # "//ydb/core/grpc_services",
+    # "//ydb/core/kafka_proxy",
+    # "//ydb/core/metering",
+    # "//ydb/core/protos",
+    # "//ydb/core/tx/scheme_board",
+  ]
+
+  deps = [
+    # "//ydb/core/grpc_services/base",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/yverify_stream",
+  ]
+
+  sources = [
+    "config.cpp",
+    "inflight_limiter.cpp",
+    "pq_database.cpp",
+    "pq_rl_helpers.cpp",
+    "utils.cpp",
+    "write_id.cpp",
+  ]
+}
+
+library("write_meta") {
+  public_deps = [
+    # "//ydb/core/protos",
+    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
+    # "//ydb/public/sdk/cpp/src/client/persqueue_public",
+  ]
+
+  deps = [
+    # "//ydb/library/actors/core",
+    # ":codecs",
+  ]
+
+  sources = [ "write_meta/write_meta.cpp" ]
+}

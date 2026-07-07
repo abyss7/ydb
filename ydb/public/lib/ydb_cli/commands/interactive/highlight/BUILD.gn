@@ -1,0 +1,21 @@
+library("color") {
+  public_deps = [
+    # "//contrib/restricted/patched/replxx",
+  ]
+
+  sources = [ "color/schema.cpp" ]
+}
+
+library("highlight") {
+  public_deps = [
+    # "//contrib/libs/ftxui",
+    # "//contrib/restricted/patched/replxx",
+    # ":color",
+  ]
+
+  deps = [
+    # "//yql/essentials/sql/v1/highlight",
+  ]
+
+  sources = [ "yql_highlighter.cpp" ]
+}

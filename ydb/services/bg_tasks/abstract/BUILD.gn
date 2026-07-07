@@ -1,0 +1,17 @@
+library("abstract") {
+  public_deps = [
+    # "//library/cpp/json",
+    # "//library/cpp/json:writer",
+    # "//library/cpp/string_utils/base64",
+    # "//ydb/core/base",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/conclusion",
+    # "//ydb/library/services",
+  ]
+
+  deps = [
+    # "//ydb/services/bg_tasks/protos",
+  ]
+
+  sources = [ "interface.cpp" ]
+}

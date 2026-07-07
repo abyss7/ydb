@@ -1,0 +1,16 @@
+library("type_ann") {
+  public_deps = [
+    # "//ydb/library/yql/dq/expr_nodes",
+    # "//yql/essentials/core",
+  ]
+
+  deps = [
+    # "//yql/essentials/core/type_ann",
+    # "//yql/essentials/providers/common/provider",
+    # "//yql/essentials/utils/log",
+  ]
+
+  sources = [ "dq_type_ann.cpp" ]
+
+  serialize_enum_headers = [ "dq_type_ann.h" ]
+}

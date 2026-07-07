@@ -1,0 +1,6 @@
+library("bitseq") {
+  sources = [
+    "bitvector.cpp",
+    "readonly_bitvector.cpp",
+  ]
+}

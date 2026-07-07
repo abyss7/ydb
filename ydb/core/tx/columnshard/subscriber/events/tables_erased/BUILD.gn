@@ -1,0 +1,8 @@
+library("tables_erased") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/subscriber/abstract/events",
+  ]
+
+  sources = [ "event.cpp" ]
+}

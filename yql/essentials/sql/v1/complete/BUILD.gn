@@ -1,0 +1,81 @@
+library("antlr4") {
+  public_deps = [
+    # "//contrib/libs/antlr4_cpp_runtime",
+  ]
+
+  sources = [ "antlr4/vocabulary.cpp" ]
+}
+
+library("complete") {
+  public_deps = [
+    # "//library/cpp/threading/future",
+    # "//yql/essentials/sql/v1/complete/name/service",
+    # "//yql/essentials/sql/v1/complete/name/service:ranking",
+    # "//yql/essentials/sql/v1/lexer",
+    # ":core",
+  ]
+
+  deps = [
+    # "//yql/essentials/sql/v1/complete/analysis/global",
+    # "//yql/essentials/sql/v1/complete/analysis/local",
+    # "//yql/essentials/sql/v1/complete/name/object/simple:static",
+    # "//yql/essentials/sql/v1/complete/name/service:binding",
+    # "//yql/essentials/sql/v1/complete/name/service:column",
+    # "//yql/essentials/sql/v1/complete/name/service:schema",
+    # "//yql/essentials/sql/v1/complete/name/service:static",
+    # "//yql/essentials/sql/v1/complete/name/service:union",
+    # ":syntax",
+    # ":text",
+  ]
+
+  sources = [
+    "configuration.cpp",
+    "name_mapping.cpp",
+    "sql_complete.cpp",
+  ]
+}
+
+library("core") {
+  public_deps = [
+    # "//library/cpp/yson:node",
+  ]
+
+  deps = [
+    # "//yql/essentials/core/sql_types",
+  ]
+
+  sources = [
+    "core/environment.cpp",
+    "core/input.cpp",
+    "core/name.cpp",
+    "core/statement.cpp",
+  ]
+}
+
+library("syntax") {
+  public_deps = [
+    # "//contrib/libs/antlr4_cpp_runtime",
+    # ":antlr4",
+  ]
+
+  deps = [
+    # "//contrib/libs/re2",
+    # "//yql/essentials/public/issue",
+    # "//yql/essentials/sql/v1/lexer/regex",
+    # "//yql/essentials/sql/v1/reflect",
+    # "//yql/essentials/sql:settings",
+  ]
+
+  sources = [
+    "syntax/ansi.cpp",
+    "syntax/format.cpp",
+    "syntax/grammar.cpp",
+  ]
+}
+
+library("text") {
+  sources = [
+    "text/case.cpp",
+    "text/word.cpp",
+  ]
+}

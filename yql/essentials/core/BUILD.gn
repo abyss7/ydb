@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("core") {
   public_deps = [
     "//library/cpp/enumbitset",
@@ -8,7 +10,6 @@ library("core") {
     "//library/cpp/yson",
     "//library/cpp/yson:node",
     "//yql/essentials/ast",
-    # "//yql/essentials/core/cbo",
     "//yql/essentials/core/credentials",
     "//yql/essentials/core/expr_nodes",
     "//yql/essentials/core/file_storage",
@@ -36,7 +37,6 @@ library("core") {
     "//library/cpp/iterator",
     "//library/cpp/string_utils/base64",
     "//library/cpp/type_info:tz",
-    # "//yql/essentials/core/type_ann",
     "//yql/essentials/minikql/dom",
     "//yql/essentials/minikql/jsonpath/parser",
     "//yql/essentials/parser/pg_wrapper/interface",

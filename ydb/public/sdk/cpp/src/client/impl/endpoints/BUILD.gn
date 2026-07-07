@@ -1,0 +1,12 @@
+library("endpoints") {
+  public_deps = [
+    # "//ydb/public/sdk/cpp/src/client/impl/stats",
+  ]
+
+  deps = [
+    # "//library/cpp/monlib/metrics",
+    # "//library/cpp/string_utils/quote",
+  ]
+
+  sources = [ "endpoints.cpp" ]
+}

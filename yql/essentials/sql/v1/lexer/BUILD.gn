@@ -1,0 +1,71 @@
+library("antlr4") {
+  public_deps = [
+    # "//yql/essentials/parser/lexer_common",
+  ]
+
+  deps = [
+    # "//yql/essentials/parser/proto_ast/antlr4",
+    # "//yql/essentials/parser/proto_ast/collect_issues",
+    # "//yql/essentials/public/issue",
+  ]
+
+  sources = [ "antlr4/lexer.cpp" ]
+}
+
+library("antlr4_ansi") {
+  public_deps = [
+    # "//yql/essentials/parser/lexer_common",
+  ]
+
+  deps = [
+    # "//yql/essentials/parser/proto_ast/antlr4",
+    # "//yql/essentials/parser/proto_ast/collect_issues",
+    # "//yql/essentials/public/issue",
+  ]
+
+  sources = [ "antlr4_ansi/lexer.cpp" ]
+}
+
+library("antlr4_pure") {
+  public_deps = [
+    # "//yql/essentials/parser/lexer_common",
+  ]
+
+  deps = [
+    # "//yql/essentials/parser/common",
+    # "//yql/essentials/parser/common:antlr4",
+    # "//yql/essentials/public/issue",
+  ]
+
+  sources = [ "antlr4_pure/lexer.cpp" ]
+}
+
+library("antlr4_pure_ansi") {
+  public_deps = [
+    # "//yql/essentials/parser/lexer_common",
+  ]
+
+  deps = [
+    # "//yql/essentials/parser/common",
+    # "//yql/essentials/parser/common:antlr4",
+    # "//yql/essentials/public/issue",
+  ]
+
+  sources = [ "antlr4_pure_ansi/lexer.cpp" ]
+}
+
+library("lexer") {
+  public_deps = [
+    # "//yql/essentials/parser/lexer_common",
+  ]
+
+  deps = [
+    # "//yql/essentials/public/issue",
+    # "//yql/essentials/sql:settings",
+    # "//yql/essentials/utils",
+    # ":antlr4",
+    # ":antlr4_ansi",
+  ]
+
+  sources = [ "lexer.cpp" ]
+}

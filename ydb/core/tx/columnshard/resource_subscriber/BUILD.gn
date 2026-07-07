@@ -1,0 +1,21 @@
+library("resource_subscriber") {
+  public_deps = [
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//ydb/core/tablet",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/signals",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/library/accessor",
+  ]
+
+  sources = [
+    "actor.cpp",
+    "container.cpp",
+    "counters.cpp",
+    "events.cpp",
+    "task.cpp",
+  ]
+}

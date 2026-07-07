@@ -1,0 +1,5 @@
+protobuf_library("grpc") {
+  public_deps = [ "//ydb/services/deprecated/persqueue_v0/api/protos" ]
+
+  sources = [ "persqueue.proto" ]
+}

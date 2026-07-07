@@ -1,0 +1,55 @@
+library("mounts") {
+  public_deps = [
+    # "//yql/essentials/core",
+    # "//yql/essentials/core/user_data",
+  ]
+
+  deps = [
+    # "//library/cpp/resource",
+    # "//yql/essentials/sql",
+    # "//yql/essentials/sql/v1",
+    # "//yql/essentials/sql/v1/lexer:antlr4",
+    # "//yql/essentials/sql/v1/lexer:antlr4_ansi",
+    # "//yql/essentials/sql/v1/proto_parser:antlr4",
+    # "//yql/essentials/sql/v1/proto_parser:antlr4_ansi",
+    # "//yql/essentials/utils/log",
+  ]
+
+  sources = [ "mounts/yql_mounts.cpp" ]
+}
+
+library("services") {
+  public_deps = [
+    # "//library/cpp/yson",
+    # "//yql/essentials/ast",
+    # "//yql/essentials/core",
+    # "//yql/essentials/core/issue",
+    # "//yql/essentials/core/type_ann",
+    # "//yql/essentials/utils/log",
+  ]
+
+  deps = [
+    # "//library/cpp/string_utils/base64",
+    # "//library/cpp/yson:node",
+    # "//yql/essentials/ast:serialize",
+    # "//yql/essentials/core/common_opt",
+    # "//yql/essentials/core/peephole_opt",
+    # "//yql/essentials/core/sql_types",
+    # "//yql/essentials/minikql",
+    # "//yql/essentials/providers/common/codec",
+    # "//yql/essentials/providers/common/mkql",
+    # "//yql/essentials/providers/common/provider",
+    # "//yql/essentials/providers/common/schema/expr",
+    # "//yql/essentials/providers/result/expr_nodes",
+    # "//yql/essentials/utils",
+  ]
+
+  sources = [
+    "yql_eval_expr.cpp",
+    "yql_eval_params.cpp",
+    "yql_lineage.cpp",
+    "yql_out_transformers.cpp",
+    "yql_plan.cpp",
+    "yql_transform_pipeline.cpp",
+  ]
+}

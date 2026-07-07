@@ -1,0 +1,93 @@
+library("abstract") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard/engines/storage/chunks",
+    # "//ydb/library/accessor",
+    # ":common",
+  ]
+
+  sources = [ "abstract/merger.cpp" ]
+}
+
+library("common") {
+  public_deps = [
+    # "//contrib/libs/apache/arrow",
+    # "//ydb/core/tx/columnshard/counters",
+    # "//ydb/core/tx/columnshard/engines/scheme",
+    # "//ydb/core/tx/columnshard/splitter:abstract",
+    # "//ydb/library/formats/arrow:splitter",
+  ]
+
+  sources = [
+    "common/context.cpp",
+    "common/result.cpp",
+  ]
+}
+
+library("compaction") {
+  public_deps = [
+    # "//ydb/core/formats/arrow",
+    # "//ydb/core/formats/arrow:common",
+    # "//ydb/core/formats/arrow:reader",
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/engines/changes/abstract",
+    # "//ydb/core/tx/columnshard/engines/portions",
+    # "//ydb/core/tx/columnshard/engines/scheme/versions",
+    # "//ydb/library/formats/arrow:splitter",
+  ]
+
+  deps = [
+    # "//ydb/core/formats/arrow:serializer",
+    # "//ydb/core/tx/columnshard/splitter",
+    # "//ydb/library/formats/arrow:simple_builder",
+    # ":abstract",
+    # ":plain",
+    # ":sparsed",
+  ]
+
+  sources = [ "merger.cpp" ]
+}
+
+library("plain") {
+  public_deps = [
+    # "//ydb/core/formats/arrow/accessor/abstract",
+    # "//ydb/core/formats/arrow/accessor/common",
+    # ":abstract",
+  ]
+
+  deps = [
+    # "//contrib/libs/apache/arrow",
+    # "//ydb/core/formats/arrow/accessor/plain",
+    # "//ydb/core/tx/columnshard/counters",
+    # "//ydb/core/tx/columnshard/engines/changes/counters",
+    # "//ydb/core/tx/columnshard/engines/portions",
+    # "//ydb/core/tx/columnshard/engines/scheme",
+    # "//ydb/core/tx/columnshard/engines/storage/chunks",
+    # "//ydb/core/tx/columnshard/splitter",
+    # "//ydb/library/formats/arrow",
+    # "//ydb/library/formats/arrow:validation",
+    # ":common",
+  ]
+
+  sources = [
+    "plain/column_cursor.cpp",
+    "plain/column_portion_chunk.cpp",
+    "plain/logic.cpp",
+    "plain/merged_column.cpp",
+  ]
+}
+
+library("sparsed") {
+  public_deps = [
+    # "//ydb/core/formats/arrow/accessor/abstract",
+    # "//ydb/core/formats/arrow/accessor/common",
+    # "//ydb/core/formats/arrow/accessor/sparsed",
+    # ":abstract",
+  ]
+
+  deps = [
+    # "//ydb/core/formats/arrow:switch",
+    # "//ydb/core/tx/columnshard/engines/storage/chunks",
+  ]
+
+  sources = [ "sparsed/logic.cpp" ]
+}

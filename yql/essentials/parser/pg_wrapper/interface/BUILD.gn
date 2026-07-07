@@ -1,0 +1,19 @@
+library("interface") {
+  public_deps = [
+    # "//yql/essentials/ast",
+    # "//yql/essentials/core/cbo",
+    # "//yql/essentials/core/pg_settings",
+    # "//yql/essentials/minikql",
+    # "//yql/essentials/parser/pg_catalog",
+    "//yql/essentials/providers/common/codec:yt_arrow_converter_interface",
+    # "//yql/essentials/public/udf",
+  ]
+
+  deps = [
+    # "//library/cpp/disjoint_sets",
+    # "//yql/essentials/public/issue",
+    "//yql/essentials/public/udf:arrow",
+  ]
+
+  sources = [ "interface.cpp" ]
+}

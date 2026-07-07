@@ -1,0 +1,23 @@
+library("count_min_sketch") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard/engines/storage/indexes/portions",
+    # "//ydb/core/tx/columnshard/engines/storage/indexes/portions:extractor",
+  ]
+
+  deps = [
+    # "//contrib/libs/apache/arrow",
+    # "//library/cpp/deprecated/atomic",
+    # "//ydb/core/formats/arrow:hash",
+    # "//ydb/core/tx/columnshard/engines/scheme/indexes/abstract",
+    # "//ydb/core/tx/columnshard/engines/storage/chunks",
+    # "//ydb/core/tx/program",
+    # "//ydb/core/tx/schemeshard/olap/schema",
+    # "//ydb/library/formats/arrow:hash",
+    # "//yql/essentials/core/minsketch",
+  ]
+
+  sources = [
+    "constructor.cpp",
+    "meta.cpp",
+  ]
+}

@@ -5,7 +5,7 @@
 #include "blobstorage_pdisk_mon.h"
 #include "blobstorage_pdisk_request_id.h"
 
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/control/lib/dynamic_control_board_impl.h>
 #include <ydb/core/control/lib/immediate_control_board_impl.h>
 #include <ydb/core/protos/blobstorage.pb.h>

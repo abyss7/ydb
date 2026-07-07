@@ -1,0 +1,9 @@
+library("actor_log") {
+  public_deps = [
+    # "//ydb/library/actors/core",
+    # "//ydb/library/services",
+    # "//yql/essentials/utils/log",
+  ]
+
+  sources = [ "log.cpp" ]
+}

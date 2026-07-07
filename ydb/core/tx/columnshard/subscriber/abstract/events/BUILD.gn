@@ -1,0 +1,9 @@
+library("events") {
+  public_deps = [
+    # "//ydb/library/accessor",
+  ]
+
+  sources = [ "event.cpp" ]
+
+  serialize_enum_headers = [ "event.h" ]
+}

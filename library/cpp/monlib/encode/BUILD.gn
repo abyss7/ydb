@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("buffered") {
   public_deps = [
     "//library/cpp/monlib/encode",

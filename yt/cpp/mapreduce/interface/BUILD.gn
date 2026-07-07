@@ -1,0 +1,72 @@
+library("interface") {
+  public_deps = [
+    # "//library/cpp/skiff",
+    # "//library/cpp/threading/future",
+    # "//library/cpp/type_info",
+    # "//library/cpp/yson",
+    # "//library/cpp/yson:node",
+    # "//library/cpp/yt/memory",
+    # "//library/cpp/yt/misc",
+    # "//library/cpp/yt/yson_string",
+    # "//yt/cpp/mapreduce/skiff",
+    # "//yt/yt/library/tvm",
+    # "//yt/yt_proto/yt/formats",
+  ]
+
+  deps = [
+    # "//library/cpp/json",
+    # "//library/cpp/svnversion",
+    # "//library/cpp/yson:json",
+    # "//yt/yt/core",
+    # ":logging",
+  ]
+
+  sources = [
+    "batch_request.cpp",
+    "client.cpp",
+    "client_method_options.cpp",
+    "common.cpp",
+    "config.cpp",
+    "cypress.cpp",
+    "errors.cpp",
+    "format.cpp",
+    "helpers.cpp",
+    "io.cpp",
+    "job_counters.cpp",
+    "job_statistics.cpp",
+    "operation.cpp",
+    "patchable_field.cpp",
+    "protobuf_format.cpp",
+    "serialize.cpp",
+    "skiff_row.cpp",
+    "temp.cpp",
+    "tvm.cpp",
+  ]
+
+  serialize_enum_headers = [
+    "client.h",
+    "client_method_options.h",
+    "common.h",
+    "config.h",
+    "cypress.h",
+    "job_counters.h",
+    "job_statistics.h",
+    "operation.h",
+    "protobuf_format.h",
+  ]
+}
+
+library("logging") {
+  public_deps = [
+    # "//library/cpp/yt/logging",
+    # "//yt/yt/core",
+  ]
+
+  sources = [
+    "logging/logger.cpp",
+    "logging/structured.cpp",
+    "logging/yt_log.cpp",
+  ]
+
+  serialize_enum_headers = [ "logging/logger.h" ]
+}

@@ -1,0 +1,21 @@
+library("compressors") {
+  deps = [
+    # "//contrib/libs/libbz2",
+    # "//contrib/libs/lz4",
+    # "//contrib/libs/lzma",
+    # "//contrib/libs/zstd",
+    # "//ydb/core/util",
+    # "//ydb/library/yql/dq/actors:protos",
+    # "//yql/essentials/utils",
+  ]
+
+  sources = [
+    "brotli.cpp",
+    "bzip2.cpp",
+    "factory.cpp",
+    "gz.cpp",
+    "lz4io.cpp",
+    "xz.cpp",
+    "zstd.cpp",
+  ]
+}

@@ -5,26 +5,19 @@ library("core") {
     ":events",
     "//library/cpp/containers/absl_flat_hash",
     "//library/cpp/lwtrace",
-    "//library/cpp/monlib/service",
-    "//library/cpp/svnversion",
-    "//library/cpp/threading/chunk_queue",
     "//ydb/library/actors/actor_type",
     "//ydb/library/actors/memory_log",
-    "//ydb/library/actors/util",
-    "//ydb/library/services",
   ]
 
   deps = [
+    "//build/scripts/c_templates",
     "//library/cpp/cgiparam",
     "//library/cpp/json:writer",
     "//library/cpp/logger",
     "//library/cpp/monlib/dynamic_counters",
-    "//library/cpp/monlib/metrics",
     "//library/cpp/monlib/service/pages",
     "//library/cpp/threading/future",
-    "//library/cpp/time_provider",
     "//ydb/library/actors/interconnect/rdma",
-    "//ydb/library/actors/prof",
     "//ydb/library/actors/protos",
   ]
 
@@ -77,7 +70,10 @@ library("core") {
 }
 
 library("events") {
-  # public_deps = [ "//ydb/library/actors/wilson" ]
+  public_deps = [
+    "//contrib/libs/protobuf",
+    # "//ydb/library/actors/wilson",
+  ]
 
   deps = [
     "//library/cpp/containers/stack_vector",

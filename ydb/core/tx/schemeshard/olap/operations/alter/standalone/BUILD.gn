@@ -1,0 +1,19 @@
+library("standalone") {
+  public_deps = [
+    # "//ydb/core/tx/schemeshard/olap/operations/alter/common",
+    # "//ydb/core/tx/schemeshard/olap/table",
+    # "//ydb/core/tx/schemeshard/olap/ttl",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/schemeshard",
+    # "//ydb/core/tx/schemeshard/olap/common",
+    # "//ydb/core/tx/schemeshard/olap/operations/alter/abstract",
+    # "//ydb/core/tx/schemeshard/olap/schema",
+  ]
+
+  sources = [
+    "object.cpp",
+    "update.cpp",
+  ]
+}

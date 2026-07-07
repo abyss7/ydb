@@ -1,0 +1,24 @@
+library("defrag") {
+  public_deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/blobstorage/vdisk/common",
+  ]
+
+  deps = [
+    # "//ydb/core/blobstorage/vdisk",
+    # "//ydb/core/blobstorage/vdisk/huge",
+    # "//ydb/core/blobstorage/vdisk/hulldb",
+    # "//ydb/core/blobstorage/vdisk/hulldb:base",
+    # "//ydb/core/blobstorage/vdisk/query",
+    # "//ydb/core/blobstorage/vdisk/scrub",
+    # "//ydb/core/blobstorage/vdisk/skeleton",
+    # "//ydb/core/util",
+    # "//ydb/library/actors/core",
+  ]
+
+  sources = [
+    "defrag_actor.cpp",
+    "defrag_quantum.cpp",
+    "defrag_rewriter.cpp",
+  ]
+}

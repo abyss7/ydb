@@ -7,7 +7,7 @@
 #include <ydb/core/base/appdata.h>
 #include <ydb/core/base/tablet_pipe.h>
 #include <ydb/core/cms/console/console.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/public/api/protos/draft/ydb_dynamic_config.pb.h>
 
 namespace NKikimr::NGRpcService {

@@ -1,0 +1,86 @@
+library("dump") {
+  public_deps = [
+    # "//library/cpp/regex/pcre",
+    # "//ydb/public/sdk/cpp/src/client/types",
+    # "//ydb/public/sdk/cpp/src/client/types/status",
+  ]
+
+  deps = [
+    # "//library/cpp/bucket_quoter",
+    # "//library/cpp/json",
+    # "//library/cpp/logger",
+    # "//library/cpp/string_utils/quote",
+    # "//library/cpp/threading/future",
+    # "//ydb/library/backup",
+    # "//ydb/public/api/protos",
+    # "//ydb/public/lib/ydb_cli/common",
+    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
+    # "//ydb/public/sdk/cpp/src/client/cms",
+    # "//ydb/public/sdk/cpp/src/client/coordination",
+    # "//ydb/public/sdk/cpp/src/client/discovery",
+    # "//ydb/public/sdk/cpp/src/client/draft",
+    # "//ydb/public/sdk/cpp/src/client/driver",
+    # "//ydb/public/sdk/cpp/src/client/import",
+    # "//ydb/public/sdk/cpp/src/client/operation",
+    # "//ydb/public/sdk/cpp/src/client/proto",
+    # "//ydb/public/sdk/cpp/src/client/query",
+    # "//ydb/public/sdk/cpp/src/client/rate_limiter",
+    # "//ydb/public/sdk/cpp/src/client/scheme",
+    # "//ydb/public/sdk/cpp/src/client/table",
+    # "//ydb/public/sdk/cpp/src/client/value",
+    # "//yql/essentials/public/issue",
+    # ":files",
+    # ":util",
+  ]
+
+  sources = [
+    "dump.cpp",
+    "dump_impl.cpp",
+    "restore_compat.cpp",
+    "restore_impl.cpp",
+    "restore_import_data.cpp",
+  ]
+
+  serialize_enum_headers = [ "dump.h" ]
+}
+
+library("files") {
+  sources = [ "files/files.cpp" ]
+}
+
+library("util") {
+  public_deps = [
+    # "//ydb/public/sdk/cpp/src/client/cms",
+    # "//ydb/public/sdk/cpp/src/client/draft",
+    # "//ydb/public/sdk/cpp/src/client/scheme",
+    # "//ydb/public/sdk/cpp/src/client/table",
+    # "//ydb/public/sdk/cpp/src/client/types/status",
+  ]
+
+  deps = [
+    # "//library/cpp/json",
+    # "//library/cpp/protobuf/util",
+    # "//ydb/public/api/protos",
+    # "//ydb/public/lib/ydb_cli/common",
+    # "//ydb/public/sdk/cpp/src/client/query",
+    # "//ydb/public/sdk/cpp/src/client/value",
+    # "//yql/essentials/public/issue",
+    # "//yql/essentials/sql/v1/format",
+    # "//yql/essentials/sql/v1/lexer",
+    # "//yql/essentials/sql/v1/lexer:antlr4",
+    # "//yql/essentials/sql/v1/lexer:antlr4_ansi",
+    # "//yql/essentials/sql/v1/proto_parser",
+    # "//yql/essentials/sql/v1/proto_parser:antlr4",
+    # "//yql/essentials/sql/v1/proto_parser:antlr4_ansi",
+    # "//yql/essentials/sql:settings",
+  ]
+
+  sources = [
+    "util/external_data_source_utils.cpp",
+    "util/external_table_utils.cpp",
+    "util/query_utils.cpp",
+    "util/replication_utils.cpp",
+    "util/util.cpp",
+    "util/view_utils.cpp",
+  ]
+}

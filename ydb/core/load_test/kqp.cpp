@@ -1,7 +1,7 @@
 #include "service_actor.h"
 
 #include <ydb/core/base/counters.h>
-#include <ydb/core/blobstorage/base/blobstorage_events.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/kqp/common/kqp.h>
 #include <ydb/core/protos/kqp_stats.pb.h>
 

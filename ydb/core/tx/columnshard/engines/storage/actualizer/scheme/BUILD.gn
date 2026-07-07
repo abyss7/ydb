@@ -1,0 +1,26 @@
+library("scheme") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/engines/scheme/versions",
+    # "//ydb/core/tx/columnshard/engines/storage/actualizer/abstract",
+    # "//ydb/core/tx/columnshard/engines/storage/actualizer/common",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard/counters",
+    # "//ydb/core/tx/columnshard/data_locks/manager",
+    # "//ydb/core/tx/columnshard/engines/changes/abstract",
+    # "//ydb/core/tx/columnshard/engines/changes/actualization/construction",
+    # "//ydb/core/tx/columnshard/engines/scheme",
+    # "//ydb/core/tx/columnshard/engines/storage/optimizer/abstract",
+    # "//ydb/core/tx/columnshard/hooks/abstract",
+    # "//ydb/core/tx/columnshard/splitter",
+    # "//ydb/library/accessor",
+    # "//ydb/library/formats/arrow",
+  ]
+
+  sources = [
+    "counters.cpp",
+    "scheme.cpp",
+  ]
+}

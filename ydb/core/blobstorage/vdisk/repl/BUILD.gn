@@ -1,0 +1,30 @@
+library("repl") {
+  public_deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/blobstorage/base",
+    # "//ydb/core/blobstorage/groupinfo",
+    # "//ydb/core/blobstorage/vdisk/hulldb",
+  ]
+
+  deps = [
+    # "//library/cpp/monlib/service/pages",
+    # "//ydb/core/blobstorage/backpressure",
+    # "//ydb/core/blobstorage/vdisk",
+    # "//ydb/core/blobstorage/vdisk/common",
+    # "//ydb/core/blobstorage/vdisk/hulldb:base",
+    # "//ydb/core/blobstorage/vdisk/hulldb:bulksst_add",
+    # "//ydb/core/blobstorage/vdisk/hulldb:generic",
+    # "//ydb/core/blobstorage/vdisk/skeleton",
+    # "//ydb/core/util",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/actors/interconnect",
+  ]
+
+  sources = [
+    "blobstorage_hullrepljob.cpp",
+    "blobstorage_repl.cpp",
+    "blobstorage_replbroker.cpp",
+    "blobstorage_replmonhandler.cpp",
+    "blobstorage_replproxy.cpp",
+  ]
+}

@@ -1,0 +1,22 @@
+library("transactions") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/data_sharing/source/session",
+    # "//ydb/core/tx/columnshard/tablet",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard/engines",
+    # "//ydb/core/tx/columnshard/engines/portions",
+    # "//ydb/core/tx/columnshard/engines/scheme",
+  ]
+
+  sources = [
+    "tx_data_ack_to_source.cpp",
+    "tx_finish_ack_to_source.cpp",
+    "tx_start_source_cursor.cpp",
+    "tx_start_to_source.cpp",
+    "tx_write_source_cursor.cpp",
+  ]
+}
