@@ -86,6 +86,7 @@ struct aws_event_loop_vtable {
     int (*stop)(struct aws_event_loop *event_loop);
     int (*wait_for_stop_completion)(struct aws_event_loop *event_loop);
     void (*schedule_task_now)(struct aws_event_loop *event_loop, struct aws_task *task);
+    void (*schedule_task_now_serialized)(struct aws_event_loop *event_loop, struct aws_task *task);
     void (*schedule_task_future)(struct aws_event_loop *event_loop, struct aws_task *task, uint64_t run_at_nanos);
     void (*cancel_task)(struct aws_event_loop *event_loop, struct aws_task *task);
 #if AWS_USE_IO_COMPLETION_PORTS
@@ -113,6 +114,10 @@ struct aws_event_loop {
     size_t current_tick_latency_sum;
     struct aws_atomic_var next_flush_time;
     void *impl_data;
+
+    /* Back-pointer to the owning event loop group, if this loop was created as part of one (NULL otherwise).
+     * This is a weak reference: the group owns its loops, so it must not be ref-counted here. */
+    struct aws_event_loop_group *base_elg;
 };
 
 struct aws_event_loop_local_object;
@@ -298,6 +303,16 @@ AWS_IO_API
 void aws_event_loop_schedule_task_now(struct aws_event_loop *event_loop, struct aws_task *task);
 
 /**
+ * Variant of aws_event_loop_schedule_task_now() that forces the task through the cross-thread task queue,
+ * guaranteeing strict FIFO ordering of "now" tasks even when scheduled from the event-loop thread.
+ * This function may be called from outside or inside the event loop thread.
+ *
+ * The task should not be cleaned up or modified until its function is executed.
+ */
+AWS_IO_API
+void aws_event_loop_schedule_task_now_serialized(struct aws_event_loop *event_loop, struct aws_task *task);
+
+/**
  * The event loop will schedule the task and run it at the specified time.
  * Use aws_event_loop_current_clock_time() to query the current time in nanoseconds.
  * Note that cancelled tasks may execute outside the event loop thread.
@@ -456,6 +471,20 @@ struct aws_event_loop_group *aws_event_loop_group_acquire(struct aws_event_loop_
  */
 AWS_IO_API
 void aws_event_loop_group_release(struct aws_event_loop_group *el_group);
+
+/**
+ * Increments the ref count of the event loop group that owns the given event loop and returns it.
+ * Returns NULL if the event loop is NULL or was not created as part of an event loop group.
+ */
+AWS_IO_API
+struct aws_event_loop_group *aws_event_loop_group_acquire_from_event_loop(struct aws_event_loop *event_loop);
+
+/**
+ * Decrements the ref count of the event loop group that owns the given event loop.
+ * No-op if the event loop is NULL or was not created as part of an event loop group.
+ */
+AWS_IO_API
+void aws_event_loop_group_release_from_event_loop(struct aws_event_loop *event_loop);
 
 AWS_IO_API
 struct aws_event_loop *aws_event_loop_group_get_loop_at(struct aws_event_loop_group *el_group, size_t index);

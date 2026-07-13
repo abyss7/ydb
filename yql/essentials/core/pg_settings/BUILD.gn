@@ -1,6 +1,6 @@
 library("pg_settings") {
   public_deps = [
-    # "//library/cpp/json",
+    "//library/cpp/json",
   ]
 
   sources = [ "guc_settings.cpp" ]

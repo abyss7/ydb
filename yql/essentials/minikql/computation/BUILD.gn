@@ -1,26 +1,27 @@
 library("computation") {
   public_deps = [
-    # "//contrib/libs/apache/arrow",
+    "//contrib/libs/apache/arrow",
     # "//library/cpp/cache",
     # "//library/cpp/enumbitset",
     # "//library/cpp/random_provider",
     # "//library/cpp/threading/future",
     # "//library/cpp/time_provider",
-    # "//yql/essentials/minikql",
-    # "//yql/essentials/minikql/arrow",
+    "//yql/essentials/minikql",
+    "//yql/essentials/minikql/arrow",
     # "//yql/essentials/public/langver",
-    # "//yql/essentials/public/udf",
-    # "//yql/essentials/public/udf:arrow",
+    "//yql/essentials/public/udf",
+    "//yql/essentials/public/udf:arrow",
     # "//yql/essentials/utils",
   ]
 
   deps = [
     # "//library/cpp/containers/stack_vector",
+    "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/packedtypes",
     # "//library/cpp/resource",
     # "//library/cpp/yson:node",
     # "//yql/essentials/parser/pg_wrapper/interface",
-    # "//yql/essentials/public/decimal",
+    "//yql/essentials/public/decimal",
   ]
 
   sources = [

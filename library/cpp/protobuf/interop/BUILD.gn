@@ -1,3 +1,4 @@
 library("interop") {
+  deps = [ "//contrib/libs/protobuf" ]
   sources = [ "cast.cpp" ]
 }

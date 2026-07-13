@@ -297,7 +297,7 @@ group("all") {
         "//contrib/libs/llvm16/lib/Target/X86/AsmParser",
         "//contrib/libs/llvm16/lib/Target/X86/Disassembler",
         "//contrib/libs/llvm16/lib/ExecutionEngine/PerfJITEvents",
-        "//yql/essentials/minikql/codegen/llvm16",
+        "//yql/essentials/minikql/codegen/llvm16", # <== We are here
         "//ydb/services/bg_tasks/protos",
         "//contrib/libs/sparsehash",
         "//library/cpp/deprecated/accessors",

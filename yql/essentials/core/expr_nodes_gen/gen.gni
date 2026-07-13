@@ -27,6 +27,7 @@ template("generate_expr_nodes") {
     }
 
     library(target_name) {
+        public_deps = [ "//yql/essentials/core/expr_nodes_gen" ]
         deps = [ ":$_gen_target" ]
     }
 }

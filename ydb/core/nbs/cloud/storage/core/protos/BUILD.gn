@@ -1,0 +1,15 @@
+protobuf_library("protos") {
+    extra_plugins = [
+        {
+            name = "validation"
+            target = "//ydb/public/lib/validation:validation"
+        }
+    ]
+
+    sources = [
+        "error.proto",
+        "media.proto",
+        "request_source.proto",
+        "trace.proto",
+    ]
+}

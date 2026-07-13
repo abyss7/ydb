@@ -1,7 +1,7 @@
 library("arrow") {
   public_deps = [
-    # "//yql/essentials/minikql",
-    # "//yql/essentials/public/udf:arrow",
+    "//yql/essentials/minikql",
+    "//yql/essentials/public/udf:arrow",
   ]
 
   sources = [

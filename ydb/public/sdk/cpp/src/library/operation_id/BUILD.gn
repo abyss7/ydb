@@ -1,3 +1,9 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
+config("private_config") {
+  cflags = [ "-Wno-deprecated-enum-enum-conversion" ]
+}
+
 library("operation_id") {
   deps = [
     ":protos",
@@ -6,6 +12,8 @@ library("operation_id") {
   ]
 
   sources = [ "operation_id.cpp" ]
+
+  configs = [ ":private_config" ]
 }
 
 protobuf_library("protos") {

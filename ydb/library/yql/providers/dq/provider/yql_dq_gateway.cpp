@@ -101,7 +101,7 @@ public:
             }
         }
     }
- 
+
     TString Print(const NDqs::TPlan& plan) {
         b.clear();
         b << "digraph G {\n";
@@ -513,7 +513,7 @@ public:
                 return;
             }
 
-            this_->OnRequestQueryStatus(progressWriter, std::move(IDqGateway::TProgressWriterState{resp.GetStatus(), std::move(ExtractStats(resp))}), status.Ok(), querySeqNo);
+            this_->OnRequestQueryStatus(progressWriter, IDqGateway::TProgressWriterState{resp.GetStatus(), ExtractStats(resp)}, status.Ok(), querySeqNo);
         };
 
         Service.DoRequest<Yql::DqsProto::QueryStatusRequest, Yql::DqsProto::QueryStatusResponse>(

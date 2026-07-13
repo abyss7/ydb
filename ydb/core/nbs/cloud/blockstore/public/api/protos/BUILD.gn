@@ -6,8 +6,12 @@ protobuf_library("protos") {
         }
     ]
 
+    public_deps = [
+        "//ydb/core/nbs/cloud/storage/core/protos",
+    ]
+
     sources = [
         "headers.proto",
-        "io.io.proto",
+        "io.proto",
     ]
 }

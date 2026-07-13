@@ -1,3 +1,48 @@
+config("_avx_config") {
+    cflags = [
+        "-mavx",
+        "-mpclmul",
+    ]
+}
+
+config("_avx2_config") {
+    cflags = [
+        "-mavx2",
+        "-mfma",
+        "-mbmi",
+        "-mbmi2",
+    ]
+}
+
+config("_avx512_config") {
+    cflags = [
+        "-mavx512bw",
+        "-mavx512cd",
+        "-mavx512dq",
+        "-mavx512f",
+        "-mavx512vl",
+        "-mvpclmulqdq",
+    ]
+}
+
+config("_sse2_config") {
+    cflags = [
+        "-msse2",
+    ]
+}
+
+config("_sse41_config") {
+    cflags = [
+        "-msse4.1",
+    ]
+}
+
+config("_ssse3_config") {
+    cflags = [
+        "-mssse3",
+    ]
+}
+
 config("base") {
     cflags = [
         "-pipe",

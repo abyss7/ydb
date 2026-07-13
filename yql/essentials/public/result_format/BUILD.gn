@@ -4,10 +4,10 @@ library("result_format") {
   ]
 
   deps = [
-    # "//library/cpp/string_utils/base64",
-    # "//library/cpp/yson:node",
-    # "//yql/essentials/public/issue",
-    # "//yql/essentials/utils",
+    "//library/cpp/string_utils/base64",
+    "//library/cpp/yson:node",
+    "//yql/essentials/public/issue",
+    "//yql/essentials/utils",
   ]
 
   sources = [

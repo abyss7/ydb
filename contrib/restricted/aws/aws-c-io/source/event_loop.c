@@ -149,6 +149,9 @@ static struct aws_event_loop_group *s_event_loop_group_new(
                 goto on_error;
             }
 
+            /* Weak back-pointer so the owning group can be reached from any of its loops. */
+            loop->base_elg = el_group;
+
             if (aws_event_loop_run(loop)) {
                 goto on_error;
             }
@@ -257,6 +260,20 @@ struct aws_event_loop_group *aws_event_loop_group_acquire(struct aws_event_loop_
 void aws_event_loop_group_release(struct aws_event_loop_group *el_group) {
     if (el_group != NULL) {
         aws_ref_count_release(&el_group->ref_count);
+    }
+}
+
+struct aws_event_loop_group *aws_event_loop_group_acquire_from_event_loop(struct aws_event_loop *event_loop) {
+    if (event_loop != NULL) {
+        return aws_event_loop_group_acquire(event_loop->base_elg);
+    }
+
+    return NULL;
+}
+
+void aws_event_loop_group_release_from_event_loop(struct aws_event_loop *event_loop) {
+    if (event_loop != NULL) {
+        aws_event_loop_group_release(event_loop->base_elg);
     }
 }
 
@@ -465,6 +482,12 @@ void aws_event_loop_schedule_task_now(struct aws_event_loop *event_loop, struct 
     AWS_ASSERT(event_loop->vtable && event_loop->vtable->schedule_task_now);
     AWS_ASSERT(task);
     event_loop->vtable->schedule_task_now(event_loop, task);
+}
+
+void aws_event_loop_schedule_task_now_serialized(struct aws_event_loop *event_loop, struct aws_task *task) {
+    AWS_ASSERT(event_loop->vtable && event_loop->vtable->schedule_task_now_serialized);
+    AWS_ASSERT(task);
+    event_loop->vtable->schedule_task_now_serialized(event_loop, task);
 }
 
 void aws_event_loop_schedule_task_future(

@@ -1,6 +1,6 @@
 library("endpoints") {
   public_deps = [
-    # "//ydb/public/sdk/cpp/src/client/impl/stats",
+    "//ydb/public/sdk/cpp/src/client/impl/stats",
   ]
 
   deps = [

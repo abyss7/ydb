@@ -49,6 +49,10 @@ config("io_private_config") {
 }
 
 config("s2n_private_config") {
+    cflags = [
+        "-Wno-deprecated-declarations",
+        "-Wno-macro-redefined",
+    ]
     defines = [
         "S2N___RESTRICT__SUPPORTED",
         "S2N_ATOMIC_SUPPORTED",
@@ -76,14 +80,14 @@ config("s2n_private_config") {
 }
 
 contrib_library("auth") {
-    # deps = [
-    #     ":cal",
-    #     ":common",
-    #     ":compression",
-    #     ":http",
-    #     ":io",
-    #     ":sdkutils",
-    # ]
+    deps = [
+        ":cal",
+        ":common",
+        ":compression",
+        ":http",
+        ":io",
+        ":sdkutils",
+    ]
 
     sources = [
         "aws-c-auth/source/auth.c",
@@ -127,10 +131,10 @@ contrib_library("auth") {
 }
 
 contrib_library("cal") {
-    # deps = [
-    #     ":common",
-    #     "//contrib/libs/openssl",
-    # ]
+    deps = [
+        ":common",
+        "//contrib/libs/openssl",
+    ]
 
     sources = [
         "aws-c-cal/source/cal.c",
@@ -152,8 +156,23 @@ contrib_library("cal") {
     configs = [ ":private_config" ]
 }
 
+avx_source_set("avx_checksums") {
+    sources = [ "aws-checksums/source/intel/intrin/crc64nvme_clmul.c" ]
+    configs = [ ":public_config" ]
+}
+
+avx512_source_set("avx512_checksums") {
+    sources = [
+        "aws-checksums/source/intel/intrin/crc32c_sse42_avx512.c",
+        "aws-checksums/source/intel/intrin/crc64nvme_avx512.c",
+    ]
+    configs = [ ":public_config" ]
+}
+
 contrib_library("checksums") {
     deps = [
+        ":avx_checksums",
+        ":avx512_checksums",
         ":common",
     ]
 
@@ -275,9 +294,9 @@ contrib_library("common") {
 }
 
 contrib_library("compression") {
-    # deps = [
-    #     ":common",
-    # ]
+    deps = [
+        ":common",
+    ]
 
     sources = [
         "aws-c-compression/source/compression.c",
@@ -291,7 +310,15 @@ contrib_library("compression") {
 
 contrib_library("crt-cpp") {
     deps = [
+        ":auth",
+        ":cal",
         ":common",
+        ":event-stream",
+        ":http",
+        ":io",
+        ":mqtt",
+        ":s3",
+        ":sdkutils",
     ]
 
     sources = [
@@ -335,6 +362,9 @@ contrib_library("crt-cpp") {
 
 contrib_library("event-stream") {
     deps = [
+        ":cal",
+        ":checksums",
+        ":common",
         ":io",
     ]
 
@@ -351,11 +381,12 @@ contrib_library("event-stream") {
 }
 
 contrib_library("http") {
-    # deps = [
-    #     ":common",
-    #     ":compression",
-    #     ":io",
-    # ]
+    deps = [
+        ":cal",
+        ":common",
+        ":compression",
+        ":io",
+    ]
 
     sources = [
         "aws-c-http/source/connection_manager.c",
@@ -393,7 +424,9 @@ contrib_library("http") {
 
 contrib_library("io") {
     deps = [
+        ":cal",
         ":common",
+        ":s2n",
     ]
 
     sources = [
@@ -435,9 +468,11 @@ contrib_library("io") {
 }
 
 contrib_library("mqtt") {
-    # deps = [
-    #     ":common",
-    # ]
+    deps = [
+        ":common",
+        ":http",
+        ":io",
+    ]
 
     sources = [
         "aws-c-mqtt/source/client_channel_handler.c",
@@ -472,7 +507,27 @@ contrib_library("mqtt") {
     configs = [ ":private_config" ]
 }
 
+avx2_source_set("avx2_s2n") {
+    sources = [
+        "s2n/pq-crypto/kyber_r3/KeccakP-1600-times4-SIMD256_avx2.c",
+        "s2n/pq-crypto/kyber_r3/kyber512r3_cbd_avx2.c",
+        "s2n/pq-crypto/kyber_r3/kyber512r3_consts_avx2.c",
+        "s2n/pq-crypto/kyber_r3/kyber512r3_fips202x4_avx2.c",
+        "s2n/pq-crypto/kyber_r3/kyber512r3_indcpa_avx2.c",
+        "s2n/pq-crypto/kyber_r3/kyber512r3_poly_avx2.c",
+        "s2n/pq-crypto/kyber_r3/kyber512r3_polyvec_avx2.c",
+        "s2n/pq-crypto/kyber_r3/kyber512r3_rejsample_avx2.c",
+    ]
+    public_configs = [ ":public_config" ]
+    configs = [ ":s2n_private_config" ]
+}
+
 contrib_library("s2n") {
+    deps = [
+        ":avx2_s2n",
+        "//contrib/libs/openssl",
+    ]
+
     sources = [
         "s2n/crypto/s2n_aead_cipher_aes_gcm.c",
         "s2n/crypto/s2n_aead_cipher_chacha20_poly1305.c",
@@ -504,14 +559,19 @@ contrib_library("s2n") {
         "s2n/crypto/s2n_stream_cipher_rc4.c",
         "s2n/crypto/s2n_tls13_keys.c",
         "s2n/error/s2n_errno.c",
+        "s2n/pq-crypto/kyber_r3/kyber512r3_basemul_avx2.S",
         "s2n/pq-crypto/kyber_r3/kyber512r3_cbd.c",
         "s2n/pq-crypto/kyber_r3/kyber512r3_fips202.c",
+        "s2n/pq-crypto/kyber_r3/kyber512r3_fq_avx2.S",
         "s2n/pq-crypto/kyber_r3/kyber512r3_indcpa.c",
+        "s2n/pq-crypto/kyber_r3/kyber512r3_invntt_avx2.S",
         "s2n/pq-crypto/kyber_r3/kyber512r3_kem.c",
+        "s2n/pq-crypto/kyber_r3/kyber512r3_ntt_avx2.S",
         "s2n/pq-crypto/kyber_r3/kyber512r3_ntt.c",
         "s2n/pq-crypto/kyber_r3/kyber512r3_poly.c",
         "s2n/pq-crypto/kyber_r3/kyber512r3_polyvec.c",
         "s2n/pq-crypto/kyber_r3/kyber512r3_reduce.c",
+        "s2n/pq-crypto/kyber_r3/kyber512r3_shuffle_avx2.S",
         "s2n/pq-crypto/kyber_r3/kyber512r3_symmetric-shake.c",
         "s2n/pq-crypto/s2n_kyber_evp.c",
         "s2n/pq-crypto/s2n_pq_random.c",
@@ -655,10 +715,20 @@ contrib_library("s2n") {
         "s2n/utils/s2n_timer.c",
     ]
 
+    public_configs = [ ":public_config" ]
     configs = [ ":s2n_private_config" ]
 }
 
 contrib_library("s3") {
+    deps = [
+        ":auth",
+        ":cal",
+        ":checksums",
+        ":common",
+        ":http",
+        ":io",
+    ]
+
     sources = [
         "aws-c-s3/source/s3_auto_ranged_get.c",
         "aws-c-s3/source/s3_auto_ranged_put.c",
@@ -688,9 +758,9 @@ contrib_library("s3") {
 }
 
 contrib_library("sdkutils") {
-    # deps = [
-    #     ":common",
-    # ]
+    deps = [
+        ":common",
+    ]
 
     sources = [
         "aws-c-sdkutils/source/aws_profile.c",

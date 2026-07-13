@@ -3,29 +3,19 @@ copy("codegen_llvm_deps_h") {
   outputs = [ "$target_gen_dir/codegen_llvm_deps.h" ]
 }
 
-config("_includes") {
+config("private_config") {
   include_dirs = [ target_gen_dir ]
 }
 
 library("llvm16") {
-  sources = [ "../codegen.cpp" ]
-
-  configs = [ ":_includes" ]
-
-  deps = [ ":codegen_llvm_deps_h" ]
-
-  public_deps = [
+  deps = [
+    ":codegen_llvm_deps_h",
     "//contrib/libs/cxxsupp/builtins",
-    "//contrib/libs/llvm16/lib/ExecutionEngine/MCJIT",
-    "//contrib/libs/llvm16/lib/ExecutionEngine/PerfJITEvents",
-    "//contrib/libs/llvm16/lib/IR",
-    "//contrib/libs/llvm16/lib/Linker",
-    "//contrib/libs/llvm16/lib/Passes",
-    "//contrib/libs/llvm16/lib/Target/X86",
-    "//contrib/libs/llvm16/lib/Target/X86/AsmParser",
-    "//contrib/libs/llvm16/lib/Target/X86/Disassembler",
-    "//contrib/libs/llvm16/lib/Transforms/IPO",
-    "//contrib/libs/llvm16/lib/Transforms/ObjCARC",
+    "//contrib/libs/llvm16",
     "//contrib/libs/re2",
   ]
+
+  sources = [ "../codegen.cpp" ]
+
+  configs = [ ":private_config" ]
 }

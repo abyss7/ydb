@@ -1,6 +1,0 @@
-group("common") {
-  public_deps = [
-    "//ydb/public/sdk/cpp/src/client/types/credentials",
-    "//ydb/public/sdk/cpp/src/library/jwt",
-  ]
-}

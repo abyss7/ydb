@@ -1,6 +1,7 @@
 library("protobuf_printer") {
   deps = [
-    # "//ydb/library/security",
+    "//contrib/libs/protobuf",
+    "//ydb/library/security",
   ]
 
   sources = [

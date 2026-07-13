@@ -1,5 +1,9 @@
 config("private_config") {
-    include_dirs = [ "src" ]
+    cflags = [ "-Wno-unused-variable" ]
+    include_dirs = [
+        "include",
+        "src",
+    ]
 }
 
 contrib_library("replxx") {

@@ -1,7 +1,22 @@
+import("//build/gn/bison.gni")
+
+config("private_config") {
+  cflags = [
+    "-Wno-deprecated-anon-enum-enum-conversion",
+    "-Wno-unused-but-set-variable",
+  ]
+}
+
+bison_source_set("re_parser") {
+  sources = [ "pire/re_parser.y" ]
+  configs = [ ":private_config" ]
+}
+
 library("pire") {
   public_deps = [
-    # "//library/cpp/charset",
+    "//library/cpp/charset",
   ]
+  deps = [ ":re_parser" ]
 
   sources = [
     "extraencodings.cpp",
@@ -20,4 +35,6 @@ library("pire") {
     "pire/scanner_io.cpp",
     "pire/scanners/null.cpp",
   ]
+
+  configs = [ ":private_config" ]
 }

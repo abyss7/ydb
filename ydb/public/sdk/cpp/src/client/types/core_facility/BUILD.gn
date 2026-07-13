@@ -1,0 +1,3 @@
+library("core_facility") {
+  public_deps = [ "//ydb/public/sdk/cpp/src/client/types/status" ]
+}

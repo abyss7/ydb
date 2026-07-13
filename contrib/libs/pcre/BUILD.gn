@@ -1,4 +1,8 @@
 config("private_config") {
+    cflags = [
+        "-Wno-pointer-sign",
+        "-Wno-unknown-attributes",
+    ]
     defines = [
         "ARCADIA_PCRE_ENABLE_JIT",
         "HAVE_CONFIG_H",

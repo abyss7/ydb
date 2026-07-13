@@ -1,6 +1,6 @@
 library("arrow_kernels") {
   deps = [
-    # "//contrib/libs/apache/arrow",
+    "//contrib/libs/apache/arrow",
   ]
 
   sources = [ "func_cast.cpp" ]

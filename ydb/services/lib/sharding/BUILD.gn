@@ -4,7 +4,7 @@ library("sharding") {
   ]
 
   deps = [
-    # "//library/cpp/digest/md5",
+    "//library/cpp/digest/md5",
   ]
 
   sources = [ "sharding.cpp" ]

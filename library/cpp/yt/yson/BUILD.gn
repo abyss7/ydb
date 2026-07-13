@@ -1,6 +1,6 @@
 library("yson") {
   public_deps = [
-    # "//library/cpp/yt/yson_string",
+    "//library/cpp/yt/yson_string",
   ]
 
   sources = [ "consumer.cpp" ]

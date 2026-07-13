@@ -1,11 +1,11 @@
 library("parser") {
   public_deps = [
     # "//library/cpp/yson",
-    # "//library/cpp/yson:node",
+    "//library/cpp/yson:node",
   ]
 
   deps = [
-    # "//yql/essentials/parser/pg_catalog",
+    "//yql/essentials/parser/pg_catalog",
   ]
 
   sources = [ "yql_type_parser.cpp" ]

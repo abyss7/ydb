@@ -1,0 +1,4 @@
+library("topic") {
+    public_deps = [ "//ydb/public/sdk/cpp/src/client/scheme" ]
+    sources = [ "out.cpp" ]
+}

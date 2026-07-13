@@ -1,7 +1,7 @@
 library("converter") {
   public_deps = [
-    # "//contrib/libs/apache/arrow",
-    # "//ydb/public/api/protos",
+    "//contrib/libs/apache/arrow",
+    "//ydb/public/api/protos",
   ]
 
   sources = [ "csv_arrow.cpp" ]

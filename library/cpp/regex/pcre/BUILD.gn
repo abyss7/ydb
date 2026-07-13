@@ -1,6 +1,6 @@
 library("pcre") {
   public_deps = [
-    # "//contrib/libs/pcre",
+    "//contrib/libs/pcre",
   ]
 
   deps = [

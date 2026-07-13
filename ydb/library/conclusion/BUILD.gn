@@ -1,11 +1,10 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("conclusion") {
-  deps = [ ":generic" ]
+  deps = [ "//yql/essentials/public/issue" ]
 
   sources = [
     "result.cpp",
     "status.cpp",
   ]
-}
-
-group("generic") {
 }

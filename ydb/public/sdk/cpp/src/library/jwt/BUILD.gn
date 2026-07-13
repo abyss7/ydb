@@ -1,6 +1,7 @@
 library("jwt") {
   deps = [
-    # "//library/cpp/json",
+    "//contrib/libs/jwt-cpp",
+    "//library/cpp/json",
   ]
 
   sources = [ "jwt.cpp" ]

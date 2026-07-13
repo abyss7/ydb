@@ -1,3 +1,10 @@
+config("private_config") {
+  include_dirs = [
+    ".",
+    "include",
+  ]
+}
+
 library("vhost") {
   sources = [
     "blockdev.c",
@@ -13,4 +20,6 @@ library("vhost") {
     "virtio/virtio_blk.c",
     "virtio/virtio_fs.c",
   ]
+
+  configs = [ ":private_config" ]
 }

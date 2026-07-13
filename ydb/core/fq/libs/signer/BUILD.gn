@@ -1,6 +1,6 @@
 library("signer") {
   deps = [
-    # "//ydb/core/fq/libs/hmac",
+    "//ydb/core/fq/libs/hmac",
   ]
 
   sources = [ "signer.cpp" ]

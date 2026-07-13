@@ -1,3 +1,4 @@
 library("federated_topic") {
-  serialize_enum_headers = [ "ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/federated_topic/federated_topic.h" ]
+  public_deps = [ "//ydb/public/sdk/cpp/src/client/topic" ]
+  serialize_enum_headers = [ "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/federated_topic/federated_topic.h" ]
 }

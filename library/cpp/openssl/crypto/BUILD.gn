@@ -1,6 +1,7 @@
 library("crypto") {
   deps = [
-    # "//library/cpp/openssl/big_integer",
+    "//contrib/libs/openssl",
+    "//library/cpp/openssl/big_integer",
   ]
 
   sources = [

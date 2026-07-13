@@ -1,2 +1,17 @@
-contrib_library("ObjCARC") {
+source_set("ObjCARC") {
+    deps += [ "//contrib/libs/llvm16/lib/Analysis" ]
+
+    sources = [
+        "DependencyAnalysis.cpp",
+        "ObjCARC.cpp",
+        "ObjCARCAPElim.cpp",
+        "ObjCARCContract.cpp",
+        "ObjCARCExpand.cpp",
+        "ObjCARCOpts.cpp",
+        "ProvenanceAnalysis.cpp",
+        "ProvenanceAnalysisEvaluator.cpp",
+        "PtrState.cpp",
+    ]
+
+    configs += [ "//contrib/libs/llvm16:public_config" ]
 }

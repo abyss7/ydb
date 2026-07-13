@@ -1,0 +1,63 @@
+template("bison_source_set") {
+    _gen_target = "${target_name}_gen"
+    _hdr_config = "${target_name}_gen_config"
+
+    _out_cpp = "{{source_gen_dir}}/{{source_name_part}}.cpp"
+    _out_hdr = "{{source_gen_dir}}/{{source_name_part}}.h"
+
+    action_foreach(_gen_target) {
+        script = "//build/gn/scripts/run.py"
+        sources = invoker.sources
+        outputs = [ _out_cpp, _out_hdr ]
+
+        _bison_bin = rebase_path("$root_out_dir/bison", root_build_dir)
+        _m4_bin = rebase_path("$root_out_dir/m4", root_build_dir)
+        _bison_data = rebase_path("//contrib/tools/bison/data", root_build_dir)
+
+        args = [
+            "env",
+            "M4=./$_m4_bin",
+            "BISON_PKGDATADIR=$_bison_data",
+            "./$_bison_bin",
+            "-v",
+            "--defines=$_out_hdr",
+            "-o", "$_out_cpp",
+            "{{source}}",
+        ]
+        if (defined(invoker.bison_flags)) {
+            args += invoker.bison_flags
+        }
+
+        deps = [
+            "//contrib/tools/bison:bison",
+            "//contrib/tools/m4:m4",
+        ]
+    }
+
+    _gen_dir = get_label_info(":$_gen_target", "target_gen_dir")
+    config(_hdr_config) {
+        include_dirs = [ _gen_dir ]
+        foreach(_src, invoker.sources) {
+            _subdir = get_path_info(_src, "dir")
+            if (_subdir != "" && _subdir != ".") {
+                include_dirs += [ "$_gen_dir/$_subdir" ]
+            }
+        }
+    }
+
+    source_set(target_name) {
+        forward_variables_from(invoker, "*", [ "configs", "sources", "bison_flags" ])
+
+        if (defined(invoker.configs)) {
+            configs += invoker.configs
+        }
+
+        if (!defined(deps)) {
+            deps = []
+        }
+        deps += [ ":$_gen_target" ]
+
+        sources = get_target_outputs(":$_gen_target")
+        public_configs = [ ":$_hdr_config" ]
+    }
+}

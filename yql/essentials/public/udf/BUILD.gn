@@ -39,12 +39,11 @@ library("_udf") {
 
 library("arrow") {
   public_deps = [
+    "//contrib/libs/apache/arrow",
     # "//yql/essentials/public/decimal",
     "//yql/essentials/public/udf",
     # "//yql/essentials/utils",
   ]
-
-  deps = [ "//contrib/libs/apache/arrow" ]
 
   sources = [
     "arrow/args_dechunker.cpp",

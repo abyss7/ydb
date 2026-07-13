@@ -1,6 +1,6 @@
 library("async") {
   public_deps = [
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
   ]
 
   sources = [

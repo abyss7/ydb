@@ -1,6 +1,5 @@
 library("antlr4") {
   public_deps = [
-    # "//contrib/libs/antlr4_cpp_runtime",
     # "//yql/essentials/parser/common",
   ]
 
@@ -13,7 +12,8 @@ library("antlr4") {
 
 library("common") {
   public_deps = [
-    # "//yql/essentials/public/issue",
+    "//contrib/libs/antlr4_cpp_runtime",
+    "//yql/essentials/public/issue",
   ]
 
   sources = [ "error.cpp" ]

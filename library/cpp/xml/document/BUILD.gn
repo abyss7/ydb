@@ -1,11 +1,11 @@
 library("document") {
   public_deps = [
-    # "//library/cpp/string_utils/ztstrbuf",
+    "//library/cpp/string_utils/ztstrbuf",
   ]
 
   deps = [
     # "//contrib/libs/libxml",
-    # "//library/cpp/xml/init",
+    "//library/cpp/xml/init",
   ]
 
   sources = [

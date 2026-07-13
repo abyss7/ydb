@@ -1,6 +1,7 @@
 library("regexp") {
   public_deps = [
-    # "//library/cpp/regex/pcre",
+    "//contrib/libs/protobuf",
+    "//library/cpp/regex/pcre",
   ]
 
   sources = [ "regexp.cpp" ]

@@ -1,68 +1,42 @@
-template("avx2_source_set") {
-    config("_avx2_config") {
-        cflags = [
-            "-mavx2",
-            "-mfma",
-            "-mbmi",
-            "-mbmi2",
-        ]
-    }
-
+template("avx_source_set") {
     source_set(target_name) {
         forward_variables_from(invoker, "*")
-        configs += [ ":_avx2_config" ]
+        configs += [ "//build/gn/config:_avx_config" ]
+    }
+}
+
+template("avx2_source_set") {
+    source_set(target_name) {
+        forward_variables_from(invoker, "*")
+        configs += [ "//build/gn/config:_avx2_config" ]
     }
 }
 
 template("avx512_source_set") {
-    config("_avx512_config") {
-        cflags = [
-            "-mavx512f",
-        ]
-    }
-
     source_set(target_name) {
         forward_variables_from(invoker, "*")
-        configs += [ ":_avx512_config" ]
+        configs += [ "//build/gn/config:_avx512_config" ]
     }
 }
 
 template("sse2_source_set") {
-    config("_sse2_config") {
-        cflags = [
-            "-msse2",
-        ]
-    }
-
     source_set(target_name) {
         forward_variables_from(invoker, "*")
-        configs += [ ":_sse2_config" ]
+        configs += [ "//build/gn/config:_sse2_config" ]
     }
 }
 
 template("sse41_source_set") {
-    config("_sse41_config") {
-        cflags = [
-            "-msse4.1",
-        ]
-    }
-
     source_set(target_name) {
         forward_variables_from(invoker, "*")
-        configs += [ ":_sse41_config" ]
+        configs += [ "//build/gn/config:_sse41_config" ]
     }
 }
 
 template("ssse3_source_set") {
-    config("_ssse3_config") {
-        cflags = [
-            "-mssse3",
-        ]
-    }
-
     source_set(target_name) {
         forward_variables_from(invoker, "*")
-        configs += [ ":_ssse3_config" ]
+        configs += [ "//build/gn/config:_ssse3_config" ]
     }
 }
 

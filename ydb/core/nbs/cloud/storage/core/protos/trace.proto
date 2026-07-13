@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 import "ydb/core/nbs/cloud/storage/core/protos/media.proto";
-import "library/cpp/lwtrace/protos/lwtrace.proto";
 
 package NYdb.NBS.NProto;
 

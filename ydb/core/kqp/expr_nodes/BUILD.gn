@@ -7,7 +7,6 @@ generate_expr_nodes("gen") {
 library("expr_nodes") {
     deps = [
         ":gen",
-        "//ydb/library/yql/dq/expr_nodes",
     ]
 
     sources = [
