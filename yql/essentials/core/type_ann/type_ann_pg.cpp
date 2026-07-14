@@ -5309,7 +5309,7 @@ IGraphTransformer::TStatus PgValuesListWrapper(const TExprNode::TPtr& input, TEx
     }
 
     if (isYql) {
-        output = ctx.Expr.NewCallable(input->Pos(), "AsListStrict", std::move(input->ChildrenList()));
+        output = ctx.Expr.NewCallable(input->Pos(), "AsListStrict", input->ChildrenList());
         return IGraphTransformer::TStatus::Repeat;
     }
 
@@ -5358,7 +5358,7 @@ IGraphTransformer::TStatus PgValuesListWrapper(const TExprNode::TPtr& input, TEx
         commonTypes[j] = commonType->TypeId;
     }
     if (!needRetype) {
-        output = ctx.Expr.NewCallable(input->Pos(), "AsListStrict", std::move(input->ChildrenList()));
+        output = ctx.Expr.NewCallable(input->Pos(), "AsListStrict", input->ChildrenList());
 
         return IGraphTransformer::TStatus::Repeat;
     }
@@ -6086,7 +6086,7 @@ IGraphTransformer::TStatus PgInWrapper(const TExprNode::TPtr& input, TExprNode::
                     : WrapWithPgCast(input->Child(i), commonType->TypeId, ctx.Expr));
             }
         }
-        output = BuildUniTypePgIn(std::move((castRequired) ? items : input->ChildrenList()), ctx);
+        output = BuildUniTypePgIn((castRequired) ? items : input->ChildrenList(), ctx);
     }
     output = ctx.Expr.Builder(input->Pos())
         .Callable("ToPg")

@@ -1,11 +1,11 @@
 library("common") {
   public_deps = [
     # "//ydb/library/actors/core",
-    # "//ydb/library/actors/util",
-    # "//ydb/library/mkql_proto:protos",
-    # "//ydb/library/yql/dq/proto",
+    "//ydb/library/actors/util",
+    "//ydb/library/mkql_proto:protos",
+    "//ydb/library/yql/dq/proto",
     # "//yql/essentials/minikql",
-    # "//yql/essentials/utils",
+    "//yql/essentials/utils",
   ]
 
   sources = [

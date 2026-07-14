@@ -1,17 +1,22 @@
+config("private_config") {
+  defines = [ "YDB_REWRAPPER_LIB_ID=kHyperscan" ]
+}
+
 library("parser") {
   public_deps = [
-    # "//yql/essentials/minikql/jsonpath/rewrapper",
+    "//yql/essentials/minikql/jsonpath/rewrapper",
   ]
 
   deps = [
-    # "//contrib/libs/double-conversion",
+    "//contrib/libs/double-conversion",
     # "//library/cpp/json",
-    # "//yql/essentials/ast",
+    "//yql/essentials/ast",
     # "//yql/essentials/core/issue:protos",
     # "//yql/essentials/minikql/jsonpath/rewrapper:proto",
     # "//yql/essentials/parser/proto_ast/antlr3",
+    "//yql/essentials/parser/proto_ast/gen/jsonpath",
     "//yql/essentials/public/issue",
-    # "//yql/essentials/utils",
+    "//yql/essentials/utils",
   ]
 
   sources = [
@@ -24,4 +29,6 @@ library("parser") {
   ]
 
   serialize_enum_headers = [ "ast_nodes.h" ]
+
+  configs = [ ":private_config" ]
 }

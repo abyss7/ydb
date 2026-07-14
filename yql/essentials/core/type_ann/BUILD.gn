@@ -1,7 +1,7 @@
 library("type_ann") {
   public_deps = [
     # "//yql/essentials/ast",
-    # "//yql/essentials/core",
+    "//yql/essentials/core",
   ]
 
   deps = [
@@ -12,15 +12,16 @@ library("type_ann") {
     # "//yql/essentials/core/issue:protos",
     # "//yql/essentials/core/sql_types",
     # "//yql/essentials/minikql",
-    # "//yql/essentials/minikql/dom",
+    "//yql/essentials/minikql/dom",
     # "//yql/essentials/parser/pg_catalog",
     # "//yql/essentials/parser/pg_wrapper/interface",
     # "//yql/essentials/providers/common/provider",
-    # "//yql/essentials/providers/common/schema/expr",
-    # "//yql/essentials/public/langver",
+    "//yql/essentials/providers/common/schema/expr",
+    "//yql/essentials/public/decimal",
+    "//yql/essentials/public/langver",
     # "//yql/essentials/public/udf",
     # "//yql/essentials/utils",
-    # "//yql/essentials/utils/log",
+    "//yql/essentials/utils/log",
   ]
 
   sources = [

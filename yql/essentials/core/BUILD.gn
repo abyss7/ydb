@@ -1,50 +1,37 @@
 # yamake2gn: keep  -- hand-written, do not regenerate
 
+config("private_config") {
+  cflags = [ "-Wno-ambiguous-reversed-operator" ]
+}
+
 library("core") {
   public_deps = [
-    "//library/cpp/enumbitset",
-    "//library/cpp/json",
-    "//library/cpp/random_provider",
-    "//library/cpp/threading/future",
-    "//library/cpp/time_provider",
-    "//library/cpp/yson",
-    "//library/cpp/yson:node",
     "//yql/essentials/ast",
     "//yql/essentials/core/credentials",
-    "//yql/essentials/core/expr_nodes",
-    "//yql/essentials/core/file_storage",
     "//yql/essentials/core/histogram",
     "//yql/essentials/core/issue",
     "//yql/essentials/core/layers",
     "//yql/essentials/core/minsketch",
-    "//yql/essentials/core/qplayer/storage/interface",
     "//yql/essentials/core/sql_types",
-    "//yql/essentials/core/url_lister/interface",
-    "//yql/essentials/core/url_preprocessing/interface",
     "//yql/essentials/minikql",
     "//yql/essentials/parser/pg_catalog",
-    "//yql/essentials/protos",
     "//yql/essentials/providers/common/proto",
     "//yql/essentials/public/issue",
-    "//yql/essentials/public/langver",
-    "//yql/essentials/public/udf",
     "//yql/essentials/sql",
-    "//yql/essentials/utils",
   ]
 
   deps = [
-    "//library/cpp/containers/stack_vector",
+    "//library/cpp/disjoint_sets",
     "//library/cpp/iterator",
     "//library/cpp/string_utils/base64",
     "//library/cpp/type_info:tz",
     "//yql/essentials/minikql/dom",
     "//yql/essentials/minikql/jsonpath/parser",
-    "//yql/essentials/parser/pg_wrapper/interface",
-    "//yql/essentials/public/decimal",
     "//yql/essentials/utils/log",
   ]
 
   sources = [
+    "cbo/cbo_interesting_orderings.cpp",
     "yql_aggregate_expander.cpp",
     "yql_callable_transform.cpp",
     "yql_cost_function.cpp",
@@ -90,4 +77,6 @@ library("core") {
     "yql_type_annotation.h",
     "yql_user_data.h",
   ]
+
+  configs = [ ":private_config" ]
 }

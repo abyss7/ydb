@@ -6,9 +6,9 @@ library("mkql") {
 
   deps = [
     # "//yql/essentials/minikql",
-    # "//yql/essentials/parser/pg_catalog",
-    # "//yql/essentials/providers/common/codec",
-    # "//yql/essentials/providers/common/schema/parser",
+    "//yql/essentials/parser/pg_catalog",
+    "//yql/essentials/providers/common/codec",
+    "//yql/essentials/providers/common/schema/parser",
     # "//yql/essentials/public/udf",
     # "//yql/essentials/utils",
   ]

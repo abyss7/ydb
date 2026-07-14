@@ -1,9 +1,9 @@
-group("common") {
-  public_deps = [
-    "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/iam/common",
-    "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/iam_private/common",
-  ]
-}
+# group("common") {
+#   public_deps = [
+#     "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/iam/common",
+#     "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/iam_private/common",
+#   ]
+# }
 
 library("iam_private") {
   public_deps = [

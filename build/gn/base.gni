@@ -40,6 +40,47 @@ template("ssse3_source_set") {
     }
 }
 
+template("expand_template") {
+    assert(defined(invoker.sources), "expand_template requires `sources`")
+
+    _output = "{{source_gen_dir}}/{{source_name_part}}"
+
+    _has_subs = defined(invoker.substitutions)
+    if (_has_subs) {
+        _subs_target = "${target_name}_subs"
+        _subs_file = "$target_gen_dir/${target_name}.subs.json"
+
+        generated_file(_subs_target) {
+            outputs = [ _subs_file ]
+            contents = invoker.substitutions
+            output_conversion = "json"
+        }
+    }
+
+    action_foreach(target_name) {
+        forward_variables_from(invoker, [ "deps", "visibility" ])
+
+        script = "//build/gn/scripts/expand_template.py"
+        sources = invoker.sources
+        outputs = [ _output ]
+
+        args = [
+            "--input", "{{source}}",
+            "--output", _output,
+        ]
+
+        if (_has_subs) {
+            inputs = [ _subs_file ]
+            args += [ "--defines-file", rebase_path(_subs_file, root_build_dir) ]
+
+            if (!defined(deps)) {
+                deps = []
+            }
+            deps += [ ":$_subs_target" ]
+        }
+    }
+}
+
 template("library") {
     _path = rebase_path(".", "//")
     _unique_name = exec_script("//build/gn/scripts/unique_name.py", [ _path ], "trim string")

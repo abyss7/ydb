@@ -1,0 +1,68 @@
+template("antlr3_run") {
+    assert(defined(invoker.grammar), "antlr3_run requires `grammar`")
+    assert(defined(invoker.language),
+           "antlr3_run requires `language` (e.g. \"Cpp\", \"protobuf\")")
+    assert(defined(invoker.templates_target),
+           "antlr3_run requires `templates_target` (an expand_template target)")
+    assert(defined(invoker.templates_root),
+           "antlr3_run requires `templates_root` (dir holding org/antlr/codegen/templates)")
+
+    _name = get_path_info(invoker.grammar, "name")
+
+    if (defined(invoker.outputs)) {
+        _outputs = []
+        foreach(_o, invoker.outputs) {
+            _outputs += [ "$target_gen_dir/$_o" ]
+        }
+    } else if (invoker.language == "protobuf") {
+        _outputs = [ "$target_gen_dir/${_name}Parser.proto" ]
+    } else if (invoker.language == "Cpp") {
+        _outputs = [
+            "$target_gen_dir/${_name}Parser.cpp",
+            "$target_gen_dir/${_name}Parser.h",
+            "$target_gen_dir/${_name}Lexer.cpp",
+            "$target_gen_dir/${_name}Lexer.h",
+        ]
+    } else {
+        assert(false,
+               "antlr3_run: no default outputs for language '${invoker.language}'; pass explicit `outputs`")
+        _outputs = []
+    }
+
+    _templates_dir = "$root_gen_dir/" + rebase_path(invoker.templates_root, "//")
+
+    _jar = "//contrib/java/antlr/antlr3/antlr.jar"
+    if (defined(invoker.jar)) {
+        _jar = invoker.jar
+    }
+
+    action(target_name) {
+        forward_variables_from(invoker, [ "deps", "visibility" ])
+
+        script = "//build/gn/scripts/run_in_dir.py"
+        outputs = _outputs
+        inputs = [ invoker.grammar, _jar ] +
+                 get_target_outputs(invoker.templates_target)
+
+        # TODO: run through a hermetic JDK (ya make uses build/platform/java/jdk)
+        # instead of `java` from $PATH.
+        #
+        args = [
+            rebase_path(_templates_dir),
+            "java", "-jar", rebase_path(_jar),
+            rebase_path(invoker.grammar),
+            "-language", invoker.language,
+            "-lib", ".",
+            "-fo", rebase_path(target_gen_dir),
+        ]
+
+        if (!defined(deps)) {
+            deps = []
+        }
+        deps += [ invoker.templates_target ]
+
+        if (invoker.language == "Cpp") {
+            public_configs = [ "//contrib/libs/antlr3_cpp_runtime:generated_private_config" ]
+        }
+    }
+}

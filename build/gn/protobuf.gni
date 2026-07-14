@@ -12,6 +12,14 @@ template("protobuf_library") {
         # "-I", rebase_path("//contrib/libs/opentelemetry-proto", root_build_dir), # TODO: it's a hack
     ]
 
+    _generated_sources = defined(invoker.generated_sources) && invoker.generated_sources
+    if (_generated_sources) {
+        _proto_paths += [ "-I", rebase_path(root_gen_dir, root_build_dir) ]
+        _out_base = target_gen_dir
+    } else {
+        _out_base = "{{source_gen_dir}}"
+    }
+
     _protoc_bin = rebase_path("$root_out_dir/protoc", root_build_dir)
     _protoc_plugin_cpp_styleguide = "$root_out_dir/cpp_styleguide"
     _protoc_plugin_grpc_cpp = "$root_out_dir/grpc_cpp"
@@ -80,10 +88,10 @@ template("protobuf_library") {
         sources = invoker.sources
         inputs = [ _proto_includes_file ]
         outputs = [
-            "{{source_gen_dir}}/{{source_name_part}}.grpc.pb.cc",
-            "{{source_gen_dir}}/{{source_name_part}}.grpc.pb.h",
-            "{{source_gen_dir}}/{{source_name_part}}.pb.cc",
-            "{{source_gen_dir}}/{{source_name_part}}.pb.h",
+            "$_out_base/{{source_name_part}}.grpc.pb.cc",
+            "$_out_base/{{source_name_part}}.grpc.pb.h",
+            "$_out_base/{{source_name_part}}.pb.cc",
+            "$_out_base/{{source_name_part}}.pb.h",
         ]
 
         args = [ _source_dir ] + outputs + ["--"] + [ "./$_protoc_bin" ] + _proto_paths + _self_proto_paths
@@ -103,6 +111,10 @@ template("protobuf_library") {
             "//contrib/tools/protoc/plugins/cpp_styleguide",
             "//contrib/tools/protoc/plugins/grpc_cpp",
         ]
+
+        if (defined(invoker.deps)) {
+            deps += invoker.deps
+        }
 
         foreach(_plugin, _extra_plugins) {
             args += [
@@ -152,7 +164,7 @@ template("protobuf_library") {
     }
 
     library(target_name) {
-        forward_variables_from(invoker, "*", [ "deps", "public_configs", "public_deps", "sources", "extra_plugins", "proto_public_include_dirs", "serialize_enum_headers" ])
+        forward_variables_from(invoker, "*", [ "deps", "public_configs", "public_deps", "sources", "extra_plugins", "proto_public_include_dirs", "serialize_enum_headers", "generated_sources" ])
 
         output_dir = "$root_out_dir/" + rebase_path(".", "//") # TODO: doesn't work for some reason
         output_name = _unique_name

@@ -11,7 +11,6 @@ library("cbo") {
 
   sources = [
     "cbo_hints.cpp",
-    "cbo_interesting_orderings.cpp",
     "cbo_optimizer_new.cpp",
   ]
 

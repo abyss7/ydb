@@ -1,17 +1,17 @@
 library("comp_nodes") {
   public_deps = [
-    # "//yql/essentials/minikql/computation",
+    "//yql/essentials/minikql/computation",
   ]
 
   deps = [
     # "//yql/essentials/ast",
-    # "//yql/essentials/ast:serialize",
-    # "//yql/essentials/core",
-    # "//yql/essentials/core/type_ann",
+    "//yql/essentials/ast:serialize",
+    "//yql/essentials/core",
+    "//yql/essentials/core/type_ann",
     # "//yql/essentials/minikql",
     # "//yql/essentials/parser/pg_catalog",
-    # "//yql/essentials/providers/common/codec",
-    # "//yql/essentials/providers/common/schema/expr",
+    "//yql/essentials/providers/common/codec",
+    "//yql/essentials/providers/common/schema/expr",
     # "//yql/essentials/public/issue",
     # "//yql/essentials/public/udf",
   ]
