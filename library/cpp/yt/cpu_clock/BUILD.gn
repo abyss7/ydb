@@ -1,6 +1,6 @@
 library("cpu_clock") {
   deps = [
-    # "//library/cpp/yt/assert",
+    "//library/cpp/yt/assert",
     # "//library/cpp/yt/misc",
   ]
 

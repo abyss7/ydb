@@ -13,6 +13,7 @@ SRCS(
     yql_plan.h
     yql_transform_pipeline.cpp
     yql_transform_pipeline.h
+    yql_transform_pipeline_eval.cpp
 )
 
 PEERDIR(

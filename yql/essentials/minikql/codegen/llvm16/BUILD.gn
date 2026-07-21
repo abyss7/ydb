@@ -8,10 +8,11 @@ config("private_config") {
 }
 
 library("llvm16") {
+  public_deps = [ "//contrib/libs/llvm16" ]
+
   deps = [
     ":codegen_llvm_deps_h",
     "//contrib/libs/cxxsupp/builtins",
-    "//contrib/libs/llvm16",
     "//contrib/libs/re2",
   ]
 

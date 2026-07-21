@@ -4,6 +4,7 @@
 #include <ydb/library/actors/core/events/events.h>
 #include <ydb/library/actors/core/interconnect.h>
 #include <ydb/library/actors/core/hfunc.h>
+#include <ydb/library/actors/core/scheduler_cookie.h>
 #include <ydb/library/yql/utils/actors/rich_actor.h>
 
 #include <yql/essentials/utils/log/log.h>

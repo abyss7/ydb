@@ -1,0 +1,8 @@
+library("signals") {
+    deps = [
+        "//library/cpp/yt/assert",
+        "//library/cpp/yt/system",
+    ]
+
+    sources = [ "signal_registry.cpp" ]
+}

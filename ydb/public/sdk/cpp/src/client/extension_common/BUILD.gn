@@ -1,7 +1,7 @@
 library("extension_common") {
   public_deps = [
     # "//library/cpp/monlib/metrics",
-    # "//ydb/public/sdk/cpp/src/client/driver",
+    "//ydb/public/sdk/cpp/src/client/driver",
   ]
 
   deps = [

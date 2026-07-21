@@ -1,4 +1,6 @@
 protobuf_library("core") {
+    proto_public_include_dirs = [ "//yt" ]
+
     sources = [
         "bus/proto/bus.proto",
         "crypto/proto/crypto.proto",

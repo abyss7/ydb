@@ -1,10 +1,10 @@
 library("metrics") {
   public_deps = [
-    # "//library/cpp/monlib/dynamic_counters",
+    "//library/cpp/monlib/dynamic_counters",
   ]
 
   deps = [
-    # ":protos",
+    ":protos",
   ]
 
   sources = [

@@ -5,6 +5,6 @@ generate_expr_nodes("gen") {
 }
 
 library("expr_nodes") {
-    deps = [ ":gen" ]
+    public_deps = [ ":gen" ]
     sources = [ "yql_s3_expr_nodes.cpp" ]
 }

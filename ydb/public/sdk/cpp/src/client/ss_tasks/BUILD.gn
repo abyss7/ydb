@@ -1,8 +1,8 @@
 library("ss_tasks") {
   public_deps = [
-    # "//ydb/public/sdk/cpp/src/client/driver",
+    "//ydb/public/sdk/cpp/src/client/driver",
     # "//ydb/public/sdk/cpp/src/client/types",
-    # "//ydb/public/sdk/cpp/src/client/types/operation",
+    "//ydb/public/sdk/cpp/src/client/types/operation",
   ]
 
   deps = [

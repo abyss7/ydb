@@ -1,6 +1,8 @@
 library("scheme") {
+  public_deps = [ "//library/cpp/json" ]
+
   deps = [
-    # "//library/cpp/json",
+    "//contrib/libs/protobuf",
     # "//library/cpp/string_utils/relaxed_escaper",
   ]
 

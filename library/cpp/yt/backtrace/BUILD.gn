@@ -1,0 +1,7 @@
+library("backtrace") {
+    deps = [
+        "symbolizers:dwarf",
+        "//library/cpp/yt/assert",
+    ]
+    sources = [ "backtrace.cpp" ]
+}

@@ -1,4 +1,9 @@
 library("client") {
+    deps = [
+        "//yt/yt/core",
+        "//yt/yt_proto/yt/client",
+    ]
+
     sources = [
         "api/chaos_lease_base.cpp",
         "api/client_cache.cpp",

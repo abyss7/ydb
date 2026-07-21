@@ -1,0 +1,4 @@
+library("api") {
+    deps = [ "//library/cpp/yt/assert" ]
+    sources = [ "api/api.cpp" ]
+}

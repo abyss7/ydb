@@ -1,0 +1,14 @@
+library("error") {
+    deps = [
+        "//library/cpp/yt/global",
+        "//library/cpp/yt/logging",
+    ]
+
+    sources = [
+        "error.cpp",
+        "error_attributes.cpp",
+        "error_code.cpp",
+        "origin_attributes.cpp",
+        "text_yson.cpp",
+    ]
+}

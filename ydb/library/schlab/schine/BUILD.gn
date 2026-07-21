@@ -1,8 +1,8 @@
 library("schine") {
   deps = [
-    # "//library/cpp/lwtrace",
-    # "//library/cpp/lwtrace/mon",
-    # "//ydb/library/schlab/probes",
+    "//library/cpp/lwtrace",
+    "//library/cpp/lwtrace/mon",
+    "//ydb/library/schlab/probes",
   ]
 
   sources = [

@@ -12,6 +12,23 @@ template("yasm_source_set") {
         args = [
             "./$_yasm_bin",
             "-f", "elf64",
+            "-D", "UNIX",
+            "-D", "_x86_64_",
+            "-D", "_YASM_",
+            "-g", "dwarf2",
+        ]
+
+        if (defined(invoker.asm_include_dirs)) {
+            foreach(_dir, invoker.asm_include_dirs) {
+                args += [ "-I", rebase_path(_dir, root_build_dir) ]
+            }
+        }
+
+        if (defined(invoker.yasm_flags)) {
+            args += invoker.yasm_flags
+        }
+
+        args += [
             "-o", "$_output",
             "{{source}}",
         ]
@@ -23,7 +40,14 @@ template("yasm_source_set") {
     }
 
     source_set(target_name) {
-        forward_variables_from(invoker, "*", [ "deps", "sources" ])
+        forward_variables_from(invoker,
+                               "*",
+                               [
+                                 "asm_include_dirs",
+                                 "deps",
+                                 "sources",
+                                 "yasm_flags",
+                               ])
 
         deps = []
         deps += [ ":$_gen_target_yasm" ]

@@ -1,3 +1,10 @@
+protobuf_library("protos") {
+  sources = [
+    "protos/blobstorage_config.proto",
+    "protos/config.proto",
+  ]
+}
+
 library("public") {
   public_deps = [
     "//contrib/libs/openssl",
@@ -10,20 +17,21 @@ library("public") {
 
 library("yaml_config") {
   public_deps = [
+    ":public",
     # "//library/cpp/json:writer",
-    # "//library/cpp/protobuf/json",
+    "//library/cpp/protobuf/json",
     "//library/cpp/yaml/as",
     # "//ydb/core/erasure",
     # "//ydb/library/yaml_config/protos",
     # "//ydb/public/api/protos",
     # "//yql/essentials/public/issue",
-    ":public",
   ]
 
   deps = [
+    ":protos",
     # "//contrib/libs/xxhash",
-    # "//library/cpp/json",
-    # "//ydb/core/base",
+    "//library/cpp/json",
+    "//ydb/core/base",
     # "//ydb/core/cms/console:util",
     # "//ydb/core/config/validation",
     # "//ydb/core/protos",

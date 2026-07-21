@@ -5,6 +5,9 @@ config("public_config") {
 contrib_library("range") {
     public_deps = [
         "//contrib/restricted/boost/concept_check",
+        "//contrib/restricted/boost/iterator",
+        "//contrib/restricted/boost/mpl",
+        "//contrib/restricted/boost/optional",
         "//contrib/restricted/boost/utility",
     ]
 

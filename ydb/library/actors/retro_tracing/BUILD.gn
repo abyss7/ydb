@@ -1,7 +1,7 @@
 library("retro_tracing") {
   public_deps = [
-    # "//ydb/library/actors/core",
-    # "//ydb/library/actors/wilson",
+    "//ydb/library/actors/core",
+    "//ydb/library/actors/wilson",
   ]
 
   deps = [

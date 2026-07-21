@@ -1,10 +1,10 @@
 library("log_backend") {
   public_deps = [
-    # "//library/cpp/logger",
+    "//library/cpp/logger",
   ]
 
   deps = [
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
   ]
 
   sources = [ "actor_log_backend.cpp" ]

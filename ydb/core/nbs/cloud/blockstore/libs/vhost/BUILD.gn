@@ -1,14 +1,15 @@
 library("vhost") {
   public_deps = [
     # "//library/cpp/threading/future",
-    # "//ydb/core/nbs/cloud/blockstore/libs/diagnostics",
-    # "//ydb/core/nbs/cloud/blockstore/libs/service",
+    "//ydb/core/nbs/cloud/blockstore/libs/diagnostics",
+    "//ydb/core/nbs/cloud/blockstore/libs/service",
     # "//ydb/core/nbs/cloud/storage/core/libs/common",
     # "//ydb/core/nbs/cloud/storage/core/protos",
   ]
 
   deps = [
-    # "//ydb/core/nbs/cloud/contrib/vhost",
+    "//library/cpp/logger",
+    "//ydb/core/nbs/cloud/contrib/vhost",
     # "//ydb/core/nbs/cloud/storage/core/libs/diagnostics",
   ]
 

@@ -1,6 +1,6 @@
 library("proto") {
   public_deps = [
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
     # "//ydb/public/sdk/cpp/src/client/coordination",
     # "//ydb/public/sdk/cpp/src/client/export",
@@ -10,7 +10,8 @@ library("proto") {
   ]
 
   deps = [
-    # "//ydb/public/sdk/cpp/src/client/value",
+    "//ydb/public/sdk/cpp/src/client/params",
+    "//ydb/public/sdk/cpp/src/client/value",
   ]
 
   sources = [ "accessor.cpp" ]

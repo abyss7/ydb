@@ -1,14 +1,14 @@
 library("pushdown") {
   public_deps = [
-    # "//yql/essentials/ast",
+    "//yql/essentials/ast",
     # "//yql/essentials/core/expr_nodes_gen",
-    # "//yql/essentials/utils/log",
+    "//yql/essentials/utils/log",
   ]
 
   deps = [
-    # "//yql/essentials/core",
+    "//yql/essentials/core",
     # "//yql/essentials/core/expr_nodes",
-    # "//yql/essentials/providers/common/provider",
+    "//yql/essentials/providers/common/provider",
   ]
 
   sources = [

@@ -1,0 +1,21 @@
+library("impl") {
+    deps = [
+        "//library/cpp/threading/future",
+        "//ydb/public/sdk/cpp/src/client/impl/internal/logger",
+        "//ydb/public/sdk/cpp/src/client/topic",
+        "//ydb/public/sdk/cpp/src/client/topic/codecs",
+        "//ydb/public/sdk/cpp/src/client/topic/impl",
+        "//ydb/public/sdk/cpp/src/client/types/executor",
+        "//ydb/public/sdk/cpp/src/library/string_utils:helpers",
+    ]
+
+    sources = [
+        "federated_deferred_commit.cpp",
+        "federated_read_session_event.cpp",
+        "federated_read_session.cpp",
+        "federated_topic_impl.cpp",
+        "federated_topic.cpp",
+        "federated_write_session.cpp",
+        "federation_observer.cpp",
+    ]
+}

@@ -1,15 +1,21 @@
+config("public_config") {
+  cflags = [ "-mcx16" ]
+}
+
 library("profiling") {
   public_deps = [
     # "//library/cpp/yt/compact_containers",
-    # "//library/cpp/yt/cpu_clock",
-    # "//library/cpp/yt/memory",
+    "//library/cpp/yt/cpu_clock",
+    "//library/cpp/yt/memory",
     # "//library/cpp/yt/misc",
-    # "//library/cpp/yt/string",
+    "//library/cpp/yt/string",
   ]
 
   deps = [
-    # "//library/cpp/yt/assert",
-    # "//library/cpp/yt/threading",
+    "//library/cpp/yt/assert",
+    "//library/cpp/yt/error",
+    "//library/cpp/yt/malloc",
+    "//library/cpp/yt/threading",
     # "//yt/yt/core",
   ]
 
@@ -22,4 +28,6 @@ library("profiling") {
     "tag.cpp",
     "testing.cpp",
   ]
+
+  public_configs = [ ":public_config" ]
 }

@@ -1,5 +1,4 @@
 #include "tracing.h"
-#include <ydb/core/tx/tracing/service/global.h>
 #include <util/string/join.h>
 #include <util/stream/buffered.h>
 #include <util/stream/fwd.h>
@@ -8,13 +7,13 @@
 
 namespace NKikimr::NTracing {
 
-TTraceClientGuard TTraceClient::GetClient(const TString& type, const TString& clientId, const TString& parentId) {
-    return Singleton<TTracing>()->GetClient(type, clientId, parentId);
-}
+// NB: the static TTraceClient::Get*Client/GetTypeUnique factories are defined in
+// ydb/core/tx/tracing/service/global.cpp -- they are built on top of the TTracing
+// singleton, which lives in the higher-level `service` library. Defining them here
+// would make `usage` depend back on `service` and close a dependency cycle.
 
 namespace {
 
-static TAtomicCounter ClientsCounter = 0;
 NTls::TValue<std::vector<TTraceClient*>> GuardedClients;
 NTls::TValue<std::vector<TTraceClient::TDurationGuard*>> Guards;
 }
@@ -64,18 +63,6 @@ TTraceClient::TDurationGuard::~TDurationGuard() {
     GuardedClients.Get().pop_back();
     Guards.Get().pop_back();
     Stat->Finish(TMonotonic::Now());
-}
-
-TTraceClientGuard TTraceClient::GetClientUnique(const TString& type, const TString& clientId, const TString& parentId) {
-    return Singleton<TTracing>()->GetClient(type, clientId + "::" + ::ToString(ClientsCounter.Inc()), parentId);
-}
-
-TTraceClientGuard TTraceClient::GetLocalClient(const TString& type, const TString& clientId) {
-    return Singleton<TTracing>()->GetLocalClient(type, clientId + "::" + ::ToString(ClientsCounter.Inc()));
-}
-
-TTraceClientGuard TTraceClient::GetTypeUnique(const TString& type, const TString& parentId) {
-    return Singleton<TTracing>()->GetClient(type, type + "::" + ::ToString(ClientsCounter.Inc()), parentId);
 }
 
 NJson::TJsonValue TTraceClient::ToJsonImpl(THashSet<TString>& readyIds) const {

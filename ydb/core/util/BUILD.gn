@@ -16,6 +16,8 @@ library("memory_tracker") {
 
 library("util") {
   deps = [
+    "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-core",
+    "//contrib/libs/curl",
     "//library/cpp/cgiparam",
     "//library/cpp/ipmath",
     "//library/cpp/ipv6_address",

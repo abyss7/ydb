@@ -1,6 +1,13 @@
 # TODO: add resource
 
 library("provider") {
+    deps = [
+        "//contrib/libs/openssl",
+        "//yql/essentials/ast",
+        "//yql/essentials/core/dq_expr_nodes",
+        "//yql/essentials/sql/v1",
+    ]
+
     sources = [
         "phy_opt/yql_yt_phy_opt_content.cpp",
         "phy_opt/yql_yt_phy_opt_create.cpp",

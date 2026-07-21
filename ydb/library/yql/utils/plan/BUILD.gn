@@ -1,10 +1,10 @@
 library("plan") {
   public_deps = [
-    # "//yql/essentials/core/expr_nodes",
+    "//yql/essentials/core/expr_nodes",
   ]
 
   deps = [
-    # "//yql/essentials/ast",
+    "//yql/essentials/ast",
   ]
 
   sources = [ "plan_utils.cpp" ]

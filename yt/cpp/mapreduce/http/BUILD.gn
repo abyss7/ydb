@@ -1,19 +1,19 @@
 library("http") {
   public_deps = [
-    # "//library/cpp/http/io",
-    # "//yt/cpp/mapreduce/interface",
+    "//library/cpp/http/io",
+    "//yt/cpp/mapreduce/interface",
   ]
 
   deps = [
     # "//library/cpp/json",
-    # "//library/cpp/string_utils/base64",
+    "//library/cpp/string_utils/base64",
     # "//library/cpp/yson:node",
     # "//yt/cpp/mapreduce/client",
-    # "//yt/cpp/mapreduce/common",
-    # "//yt/cpp/mapreduce/interface:logging",
+    "//yt/cpp/mapreduce/common",
+    "//yt/cpp/mapreduce/interface:logging",
     # "//yt/yt/core",
-    # "//yt/yt/core/http",
-    # "//yt/yt/core/https",
+    "//yt/yt/core/http",
+    "//yt/yt/core/https",
   ]
 
   sources = [

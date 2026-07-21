@@ -19,8 +19,12 @@ protected:
 
 private:
     // User of the library must provide the definition of this method
-    // See UT for implementation example
-    static TRetroSpan* DeserializeImpl(ui32 type, ui32 size, const void* data);
+    // See UT for implementation example.
+    // Declared weak so that this library links without a provider (the
+    // reference stays undefined-weak and binds at runtime to whoever supplies
+    // the definition, e.g. //ydb/core/retro_tracing_impl or the UT). This keeps
+    // the dependency one-directional (impl -> retro_tracing) instead of cyclic.
+    static TRetroSpan* DeserializeImpl(ui32 type, ui32 size, const void* data) Y_WEAK;
 
     static TRetroSpan* Deserialize(const void* data);
 
@@ -32,7 +36,7 @@ public:
     TRetroSpan(const TRetroSpan&) = default;
 
     TRetroSpan& operator=(TRetroSpan&&) = default;
-    TRetroSpan& operator=(const TRetroSpan&) = default;
+    TRetroSpan& operator=(const TRetroSpan&) = delete;
 
     static std::unique_ptr<TRetroSpan> DeserializeToUnique(const void* data);
 

@@ -1,4 +1,6 @@
 library("serializations") {
+  deps = [ "//ydb/library/yql/udfs/common/clickhouse/client" ]
+
   sources = [ "serialization_interval.cpp" ]
 
   serialize_enum_headers = [ "serialization_interval.h" ]

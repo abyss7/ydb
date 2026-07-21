@@ -1,13 +1,11 @@
 library("usage") {
   public_deps = [
-    # "//library/cpp/json:writer",
+    "//library/cpp/json:writer",
     # "//ydb/library/accessor",
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
   ]
 
-  deps = [
-    # "//ydb/core/tx/tracing/service",
-  ]
+  deps = [ "//library/cpp/time_provider" ]
 
   sources = [ "tracing.cpp" ]
 }

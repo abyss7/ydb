@@ -2,7 +2,7 @@ library("infer_schema") {
   public_deps = [
     # "//library/cpp/yson:node",
     # "//yql/essentials/utils/threading",
-    # "//yt/cpp/mapreduce/interface",
+    "//yt/cpp/mapreduce/interface",
   ]
 
   deps = [
@@ -13,7 +13,7 @@ library("infer_schema") {
     # "//yql/essentials/utils/log",
     # "//yt/cpp/mapreduce/common",
     # "//yt/yql/providers/yt/lib/yt_rpc_helpers",
-    # "//yt/yt/client",
+    "//yt/yt/client",
     # "//yt/yt/library/auth",
   ]
 

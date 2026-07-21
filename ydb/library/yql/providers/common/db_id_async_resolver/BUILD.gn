@@ -1,7 +1,7 @@
 library("db_id_async_resolver") {
   public_deps = [
     # "//library/cpp/threading/future",
-    # "//yql/essentials/providers/common/proto",
+    "//yql/essentials/providers/common/proto",
     # "//yql/essentials/public/issue",
   ]
 

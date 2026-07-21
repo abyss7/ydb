@@ -1,7 +1,7 @@
 library("db_schema") {
   public_deps = [
-    # "//ydb/public/sdk/cpp/src/client/driver",
-    # "//ydb/public/sdk/cpp/src/client/params",
+    "//ydb/public/sdk/cpp/src/client/driver",
+    "//ydb/public/sdk/cpp/src/client/params",
   ]
 
   deps = [

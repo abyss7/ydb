@@ -12,8 +12,9 @@
 
 namespace NYdb::inline Dev::NTopic {
 
-ERetryErrorClass GetRetryErrorClass(EStatus status);
-ERetryErrorClass GetRetryErrorClassV2(EStatus status);
+// NB: GetRetryErrorClass / GetRetryErrorClassV2 are declared in
+// <ydb-cpp-sdk/client/topic/errors.h> (already included above) and defined in
+// the lower-level topic/common library.
 
 void Cancel(NYdbGrpc::IQueueClientContextPtr& context);
 

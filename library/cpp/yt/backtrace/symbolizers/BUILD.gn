@@ -1,0 +1,4 @@
+library("dwarf") {
+    deps = [ "//library/cpp/dwarf_backtrace" ]
+    sources = [ "dwarf/dwarf_symbolizer.cpp" ]
+}

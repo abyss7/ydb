@@ -1,8 +1,8 @@
 library("service") {
   public_deps = [
-    # "//library/cpp/threading/future",
-    # "//ydb/core/nbs/cloud/blockstore/libs/common",
-    # "//ydb/core/nbs/cloud/storage/core/libs/common",
+    "//library/cpp/threading/future",
+    "//ydb/core/nbs/cloud/blockstore/libs/common",
+    "//ydb/core/nbs/cloud/storage/core/libs/common",
     # "//ydb/core/nbs/cloud/storage/core/protos",
   ]
 

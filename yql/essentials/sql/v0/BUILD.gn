@@ -21,12 +21,13 @@ library("v0") {
   ]
 
   deps = [
+    "//contrib/libs/protobuf",
     # "//library/cpp/charset",
     # "//library/cpp/containers/stack_vector",
     # "//library/cpp/enumbitset",
     # "//yql/essentials/core/issue:protos",
     # "//yql/essentials/core/sql_types",
-    # "//yql/essentials/minikql",
+    "//yql/essentials/minikql",
     # "//yql/essentials/parser/proto_ast/collect_issues",
     # "//yql/essentials/providers/common/provider",
     # "//yql/essentials/public/udf",

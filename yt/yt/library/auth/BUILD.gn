@@ -1,7 +1,9 @@
 library("auth") {
   deps = [
-    # "//library/cpp/yt/memory",
-    # "//yt/yt/core",
+    "//library/cpp/yt/error",
+    "//library/cpp/yt/memory",
+    "//library/cpp/yt/string",
+    "//yt/yt/core",
     # "//yt/yt/library/tvm",
     # "//yt/yt_proto/yt/core",
   ]

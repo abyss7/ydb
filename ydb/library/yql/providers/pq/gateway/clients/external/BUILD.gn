@@ -1,7 +1,8 @@
 library("external") {
   public_deps = [
-    # "//ydb/library/yql/providers/pq/gateway/abstract",
-    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
+    "//ydb/public/sdk/cpp/src/client/topic",
+    "//ydb/public/sdk/cpp/src/client/topic/impl",
+    "//ydb/public/sdk/cpp/src/client/federated_topic/impl",
   ]
 
   sources = [

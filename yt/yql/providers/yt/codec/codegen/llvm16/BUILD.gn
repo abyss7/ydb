@@ -26,18 +26,20 @@ config("_includes") {
   ]
 }
 
-library("llvm16") {
+source_set("llvm16") {
   sources = [
     "../yt_codec_bc.cpp",
     "../yt_codec_cg.cpp",
   ]
 
-  configs = [ ":_includes" ]
+  configs += [ ":_includes" ]
 
-  deps = [
+  deps += [
     ":mkql_block_impl_codegen_h",
     ":mkql_computation_node_codegen_h",
     ":mkql_llvm_base_h",
+    "//yql/essentials/minikql/computation/llvm16",
+    "//yql/essentials/providers/common/codec",
   ]
 
   public_deps = [

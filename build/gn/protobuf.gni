@@ -9,7 +9,6 @@ template("protobuf_library") {
     _proto_paths = [
         "-I", rebase_path("//", root_build_dir),
         "-I", rebase_path("//contrib/libs/protobuf/src", root_build_dir),
-        # "-I", rebase_path("//contrib/libs/opentelemetry-proto", root_build_dir), # TODO: it's a hack
     ]
 
     _generated_sources = defined(invoker.generated_sources) && invoker.generated_sources

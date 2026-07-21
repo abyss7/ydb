@@ -44,7 +44,8 @@ copy("mkql_builtins_decimal_h") {
   outputs = [ "$_inv_gen_dir/mkql_builtins_decimal.h" ]
 }
 
-config("_includes") {
+config("private_config") {
+  cflags = [ "-Wno-ambiguous-reversed-operator" ]
   include_dirs = [
     target_gen_dir,
     _comp_gen_dir,
@@ -201,7 +202,7 @@ library("no_llvm") {
     cflags = [ "-mprfchw" ]
   }
 
-  configs = [ ":_includes" ]
+  configs = [ ":private_config" ]
 
   deps = [
     ":mkql_block_impl_codegen_h",
@@ -211,6 +212,8 @@ library("no_llvm") {
     ":mkql_builtins_impl_h",
     ":mkql_computation_node_codegen_h",
     ":mkql_llvm_base_h",
+    "//library/cpp/yson",
+    "//yql/essentials/public/decimal",
   ]
 
   public_deps = [

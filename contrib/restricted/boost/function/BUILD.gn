@@ -3,5 +3,10 @@ config("public_config") {
 }
 
 contrib_library("function") {
+    public_deps = [
+        "//contrib/restricted/boost/bind",
+        "//contrib/restricted/boost/core",
+    ]
+
     public_configs = [ ":public_config" ]
 }

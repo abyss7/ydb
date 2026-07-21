@@ -1,4 +1,14 @@
 library("topic") {
-    public_deps = [ "//ydb/public/sdk/cpp/src/client/scheme" ]
+    public_deps = [
+        "//ydb/public/sdk/cpp/src/client/scheme",
+        "//ydb/public/sdk/cpp/src/client/types/executor",
+    ]
     sources = [ "out.cpp" ]
+
+    serialize_enum_headers = [
+        "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic/codecs.h",
+        "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic/control_plane.h",
+        "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic/read_events.h",
+        "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic/write_events.h",
+    ]
 }

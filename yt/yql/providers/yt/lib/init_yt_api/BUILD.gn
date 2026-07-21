@@ -1,9 +1,9 @@
 library("init_yt_api") {
   deps = [
     # "//library/cpp/yson:node",
-    # "//yql/essentials/utils/log",
-    # "//yt/cpp/mapreduce/client",
-    # "//yt/cpp/mapreduce/interface",
+    "//yql/essentials/utils/log",
+    "//yt/cpp/mapreduce/client",
+    "//yt/cpp/mapreduce/interface",
   ]
 
   sources = [ "init.cpp" ]

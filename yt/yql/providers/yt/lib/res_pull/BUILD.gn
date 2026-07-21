@@ -1,13 +1,14 @@
 library("res_pull") {
   public_deps = [
     # "//library/cpp/yson",
-    # "//library/cpp/yson:node",
-    # "//yql/essentials/minikql",
+    "//library/cpp/yson:node",
+    "//yql/essentials/minikql",
     # "//yql/essentials/public/udf",
-    # "//yt/yql/providers/yt/codec",
+    "//yt/yql/providers/yt/codec",
   ]
 
   deps = [
+    "//yql/essentials/minikql/computation",
     # "//yql/essentials/providers/common/codec",
     # "//yql/essentials/utils",
     # "//yt/yql/providers/yt/lib/mkql_helpers",

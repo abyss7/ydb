@@ -2,6 +2,7 @@ library("actors") {
   public_deps = [
     ":protos",
     "//ydb/library/actors/core",
+    "//ydb/library/yql/public/ydb_issue",
     "//ydb/public/api/protos",
     "//yql/essentials/public/issue",
     "//yql/essentials/utils",
@@ -17,9 +18,9 @@ library("actors") {
 
 library("common") {
   public_deps = [
-    # "//ydb/library/actors/core",
-    # "//ydb/library/yql/dq/common",
-    # ":protos",
+    ":protos",
+    "//ydb/library/actors/core",
+    "//ydb/library/yql/dq/common",
   ]
 
   sources = [ "common/retry_queue.cpp" ]
@@ -27,34 +28,36 @@ library("common") {
 
 library("compute") {
   public_deps = [
+    ":common",
     # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/library/actors/core",
-    # "//ydb/library/actors/wilson",
+    "//ydb/library/actors/wilson",
     # "//ydb/library/services",
     # "//ydb/library/wilson_ids",
     # "//ydb/library/ydb_issue",
-    # "//ydb/library/yql/dq/actors",
+    "//ydb/library/yql/dq/actors",
     # "//ydb/library/yql/dq/common",
     # "//ydb/library/yql/dq/proto",
-    # "//ydb/library/yql/dq/runtime",
+    "//ydb/library/yql/dq/runtime",
     # "//ydb/library/yql/providers/dq/counters",
-    # "//yql/essentials/core/issue",
+    "//yql/essentials/core/issue",
     # "//yql/essentials/minikql",
     # "//yql/essentials/minikql/comp_nodes",
     # "//yql/essentials/minikql/computation",
     # "//yql/essentials/public/issue",
     # "//yql/essentials/utils",
-    # ":common",
     # ":protos",
     # ":task_runner",
   ]
 
   deps = [
-    # "//library/cpp/protobuf/interop",
+    ":spilling",
+    "//library/cpp/cgiparam",
+    "//library/cpp/monlib/service/pages",
+    "//library/cpp/protobuf/interop",
     # "//ydb/core/quoter:public",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/yverify_stream",
-    # ":spilling",
   ]
 
   sources = [
@@ -65,7 +68,8 @@ library("compute") {
     "compute/dq_compute_actor_checkpoints.cpp",
     "compute/dq_compute_actor_metrics.cpp",
     "compute/dq_compute_actor_stats.cpp",
-    "compute/dq_compute_actor_watermarks.cpp",
+    # dq_compute_actor_watermarks.cpp is compiled in //ydb/library/yql/dq/runtime
+    # (runtime calls it, and depending on :compute from there would be a cycle).
     "compute/dq_compute_issues_buffer.cpp",
     "compute/dq_info_aggregation_actor.cpp",
     "compute/dq_request_context.cpp",
@@ -105,16 +109,16 @@ protobuf_library("protos") {
 
 library("spilling") {
   public_deps = [
-    # "//library/cpp/monlib/dynamic_counters",
-    # "//ydb/library/actors/core",
+    "//library/cpp/monlib/dynamic_counters",
+    "//ydb/library/actors/core",
     # "//ydb/library/yql/dq/actors",
-    # "//ydb/library/yql/dq/common",
+    "//ydb/library/yql/dq/common",
     # "//ydb/library/yql/dq/runtime",
     # "//yql/essentials/utils",
   ]
 
   deps = [
-    # "//library/cpp/monlib/service/pages",
+    "//library/cpp/monlib/service/pages",
     # "//library/cpp/threading/future",
     # "//ydb/library/services",
     # "//yql/essentials/minikql/computation",

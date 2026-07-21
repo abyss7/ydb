@@ -6,11 +6,11 @@ library("device_type") {
 
 library("pdisk_io") {
   public_deps = [
-    "//ydb/core/blobstorage/pdisk",
-    "//ydb/core/debug",
-    "//ydb/library/actors/util",
-    "//ydb/library/actors/wilson",
-    "//ydb/library/yverify_stream",
+    # "//ydb/core/blobstorage/pdisk",
+    # "//ydb/core/debug",
+    # "//ydb/library/actors/util",
+    # "//ydb/library/actors/wilson",
+    # "//ydb/library/yverify_stream",
   ]
 
   deps = [
@@ -19,10 +19,10 @@ library("pdisk_io") {
     "//contrib/libs/libaio",
     "//contrib/libs/liburing",
     "//contrib/libs/lz4",
-    "//library/cpp/containers/stack_vector",
-    "//library/cpp/deprecated/atomic",
-    "//library/cpp/monlib/dynamic_counters",
-    "//library/cpp/threading/queue",
+    # "//library/cpp/containers/stack_vector",
+    # "//library/cpp/deprecated/atomic",
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//library/cpp/threading/queue",
     "//ydb/library/actors/core",
   ]
 

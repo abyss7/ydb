@@ -1,8 +1,8 @@
 library("structured_token") {
   deps = [
-    # "//library/cpp/json",
-    # "//library/cpp/string_utils/base64",
-    # "//yql/essentials/utils",
+    "//library/cpp/json",
+    "//library/cpp/string_utils/base64",
+    "//yql/essentials/utils",
   ]
 
   sources = [

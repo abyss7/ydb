@@ -62,3 +62,11 @@ contrib_library("enc") {
 
     configs = [ ":private_config" ]
 }
+
+group("brotli") {
+    public_deps = [
+        ":common",
+        ":dec",
+        ":enc",
+    ]
+}

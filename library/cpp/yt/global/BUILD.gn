@@ -1,0 +1,4 @@
+library("global") {
+    deps = [ "//library/cpp/yt/assert" ]
+    sources = [ "impl.cpp" ]
+}

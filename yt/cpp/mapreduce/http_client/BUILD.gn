@@ -2,15 +2,15 @@ library("http_client") {
   public_deps = [
     # "//library/cpp/threading/future",
     # "//yt/cpp/mapreduce/client",
-    # "//yt/cpp/mapreduce/common",
-    # "//yt/cpp/mapreduce/http",
+    "//yt/cpp/mapreduce/common",
+    "//yt/cpp/mapreduce/http",
     # "//yt/cpp/mapreduce/interface",
   ]
 
   deps = [
     # "//library/cpp/yson:node",
     # "//library/cpp/yt/yson_string",
-    # "//yt/cpp/mapreduce/interface:logging",
+    "//yt/cpp/mapreduce/interface:logging",
     # "//yt/cpp/mapreduce/io",
   ]
 

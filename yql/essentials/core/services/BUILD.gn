@@ -18,28 +18,46 @@ library("mounts") {
   sources = [ "mounts/yql_mounts.cpp" ]
 }
 
-library("services") {
+library("pipeline") {
   public_deps = [
-    # "//library/cpp/yson",
-    # "//yql/essentials/ast",
-    # "//yql/essentials/core",
-    # "//yql/essentials/core/issue",
-    # "//yql/essentials/core/type_ann",
-    # "//yql/essentials/utils/log",
+    "//yql/essentials/core",
+    "//yql/essentials/core/type_ann",
+    "//yql/essentials/utils/log",
   ]
 
   deps = [
-    # "//library/cpp/string_utils/base64",
+    "//yql/essentials/core/common_opt",
+  ]
+
+  sources = [
+    "yql_out_transformers.cpp",
+    "yql_transform_pipeline.cpp",
+  ]
+}
+
+library("services") {
+  public_deps = [
+    ":pipeline",
+    # "//library/cpp/yson",
+    # "//yql/essentials/ast",
+    "//yql/essentials/core",
+    # "//yql/essentials/core/issue",
+    "//yql/essentials/core/type_ann",
+    "//yql/essentials/utils/log",
+  ]
+
+  deps = [
+    "//library/cpp/string_utils/base64",
     # "//library/cpp/yson:node",
-    # "//yql/essentials/ast:serialize",
-    # "//yql/essentials/core/common_opt",
-    # "//yql/essentials/core/peephole_opt",
+    "//yql/essentials/ast:serialize",
+    "//yql/essentials/core/common_opt",
+    "//yql/essentials/core/peephole_opt",
     # "//yql/essentials/core/sql_types",
     # "//yql/essentials/minikql",
-    # "//yql/essentials/providers/common/codec",
-    # "//yql/essentials/providers/common/mkql",
+    "//yql/essentials/providers/common/codec",
+    "//yql/essentials/providers/common/mkql",
     # "//yql/essentials/providers/common/provider",
-    # "//yql/essentials/providers/common/schema/expr",
+    "//yql/essentials/providers/common/schema/expr",
     # "//yql/essentials/providers/result/expr_nodes",
     # "//yql/essentials/utils",
   ]
@@ -48,8 +66,7 @@ library("services") {
     "yql_eval_expr.cpp",
     "yql_eval_params.cpp",
     "yql_lineage.cpp",
-    "yql_out_transformers.cpp",
     "yql_plan.cpp",
-    "yql_transform_pipeline.cpp",
+    "yql_transform_pipeline_eval.cpp",
   ]
 }

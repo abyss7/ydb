@@ -321,7 +321,7 @@ public:
             TString Type;
             TString Attributes;
 
-            auto operator<=>(const TFolderItem&) const = default;
+            auto operator<=>(const TFolderItem&) const = delete;
         };
         std::variant<TVector<TFolderItem>, TFileLinkPtr> ItemsOrFileLink;
     };

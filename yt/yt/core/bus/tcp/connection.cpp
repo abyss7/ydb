@@ -2207,7 +2207,7 @@ void TTcpConnection::TryEstablishSslSession()
 
     sslContext->Commit();
 
-    Ssl_ = std::move(sslContext->NewSsl());
+    Ssl_ = sslContext->NewSsl();
 
     switch (VerificationMode_) {
         case EVerificationMode::Full:

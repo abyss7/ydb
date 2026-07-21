@@ -3,6 +3,7 @@
 library("expr_nodes_gen") {
   public_deps = [
     "//yql/essentials/ast",
+    "//yql/essentials/core/issue",
     "//yql/essentials/utils",
  ]
 

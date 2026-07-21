@@ -231,7 +231,7 @@ private:
         bool Idempotent;
         TInstant StartTime = TInstant::Now();
 
-        TRequest() = default;
+        TRequest() = delete;
         TRequest(const TActorId sender, ui64 cookie, const TString& sql, NYdb::TParams&& params, bool idempotent)
             : Sender(sender)
             , Cookie(cookie)

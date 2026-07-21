@@ -1,6 +1,10 @@
 library("stock") {
   public_deps = [
-    # "//ydb/library/workload/abstract",
+    "//ydb/library/workload/abstract",
+  ]
+
+  deps = [
+    "//library/cpp/getopt",
   ]
 
   sources = [

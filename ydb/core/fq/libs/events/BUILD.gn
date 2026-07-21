@@ -1,8 +1,9 @@
 library("events") {
+  public_deps = [ "//ydb/library/actors/core:events" ]
+
   deps = [
     "//ydb/core/fq/libs/graph_params/proto",
     "//ydb/core/fq/libs/protos",
-    "//ydb/library/actors/core:events",
     "//ydb/library/yql/providers/dq/provider",
   ]
 

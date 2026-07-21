@@ -1,6 +1,6 @@
 library("dq") {
   public_deps = [
-    # "//yql/essentials/core/dq_integration",
+    "//yql/essentials/core/dq_integration",
   ]
 
   sources = [

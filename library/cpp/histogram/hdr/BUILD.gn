@@ -1,6 +1,6 @@
 library("hdr") {
   deps = [
-    # "//contrib/libs/hdr_histogram",
+    "//contrib/libs/hdr_histogram",
   ]
 
   sources = [

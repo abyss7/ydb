@@ -1,12 +1,12 @@
 library("common") {
   public_deps = [
-    # "//contrib/libs/apache/arrow",
+    "//contrib/libs/apache/arrow",
     # "//ydb/library/accessor",
   ]
 
   deps = [
-    # "//ydb/library/actors/core",
-    # "//yql/essentials/types/binary_json",
+    "//ydb/library/actors/core",
+    "//yql/essentials/types/binary_json",
   ]
 
   sources = [

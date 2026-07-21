@@ -17,7 +17,7 @@ namespace NYql {
     };
 
     struct TEvBecomeLeader: NActors::TEventLocal<TEvBecomeLeader, TDqEvents::ES_BECOME_LEADER> {
-        TEvBecomeLeader() = default;
+        TEvBecomeLeader() = delete;
 
         TEvBecomeLeader(ui32 leaderEpoch, const TString& leaderTransaction, const TString& attributes)
             : LeaderEpoch(leaderEpoch)

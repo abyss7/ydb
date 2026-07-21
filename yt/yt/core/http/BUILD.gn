@@ -1,16 +1,19 @@
 library("http") {
   public_deps = [
-    # "//library/cpp/yt/memory",
+    "//library/cpp/yt/memory",
     # "//library/cpp/yt/misc",
-    # "//yt/yt/core",
-    # "//yt/yt/library/profiling",
+    "//yt/yt/core",
+    "//yt/yt/library/profiling",
   ]
 
   deps = [
-    # "//contrib/deprecated/http-parser",
-    # "//library/cpp/blockcodecs",
-    # "//library/cpp/streams/brotli",
-    # "//library/cpp/yt/threading",
+    "//contrib/deprecated/http-parser",
+    "//library/cpp/blockcodecs",
+    "//library/cpp/streams/brotli",
+    "//library/cpp/yt/error",
+    "//library/cpp/yt/logging",
+    "//library/cpp/yt/malloc",
+    "//library/cpp/yt/threading",
   ]
 
   sources = [

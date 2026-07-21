@@ -1,18 +1,19 @@
 library("http_gateway") {
   public_deps = [
-    # "//contrib/libs/curl",
+    "//contrib/libs/curl",
     # "//library/cpp/containers/stack_vector",
-    # "//library/cpp/monlib/dynamic_counters",
+    "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/retry",
-    # "//yql/essentials/public/issue",
+    "//yql/essentials/public/issue",
   ]
 
   deps = [
     # "//contrib/libs/openssl",
-    # "//ydb/library/actors/http",
+    "//library/cpp/cgiparam",
+    "//ydb/library/actors/http",
     # "//ydb/library/actors/prof",
-    # "//yql/essentials/providers/common/proto",
-    # "//yql/essentials/utils/log",
+    "//yql/essentials/providers/common/proto",
+    "//yql/essentials/utils/log",
   ]
 
   sources = [

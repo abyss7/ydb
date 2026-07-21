@@ -2,7 +2,7 @@ library("common") {
   public_deps = [
     # "//library/cpp/yson",
     # "//library/cpp/yson:node",
-    # "//yt/cpp/mapreduce/interface",
+    "//yt/cpp/mapreduce/interface",
   ]
 
   deps = [

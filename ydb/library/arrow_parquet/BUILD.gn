@@ -1,8 +1,8 @@
 library("arrow_parquet") {
   deps = [
-    # "//contrib/libs/apache/arrow",
-    # "//ydb/public/sdk/cpp/src/client/result",
-    # "//ydb/public/sdk/cpp/src/client/value",
+    "//contrib/libs/apache/arrow",
+    "//ydb/public/sdk/cpp/src/client/result",
+    "//ydb/public/sdk/cpp/src/client/value",
   ]
 
   sources = [ "result_set_parquet_printer.cpp" ]

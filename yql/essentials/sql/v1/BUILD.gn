@@ -4,7 +4,7 @@ library("v1") {
     # "//yql/essentials/ast",
     # "//yql/essentials/parser/lexer_common",
     # "//yql/essentials/parser/proto_ast",
-    # "//yql/essentials/public/issue",
+    "//yql/essentials/public/issue",
     # "//yql/essentials/public/udf",
     # "//yql/essentials/sql/v1/lexer",
     # "//yql/essentials/sql/v1/proto_parser",

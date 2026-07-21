@@ -1,10 +1,10 @@
 library("mkql_helpers") {
   public_deps = [
-    # "//yql/essentials/minikql",
+    "//yql/essentials/minikql",
   ]
 
   deps = [
-    # "//yql/essentials/ast",
+    "//yql/essentials/ast",
     # "//yql/essentials/core",
     # "//yql/essentials/utils",
   ]

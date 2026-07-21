@@ -1,24 +1,26 @@
 library("interface") {
   public_deps = [
     # "//library/cpp/skiff",
-    # "//library/cpp/threading/future",
-    # "//library/cpp/type_info",
+    "//library/cpp/threading/future",
+    "//library/cpp/type_info",
     # "//library/cpp/yson",
-    # "//library/cpp/yson:node",
+    "//library/cpp/yson:node",
+    "//library/cpp/yt/error",
     # "//library/cpp/yt/memory",
     # "//library/cpp/yt/misc",
     # "//library/cpp/yt/yson_string",
     # "//yt/cpp/mapreduce/skiff",
     # "//yt/yt/library/tvm",
-    # "//yt/yt_proto/yt/formats",
+    "//yt/yt_proto/yt/formats",
   ]
 
   deps = [
+    ":logging",
+    "//contrib/libs/protobuf",
     # "//library/cpp/json",
-    # "//library/cpp/svnversion",
-    # "//library/cpp/yson:json",
+    "//library/cpp/svnversion",
+    "//library/cpp/yson:json",
     # "//yt/yt/core",
-    # ":logging",
   ]
 
   sources = [
@@ -58,8 +60,9 @@ library("interface") {
 
 library("logging") {
   public_deps = [
-    # "//library/cpp/yt/logging",
-    # "//yt/yt/core",
+    "//library/cpp/yt/error",
+    "//library/cpp/yt/logging",
+    "//yt/yt/core",
   ]
 
   sources = [

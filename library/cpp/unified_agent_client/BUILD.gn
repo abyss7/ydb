@@ -6,14 +6,16 @@ protobuf_library("proto") {
 
 library("unified_agent_client") {
   public_deps = [
-    # "//library/cpp/logger",
-    # "//library/cpp/threading/future",
+    "//library/cpp/logger",
+    "//library/cpp/threading/future",
   ]
 
   deps = [
-    # "//library/cpp/logger:global",
-    # "//library/cpp/monlib/dynamic_counters",
-    # ":proto",
+    ":proto",
+    "//contrib/libs/grpc",
+    "//library/cpp/json",
+    "//library/cpp/logger:global",
+    "//library/cpp/monlib/dynamic_counters",
   ]
 
   sources = [

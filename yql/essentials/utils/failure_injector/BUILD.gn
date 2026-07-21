@@ -1,7 +1,7 @@
 library("failure_injector") {
   deps = [
-    # "//yql/essentials/utils",
-    # "//yql/essentials/utils/log",
+    "//yql/essentials/utils",
+    "//yql/essentials/utils/log",
   ]
 
   sources = [ "failure_injector.cpp" ]

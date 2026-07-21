@@ -1,4 +1,38 @@
 library("core") {
+    public_deps = [ "//yt/yt_proto/yt/core" ]
+
+    deps = [
+        "misc/isa_crc64",
+        "//contrib/deprecated/yajl",
+        "//contrib/libs/brotli",
+        "//contrib/libs/libbz2",
+        "//contrib/libs/c-ares",
+        "//contrib/libs/lz4",
+        "//contrib/libs/lzmasdk",
+        "//contrib/libs/openssl",
+        "//contrib/libs/snappy",
+        "//contrib/libs/zlib",
+        "//contrib/libs/zstd",
+        "//library/cpp/openssl/io",
+        "//library/cpp/streams/brotli",
+        "//library/cpp/yt/backtrace",
+        "//library/cpp/yt/backtrace/cursors:libunwind",
+        "//library/cpp/yt/error",
+        "//library/cpp/yt/global",
+        "//library/cpp/yt/logging",
+        "//library/cpp/yt/logging:plain_text_formatter",
+        "//library/cpp/yt/malloc",
+        "//library/cpp/yt/memory",
+        "//library/cpp/yt/threading",
+        "//library/cpp/yt/yson",
+        "//yt/yt_proto/yt/core",
+        "//yt/yt/build",
+        "//yt/yt/library/profiling",
+        "//yt/yt/library/signals",
+        "//yt/yt/library/undumpable",
+        "//yt/yt/library/ytprof:api",
+    ]
+
     sources = [
         "actions/cancelable_context.cpp",
         "actions/cancelation_token.cpp",
@@ -288,4 +322,6 @@ library("core") {
         "ytree/yson_struct_update.cpp",
         "ytree/yson_struct.cpp",
     ]
+
+    libs = [ "util" ]
 }

@@ -106,6 +106,7 @@ library("no_llvm") {
     ":mkql_builtins_impl_h",
     ":mkql_computation_node_codegen_h",
     ":mkql_llvm_base_h",
+    "//yql/essentials/public/decimal",
   ]
 
   public_deps = [

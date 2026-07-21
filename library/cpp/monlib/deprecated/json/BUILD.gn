@@ -1,6 +1,6 @@
 library("json") {
   public_deps = [
-    # "//library/cpp/json",
+    "//library/cpp/json",
   ]
 
   sources = [ "writer.cpp" ]

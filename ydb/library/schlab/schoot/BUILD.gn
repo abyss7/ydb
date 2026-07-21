@@ -1,7 +1,7 @@
 library("schoot") {
   deps = [
-    # "//library/cpp/protobuf/json",
-    # "//ydb/library/schlab/protos",
+    "//library/cpp/protobuf/json",
+    "//ydb/library/schlab/protos",
   ]
 
   sources = [

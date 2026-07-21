@@ -1,8 +1,14 @@
 library("registry") {
   public_deps = [
-    # "//yql/essentials/minikql",
-    # "//yql/essentials/minikql/computation",
+    "//contrib/libs/apache/arrow",
+    "//yql/essentials/minikql",
+    "//yql/essentials/minikql/computation/llvm16",
     # "//yql/essentials/public/langver",
+  ]
+
+  deps = [
+    "//library/cpp/random_provider",
+    "//library/cpp/time_provider",
   ]
 
   sources = [ "registry.cpp" ]

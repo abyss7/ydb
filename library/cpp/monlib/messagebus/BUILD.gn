@@ -1,12 +1,12 @@
 library("messagebus") {
   public_deps = [
-    # "//library/cpp/messagebus",
-    # "//library/cpp/messagebus:www",
+    "//library/cpp/messagebus",
+    "//library/cpp/messagebus:www",
     # "//library/cpp/monlib/service/pages",
   ]
 
   deps = [
-    # "//library/cpp/monlib/service",
+    "//library/cpp/monlib/service",
   ]
 
   sources = [

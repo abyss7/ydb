@@ -1,5 +1,6 @@
 #pragma once
 
+#include <library/cpp/yt/misc/guid.h>
 #include <yt/yt/core/misc/common.h>
 
 namespace NYT::NHttp {

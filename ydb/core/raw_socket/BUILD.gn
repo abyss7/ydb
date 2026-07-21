@@ -1,9 +1,13 @@
 library("raw_socket") {
   public_deps = [
-    # "//ydb/library/actors/core",
-    # "//ydb/library/actors/interconnect:poller",
+    "//ydb/library/actors/core",
+    "//ydb/library/actors/interconnect:poller",
     # "//ydb/library/actors/protos",
     # "//ydb/library/services",
+  ]
+
+  deps = [
+    "//contrib/libs/openssl",
   ]
 
   sources = [ "sock_listener.cpp" ]

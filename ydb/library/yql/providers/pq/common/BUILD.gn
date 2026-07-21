@@ -1,6 +1,6 @@
 library("common") {
   public_deps = [
-    # "//yql/essentials/public/udf",
+    "//yql/essentials/public/udf",
   ]
 
   deps = [

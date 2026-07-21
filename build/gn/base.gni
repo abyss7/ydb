@@ -40,22 +40,17 @@ template("ssse3_source_set") {
     }
 }
 
+# Expands @VAR@ placeholders (and #cmakedefine lines) in the given .in files.
+#
+# `substitutions` is a list of "KEY=VALUE" strings. They are passed on the
+# action's command line (not through an intermediate file) on purpose: ninja
+# re-runs an action whenever its command line changes, while an mtime-based
+# dependency on a gn-generated file is not reliably propagated through the
+# inputdeps phony edges.
 template("expand_template") {
     assert(defined(invoker.sources), "expand_template requires `sources`")
 
     _output = "{{source_gen_dir}}/{{source_name_part}}"
-
-    _has_subs = defined(invoker.substitutions)
-    if (_has_subs) {
-        _subs_target = "${target_name}_subs"
-        _subs_file = "$target_gen_dir/${target_name}.subs.json"
-
-        generated_file(_subs_target) {
-            outputs = [ _subs_file ]
-            contents = invoker.substitutions
-            output_conversion = "json"
-        }
-    }
 
     action_foreach(target_name) {
         forward_variables_from(invoker, [ "deps", "visibility" ])
@@ -69,14 +64,10 @@ template("expand_template") {
             "--output", _output,
         ]
 
-        if (_has_subs) {
-            inputs = [ _subs_file ]
-            args += [ "--defines-file", rebase_path(_subs_file, root_build_dir) ]
-
-            if (!defined(deps)) {
-                deps = []
+        if (defined(invoker.substitutions)) {
+            foreach(_sub, invoker.substitutions) {
+                args += [ "--define", _sub ]
             }
-            deps += [ ":$_subs_target" ]
         }
     }
 }

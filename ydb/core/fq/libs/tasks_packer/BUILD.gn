@@ -1,10 +1,10 @@
 library("tasks_packer") {
   public_deps = [
-    # "//ydb/library/yql/dq/proto",
+    "//ydb/library/yql/dq/proto",
   ]
 
   deps = [
-    # "//yql/essentials/utils",
+    "//yql/essentials/utils",
   ]
 
   sources = [ "tasks_packer.cpp" ]

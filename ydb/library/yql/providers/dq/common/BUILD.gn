@@ -1,18 +1,19 @@
 library("common") {
   public_deps = [
     # "//library/cpp/string_utils/parse_size",
-    # "//ydb/library/yql/dq/actors",
-    # "//ydb/library/yql/dq/common",
+    "//ydb/library/yql/dq/actors",
+    "//ydb/library/yql/dq/common",
     # "//ydb/library/yql/dq/proto",
     # "//yql/essentials/ast",
-    # "//yql/essentials/core",
+    "//yql/essentials/core",
     # "//yql/essentials/minikql",
-    # "//yql/essentials/providers/common/config",
+    "//yql/essentials/providers/common/config",
   ]
 
   deps = [
+    "//ydb/library/actors/util",
     # "//yql/essentials/core/issue:protos",
-    # "//yql/essentials/providers/common/mkql",
+    "//yql/essentials/providers/common/mkql",
     # "//yql/essentials/sql",
     # "//yql/essentials/sql:settings",
     # "//yql/essentials/utils",

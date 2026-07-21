@@ -1,6 +1,6 @@
-library("include") {
+library("persqueue_public") {
   public_deps = [
-    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
+    "//ydb/public/sdk/cpp/src/client/topic",
     # "//ydb/public/sdk/cpp/src/client/common_client",
     # "//ydb/public/sdk/cpp/src/client/driver",
   ]
@@ -12,13 +12,9 @@ library("include") {
   ]
 
   serialize_enum_headers = [
-    "include/ydb/public/sdk/cpp/src/client/persqueue_public/include/control_plane.h",
-    "include/ydb/public/sdk/cpp/src/client/persqueue_public/include/read_events.h",
-    "include/ydb/public/sdk/cpp/src/client/persqueue_public/include/write_events.h",
-    "include/ydb/public/sdk/cpp/src/client/persqueue_public/include/write_session.h",
+    "include/control_plane.h",
+    "include/read_events.h",
+    "include/write_events.h",
+    "include/write_session.h",
   ]
-}
-
-group("persqueue_public") {
-  public_deps = [ ":include" ]
 }

@@ -1,14 +1,14 @@
 library("mkql_dq") {
   public_deps = [
-    # "//yql/essentials/core/dq_integration:transform",
+    "//yql/essentials/core/dq_integration:transform",
   ]
 
   deps = [
-    # "//library/cpp/yson:node",
+    "//library/cpp/yson:node",
     # "//yql/essentials/minikql",
     # "//yql/essentials/utils",
     # "//yql/essentials/utils/log",
-    # "//yt/cpp/mapreduce/common",
+    "//yt/cpp/mapreduce/common",
     # "//yt/cpp/mapreduce/interface",
   ]
 

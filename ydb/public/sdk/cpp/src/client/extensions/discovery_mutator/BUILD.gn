@@ -1,6 +1,6 @@
 library("discovery_mutator") {
   public_deps = [
-    # "//ydb/public/sdk/cpp/src/client/extension_common",
+    "//ydb/public/sdk/cpp/src/client/extension_common",
   ]
 
   sources = [ "discovery_mutator.cpp" ]

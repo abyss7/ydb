@@ -2,7 +2,7 @@ library("retry") {
   public_deps = [
     # "//library/cpp/threading/future",
     # "//ydb/public/sdk/cpp/src/client/types",
-    # "//ydb/public/sdk/cpp/src/client/types/status",
+    "//ydb/public/sdk/cpp/src/client/types/status",
     # "//ydb/public/sdk/cpp/src/library/time",
   ]
 

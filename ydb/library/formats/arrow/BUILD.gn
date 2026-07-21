@@ -1,22 +1,22 @@
 library("arrow") {
   public_deps = [
-    ":switch",
-    "//library/cpp/cache",
+    # ":switch",
+    # "//library/cpp/cache",
     "//library/cpp/json:writer",
-    "//library/cpp/string_utils/base64",
-    "//ydb/library/accessor",
+    # "//library/cpp/string_utils/base64",
+    # "//ydb/library/accessor",
     "//ydb/library/conclusion",
   ]
 
   deps = [
     ":validation",
     "//contrib/libs/apache/arrow",
-    "//contrib/libs/xxhash",
-    "//library/cpp/containers/stack_vector",
-    "//ydb/core/scheme_types",
+    # "//contrib/libs/xxhash",
+    # "//library/cpp/containers/stack_vector",
+    # "//ydb/core/scheme_types",
     "//ydb/library/actors/core",
-    "//ydb/library/services",
-    "//ydb/library/yverify_stream",
+    # "//ydb/library/services",
+    # "//ydb/library/yverify_stream",
   ]
 
   sources = [
@@ -28,9 +28,6 @@ library("arrow") {
   ]
 }
 
-group("common") {
-}
-
 library("hash") {
   public_deps = [ "//contrib/libs/xxhash" ]
 
@@ -39,12 +36,11 @@ library("hash") {
 
 library("modifier") {
   public_deps = [
-    ":common",
-    ":protos",
-    "//contrib/libs/apache/arrow",
-    "//ydb/library/accessor",
-    "//ydb/library/actors/core",
-    "//ydb/library/conclusion",
+    # ":protos",
+    # "//contrib/libs/apache/arrow",
+    # "//ydb/library/accessor",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/conclusion",
   ]
 
   sources = [
@@ -63,13 +59,13 @@ protobuf_library("protos") {
 
 library("scalar") {
   public_deps = [
-    "//contrib/libs/apache/arrow",
-    "//ydb/library/conclusion",
+    # "//contrib/libs/apache/arrow",
+    # "//ydb/library/conclusion",
   ]
 
   deps = [
-    ":switch",
-    "//ydb/library/actors/core",
+    # ":switch",
+    # "//ydb/library/actors/core",
   ]
 
   sources = [ "scalar/serialization.cpp" ]
@@ -77,8 +73,8 @@ library("scalar") {
 
 library("simple_builder") {
   public_deps = [
-    "//contrib/libs/apache/arrow",
-    "//ydb/library/accessor",
+    # "//contrib/libs/apache/arrow",
+    # "//ydb/library/accessor",
   ]
 
   sources = [
@@ -90,9 +86,9 @@ library("simple_builder") {
 
 library("splitter") {
   public_deps = [
-    "//contrib/libs/apache/arrow",
-    "//ydb/library/accessor",
-    "//ydb/library/actors/core",
+    # "//contrib/libs/apache/arrow",
+    # "//ydb/library/accessor",
+    # "//ydb/library/actors/core",
   ]
 
   sources = [

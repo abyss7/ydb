@@ -1,7 +1,7 @@
 library("common_opt") {
   public_deps = [
     # "//yql/essentials/ast",
-    # "//yql/essentials/core",
+    "//yql/essentials/core",
     # "//yql/essentials/core/expr_nodes",
   ]
 
@@ -10,10 +10,10 @@ library("common_opt") {
     # "//library/cpp/iterator",
     # "//library/cpp/yson:node",
     # "//yql/essentials/core/sql_types",
-    # "//yql/essentials/core/type_ann",
+    "//yql/essentials/core/type_ann",
     # "//yql/essentials/parser/pg_catalog",
     # "//yql/essentials/utils",
-    # "//yql/essentials/utils/log",
+    "//yql/essentials/utils/log",
   ]
 
   sources = [

@@ -1,10 +1,10 @@
 library("bootstrap") {
   public_deps = [
-    # "//library/cpp/logger",
-    # "//ydb/core/nbs/cloud/blockstore/libs/diagnostics",
-    # "//ydb/core/nbs/cloud/blockstore/libs/vhost",
+    "//library/cpp/logger",
+    "//ydb/core/nbs/cloud/blockstore/libs/diagnostics",
+    "//ydb/core/nbs/cloud/blockstore/libs/vhost",
     # "//ydb/core/nbs/cloud/storage/core/libs/common",
-    # "//ydb/core/nbs/cloud/storage/core/libs/diagnostics",
+    "//ydb/core/nbs/cloud/storage/core/libs/diagnostics",
   ]
 
   deps = [

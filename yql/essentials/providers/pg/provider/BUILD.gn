@@ -1,15 +1,15 @@
 library("provider") {
   public_deps = [
-    # "//yql/essentials/core",
+    "//yql/essentials/core",
     # "//yql/essentials/core/dq_integration",
-    # "//yql/essentials/providers/common/transform",
+    "//yql/essentials/providers/common/transform",
   ]
 
   deps = [
     # "//yql/essentials/core/expr_nodes",
     # "//yql/essentials/parser/pg_catalog",
-    # "//yql/essentials/providers/common/dq",
-    # "//yql/essentials/providers/common/provider",
+    "//yql/essentials/providers/common/dq",
+    "//yql/essentials/providers/common/provider",
     # "//yql/essentials/providers/pg/expr_nodes",
     # "//yql/essentials/utils/log",
   ]

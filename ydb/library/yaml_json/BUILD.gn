@@ -1,7 +1,7 @@
 library("yaml_json") {
   public_deps = [
-    # "//contrib/libs/yaml-cpp",
-    # "//library/cpp/json",
+    "//contrib/libs/yaml-cpp",
+    "//library/cpp/json",
   ]
 
   deps = [

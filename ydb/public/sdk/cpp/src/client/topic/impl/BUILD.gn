@@ -1,20 +1,21 @@
 library("impl") {
   public_deps = [
-    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
+    "//ydb/public/sdk/cpp/src/client/topic",
     # "//ydb/public/sdk/cpp/src/client/common_client:impl",
   ]
 
   deps = [
     # "//library/cpp/containers/disjoint_interval_tree",
+    "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/string_utils/url",
-    # "//library/cpp/threading/future",
-    # "//library/cpp/threading/future:subscription",
+    "//library/cpp/threading/future",
+    "//library/cpp/threading/future:subscription",
     # "//ydb/public/api/grpc",
-    # "//ydb/public/sdk/cpp/src/client/impl/internal/logger",
-    # "//ydb/public/sdk/cpp/src/client/impl/internal/make_request",
+    "//ydb/public/sdk/cpp/src/client/impl/internal/logger",
+    "//ydb/public/sdk/cpp/src/client/impl/internal/make_request",
     # "//ydb/public/sdk/cpp/src/client/proto",
     # "//ydb/public/sdk/cpp/src/client/table",
-    # "//ydb/public/sdk/cpp/src/client/topic/common",
+    "//ydb/public/sdk/cpp/src/client/topic/common",
     # "//ydb/public/sdk/cpp/src/client/types",
     # "//ydb/public/sdk/cpp/src/library/decimal",
   ]

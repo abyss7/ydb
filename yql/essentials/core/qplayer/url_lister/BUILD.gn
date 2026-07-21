@@ -5,7 +5,9 @@ library("url_lister") {
   ]
 
   deps = [
-    # "//library/cpp/yson:node",
+    "//contrib/libs/openssl",
+    "//library/cpp/threading/future",
+    "//library/cpp/yson:node",
   ]
 
   sources = [ "qplayer_url_lister_manager.cpp" ]

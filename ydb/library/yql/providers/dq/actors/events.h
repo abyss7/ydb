@@ -10,7 +10,7 @@
 
 #include <ydb/library/actors/core/events/event_local.h>
 #include <ydb/library/actors/core/events/event_pb.h>
-#include <ydb/library/actors/core/event_simple_non_local.h>
+#include <ydb/library/actors/core/events/event_simple_non_local.h>
 #include <ydb/library/actors/core/events/events.h>
 
 namespace NYql::NDqs {
