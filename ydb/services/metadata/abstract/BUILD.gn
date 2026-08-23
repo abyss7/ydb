@@ -1,7 +1,7 @@
 library("abstract") {
   public_deps = [
     # "//library/cpp/json:writer",
-    # "//ydb/core/base",
+    "//ydb/core/base",
     # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
     # "//ydb/library/services",
@@ -12,9 +12,11 @@ library("abstract") {
   ]
 
   deps = [
-    # "//library/cpp/json",
+    "//library/cpp/json",
     # "//library/cpp/protobuf/json",
     # "//ydb/services/metadata",
+    "//yql/essentials/ast",
+    "//yql/essentials/utils",
   ]
 
   sources = [

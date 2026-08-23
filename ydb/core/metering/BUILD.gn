@@ -1,8 +1,8 @@
 library("metering") {
   public_deps = [
-    # "//library/cpp/json",
+    "//library/cpp/json",
     # "//library/cpp/logger",
-    # "//ydb/core/base",
+    "//ydb/core/base",
     # "//ydb/library/actors/core",
   ]
 

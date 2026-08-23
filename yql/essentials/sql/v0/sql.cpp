@@ -8,7 +8,7 @@
 #include <yql/essentials/parser/proto_ast/collect_issues/collect_issues.h>
 #include <yql/essentials/parser/proto_ast/gen/v0/SQLLexer.h>
 #include <yql/essentials/parser/proto_ast/gen/v0/SQLParser.h>
-#include <yql/essentials/parser/proto_ast/gen/v0_proto_split/SQLParser.pb.main.h>
+#include <yql/essentials/parser/proto_ast/gen/v0_proto_split/SQLParser.pb.h>
 #include <yql/essentials/minikql/mkql_program_builder.h>
 #include <yql/essentials/minikql/mkql_type_ops.h>
 #include <yql/essentials/providers/common/provider/yql_provider_names.h>

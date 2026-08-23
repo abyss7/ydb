@@ -7,6 +7,10 @@ library("client") {
     "//ydb/public/sdk/cpp/src/library/grpc/client",
   ]
 
+  deps = [
+    "//library/cpp/messagebus:config",
+  ]
+
   sources = [
     "grpc_client.cpp",
     "msgbus_client.cpp",

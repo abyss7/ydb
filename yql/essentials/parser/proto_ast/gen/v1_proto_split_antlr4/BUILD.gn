@@ -1,0 +1,34 @@
+import("//build/gn/antlr.gni")
+
+expand_template("grammar") {
+  sources = [ "//yql/essentials/sql/v1/SQLv1Antlr4.g.in" ]
+  output_dir = target_gen_dir
+  substitutions = [
+    "GRAMMAR_STRING_CORE_SINGLE=~(['\\\\]) | (BACKSLASH .)",
+    "GRAMMAR_STRING_CORE_DOUBLE=~([\"\\\\]) | (BACKSLASH .)",
+    "GRAMMAR_MULTILINE_COMMENT_CORE=.",
+  ]
+}
+
+expand_template("stg") {
+  sources = [ "//yql/essentials/parser/proto_ast/org/antlr/v4/tool/templates/codegen/Java/Java.stg.in" ]
+  substitutions = [ "ANTLR_PACKAGE_NAME=NSQLv1Generated" ]
+}
+
+_grammar_files = get_target_outputs(":grammar")
+
+antlr4_run("antlr4_proto") {
+  grammar = _grammar_files[0]
+  language = "Java"
+  templates_target = ":stg"
+  templates_dir = "$root_gen_dir/yql/essentials/parser/proto_ast"
+  extra_args = [ "-no-listener" ]
+
+  deps = [ ":grammar" ]
+}
+
+protobuf_library("v1_proto_split_antlr4") {
+  sources = get_target_outputs(":antlr4_proto")
+  generated_sources = true
+  deps = [ ":antlr4_proto" ]
+}

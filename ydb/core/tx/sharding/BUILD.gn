@@ -1,12 +1,16 @@
+config("private_config") {
+  cflags = [ "-Wno-implicit-const-int-float-conversion" ]
+}
+
 library("sharding") {
   public_deps = [
     # "//ydb/core/formats/arrow",
     # "//ydb/core/scheme_types",
     # "//ydb/core/tx/columnshard/common",
-    # "//ydb/core/tx/schemeshard/olap/schema",
+    "//ydb/core/tx/schemeshard/olap/schema",
     # "//ydb/library/accessor",
     # "//ydb/library/formats/arrow:hash",
-    # "//yql/essentials/public/udf",
+    "//yql/essentials/public/udf",
   ]
 
   deps = [
@@ -26,4 +30,6 @@ library("sharding") {
     "sharding.cpp",
     "unboxed_reader.cpp",
   ]
+
+  configs = [ ":private_config" ]
 }

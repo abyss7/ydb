@@ -8,4 +8,5 @@ config("generated_private_config") {
 }
 
 contrib_library("antlr3_cpp_runtime") {
+    sources = [ "antlr3.cpp" ]
 }

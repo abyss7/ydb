@@ -1,4 +1,5 @@
 #include "sharding.h"
+#include <ydb/core/tx/schemeshard/olap/schema/schema.h>
 #include <ydb/core/protos/flat_scheme_op.pb.h>
 #include <yql/essentials/utils/yql_panic.h>
 #include <ydb/core/tx/columnshard/common/protos/snapshot.pb.h>

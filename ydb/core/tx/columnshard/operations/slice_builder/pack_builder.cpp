@@ -100,7 +100,7 @@ public:
             return TConclusionStatus::Success();
         }
         if (Batches.size() == 1) {
-            auto portionConclusion = context.GetActualSchema()->PrepareForWrite(context.GetActualSchema(), PathId,
+            auto portionConclusion = PrepareForWrite(context.GetActualSchema(), PathId,
                 Batches.front().GetContainer(), ModificationType, context.GetStoragesManager(), context.GetSplitterCounters());
             if (portionConclusion.IsFail()) {
                 AFL_ERROR(NKikimrServices::TX_COLUMNSHARD)("event", "cannot prepare for write")("reason", portionConclusion.GetErrorMessage());
@@ -164,7 +164,7 @@ public:
             }
             NArrow::NMerger::TRecordBatchBuilder rbBuilder(dataSchema->fields(), recordsCountSum);
             stream.DrainAll(rbBuilder);
-            auto portionConclusion = context.GetActualSchema()->PrepareForWrite(context.GetActualSchema(), PathId, rbBuilder.Finalize(),
+            auto portionConclusion = PrepareForWrite(context.GetActualSchema(), PathId, rbBuilder.Finalize(),
                 ModificationType, context.GetStoragesManager(), context.GetSplitterCounters());
             if (portionConclusion.IsFail()) {
                 AFL_ERROR(NKikimrServices::TX_COLUMNSHARD)("event", "cannot prepare for write")("reason", portionConclusion.GetErrorMessage());

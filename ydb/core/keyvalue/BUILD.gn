@@ -1,22 +1,22 @@
 library("keyvalue") {
   public_deps = [
-    # "//library/cpp/json",
-    # "//ydb/core/base",
-    # "//ydb/core/engine:minikql",
+    ":protos",
+    "//library/cpp/json",
+    "//ydb/core/base",
+    "//ydb/core/engine:minikql",
     # "//ydb/core/protos",
     # "//ydb/core/tablet",
-    # "//ydb/core/tablet_flat",
-    # "//ydb/core/util",
+    "//ydb/core/tablet_flat",
+    "//ydb/core/util",
     # "//ydb/library/actors/core",
     # "//ydb/library/services",
     # "//ydb/library/wilson_ids",
     # "//ydb/public/lib/base",
-    # ":protos",
   ]
 
   deps = [
     # "//library/cpp/json:writer",
-    # "//library/cpp/monlib/service/pages",
+    "//library/cpp/monlib/service/pages",
     # "//library/cpp/time_provider",
     # "//ydb/core/mind",
     # "//ydb/core/scheme",

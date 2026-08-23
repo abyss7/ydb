@@ -6,6 +6,7 @@ library("device_type") {
 
 library("pdisk_io") {
   public_deps = [
+    ":device_type",
     # "//ydb/core/blobstorage/pdisk",
     # "//ydb/core/debug",
     # "//ydb/library/actors/util",
@@ -14,7 +15,6 @@ library("pdisk_io") {
   ]
 
   deps = [
-    ":device_type",
     ":protos",
     "//contrib/libs/libaio",
     "//contrib/libs/liburing",

@@ -6,7 +6,8 @@ library("lexer") {
   deps = [
     # "//yql/essentials/parser/proto_ast/antlr3",
     # "//yql/essentials/parser/proto_ast/collect_issues",
-    # "//yql/essentials/public/issue",
+    "//yql/essentials/parser/proto_ast/gen/v0",
+    "//yql/essentials/public/issue",
   ]
 
   sources = [ "lexer/lexer.cpp" ]
@@ -21,19 +22,20 @@ library("v0") {
   ]
 
   deps = [
+    ":lexer",
     "//contrib/libs/protobuf",
-    # "//library/cpp/charset",
+    "//library/cpp/charset",
     # "//library/cpp/containers/stack_vector",
     # "//library/cpp/enumbitset",
     # "//yql/essentials/core/issue:protos",
-    # "//yql/essentials/core/sql_types",
+    "//yql/essentials/core/sql_types",
     "//yql/essentials/minikql",
+    "//yql/essentials/parser/proto_ast/gen/v0",
     # "//yql/essentials/parser/proto_ast/collect_issues",
     # "//yql/essentials/providers/common/provider",
     # "//yql/essentials/public/udf",
-    # "//yql/essentials/sql",
+    "//yql/essentials/sql",
     # "//yql/essentials/utils",
-    # ":lexer",
   ]
 
   sources = [

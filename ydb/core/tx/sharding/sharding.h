@@ -1,12 +1,23 @@
 #pragma once
 #include <ydb/library/accessor/accessor.h>
-#include <ydb/core/tx/schemeshard/olap/schema/schema.h>
+#include <ydb/core/formats/arrow/arrow_filter.h>
 #include <ydb/core/formats/arrow/size_calcer.h>
+#include <ydb/core/protos/flat_scheme_op.pb.h>
 #include <ydb/core/tx/columnshard/common/snapshot.h>
+#include <ydb/services/bg_tasks/abstract/interface.h>
 
-namespace NKikimrSchemeOp {
-class TColumnTableSharding;
-class TGranuleShardingLogicContainer;
+#include <ydb/library/formats/arrow/validation/validation.h>
+
+#include <library/cpp/object_factory/object_factory.h>
+
+namespace NKikimr::NSchemeShard {
+// NB: forward declaration instead of including olap/schema/schema.h. That header
+// transitively pulls schemeshard.h -> tx.h -> appdata.h (and the whole
+// schemeshard graph) into every consumer of sharding.h — versioned_index,
+// portions, counters, readers — which both recreates dependency cycles and drags
+// heavy headers everywhere. Only TOlapSchema is referenced here, by
+// reference/pointer; the actual include lives in sharding.cpp.
+class TOlapSchema;
 }
 
 namespace NKikimr::NSharding {

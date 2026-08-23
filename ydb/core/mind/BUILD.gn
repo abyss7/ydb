@@ -218,6 +218,7 @@ library("mind") {
     # "//ydb/core/protos",
     # "//ydb/core/tablet",
     # "//ydb/core/tablet_flat",
+    # "//ydb/core/tablet_flat/recovery",  # provides NRecovery::CreateRecoveryShard
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
   ]

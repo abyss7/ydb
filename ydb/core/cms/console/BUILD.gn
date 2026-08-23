@@ -12,8 +12,10 @@ library("console") {
   ]
 
   deps = [
+    ":util",
+    ":validators",
     # "//library/cpp/json",
-    # "//library/cpp/monlib/dynamic_counters",
+    "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/monlib/service/pages",
     # "//ydb/core/actorlib_impl",
     # "//ydb/core/audit",
@@ -21,7 +23,7 @@ library("console") {
     # "//ydb/core/config/validation",
     # "//ydb/core/engine:minikql",
     # "//ydb/core/mind",
-    # "//ydb/core/mon",
+    "//ydb/core/mon",
     # "//ydb/core/node_whiteboard",
     # "//ydb/core/protos/schemeshard",
     # "//ydb/core/scheme",
@@ -39,8 +41,6 @@ library("console") {
     # "//ydb/public/sdk/cpp/src/library/operation_id",
     # "//ydb/public/sdk/cpp/src/library/operation_id:protos",
     # "//yql/essentials/public/issue:protos",
-    # ":util",
-    # ":validators",
   ]
 
   sources = [
@@ -106,7 +106,7 @@ library("util") {
   ]
 
   deps = [
-    # "//ydb/core/base",
+    "//ydb/core/base",
     # "//ydb/library/yverify_stream",
   ]
 
@@ -120,8 +120,8 @@ library("validators") {
 
   deps = [
     # "//ydb/core/base",
-    # "//ydb/core/protos",
-    # "//ydb/core/tablet",
+    "//ydb/core/protos",
+    "//ydb/core/tablet",
     # "//ydb/library/actors/interconnect",
     # "//ydb/public/api/protos",
     # "//yql/essentials/public/issue:protos",

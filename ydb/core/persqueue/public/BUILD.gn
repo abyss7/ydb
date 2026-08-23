@@ -114,15 +114,15 @@ library("partition_index_generator") {
 
 library("partition_key_range") {
   public_deps = [
-    # "//ydb/core/scheme",
+    "//ydb/core/scheme",
     # "//yql/essentials/public/decimal",
   ]
 
   deps = [
-    # "//library/cpp/digest/md5",
+    "//library/cpp/digest/md5",
     # "//ydb/core/protos",
-    # "//ydb/library/actors/core",
-    # "//ydb/services/lib/sharding",
+    "//ydb/library/actors/core",
+    "//ydb/services/lib/sharding",
   ]
 
   sources = [
@@ -134,17 +134,17 @@ library("partition_key_range") {
 library("public") {
   public_deps = [
     # "//library/cpp/sliding_window",
-    # "//ydb/core/base",
+    "//ydb/core/base",
     # "//ydb/core/grpc_services",
     # "//ydb/core/kafka_proxy",
-    # "//ydb/core/metering",
-    # "//ydb/core/protos",
-    # "//ydb/core/tx/scheme_board",
+    "//ydb/core/metering",
+    "//ydb/core/protos",
+    "//ydb/core/tx/scheme_board",
   ]
 
   deps = [
     # "//ydb/core/grpc_services/base",
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
     # "//ydb/library/yverify_stream",
   ]
 

@@ -1,12 +1,12 @@
 library("actorlib_impl") {
   public_deps = [
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
     # "//ydb/library/actors/protos",
     # "//ydb/library/services",
   ]
 
   deps = [
-    # "//ydb/core/base",
+    "//ydb/core/base",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/actors/memory_log",
   ]

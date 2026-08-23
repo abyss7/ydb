@@ -2,15 +2,15 @@ library("arrow") {
   public_deps = [
     # ":switch",
     # "//library/cpp/cache",
+    "//contrib/libs/apache/arrow",
     "//library/cpp/json:writer",
     # "//library/cpp/string_utils/base64",
-    # "//ydb/library/accessor",
+    "//ydb/library/accessor",
     "//ydb/library/conclusion",
   ]
 
   deps = [
     ":validation",
-    "//contrib/libs/apache/arrow",
     # "//contrib/libs/xxhash",
     # "//library/cpp/containers/stack_vector",
     # "//ydb/core/scheme_types",
@@ -36,10 +36,10 @@ library("hash") {
 
 library("modifier") {
   public_deps = [
-    # ":protos",
-    # "//contrib/libs/apache/arrow",
+    ":protos",
+    "//contrib/libs/apache/arrow",
     # "//ydb/library/accessor",
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
     # "//ydb/library/conclusion",
   ]
 
@@ -101,13 +101,13 @@ library("splitter") {
 
 library("switch") {
   public_deps = [
+    ":validation",
     # "//contrib/libs/apache/arrow",
     # "//contrib/libs/xxhash",
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
     # "//ydb/library/yverify_stream",
     # "//yql/essentials/parser/pg_wrapper",
     # "//yql/essentials/parser/pg_wrapper/interface",
-    # ":validation",
   ]
 
   sources = [
@@ -127,8 +127,6 @@ library("transformer") {
 
 library("validation") {
   public_deps = [ "//contrib/libs/apache/arrow" ]
-
   deps = [ "//ydb/library/actors/core" ]
-
   sources = [ "validation/validation.cpp" ]
 }

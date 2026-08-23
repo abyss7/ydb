@@ -1,3 +1,7 @@
+config("generated_private_config") {
+
+}
+
 config("public_config") {
     defines = [
         "ANTLR4_USE_THREAD_LOCAL_CACHE",

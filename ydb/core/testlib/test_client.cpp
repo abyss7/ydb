@@ -54,6 +54,7 @@
 #include <ydb/core/client/minikql_compile/mkql_compile_service.h>
 #include <ydb/core/cms/console/configs_dispatcher.h>
 #include <ydb/core/cms/console/console.h>
+#include <ydb/core/config/init/init.h>
 #include <ydb/core/cms/console/feature_flags_configurator.h>
 #include <ydb/core/cms/console/immediate_controls_configurator.h>
 #include <ydb/core/cms/console/jaeger_tracing_configurator.h>

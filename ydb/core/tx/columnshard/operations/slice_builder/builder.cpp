@@ -132,7 +132,7 @@ void TBuildSlicesTask::DoExecute(const std::shared_ptr<ITask>& /*taskPtr*/) {
             if (!batch) {
                 continue;
             }
-            auto portionConclusion = Context.GetActualSchema()->PrepareForWrite(Context.GetActualSchema(), WriteData.GetWriteMeta().GetPathId().InternalPathId,
+            auto portionConclusion = PrepareForWrite(Context.GetActualSchema(), WriteData.GetWriteMeta().GetPathId().InternalPathId,
                 batch, WriteData.GetWriteMeta().GetModificationType(), Context.GetStoragesManager(), Context.GetSplitterCounters());
             if (portionConclusion.IsFail()) {
                 ReplyError(portionConclusion.GetErrorMessage(), NColumnShard::TEvPrivate::TEvWriteBlobsResult::EErrorClass::Request);

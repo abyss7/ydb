@@ -1,6 +1,6 @@
 #pragma once
 
-#include "defs.h"
+#include <ydb/core/tablet_flat/defs.h>
 
 #include <ydb/core/base/blobstorage.h>
 

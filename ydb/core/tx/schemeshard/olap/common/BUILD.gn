@@ -1,6 +1,6 @@
 library("common") {
   public_deps = [
-    # "//ydb/core/tx/schemeshard",
+    "//ydb/core/tx/schemeshard",
     # "//ydb/library/conclusion",
   ]
 

@@ -3,6 +3,7 @@
 #include "factories.h"
 #include "service_initializer.h"
 
+#include <ydb/core/config/init/init.h>
 #include <ydb/core/memory_controller/memory_controller.h>
 #include <ydb/library/actors/util/affinity.h>
 #include <ydb/core/base/appdata.h>

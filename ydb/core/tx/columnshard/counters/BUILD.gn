@@ -1,24 +1,21 @@
-group("aggregation") {
-}
-
 library("counters") {
   public_deps = [
     # "//library/cpp/json:writer",
     # "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/time_provider",
-    # "//ydb/core/base",
+    "//ydb/core/base",
     # "//ydb/core/kqp/compute_actor",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/tablet",
     # "//ydb/core/tablet_flat",
     # "//ydb/core/tx/columnshard/blobs_action:abstract",
-    # "//ydb/core/tx/columnshard/common",
+    "//ydb/core/tx/columnshard/common",
     # "//ydb/core/tx/columnshard/engines",
-    # "//ydb/core/tx/columnshard/resource_subscriber",
+    "//ydb/core/tx/columnshard/resource_subscriber",
     # "//ydb/core/tx/columnshard/resources",
     # "//ydb/core/tx/data_events:common",
     # "//ydb/core/util",
-    # "//ydb/library/accessor",
+    "//ydb/library/accessor",
     # "//ydb/library/actors/core",
     # "//ydb/library/signals",
   ]

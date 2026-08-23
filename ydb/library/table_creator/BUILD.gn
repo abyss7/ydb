@@ -10,10 +10,11 @@ library("table_creator") {
 
   deps = [
     # "//library/cpp/retry",
-    # "//ydb/core/base",
+    "//ydb/core/base",
     # "//ydb/core/protos/schemeshard",
     # "//ydb/core/tx/schemeshard",
-    # "//ydb/core/tx/tx_proxy",
+    "//ydb/core/tx/tx_proxy",
+    "//ydb/library/aclib",
     # "//ydb/public/api/protos",
   ]
 

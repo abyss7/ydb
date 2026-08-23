@@ -10,6 +10,20 @@ protobuf_library("nbs") {
     ]
 }
 
+library("out") {
+    public_deps = [
+        ":protos",
+    ]
+
+    sources = [
+        "out/out.cpp",
+        "out/out_cms.cpp",
+        "out/out_long_tx_service.cpp",
+        "out/out_sequenceshard.cpp",
+        "out/out_tablet.cpp",
+    ]
+}
+
 protobuf_library("protos") {
     extra_plugins = [
         {
@@ -196,5 +210,13 @@ protobuf_library("protos") {
         "ydb_result_set_old.proto",
         "ydb_table_impl.proto",
         "yql_translation_settings.proto",
+    ]
+
+    serialize_enum_headers = [
+        "blobstorage_pdisk_config.pb.h",
+        "datashard_load.pb.h",
+        "kqp.pb.h",
+        "shared_cache.pb.h",
+        "subdomains.pb.h",
     ]
 }

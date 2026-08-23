@@ -1,11 +1,11 @@
 #pragma once
 
-#include <arrow/ipc/options.h>
 #include <ydb/public/api/protos/ydb_formats.pb.h>
 #include <ydb/public/api/protos/ydb_value.pb.h>
 #include <ydb/public/api/protos/ydb_query.pb.h>
 #include <yql/essentials/utils/yql_panic.h>
 
+#include <arrow/ipc/options.h>
 #include <arrow/util/type_fwd.h>
 
 #include <optional>

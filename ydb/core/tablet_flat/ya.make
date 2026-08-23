@@ -35,8 +35,6 @@ SRCS(
     flat_executor_gclogic.cpp
     flat_executor_gclogic.h
     flat_bio_actor.cpp
-    flat_executor_recovery.cpp
-    flat_executor_recovery.h
     flat_executor_snapshot.cpp
     flat_executor_tx_env.cpp
     flat_executor_tx_env.h
@@ -83,6 +81,8 @@ SRCS(
     shared_cache_counters.cpp
     shared_sausagecache.cpp
     shared_sausagecache.h
+    simple_tablet.cpp
+    simple_tablet.h
     tablet_flat_executor.h
     tablet_flat_executor.cpp
     tablet_flat_executed.h
@@ -92,7 +92,6 @@ SRCS(
 
 GENERATE_ENUM_SERIALIZATION(flat_comp_gen.h)
 GENERATE_ENUM_SERIALIZATION(flat_executor_compaction_logic.h)
-GENERATE_ENUM_SERIALIZATION(flat_executor_recovery.h)
 GENERATE_ENUM_SERIALIZATION(flat_executor_vacuum_logic.h)
 GENERATE_ENUM_SERIALIZATION(flat_page_iface.h)
 GENERATE_ENUM_SERIALIZATION(flat_part_loader.h)
@@ -135,6 +134,10 @@ PEERDIR(
 YQL_LAST_ABI_VERSION()
 
 END()
+
+RECURSE(
+    recovery
+)
 
 RECURSE_FOR_TESTS(
     test

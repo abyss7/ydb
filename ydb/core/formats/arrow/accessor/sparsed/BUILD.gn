@@ -1,19 +1,12 @@
 library("sparsed") {
   public_deps = [
-    # "//contrib/libs/apache/arrow",
-    # "//ydb/core/formats/arrow",
-    # "//ydb/core/formats/arrow/accessor/abstract",
-    # "//ydb/core/formats/arrow/accessor/common",
-    # "//ydb/core/formats/arrow/accessor/plain",
-    # "//ydb/library/accessor",
-    # "//ydb/library/formats/arrow",
-    # "//ydb/library/formats/arrow:switch",
-  ]
-
-  deps = [
-    # "//ydb/core/formats/arrow:save_load",
-    # "//ydb/core/formats/arrow:serializer",
-    # "//ydb/core/formats/arrow:splitter",
+    "//contrib/libs/apache/arrow",
+    "//ydb/core/formats/arrow/accessor/abstract",
+    "//ydb/core/formats/arrow/accessor/common",
+    "//ydb/core/formats/arrow/accessor/plain",
+    "//ydb/library/accessor",
+    "//ydb/library/formats/arrow",
+    "//ydb/library/formats/arrow:switch",
   ]
 
   sources = [

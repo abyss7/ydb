@@ -7,9 +7,12 @@ config("public_config") {
 library("base") {
   public_deps = [
     "generated",
+    "//ydb/core/erasure",
     "//ydb/core/protos",
+    "//ydb/core/protos:out",
     "//ydb/core/scheme",
     "//ydb/library/actors/interconnect",
+    "//ydb/library/pdisk_io:device_type",
   ]
 
   deps = [
@@ -22,14 +25,12 @@ library("base") {
     "//library/cpp/random_provider",
     "//library/cpp/threading/hot_swap",
     "//ydb/core/audit:audit_config",
-    "//ydb/core/erasure",
     "//ydb/core/jaeger_tracing",
     "//ydb/library/aclib",
     "//ydb/library/actors/helpers",
     "//ydb/library/actors/wilson",
     "//ydb/library/actors/protos",
     "//ydb/library/login",
-    "//ydb/library/pdisk_io:device_type",
   ]
 
   sources = [
@@ -70,6 +71,7 @@ library("base") {
     "table_index.cpp",
     "tablet.cpp",
     "tablet_killer.cpp",
+    "tablet_pipecache.cpp",
     "tablet_status_checker.cpp",
     "traceid.cpp",
     "tx_processing.cpp",

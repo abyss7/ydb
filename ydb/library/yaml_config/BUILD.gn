@@ -1,4 +1,13 @@
 protobuf_library("protos") {
+  extra_plugins = [
+    {
+      name = "config_proto_plugin"
+      target = "//ydb/core/config/tools/protobuf_plugin:config_proto_plugin"
+    },
+  ]
+
+  public_deps = [ "//ydb/core/protos" ]
+
   sources = [
     "protos/blobstorage_config.proto",
     "protos/config.proto",
@@ -21,7 +30,7 @@ library("yaml_config") {
     # "//library/cpp/json:writer",
     "//library/cpp/protobuf/json",
     "//library/cpp/yaml/as",
-    # "//ydb/core/erasure",
+    "//ydb/core/erasure",
     # "//ydb/library/yaml_config/protos",
     # "//ydb/public/api/protos",
     # "//yql/essentials/public/issue",
@@ -32,14 +41,13 @@ library("yaml_config") {
     # "//contrib/libs/xxhash",
     "//library/cpp/json",
     "//ydb/core/base",
-    # "//ydb/core/cms/console:util",
-    # "//ydb/core/config/validation",
-    # "//ydb/core/protos",
+    "//ydb/core/cms/console:util",
+    "//ydb/core/config/validation",
     # "//ydb/core/viewer:json",
     # "//ydb/library/actors/core",
-    # "//ydb/library/fyamlcpp",
+    "//ydb/library/fyamlcpp",
     # "//ydb/library/pdisk_io",
-    # "//ydb/library/yaml_json",
+    "//ydb/library/yaml_json",
   ]
 
   sources = [

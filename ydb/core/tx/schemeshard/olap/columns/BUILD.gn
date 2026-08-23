@@ -1,12 +1,12 @@
 library("columns") {
   public_deps = [
-    # "//ydb/core/formats/arrow/accessor/abstract",
-    # "//ydb/core/formats/arrow:dictionary",
+    "//ydb/core/formats/arrow/accessor:abstract",
+    "//ydb/core/formats/arrow:dictionary",
     # "//ydb/core/formats/arrow:serializer",
     # "//ydb/core/protos",
-    # "//ydb/core/scheme_types",
-    # "//ydb/core/tx/columnshard/engines/scheme/defaults:common",
-    # "//ydb/core/tx/schemeshard/olap/common",
+    "//ydb/core/scheme_types",
+    "//ydb/core/tx/columnshard/engines/scheme/defaults:common",
+    "//ydb/core/tx/schemeshard/olap/common",
     # "//ydb/library/accessor",
   ]
 
@@ -14,7 +14,8 @@ library("columns") {
     # "//ydb/core/formats/arrow",
     # "//ydb/core/scheme",
     # "//ydb/core/tx/schemeshard",
-    # "//yql/essentials/minikql",
+    "//ydb/library/formats/arrow:validation",
+    "//yql/essentials/minikql",
     # "//yql/essentials/parser/pg_wrapper",
   ]
 

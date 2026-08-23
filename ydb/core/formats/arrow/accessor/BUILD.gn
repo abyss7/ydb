@@ -1,14 +1,77 @@
-source_set("abstract") {
-    public_deps = [
-        "//contrib/libs/apache/arrow",
-        "//ydb/library/accessor",
-        "//ydb/library/actors/core",
-    ]
+library("abstract_enums") {
+  public_deps = [
+    "//contrib/libs/apache/arrow",
+    "//ydb/library/accessor",
+  ]
+  serialize_enum_headers = [ "abstract/accessor.h" ]
+}
 
-    sources = [
-        "abstract/accessor.cpp",
-        "abstract/common.cpp",
-        "abstract/constructor.cpp",
-        "abstract/request.cpp",
-    ]
+source_set("abstract_srcs") {
+  public_deps = [
+    ":abstract_enums",
+    "//contrib/libs/apache/arrow",
+    "//ydb/library/accessor",
+  ]
+
+  deps += [
+    # "//library/cpp/json:writer",
+    # "//ydb/core/formats/arrow/accessor/common",
+    # "//ydb/core/scheme_types",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/formats/arrow",
+    # "//ydb/library/formats/arrow:protos",
+    # "//ydb/library/formats/arrow:splitter",
+    # "//ydb/library/formats/arrow:switch",
+    # "//ydb/services/bg_tasks/abstract",
+    # "//ydb/services/metadata/abstract",
+  ]
+
+  sources = [
+    "abstract/accessor.cpp",
+    "abstract/common.cpp",
+    "abstract/constructor.cpp",
+    "abstract/request.cpp",
+  ]
+}
+
+group("abstract") {
+  public_deps = [ "//ydb/core/formats/arrow" ]
+}
+
+library("common") {
+  public_deps = [
+    "//contrib/libs/apache/arrow",
+    "//ydb/library/accessor",
+  ]
+
+  deps = [
+    "//ydb/library/actors/core",
+    "//yql/essentials/types/binary_json",
+  ]
+
+  sources = [
+    "common/binary_json_value_view.cpp",
+    "common/chunk_data.cpp",
+    "common/const.cpp",
+  ]
+}
+
+source_set("plain_srcs") {
+  deps += [
+    ":common",
+    # "//contrib/libs/apache/arrow",
+    # "//ydb/library/formats/arrow",
+    # "//ydb/library/formats/arrow:switch",
+    # "//ydb/library/formats/arrow:validation",
+  ]
+
+  sources = [
+    "plain/accessor.cpp",
+    "plain/constructor.cpp",
+    "plain/request.cpp",
+  ]
+}
+
+group("plain") {
+  public_deps = [ "//ydb/core/formats/arrow" ]
 }

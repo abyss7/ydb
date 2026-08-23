@@ -23,10 +23,10 @@
 #include <ydb/core/kesus/tablet/tablet.h>
 #include <ydb/core/sys_view/processor/processor.h>
 #include <ydb/core/test_tablet/test_tablet.h>
-#include <ydb/core/tablet/simple_tablet.h>
+#include <ydb/core/tablet_flat/simple_tablet.h>
 #include <ydb/core/blob_depot/blob_depot.h>
 #include <ydb/core/statistics/aggregator/aggregator.h>
-#include <ydb/core/tablet_flat/flat_executor_recovery.h>
+#include <ydb/core/tablet_flat/recovery/flat_executor_recovery.h>
 
 #include <ydb/library/actors/core/hfunc.h>
 

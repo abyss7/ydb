@@ -1,5 +1,5 @@
 #include "flat_cxx_database.h"
-#include "flat_executor_recovery.h"
+#include <ydb/core/tablet_flat/recovery/flat_executor_recovery.h>
 #include "flat_executor_ut_common.h"
 
 #include <ydb/core/testlib/actors/block_events.h>

@@ -5,7 +5,8 @@
 namespace NYdb {
 namespace NConsoleClient {
 
-extern const char* VersionResourceName;
+// NB: VersionResourceName is declared in
+// <ydb/public/lib/ydb_cli/common/ydb_updater.h> and defined in that library.
 
 class TCommandVersion : public TClientCommand {
 public:

@@ -13,7 +13,7 @@
 #include <yql/essentials/utils/resetable_setting.h>
 #include <ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic/client.h>
 #include <ydb/services/metadata/abstract/kqp_common.h>
-#include <ydb/services/metadata/manager/abstract.h>
+#include <ydb/services/metadata/abstract/parsing.h>
 #include <ydb/services/persqueue_v1/actors/events.h>
 
 #include <ydb/core/base/table_index.h>

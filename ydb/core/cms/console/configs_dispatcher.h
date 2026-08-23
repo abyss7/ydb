@@ -3,10 +3,13 @@
 #include "configs_dispatcher_observer.h"
 
 #include <ydb/core/protos/config.pb.h>
-#include <ydb/core/config/init/init.h>
 
 #include <util/generic/vector.h>
 #include <util/generic/map.h>
+
+namespace NKikimr::NConfig {
+    struct TConfigsDispatcherInitInfo;
+} // namespace NKikimr::NConfig
 
 namespace NKikimr::NConsole {
 
@@ -37,7 +40,7 @@ namespace TEvConfigsDispatcher {
         EvGetConfigResponse,
         EvRemoveConfigSubscriptionRequest,
         EvRemoveConfigSubscriptionResponse,
-        
+
         // Observability events
         EvGetStateRequest,
         EvGetStateResponse,
@@ -113,7 +116,7 @@ namespace TEvConfigsDispatcher {
     struct TEvGetConfigResponse : public TEventLocal<TEvGetConfigResponse, EvGetConfigResponse> {
         std::shared_ptr<const NKikimrConfig::TAppConfig> Config;
     };
-    
+
     /**
      * Request current state of ConfigsDispatcher.
      * Response: TEvGetStateResponse
@@ -121,18 +124,18 @@ namespace TEvConfigsDispatcher {
     struct TEvGetStateRequest : public TEventLocal<TEvGetStateRequest, EvGetStateRequest> {
         TEvGetStateRequest() = default;
     };
-    
+
     /**
      * Response containing current state snapshot.
      */
     struct TEvGetStateResponse : public TEventLocal<TEvGetStateResponse, EvGetStateResponse> {
         TConfigsDispatcherState State;
-        
+
         TEvGetStateResponse(TConfigsDispatcherState state)
             : State(std::move(state))
         {}
     };
-    
+
     /**
      * Request storage YAML config (if available).
      * Only available if initialized from seed nodes.
@@ -141,14 +144,14 @@ namespace TEvConfigsDispatcher {
     struct TEvGetStorageYamlRequest : public TEventLocal<TEvGetStorageYamlRequest, EvGetStorageYamlRequest> {
         TEvGetStorageYamlRequest() = default;
     };
-    
+
     /**
      * Response containing storage YAML config.
      * StorageYaml will be empty if not initialized from seed nodes.
      */
     struct TEvGetStorageYamlResponse : public TEventLocal<TEvGetStorageYamlResponse, EvGetStorageYamlResponse> {
         TString StorageYaml;
-        
+
         TEvGetStorageYamlResponse(TString storageYaml)
             : StorageYaml(std::move(storageYaml))
         {}

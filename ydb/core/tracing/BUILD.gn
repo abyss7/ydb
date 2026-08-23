@@ -5,6 +5,8 @@ library("tracing") {
   ]
 
   deps = [
+    "//library/cpp/cgiparam",
+    "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/base",
     "//ydb/core/mon",
     "//ydb/core/node_whiteboard",

@@ -42,8 +42,9 @@ library("common") {
 
   deps = [
     # "//library/cpp/deprecated/atomic",
-    # "//yql/essentials/parser/pg_catalog",
-    # "//yql/essentials/parser/pg_wrapper/interface",
+    "//ydb/library/actors/util",
+    "//yql/essentials/parser/pg_catalog",
+    "//yql/essentials/parser/pg_wrapper/interface",
   ]
 
   sources = [
@@ -227,17 +228,20 @@ library("resource_pools") {
 
 library("service") {
   public_deps = [
-    # "//ydb/core/base",
-    # "//ydb/core/protos",
+    "//ydb/core/base",
+    "//ydb/core/protos",
     # "//ydb/core/scheme",
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
   ]
 
   deps = [
+    "//library/cpp/monlib/dynamic_counters",
+    "//ydb/core/graph/protos",
+    # "//ydb/library/actors/core:events",
     # "//library/cpp/time_provider",
     # "//ydb/core/graph/api",
     # "//ydb/core/tablet",
-    # "//ydb/core/tx/scheme_cache",
+    "//ydb/core/tx/scheme_cache",
     # "//ydb/library/services",
     # ":common",
   ]

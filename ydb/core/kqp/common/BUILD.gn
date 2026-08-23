@@ -1,3 +1,14 @@
+library("arrow") {
+  deps = [
+    "//contrib/libs/apache/arrow",
+    "//yql/essentials/minikql",
+    "//yql/essentials/types/binary_json",
+    "//yql/essentials/types/dynumber",
+  ]
+
+  sources = [ "arrow/kqp_formats_arrow.cpp" ]
+}
+
 library("buffer") {
   public_deps = [
     ":simple",
@@ -142,21 +153,21 @@ library("events") {
 
 library("result_set_format") {
   public_deps = [
-    # "//ydb/library/yql/dq/runtime",
-    # "//ydb/public/api/protos",
+    "//ydb/library/yql/dq/runtime",
+    "//ydb/public/api/protos",
   ]
 
   deps = [
-    # "//ydb/core/formats/arrow",
+    "//contrib/libs/apache/arrow",
+    "//ydb/core/formats/arrow",
     # "//ydb/core/kqp/common",
-    # "//ydb/library/mkql_proto",
+    "//ydb/library/mkql_proto",
     # "//ydb/public/lib/scheme_types",
     # "//yql/essentials/minikql",
     # "//yql/essentials/utils",
   ]
 
   sources = [
-    "result_set_format/kqp_formats_arrow.cpp",
     "result_set_format/kqp_result_set_builders.cpp",
   ]
 }
@@ -179,12 +190,12 @@ library("shutdown") {
 
 library("simple") {
   public_deps = [
-    # "//ydb/core/base",
-    # "//ydb/core/protos",
-    # "//ydb/library/aclib",
+    "//ydb/core/base",
+    "//ydb/core/protos",
+    "//ydb/library/aclib",
     # "//ydb/library/actors/core",
     # "//ydb/public/api/protos",
-    # "//yql/essentials/core/pg_settings",
+    "//yql/essentials/core/pg_settings",
   ]
 
   deps = [

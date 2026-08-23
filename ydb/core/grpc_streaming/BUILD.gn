@@ -1,6 +1,6 @@
 library("grpc_streaming") {
   public_deps = [
-    # "//ydb/core/base",
+    "//ydb/core/base",
     # "//ydb/library/actors/core",
     # "//ydb/library/grpc/server",
   ]

@@ -1,13 +1,13 @@
 library("abstract") {
   public_deps = [
     # "//contrib/libs/apache/arrow",
-    # "//ydb/core/formats/arrow",
+    "//ydb/core/formats/arrow",
     # "//ydb/core/protos",
     # "//ydb/core/tx/columnshard/blobs_action:abstract",
     # "//ydb/core/tx/columnshard/blobs_reader",
     # "//ydb/core/tx/columnshard/common",
     # "//ydb/core/tx/columnshard/counters",
-    # "//ydb/core/tx/columnshard/data_locks/locks",
+    "//ydb/core/tx/columnshard/data_locks/locks",
     # "//ydb/core/tx/columnshard/data_locks/manager",
     # "//ydb/core/tx/columnshard/data_reader",
     # "//ydb/core/tx/columnshard/engines/changes/counters",
@@ -17,7 +17,7 @@ library("abstract") {
     # "//ydb/core/tx/columnshard/resource_subscriber",
     # "//ydb/core/tx/columnshard/splitter",
     # "//ydb/core/tx/limiter/grouped_memory/usage",
-    # "//ydb/library/accessor",
+    "//ydb/library/accessor",
     # "//ydb/library/actors/core",
   ]
 

@@ -68,6 +68,7 @@ PEERDIR(
     ydb/core/sys_view/processor
     ydb/core/tablet
     ydb/core/tablet_flat
+    ydb/core/tablet_flat/recovery
     ydb/core/test_tablet
     ydb/core/tx/replication/controller
     ydb/core/tx/scheme_board

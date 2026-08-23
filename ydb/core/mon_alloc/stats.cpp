@@ -103,7 +103,7 @@ namespace NKikimr {
             if (name.StartsWith("lf")) {
                 stats = std::make_unique<TLfAllocStats>(std::move(group));
             } else if (name.StartsWith("tc")) {
-                stats = std::move(CreateTcMallocStats(std::move(group)));
+                stats = CreateTcMallocStats(std::move(group));
             }
 
             return stats ? std::move(stats) : std::make_unique<TFakeAllocStats>();
@@ -145,7 +145,7 @@ namespace NKikimr {
 
         struct TLfAllocState: public IAllocState {
             TState Get() const override {
-                const ui64 total = 
+                const ui64 total =
                     NAllocDbg::GetAllocationCounterFast(NAllocDbg::CT_SYSTEM_ALLOC) +
                     NAllocDbg::GetAllocationCounterFast(NAllocDbg::CT_SMALL_ALLOC) +
                     NAllocDbg::GetAllocationCounterFast(NAllocDbg::CT_LARGE_ALLOC);
@@ -176,7 +176,7 @@ namespace NKikimr {
             if (name.StartsWith("lf")) {
                 state = std::make_unique<TLfAllocState>();
             } else if (name.StartsWith("tc")) {
-                state = std::move(CreateTcMallocState());
+                state = CreateTcMallocState();
             }
 
             return state ? std::move(state) : std::make_unique<TFakeAllocState>();

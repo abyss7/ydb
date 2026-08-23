@@ -4,23 +4,23 @@ library("engine") {
     # "//library/cpp/random_provider",
     # "//library/cpp/time_provider",
     # "//ydb/core/protos",
-    # "//ydb/core/scheme",
+    "//ydb/core/scheme",
     # "//ydb/core/scheme_types",
-    # "//ydb/library/mkql_proto",
+    "//ydb/library/mkql_proto",
     # "//ydb/library/mkql_proto:protos",
     # "//ydb/public/api/protos",
-    # "//yql/essentials/minikql",
+    "//yql/essentials/minikql",
     # "//yql/essentials/minikql/computation",
   ]
 
   deps = [
     # "//ydb/core/base",
-    # "//ydb/core/kqp/common",
+    "//ydb/core/kqp/common",
     # "//ydb/core/tablet",
-    # "//ydb/core/tablet_flat",
+    "//ydb/core/tablet_flat",
     # "//ydb/library/actors/core",
     # "//ydb/public/lib/scheme_types",
-    # "//yql/essentials/minikql/comp_nodes",
+    "//yql/essentials/minikql/comp_nodes",
     # "//yql/essentials/parser/pg_wrapper/interface",
     # "//yql/essentials/public/decimal",
   ]
@@ -38,24 +38,25 @@ library("engine") {
 library("minikql") {
   public_deps = [
     # "//ydb/core/engine",
-    # "//ydb/core/scheme",
+    "//ydb/core/scheme",
     # "//ydb/core/tablet",
-    # "//ydb/core/tablet_flat",
+    "//ydb/core/tablet_flat",
     # "//yql/essentials/minikql",
   ]
 
   deps = [
+    "//library/cpp/lwtrace",
     # "//library/cpp/containers/stack_vector",
-    # "//ydb/core/base",
-    # "//ydb/core/client/minikql_compile",
+    "//ydb/core/base",
+    "//ydb/core/client/minikql_compile",
     # "//ydb/core/formats",
     # "//ydb/core/protos",
     # "//ydb/core/tx/locks",
     # "//ydb/library/ydb_issue:proto",
     # "//ydb/public/api/protos",
-    # "//yql/essentials/minikql/computation",
+    "//yql/essentials/minikql/computation",
     # "//yql/essentials/parser/pg_wrapper/interface",
-    # "//yql/essentials/public/issue",
+    "//yql/essentials/public/issue",
   ]
 
   sources = [

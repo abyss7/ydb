@@ -15,6 +15,8 @@
 #include <library/cpp/json/json_writer.h>
 
 #include <util/generic/queue.h>
+#include <util/stream/buffered.h>
+#include <util/stream/file.h>
 
 #include <google/protobuf/json/json.h>
 

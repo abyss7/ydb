@@ -25,6 +25,7 @@ library("messagebus") {
     ":monitoring",
     # "//library/cpp/deprecated/atomic",
     # "//library/cpp/deprecated/enum_codegen",
+    "//library/cpp/codecs",
     "//library/cpp/getopt",
   ]
 
@@ -33,7 +34,6 @@ library("messagebus") {
     ":config",
     ":scheduler",
     "//contrib/libs/sparsehash",
-    "//library/cpp/codecs",
     "//library/cpp/lwtrace",
     "//library/cpp/string_utils/indent_text",
     "//library/cpp/threading/future",

@@ -3,9 +3,13 @@
 library("provider") {
     deps = [
         "//contrib/libs/openssl",
+        "//contrib/libs/re2",
         "//yql/essentials/ast",
         "//yql/essentials/core/dq_expr_nodes",
+        "//yql/essentials/core/dqs_expr_nodes",
+        "//yql/essentials/providers/common/mkql",
         "//yql/essentials/sql/v1",
+        "//yql/providers/stat/expr_nodes",
     ]
 
     sources = [

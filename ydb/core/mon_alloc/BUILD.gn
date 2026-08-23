@@ -1,21 +1,22 @@
 library("mon_alloc") {
   public_deps = [
-    # "//library/cpp/monlib/dynamic_counters",
-    # "//ydb/core/control/lib",
-    # "//ydb/core/protos",
-    # "//ydb/library/actors/core",
+    "//library/cpp/monlib/dynamic_counters",
+    "//ydb/core/control/lib",
+    "//ydb/core/protos",
+    "//ydb/library/actors/core",
   ]
 
   deps = [
-    # "//contrib/libs/tcmalloc",
+    "//contrib/libs/tcmalloc:malloc_extension",
     # "//library/cpp/cache",
-    # "//library/cpp/execprofile",
-    # "//library/cpp/html/pcdata",
-    # "//library/cpp/lfalloc/dbg_info",
+    "//library/cpp/cgiparam",
+    "//library/cpp/execprofile",
+    "//library/cpp/html/pcdata",
+    "//library/cpp/lfalloc/dbg_info",
     # "//library/cpp/malloc/api",
     # "//library/cpp/monlib/service/pages",
-    # "//ydb/core/base",
-    # "//ydb/core/mon",
+    "//ydb/core/base",
+    "//ydb/core/mon",
     # "//ydb/library/actors/prof",
     # "//ydb/library/services",
   ]

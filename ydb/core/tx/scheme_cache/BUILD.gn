@@ -1,9 +1,9 @@
 library("scheme_cache") {
   public_deps = [
-    # "//ydb/core/base",
+    "//ydb/core/base",
     # "//ydb/core/persqueue/public",
     # "//ydb/core/persqueue/writer",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/scheme",
     # "//ydb/core/scheme_types",
     # "//ydb/core/tx/locks",

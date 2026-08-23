@@ -1,7 +1,7 @@
 #include "flat_executor_recovery.h"
 
-#include "flat_cxx_database.h"
-#include "tablet_flat_executed.h"
+#include <ydb/core/tablet_flat/flat_cxx_database.h>
+#include <ydb/core/tablet_flat/tablet_flat_executed.h>
 
 #include <ydb/core/base/appdata_fwd.h>
 #include <ydb/core/engine/minikql/flat_local_tx_factory.h>

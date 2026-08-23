@@ -50,7 +50,17 @@ template("ssse3_source_set") {
 template("expand_template") {
     assert(defined(invoker.sources), "expand_template requires `sources`")
 
+    # By default each source is mirrored under root_gen_dir at its own repo-
+    # relative path. `output_dir` overrides that with an explicit destination,
+    # which is required when several targets configure the *same* .in file (the
+    # SQLv1 grammar is configured by v1_antlr4, v1_ansi_antlr4 and
+    # v1_proto_split_antlr4); mirroring would make them all declare the same
+    # output file. ya make has the same shape — each module configures its own
+    # copy into ${antlr_output}.
     _output = "{{source_gen_dir}}/{{source_name_part}}"
+    if (defined(invoker.output_dir)) {
+        _output = invoker.output_dir + "/{{source_name_part}}"
+    }
 
     action_foreach(target_name) {
         forward_variables_from(invoker, [ "deps", "visibility" ])

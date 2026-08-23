@@ -7,6 +7,8 @@
 
 #include <ydb/public/lib/base/msgbus_status.h>
 
+#include <util/string/builder.h>
+
 namespace NKikimr::NPQ {
 
 inline bool BasicCheck(const NKikimrClient::TResponse& response, TString& error, bool mustHaveResponse = true) {

@@ -1,12 +1,8 @@
 library("composite") {
   public_deps = [
-    # "//ydb/core/formats/arrow/accessor/abstract",
-    # "//ydb/library/accessor",
-  ]
-
-  deps = [
-    # "//ydb/core/formats/arrow",
-    # "//ydb/library/formats/arrow",
+    "//ydb/core/formats/arrow/accessor/abstract",
+    "//ydb/library/accessor",
+    "//ydb/library/formats/arrow",
   ]
 
   sources = [ "accessor.cpp" ]

@@ -1,4 +1,4 @@
-import("//build/gn/antlr3.gni")
+import("//build/gn/antlr.gni")
 
 _grammar = "//yql/essentials/minikql/jsonpath/JsonPath.g"
 
@@ -19,7 +19,7 @@ antlr3_run("antlr3_proto") {
   grammar = _grammar
   language = "protobuf"
   templates_target = ":stg"
-  templates_root = "//yql/essentials/parser/proto_ast"
+  templates_dir = "$root_gen_dir/yql/essentials/parser/proto_ast"
 }
 
 protobuf_library("proto") {
@@ -33,7 +33,7 @@ antlr3_run("antlr3_cpp") {
   grammar = _grammar
   language = "Cpp"
   templates_target = ":stg"
-  templates_root = "//yql/essentials/parser/proto_ast"
+  templates_dir = "$root_gen_dir/yql/essentials/parser/proto_ast"
 }
 
 library("jsonpath") {

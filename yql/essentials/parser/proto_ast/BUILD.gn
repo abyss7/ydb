@@ -1,0 +1,3 @@
+group("proto_ast") {
+    public_deps = [ "//yql/essentials/parser/common" ]
+}

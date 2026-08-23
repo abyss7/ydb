@@ -278,7 +278,7 @@ namespace NKikimr {
             if (name.StartsWith("lf")) {
                 monitor = std::make_unique<TLfAllocMonitor>(std::move(group));
             } else if (name.StartsWith("tc")) {
-                monitor = std::move(CreateTcMallocMonitor(std::move(group)));
+                monitor = CreateTcMallocMonitor(std::move(group));
             }
 
             return monitor ? std::move(monitor) : std::make_unique<TFakeAllocMonitor>();
@@ -356,7 +356,7 @@ namespace NKikimr {
                 auto processMemoryInfo = ProcessMemoryInfoProvider->Get();
                 if (processMemoryInfo.AnonRss.has_value()) {
                     return TMemoryUsage{
-                        processMemoryInfo.AnonRss.value(), 
+                        processMemoryInfo.AnonRss.value(),
                         processMemoryInfo.CGroupLimit.value_or(0)};
                 }
                 return {};

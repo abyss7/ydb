@@ -1,4 +1,6 @@
 #include "configs_dispatcher.h"
+
+#include <ydb/core/config/init/init.h>
 #include "ut_helpers.h"
 
 #include <ydb/core/config/init/mock.h>

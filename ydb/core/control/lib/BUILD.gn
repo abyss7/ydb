@@ -11,8 +11,9 @@ library("base") {
 }
 
 library("lib") {
+  public_deps = [ ":base" ]
+
   deps = [
-    ":base",
     "generated",
     "//library/cpp/iterator",
     "//library/cpp/monlib/service/pages",

@@ -1,6 +1,11 @@
+library("retry_func") {
+  sources = [ "retry_func.cpp" ]
+}
+
 library("common") {
   public_deps = [
     ":ini_config",
+    ":retry_func",
     "//contrib/libs/ftxui",
     "//library/cpp/colorizer",
     "//library/cpp/getopt",
@@ -17,8 +22,8 @@ library("common") {
     "//ydb/public/sdk/cpp/src/client/coordination",
     "//ydb/public/sdk/cpp/src/client/draft",
     "//ydb/public/sdk/cpp/src/client/driver",
-    # "//ydb/public/sdk/cpp/src/client/export",
-    # "//ydb/public/sdk/cpp/src/client/import",
+    "//ydb/public/sdk/cpp/src/client/export",
+    "//ydb/public/sdk/cpp/src/client/import",
     # "//ydb/public/sdk/cpp/src/client/operation",
     # "//ydb/public/sdk/cpp/src/client/params",
     "//ydb/public/sdk/cpp/src/client/query",
@@ -33,13 +38,14 @@ library("common") {
   ]
 
   deps = [
+    ":yql_parser",
     "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-core",
     "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-s3",
     "//contrib/libs/openssl",
     "//contrib/restricted/patched/replxx",
     "//library/cpp/http/simple",
     # "//library/cpp/json:writer",
-    # "//library/cpp/resource",
+    "//library/cpp/resource",
     "//library/cpp/string_utils/url",
     "//ydb/library/arrow_parquet",
     # "//ydb/library/yverify_stream",
@@ -48,7 +54,6 @@ library("common") {
     "//ydb/public/sdk/cpp/src/client/topic/impl",
     "//ydb/public/sdk/cpp/src/client/value",
     # "//ydb/public/sdk/cpp/src/library/operation_id",
-    # ":yql_parser",
   ]
 
   sources = [
@@ -84,7 +89,6 @@ library("common") {
     "query_utils.cpp",
     "recursive_list.cpp",
     "recursive_remove.cpp",
-    "retry_func.cpp",
     "root.cpp",
     "scheme_printers.cpp",
     "sys.cpp",
@@ -111,14 +115,14 @@ library("ini_config") {
 
 library("yql_parser") {
   public_deps = [
-    # "//ydb/public/sdk/cpp/src/client/value",
+    "//ydb/public/sdk/cpp/src/client/value",
   ]
 
   deps = [
     # "//yql/essentials/public/issue",
-    # "//yql/essentials/sql/v1/lexer",
-    # "//yql/essentials/sql/v1/lexer:antlr4",
-    # "//yql/essentials/sql/v1/lexer:antlr4_ansi",
+    "//yql/essentials/sql/v1/lexer",
+    "//yql/essentials/sql/v1/lexer:antlr4",
+    "//yql/essentials/sql/v1/lexer:antlr4_ansi",
     # "//yql/essentials/sql:settings",
   ]
 

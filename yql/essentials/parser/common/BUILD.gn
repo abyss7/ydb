@@ -1,6 +1,6 @@
 library("antlr4") {
   public_deps = [
-    # "//yql/essentials/parser/common",
+    "//yql/essentials/parser/common",
   ]
 
   deps = [

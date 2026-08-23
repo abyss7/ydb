@@ -1,11 +1,12 @@
 library("ingress") {
   public_deps = [
-    # "//ydb/core/blobstorage/groupinfo",
+    "//ydb/core/blobstorage/groupinfo",
     # "//ydb/core/util",
   ]
 
   deps = [
-    # "//ydb/core/base",
+    "//ydb/core/base",
+    "//ydb/core/erasure",
     # "//ydb/library/actors/core",
     # "//ydb/library/services",
   ]
@@ -13,5 +14,6 @@ library("ingress") {
   sources = [
     "blobstorage_ingress.cpp",
     "blobstorage_ingress_matrix.cpp",
+    "blobstorage_ingress_partlayout.cpp",
   ]
 }

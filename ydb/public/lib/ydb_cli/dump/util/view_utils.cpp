@@ -2,7 +2,7 @@
 #include "view_utils.h"
 
 #include <yql/essentials/parser/proto_ast/gen/v1_antlr4/SQLv1Antlr4Lexer.h>
-#include <yql/essentials/parser/proto_ast/gen/v1_proto_split_antlr4/SQLv1Antlr4Parser.pb.main.h>
+#include <yql/essentials/parser/proto_ast/gen/v1_proto_split_antlr4/SQLv1Antlr4Parser.pb.h>
 #include <yql/essentials/public/issue/yql_issue.h>
 #include <yql/essentials/sql/settings/translation_settings.h>
 #include <yql/essentials/sql/v1/lexer/antlr4/lexer.h>

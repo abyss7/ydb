@@ -1,6 +1,7 @@
 library("hash") {
+  public_deps = [ "//contrib/libs/openssl" ]
+
   deps = [
-    "//contrib/libs/openssl",
     "//yql/essentials/ast",
     "//yql/essentials/core",
     # "//yql/essentials/core/expr_nodes",

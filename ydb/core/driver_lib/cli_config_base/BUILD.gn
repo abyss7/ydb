@@ -3,8 +3,8 @@ library("cli_config_base") {
     # "//library/cpp/deprecated/enum_codegen",
     # "//ydb/core/fq/libs/config:protos",
     # "//ydb/core/protos",
-    # "//ydb/core/util",
-    # "//ydb/public/lib/deprecated/client",
+    "//ydb/core/util",
+    "//ydb/public/lib/deprecated/client",
   ]
 
   sources = [ "config_base.cpp" ]

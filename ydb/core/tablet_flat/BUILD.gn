@@ -1,3 +1,12 @@
+protobuf_library("private_proto") {
+  public_deps = [
+    "//ydb/core/protos",
+    "//ydb/library/actors/protos",
+  ]
+
+  sources = [ "flat_executor.proto" ]
+}
+
 protobuf_library("protos") {
   deps = [
     "//ydb/core/protos",
@@ -10,58 +19,48 @@ protobuf_library("protos") {
   ]
 }
 
-protobuf_library("private_proto") {
-  public_deps = [
-    "//ydb/core/protos",
-    "//ydb/library/actors/protos",
-  ]
-
-  sources = [ "flat_executor.proto" ]
-}
-
 library("tablet_flat") {
   public_deps = [
-    # "//library/cpp/containers/absl_flat_hash",
+    "//library/cpp/blockcodecs",
+    "//library/cpp/containers/absl_flat_hash",
     # "//library/cpp/containers/stack_vector",
     # "//library/cpp/lwtrace",
     # "//library/cpp/time_provider",
-    # "//ydb/core/control/lib",
+    "//ydb/core/control/lib",
     # "//ydb/core/protos",
-    # "//ydb/core/util",
+    "//ydb/core/util",
     # "//ydb/library/actors/core",
-    # "//ydb/library/actors/wilson",
+    "//ydb/library/actors/wilson",
     # "//ydb/library/services",
     # "//ydb/library/wilson_ids",
     # "//ydb/library/yverify_stream",
   ]
 
   deps = [
-    # "//library/cpp/blockcodecs",
-    # "//library/cpp/digest/crc32c",
-    # "//library/cpp/html/pcdata",
-    # "//library/cpp/http/io",
-    # "//library/cpp/json",
+    ":private_proto",
+    ":protos",
+    "//library/cpp/cgiparam",
+    "//library/cpp/digest/crc32c",
+    "//library/cpp/html/pcdata",
+    "//library/cpp/http/io",
+    "//library/cpp/json",
     # "//library/cpp/json:writer",
-    # "//library/cpp/lwtrace/mon",
-    # "//library/cpp/monlib/dynamic_counters",
-    # "//library/cpp/monlib/service/pages",
-    # "//library/cpp/protobuf/json",
+    "//library/cpp/lwtrace/mon",
+    "//library/cpp/monlib/dynamic_counters",
+    "//library/cpp/monlib/service/pages",
+    "//library/cpp/protobuf/json",
     # "//library/cpp/random_provider",
-    # "//library/cpp/string_utils/base64",
+    "//library/cpp/string_utils/base64",
     "//ydb/core/base",
-    "//ydb/core/cms/console",
-    # "//ydb/core/engine:minikql",
-    # "//ydb/core/io_formats/cell_maker",
+    # "//ydb/core/cms/console",
     # "//ydb/core/scheme",
     # "//ydb/core/scheme:protos",
-    # "//ydb/core/scheme_types",
-    # "//ydb/core/tablet",
+    "//ydb/core/scheme_types",
+    "//ydb/core/tablet",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/actors/util",
-    # "//yql/essentials/types/binary_json",
-    # "//yql/essentials/types/dynumber",
-    ":private_proto",
-    # ":protos",
+    "//yql/essentials/types/binary_json",
+    "//yql/essentials/types/dynumber",
   ]
 
   sources = [
@@ -88,7 +87,6 @@ library("tablet_flat") {
     "flat_executor_counters.cpp",
     "flat_executor_db_mon.cpp",
     "flat_executor_gclogic.cpp",
-    "flat_executor_recovery.cpp",
     "flat_executor_snapshot.cpp",
     "flat_executor_tx_env.cpp",
     "flat_executor_txloglogic.cpp",
@@ -123,6 +121,7 @@ library("tablet_flat") {
     "shared_cache_counters.cpp",
     "shared_handle.cpp",
     "shared_sausagecache.cpp",
+    "simple_tablet.cpp",
     "tablet_flat_executed.cpp",
     "tablet_flat_executor.cpp",
   ]
@@ -130,7 +129,6 @@ library("tablet_flat") {
   serialize_enum_headers = [
     "flat_comp_gen.h",
     "flat_executor_compaction_logic.h",
-    "flat_executor_recovery.h",
     "flat_executor_vacuum_logic.h",
     "flat_page_iface.h",
     "flat_part_loader.h",

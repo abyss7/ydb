@@ -1,30 +1,32 @@
 library("v1") {
   public_deps = [
+    "lexer",
     # "//library/cpp/enumbitset",
-    # "//yql/essentials/ast",
+    "//yql/essentials/ast",
     # "//yql/essentials/parser/lexer_common",
     # "//yql/essentials/parser/proto_ast",
     "//yql/essentials/public/issue",
     # "//yql/essentials/public/udf",
-    # "//yql/essentials/sql/v1/lexer",
-    # "//yql/essentials/sql/v1/proto_parser",
-    # "//yql/essentials/sql:settings",
+    "//yql/essentials/sql/v1/proto_parser",
+    "//yql/essentials/sql:settings",
     # "//yql/essentials/utils",
   ]
 
   deps = [
-    # "//library/cpp/charset",
+    "//library/cpp/charset",
     # "//library/cpp/containers/sorted_vector",
     # "//library/cpp/containers/stack_vector",
     # "//library/cpp/protobuf/util",
     # "//library/cpp/yson:node",
     # "//yql/essentials/core/issue:protos",
-    # "//yql/essentials/core/sql_types",
-    # "//yql/essentials/minikql",
-    # "//yql/essentials/parser/pg_catalog",
+    "//yql/essentials/core/sql_types",
+    "//yql/essentials/minikql",
+    "//yql/essentials/parser/pg_catalog",
     # "//yql/essentials/parser/proto_ast/collect_issues",
     # "//yql/essentials/providers/common/provider",
-    # "//yql/essentials/sql",
+    "//yql/essentials/parser/proto_ast/gen/v1_antlr4",
+    "//yql/essentials/public/langver",
+    "//yql/essentials/sql",
   ]
 
   sources = [

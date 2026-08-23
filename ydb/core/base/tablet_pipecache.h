@@ -153,4 +153,4 @@ IActor* CreatePipePerNodeCache(const TIntrusivePtr<TPipePerNodeCacheConfig> &con
 TActorId MakePipePerNodeCacheID(EPipePerNodeCache kind);
 TActorId MakePipePerNodeCacheID(bool allowFollower);
 
-}
+} // namespace NKikimr

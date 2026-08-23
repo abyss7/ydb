@@ -2,12 +2,15 @@
 
 #include <ydb/library/actors/core/actorid.h>
 #include <ydb/core/tx/scheme_cache/scheme_cache.h>
+#include <ydb/core/tx/schemeshard/schemeshard.h>
 
 namespace NKikimr::NColumnShard::NLoading {
 class TSpecialValuesInitializer;
 };
 
 namespace NKikimr::NColumnShard {
+
+class TColumnShard;
 
 class TSpaceWatcher : public TActorBootstrapped<TSpaceWatcher> {
     TColumnShard* Self;

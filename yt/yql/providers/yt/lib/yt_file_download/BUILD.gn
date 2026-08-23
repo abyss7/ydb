@@ -3,7 +3,7 @@ library("yt_file_download") {
     # "//yql/essentials/core",
     # "//yql/essentials/minikql",
     # "//yt/yql/providers/yt/common",
-    # "//yt/yql/providers/yt/gateway/lib",
+    "//yt/yql/providers/yt/gateway/lib",
     # "//yt/yql/providers/yt/provider",
   ]
 

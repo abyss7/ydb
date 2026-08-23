@@ -1,10 +1,29 @@
+# TVDiskIncarnationGuid / TVDiskEternalGuid are plain ui64 value types whose
+# header pulls nothing from //ydb/core/blobstorage/base. They are split out of
+# `common` so that lower-level libraries can use them (blobstorage/base holds a
+# TVDiskIncarnationGuid inside TSyncState and needs its Out<> spec) without
+# depending on all of `common`, which in turn depends on blobstorage/base --
+# that would be a dependency cycle.
+library("guids") {
+  public_deps = [
+    "//ydb/core/base",
+  ]
+
+  deps = [
+    "//library/cpp/random_provider",
+  ]
+
+  sources = [ "blobstorage_vdisk_guids.cpp" ]
+}
+
 library("common") {
   public_deps = [
-    # "//library/cpp/monlib/dynamic_counters",
-    # "//library/cpp/monlib/service/pages",
+    ":guids",
+    "//library/cpp/monlib/dynamic_counters",
+    "//library/cpp/monlib/service/pages",
     # "//library/cpp/string_utils/base64",
     # "//library/cpp/time_provider",
-    # "//ydb/core/base",
+    "//ydb/core/base",
     # "//ydb/core/blobstorage/backpressure",
     # "//ydb/core/blobstorage/base",
     # "//ydb/core/blobstorage/groupinfo",
@@ -38,7 +57,6 @@ library("common") {
     "blobstorage_dblogcutter.cpp",
     "blobstorage_event_filter.cpp",
     "blobstorage_status.cpp",
-    "blobstorage_vdisk_guids.cpp",
     "vdisk_config.cpp",
     "vdisk_context.cpp",
     "vdisk_costmodel.cpp",
