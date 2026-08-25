@@ -1,11 +1,11 @@
 library("rm_service") {
   public_deps = [
-    # "//ydb/core/kqp/common",
+    "//ydb/core/kqp/common",
     # "//ydb/core/kqp/common:simple",
     # "//ydb/core/kqp/counters",
     # "//ydb/core/kqp/gateway",
     # "//ydb/core/kqp/runtime",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/actors/core",
     # "//ydb/library/yql/dq/proto",
     # "//yql/essentials/minikql/computation",

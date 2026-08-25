@@ -1,0 +1,5 @@
+library("full_capture") {
+    public_deps = [ "//yql/essentials/providers/common/gateway" ]
+    deps = [ "//yql/essentials/utils/log" ]
+    sources = [ "yql_yt_full_capture.cpp" ]
+}

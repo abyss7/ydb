@@ -29,7 +29,7 @@
 #include <yql/essentials/minikql/mkql_program_builder.h>
 
 #include <ydb/core/kqp/provider/yql_kikimr_results.h>
-#include <ydb/core/kqp/gateway/utils/scheme_helpers.h>
+#include <ydb/core/kqp/provider/scheme_helpers.h>
 
 namespace NYql {
 namespace {

@@ -3,6 +3,7 @@
 #include <ydb/core/base/appdata.h>
 
 #include <ydb/services/metadata/abstract/decoder.h>
+#include <ydb/services/metadata/abstract/kqp_common.h>
 #include <ydb/services/metadata/manager/object.h>
 #include <ydb/services/metadata/manager/preparation_controller.h>
 #include <ydb/services/metadata/secret/accessor/secret_id.h>

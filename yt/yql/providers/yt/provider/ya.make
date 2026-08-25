@@ -43,6 +43,7 @@ SRCS(
     yql_yt_provider_impl.cpp
     yql_yt_provider.cpp
     yql_yt_provider.h
+    yql_yt_qplayer_gateway.cpp
     yql_yt_provider_impl.h
     yql_yt_table_desc.cpp
     yql_yt_table.cpp
@@ -105,6 +106,7 @@ PEERDIR(
     yql/essentials/core/peephole_opt
     yql/essentials/core/type_ann
     yql/essentials/core/file_storage
+    yql/essentials/core/services
     yql/essentials/core/url_lister/interface
     yql/essentials/core/dq_integration
     yql/essentials/minikql
@@ -136,7 +138,7 @@ PEERDIR(
     yt/yql/providers/yt/lib/yson_helpers
     yt/yql/providers/yt/lib/yt_token_resolver
     yt/yql/providers/yt/opt
-    yt/yql/providers/yt/gateway/qplayer
+    yt/yql/providers/yt/lib/dump_helpers
     yt/yql/providers/yt/proto
     yt/yql/providers/ytflow/expr_nodes
     yt/yql/providers/ytflow/integration/interface

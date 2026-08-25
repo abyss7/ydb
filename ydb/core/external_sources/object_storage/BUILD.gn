@@ -1,13 +1,17 @@
 library("inference") {
   public_deps = [
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
   ]
 
   deps = [
-    # "//contrib/libs/apache/arrow",
+    "//contrib/libs/apache/arrow",
     # "//ydb/core/external_sources/object_storage",
-    # "//ydb/library/yql/providers/s3/compressors",
+    "//ydb/library/yql/providers/s3/compressors",
+    "//ydb/library/yql/udfs/common/clickhouse/client",
     # "//ydb/public/api/protos",
+    "//ydb/public/sdk/cpp/adapters/issue",
+    "//ydb/public/sdk/cpp/src/client/types/status",
+    "//yql/essentials/public/issue",
   ]
 
   sources = [
@@ -19,11 +23,13 @@ library("inference") {
 
 library("object_storage") {
   public_deps = [
+    "//contrib/libs/apache/arrow",
     # "//contrib/libs/curl",
     # "//ydb/core/fq/libs/config:protos",
-    # "//ydb/library/actors/core",
-    # "//ydb/library/yql/providers/common/http_gateway",
-    # "//ydb/library/yql/providers/s3/credentials",
+    "//ydb/library/actors/core",
+    "//ydb/library/yql/providers/common/http_gateway",
+    "//ydb/library/yql/providers/s3/credentials",
+    "//ydb/library/yql/providers/s3/common",
     # "//ydb/public/api/protos",
     # "//ydb/public/sdk/cpp/adapters/issue",
     # "//ydb/public/sdk/cpp/src/client/types/status",

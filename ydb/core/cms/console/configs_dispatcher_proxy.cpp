@@ -4,6 +4,7 @@
 
 #include <ydb/library/actors/core/actor_bootstrapped.h>
 #include <ydb/library/actors/core/hfunc.h>
+#include <ydb/library/actors/protos/services_common.pb.h>
 #include <ydb/core/util/stlog.h>
 
 namespace NKikimr::NConsole {

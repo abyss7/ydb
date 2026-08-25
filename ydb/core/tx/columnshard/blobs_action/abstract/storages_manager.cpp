@@ -1,5 +1,9 @@
 #include "storages_manager.h"
-#include <ydb/core/tx/columnshard/engines/portions/portion_info.h>
+// Полный manager.h нужен для полного типа NTiers::TManager (итерация
+// ITiersManager::GetManagers()); заголовок резолвится по корневому пути. Линк-
+// зависимость при этом лёгкая — tiering:abstract (см. blobs_action/BUILD.gn):
+// неинлайновые символы полного tiering здесь не вызываются, только ToString из
+// :tier и виртуальный GetManagers. Так же и в Arcadia: ya.make пирит tiering/abstract.
 #include <ydb/core/tx/tiering/manager.h>
 
 namespace NKikimr::NOlap {

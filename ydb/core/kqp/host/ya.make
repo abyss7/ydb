@@ -6,7 +6,6 @@ SRCS(
     kqp_host.cpp
     kqp_runner.cpp
     kqp_transform.cpp
-    kqp_translate.cpp
     kqp_statement_rewrite.cpp
 )
 

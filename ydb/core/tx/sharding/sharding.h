@@ -10,16 +10,6 @@
 
 #include <library/cpp/object_factory/object_factory.h>
 
-namespace NKikimr::NSchemeShard {
-// NB: forward declaration instead of including olap/schema/schema.h. That header
-// transitively pulls schemeshard.h -> tx.h -> appdata.h (and the whole
-// schemeshard graph) into every consumer of sharding.h — versioned_index,
-// portions, counters, readers — which both recreates dependency cycles and drags
-// heavy headers everywhere. Only TOlapSchema is referenced here, by
-// reference/pointer; the actual include lives in sharding.cpp.
-class TOlapSchema;
-}
-
 namespace NKikimr::NSharding {
 
 struct TExternalTableColumn;
@@ -300,14 +290,10 @@ public:
         return !IsActiveForWrite(shardId);
     }
 
-    static TConclusionStatus ValidateBehaviour(const NSchemeShard::TOlapSchema& schema, const NKikimrSchemeOp::TColumnTableSharding& shardingInfo);
-    static TConclusion<std::unique_ptr<IShardingBase>> BuildFromProto(const NSchemeShard::TOlapSchema& schema, const NKikimrSchemeOp::TColumnTableSharding& shardingInfo) {
-        return BuildFromProto(&schema, shardingInfo);
-    }
-    static TConclusion<std::unique_ptr<IShardingBase>> BuildFromProto(const NSchemeShard::TOlapSchema* schema, const NKikimrSchemeOp::TColumnTableSharding& shardingInfo);
-    static TConclusion<std::unique_ptr<IShardingBase>> BuildFromProto(const NKikimrSchemeOp::TColumnTableSharding& shardingInfo) {
-        return BuildFromProto(nullptr, shardingInfo);
-    }
+    // Построение sharding из proto. Проверка колонок против схемы вынесена в
+    // NSchemeShard::TOlapSchema::ValidateHashSharding (см. schema.h), чтобы
+    // sharding не зависел от olap/schema.
+    static TConclusion<std::unique_ptr<IShardingBase>> BuildFromProto(const NKikimrSchemeOp::TColumnTableSharding& shardingInfo);
 
     IShardingBase(const std::vector<ui64>& shardIds) {
         InitializeFromOrdered(shardIds);

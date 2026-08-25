@@ -1,0 +1,10 @@
+library("tz_types") {
+    deps = [
+        "//library/cpp/type_info:tz",
+        "//library/cpp/yt/assert",
+        "//library/cpp/yt/error",
+        "//library/cpp/yt/string",
+    ]
+
+    sources = [ "tz_types.cpp" ]
+}

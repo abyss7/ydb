@@ -1,4 +1,5 @@
 #include "fetched_data.h"
+#include "index_fetcher.h"
 #include "plain_read_data.h"
 #include "source.h"
 
@@ -235,8 +236,8 @@ TConclusion<std::vector<std::shared_ptr<NArrow::NSSA::IFetchLogic>>> TPortionDat
     std::vector<std::shared_ptr<NArrow::NSSA::IFetchLogic>> result;
     for (auto&& i : addresses) {
         auto indexMeta = GetSourceSchema()->GetIndexInfo().GetIndexVerified(i.first);
-        result.emplace_back(
-            indexMeta->BuildFetchTask(i.second, indexMeta.GetObjectPtrVerified(), GetContext()->GetCommonContext()->GetStoragesManager()));
+        result.emplace_back(std::make_shared<NIndexes::TIndexFetcherLogic>(
+            i.second, indexMeta.GetObjectPtrVerified(), GetContext()->GetCommonContext()->GetStoragesManager()));
     }
     return result;
 }

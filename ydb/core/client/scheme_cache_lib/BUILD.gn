@@ -4,8 +4,11 @@ library("scheme_cache_lib") {
   ]
 
   deps = [
-    # "//ydb/core/client/minikql_compile",
-    # "//ydb/core/tx/scheme_cache",
+    # Нужен только интерфейс NYql::IDbSchemeResolver (реализуется здесь) — берём
+    # лёгкий leaf-таргет вместо полного minikql_compile, иначе цикл
+    # minikql_compile <-> scheme_cache_lib (minikql_compile зовёт CreateDbSchemeResolver).
+    "//ydb/core/client/minikql_compile:db_key_resolver",
+    "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/schemeshard",
     # "//ydb/library/actors/core",
   ]

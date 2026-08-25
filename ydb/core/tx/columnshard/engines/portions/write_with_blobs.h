@@ -6,12 +6,19 @@
 #include <ydb/core/tx/columnshard/blobs_action/abstract/storages_manager.h>
 #include <ydb/core/tx/columnshard/common/snapshot.h>
 #include <ydb/core/tx/columnshard/common/path_id.h>
+#include <ydb/core/tx/columnshard/counters/splitter.h>
 #include <ydb/core/tx/columnshard/splitter/blob_info.h>
+#include <ydb/core/tx/data_events/common/modification_type.h>
 
 #include <ydb/library/accessor/accessor.h>
 
+namespace arrow {
+class RecordBatch;
+}
+
 namespace NKikimr::NOlap {
 
+class ISnapshotSchema;
 class TWritePortionInfoWithBlobsResult;
 
 class TWritePortionInfoWithBlobsConstructor: public TBasePortionInfoWithBlobs {
@@ -243,5 +250,12 @@ public:
         return std::make_shared<TPortionAccessorConstructor>(std::move(*PortionConstructor));
     }
 };
+
+// Builds a write-portion out of an incoming batch for the given schema. Lives in the
+// portions layer (not on ISnapshotSchema) so that scheme/versions does not depend back
+// on portions — see write_prepare.cpp.
+[[nodiscard]] TConclusion<TWritePortionInfoWithBlobsResult> PrepareForWrite(const std::shared_ptr<ISnapshotSchema>& schema,
+    const TInternalPathId pathId, const std::shared_ptr<arrow::RecordBatch>& incomingBatch, const NEvWrite::EModificationType mType,
+    const std::shared_ptr<IStoragesManager>& storagesManager, const std::shared_ptr<NColumnShard::TSplitterCounters>& splitterCounters);
 
 }   // namespace NKikimr::NOlap

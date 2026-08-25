@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ydb/core/protos/config.pb.h>
 #include <ydb/core/tablet_flat/tablet_flat_executor.h>
 #include <ydb/core/tx/columnshard/common/limits.h>
 #include <ydb/core/tx/columnshard/common/snapshot.h>
@@ -407,7 +408,7 @@ class TControllers {
 private:
     std::atomic<ICSController::TPtr*> CSControllerPtr{new ICSController::TPtr(std::make_shared<ICSController>())};
     IKqpController::TPtr KqpController = std::make_shared<IKqpController>();
-    
+
     void ReplaceCSController(const ICSController::TPtr& newController) {
         auto* newPtr = new ICSController::TPtr(newController);
         auto* oldPtr = CSControllerPtr.exchange(newPtr);

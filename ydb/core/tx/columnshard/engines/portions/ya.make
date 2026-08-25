@@ -6,6 +6,7 @@ SRCS(
     base_with_blobs.cpp
     read_with_blobs.cpp
     write_with_blobs.cpp
+    write_prepare.cpp
     constructors.cpp
     constructor_portion.cpp
     constructor_accessor.cpp

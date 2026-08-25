@@ -7,14 +7,21 @@ library("scheme_board") {
   ]
 
   deps = [
+    "//library/cpp/cgiparam",
     "//library/cpp/json",
     # "//library/cpp/json:writer",
     "//library/cpp/monlib/dynamic_counters",
     "//library/cpp/monlib/service/pages",
     "//ydb/core/mon",
     # "//ydb/core/node_whiteboard",
-    # "//ydb/core/persqueue/public",
+    "//ydb/core/persqueue/public:utils",
     "//ydb/core/persqueue/public:partition_key_range",
+    # cache.cpp дёргает NPQ::CreatePartitionChooser. Полная библиотека writer
+    # через TRlHelpers -> CreateSchemeBoardSubscriber зависит обратно на
+    # scheme_board (цикл public -> scheme_board -> writer -> public). Чистая
+    # фабрика чузера самодостаточна и вынесена в лёгкий саб-таргет
+    # writer:partition_chooser, не зависящий от public/scheme_board.
+    "//ydb/core/persqueue/writer:partition_chooser",
     "//ydb/core/sys_view:common",
     # "//ydb/core/tx",
     # "//ydb/core/tx/locks",

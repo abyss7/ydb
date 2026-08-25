@@ -20,7 +20,6 @@ class TIndexMetaContainer;
 
 struct TIndexInfo;
 class TSaverContext;
-class TWritePortionInfoWithBlobsResult;
 
 class ISnapshotSchema {
 protected:
@@ -96,10 +95,6 @@ public:
         const std::shared_ptr<NArrow::TGeneralContainer>& batch, const std::set<ui32>& restoreColumnIds) const;
     [[nodiscard]] TConclusion<NArrow::TContainerWithIndexes<arrow::RecordBatch>> PrepareForModification(
         const std::shared_ptr<arrow::RecordBatch>& incomingBatch, const NEvWrite::EModificationType mType) const;
-    [[nodiscard]] TConclusion<TWritePortionInfoWithBlobsResult> PrepareForWrite(const ISnapshotSchema::TPtr& selfPtr, const TInternalPathId pathId,
-        const std::shared_ptr<arrow::RecordBatch>& incomingBatch, const NEvWrite::EModificationType mType,
-        const std::shared_ptr<IStoragesManager>& storagesManager,
-        const std::shared_ptr<NColumnShard::TSplitterCounters>& splitterCounters) const;
     void AdaptBatchToSchema(NArrow::TGeneralContainer& batch, const ISnapshotSchema::TPtr& targetSchema) const;
     std::set<ui32> GetColumnIdsToDelete(const ISnapshotSchema::TPtr& targetSchema) const;
     std::vector<ui32> ConvertColumnIdsToIndexes(const std::set<ui32>& idxs) const;

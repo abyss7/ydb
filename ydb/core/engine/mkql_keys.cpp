@@ -1,6 +1,6 @@
 #include "mkql_keys.h"
 
-#include <ydb/core/kqp/common/kqp_types.h>
+#include <ydb/library/mkql_proto/mkql_type_ops.h>
 #include <ydb/core/base/domain.h>
 #include <ydb/core/scheme_types/scheme_types_defs.h>
 #include <yql/essentials/minikql/mkql_node_cast.h>

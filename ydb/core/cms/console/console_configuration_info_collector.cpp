@@ -2,9 +2,10 @@
 
 #include <ydb/library/actors/core/actor.h>
 #include <ydb/library/actors/core/hfunc.h>
-#include <ydb/core/base/nameservice.h> 
-#include <ydb/core/cms/console/configs_dispatcher.h> 
-#include <ydb/core/cms/console/configs_dispatcher_proxy.h> 
+#include <ydb/library/actors/protos/services_common.pb.h>
+#include <ydb/core/base/nameservice.h>
+#include <ydb/core/cms/console/configs_dispatcher.h>
+#include <ydb/core/cms/console/configs_dispatcher_proxy.h>
 #include <ydb/core/util/stlog.h>
 
 namespace NKikimr::NConsole {
@@ -91,7 +92,7 @@ void TConfigurationInfoCollector::Handle(TEvPrivate::TEvTimeout::TPtr &ev) {
 
 void TConfigurationInfoCollector::ReplyAndDie() {
     STLOG(PRI_DEBUG, CMS_CONFIGS, CIG6, "Replying with collected info: V1=" << V1Nodes << ", V2=" << V2Nodes << ", Unknown=" << UnknownNodes << " (Total=" << TotalNodes << ")");
-    auto response = MakeHolder<TEvConsole::TEvGetConfigurationVersionResponse>(); 
+    auto response = MakeHolder<TEvConsole::TEvGetConfigurationVersionResponse>();
     auto *result = response->Record.MutableResponse();
     result->set_v1_nodes(V1Nodes);
     result->set_v2_nodes(V2Nodes);

@@ -1,6 +1,7 @@
 #pragma once
 #include "defs.h"
 #include "blob.h"
+#include "columnshard_ev_ids.h"
 #include "common/snapshot.h"
 
 #include <ydb/core/protos/statistics.pb.h>
@@ -59,47 +60,6 @@ inline Ydb::StatusIds::StatusCode ConvertToYdbStatus(NKikimrTxColumnShard::EResu
 }
 
 namespace TEvColumnShard {
-    enum EEv {
-        EvProposeTransaction = EventSpaceBegin(TKikimrEvents::ES_TX_COLUMNSHARD),
-        EvCancelTransactionProposal,
-        EvProposeTransactionResult,
-        EvNotifyTxCompletion,
-        EvNotifyTxCompletionResult,
-        EvReadBlobRanges,
-        EvReadBlobRangesResult,
-        EvCheckPlannedTransaction,
-
-        EvWrite = EvProposeTransaction + 256,
-        EvRead,
-        EvWriteResult,
-        EvReadResult,
-
-        EvDeleteSharedBlobs,
-        EvDeleteSharedBlobsFinished,
-
-        EvDataSharingProposeFromInitiator,
-        EvDataSharingConfirmFromInitiator,
-        EvDataSharingAckFinishFromInitiator,
-        EvDataSharingStartToSource,
-        EvDataSharingSendDataFromSource,
-        EvDataSharingAckDataToSource,
-        EvDataSharingFinishedFromSource,
-        EvDataSharingAckFinishToSource,
-        EvDataSharingCheckStatusFromInitiator,
-        EvDataSharingCheckStatusResult,
-        EvApplyLinksModification,
-        EvApplyLinksModificationFinished,
-        EvInternalScan,
-
-        EvOverloadReady,
-        EvOverloadUnsubscribe,
-
-        EvEnd
-    };
-
-    static_assert(EvEnd < EventSpaceEnd(TKikimrEvents::ES_TX_COLUMNSHARD),
-                  "expect EvEnd < EventSpaceEnd(TKikimrEvents::ES_TX_COLUMNSHARD)");
-
     struct TEvInternalScan: public TEventLocal<TEvInternalScan, EvInternalScan> {
     private:
         YDB_READONLY_DEF(NColumnShard::TUnifiedPathId, PathId);

@@ -19,15 +19,19 @@ library("abstract") {
 
 library("splitter") {
   public_deps = [
-    # "//contrib/libs/apache/arrow",
+    "//contrib/libs/apache/arrow",
     # "//ydb/core/formats/arrow:splitter",
     # "//ydb/core/tx/columnshard/counters",
     # "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/core/tx/columnshard/engines/scheme",
-    # "//ydb/library/accessor",
-    # "//ydb/library/actors/core",
+    "//ydb/library/accessor",
+    "//ydb/library/actors/core",
     # "//ydb/library/formats/arrow:splitter",
     # ":abstract",
+  ]
+
+  deps = [
+    "//ydb/library/actors/util",
   ]
 
   sources = [

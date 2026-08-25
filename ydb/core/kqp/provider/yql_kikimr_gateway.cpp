@@ -8,7 +8,7 @@
 #include <yql/essentials/minikql/mkql_string_util.h>
 #include <ydb/core/base/path.h>
 #include <ydb/core/base/table_index.h>
-#include <ydb/core/kqp/gateway/utils/scheme_helpers.h>
+#include <ydb/core/kqp/provider/scheme_helpers.h>
 #include <ydb/core/protos/replication.pb.h>
 
 #include <util/string/split.h>

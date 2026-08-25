@@ -53,6 +53,10 @@ def expand_include_paths_files(args):
 # it lives under. Then both direct compilation and `import` resolution agree
 # on the same canonical name. Sources not inside any non-root `-I` are left
 # alone (their long form via `-I .` stays consistent with itself).
+#
+# Returns the prefix that was stripped off (relative to `source_dir`), so the
+# caller can shift `--*_out` by the same amount and keep the emitted files at
+# the long path the build system expects.
 def relativize_proto_sources(args, source_dir):
     includes = []
     i = 0
@@ -72,6 +76,7 @@ def relativize_proto_sources(args, source_dir):
             continue
         abs_includes.append(abs_inc)
     abs_includes.sort(key=len, reverse=True)
+    prefixes = set()
     for idx, arg in enumerate(args):
         if arg.startswith("-") or not arg.endswith(".proto"):
             continue
@@ -80,7 +85,26 @@ def relativize_proto_sources(args, source_dir):
             inc_norm = abs_inc.rstrip("/") + "/"
             if abs_arg.startswith(inc_norm):
                 args[idx] = abs_arg[len(inc_norm):]
+                prefixes.add(os.path.relpath(abs_inc, source_dir_abs))
                 break
+    if len(prefixes) > 1:
+        sys.exit("protoc.py: sources resolved against different include dirs: "
+                 + ", ".join(sorted(prefixes)))
+    return prefixes.pop() if prefixes else ""
+
+
+# protoc derives the output path from the (possibly shortened) source name, so
+# every `--*_out` directory has to be shifted by the prefix that was stripped.
+def shift_output_dirs(args, prefix):
+    if not prefix or prefix == ".":
+        return
+    i = 0
+    while i < len(args):
+        if args[i].startswith("--") and args[i].endswith("_out") and i + 1 < len(args):
+            args[i + 1] = os.path.join(args[i + 1], prefix)
+            i += 2
+        else:
+            i += 1
 
 
 # returns patched content and number of changes.
@@ -101,7 +125,7 @@ args = sys.argv[2:]
 outputs = parse_outputs(args)
 args = expand_include_paths_files(args)
 make_absolute_path(args)
-relativize_proto_sources(args, source_dir)
+shift_output_dirs(args, relativize_proto_sources(args, source_dir))
 os.chdir(source_dir)
 exit = subprocess.call(args)
 if exit != 0: sys.exit(exit)

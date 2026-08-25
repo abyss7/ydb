@@ -1,10 +1,12 @@
 library("abstract") {
   public_deps = [
-    # ":tier",
+    # manager.h экспонирует NTiers::TManager/TExternalStorageId (через
+    # tier/identifier.h) в интерфейсе ITiersManager — потребителям нужен :tier.
+    ":tier",
   ]
 
   deps = [
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
   ]
 
   sources = [ "abstract/manager.cpp" ]
@@ -12,17 +14,17 @@ library("abstract") {
 
 library("tier") {
   public_deps = [
-    # "//library/cpp/json:writer",
+    "//library/cpp/json:writer",
     # "//ydb/core/base",
     # "//ydb/library/accessor",
     # "//ydb/library/conclusion",
-    # "//ydb/services/metadata/secret:accessor",
+    "//ydb/services/metadata/secret:accessor",
   ]
 
   deps = [
-    # "//library/cpp/protobuf/json",
-    # "//library/cpp/uri",
-    # "//ydb/core/protos",
+    "//library/cpp/protobuf/json",
+    "//library/cpp/uri",
+    "//ydb/core/protos",
   ]
 
   sources = [
@@ -34,15 +36,15 @@ library("tier") {
 
 library("tiering") {
   public_deps = [
-    # "//ydb/core/base",
+    "//ydb/core/base",
     # "//ydb/core/formats/arrow:serializer",
     # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
     # "//ydb/public/sdk/cpp/src/client/types",
     # "//ydb/services/metadata",
-    # "//ydb/services/metadata/secret",
+    "//ydb/services/metadata/secret",
     # ":abstract",
-    # ":tier",
+    ":tier",
   ]
 
   deps = [

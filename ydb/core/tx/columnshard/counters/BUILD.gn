@@ -22,7 +22,7 @@ library("counters") {
 
   deps = [
     # "//ydb/core/formats/arrow:program",
-    # "//ydb/core/tx/columnshard/engines/portions",
+    "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/core/tx/columnshard/overload_manager",
     # "//ydb/library/services",
   ]

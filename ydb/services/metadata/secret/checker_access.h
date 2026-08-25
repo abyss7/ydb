@@ -3,6 +3,7 @@
 
 #include <ydb/services/metadata/abstract/common.h>
 #include <ydb/services/metadata/abstract/kqp_common.h>
+#include <ydb/services/metadata/manager/abstract.h>
 #include <ydb/services/metadata/manager/preparation_controller.h>
 #include <ydb/services/metadata/secret/snapshot.h>
 

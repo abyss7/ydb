@@ -2,19 +2,20 @@ library("actors") {
   public_deps = [
     # "//ydb/core/base",
     # "//ydb/core/kqp/common",
-    # "//ydb/core/kqp/common:events",
+    "//ydb/core/kqp/common:events",
     # "//ydb/core/kqp/provider",
     # "//ydb/core/statistics",
-    # "//ydb/core/tx/scheme_cache",
+    "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/schemeshard",
     # "//ydb/core/tx/tx_proxy",
     # "//ydb/library/actors/core",
-    # "//yql/essentials/providers/common/gateway",
+    "//yql/essentials/providers/common/gateway",
   ]
 
   deps = [
-    # "//ydb/core/util",
+    "//ydb/core/util",
     # "//ydb/library/services",
+    "//ydb/library/yql/dq/actors",
   ]
 
   sources = [
@@ -102,7 +103,9 @@ library("local_rpc") {
 library("utils") {
   public_deps = [
     # "//ydb/core/base",
-    # "//ydb/core/kqp/provider",
+    # provider убран: scheme_helpers.cpp перенесён в provider (разрыв цикла
+    # provider <-> gateway:utils). Оставшийся metadata_helpers.cpp provider не
+    # использует (TYqlConclusionStatus/TAsyncStatus — из metadata/manager).
     # "//ydb/core/protos",
     # "//ydb/services/metadata/manager",
   ]
@@ -115,6 +118,7 @@ library("utils") {
 
   sources = [
     "utils/metadata_helpers.cpp",
-    "utils/scheme_helpers.cpp",
+    # utils/scheme_helpers.cpp перенесён в ydb/core/kqp/provider; на старом пути
+    # остался forwarder scheme_helpers.h.
   ]
 }

@@ -16,7 +16,6 @@ SRCS(
     kqp_timeouts.h
     kqp_tx_manager.cpp
     kqp_tx.cpp
-    kqp_types.cpp
     kqp_types.h
     kqp_user_request_context.cpp
     kqp_user_request_context.h

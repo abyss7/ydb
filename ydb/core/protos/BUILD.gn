@@ -216,6 +216,7 @@ protobuf_library("protos") {
         "blobstorage_pdisk_config.pb.h",
         "datashard_load.pb.h",
         "kqp.pb.h",
+        "replication.pb.h",
         "shared_cache.pb.h",
         "subdomains.pb.h",
     ]

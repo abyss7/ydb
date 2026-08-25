@@ -25,7 +25,6 @@ library("core") {
         "//library/cpp/yt/memory",
         "//library/cpp/yt/threading",
         "//library/cpp/yt/yson",
-        "//yt/yt_proto/yt/core",
         "//yt/yt/build",
         "//yt/yt/library/profiling",
         "//yt/yt/library/signals",

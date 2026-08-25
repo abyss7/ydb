@@ -1,5 +1,7 @@
 #include "hash_intervals.h"
 
+#include <util/generic/guid.h>
+
 namespace NKikimr::NSharding::NConsistency {
 
 NKikimr::TConclusion<std::vector<NKikimrSchemeOp::TAlterShards>> TConsistencySharding64::DoBuildSplitShardsModifiers(const std::vector<ui64>& newTabletIds) const {

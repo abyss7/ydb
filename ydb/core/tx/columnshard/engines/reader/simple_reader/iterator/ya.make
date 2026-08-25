@@ -4,6 +4,7 @@ SRCS(
     scanner.cpp
     source.cpp
     fetched_data.cpp
+    index_fetcher.cpp
     plain_read_data.cpp
     context.cpp
     fetching.cpp

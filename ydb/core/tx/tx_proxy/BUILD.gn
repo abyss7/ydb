@@ -1,5 +1,6 @@
 library("tx_proxy") {
   public_deps = [
+    "//contrib/restricted/boost/container_hash",
     # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/actorlib_impl",
     "//ydb/core/base",
@@ -28,13 +29,12 @@ library("tx_proxy") {
   ]
 
   deps = [
-    "//contrib/restricted/boost/container_hash",
     # "//contrib/libs/apache/arrow",
     # "//ydb/core/docapi",
-    # "//ydb/core/engine",
-    # "//ydb/core/kqp/common",
-    "//ydb/core/kqp/executer_actor",
-    # "//ydb/core/kqp/query_data",
+    "//ydb/core/engine",
+    "//ydb/core/kqp/common",
+    # "//ydb/core/kqp/executer_actor",
+    "//ydb/core/kqp/query_data",
     # "//ydb/core/protos/schemeshard",
     # "//ydb/core/security:sasl",
     # "//ydb/core/sys_view:common",
@@ -42,7 +42,7 @@ library("tx_proxy") {
     # "//ydb/core/tablet_flat",
     # "//ydb/core/tx/balance_coverage",
     # "//ydb/core/tx/columnshard",
-    # "//ydb/core/tx/data_events",
+    "//ydb/core/tx/data_events",
     # "//ydb/core/tx/scheme_board",
     # "//ydb/core/tx/schemeshard",
     # "//ydb/core/tx/tx_allocator",

@@ -6,15 +6,19 @@ library("infer_schema") {
   ]
 
   deps = [
+    "//library/cpp/yt/compact_containers",
+    "//library/cpp/yt/memory",
+    "//library/cpp/yt/threading",
     # "//library/cpp/yson",
     # "//yql/essentials/core/issue",
     # "//yql/essentials/public/issue",
     # "//yql/essentials/utils",
-    # "//yql/essentials/utils/log",
+    "//yql/essentials/utils/log",
     # "//yt/cpp/mapreduce/common",
     # "//yt/yql/providers/yt/lib/yt_rpc_helpers",
     "//yt/yt/client",
     # "//yt/yt/library/auth",
+    "//yt/yt_proto/yt/client",
   ]
 
   sources = [

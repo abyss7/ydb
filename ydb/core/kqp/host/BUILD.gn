@@ -5,7 +5,7 @@ library("host") {
     # "//ydb/core/kqp/federated_query",
     # "//ydb/core/kqp/gateway",
     # "//ydb/core/kqp/opt/logical",
-    # "//ydb/core/kqp/provider",
+    "//ydb/core/kqp/provider",
     # "//ydb/core/protos",
     # "//ydb/library/aclib",
     # "//ydb/library/yql/providers/common/http_gateway",
@@ -78,6 +78,8 @@ library("host") {
     "kqp_runner.cpp",
     "kqp_statement_rewrite.cpp",
     "kqp_transform.cpp",
-    "kqp_translate.cpp",
+    # kqp_translate.cpp перенесён в ydb/core/kqp/provider (разрыв цикла
+    # provider <-> host); host получает символы через public_deps -> provider,
+    # а старый путь заголовка сохранён forwarder'ом kqp_translate.h.
   ]
 }

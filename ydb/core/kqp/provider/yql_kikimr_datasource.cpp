@@ -3,7 +3,7 @@
 #include "yql_kikimr_provider_impl.h"
 
 #include <ydb/core/kqp/common/simple/services.h>
-#include <ydb/core/kqp/host/kqp_translate.h>
+#include <ydb/core/kqp/provider/kqp_translate.h>
 #include <yql/essentials/providers/common/provider/yql_data_provider_impl.h>
 #include <yql/essentials/providers/common/config/yql_configuration_transformer.h>
 

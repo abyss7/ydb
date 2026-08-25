@@ -8,6 +8,7 @@
 #include <ydb/core/tx/tiering/tier/identifier.h>
 
 #include <ydb/library/table_creator/table_creator.h>
+#include <ydb/services/metadata/events.h>
 #include <ydb/services/metadata/secret/fetcher.h>
 
 #include <library/cpp/retry/retry_policy.h>

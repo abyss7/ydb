@@ -64,10 +64,21 @@ public:
             }
         }
         tableInfo->AlterVersion = 1;
-        auto shardingValidation = NSharding::IShardingBase::ValidateBehaviour(GetSchema(), tableInfo->Description.GetSharding());
-        if (shardingValidation.IsFail()) {
-            errors.AddError(shardingValidation.GetErrorMessage());
-            return nullptr;
+        {
+            auto columnsConclusion = GetSchema().ValidateHashSharding(tableInfo->Description.GetSharding());
+            if (columnsConclusion.IsFail()) {
+                errors.AddError(columnsConclusion.GetErrorMessage());
+                return nullptr;
+            }
+            auto shardingCopy = tableInfo->Description.GetSharding();
+            if (shardingCopy.GetColumnShards().empty()) {
+                shardingCopy.AddColumnShards(1);
+            }
+            auto shardingValidation = NSharding::IShardingBase::BuildFromProto(shardingCopy);
+            if (shardingValidation.IsFail()) {
+                errors.AddError(shardingValidation.GetErrorMessage());
+                return nullptr;
+            }
         }
 
         auto statusBuild = BuildDescription(context, tableInfo);
@@ -152,7 +163,13 @@ private:
         for (auto&& i : layoutConclusion->MutableTabletIds()) {
             description.MutableSharding()->AddColumnShards(i);
         }
-        auto shardingObject = NSharding::IShardingBase::BuildFromProto(GetSchema(), description.GetSharding());
+        {
+            auto columnsConclusion = GetSchema().ValidateHashSharding(description.GetSharding());
+            if (columnsConclusion.IsFail()) {
+                return columnsConclusion;
+            }
+        }
+        auto shardingObject = NSharding::IShardingBase::BuildFromProto(description.GetSharding());
         if (shardingObject.IsFail()) {
             return shardingObject;
         }

@@ -5,6 +5,8 @@
 #include <contrib/libs/aws-sdk-cpp/aws-cpp-sdk-s3/include/aws/s3/model/GetObjectRequest.h>
 #include <contrib/libs/aws-sdk-cpp/aws-cpp-sdk-s3/include/aws/s3/model/GetObjectResult.h>
 
+#include <util/string/cast.h>
+
 namespace NKikimr::NWrappers::NExternalStorage {
 
 class TEvGetObjectRequest: public TGenericRequest<TEvGetObjectRequest, EvGetObjectRequest, Aws::S3::Model::GetObjectRequest> {

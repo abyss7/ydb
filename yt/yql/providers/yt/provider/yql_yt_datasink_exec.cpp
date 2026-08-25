@@ -4,7 +4,6 @@
 #include "yql_yt_helpers.h"
 #include "yql_yt_optimize.h"
 
-#include <yt/yql/providers/yt/gateway/lib/yt_helpers.h>
 #include <yt/yql/providers/yt/expr_nodes/yql_yt_expr_nodes.h>
 #include <yt/yql/providers/yt/common/yql_configuration.h>
 #include <yt/yql/providers/yt/lib/expr_traits/yql_expr_traits.h>

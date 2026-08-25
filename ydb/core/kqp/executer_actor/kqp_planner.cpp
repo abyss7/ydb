@@ -349,7 +349,7 @@ std::unique_ptr<IEventHandle> TKqpPlanner::AssignTasksToNodes() {
     }
 
     if (ResourcesSnapshot.empty()) {
-        ResourcesSnapshot = std::move(ResourceManager_->GetClusterResources());
+        ResourcesSnapshot = ResourceManager_->GetClusterResources();
     }
 
     if (ResourcesSnapshot.empty() || (ResourcesSnapshot.size() == 1 && ResourcesSnapshot[0].GetNodeId() == ExecuterId.NodeId())) {

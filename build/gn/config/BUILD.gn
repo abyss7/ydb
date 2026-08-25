@@ -37,6 +37,12 @@ config("_sse41_config") {
     ]
 }
 
+config("_sse42_config") {
+    cflags = [
+        "-msse4.2",
+    ]
+}
+
 config("_ssse3_config") {
     cflags = [
         "-mssse3",

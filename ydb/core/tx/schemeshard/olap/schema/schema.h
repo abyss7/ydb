@@ -1,6 +1,7 @@
 #pragma once
 #include "update.h"
 
+#include <ydb/library/conclusion/status.h>
 #include <ydb/core/tx/schemeshard/olap/columns/schema.h>
 #include <ydb/core/tx/schemeshard/olap/columns/update.h>
 #include <ydb/core/tx/schemeshard/olap/indexes/schema.h>
@@ -29,6 +30,11 @@ namespace NKikimr::NSchemeShard {
         void Serialize(NKikimrSchemeOp::TColumnTableSchema& tableSchema) const;
         bool ValidateForStore(const NKikimrSchemeOp::TColumnTableSchema& opSchema, IErrorCollector& errors) const;
         bool ValidateTtlSettings(const NKikimrSchemeOp::TColumnDataLifeCycle& ttlSettings, const TOperationContext& context, IErrorCollector& errors) const;
+        // Проверяет, что колонки hash-шардирования существуют в схеме и являются
+        // ключевыми. Раньше жила внутри NSharding::IShardingBase::BuildFromProto,
+        // но тянула olap/schema в низкоуровневый sharding и замыкала цикл; вынесена
+        // сюда, к владельцу TOlapSchema.
+        TConclusionStatus ValidateHashSharding(const NKikimrSchemeOp::TColumnTableSharding& sharding) const;
     };
 
     class TOlapStoreSchemaPreset: public TOlapSchema {

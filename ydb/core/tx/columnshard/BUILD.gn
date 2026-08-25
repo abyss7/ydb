@@ -58,7 +58,7 @@ library("columnshard") {
     # "//ydb/core/tx/columnshard/blobs_action",
     # "//ydb/core/tx/columnshard/blobs_action:bs",
     # "//ydb/core/tx/columnshard/blobs_action:storages_manager",
-    # "//ydb/core/tx/columnshard/blobs_action:tier",
+    "//ydb/core/tx/columnshard/blobs_action:tier",
     # "//ydb/core/tx/columnshard/blobs_action:transaction",
     # "//ydb/core/tx/columnshard/blobs_reader",
     # "//ydb/core/tx/columnshard/counters:aggregation",

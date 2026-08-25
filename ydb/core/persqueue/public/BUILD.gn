@@ -131,15 +131,35 @@ library("partition_key_range") {
   ]
 }
 
+# utils.cpp самодостаточен (scheme_board не тянет). Выделен в отдельный таргет,
+# чтобы низкоуровневый scheme_board мог брать из него символы (Migrate,
+# MakePartitionGraph, TPartitionGraph) не завися от всего library("public"),
+# который через pq_rl_helpers.cpp зависит от scheme_board (иначе цикл
+# public <-> scheme_board). Заголовок остаётся по пути persqueue/public/utils.h,
+# а public реэкспортирует символы через public_deps — потребители не меняются.
+library("utils") {
+  public_deps = [
+    "//ydb/core/base",
+    "//ydb/core/protos",
+  ]
+
+  deps = [
+    "//ydb/library/actors/core",
+  ]
+
+  sources = [ "utils.cpp" ]
+}
+
 library("public") {
   public_deps = [
     # "//library/cpp/sliding_window",
     "//ydb/core/base",
-    # "//ydb/core/grpc_services",
+    "//ydb/core/grpc_services",
     # "//ydb/core/kafka_proxy",
     "//ydb/core/metering",
     "//ydb/core/protos",
     "//ydb/core/tx/scheme_board",
+    ":utils",
   ]
 
   deps = [
@@ -153,7 +173,6 @@ library("public") {
     "inflight_limiter.cpp",
     "pq_database.cpp",
     "pq_rl_helpers.cpp",
-    "utils.cpp",
     "write_id.cpp",
   ]
 }

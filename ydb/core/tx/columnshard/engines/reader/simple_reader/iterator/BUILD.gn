@@ -62,6 +62,7 @@ library("iterator") {
     "context.cpp",
     "fetched_data.cpp",
     "fetching.cpp",
+    "index_fetcher.cpp",
     "iterator.cpp",
     "plain_read_data.cpp",
     "scanner.cpp",

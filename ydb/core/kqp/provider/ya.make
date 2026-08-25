@@ -1,8 +1,12 @@
 LIBRARY()
 
 SRCS(
+    kqp_translate.cpp
+    kqp_translate.h
     read_attributes_utils.cpp
     rewrite_io_utils.cpp
+    scheme_helpers.cpp
+    scheme_helpers.h
     yql_kikimr_datasink.cpp
     yql_kikimr_datasource.cpp
     yql_kikimr_exec.cpp
@@ -37,6 +41,7 @@ PEERDIR(
     yql/essentials/core/services
     yql/essentials/minikql
     yql/essentials/public/decimal
+    ydb/public/api/protos
     ydb/public/lib/scheme_types
     ydb/public/sdk/cpp/src/client/topic
     ydb/services/metadata/optimization
@@ -54,6 +59,7 @@ PEERDIR(
     yql/essentials/providers/result/expr_nodes
     yql/essentials/providers/result/provider
     yql/essentials/sql
+    yql/essentials/sql/v0
     yql/essentials/sql/v1
     yql/essentials/sql/v1/lexer/antlr4
     yql/essentials/sql/v1/lexer/antlr4_ansi

@@ -1,6 +1,7 @@
 library("mkql_proto") {
   public_deps = [
     ":protos",
+    "//ydb/core/scheme_types",
     "//ydb/public/api/protos",
     "//yql/essentials/minikql",
     # "//yql/essentials/types/uuid",
@@ -11,14 +12,17 @@ library("mkql_proto") {
     "//yql/essentials/minikql/computation",
     # "//yql/essentials/minikql/dom",
     "//yql/essentials/parser/pg_catalog",
-    # "//yql/essentials/parser/pg_wrapper/interface",
+    "//yql/essentials/parser/pg_wrapper/interface",
     "//yql/essentials/public/decimal",
     "//yql/essentials/types/binary_json",
     "//yql/essentials/types/dynumber",
     # "//yql/essentials/utils",
   ]
 
-  sources = [ "mkql_proto.cpp" ]
+  sources = [
+    "mkql_proto.cpp",
+    "mkql_type_ops.cpp",
+  ]
 }
 
 protobuf_library("protos") {

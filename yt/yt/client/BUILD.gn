@@ -1,6 +1,53 @@
+expand_template("protocol_version_variables") {
+    sources = [ "api/rpc_proxy/protocol_version_variables.h.in" ]
+
+    substitutions = [
+        "YT_RPC_PROXY_PROTOCOL_VERSION_MAJOR=1",
+        "YT_RPC_PROXY_CLIENT_PROTOCOL_VERSION_MINOR=1",
+        "YT_RPC_PROXY_SERVER_PROTOCOL_VERSION_MINOR=2",
+        "YT_RPC_MODIFY_ROWS_STRONG_LOCKS_VERSION=2",
+    ]
+}
+
+# `api/rpc_proxy/protocol_version.h` includes the generated header by its bare
+# name, so its gen dir has to be on the include path -- publicly, since that
+# header travels to consumers through `api_service_proxy.h`.
+config("protocol_version_config") {
+    include_dirs = [ "$target_gen_dir/api/rpc_proxy" ]
+}
+
 library("client") {
-    deps = [
+    public_configs = [ ":protocol_version_config" ]
+
+    public_deps = [
+        ":protocol_version_variables",
         "//yt/yt/core",
+        "//yt/yt/library/re2",
+    ]
+
+    deps = [
+        "//contrib/libs/pfr",
+        "//contrib/libs/xxhash",
+        "//library/cpp/cron_expression",
+        "//library/cpp/digest/crc32c",
+        "//library/cpp/json",
+        "//library/cpp/string_utils/base64",
+        "//library/cpp/yt/compact_containers",
+        "//library/cpp/yt/cpu_clock",
+        "//library/cpp/yt/error",
+        "//library/cpp/yt/farmhash",
+        "//library/cpp/yt/logging",
+        "//library/cpp/yt/memory",
+        "//library/cpp/yt/threading",
+        "//library/cpp/yt/yson",
+        "//yt/yt/build",
+        "//yt/yt/core/http",
+        "//yt/yt/core/https",
+        "//yt/yt/library/auth",
+        "//yt/yt/library/decimal",
+        "//yt/yt/library/quantile_digest",
+        "//yt/yt/library/tracing",
+        "//yt/yt/library/tz_types",
         "//yt/yt_proto/yt/client",
     ]
 

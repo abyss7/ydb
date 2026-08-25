@@ -1,4 +1,4 @@
-#include "fetcher.h"
+#include "index_fetcher.h"
 
 namespace NKikimr::NOlap::NIndexes {
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ydb/core/kqp/host/kqp_translate.h>
+#include <ydb/core/kqp/provider/kqp_translate.h>
 #include <ydb/core/kqp/provider/yql_kikimr_gateway.h>
 #include <yql/essentials/ast/yql_expr.h>
 

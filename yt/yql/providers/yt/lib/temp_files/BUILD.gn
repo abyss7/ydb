@@ -1,0 +1,4 @@
+library("temp_files") {
+    deps = [ "//yql/essentials/utils" ]
+    sources = [ "temp_files.cpp" ]
+}

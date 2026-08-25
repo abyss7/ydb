@@ -43,7 +43,7 @@ public:
         RecordsCount -= result->GetRecordsCount();
         AFL_VERIFY(RecordsCount >= 0);
         Data.pop_front();
-        return std::move(result);
+        return result;
     }
     bool empty() const {
         return Data.empty();

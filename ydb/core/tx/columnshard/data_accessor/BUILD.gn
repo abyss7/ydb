@@ -1,27 +1,28 @@
 library("abstract") {
   public_deps = [
     # "//library/cpp/cache",
-    # "//library/cpp/json:writer",
-    # "//ydb/core/protos",
+    "//library/cpp/json:writer",
+    "//ydb/core/protos",
     # "//ydb/core/tx/columnshard/common",
     # "//ydb/core/tx/columnshard/data_accessor",
     # "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/core/tx/columnshard/tx_reader",
     # "//ydb/library/accessor",
     # "//ydb/library/conclusion",
-    # "//ydb/services/bg_tasks/abstract",
+    "//ydb/services/bg_tasks/abstract",
     # ":cache_policy",
   ]
 
   deps = [
     # "//ydb/core/tx/columnshard/engines/storage/granule",
-    # ":local_db",
   ]
 
   sources = [
     "abstract/collector.cpp",
     "abstract/constructor.cpp",
     "abstract/manager.cpp",
+    "local_db/constructor.cpp",
+    "local_db/manager.cpp",
   ]
 }
 
@@ -79,21 +80,5 @@ library("in_mem") {
   sources = [
     "in_mem/constructor.cpp",
     "in_mem/manager.cpp",
-  ]
-}
-
-library("local_db") {
-  public_deps = [
-    # "//ydb/core/tx/columnshard/common",
-    # ":abstract",
-  ]
-
-  deps = [
-    # "//ydb/core/tx/columnshard/engines/storage/granule",
-  ]
-
-  sources = [
-    "local_db/constructor.cpp",
-    "local_db/manager.cpp",
   ]
 }

@@ -1,0 +1,9 @@
+library("graph_reorder") {
+    deps = [
+        "//yql/essentials/core",
+        "//yql/essentials/providers/common/provider",
+        "//yql/essentials/utils/log",
+    ]
+
+    sources = [ "yql_graph_reorder.cpp" ]
+}

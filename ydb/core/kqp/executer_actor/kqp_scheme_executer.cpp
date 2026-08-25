@@ -12,6 +12,7 @@
 #include <ydb/core/tx/tx_proxy/proxy.h>
 #include <ydb/library/aclib/aclib.h>
 #include <ydb/services/metadata/abstract/kqp_common.h>
+#include <ydb/services/metadata/manager/abstract.h>
 
 
 namespace NKikimr::NKqp {

@@ -46,6 +46,12 @@ library("llvm16") {
     ":mkql_block_impl_codegen_h",
     ":mkql_computation_node_codegen_h",
     ":mkql_llvm_base_h",
+    "//library/cpp/yt/compact_containers",
+    "//library/cpp/yt/threading",
+    "//library/cpp/yt/yson_string",
+    "//yt/cpp/mapreduce/client",
+    "//yt/yql/providers/yt/comp_nodes",
+    "//yt/yt_proto/yt/client",
   ]
 
   public_deps = [

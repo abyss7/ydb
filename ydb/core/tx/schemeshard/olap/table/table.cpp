@@ -12,7 +12,10 @@ TPathId TColumnTableInfo::GetOlapStorePathIdVerified() const {
 }
 
 std::shared_ptr<NSharding::IShardingBase> TColumnTableInfo::GetShardingVerified(const TOlapSchema& olapSchema) const {
-    return NSharding::IShardingBase::BuildFromProto(olapSchema, Description.GetSharding()).DetachResult();
+    // Колонки шардирования валидируются против схемы при создании/изменении
+    // таблицы (TOlapSchema::ValidateHashSharding); здесь достаточно построения.
+    Y_UNUSED(olapSchema);
+    return NSharding::IShardingBase::BuildFromProto(Description.GetSharding()).DetachResult();
 }
 
 std::set<ui64> TColumnTableInfo::GetShardIdsSet() const {

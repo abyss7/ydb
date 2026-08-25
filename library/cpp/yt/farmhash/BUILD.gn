@@ -1,0 +1,3 @@
+library("farmhash") {
+    public_deps = [ "//contrib/libs/farmhash" ]
+}

@@ -1,16 +1,15 @@
 library("versions") {
   public_deps = [
     # "//ydb/core/formats/arrow",
-    # "//ydb/core/formats/arrow:common",
+    "//ydb/core/formats/arrow:common",
     # "//ydb/core/formats/arrow:save_load",
     # "//ydb/core/tx/columnshard/blobs_action:abstract",
     # "//ydb/core/tx/columnshard/common",
     # "//ydb/core/tx/columnshard/counters",
-    # "//ydb/core/tx/columnshard/engines/scheme",
+    "//ydb/core/tx/columnshard/engines/scheme",
     # "//ydb/core/tx/columnshard/engines/scheme/abstract",
     # "//ydb/core/tx/columnshard/engines/scheme/common",
     # "//ydb/core/tx/data_events:common",
-    # "//ydb/core/tx/sharding",
   ]
 
   deps = [

@@ -1,2 +1,3 @@
-group("compact_containers") {
+library("compact_containers") {
+    public_deps = [ "//library/cpp/yt/malloc" ]
 }

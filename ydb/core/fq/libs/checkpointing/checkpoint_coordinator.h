@@ -36,8 +36,8 @@ private:
 class TCheckpointCoordinator : public NActors::TActor<TCheckpointCoordinator>  {
 public:
     TCheckpointCoordinator(TCoordinatorId coordinatorId,
-                           const TActorId& storageProxy,
-                           const TActorId& runActorId,
+                           const NActors::TActorId& storageProxy,
+                           const NActors::TActorId& runActorId,
                            const TCheckpointCoordinatorSettings& settings,
                            const ::NMonitoring::TDynamicCounterPtr& counters,
                            const NProto::TGraphParams& graphParams,
@@ -78,7 +78,7 @@ public:
         hFunc(TEvCheckpointStorage::TEvSetCheckpointPendingCommitStatusResponse, Handle)
         hFunc(TEvCheckpointStorage::TEvCompleteCheckpointResponse, Handle)
         hFunc(TEvCheckpointStorage::TEvAbortCheckpointResponse, Handle)
-    
+
         hFunc(NYql::NDq::TEvDqCompute::TEvNewCheckpointCoordinatorAck, Handle)
         hFunc(NYql::NDq::TEvDqCompute::TEvRestoreFromCheckpointResult, Handle)
         hFunc(NYql::NDq::TEvDqCompute::TEvSaveTaskStateResult, Handle)
@@ -170,8 +170,8 @@ private:
     };
     NActors::TActorId ControlId;
     const TCoordinatorId CoordinatorId;
-    const TActorId StorageProxy;
-    const TActorId RunActorId;
+    const NActors::TActorId StorageProxy;
+    const NActors::TActorId RunActorId;
     std::unique_ptr<TCheckpointIdGenerator> CheckpointIdGenerator;
     TCheckpointCoordinatorSettings Settings;
     ui64 CheckpointingSnapshotRotationPeriod = 0;
@@ -179,14 +179,14 @@ private:
     const NProto::TGraphParams GraphParams;
     TString GraphDescId;
 
-    THashMap<TActorId, TComputeActorTransportStuff::TPtr> AllActors;
-    THashSet<TActorId> AllActorsSet;
-    THashMap<TActorId, TComputeActorTransportStuff::TPtr> ActorsToTrigger;
-    THashMap<TActorId, TComputeActorTransportStuff::TPtr> ActorsToWaitFor;
-    THashSet<TActorId> ActorsToWaitForSet;
-    THashMap<TActorId, TComputeActorTransportStuff::TPtr> ActorsToNotify;
-    THashSet<TActorId> ActorsToNotifySet;
-    THashMap<ui64, TActorId> TaskIdToActor; // Task id -> actor.
+    THashMap<NActors::TActorId, TComputeActorTransportStuff::TPtr> AllActors;
+    THashSet<NActors::TActorId> AllActorsSet;
+    THashMap<NActors::TActorId, TComputeActorTransportStuff::TPtr> ActorsToTrigger;
+    THashMap<NActors::TActorId, TComputeActorTransportStuff::TPtr> ActorsToWaitFor;
+    THashSet<NActors::TActorId> ActorsToWaitForSet;
+    THashMap<NActors::TActorId, TComputeActorTransportStuff::TPtr> ActorsToNotify;
+    THashSet<NActors::TActorId> ActorsToNotifySet;
+    THashMap<ui64, NActors::TActorId> TaskIdToActor; // Task id -> actor.
     THashMap<TCheckpointId, TPendingCheckpoint, TCheckpointIdHash> PendingCheckpoints;
     THashMap<TCheckpointId, TPendingCheckpoint, TCheckpointIdHash> PendingCommitCheckpoints;
     TMaybe<TPendingRestoreCheckpoint> PendingRestoreCheckpoint;
@@ -201,15 +201,15 @@ private:
     FederatedQuery::StateLoadMode StateLoadMode;
     FederatedQuery::StreamingDisposition StreamingDisposition;
 
-    THashMap<TActorId, ui64> TaskIds;
+    THashMap<NActors::TActorId, ui64> TaskIds;
     THashSet<ui64> FinishedTasks;
     ui64 SkippedDueToInFlightLimitCounter = 0;
 };
 
 THolder<NActors::IActor> MakeCheckpointCoordinator(
     TCoordinatorId coordinatorId,
-    const TActorId& storageProxy,
-    const TActorId& runActorId,
+    const NActors::TActorId& storageProxy,
+    const NActors::TActorId& runActorId,
     const TCheckpointCoordinatorSettings& config,
     const ::NMonitoring::TDynamicCounterPtr& counters,
     const NProto::TGraphParams& graphParams,

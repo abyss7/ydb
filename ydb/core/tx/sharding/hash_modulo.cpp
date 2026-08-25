@@ -1,5 +1,7 @@
 #include "hash_modulo.h"
 
+#include <util/generic/guid.h>
+
 namespace NKikimr::NSharding::NModulo {
 
 THashMap<ui64, std::vector<ui32>> THashShardingModuloN::MakeSharding(const std::shared_ptr<arrow::RecordBatch>& batch) const {

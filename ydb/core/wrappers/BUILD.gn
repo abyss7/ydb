@@ -1,7 +1,7 @@
 library("events") {
   public_deps = [
-    # "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-s3",
-    # "//ydb/core/base",
+    "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-s3",
+    "//ydb/core/base",
     # "//ydb/library/actors/core",
   ]
 
@@ -18,17 +18,17 @@ library("wrappers") {
   public_deps = [
     # "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-core",
     "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-s3",
-    # "//ydb/core/base",
-    # "//ydb/core/util",
+    "//ydb/core/base",
+    "//ydb/core/util",
     # "//ydb/library/accessor",
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
     # "//ydb/public/api/protos",
-    # ":events",
+    ":events",
   ]
 
   deps = [
     # "//contrib/libs/curl",
-    # "//library/cpp/digest/md5",
+    "//library/cpp/digest/md5",
     # "//ydb/core/protos",
   ]
 

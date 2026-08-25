@@ -47,9 +47,10 @@ NKikimr::NEvWrite::IShardsSplitter::TYdbConclusionStatus TColumnShardShardsSplit
         }
     }
 
-    NSchemeShard::TOlapSchema olapSchema;
-    olapSchema.ParseFromLocalDB(scheme);
-    auto shardingConclusion = NSharding::IShardingBase::BuildFromProto(olapSchema, sharding);
+    // Колонки шардирования уже провалидированы против схемы при создании таблицы
+    // (TOlapSchema::ValidateHashSharding), поэтому здесь достаточно schema-agnostic
+    // построения.
+    auto shardingConclusion = NSharding::IShardingBase::BuildFromProto(sharding);
     if (shardingConclusion.IsFail()) {
         return TYdbConclusionStatus::Fail(Ydb::StatusIds::SCHEME_ERROR, shardingConclusion.GetErrorMessage());
     }

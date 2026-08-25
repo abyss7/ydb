@@ -24,8 +24,8 @@ library("control_plane_config") {
 library("events") {
   public_deps = [
     # "//ydb/core/fq/libs/compute/common",
-    # "//ydb/core/fq/libs/events",
-    # "//ydb/core/fq/libs/quota_manager:events",
+    "//ydb/core/fq/libs/events",
+    "//ydb/core/fq/libs/quota_manager:events",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
     # "//ydb/public/api/protos",

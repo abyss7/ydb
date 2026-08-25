@@ -1,6 +1,9 @@
 #pragma once
+
 #include "secret.h"
 #include "initializer.h"
+
+#include <ydb/services/metadata/manager/abstract.h>
 #include <ydb/services/metadata/manager/common.h>
 
 namespace NKikimr::NMetadata::NSecret {

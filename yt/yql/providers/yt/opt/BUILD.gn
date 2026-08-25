@@ -1,0 +1,11 @@
+library("opt") {
+    deps = [
+        "//yql/essentials/core",
+        "//yt/yql/providers/yt/lib/row_spec",
+    ]
+
+    sources = [
+        "yql_yt_join.cpp",
+        "yql_yt_key_selector.cpp",
+    ]
+}

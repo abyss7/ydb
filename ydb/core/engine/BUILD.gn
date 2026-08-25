@@ -15,10 +15,11 @@ library("engine") {
 
   deps = [
     # "//ydb/core/base",
-    "//ydb/core/kqp/common",
     # "//ydb/core/tablet",
     "//ydb/core/tablet_flat",
+    "//ydb/library/actors/actor_type",
     # "//ydb/library/actors/core",
+    "//ydb/library/actors/util",
     # "//ydb/public/lib/scheme_types",
     "//yql/essentials/minikql/comp_nodes",
     # "//yql/essentials/parser/pg_wrapper/interface",
@@ -53,7 +54,9 @@ library("minikql") {
     # "//ydb/core/protos",
     # "//ydb/core/tx/locks",
     # "//ydb/library/ydb_issue:proto",
+    "//ydb/library/yql/public/ydb_issue",
     # "//ydb/public/api/protos",
+    "//yql/essentials/ast",
     "//yql/essentials/minikql/computation",
     # "//yql/essentials/parser/pg_wrapper/interface",
     "//yql/essentials/public/issue",

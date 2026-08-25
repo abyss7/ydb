@@ -26,6 +26,22 @@ bool TOlapSchema::ValidateTtlSettings(
     return true;
 }
 
+TConclusionStatus TOlapSchema::ValidateHashSharding(const NKikimrSchemeOp::TColumnTableSharding& sharding) const {
+    if (!sharding.HasHashSharding()) {
+        return TConclusionStatus::Success();
+    }
+    for (auto&& colName : sharding.GetHashSharding().GetColumns()) {
+        const auto* column = Columns.GetByName(colName);
+        if (!column) {
+            return TConclusionStatus::Fail("incorrect sharding column name: " + colName);
+        }
+        if (!column->IsKeyColumn()) {
+            return TConclusionStatus::Fail("sharding column name have to been primary key column: " + colName);
+        }
+    }
+    return TConclusionStatus::Success();
+}
+
 bool TOlapSchema::Update(const TOlapSchemaUpdate& schemaUpdate, IErrorCollector& errors) {
     if (!Columns.ApplyUpdate(schemaUpdate.GetColumns(), errors, NextColumnId)) {
         return false;

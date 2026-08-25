@@ -1,15 +1,15 @@
 library("common") {
   public_deps = [
-    # "//ydb/library/actors/core",
-    # "//ydb/library/yql/providers/common/http_gateway",
+    "//ydb/library/actors/core",
+    "//ydb/library/yql/providers/common/http_gateway",
     # "//ydb/library/yql/providers/s3/events",
     # "//yql/essentials/ast",
-    # "//yql/essentials/public/issue",
+    "//yql/essentials/public/issue",
   ]
 
   deps = [
-    # "//library/cpp/string_utils/quote",
-    # "//yql/essentials/core",
+    "//library/cpp/string_utils/quote",
+    "//yql/essentials/core",
     # "//yql/essentials/minikql/dom",
   ]
 

@@ -8,16 +8,16 @@ library("abstract") {
     # "//ydb/core/tx/schemeshard/olap/common",
     # "//ydb/library/accessor",
     # "//ydb/library/conclusion",
-    # "//ydb/library/formats/arrow:protos",
-    # "//ydb/services/bg_tasks/abstract",
+    "//ydb/library/formats/arrow:protos",
+    "//ydb/services/bg_tasks/abstract",
   ]
 
   deps = [
-    # "//contrib/libs/xxhash",
+    "//library/cpp/json",
+    "//contrib/libs/xxhash",
     # "//ydb/core/tx/columnshard/blobs_reader",
-    # "//ydb/core/tx/columnshard/common",
+    "//ydb/core/tx/columnshard/common",
     # "//ydb/core/tx/columnshard/engines/portions",
-    # "//ydb/core/tx/columnshard/engines/reader/common_reader/iterator",
     # "//ydb/core/tx/columnshard/engines/storage/indexes/portions",
     # "//ydb/core/tx/columnshard/engines/storage/indexes/skip_index",
     # "//ydb/library/actors/core",
@@ -29,7 +29,6 @@ library("abstract") {
     "collection.cpp",
     "common.cpp",
     "constructor.cpp",
-    "fetcher.cpp",
     "header.cpp",
     "meta.cpp",
   ]

@@ -1,0 +1,10 @@
+library("row_spec") {
+    deps = [
+        "//yql/essentials/providers/common/provider",
+        "//yql/essentials/providers/common/schema",
+        "//yql/essentials/providers/common/schema/expr",
+        "//yql/essentials/utils/log",
+        "//yt/yql/providers/yt/lib/schema",
+    ]
+    sources = [ "yql_row_spec.cpp" ]
+}

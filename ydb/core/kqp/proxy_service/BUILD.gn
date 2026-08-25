@@ -6,10 +6,10 @@ protobuf_library("proto") {
 
 library("proxy_service") {
   public_deps = [
-    # "//ydb/core/base",
-    # "//ydb/core/kqp/common",
+    "//ydb/core/base",
+    "//ydb/core/kqp/common",
     # "//ydb/core/kqp/common:events",
-    # "//ydb/core/kqp/federated_query",
+    "//ydb/core/kqp/federated_query",
     # "//ydb/library/actors/core",
     # "//ydb/library/yql/providers/s3/actors_factory",
     # "//yql/essentials/public/issue",
@@ -70,7 +70,7 @@ library("proxy_service") {
     # "//ydb/public/sdk/cpp/src/library/operation_id",
     # "//ydb/public/sdk/cpp/src/library/operation_id:protos",
     # "//yql/essentials/core/services:mounts",
-    # ":proto",
+    ":proto",
     # ":script_executions_utils",
   ]
 

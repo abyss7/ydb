@@ -1,7 +1,6 @@
 library("common") {
   public_deps = [
-    "//ydb/core/tx/schemeshard",
-    # "//ydb/library/conclusion",
+    "//ydb/core/base",
   ]
 
   sources = [ "common.cpp" ]

@@ -1,0 +1,8 @@
+library("schema") {
+    deps = [
+        "//library/cpp/yson:node",
+        "//yql/essentials/utils",
+    ]
+
+    sources = [ "yql_schema_utils.cpp" ]
+}

@@ -31,15 +31,12 @@ library("llvm16") {
     "../mkql_llvm_base.cpp",
   ]
 
-  configs = [ ":_includes" ]
+  public_configs = [ ":_includes" ]
 
-  deps = [
+  public_deps = [
     ":mkql_block_impl_codegen_h",
     ":mkql_computation_node_codegen_h",
     ":mkql_llvm_base_h",
-  ]
-
-  public_deps = [
     "//contrib/libs/apache/arrow",
     "//contrib/libs/llvm16",
     "//library/cpp/enumbitset",

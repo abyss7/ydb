@@ -28,8 +28,9 @@ config("private_config") {
 }
 
 contrib_library("arrow") {
+    public_deps = [ "cpp/src:generated" ]
+
     deps = [
-        "cpp/src:generated",
         "//contrib/libs/apache/orc",
         "//contrib/libs/brotli:dec",
         "//contrib/libs/brotli:enc",

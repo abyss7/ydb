@@ -1,8 +1,8 @@
 library("actors") {
   public_deps = [
     # "//library/cpp/retry",
-    # "//ydb/library/actors/core",
-    # "//ydb/library/actors/http",
+    "//ydb/library/actors/core",
+    "//ydb/library/actors/http",
     # "//ydb/library/yql/providers/solomon/proto",
     # "//yql/essentials/public/udf",
   ]

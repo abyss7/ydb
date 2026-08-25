@@ -1,5 +1,28 @@
+# Чистая фабрика чузера партиций (CreatePartitionChooser) + классы
+# TBoundaryChooser/THashChooser. Самодостаточна: не тянет pq_database /
+# library("public") (в отличие от actor-части в partition_chooser_impl.cpp),
+# поэтому scheme_board может зависеть от неё напрямую, не образуя цикла
+# public -> scheme_board -> writer -> public.
+library("partition_chooser") {
+  public_deps = [
+    "//ydb/core/base",
+    "//ydb/core/protos",
+    "//ydb/core/persqueue/public:utils",
+    "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    "//ydb/core/persqueue/public:partition_key_range",
+    "//ydb/library/persqueue/topic_parser",
+    "//ydb/services/lib/sharding",
+  ]
+
+  sources = [ "partition_chooser.cpp" ]
+}
+
 library("writer") {
   public_deps = [
+    ":partition_chooser",
     "//ydb/core/base",
     # "//ydb/core/grpc_services",
     # "//ydb/core/kafka_proxy",

@@ -3,11 +3,10 @@ library("resource_subscriber") {
     # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/tablet",
     # "//ydb/library/actors/core",
-    # "//ydb/library/signals",
+    "//ydb/library/signals",
   ]
 
   deps = [
-    # "//ydb/core/tx/columnshard",
     # "//ydb/library/accessor",
   ]
 

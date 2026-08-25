@@ -1,0 +1,8 @@
+protobuf_library("proto") {
+    sources = [ "tdigest.proto" ]
+}
+
+library("tdigest") {
+    deps = [ ":proto" ]
+    sources = [ "tdigest.cpp" ]
+}

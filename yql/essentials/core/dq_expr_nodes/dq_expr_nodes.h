@@ -8,7 +8,6 @@ namespace NYql::NNodes {
 
 #include <yql/essentials/core/dq_expr_nodes/dq_expr_nodes.decl.inl.h>
 
-namespace NDq {
 struct TTopSortSettings {
     static inline const TString AscendingSort = "Asc";
     static inline const TString DescendingSort = "Desc";
@@ -64,8 +63,15 @@ public:
             && TCallable::Match(node->Child(1));
     }
 };
-} // namespace NDq
 
 #include <yql/essentials/core/dq_expr_nodes/dq_expr_nodes.defs.inl.h>
+
+// Compatibility namespace: the DQ expr-node classes above live directly in
+// NYql::NNodes (the code generator emits TMaybeNode<> specializations into
+// NNodes, so the node types must be in NNodes as well). Some consumers — notably
+// the YT provider — write `using namespace NNodes::NDq;`, so expose NNodes here.
+namespace NDq {
+    using namespace NYql::NNodes;
+}
 
 } // namespace NYql::NNodes

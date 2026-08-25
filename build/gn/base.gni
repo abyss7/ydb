@@ -33,6 +33,13 @@ template("sse41_source_set") {
     }
 }
 
+template("sse42_source_set") {
+    source_set(target_name) {
+        forward_variables_from(invoker, "*")
+        configs += [ "//build/gn/config:_sse42_config" ]
+    }
+}
+
 template("ssse3_source_set") {
     source_set(target_name) {
         forward_variables_from(invoker, "*")
@@ -88,12 +95,7 @@ template("library") {
 
     if (defined(invoker.serialize_enum_headers)) {
         _enum_target = "${target_name}_enum"
-        _enum_config = "${target_name}_enum_config"
         _output = "{{source_gen_dir}}/{{source_name_part}}_serialized.cpp"
-
-        config(_enum_config) {
-            include_dirs = [ "." ]
-        }
 
         action_foreach(_enum_target) {
             script = "//build/gn/scripts/run.py"
@@ -105,7 +107,7 @@ template("library") {
             args = [
                 "./$_enum_parser_bin",
                 "{{source}}",
-                "--include-path", rebase_path("{{source}}", "{{source_dir}}"),
+                "--include-path", "{{source_root_relative_dir}}/{{source_file_part}}",
                 "--output", "$_output",
             ]
 
@@ -138,7 +140,6 @@ template("library") {
                 sources = []
             }
             sources += get_target_outputs(":$_enum_target")
-            configs += [ ":$_enum_config" ]
         }
 
         if (defined(allow_undefined) && allow_undefined == true) {

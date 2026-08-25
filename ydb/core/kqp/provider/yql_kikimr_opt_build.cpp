@@ -3,7 +3,7 @@
 
 #include <ydb/core/base/table_index.h>
 #include <ydb/core/kqp/common/kqp_yql.h>
-#include <ydb/core/kqp/gateway/utils/scheme_helpers.h>
+#include <ydb/core/kqp/provider/scheme_helpers.h>
 #include <yql/essentials/core/yql_opt_utils.h>
 #include <yql/essentials/utils/log/log.h>
 #include <yql/essentials/providers/result/expr_nodes/yql_res_expr_nodes.h>

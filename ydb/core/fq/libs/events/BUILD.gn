@@ -1,10 +1,12 @@
 library("events") {
-  public_deps = [ "//ydb/library/actors/core:events" ]
+  public_deps = [
+    "//ydb/library/actors/core:events",
+    "//ydb/library/yql/providers/dq/provider",
+  ]
 
   deps = [
     "//ydb/core/fq/libs/graph_params/proto",
     "//ydb/core/fq/libs/protos",
-    "//ydb/library/yql/providers/dq/provider",
   ]
 
   serialize_enum_headers = [

@@ -1,5 +1,4 @@
 #include "sharding.h"
-#include <ydb/core/tx/schemeshard/olap/schema/schema.h>
 #include <ydb/core/protos/flat_scheme_op.pb.h>
 #include <yql/essentials/utils/yql_panic.h>
 #include <ydb/core/tx/columnshard/common/protos/snapshot.pb.h>
@@ -11,19 +10,7 @@
 
 namespace NKikimr::NSharding {
 
-TConclusionStatus IShardingBase::ValidateBehaviour(const NSchemeShard::TOlapSchema& schema, const NKikimrSchemeOp::TColumnTableSharding& shardingInfo) {
-    auto copy = shardingInfo;
-    if (copy.GetColumnShards().size() == 0) {
-        copy.AddColumnShards(1);
-    }
-    auto fakeResult = BuildFromProto(schema, copy);
-    if (fakeResult.IsFail()) {
-        return fakeResult;
-    }
-    return TConclusionStatus::Success();
-}
-
-TConclusion<std::unique_ptr<IShardingBase>> IShardingBase::BuildFromProto(const NSchemeShard::TOlapSchema* schema, const NKikimrSchemeOp::TColumnTableSharding& shardingProto) {
+TConclusion<std::unique_ptr<IShardingBase>> IShardingBase::BuildFromProto(const NKikimrSchemeOp::TColumnTableSharding& shardingProto) {
     if (!shardingProto.GetColumnShards().size()) {
         return TConclusionStatus::Fail("config is incorrect for construct sharding behaviour");
     }
@@ -32,21 +19,8 @@ TConclusion<std::unique_ptr<IShardingBase>> IShardingBase::BuildFromProto(const 
         result = std::make_unique<TRandomSharding>();
     } else if (shardingProto.HasHashSharding()) {
         auto& hashSharding = shardingProto.GetHashSharding();
-        std::vector<TString> columnNames;
         if (hashSharding.GetColumns().empty()) {
             return TConclusionStatus::Fail("no columns for hash calculation");
-        } else {
-            for (auto&& i : hashSharding.GetColumns()) {
-                columnNames.emplace_back(i);
-                if (schema) {
-                    if (!schema->GetColumns().GetByName(i)) {
-                        return TConclusionStatus::Fail("incorrect sharding column name: " + i);
-                    }
-                    if (!schema->GetColumns().GetByName(i)->IsKeyColumn()) {
-                        return TConclusionStatus::Fail("sharding column name have to been primary key column: " + i);
-                    }
-                }
-            }
         }
         if (hashSharding.GetFunction() == NKikimrSchemeOp::TColumnTableSharding::THashSharding::HASH_FUNCTION_CONSISTENCY_64) {
             result = std::make_unique<NConsistency::TConsistencySharding64>();

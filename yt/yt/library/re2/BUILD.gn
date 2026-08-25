@@ -1,0 +1,11 @@
+library("re2") {
+    public_deps = [ "//contrib/libs/re2" ]
+
+    deps = [
+        "//library/cpp/yt/error",
+        "//library/cpp/yt/memory",
+        "//yt/yt/core",
+    ]
+
+    sources = [ "re2.cpp" ]
+}

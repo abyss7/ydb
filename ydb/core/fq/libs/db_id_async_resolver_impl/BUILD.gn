@@ -1,8 +1,8 @@
 library("db_id_async_resolver_impl") {
   public_deps = [
-    # "//ydb/library/actors/core",
-    # "//ydb/library/yql/providers/common/db_id_async_resolver",
-    # "//ydb/library/yql/providers/common/token_accessor/client",
+    "//ydb/library/actors/core",
+    "//ydb/library/yql/providers/common/db_id_async_resolver",
+    "//ydb/library/yql/providers/common/token_accessor/client",
     # "//ydb/library/yql/providers/dq/actors",
   ]
 
@@ -10,9 +10,9 @@ library("db_id_async_resolver_impl") {
     # "//library/cpp/json",
     # "//ydb/core/fq/libs/common",
     # "//ydb/core/fq/libs/config:protos",
-    # "//ydb/core/fq/libs/events",
-    # "//ydb/core/util",
-    # "//ydb/library/actors/http",
+    "//ydb/core/fq/libs/events",
+    "//ydb/core/util",
+    "//ydb/library/actors/http",
     # "//ydb/library/services",
     # "//yql/essentials/utils",
   ]

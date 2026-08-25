@@ -22,7 +22,7 @@ config("private_config") {
 }
 
 contrib_library("aws-cpp-sdk-s3") {
-    deps = [
+    public_deps = [
         "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-core",
     ]
 

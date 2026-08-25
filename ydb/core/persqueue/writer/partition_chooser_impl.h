@@ -3,8 +3,11 @@
 #include <util/random/random.h>
 #include <ydb/core/persqueue/public/utils.h>
 
-#include "partition_chooser_impl__old_chooser_actor.h"
-#include "partition_chooser_impl__sm_chooser_actor.h"
+// Только объявления чузеров (IPartitionChooser) — без actor-заголовков, чтобы
+// этот файл (и чистая фабрика CreatePartitionChooser) не тянул pq_database ->
+// library("public") -> scheme_board. Actor-заголовки подключает напрямую
+// partition_chooser_impl.cpp, где определяется CreatePartitionChooserActor.
+#include "partition_chooser.h"
 
 
 namespace NKikimr::NPQ {

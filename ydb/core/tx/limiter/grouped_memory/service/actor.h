@@ -9,6 +9,8 @@
 #include <ydb/library/actors/core/actor.h>
 #include <ydb/library/actors/core/actor_bootstrapped.h>
 
+#include <mutex>
+
 namespace NKikimr::NOlap::NGroupedMemoryManager {
 
 namespace {

@@ -1,8 +1,15 @@
 #pragma once
-#include "abstract.h"
+// TIndexFetcherLogic implements the reader-side fetch logic (IKernelFetchLogic) for
+// secondary indexes. It lives in the reader module (a consumer) rather than in
+// scheme/indexes/abstract: it depends on reader internals (IDataSource,
+// TFetchingResultContext, TReadActionsCollection), so keeping it here makes the
+// dependency point reader -> indexes/abstract and avoids the inverted edge
+// indexes/abstract -> reader/common_reader/iterator that would form a gn cycle.
 
 #include <ydb/core/tx/columnshard/blobs_reader/task.h>
 #include <ydb/core/tx/columnshard/engines/reader/common_reader/iterator/constructor.h>
+#include <ydb/core/tx/columnshard/engines/scheme/indexes/abstract/header.h>
+#include <ydb/core/tx/columnshard/engines/scheme/indexes/abstract/meta.h>
 #include <ydb/core/tx/columnshard/engines/storage/indexes/portions/meta.h>
 
 namespace NKikimr::NOlap::NIndexes {

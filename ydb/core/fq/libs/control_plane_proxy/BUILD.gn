@@ -83,7 +83,7 @@ library("control_plane_proxy") {
 
 library("events") {
   public_deps = [
-    # "//ydb/core/fq/libs/control_plane_storage:events",
+    "//ydb/core/fq/libs/control_plane_storage:events",
     # "//ydb/core/fq/libs/quota_manager:events",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",

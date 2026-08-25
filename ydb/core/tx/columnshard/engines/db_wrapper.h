@@ -24,6 +24,7 @@ class TColumnRecord;
 class TIndexChunk;
 struct TGranuleRecord;
 class IColumnEngine;
+class TPortionDataAccessor;
 class TPortionInfo;
 class TPortionInfoConstructor;
 

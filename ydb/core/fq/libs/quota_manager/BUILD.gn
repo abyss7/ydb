@@ -1,9 +1,9 @@
 library("events") {
   public_deps = [
     # "//ydb/core/fq/libs/events",
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
     # "//yql/essentials/public/issue",
-    # ":proto",
+    ":proto",
   ]
 
   sources = [ "events/events.cpp" ]

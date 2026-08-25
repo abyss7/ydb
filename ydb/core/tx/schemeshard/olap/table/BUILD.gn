@@ -1,8 +1,8 @@
 library("table") {
   public_deps = [
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/tx/columnshard/common",
-    # "//ydb/core/tx/schemeshard",
+    "//ydb/core/tx/schemeshard",
     # "//ydb/core/tx/sharding",
   ]
 

@@ -1,7 +1,7 @@
 library("common") {
   public_deps = [
     # "//library/cpp/string_utils/parse_size",
-    # "//library/cpp/yson:node",
+    "//library/cpp/yson:node",
     # "//yql/essentials/ast",
     "//yql/essentials/providers/common/config",
     # "//yql/essentials/public/udf",
@@ -13,11 +13,13 @@ library("common") {
     "//library/cpp/regex/pcre",
     "//yql/essentials/providers/common/codec",
     "//yql/essentials/utils/log",
+    "//yt/cpp/mapreduce/common",
   ]
 
   sources = [
     "yql_configuration.cpp",
     "yql_names.cpp",
+    "yql_yt_ypath_attrs.cpp",
     "yql_yt_settings.cpp",
   ]
 
