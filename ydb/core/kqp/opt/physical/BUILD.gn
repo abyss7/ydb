@@ -1,17 +1,37 @@
+config("private_config") {
+  cflags = [ "-Wno-ambiguous-reversed-operator" ]
+}
+
+library("helpers") {
+  public_deps = [
+    "//ydb/core/kqp/opt:helpers",
+    "//ydb/core/kqp/provider",
+    "//ydb/library/yql/dq/opt",
+    "//yql/essentials/ast",
+  ]
+
+  deps = [ "//ydb/core/kqp/common" ]
+
+  sources = [ "kqp_opt_phy_helpers.cpp" ]
+
+  configs = [ ":private_config" ]
+}
+
 library("effects") {
   public_deps = [
-    # "//ydb/core/kqp/opt",
+    "//ydb/core/kqp/opt:helpers",
     # "//ydb/core/kqp/provider",
     # "//yql/essentials/ast",
   ]
 
   deps = [
     # "//ydb/core/base",
-    # "//ydb/core/kqp/opt/physical",
-    # "//ydb/library/yql/dq/opt",
+    "//ydb/core/kqp/common",
+    ":helpers",
+    "//ydb/library/yql/dq/opt",
     # "//yql/essentials/core",
     # "//yql/essentials/core/expr_nodes",
-    # "//yql/essentials/providers/common/provider",
+    "//yql/essentials/providers/common/provider",
   ]
 
   sources = [
@@ -33,34 +53,34 @@ library("effects") {
 
 library("physical") {
   public_deps = [
-    # "//ydb/core/kqp/opt",
-    # "//ydb/core/kqp/provider",
-    # "//ydb/library/yql/dq/opt",
-    # "//yql/essentials/ast",
+    ":helpers",
+    "//ydb/core/kqp/opt:helpers",
+    "//ydb/core/kqp/provider",
+    "//ydb/library/yql/dq/opt",
+    "//yql/essentials/ast",
   ]
 
   deps = [
     # "//library/cpp/iterator",
-    # "//ydb/core/kqp/common",
+    "//ydb/core/kqp/common",
     # "//ydb/core/scheme",
     # "//ydb/library/actors/core",
-    # "//ydb/library/yql/dq/type_ann",
+    "//ydb/library/yql/dq/type_ann",
     # "//ydb/library/yql/providers/dq/common",
     # "//ydb/library/yql/providers/dq/expr_nodes",
     # "//ydb/public/api/protos",
     # "//ydb/public/lib/scheme_types",
     # "//yql/essentials/core",
     # "//yql/essentials/core/expr_nodes_gen",
-    # "//yql/essentials/core/peephole_opt",
-    # "//yql/essentials/providers/common/transform",
-    # "//yql/essentials/utils/log",
-    # ":effects",
+    "//yql/essentials/core/peephole_opt",
+    "//yql/essentials/providers/common/transform",
+    "//yql/essentials/utils/log",
+    ":effects",
   ]
 
   sources = [
     "kqp_opt_phy.cpp",
     "kqp_opt_phy_build_stage.cpp",
-    "kqp_opt_phy_helpers.cpp",
     "kqp_opt_phy_limit.cpp",
     "kqp_opt_phy_olap_agg.cpp",
     "kqp_opt_phy_olap_filter.cpp",
@@ -70,4 +90,6 @@ library("physical") {
     "kqp_opt_phy_stage_float_up.cpp",
     "predicate_collector.cpp",
   ]
+
+  configs = [ ":private_config" ]
 }

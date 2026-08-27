@@ -5,6 +5,10 @@ generate_expr_nodes("gen") {
 }
 
 library("provider") {
+    public_deps = [
+        "//ydb/library/yql/dq/runtime",
+    ]
+
     deps = [
         ":gen",
         "//ydb/core/docapi",

@@ -2,7 +2,7 @@ library("host") {
   public_deps = [
     # "//ydb/core/kqp/common",
     # "//ydb/core/kqp/common:simple",
-    # "//ydb/core/kqp/federated_query",
+    "//ydb/core/kqp/federated_query",
     # "//ydb/core/kqp/gateway",
     # "//ydb/core/kqp/opt/logical",
     "//ydb/core/kqp/provider",

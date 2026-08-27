@@ -24,21 +24,21 @@ library("interface") {
 library("worker_manager") {
   public_deps = [
     # "//ydb/library/actors/core",
-    # "//ydb/library/yql/dq/actors:compute",
+    "//ydb/library/yql/dq/actors:compute",
     # "//ydb/library/yql/providers/dq/task_runner",
     # "//ydb/library/yql/providers/dq/task_runner_actor",
     # "//yql/essentials/minikql",
-    # ":interface",
+    ":interface",
   ]
 
   deps = [
     # "//ydb/library/actors/helpers",
-    # "//ydb/library/actors/interconnect",
+    "//ydb/library/actors/interconnect",
     # "//ydb/library/yql/dq/common",
-    # "//ydb/library/yql/providers/dq/actors",
-    # "//ydb/library/yql/providers/dq/runtime",
-    # "//yql/essentials/utils/failure_injector",
-    # "//yql/essentials/utils/log",
+    "//ydb/library/yql/providers/dq/actors",
+    "//ydb/library/yql/providers/dq/runtime",
+    "//yql/essentials/utils/failure_injector",
+    "//yql/essentials/utils/log",
   ]
 
   sources = [ "local_worker_manager.cpp" ]

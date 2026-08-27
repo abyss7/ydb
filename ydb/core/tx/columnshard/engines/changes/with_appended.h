@@ -1,8 +1,9 @@
 #pragma once
 #include "abstract/abstract.h"
-#include "abstract/move_portions.h"
-#include "abstract/remove_portions.h"
+#include "move_portions.h"
+#include "remove_portions.h"
 
+#include <ydb/core/tx/columnshard/data_locks/locks/composite.h>
 #include <ydb/core/tx/columnshard/engines/portions/portion_info.h>
 #include <ydb/core/tx/columnshard/engines/scheme/tier_info.h>
 

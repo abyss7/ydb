@@ -2,6 +2,8 @@
 #include "distconf_quorum.h"
 #include "distconf_invoke.h"
 
+#include <ydb/library/actors/core/mailbox_lockfree.h>
+
 namespace NKikimr::NStorage {
 
     void TDistributedConfigKeeper::UpdateQuorums() {

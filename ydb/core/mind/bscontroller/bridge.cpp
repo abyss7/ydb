@@ -446,7 +446,7 @@ void TBlobStorageController::ApplySyncerState(TNodeId nodeId, const NKikimrBlobS
                 groupId.CopyToProto(cmd, &std::decay_t<decltype(*cmd)>::SetGroupId);
                 cmd->SetGroupGeneration(generation);
                 cmd->MutableBridgeGroupInfo()->Swap(&bridgeGroupInfo);
-                InvokeOnRoot(std::move(request), [=](NKikimrBlobStorage::TEvNodeConfigInvokeOnRootResult& result) {
+                InvokeOnRoot(std::move(request), [=, this](NKikimrBlobStorage::TEvNodeConfigInvokeOnRootResult& result) {
                     if (result.GetStatus() != NKikimrBlobStorage::TEvNodeConfigInvokeOnRootResult::OK) {
                         Y_DEBUG_ABORT("UpdateBridgeGroupInfo has unexpectedly failed");
                         STLOG(PRI_ERROR, BS_CONTROLLER, BSCBR08, "UpdateBridgeGroupInfo has unexpectedly failed",

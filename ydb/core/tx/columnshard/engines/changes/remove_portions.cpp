@@ -1,6 +1,7 @@
 #include "remove_portions.h"
 
 #include <ydb/core/tx/columnshard/columnshard_impl.h>
+#include <ydb/core/tx/columnshard/data_locks/locks/list.h>
 #include <ydb/core/tx/columnshard/engines/column_engine_logs.h>
 
 namespace NKikimr::NOlap {

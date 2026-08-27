@@ -4,9 +4,7 @@ library("mon") {
   ]
 
   deps = [
-    "//library/cpp/cgiparam",
     # "//library/cpp/html/pcdata",
-    "//library/cpp/monlib/service/pages",
     # "//library/cpp/resource",
     "//ydb/library/schlab/schemu",
   ]

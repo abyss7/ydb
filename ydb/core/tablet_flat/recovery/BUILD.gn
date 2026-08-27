@@ -5,11 +5,11 @@ library("recovery") {
   ]
 
   deps = [
+    "//library/cpp/protobuf/json",
+    "//library/cpp/string_utils/base64",
     "//ydb/core/engine:minikql",
     "//ydb/core/io_formats/cell_maker",
     "//ydb/core/protos",
-    "//library/cpp/protobuf/json",
-    "//library/cpp/string_utils/base64",
     "//ydb/library/actors/core",
     "//yql/essentials/types/binary_json",
   ]

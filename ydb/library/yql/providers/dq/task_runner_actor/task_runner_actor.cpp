@@ -77,7 +77,7 @@ private:
         TVector<TDqSerializedBatch> chunks;
         for (;maxChunks && remain > 0 && !isFinished && hasData; maxChunks--, remain -= dataSize) {
             TDqSerializedBatch data;
-            const auto lastPop = std::move(Channel->Pop(data));
+            const auto lastPop = Channel->Pop(data);
 
             for (auto& metric : lastPop.GetMetric()) {
                 result.Metrics.push_back(metric);
@@ -197,8 +197,8 @@ private:
                         // RPC reader fallback to YT
                         fallback = true;
                         rpcReaderFalledBack = true;
-                    } else if (rpcReaderFalledBack && (line.Contains("Attachments stream write timed out") 
-                                            || line.Contains("No alive peers found") || line.Contains("Connection reset by peer") 
+                    } else if (rpcReaderFalledBack && (line.Contains("Attachments stream write timed out")
+                                            || line.Contains("No alive peers found") || line.Contains("Connection reset by peer")
                                             || line.Contains("Connection timed out")))
                     {
                         // RPC reader DQ retry

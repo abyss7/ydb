@@ -1,6 +1,6 @@
 library("controller") {
   public_deps = [
-    # "//ydb/core/tx/columnshard/engines/changes/abstract",
+    "//ydb/core/tx/columnshard/engines/changes/abstract",
     # "//ydb/library/accessor",
   ]
 

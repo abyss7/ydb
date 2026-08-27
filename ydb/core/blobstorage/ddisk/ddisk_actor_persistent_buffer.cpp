@@ -451,8 +451,8 @@ namespace NKikimr::NDDisk {
 
         Counters.Interface.ErasePersistentBuffer.Request();
 
-        auto span = std::move(NWilson::TSpan(TWilson::DDiskTopLevel, std::move(ev->TraceId), "DDisk.BatchErasePersistentBuffer",
-                NWilson::EFlags::NONE, TActivationContext::ActorSystem()));
+        auto span = NWilson::TSpan(TWilson::DDiskTopLevel, std::move(ev->TraceId), "DDisk.BatchErasePersistentBuffer",
+                NWilson::EFlags::NONE, TActivationContext::ActorSystem());
 
         const TQueryCredentials creds(record.GetCredentials());
         for (auto& e : record.GetErases()) {

@@ -10,21 +10,8 @@
 
 namespace NKikimr::NColumnShard {
 
-class TBlobPutResult: public NColumnShard::TPutStatus {
-public:
-    using TPtr = std::shared_ptr<TBlobPutResult>;
-
-    TBlobPutResult(NKikimrProto::EReplyStatus status,
-        THashSet<ui32>&& yellowMoveChannels,
-        THashSet<ui32>&& yellowStopChannels)
-    {
-        SetPutStatus(status, std::move(yellowMoveChannels), std::move(yellowStopChannels));
-    }
-
-    TBlobPutResult(NKikimrProto::EReplyStatus status) {
-        SetPutStatus(status);
-    }
-};
+// TBlobPutResult перенесён в put_status.h (лёгкий, без blobs_action) — см. там.
+// write_controller.h включает put_status.h, поэтому потребители не меняются.
 
 class IWriteController {
 private:

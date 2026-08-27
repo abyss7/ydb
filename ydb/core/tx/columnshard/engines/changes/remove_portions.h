@@ -1,6 +1,6 @@
 #pragma once
 
-#include "changes.h"
+#include "abstract/changes.h"
 
 namespace NKikimr::NOlap {
 

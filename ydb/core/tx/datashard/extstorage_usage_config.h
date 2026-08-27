@@ -98,22 +98,22 @@ public:
     static TStorageSettings FromRestoreTask(const NKikimrSchemeOp::TRestoreTask& task);
 
     template <>
-    static TStorageSettings FromBackupTask<NKikimrSchemeOp::TS3Settings>(const NKikimrSchemeOp::TBackupTask& task) {
+    TStorageSettings FromBackupTask<NKikimrSchemeOp::TS3Settings>(const NKikimrSchemeOp::TBackupTask& task) {
         return TStorageSettings(task.GetS3Settings().GetObjectKeyPattern(), task.GetShardNum(), TEncryptionSettings::FromBackupTask(task));
     }
 
     template <>
-    static TStorageSettings FromBackupTask<NKikimrSchemeOp::TFSSettings>(const NKikimrSchemeOp::TBackupTask& task) {
+    TStorageSettings FromBackupTask<NKikimrSchemeOp::TFSSettings>(const NKikimrSchemeOp::TBackupTask& task) {
         return TStorageSettings(CanonizePath(TStringBuilder() << task.GetFSSettings().GetBasePath() << "/" << task.GetFSSettings().GetPath()), task.GetShardNum(), TEncryptionSettings::FromBackupTask(task));
     }
 
     template <>
-    static TStorageSettings FromRestoreTask<NKikimrSchemeOp::TS3Settings>(const NKikimrSchemeOp::TRestoreTask& task) {
+    TStorageSettings FromRestoreTask<NKikimrSchemeOp::TS3Settings>(const NKikimrSchemeOp::TRestoreTask& task) {
         return TStorageSettings(task.GetS3Settings().GetObjectKeyPattern(), task.GetShardNum(), TEncryptionSettings::FromRestoreTask(task));
     }
 
     template <>
-    static TStorageSettings FromRestoreTask<NKikimrSchemeOp::TFSSettings>(const NKikimrSchemeOp::TRestoreTask& task) {
+    TStorageSettings FromRestoreTask<NKikimrSchemeOp::TFSSettings>(const NKikimrSchemeOp::TRestoreTask& task) {
         return TStorageSettings(CanonizePath(TStringBuilder() << task.GetFSSettings().GetBasePath() << "/" << task.GetFSSettings().GetPath()), task.GetShardNum(), TEncryptionSettings::FromRestoreTask(task));
     }
 

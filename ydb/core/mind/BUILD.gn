@@ -20,10 +20,33 @@ library("address_classification") {
   serialize_enum_headers = [ "address_classification/net_classifier.h" ]
 }
 
+library("group_mapper") {
+  public_deps = [
+    "//ydb/core/base",
+    "//ydb/library/yaml_config",
+  ]
+
+  deps = [
+    "//ydb/core/audit",
+    "//ydb/core/blobstorage/base",
+    "//ydb/core/blobstorage/groupinfo",
+    "//ydb/core/control/lib",
+    "//ydb/core/tablet",
+    "//ydb/core/util",
+    "//ydb/library/aclib",
+  ]
+
+  sources = [
+    "bscontroller/group_layout_checker.cpp",
+    "bscontroller/group_mapper.cpp",
+  ]
+}
+
 library("bscontroller") {
   public_deps = [
-    # "//ydb/core/base",
-    # "//ydb/library/yaml_config",
+    "//ydb/core/base",
+    "//ydb/library/yaml_config",
+    ":group_mapper",
   ]
 
   deps = [
@@ -31,13 +54,14 @@ library("bscontroller") {
     # "//library/cpp/json",
     # "//library/cpp/monlib/service/pages",
     # "//library/cpp/streams/zstd",
-    # "//ydb/core/audit",
+    "//ydb/core/audit",
     # "//ydb/core/base/services",
     # "//ydb/core/blob_depot",
-    # "//ydb/core/blobstorage/base",
-    # "//ydb/core/blobstorage/groupinfo",
-    # "//ydb/core/blobstorage/nodewarden",
+    "//ydb/core/blobstorage/base",
+    "//ydb/core/blobstorage/groupinfo",
+    "//ydb/core/blobstorage/nodewarden",
     # "//ydb/core/cms/console",
+    "//ydb/core/control/lib",
     # "//ydb/core/debug_tools",
     # "//ydb/core/driver_lib/version",
     # "//ydb/core/engine:minikql",
@@ -46,12 +70,12 @@ library("bscontroller") {
     # "//ydb/core/protos",
     # "//ydb/core/scheme",
     # "//ydb/core/sys_view:common",
-    # "//ydb/core/tablet",
+    "//ydb/core/tablet",
     # "//ydb/core/tablet_flat",
     # "//ydb/core/tx/schemeshard",
     # "//ydb/core/tx/tx_proxy",
-    # "//ydb/core/util",
-    # "//ydb/library/aclib",
+    "//ydb/core/util",
+    "//ydb/library/aclib",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/services",
@@ -80,8 +104,6 @@ library("bscontroller") {
     "bscontroller/disk_metrics.cpp",
     "bscontroller/drop_donor.cpp",
     "bscontroller/get_group.cpp",
-    "bscontroller/group_layout_checker.cpp",
-    "bscontroller/group_mapper.cpp",
     "bscontroller/group_metrics_exchange.cpp",
     "bscontroller/grouper.cpp",
     "bscontroller/init_scheme.cpp",
@@ -210,29 +232,45 @@ library("hive") {
   ]
 }
 
+# Лёгкий лист: обе перегрузки NNodeBroker::BuildNameserverTable(), вынесенные из
+# dynamic_nameserver.cpp. Это единственный символ из mind, который линкует nodewarden
+# (distconf.cpp). Объявления остались на месте, в dynamic_nameserver.h.
+# Выделено, чтобы разорвать цикл
+# nodewarden -> mind:mind -> mind:bscontroller -> nodewarden.
+library("nameserver_table_builder") {
+  public_deps = [
+    "//ydb/core/base",
+    "//ydb/library/actors/interconnect",
+  ]
+
+  deps = [ "//ydb/core/protos" ]
+
+  sources = [ "nameserver_table_builder.cpp" ]
+}
+
 library("mind") {
   public_deps = [
-    # "//ydb/core/base",
+    "//ydb/core/base",
+    ":nameserver_table_builder",
     # "//ydb/core/cms/console",
     # "//ydb/core/engine:minikql",
     # "//ydb/core/protos",
     # "//ydb/core/tablet",
     # "//ydb/core/tablet_flat",
-    # "//ydb/core/tablet_flat/recovery",  # provides NRecovery::CreateRecoveryShard
+    "//ydb/core/tablet_flat/recovery",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
   ]
 
   deps = [
-    # "//library/cpp/monlib/service/pages",
     # "//library/cpp/random_provider",
     # "//ydb/core/actorlib_impl",
-    # "//ydb/core/backup/controller",
+    "//ydb/core/backup/controller",
     # "//ydb/core/blob_depot",
     # "//ydb/core/cms",
     # "//ydb/core/kesus/tablet",
     # "//ydb/core/keyvalue",
-    # "//ydb/core/mon",
+    "//ydb/core/mon",
     # "//ydb/core/node_whiteboard",
     # "//ydb/core/scheme",
     # "//ydb/core/statistics:aggregator",
@@ -250,7 +288,7 @@ library("mind") {
     # "//ydb/core/util",
     # "//ydb/library/actors/util",
     # "//ydb/library/services",
-    # ":bscontroller",
+    ":bscontroller",
   ]
 
   sources = [

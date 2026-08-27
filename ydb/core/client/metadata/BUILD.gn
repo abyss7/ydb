@@ -1,8 +1,8 @@
 library("metadata") {
   deps = [
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/scheme_types",
-    # "//yql/essentials/minikql",
+    "//yql/essentials/minikql",
   ]
 
   sources = [

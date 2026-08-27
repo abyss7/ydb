@@ -1,47 +1,25 @@
-library("phantom_flag_storage") {
-  public_deps = [
-    # "//ydb/core/blobstorage/vdisk/synclog",
-    # "//ydb/library/actors/core",
-  ]
-
-  deps = [
-    # "//ydb/core/base",
-    # "//ydb/core/blobstorage/pdisk",
-    # "//ydb/core/blobstorage/vdisk/skeleton",
-    # "//ydb/core/util",
-  ]
-
-  sources = [
-    "phantom_flag_storage/phantom_flag_storage_builder.cpp",
-    "phantom_flag_storage/phantom_flag_storage_snapshot.cpp",
-    "phantom_flag_storage/phantom_flag_storage_state.cpp",
-    "phantom_flag_storage/phantom_flag_thresholds.cpp",
-  ]
-}
-
 library("synclog") {
   public_deps = [
-    # "//ydb/core/base",
+    "//ydb/core/base",
     # "//ydb/core/blobstorage/base",
     # "//ydb/core/blobstorage/groupinfo",
-    # "//ydb/core/blobstorage/vdisk/common",
+    "//ydb/core/blobstorage/vdisk/common",
     # "//ydb/core/blobstorage/vdisk/hulldb:base",
-    # "//ydb/core/blobstorage/vdisk/hulldb:generic",
-    # "//ydb/core/blobstorage/vdisk/ingress",
+    "//ydb/core/blobstorage/vdisk/hulldb:generic",
+    "//ydb/core/blobstorage/vdisk/ingress",
     # "//ydb/core/protos",
     # "//ydb/library/actors/core",
-    # ":phantom_flag_storage",
   ]
 
   deps = [
-    # "//library/cpp/blockcodecs",
-    # "//library/cpp/codecs",
+    "//library/cpp/blockcodecs",
+    "//library/cpp/codecs",
     # "//library/cpp/containers/intrusive_avl_tree",
     # "//library/cpp/monlib/service/pages",
     # "//library/cpp/packedtypes",
     # "//ydb/core/blobstorage/pdisk",
     # "//ydb/core/blobstorage/vdisk/syncer",
-    # "//ydb/core/util",
+    "//ydb/core/util",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/services",
   ]
@@ -63,5 +41,9 @@ library("synclog") {
     "blobstorage_synclogneighbors.cpp",
     "blobstorage_synclogreader.cpp",
     "blobstorage_synclogrecovery.cpp",
+    "phantom_flag_storage/phantom_flag_storage_builder.cpp",
+    "phantom_flag_storage/phantom_flag_storage_snapshot.cpp",
+    "phantom_flag_storage/phantom_flag_storage_state.cpp",
+    "phantom_flag_storage/phantom_flag_thresholds.cpp",
   ]
 }

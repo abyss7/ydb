@@ -31,7 +31,7 @@ protobuf_library("protos") {
 
 library("transactions") {
   public_deps = [
-    # "//ydb/core/tablet_flat",
+    "//ydb/core/tablet_flat",
     # "//ydb/core/tx",
     # "//ydb/core/tx/columnshard",
     # "//ydb/core/tx/columnshard/counters",

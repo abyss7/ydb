@@ -639,7 +639,7 @@ public:
                 mvccVersion.ToProto(writeResult->Record.MutableCommitVersion());
             }
 
-            if (auto changes = std::move(userDb.GetCollectedChanges())) {
+            if (auto changes = userDb.GetCollectedChanges()) {
                 op->ChangeRecords() = std::move(changes);
             }
 

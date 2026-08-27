@@ -1,6 +1,6 @@
 import("//build/gn/bison.gni")
 
-config("private_config") {
+config("public_config") {
   cflags = [
     "-Wno-deprecated-anon-enum-enum-conversion",
     "-Wno-unused-but-set-variable",
@@ -9,7 +9,7 @@ config("private_config") {
 
 bison_source_set("re_parser") {
   sources = [ "pire/re_parser.y" ]
-  configs = [ ":private_config" ]
+  configs = [ ":public_config" ]
 }
 
 library("pire") {
@@ -36,5 +36,5 @@ library("pire") {
     "pire/scanners/null.cpp",
   ]
 
-  configs = [ ":private_config" ]
+  public_configs = [ ":public_config" ]
 }

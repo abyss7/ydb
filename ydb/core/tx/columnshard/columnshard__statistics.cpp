@@ -2,6 +2,7 @@
 #include "columnshard_impl.h"
 
 #include "data_accessor/cache_policy/policy.h"
+#include "ydb/core/tx/columnshard/engines/storage/indexes/count_min_sketch/index_info_ext.h"
 #include "ydb/core/tx/columnshard/engines/storage/indexes/count_min_sketch/meta.h"
 
 #include <ydb/core/protos/kqp.pb.h>
@@ -197,7 +198,7 @@ public:
             for (const auto& [id, portionInfo] : result.GetPortions()) {
                 std::shared_ptr<NOlap::ISnapshotSchema> portionSchema = portionInfo->GetPortionInfo().GetSchema(*VersionedIndex);
                 for (const ui32 columnId : ColumnTagsRequested) {
-                    auto indexMeta = portionSchema->GetIndexInfo().GetIndexMetaCountMinSketch({ columnId });
+                    auto indexMeta = NOlap::NIndexes::NCountMinSketch::GetIndexMeta(portionSchema->GetIndexInfo(), { columnId });
 
                     if (!indexMeta) {
                         AFL_WARN(NKikimrServices::TX_COLUMNSHARD)("error", "Missing countMinSketch index for columnId " + ToString(columnId));

@@ -1,12 +1,15 @@
 library("agent") {
   deps = [
-    # "//ydb/core/base",
-    # "//ydb/core/blob_depot",
+    "//library/cpp/monlib/dynamic_counters",
+    "//library/cpp/monlib/metrics",
+    "//ydb/core/base",
+    "//ydb/core/blob_depot",
+    "//ydb/core/blobstorage/groupinfo",
     # "//ydb/core/blobstorage/pdisk",
     # "//ydb/core/blobstorage/vdisk/common",
     # "//ydb/core/protos",
     # "//ydb/core/util",
-    # "//ydb/core/wrappers",
+    "//ydb/core/wrappers",
   ]
 
   sources = [
@@ -39,24 +42,22 @@ library("agent") {
 
 library("blob_depot") {
   public_deps = [
-    # "//library/cpp/json",
-    # "//library/cpp/monlib/service/pages",
-    # "//ydb/core/base",
+    "//ydb/core/base",
     # "//ydb/core/blobstorage/groupinfo",
-    # "//ydb/core/blobstorage/testing/group_overseer",
+    "//ydb/core/blobstorage/testing/group_overseer",
     # "//ydb/core/blobstorage/vdisk/common",
-    # "//ydb/core/engine:minikql",
+    "//ydb/core/engine:minikql",
     # "//ydb/core/mind",
     # "//ydb/core/node_whiteboard",
     # "//ydb/core/protos",
-    # "//ydb/core/tablet",
-    # "//ydb/core/tablet_flat",
-    # "//ydb/core/util",
+    "//ydb/core/tablet",
+    "//ydb/core/tablet_flat",
+    "//ydb/core/util",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
-    # "//ydb/core/wrappers",
+    "//ydb/core/wrappers",
     # "//ydb/public/api/protos",
   ]
 

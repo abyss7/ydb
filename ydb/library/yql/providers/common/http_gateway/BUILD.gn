@@ -9,7 +9,6 @@ library("http_gateway") {
 
   deps = [
     # "//contrib/libs/openssl",
-    "//library/cpp/cgiparam",
     "//ydb/library/actors/http",
     # "//ydb/library/actors/prof",
     "//yql/essentials/providers/common/proto",

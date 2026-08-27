@@ -5,7 +5,10 @@
 #include <ydb/core/tx/columnshard/common/limits.h>
 #include <ydb/core/tx/columnshard/common/snapshot.h>
 #include <ydb/core/tx/columnshard/common/path_id.h>
-#include <ydb/core/tx/columnshard/engines/writer/write_controller.h>
+// Только TBlobPutResult (лёгкий put_status.h), НЕ тяжёлый write_controller.h —
+// тот тянет blobs_action/abstract и замыкал цикл blobs_action:abstract ->
+// hooks/abstract -> engines/writer -> blobs_action:abstract.
+#include <ydb/core/tx/columnshard/engines/writer/put_status.h>
 #include <ydb/core/tx/columnshard/splitter/settings.h>
 #include <ydb/core/tx/tiering/tier/identifier.h>
 #include <ydb/core/tx/tiering/tier/object.h>
@@ -30,6 +33,9 @@ class TColumnEngineChanges;
 class IBlobsGCAction;
 class TPortionInfo;
 class TDataAccessorsResult;
+// используется только как const&-параметр в OverrideBlobPutResultOnCompaction;
+// раньше приходил транзитивно через write_controller.h -> blobs_action/abstract/write.h.
+class TWriteActionsCollection;
 class IBlobsStorageOperator;
 namespace NIndexes {
 class TIndexMetaContainer;

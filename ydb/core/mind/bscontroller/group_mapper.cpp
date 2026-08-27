@@ -241,7 +241,7 @@ namespace NKikimr::NBsController {
                     pdisk->NumDomainMatchingDisks = numMatchingDisksInDomain[position.Domain.Index()];
                 }
 
-                return std::move(res);
+                return res;
             }
 
             struct TUndoLog {
@@ -1187,7 +1187,7 @@ namespace NKikimr::NBsController {
             err.RealmLocationKey = keyName(realmKey);
             err.DomainLocationKey = keyName(domainKey);
 
-            return std::move(err);
+            return err;
         }
 
         bool AllocateGroup(ui32 groupId, TGroupDefinition& groupDefinition, TGroupMapper::TGroupConstraintsDefinition& constraints,

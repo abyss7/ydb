@@ -8,9 +8,6 @@
 #include "common/tablet_id.h"
 #include "resource_subscriber/task.h"
 
-#ifndef KIKIMR_DISABLE_S3_OPS
-#include "blobs_action/tier/storage.h"
-#endif
 
 #include "bg_tasks/adapter/adapter.h"
 #include "bg_tasks/events/events.h"

@@ -1,7 +1,10 @@
 #pragma once
 #include "abstract/abstract.h"
-#include "abstract/remove_portions.h"
+#include "remove_portions.h"
+
 #include <ydb/core/tx/columnshard/common/path_id.h>
+#include <ydb/core/tx/columnshard/data_locks/locks/composite.h>
+#include <ydb/core/tx/columnshard/data_locks/locks/list.h>
 
 namespace NKikimr::NOlap {
 

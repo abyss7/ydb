@@ -1,5 +1,5 @@
 #pragma once
-#include "changes.h"
+#include "abstract/changes.h"
 
 #include <ydb/core/tx/columnshard/engines/portions/portion_info.h>
 

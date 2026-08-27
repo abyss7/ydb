@@ -3,7 +3,7 @@ library("counters") {
     # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/tx/columnshard/blobs_action:counters",
     # "//ydb/core/tx/columnshard/counters",
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
     # "//ydb/library/signals",
   ]
 

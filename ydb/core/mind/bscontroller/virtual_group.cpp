@@ -2,6 +2,8 @@
 #include "config.h"
 #include "group_geometry_info.h"
 
+#include <ydb/library/actors/core/mailbox_lockfree.h>
+
 namespace NKikimr::NBsController {
 
     void TBlobStorageController::TConfigState::ExecuteStep(const NKikimrBlobStorage::TAllocateVirtualGroup& cmd, TStatus& status) {

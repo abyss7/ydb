@@ -1,6 +1,6 @@
 library("composite") {
   public_deps = [
-    "//ydb/core/formats/arrow/accessor/abstract",
+    "//ydb/core/formats/arrow/accessor:abstract",
     "//ydb/library/accessor",
     "//ydb/library/formats/arrow",
   ]

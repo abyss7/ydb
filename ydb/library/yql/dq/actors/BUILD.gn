@@ -52,8 +52,6 @@ library("compute") {
 
   deps = [
     ":spilling",
-    "//library/cpp/cgiparam",
-    "//library/cpp/monlib/service/pages",
     "//library/cpp/protobuf/interop",
     # "//ydb/core/quoter:public",
     # "//ydb/library/actors/interconnect",
@@ -118,7 +116,6 @@ library("spilling") {
   ]
 
   deps = [
-    "//library/cpp/monlib/service/pages",
     # "//library/cpp/threading/future",
     # "//ydb/library/services",
     # "//yql/essentials/minikql/computation",

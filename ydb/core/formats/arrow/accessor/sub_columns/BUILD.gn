@@ -1,8 +1,8 @@
 library("sub_columns") {
   public_deps = [
     "//contrib/libs/apache/arrow",
-    "//ydb/core/formats/arrow/accessor/abstract",
-    "//ydb/core/formats/arrow/accessor/common",
+    "//ydb/core/formats/arrow/accessor:abstract",
+    "//ydb/core/formats/arrow/accessor:common",
     "//ydb/library/accessor",
     "//ydb/library/conclusion",
     "//yql/essentials/minikql/jsonpath/parser",
@@ -11,12 +11,14 @@ library("sub_columns") {
   deps = [
     "//contrib/libs/simdjson",
     "//contrib/libs/xxhash",
+    "//library/cpp/json",
     "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/formats/arrow/accessor/composite_serial",
-    "//ydb/core/formats/arrow/accessor/plain",
+    "//ydb/core/formats/arrow/accessor:plain",
     "//ydb/core/formats/arrow/accessor/sparsed",
     "//ydb/library/actors/core",
     "//ydb/library/formats/arrow",
+    "//ydb/library/formats/arrow:modifier",
     "//ydb/library/formats/arrow:protos",
     "//ydb/library/formats/arrow:validation",
     "//ydb/library/signals",

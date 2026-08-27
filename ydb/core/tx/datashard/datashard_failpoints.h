@@ -3,6 +3,7 @@
 #include <ydb/core/base/defs.h>
 #include <library/cpp/threading/future/future.h>
 #include <atomic>
+#include <list>
 
 namespace NKikimr {
 namespace NDataShard {

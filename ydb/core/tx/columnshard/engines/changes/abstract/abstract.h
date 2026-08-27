@@ -5,10 +5,9 @@
 #include <ydb/core/protos/counters_columnshard.pb.h>
 #include <ydb/core/tx/columnshard/blobs_action/abstract/action.h>
 #include <ydb/core/tx/columnshard/blobs_reader/task.h>
+#include <ydb/core/tx/columnshard/counters/engine_logs.h>
 #include <ydb/core/tx/columnshard/counters/indexation.h>
 #include <ydb/core/tx/columnshard/data_locks/locks/abstract.h>
-#include <ydb/core/tx/columnshard/data_locks/locks/composite.h>
-#include <ydb/core/tx/columnshard/data_locks/locks/list.h>
 #include <ydb/core/tx/columnshard/data_locks/manager/manager.h>
 #include <ydb/core/tx/columnshard/data_reader/contexts.h>
 #include <ydb/core/tx/columnshard/engines/changes/counters/changes.h>

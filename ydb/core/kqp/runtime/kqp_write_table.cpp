@@ -234,7 +234,7 @@ public:
     }
 
     std::shared_ptr<void> ExtractBatch() override {
-        auto r = std::make_shared<TOwnedCellVecBatch>(std::move(Extract()));
+        auto r = std::make_shared<TOwnedCellVecBatch>(Extract());
         return std::reinterpret_pointer_cast<void>(r);
     }
 
@@ -603,7 +603,7 @@ public:
                 Memory -= batch->GetMemory();
             }
         }
-        return std::move(newBatches);
+        return newBatches;
     }
 
     IDataBatchPtr FlushBatch(ui64 shardId) override {

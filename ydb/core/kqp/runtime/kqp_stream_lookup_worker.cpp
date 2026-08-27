@@ -582,7 +582,7 @@ public:
             }
         }
 
-        TSizedUnboxedValue row{.Data=std::move(std::move(inputRow.GetElement(0))), .StorageBytes=0};
+        TSizedUnboxedValue row{.Data=inputRow.GetElement(0), .StorageBytes=0};
         row.ComputeSize = NYql::NDq::TDqDataSerializer::EstimateSize(row.Data, GetLeftRowType());
         ui64 joinKeyId = JoinKeySeqNo++;
         TOwnedCellVec cellVec(std::move(joinKeyCells));
@@ -1120,7 +1120,7 @@ private:
             NUdf::TUnboxedValue* rightRowItems = nullptr;
             CachedRows.emplace_back();
             TSizedUnboxedValue& row = CachedRows.back();
-            row.Data = std::move(HolderFactory.CreateDirectArrayHolder(Settings.Columns.size(), rightRowItems));
+            row.Data = HolderFactory.CreateDirectArrayHolder(Settings.Columns.size(), rightRowItems);
             row.ComputeSize = 0;
             row.StorageBytes = 0;
 

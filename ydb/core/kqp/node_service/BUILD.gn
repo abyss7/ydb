@@ -1,11 +1,11 @@
 library("node_service") {
   public_deps = [
-    # "//ydb/core/base",
+    "//ydb/core/base",
     # "//ydb/core/kqp/common",
     # "//ydb/core/kqp/common:simple",
     # "//ydb/core/kqp/compute_actor",
     # "//ydb/core/kqp/counters",
-    # "//ydb/core/kqp/federated_query",
+    "//ydb/core/kqp/federated_query",
     # "//ydb/core/kqp/rm_service",
     # "//ydb/core/kqp/runtime",
     # "//ydb/core/protos",

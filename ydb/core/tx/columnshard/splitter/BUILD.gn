@@ -1,6 +1,6 @@
 library("abstract") {
   public_deps = [
-    # "//contrib/libs/apache/arrow",
+    "//contrib/libs/apache/arrow",
     # "//ydb/core/tx/columnshard/common",
     # "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/library/actors/core",
@@ -8,7 +8,7 @@ library("abstract") {
 
   deps = [
     # "//ydb/core/formats/arrow",
-    # "//ydb/core/formats/arrow/accessor/abstract",
+    "//ydb/core/formats/arrow/accessor:abstract",
   ]
 
   sources = [
@@ -20,13 +20,13 @@ library("abstract") {
 library("splitter") {
   public_deps = [
     "//contrib/libs/apache/arrow",
-    # "//ydb/core/formats/arrow:splitter",
+    "//ydb/core/formats/arrow:splitter",
     # "//ydb/core/tx/columnshard/counters",
     # "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/core/tx/columnshard/engines/scheme",
     "//ydb/library/accessor",
     "//ydb/library/actors/core",
-    # "//ydb/library/formats/arrow:splitter",
+    "//ydb/library/formats/arrow:splitter",
     # ":abstract",
   ]
 

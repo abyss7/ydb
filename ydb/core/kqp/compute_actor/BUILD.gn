@@ -1,3 +1,7 @@
+library("events_stats") {
+  sources = [ "kqp_compute_events_stats.cpp" ]
+}
+
 library("compute_actor") {
   public_deps = [
     # "//contrib/libs/apache/arrow",
@@ -20,6 +24,13 @@ library("compute_actor") {
     # "//ydb/library/yql/providers/s3/actors_factory",
     # "//ydb/library/yverify_stream",
     # "//yql/essentials/utils",
+    # kqp_compute_events_stats.cpp вынесен в отдельный лёгкий листовой таргет
+    # :events_stats (зависит только от util/datetime, ничего больше) — он же нужен
+    # columnshard/counters:counters (TConcreteScanCounters::DebugString ->
+    # FormatDurationAsMilliseconds), которому весь тяжёлый compute_actor со
+    # множеством ещё не разведённых зависимостей (dq, federated_query, rm_service...)
+    # не нужен и не должен требоваться.
+    ":events_stats",
   ]
 
   deps = [
@@ -48,7 +59,6 @@ library("compute_actor") {
     "kqp_compute_actor_factory.cpp",
     "kqp_compute_actor_helpers.cpp",
     "kqp_compute_events.cpp",
-    "kqp_compute_events_stats.cpp",
     "kqp_compute_state.cpp",
     "kqp_pure_compute_actor.cpp",
     "kqp_scan_common.cpp",

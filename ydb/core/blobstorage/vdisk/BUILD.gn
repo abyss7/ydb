@@ -1,11 +1,11 @@
 library("vdisk") {
   public_deps = [
-    # "//ydb/core/blobstorage",
+    "//ydb/core/blobstorage",
   ]
 
   deps = [
-    # "//ydb/core/blobstorage/vdisk/ingress",
-    # "//ydb/core/blobstorage/vdisk/skeleton",
+    "//ydb/core/blobstorage/vdisk/ingress",
+    "//ydb/core/blobstorage/vdisk/skeleton",
   ]
 
   sources = [ "vdisk_actor.cpp" ]

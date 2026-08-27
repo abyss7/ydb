@@ -1,6 +1,9 @@
 #pragma once
 
 #include "defs.h"
+
+#include <ydb/core/debug/valgrind_check.h>
+
 #include <util/generic/string.h>
 #include <util/generic/set.h>
 #include <util/generic/map.h>

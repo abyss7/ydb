@@ -339,7 +339,7 @@ void TDataShardUserDb::IncreaseUpdateCounters(
 }
 
 void TDataShardUserDb::IncreaseSelectCounters(
-    const TArrayRef<const TRawTypeValue> key) 
+    const TArrayRef<const TRawTypeValue> key)
 {
     ui64 keyBytes = CalculateKeyBytes(key);
 
@@ -424,7 +424,7 @@ NTable::TRowState TDataShardUserDb::GetRowState(
             throw TNotReadyTabletException();
         }
         case NTable::EReady::Data: {
-            return std::move(rowState);
+            return rowState;
         }
         case NTable::EReady::Gone: {
             return NTable::TRowState();

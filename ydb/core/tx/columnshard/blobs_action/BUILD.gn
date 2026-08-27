@@ -5,25 +5,22 @@ library("abstract") {
     # "//ydb/core/tx/columnshard",
     # "//ydb/core/tx/columnshard/blobs_action",
     # "//ydb/core/tx/columnshard/common",
-    # "//ydb/core/tx/columnshard/data_sharing/manager",
-    # storages_manager.cpp/storage.h используют только интерфейс
-    # NColumnShard::ITiersManager из tiering/abstract/manager.h (лёгкий таргет).
-    # Полный //ydb/core/tx/tiering тянул secret -> manager -> table_creator ->
-    # tx_proxy и замыкал длинный цикл; в ya.make abstract пирит именно
-    # tiering/abstract, так что это ещё и правка ошибки конверсии.
+    "//ydb/core/tx/columnshard/data_sharing/manager:shared_blobs",
     "//ydb/core/tx/tiering:abstract",
     # "//ydb/core/util",
     # "//ydb/library/accessor",
     "//ydb/library/actors/core",
     # "//ydb/library/conclusion",
     # "//ydb/library/services",
+    ":blobs_action",
     # ":common",
     # ":counters",
     ":events",
+    ":protos",
   ]
 
   deps = [
-    # "//ydb/core/tx/columnshard/hooks/abstract",
+    "//ydb/core/tx/columnshard/hooks/abstract",
     # ":protos",
   ]
 
@@ -43,11 +40,14 @@ library("abstract") {
 
 library("blobs_action") {
   public_deps = [
-    # "//ydb/core/tablet_flat",
-    # "//ydb/core/tx/columnshard",
-    # "//ydb/core/tx/columnshard/common",
-    # "//ydb/core/util",
-    # ":abstract",
+    "//ydb/core/tablet_flat",
+    "//ydb/core/tx/columnshard/common",
+    ":protos",
+  ]
+
+  deps = [
+    "//ydb/core/util",
+    "//ydb/library/services",
   ]
 
   sources = [ "blob_manager_db.cpp" ]
@@ -100,11 +100,11 @@ library("common") {
 library("counters") {
   public_deps = [
     # "//library/cpp/monlib/dynamic_counters",
-    # "//ydb/library/signals",
+    "//ydb/library/signals",
   ]
 
   deps = [
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
   ]
 
   sources = [
@@ -166,7 +166,7 @@ library("storages_manager") {
 
 library("tier") {
   public_deps = [
-    # "//ydb/core/tx/columnshard",
+    "//ydb/core/tx/columnshard",
     # "//ydb/core/tx/columnshard/counters",
     # "//ydb/core/tx/tiering",
     "//ydb/core/wrappers",

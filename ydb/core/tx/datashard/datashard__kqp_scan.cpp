@@ -1,5 +1,7 @@
 #include "datashard_impl.h"
 #include "range_ops.h"
+
+#include <util/stream/format.h>
 #include <util/string/vector.h>
 
 #include <ydb/core/actorlib_impl/long_timer.h>
@@ -673,7 +675,7 @@ void TDataShard::HandleSafe(TEvDataShard::TEvKqpScan::TPtr& ev, const TActorCont
     ranges.reserve(request.RangesSize());
 
     for (auto range: request.GetRanges()) {
-        ranges.emplace_back(std::move(TSerializedTableRange(range)));
+        ranges.emplace_back(TSerializedTableRange(range));
     }
 
     auto* tableScan = new TKqpScan(

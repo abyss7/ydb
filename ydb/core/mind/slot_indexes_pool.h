@@ -2,6 +2,8 @@
 
 #include "defs.h"
 
+#include <util/generic/bitmap.h>
+
 namespace NKikimr::NNodeBroker {
 
 class TSlotIndexesPool {

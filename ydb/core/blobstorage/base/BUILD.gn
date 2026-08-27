@@ -11,10 +11,6 @@ library("base") {
     # "//ydb/library/actors/core",
   ]
 
-  deps = [
-    "//library/cpp/monlib/service/pages",
-  ]
-
   sources = [
     "blobstorage_syncstate.cpp",
     "blobstorage_vdiskid.cpp",

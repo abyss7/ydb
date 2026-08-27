@@ -933,7 +933,7 @@ public:
                 break;
             }
 
-            auto match = MakeIntrusive<TDocumentInfo>(std::move(KeyGetter(candidate)));
+            auto match = MakeIntrusive<TDocumentInfo>(KeyGetter(candidate));
             if (WithFrequencies) {
                 match->TokenFrequencies.resize(TokenCount, 0);
                 for (ui32 tokenIndex : MatchedTokens) {
@@ -994,7 +994,7 @@ public:
             }
 
             if (matchedTokens.size() >= MinShouldMatch) {
-                auto match = MakeIntrusive<TDocumentInfo>(std::move(KeyGetter(doc)));
+                auto match = MakeIntrusive<TDocumentInfo>(KeyGetter(doc));
                 if (WithFrequencies) {
                     match->TokenFrequencies.resize(TokenCount, 0);
                     for (ui32 tokenIndex : matchedTokens) {

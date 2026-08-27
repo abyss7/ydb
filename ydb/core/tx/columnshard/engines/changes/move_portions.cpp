@@ -1,6 +1,7 @@
 #include "move_portions.h"
 
 #include <ydb/core/tx/columnshard/counters/portions.h>
+#include <ydb/core/tx/columnshard/data_locks/locks/list.h>
 #include <ydb/core/tx/columnshard/engines/changes/counters/general.h>
 #include <ydb/core/tx/columnshard/engines/column_engine_logs.h>
 

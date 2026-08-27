@@ -1,22 +1,26 @@
+config("private_config") {
+  cflags = [ "-Wno-deprecated-enum-enum-conversion" ]
+}
+
 library("dsproxy") {
   public_deps = [
     # "//library/cpp/containers/stack_vector",
-    # "//library/cpp/monlib/dynamic_counters:percentile",
+    "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/monlib/metrics",
     # "//ydb/core/base",
-    # "//ydb/core/blobstorage/backpressure",
-    # "//ydb/core/blobstorage/base",
-    # "//ydb/core/blobstorage/common",
-    # "//ydb/core/blobstorage/groupinfo",
-    # "//ydb/core/blobstorage/lwtrace_probes",
+    "//ydb/core/blobstorage/backpressure",
+    "//ydb/core/blobstorage/base",
+    "//ydb/core/blobstorage/common",
+    "//ydb/core/blobstorage/groupinfo",
+    "//ydb/core/blobstorage/lwtrace_probes",
     # "//ydb/core/blobstorage/storagepoolmon",
-    # "//ydb/core/blobstorage/vdisk/common",
-    # "//ydb/core/blobstorage/vdisk/ingress",
-    # "//ydb/core/mon",
+    "//ydb/core/blobstorage/vdisk/common",
+    "//ydb/core/blobstorage/vdisk/ingress",
+    "//ydb/core/mon",
     # "//ydb/core/protos",
-    # "//ydb/core/retro_tracing_impl",
-    # "//ydb/core/util",
-    # "//ydb/library/actors/core",
+    "//ydb/core/retro_tracing_impl",
+    "//ydb/core/util",
+    "//ydb/library/actors/core:events",
     # "//ydb/library/actors/wilson",
     # "//ydb/library/wilson_ids",
   ]
@@ -25,8 +29,8 @@ library("dsproxy") {
     # "//library/cpp/digest/crc32c",
     # "//library/cpp/monlib/service/pages",
     # "//library/cpp/random_provider",
-    # "//ydb/core/blobstorage",
-    # "//ydb/core/blobstorage/bridge/proxy",
+    "//ydb/core/blobstorage",
+    "//ydb/core/blobstorage/bridge/proxy",
     # "//ydb/core/blobstorage/crypto",
     # "//ydb/core/blobstorage/nodewarden",
     # "//ydb/core/blobstorage/vdisk/query",
@@ -67,18 +71,20 @@ library("dsproxy") {
     "dsproxy_strategy_base.cpp",
     "group_sessions.cpp",
   ]
+
+  configs = [ ":private_config" ]
 }
 
 library("mock") {
   public_deps = [
-    # "//ydb/core/base",
+    "//ydb/core/base",
   ]
 
   deps = [
     # "//ydb/core/blobstorage",
     # "//ydb/core/blobstorage/pdisk",
     # "//ydb/core/blobstorage/vdisk/common",
-    # "//ydb/core/util",
+    "//ydb/core/util",
   ]
 
   sources = [ "mock/dsproxy_mock.cpp" ]

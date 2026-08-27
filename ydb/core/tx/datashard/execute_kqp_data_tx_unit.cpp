@@ -430,7 +430,7 @@ EExecutionStatus TExecuteKqpDataTxUnit::Execute(TOperation::TPtr op, TTransactio
             mvccVersion.ToProto(op->Result()->Record.MutableCommitVersion());
         }
 
-        if (auto changes = std::move(dataTx->GetCollectedChanges())) {
+        if (auto changes = dataTx->GetCollectedChanges()) {
             op->ChangeRecords() = std::move(changes);
         }
 

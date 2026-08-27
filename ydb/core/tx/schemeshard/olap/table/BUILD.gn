@@ -1,17 +1,13 @@
-library("table") {
-  public_deps = [
-    "//ydb/core/protos",
-    # "//ydb/core/tx/columnshard/common",
-    "//ydb/core/tx/schemeshard",
-    # "//ydb/core/tx/sharding",
-  ]
-
-  deps = [
-    # "//ydb/core/tx/columnshard/common:protos",
-    # "//ydb/core/tx/schemeshard/olap/operations/alter/abstract",
-    # "//ydb/core/tx/schemeshard/olap/operations/alter/in_store",
-    # "//ydb/core/tx/schemeshard/olap/operations/alter/standalone",
-  ]
-
-  sources = [ "table.cpp" ]
-}
+# library("table") расформирована: table.cpp теперь компилируется прямо в
+# library("schemeshard") (ydb/core/tx/schemeshard/BUILD.gn, sources += "olap/table/table.cpp").
+# Причина: TColumnTableInfo — schemeshard-доменный тип, а table.h тянет
+# schemeshard_info_types.h, чьё compile-окружение есть только в schemeshard;
+# отдельной статической либой его не собрать (в gn нет whole-program-линковки,
+# на которую я ошибочно рассчитывал — символы TAggregatedStats::Update*/
+# TShardIdx::BuildFromProto реально нужны). Это разорвало цикл
+# schemeshard <-> olap/table. Заголовок table.h остаётся здесь и резолвится по пути.
+#
+# Единственным активным потребителем таргета был schemeshard (теперь компилирует
+# table.cpp сам). Прочие (alter/*, manager) ссылались на этот таргет
+# закомментированными deps — при их конвертации они должны брать TColumnTableInfo
+# из schemeshard, а не из отдельной либы.

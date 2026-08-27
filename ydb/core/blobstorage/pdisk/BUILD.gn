@@ -7,6 +7,7 @@ library("metadata") {
   deps = [
     # "//library/cpp/openssl/crypto",
     # "//ydb/library/actors/core",
+    "//ydb/library/keys",
   ]
 
   sources = [ "metadata/blobstorage_pdisk_metadata.cpp" ]
@@ -31,13 +32,11 @@ library("pdisk") {
   ]
 
   deps = [
-    "//library/cpp/cgiparam",
     "//library/cpp/json",
     # "//library/cpp/bucket_quoter",
     # "//library/cpp/containers/stack_vector",
     # "//library/cpp/deprecated/atomic",
     # "//library/cpp/monlib/dynamic_counters:percentile",
-    "//library/cpp/monlib/service/pages",
     # "//library/cpp/threading/queue",
     "//ydb/core/blobstorage/lwtrace_probes",
     # "//ydb/core/debug",

@@ -14,7 +14,6 @@ library("tablet") {
 
   deps = [
     # "//library/cpp/random_provider",
-    "//library/cpp/cgiparam",
     "//library/cpp/http/io",
     "//library/cpp/svnversion",
     # "//library/cpp/time_provider",

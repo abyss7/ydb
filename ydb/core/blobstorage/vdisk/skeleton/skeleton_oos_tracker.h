@@ -1,6 +1,10 @@
 #pragma once
 #include "defs.h"
 
+namespace NActors {
+    class IActor;
+}
+
 namespace NKikimr {
 
     ////////////////////////////////////////////////////////////////////////////

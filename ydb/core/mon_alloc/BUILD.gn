@@ -9,7 +9,6 @@ library("mon_alloc") {
   deps = [
     "//contrib/libs/tcmalloc:malloc_extension",
     # "//library/cpp/cache",
-    "//library/cpp/cgiparam",
     "//library/cpp/execprofile",
     "//library/cpp/html/pcdata",
     "//library/cpp/lfalloc/dbg_info",

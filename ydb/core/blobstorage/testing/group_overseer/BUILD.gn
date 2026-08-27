@@ -1,7 +1,7 @@
 library("group_overseer") {
   deps = [
-    # "//contrib/libs/t1ha",
-    # "//ydb/core/base",
+    "//contrib/libs/t1ha",
+    "//ydb/core/base",
   ]
 
   sources = [

@@ -6,7 +6,6 @@ library("audit") {
   ]
 
   deps = [
-    "//library/cpp/cgiparam",
     "//ydb/core/audit",
     "//ydb/core/audit:audit_config",
     "//ydb/core/base",
@@ -32,7 +31,6 @@ library("mon") {
 
   deps = [
     ":audit",
-    "//library/cpp/cgiparam",
     "//library/cpp/http/io",
     "//library/cpp/json",
     # "//library/cpp/lwtrace",
@@ -40,7 +38,6 @@ library("mon") {
     "//library/cpp/mime/types",
     "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/monlib/metrics",
-    "//library/cpp/monlib/service/pages",
     "//library/cpp/protobuf/json",
     "//ydb/core/base",
     "//ydb/core/grpc_services/base",

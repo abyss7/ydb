@@ -1,11 +1,9 @@
 library("tracing") {
   public_deps = [
-    "//library/cpp/monlib/service/pages",
     "//ydb/library/actors/core",
   ]
 
   deps = [
-    "//library/cpp/cgiparam",
     "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/base",
     "//ydb/core/mon",

@@ -1,18 +1,19 @@
 library("column") {
   public_deps = [
     # "//contrib/libs/apache/arrow",
-    # "//ydb/core/formats/arrow/accessor/abstract",
+    "//ydb/core/formats/arrow/accessor:abstract",
     # "//ydb/core/formats/arrow:dictionary",
     # "//ydb/core/formats/arrow:save_load",
     # "//ydb/core/formats/arrow:serializer",
     # "//ydb/core/tx/columnshard/engines/scheme/abstract",
-    # "//ydb/core/tx/columnshard/engines/scheme/defaults:common",
+    "//ydb/core/tx/columnshard/engines/scheme/defaults:common",
     # "//ydb/library/accessor",
     # "//ydb/library/formats/arrow:transformer",
     # "//ydb/library/formats/arrow:validation",
   ]
 
   deps = [
+    "//ydb/core/protos",
     # "//ydb/core/tx/columnshard/splitter:abstract",
   ]
 

@@ -9,7 +9,7 @@ library("max") {
   deps = [
     # "//contrib/libs/apache/arrow",
     # "//library/cpp/deprecated/atomic",
-    # "//ydb/core/tx/columnshard/engines/scheme",
+    "//ydb/core/tx/columnshard/engines/scheme",
     # "//ydb/core/tx/columnshard/engines/scheme/indexes/abstract",
     # "//ydb/core/tx/columnshard/engines/storage/chunks",
     # "//ydb/core/tx/program",
@@ -19,6 +19,7 @@ library("max") {
 
   sources = [
     "constructor.cpp",
+    "index_info_ext.cpp",
     "meta.cpp",
   ]
 }

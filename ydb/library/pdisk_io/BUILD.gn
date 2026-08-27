@@ -7,6 +7,7 @@ library("device_type") {
 library("pdisk_io") {
   public_deps = [
     ":device_type",
+    "//contrib/libs/lz4",
     # "//ydb/core/blobstorage/pdisk",
     # "//ydb/core/debug",
     # "//ydb/library/actors/util",
@@ -18,7 +19,6 @@ library("pdisk_io") {
     ":protos",
     "//contrib/libs/libaio",
     "//contrib/libs/liburing",
-    "//contrib/libs/lz4",
     # "//library/cpp/containers/stack_vector",
     # "//library/cpp/deprecated/atomic",
     # "//library/cpp/monlib/dynamic_counters",

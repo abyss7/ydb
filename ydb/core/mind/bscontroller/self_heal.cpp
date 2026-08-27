@@ -637,7 +637,7 @@ namespace NKikimr::NBsController {
                 }
             }
 
-            return std::move(groupDefinition);
+            return groupDefinition;
         }
 
         void HandleWakeup() {

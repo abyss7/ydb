@@ -14,6 +14,7 @@
 #include <ydb/core/tx/columnshard/engines/reader/common_reader/common/columns_set.h>
 #include <ydb/core/tx/columnshard/engines/reader/common_reader/iterator/source.h>
 #include <ydb/core/tx/columnshard/engines/scheme/versions/filtered_scheme.h>
+#include <ydb/core/tx/columnshard/engines/storage/indexes/skip_index/meta.h>
 #include <ydb/core/tx/columnshard/resource_subscriber/task.h>
 #include <ydb/core/tx/limiter/grouped_memory/usage/abstract.h>
 
@@ -159,7 +160,7 @@ public:
         AFL_VERIFY(SourceGroupGuard);
         auto result = std::move(SourceGroupGuard);
         SourceGroupGuard = nullptr;
-        return std::move(result);
+        return result;
     }
 
     ui64 GetMemoryGroupId() const {

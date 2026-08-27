@@ -8,8 +8,13 @@ library("skip_index") {
     # "//ydb/core/tx/columnshard/splitter:abstract",
   ]
 
+  deps = [
+    "//ydb/core/tx/columnshard/engines/scheme",
+  ]
+
   sources = [
     "constructor.cpp",
+    "index_info_ext.cpp",
     "meta.cpp",
   ]
 }

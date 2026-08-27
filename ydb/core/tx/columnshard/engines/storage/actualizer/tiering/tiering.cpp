@@ -6,6 +6,7 @@
 #include <ydb/core/tx/columnshard/engines/column_engine.h>
 #include <ydb/core/tx/columnshard/engines/scheme/index_info.h>
 #include <ydb/core/tx/columnshard/engines/scheme/versions/versioned_index.h>
+#include <ydb/core/tx/columnshard/engines/storage/indexes/max/index_info_ext.h>
 #include <ydb/core/tx/columnshard/engines/storage/indexes/max/meta.h>
 #include <ydb/core/tx/columnshard/hooks/abstract/abstract.h>
 
@@ -134,7 +135,7 @@ void TTieringActualizer::ActualizePortionInfo(const TPortionDataAccessor& access
         std::shared_ptr<ISnapshotSchema> portionSchema = portion.GetSchema(VersionedIndex);
         std::shared_ptr<arrow::Scalar> max;
         AFL_VERIFY(*TieringColumnId != portionSchema->GetIndexInfo().GetPKColumnIds().front());
-        if (auto indexMeta = portionSchema->GetIndexInfo().GetIndexMetaMax(*TieringColumnId)) {
+        if (auto indexMeta = NIndexes::NMax::GetIndexMeta(portionSchema->GetIndexInfo(), *TieringColumnId)) {
             NYDBTest::TControllers::GetColumnShardController()->OnStatisticsUsage(NIndexes::TIndexMetaContainer(indexMeta));
             const std::vector<TString> data = accessor.GetIndexInplaceDataOptional(indexMeta->GetIndexId());
             if (!data.empty()) {

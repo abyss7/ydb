@@ -963,34 +963,8 @@ IActor *CreateDynamicNameserver(const TIntrusivePtr<TTableNameserverSetup> &setu
     return new TDynamicNameserver(setup, node, domains, poolId);
 }
 
-TIntrusivePtr<TTableNameserverSetup> BuildNameserverTable(const NKikimrConfig::TStaticNameserviceConfig& nsConfig) {
-    auto table = MakeIntrusive<TTableNameserverSetup>();
-    for (const auto &node : nsConfig.GetNode()) {
-        const ui32 nodeId = node.GetNodeId();
-        const TString host = node.HasHost() ? node.GetHost() : TString();
-        const ui32 port = node.GetPort();
-        const TString resolveHost = node.HasInterconnectHost() ?  node.GetInterconnectHost() : host;
-        const TString addr = resolveHost ? TString() : node.GetAddress();
-        TNodeLocation location;
-        if (node.HasWalleLocation()) {
-            location = TNodeLocation(node.GetWalleLocation());
-        } else if (node.HasLocation()) {
-            location = TNodeLocation(node.GetLocation());
-        }
-        table->StaticNodeTable[nodeId] = TTableNameserverSetup::TNodeInfo(addr, host, resolveHost, port, location);
-    }
-    return table;
-}
-
-TIntrusivePtr<TTableNameserverSetup> BuildNameserverTable(const NKikimrBlobStorage::TStorageConfig& config) {
-    auto table = MakeIntrusive<TTableNameserverSetup>();
-    for (const auto &node : config.GetAllNodes()) {
-        table->StaticNodeTable[node.GetNodeId()] = TTableNameserverSetup::TNodeInfo(
-            TString(), node.GetHost(), node.GetHost(), node.GetPort(), TNodeLocation(node.GetLocation())
-        );
-    }
-    return table;
-}
+// BuildNameserverTable() перенесён в nameserver_table_builder.cpp: его линкует
+// nodewarden (distconf.cpp), которому весь mind не нужен и не должен требоваться.
 
 TListNodesCache::TListNodesCache()
     : Nodes(nullptr)

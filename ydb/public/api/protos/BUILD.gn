@@ -49,4 +49,9 @@ protobuf_library("protos") {
         "ydb_topic.proto",
         "ydb_value.proto",
     ]
+
+    serialize_enum_headers = [
+        "ydb_monitoring.pb.h",
+        "ydb_status_codes.pb.h",
+    ]
 }

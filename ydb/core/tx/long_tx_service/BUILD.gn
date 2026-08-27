@@ -40,7 +40,6 @@ library("public") {
   ]
 
   deps = [
-    "//library/cpp/cgiparam",
     "//library/cpp/uri",
     "//ydb/library/actors/core",
   ]

@@ -1,7 +1,7 @@
 library("manager") {
   public_deps = [
     # "//ydb/core/tx/columnshard/data_locks/locks",
-    # "//ydb/core/tx/columnshard/hooks/abstract",
+    "//ydb/core/tx/columnshard/hooks/abstract",
   ]
 
   deps = [

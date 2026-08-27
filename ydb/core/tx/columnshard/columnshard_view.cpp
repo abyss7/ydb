@@ -1,6 +1,8 @@
 #include "columnshard_impl.h"
 #include "columnshard_view.h"
 
+#include <library/cpp/json/json_writer.h>
+
 namespace NKikimr::NColumnShard {
 
 class TTxMonitoring: public TTransactionBase<TColumnShard> {

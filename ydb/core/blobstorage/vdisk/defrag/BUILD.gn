@@ -1,6 +1,6 @@
 library("defrag") {
   public_deps = [
-    # "//ydb/core/base",
+    "//ydb/core/base",
     # "//ydb/core/blobstorage/vdisk/common",
   ]
 
@@ -8,7 +8,9 @@ library("defrag") {
     # "//ydb/core/blobstorage/vdisk",
     # "//ydb/core/blobstorage/vdisk/huge",
     # "//ydb/core/blobstorage/vdisk/hulldb",
+    "//ydb/core/blobstorage/vdisk/hulldb:barriers",
     # "//ydb/core/blobstorage/vdisk/hulldb:base",
+    "//ydb/core/blobstorage/vdisk/hulldb:generic",
     # "//ydb/core/blobstorage/vdisk/query",
     # "//ydb/core/blobstorage/vdisk/scrub",
     # "//ydb/core/blobstorage/vdisk/skeleton",

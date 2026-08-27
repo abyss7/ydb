@@ -2,17 +2,19 @@ library("balance") {
   public_deps = [
     # "//ydb/core/blobstorage/base",
     # "//ydb/core/blobstorage/vdisk/hulldb",
-    # "//ydb/core/blobstorage/vdisk/hulldb:generic",
+    "//ydb/core/blobstorage/vdisk/hulldb:generic",
   ]
 
   deps = [
-    # "//ydb/core/blobstorage/groupinfo",
-    # "//ydb/core/blobstorage/vdisk/common",
+    "//ydb/core/base",
+    "//ydb/core/blobstorage/backpressure",
+    "//ydb/core/blobstorage/groupinfo",
+    "//ydb/core/blobstorage/vdisk/common",
     # "//ydb/core/blobstorage/vdisk/hullop",
     # "//ydb/core/blobstorage/vdisk/ingress",
     # "//ydb/core/blobstorage/vdisk/repl",
     # "//ydb/core/blobstorage/vdisk/synclog",
-    # "//ydb/core/util",
+    "//ydb/core/util",
   ]
 
   sources = [

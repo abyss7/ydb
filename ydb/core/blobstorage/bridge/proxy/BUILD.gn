@@ -5,10 +5,13 @@ library("proxy") {
   ]
 
   deps = [
+    "//ydb/core/base",
     # "//ydb/core/blobstorage",
+    "//ydb/core/blobstorage/events",
     # "//ydb/core/blobstorage/dsproxy",
-    # "//ydb/core/util",
+    "//ydb/core/util",
     # "//ydb/library/actors/async",
+    "//ydb/library/actors/wilson",
   ]
 
   sources = [ "bridge_proxy.cpp" ]

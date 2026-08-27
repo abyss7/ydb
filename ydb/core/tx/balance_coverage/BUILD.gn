@@ -4,7 +4,7 @@ library("balance_coverage") {
   ]
 
   deps = [
-    # "//ydb/core/base",
+    "//ydb/core/base",
   ]
 
   sources = [ "balance_coverage_builder.cpp" ]

@@ -8,6 +8,7 @@ SRCS(
     dynamic_nameserver.h
     dynamic_nameserver_impl.h
     dynamic_nameserver_mon.cpp
+    nameserver_table_builder.cpp
     labels_maintainer.cpp
     labels_maintainer.h
     lease_holder.cpp

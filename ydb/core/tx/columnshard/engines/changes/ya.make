@@ -6,6 +6,8 @@ SRCS(
     compaction.cpp
     general_compaction.cpp
     merge_subset.cpp
+    move_portions.cpp
+    remove_portions.cpp
     ttl.cpp
     with_appended.cpp
 )

@@ -1,6 +1,7 @@
 #pragma once
 #include "background_controller.h"
 #include "columnshard.h"
+#include "common/tablet_defaults.h"
 #include "columnshard_private_events.h"
 #include "columnshard_subdomain_path_id.h"
 #include "counters.h"
@@ -135,9 +136,11 @@ IActor* CreateColumnShardScan(const TActorId& scanComputeActor, ui32 scanId, ui6
 
 struct TSettings {
     static constexpr ui32 MAX_INDEXATIONS_TO_SKIP = 16;
-    static constexpr TDuration GuaranteeIndexationInterval = TDuration::Seconds(10);
-    static constexpr TDuration DefaultStatsReportInterval = TDuration::Seconds(10);
-    static constexpr i64 GuaranteeIndexationStartBytesLimit = (i64)5 * 1024 * 1024 * 1024;
+    // Реэкспорт из лёгкого common/tablet_defaults.h (чтобы hooks/abstract брал их
+    // без тяжёлого columnshard_impl.h). TSettings::X — прежний API.
+    static constexpr TDuration GuaranteeIndexationInterval = TSettingsDefaults::GuaranteeIndexationInterval;
+    static constexpr TDuration DefaultStatsReportInterval = TSettingsDefaults::DefaultStatsReportInterval;
+    static constexpr i64 GuaranteeIndexationStartBytesLimit = TSettingsDefaults::GuaranteeIndexationStartBytesLimit;
 
     TControlWrapper BlobWriteGrouppingEnabled;
     TControlWrapper CacheDataAfterIndexing;

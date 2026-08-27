@@ -16,18 +16,16 @@ library("memory_tracker") {
 
 library("util") {
   public_deps = [
+    "//library/cpp/json",
     "//ydb/core/protos",
   ]
 
   deps = [
     "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-core",
     "//contrib/libs/curl",
-    "//library/cpp/cgiparam",
     "//library/cpp/ipmath",
     "//library/cpp/ipv6_address",
-    "//library/cpp/json",
     # "//library/cpp/monlib/dynamic_counters",
-    "//library/cpp/monlib/service/pages",
     "//ydb/core/base",
     "//ydb/library/actors/core",
     # "//ydb/library/actors/util",

@@ -1709,7 +1709,7 @@ TMaybeNode<TExprBase> KqpRewriteFlatMapOverFullTextMatch(const NYql::NNodes::TEx
 
     auto newLambdaBody = TCoLambda{ctx.NewLambda(
         flatMap.Lambda().Pos(),
-        std::move(flatMap.Lambda().Args().Ptr()),
+        flatMap.Lambda().Args().Ptr(),
         ctx.ReplaceNodes(TExprNode::TListType{flatMap.Lambda().Body().Ptr()}, replaces))};
 
     auto newFlatMap = Build<TCoFlatMap>(ctx, read.Pos())

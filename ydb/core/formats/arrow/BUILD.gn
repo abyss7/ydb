@@ -1,5 +1,6 @@
 library("arrow") {
   public_deps = [
+    "accessor:abstract_srcs",
     "//ydb/library/formats/arrow",
   ]
 
@@ -9,11 +10,10 @@ library("arrow") {
     ":hash_srcs",
     ":reader_srcs",
     ":rows_srcs",
-    # ":save_load_srcs",
+    ":save_load_srcs",
     ":serializer_srcs",
-    # ":splitter_srcs",
+    ":splitter_srcs",
     ":transformer_srcs",
-    "accessor:abstract_srcs",
     "accessor:plain_srcs",
     # "//contrib/libs/apache/arrow",
     # "//library/cpp/containers/stack_vector",
@@ -155,7 +155,8 @@ source_set("rows_srcs") {
 }
 
 source_set("save_load_srcs") {
-  deps = [
+  deps += [
+    ":serializer_srcs",
     # "//contrib/libs/apache/arrow",
     # "//ydb/library/accessor",
     # "//ydb/library/formats/arrow:splitter",
@@ -170,16 +171,19 @@ source_set("save_load_srcs") {
 }
 
 source_set("serializer_srcs") {
+  public_deps = [
+    "//ydb/core/protos",
+    "//ydb/library/formats/arrow:validation",
+    "//ydb/services/bg_tasks/abstract",
+  ]
+
   deps += [
     "//contrib/libs/apache/arrow",
     # "//ydb/core/base",
-    "//ydb/core/protos",
     # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
     # "//ydb/library/conclusion",
-    # "//ydb/library/formats/arrow:validation",
     # "//ydb/library/services",
-    "//ydb/services/bg_tasks/abstract",
     "//ydb/services/metadata/abstract",
   ]
 
@@ -193,10 +197,11 @@ source_set("serializer_srcs") {
 }
 
 source_set("splitter_srcs") {
-  deps = [
+  deps += [
+    ":serializer_srcs",
     # "//contrib/libs/apache/arrow",
     # "//ydb/library/accessor",
-    # "//ydb/library/formats/arrow:splitter",
+    "//ydb/library/formats/arrow:splitter",
     # "//ydb/library/formats/arrow:validation",
   ]
 

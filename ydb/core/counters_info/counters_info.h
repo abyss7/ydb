@@ -1,5 +1,6 @@
 #pragma once
 
+#include <library/cpp/monlib/dynamic_counters/counters.h>
 #include <ydb/core/base/events.h>
 #include <ydb/core/protos/counters_info.pb.h>
 

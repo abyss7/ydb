@@ -13,14 +13,14 @@ library("scheme") {
     "//ydb/core/tx/columnshard/data_accessor:abstract",
     # "//ydb/core/tx/columnshard/engines",
     "//ydb/core/tx/columnshard/engines/scheme/abstract",
-    # "//ydb/core/tx/columnshard/engines/scheme/column",
+    "//ydb/core/tx/columnshard/engines/scheme/column",
     # "//ydb/core/tx/columnshard/engines/scheme/common",
-    # "//ydb/core/tx/columnshard/engines/scheme/indexes/abstract",
+    "//ydb/core/tx/columnshard/engines/scheme/indexes/abstract",
     # "//ydb/core/tx/columnshard/engines/scheme/tiering",
     # "//ydb/core/tx/columnshard/engines/scheme/versions",
     # "//ydb/core/tx/columnshard/splitter:abstract",
     # "//ydb/library/formats/arrow:transformer",
-    # "//ydb/library/formats/arrow:validation",
+    "//ydb/library/formats/arrow:validation",
   ]
 
   deps = [
@@ -30,7 +30,7 @@ library("scheme") {
     # "//ydb/core/tx/columnshard/engines/storage/chunks",
     # "//ydb/core/tx/columnshard/engines/storage/indexes/count_min_sketch",
     # "//ydb/core/tx/columnshard/engines/storage/indexes/max",
-    # "//ydb/core/tx/columnshard/engines/storage/indexes/portions",
+    "//ydb/core/tx/columnshard/engines/storage/indexes/portions:extractor",
     # "//ydb/core/tx/columnshard/engines/storage/indexes/skip_index",
     # "//ydb/core/tx/columnshard/engines/storage/optimizer/abstract",
     # "//ydb/library/actors/core",

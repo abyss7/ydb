@@ -14,6 +14,7 @@
 #include <ydb/core/tx/columnshard/engines/reader/common_reader/iterator/fetch_steps.h>
 #include <ydb/core/tx/columnshard/engines/reader/common_reader/iterator/sub_columns_fetching.h>
 #include <ydb/core/tx/columnshard/engines/storage/indexes/portions/meta.h>
+#include <ydb/core/tx/columnshard/engines/storage/indexes/skip_index/index_info_ext.h>
 #include <ydb/core/tx/columnshard/engines/storage/indexes/skip_index/meta.h>
 #include <ydb/core/tx/columnshard/hooks/abstract/abstract.h>
 #include <ydb/core/tx/conveyor_composite/usage/service.h>
@@ -213,7 +214,7 @@ TConclusion<std::vector<std::shared_ptr<NArrow::NSSA::IFetchLogic>>> TPortionDat
             auto indexMeta = MutableStageData().GetIndexes()->FindIndexFor(addr, op);
             TCheckIndexContext checkAddr(indexContext.GetColumnId(), i.first, op);
             if (!indexMeta) {
-                const auto indexesMeta = GetSourceSchema()->GetIndexInfo().FindSkipIndexes(addr, op);
+                const auto indexesMeta = NIndexes::FindSkipIndexes(GetSourceSchema()->GetIndexInfo(), addr, op);
                 if (indexesMeta.empty()) {
                     MutableStageData().AddRemapDataToIndex(checkAddr, nullptr);
                     continue;

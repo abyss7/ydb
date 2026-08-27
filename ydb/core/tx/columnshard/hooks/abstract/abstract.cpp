@@ -1,11 +1,17 @@
 #include "abstract.h"
 
-#include <ydb/core/tx/columnshard/columnshard_impl.h>
+// Вместо тяжёлого columnshard_impl.h (тянет engines/arrow и замыкал цикл
+// blobs_action:abstract -> hooks/abstract -> columnshard) берём только нужное:
+// дефолты таблета из лёгкого common/tablet_defaults.h и TPortionInfo из
+// portion_info.h (используется header-only: HasRuntimeFeature inline,
+// GetPortionType виртуальный — линк-символов engines/portions нет).
+#include <ydb/core/tx/columnshard/common/tablet_defaults.h>
+#include <ydb/core/tx/columnshard/engines/portions/portion_info.h>
 
 namespace NKikimr::NYDBTest {
 
 TDuration ICSController::GetGuaranteeIndexationInterval() const {
-    const TDuration defaultValue = NColumnShard::TSettings::GuaranteeIndexationInterval;
+    const TDuration defaultValue = NColumnShard::TSettingsDefaults::GuaranteeIndexationInterval;
     return DoGetGuaranteeIndexationInterval(defaultValue);
 }
 
@@ -15,12 +21,12 @@ TDuration ICSController::GetPeriodicWakeupActivationPeriod() const {
 }
 
 TDuration ICSController::GetStatsReportInterval() const {
-    const TDuration defaultValue = NColumnShard::TSettings::DefaultStatsReportInterval;
+    const TDuration defaultValue = NColumnShard::TSettingsDefaults::DefaultStatsReportInterval;
     return DoGetStatsReportInterval(defaultValue);
 }
 
 ui64 ICSController::GetGuaranteeIndexationStartBytesLimit() const {
-    const ui64 defaultValue = NColumnShard::TSettings::GuaranteeIndexationStartBytesLimit;
+    const ui64 defaultValue = NColumnShard::TSettingsDefaults::GuaranteeIndexationStartBytesLimit;
     return DoGetGuaranteeIndexationStartBytesLimit(defaultValue);
 }
 

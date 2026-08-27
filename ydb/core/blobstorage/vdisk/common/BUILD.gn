@@ -1,9 +1,3 @@
-# TVDiskIncarnationGuid / TVDiskEternalGuid are plain ui64 value types whose
-# header pulls nothing from //ydb/core/blobstorage/base. They are split out of
-# `common` so that lower-level libraries can use them (blobstorage/base holds a
-# TVDiskIncarnationGuid inside TSyncState and needs its Out<> spec) without
-# depending on all of `common`, which in turn depends on blobstorage/base --
-# that would be a dependency cycle.
 library("guids") {
   public_deps = [
     "//ydb/core/base",
@@ -20,21 +14,21 @@ library("common") {
   public_deps = [
     ":guids",
     "//library/cpp/monlib/dynamic_counters",
-    "//library/cpp/monlib/service/pages",
-    # "//library/cpp/string_utils/base64",
+    "//library/cpp/string_utils/base64",
     # "//library/cpp/time_provider",
     "//ydb/core/base",
     # "//ydb/core/blobstorage/backpressure",
-    # "//ydb/core/blobstorage/base",
-    # "//ydb/core/blobstorage/groupinfo",
+    "//ydb/core/blobstorage/base",
+    "//ydb/core/blobstorage/groupinfo",
     # "//ydb/core/blobstorage/pdisk",
     # "//ydb/core/blobstorage/storagepoolmon",
     # "//ydb/core/blobstorage/vdisk/ingress",
     # "//ydb/core/blobstorage/vdisk/protos",
-    # "//ydb/core/control/lib",
+    "//ydb/core/control/lib",
     # "//ydb/core/protos",
-    # "//ydb/core/util",
+    "//ydb/core/util",
     # "//ydb/library/actors/interconnect",
+    "//ydb/library/actors/wilson",
   ]
 
   deps = [
@@ -42,10 +36,10 @@ library("common") {
     # "//library/cpp/monlib/dynamic_counters:percentile",
     # "//library/cpp/monlib/metrics",
     # "//library/cpp/random_provider",
-    # "//ydb/core/blobstorage/lwtrace_probes",
+    "//ydb/core/blobstorage/lwtrace_probes",
     # "//ydb/core/blobstorage/vdisk",
     # "//ydb/core/blobstorage/vdisk/huge",
-    # "//ydb/core/blobstorage/vdisk/hulldb:base",
+    "//ydb/core/blobstorage/vdisk/hulldb:base_types",
     # "//ydb/core/blobstorage/vdisk/skeleton",
     # "//ydb/library/actors/protos",
     # "//ydb/library/lockfree_bucket",

@@ -1,7 +1,7 @@
 library("common") {
   deps = [
     # "//ydb/core/tx/columnshard/engines/scheme/tiering",
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
   ]
 
   sources = [ "address.cpp" ]

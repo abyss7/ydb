@@ -34,7 +34,7 @@ source_set("abstract_srcs") {
   ]
 }
 
-group("abstract") {
+library("abstract") {
   public_deps = [ "//ydb/core/formats/arrow" ]
 }
 

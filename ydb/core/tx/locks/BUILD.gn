@@ -1,9 +1,9 @@
 library("locks") {
   public_deps = [
     # "//library/cpp/cache",
-    # "//library/cpp/containers/absl_flat_hash",
-    # "//ydb/core/base",
-    # "//ydb/core/protos",
+    "//library/cpp/containers/absl_flat_hash",
+    "//ydb/core/base",
+    "//ydb/core/protos",
     # "//ydb/core/scheme",
     # "//ydb/core/tablet",
     # "//ydb/core/tablet_flat",

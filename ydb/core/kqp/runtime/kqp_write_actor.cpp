@@ -3250,7 +3250,7 @@ public:
                         .KeyIndexes = GetIndexes( // inserted secondary keys
                             settings.Columns,
                             settings.LookupColumns,
-                            TConstArrayRef{
+                            TConstArrayRef<NKikimrKqp::TKqpColumnMetadataProto>{
                                 indexSettings.KeyColumns.data(),
                                 indexSettings.KeyPrefixSize},
                             /* preferAdditionalInputColumns */ false),
@@ -3273,7 +3273,7 @@ public:
                         .OldKeyIndexes = GetIndexes( // old secondary keys
                                 settings.Columns,
                                 settings.LookupColumns,
-                                TConstArrayRef{
+                                TConstArrayRef<NKikimrKqp::TKqpColumnMetadataProto>{
                                     indexSettings.KeyColumns.data(),
                                     indexSettings.KeyPrefixSize},
                                 /* preferAdditionalInputColumns */ true),
