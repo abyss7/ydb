@@ -1,26 +1,12 @@
+# Файлы этого каталога компилируются как часть engines (заголовки остались на месте).
+# Узел index <-> tiering/scheme <-> engines взаимный по реальным символам:
+# index.cpp создаёт TTieringActualizer/TSchemeActualizer, а tiering.cpp и scheme.cpp
+# зовут TTieringProcessContext::AddPortion, чьё тело (context.cpp) — часть engines,
+# которая, в свою очередь, через granule.h держит TGranuleActualizationIndex отсюда.
+# Раздельными gn-таргетами они быть не могут без цикла.
+# Этот таргет — форвардер для существующих потребителей ":scheme".
 library("scheme") {
-  public_deps = [
-    # "//ydb/core/tx/columnshard/common",
-    # "//ydb/core/tx/columnshard/engines/scheme/versions",
-    # "//ydb/core/tx/columnshard/engines/storage/actualizer/abstract",
-    # "//ydb/core/tx/columnshard/engines/storage/actualizer/common",
-  ]
+  public_deps = [ "//ydb/core/tx/columnshard/engines" ]
 
-  deps = [
-    # "//ydb/core/tx/columnshard/counters",
-    # "//ydb/core/tx/columnshard/data_locks/manager",
-    # "//ydb/core/tx/columnshard/engines/changes/abstract",
-    # "//ydb/core/tx/columnshard/engines/changes/actualization/construction",
-    # "//ydb/core/tx/columnshard/engines/scheme",
-    # "//ydb/core/tx/columnshard/engines/storage/optimizer/abstract",
-    # "//ydb/core/tx/columnshard/hooks/abstract",
-    # "//ydb/core/tx/columnshard/splitter",
-    # "//ydb/library/accessor",
-    # "//ydb/library/formats/arrow",
-  ]
-
-  sources = [
-    "counters.cpp",
-    "scheme.cpp",
-  ]
+  sources = []
 }

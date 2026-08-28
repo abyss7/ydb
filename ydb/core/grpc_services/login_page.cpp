@@ -1,5 +1,5 @@
 #include "login_page.h"
-#include "login_shared_func.h"
+#include <ydb/core/security/login_shared_func.h>
 
 #include <ydb/library/actors/http/http_proxy.h>
 #include <library/cpp/json/json_value.h>

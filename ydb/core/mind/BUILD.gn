@@ -51,6 +51,7 @@ library("bscontroller") {
 
   deps = [
     # "//contrib/libs/xxhash",
+    "//library/cpp/http/io",
     # "//library/cpp/json",
     # "//library/cpp/monlib/service/pages",
     # "//library/cpp/streams/zstd",
@@ -58,20 +59,22 @@ library("bscontroller") {
     # "//ydb/core/base/services",
     # "//ydb/core/blob_depot",
     "//ydb/core/blobstorage/base",
+    "//ydb/core/blobstorage/events",
     "//ydb/core/blobstorage/groupinfo",
     "//ydb/core/blobstorage/nodewarden",
     # "//ydb/core/cms/console",
     "//ydb/core/control/lib",
     # "//ydb/core/debug_tools",
-    # "//ydb/core/driver_lib/version",
-    # "//ydb/core/engine:minikql",
+    "//ydb/core/driver_lib/version",
+    "//ydb/core/engine:minikql",
     # "//ydb/core/mind",
     # "//ydb/core/node_whiteboard",
     # "//ydb/core/protos",
     # "//ydb/core/scheme",
     # "//ydb/core/sys_view:common",
     "//ydb/core/tablet",
-    # "//ydb/core/tablet_flat",
+    "//ydb/core/tablet_flat",
+    "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/schemeshard",
     # "//ydb/core/tx/tx_proxy",
     "//ydb/core/util",
@@ -79,8 +82,7 @@ library("bscontroller") {
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/services",
-    # "//ydb/library/yaml_config:public",
-    # "//ydb/library/yaml_json",
+    "//ydb/library/yaml_json",
   ]
 
   sources = [

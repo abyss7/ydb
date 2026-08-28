@@ -59,13 +59,13 @@ protobuf_library("protos") {
 
 library("scalar") {
   public_deps = [
-    # "//contrib/libs/apache/arrow",
-    # "//ydb/library/conclusion",
+    "//contrib/libs/apache/arrow",
+    "//ydb/library/conclusion",
   ]
 
   deps = [
     # ":switch",
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
   ]
 
   sources = [ "scalar/serialization.cpp" ]

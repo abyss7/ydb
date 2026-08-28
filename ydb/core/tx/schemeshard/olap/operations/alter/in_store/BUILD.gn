@@ -30,7 +30,7 @@ library("config_shards") {
 
 library("in_store") {
   public_deps = [
-    # "//ydb/core/tx/schemeshard/olap/operations/alter/common",
+    "//ydb/core/tx/schemeshard/olap/operations/alter/common",
     # "//ydb/core/tx/schemeshard/olap/schema",
     # "//ydb/core/tx/schemeshard/olap/store",
     # "//ydb/core/tx/schemeshard/olap/table",

@@ -16,14 +16,15 @@ library("sequenceproxy") {
   ]
 
   deps = [
-    # "//library/cpp/monlib/dynamic_counters",
-    # "//ydb/core/base",
+    "//library/cpp/monlib/dynamic_counters",
+    "//ydb/core/base",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/sequenceshard:public",
+    "//ydb/library/aclib",
     # "//ydb/library/actors/core",
     # "//ydb/library/services",
-    # "//ydb/library/ydb_issue",
-    # "//yql/essentials/public/issue",
+    "//ydb/library/ydb_issue",
+    "//yql/essentials/public/issue",
   ]
 
   sources = [

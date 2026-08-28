@@ -3,14 +3,14 @@ library("manager") {
     # "//ydb/core/tablet_flat",
     # "//ydb/core/tx/columnshard/bg_tasks/abstract",
     # "//ydb/core/tx/columnshard/bg_tasks/events",
-    # "//ydb/core/tx/columnshard/bg_tasks/session",
+    "//ydb/core/tx/columnshard/bg_tasks/session",
     # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
-    # "//ydb/core/tx/columnshard/bg_tasks/protos",
-    # "//ydb/core/tx/columnshard/bg_tasks/transactions",
+    "//ydb/core/tx/columnshard/bg_tasks/protos",
+    "//ydb/core/tx/columnshard/bg_tasks/transactions",
   ]
 
   sources = [

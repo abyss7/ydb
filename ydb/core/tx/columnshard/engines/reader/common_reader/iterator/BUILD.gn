@@ -19,8 +19,8 @@ library("iterator") {
     # "//ydb/core/tx/columnshard/engines/predicate",
     # "//ydb/core/tx/columnshard/engines/reader/abstract",
     # "//ydb/core/tx/columnshard/engines/reader/common",
-    # "//ydb/core/tx/columnshard/engines/reader/common_reader/common",
-    # "//ydb/core/tx/columnshard/engines/reader/common_reader/constructor",
+    "//ydb/core/tx/columnshard/engines/scheme",
+    "//ydb/core/tx/columnshard/engines/reader/common_reader/constructor",
     # "//ydb/core/tx/columnshard/engines/scheme/indexes/abstract",
     # "//ydb/core/tx/columnshard/engines/scheme/versions",
     # "//ydb/core/tx/columnshard/resource_subscriber",
@@ -53,7 +53,16 @@ library("iterator") {
     "iterator.cpp",
     "source.cpp",
     "sub_columns_fetching.cpp",
+    "//ydb/core/tx/columnshard/engines/reader/common_reader/common/accessor_callback.cpp",
+    "//ydb/core/tx/columnshard/engines/reader/common_reader/common/accessors_ordering.cpp",
+    "//ydb/core/tx/columnshard/engines/reader/common_reader/common/columns_set.cpp",
+    "//ydb/core/tx/columnshard/engines/reader/common_reader/common/script.cpp",
+    "//ydb/core/tx/columnshard/engines/reader/common_reader/common/script_counters.cpp",
+    "//ydb/core/tx/columnshard/engines/reader/common_reader/common/script_cursor.cpp",
   ]
 
-  serialize_enum_headers = [ "source.h" ]
+  serialize_enum_headers = [
+    "source.h",
+    "//ydb/core/tx/columnshard/engines/reader/common_reader/common/columns_set.h",
+  ]
 }

@@ -1,9 +1,9 @@
 library("rbo") {
   public_deps = [
-    # "//ydb/core/kqp/common",
-    # "//ydb/core/kqp/opt",
+    "//ydb/core/kqp/common",
+    "//ydb/core/kqp/opt",
     # "//yql/essentials/ast",
-    # "//yql/essentials/core",
+    "//yql/essentials/core",
   ]
 
   deps = [
@@ -12,7 +12,7 @@ library("rbo") {
     # "//ydb/library/yql/dq/opt",
     # "//yql/essentials/core/cbo",
     # "//yql/essentials/core/type_ann",
-    # "//yql/essentials/utils/log",
+    "//yql/essentials/utils/log",
   ]
 
   sources = [
@@ -27,5 +27,14 @@ library("rbo") {
     "kqp_rbo_utils.cpp",
     "kqp_rewrite_select.cpp",
     "kqp_stage_graph.cpp",
+    "physical_convertion/kqp_rbo_convert_to_physical.cpp",
+    "physical_convertion/kqp_rbo_physical_aggregation_builder.cpp",
+    "physical_convertion/kqp_rbo_physical_convertion_utils.cpp",
+    "physical_convertion/kqp_rbo_physical_filter_builder.cpp",
+    "physical_convertion/kqp_rbo_physical_join_builder.cpp",
+    "physical_convertion/kqp_rbo_physical_map_builder.cpp",
+    "physical_convertion/kqp_rbo_physical_query_builder.cpp",
+    "physical_convertion/kqp_rbo_physical_sort_builder.cpp",
+    "physical_convertion/kqp_rbo_physical_source_builder.cpp",
   ]
 }

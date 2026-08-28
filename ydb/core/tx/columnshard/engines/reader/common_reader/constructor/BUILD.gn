@@ -1,9 +1,9 @@
 library("constructor") {
   public_deps = [
-    # "//ydb/core/formats/arrow:program",
+    "//ydb/core/formats/arrow:program",
     # "//ydb/core/formats/arrow:reader",
     # "//ydb/core/tx/columnshard/common",
-    # "//ydb/core/tx/columnshard/engines/reader/abstract",
+    "//ydb/core/tx/columnshard/engines/reader/abstract",
     # "//ydb/core/tx/columnshard/engines/reader/common",
     # "//ydb/core/tx/columnshard/engines/scheme",
     # "//ydb/library/formats/arrow",

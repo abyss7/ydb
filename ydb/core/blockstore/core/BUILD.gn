@@ -2,7 +2,7 @@ library("core") {
   public_deps = [
     # "//ydb/core/base",
     # "//ydb/core/protos",
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
   ]
 
   sources = [ "blockstore.cpp" ]

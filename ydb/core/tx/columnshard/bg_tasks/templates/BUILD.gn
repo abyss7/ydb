@@ -1,7 +1,7 @@
 library("templates") {
   public_deps = [
     # "//ydb/core/tablet_flat",
-    # "//ydb/core/tx/columnshard/bg_tasks/abstract",
+    "//ydb/core/tx/columnshard/bg_tasks/abstract",
   ]
 
   sources = [ "adapter.cpp" ]

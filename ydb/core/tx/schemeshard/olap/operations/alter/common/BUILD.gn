@@ -1,7 +1,7 @@
 library("common") {
   public_deps = [
     # "//ydb/core/formats/arrow/accessor/common",
-    # "//ydb/core/tx/schemeshard/olap/operations/alter/abstract",
+    "//ydb/core/tx/schemeshard/olap/operations/alter/abstract",
     # "//ydb/core/tx/schemeshard/olap/table",
   ]
 

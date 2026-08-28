@@ -1,0 +1,11 @@
+library("chunks") {
+    deps = [
+        "//ydb/core/tx/columnshard/engines/portions",
+        "//ydb/core/tx/columnshard/splitter",
+    ]
+
+    sources = [
+        "column.cpp",
+        "data.cpp",
+    ]
+}

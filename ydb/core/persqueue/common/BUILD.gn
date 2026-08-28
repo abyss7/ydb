@@ -3,7 +3,7 @@ library("common") {
     # "//library/cpp/monlib/service/pages",
     # "//ydb/core/kafka_proxy",
     # "//ydb/core/persqueue/public",
-    # "//ydb/core/tablet",
+    "//ydb/core/tablet",
     # "//ydb/library/actors/core",
     # "//ydb/library/services",
   ]

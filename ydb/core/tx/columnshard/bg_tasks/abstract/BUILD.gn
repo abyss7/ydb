@@ -6,11 +6,11 @@ library("abstract") {
     # "//ydb/library/actors/core",
     # "//ydb/library/conclusion",
     # "//ydb/library/services",
-    # "//ydb/services/bg_tasks/abstract",
+    "//ydb/services/bg_tasks/abstract",
   ]
 
   deps = [
-    # "//ydb/core/tx/columnshard/bg_tasks/protos",
+    "//ydb/core/tx/columnshard/bg_tasks/protos",
     # "//ydb/public/api/protos",
     # "//ydb/public/sdk/cpp/src/library/operation_id",
   ]

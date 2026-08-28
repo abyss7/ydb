@@ -1,14 +1,14 @@
 library("impl") {
   public_deps = [
-    # "//ydb/library/actors/core",
-    # "//ydb/library/grpc/actor_client",
-    # "//ydb/library/ycloud/api",
+    "//ydb/library/actors/core",
+    "//ydb/library/grpc/actor_client",
+    "//ydb/library/ycloud/api",
   ]
 
   deps = [
     # "//library/cpp/json",
     # "//ydb/library/folder_service",
-    # "//ydb/library/folder_service:mock",
+    "//ydb/library/folder_service:mock",
     # "//ydb/library/services",
     # "//ydb/public/api/client/yc_private/accessservice",
     # "//ydb/public/api/client/yc_private/iam",

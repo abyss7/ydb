@@ -29,6 +29,7 @@ library("yaml_config") {
     ":public",
     # "//library/cpp/json:writer",
     "//library/cpp/protobuf/json",
+    "//library/cpp/streams/zstd",
     "//library/cpp/yaml/as",
     "//ydb/core/erasure",
     # "//ydb/library/yaml_config/protos",

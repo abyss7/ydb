@@ -3,6 +3,9 @@
 #include "partition_scale_manager_graph_cmp.h"
 
 #include <ydb/core/persqueue/public/partition_key_range/partition_key_range.h>
+
+#include <util/stream/format.h>
+
 #include <fmt/format.h>
 #include <algorithm>
 #include <ranges>

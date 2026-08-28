@@ -8,7 +8,7 @@ library("runtime") {
     # "//ydb/core/formats/arrow",
     # "//ydb/core/kqp/common:buffer",
     # "//ydb/core/kqp/common:result_set_format",
-    # "//ydb/core/kqp/counters",
+    "//ydb/core/kqp/counters",
     # "//ydb/core/kqp/gateway",
     # "//ydb/core/protos",
     # "//ydb/core/resource_pools",

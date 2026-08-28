@@ -6,6 +6,13 @@ config("private_config") {
 }
 
 library("hash_join_utils") {
+    deps = [
+        "//library/cpp/digest/crc32c",
+        "//yql/essentials/minikql",
+        "//yql/essentials/minikql/computation",
+        "//yql/essentials/public/udf:arrow",
+    ]
+
     sources = [
         "accumulator.cpp",
         "alloc.cpp",
@@ -18,5 +25,6 @@ library("hash_join_utils") {
         "spilled_storage.cpp",
         "tuple.cpp",
     ]
+
     configs = [ ":private_config" ]
 }

@@ -13,6 +13,8 @@
 #include <ydb/core/protos/workload_manager_config.pb.h>
 
 #include <ydb/library/actors/core/actorid.h>
+#include <ydb/services/metadata/events.h>
+#include <ydb/services/metadata/service.h>
 
 #include <util/datetime/base.h>
 

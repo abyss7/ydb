@@ -364,7 +364,7 @@ library("streaming_queries") {
 
 library("sys_view") {
   public_deps = [
-    # "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime",
     # "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]

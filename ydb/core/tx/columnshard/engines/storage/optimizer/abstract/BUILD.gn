@@ -5,13 +5,13 @@ library("abstract") {
     # "//ydb/core/formats/arrow:reader",
     # "//ydb/core/protos",
     # "//ydb/core/tx/columnshard/common",
+    "//ydb/core/tx/columnshard/counters",
     # "//ydb/library/accessor",
     # "//ydb/library/conclusion",
     # "//ydb/services/bg_tasks/abstract",
   ]
 
   deps = [
-    # "//ydb/core/tx/columnshard/counters",
     # "//ydb/core/tx/columnshard/engines/changes/abstract",
     # "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/library/actors/core",

@@ -1,7 +1,7 @@
 library("impl") {
   public_deps = [
-    # "//ydb/library/grpc/actor_client",
-    # "//ydb/library/ncloud/api",
+    "//ydb/library/grpc/actor_client",
+    "//ydb/library/ncloud/api",
   ]
 
   deps = [

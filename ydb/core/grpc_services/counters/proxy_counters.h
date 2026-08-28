@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ydb/core/sys_view/common/events.h>
+#include <ydb/library/actors/core/actorsystem.h>
 
 #include <library/cpp/monlib/dynamic_counters/counters.h>
 

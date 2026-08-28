@@ -81,7 +81,7 @@
 #include <ydb/core/base/hive.h>
 
 #include <ydb/core/base/tablet_resolver.h>
-#include <ydb/core/security/login_page.h>
+#include <ydb/core/grpc_services/login_page.h>
 #include <ydb/core/tablet/bootstrapper.h>
 #include <ydb/core/tablet/resource_broker.h>
 #include <ydb/core/tablet/node_tablet_monitor.h>

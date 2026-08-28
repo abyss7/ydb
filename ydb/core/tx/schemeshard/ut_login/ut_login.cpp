@@ -11,7 +11,7 @@
 #include <ydb/core/testlib/audit_helpers/audit_helper.h>
 #include <ydb/core/protos/auth.pb.h>
 #include <ydb/core/security/ticket_parser.h>
-#include <ydb/core/security/login_page.h>
+#include <ydb/core/grpc_services/login_page.h>
 #include <ydb/core/security/ldap_auth_provider/ldap_auth_provider.h>
 #include <ydb/core/security/ldap_auth_provider/test_utils/test_settings.h>
 

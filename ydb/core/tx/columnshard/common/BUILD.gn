@@ -35,7 +35,7 @@ library("common") {
     "volume.cpp",
   ]
 
-  serialize_enum_headers = [ "portion.h" ]
+  serialize_enum_headers = ["portion.h" ]
 }
 
 protobuf_library("protos") {

@@ -2,7 +2,7 @@ library("tiering") {
   public_deps = [
     # "//contrib/libs/apache/arrow",
     # "//ydb/core/base",
-    # "//ydb/core/formats/arrow",
+    "//ydb/core/formats/arrow",
     # "//ydb/core/formats/arrow:serializer",
     # "//ydb/core/tx/columnshard/common",
     # "//ydb/core/tx/tiering:tier",
@@ -11,6 +11,7 @@ library("tiering") {
 
   deps = [
     # "//ydb/core/tx/columnshard/blobs_action:abstract",
+    "//ydb/library/actors/util",
   ]
 
   sources = [

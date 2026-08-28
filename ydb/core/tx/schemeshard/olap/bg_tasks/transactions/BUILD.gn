@@ -1,7 +1,7 @@
 library("transactions") {
   public_deps = [
-    # "//ydb/core/tablet_flat",
-    # "//ydb/core/tx/schemeshard",
+    "//ydb/core/tablet_flat",
+    "//ydb/core/tx/schemeshard",
     # "//ydb/core/tx/schemeshard/olap/bg_tasks/events",
     # "//ydb/core/tx/schemeshard/olap/bg_tasks/protos",
   ]

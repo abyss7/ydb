@@ -1,7 +1,7 @@
 library("layout") {
   public_deps = [
-    # "//ydb/core/scheme",
-    # "//ydb/core/tx/schemeshard",
+    "//ydb/core/scheme",
+    "//ydb/core/tx/schemeshard",
     # "//ydb/library/accessor",
   ]
 

@@ -29,7 +29,7 @@ void LogLoginOperationResult(const TString& сomponentName, const TString& peerN
         }
     }
 
-    // NOTE: audit field set here must be in sync with ydb/core/security/login_page.cpp, AuditLogWebUILogout()
+    // NOTE: audit field set here must be in sync with ydb/core/grpc_services/login_page.cpp, AuditLogWebUILogout()
     AUDIT_LOG(
         AUDIT_PART("component", сomponentName)
         AUDIT_PART("remote_address", (!peerAddress.empty() ? peerAddress : EmptyValue))

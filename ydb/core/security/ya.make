@@ -1,8 +1,6 @@
 LIBRARY()
 
 SRCS(
-    login_page.cpp
-    login_page.h
     login_shared_func.cpp
     secure_request.h
     ticket_parser_impl.h
@@ -12,11 +10,9 @@ SRCS(
 
 PEERDIR(
     ydb/library/actors/core
-    ydb/library/actors/http
     ydb/library/grpc/actor_client
     library/cpp/monlib/service/pages
     library/cpp/openssl/io
-    ydb/core/audit
     ydb/core/base
     ydb/core/protos
     ydb/library/aclib

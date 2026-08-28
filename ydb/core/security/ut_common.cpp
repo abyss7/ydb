@@ -2,7 +2,7 @@
 
 #include <ydb/core/base/backtrace.h>
 #include <ydb/core/security/ldap_auth_provider/ldap_auth_provider.h>
-#include <ydb/core/security/login_page.h>
+#include <ydb/core/grpc_services/login_page.h>
 
 namespace NKikimr {
 

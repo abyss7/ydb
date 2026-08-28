@@ -1,6 +1,6 @@
 library("controller") {
   public_deps = [
-    # "//ydb/core/tx/columnshard/data_sharing/initiator/status",
+    "//ydb/core/tx/columnshard/data_sharing/initiator/status",
     # "//ydb/core/tx/columnshard/data_sharing/protos",
     # "//ydb/services/bg_tasks/abstract",
   ]

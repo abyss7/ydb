@@ -74,7 +74,7 @@ library("persqueue_v1") {
     # "//ydb/library/actors/core",
     # "//ydb/library/grpc/server",
     # "//ydb/public/api/grpc",
-    # "//ydb/public/api/grpc:draft",
+    "//ydb/public/api/grpc:draft",
   ]
 
   deps = [
@@ -85,7 +85,7 @@ library("persqueue_v1") {
     # "//ydb/core/persqueue/public:cluster_tracker",
     # "//ydb/core/tx/scheme_board",
     # "//ydb/library/cloud_permissions",
-    # ":actors",
+    ":actors",
   ]
 
   sources = [

@@ -17,6 +17,8 @@ SRCS(
     grpc_request_proxy.cpp
     grpc_request_proxy_simple.cpp
     local_rate_limiter.cpp
+    login_page.cpp
+    login_page.h
     operation_helpers.cpp
     resolve_local_db_table.cpp
     rpc_alter_coordination_node.cpp
@@ -116,6 +118,8 @@ PEERDIR(
     contrib/libs/xxhash
     library/cpp/cgiparam
     library/cpp/digest/old_crc
+    library/cpp/json
+    library/cpp/monlib/service/pages
     ydb/core/actorlib_impl
     ydb/core/audit
     ydb/core/backup/common
@@ -151,6 +155,9 @@ PEERDIR(
     ydb/core/security/ldap_auth_provider
     ydb/core/security/sasl
     ydb/library/aclib
+    ydb/library/actors/http
+    ydb/library/login
+    ydb/library/security
     yql/essentials/types/binary_json
     yql/essentials/types/dynumber
     ydb/library/mkql_proto

@@ -83,7 +83,7 @@ NWilson::TTraceId TWriteRequestHandler::GetChildSpan(
 {
     auto childSpan = NWilson::TSpan(
         NKikimr::TWilsonNbs::NbsBasic,
-        std::move(Span.GetTraceId()),
+        Span.GetTraceId(),
         "NbsPartition.WriteBlocks.PBWrite",
         NWilson::EFlags::NONE,
         GetActorSystem());
@@ -275,7 +275,7 @@ NWilson::TTraceId TReadRequestHandler::GetChildSpan(
 {
     auto childSpan = NWilson::TSpan(
         NKikimr::TWilsonNbs::NbsBasic,
-        std::move(Span.GetTraceId()),
+        Span.GetTraceId(),
         "NbsPartition.ReadBlocks.Read",
         NWilson::EFlags::NONE,
         GetActorSystem());

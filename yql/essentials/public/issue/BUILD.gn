@@ -2,13 +2,13 @@
 
 library("issue") {
   public_deps = [
+    ":protos",
     "//contrib/libs/protobuf",
     "//library/cpp/resource",
     "//yql/essentials/utils",
   ]
 
   deps = [
-    ":protos",
     "//library/cpp/colorizer",
   ]
 

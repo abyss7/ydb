@@ -1,11 +1,15 @@
 library("events") {
   public_deps = [
-    # "//ydb/core/base",
+    "//ydb/core/base",
     # "//ydb/library/actors/core",
     # "//ydb/library/yql/dq/actors:protos",
     # "//ydb/library/yql/providers/common/http_gateway",
     # "//ydb/library/yql/providers/s3/proto",
     # "//yql/essentials/public/issue",
+  ]
+
+  deps = [
+    "//ydb/library/yql/udfs/common/clickhouse/client",
   ]
 
   sources = [ "events.cpp" ]

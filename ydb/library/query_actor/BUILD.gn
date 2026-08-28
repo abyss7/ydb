@@ -14,7 +14,7 @@ library("query_actor") {
 
   deps = [
     # "//ydb/core/base",
-    # "//ydb/core/grpc_services",
+    "//ydb/core/grpc_services",
   ]
 
   sources = [ "query_actor.cpp" ]

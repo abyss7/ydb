@@ -2,9 +2,9 @@ library("counters") {
   public_deps = [
     # "//library/cpp/monlib/metrics",
     # "//ydb/core/kqp/common",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/sys_view:common",
-    # "//ydb/core/tx/tx_proxy",
+    "//ydb/core/tx/tx_proxy",
     # "//ydb/core/util",
     # "//ydb/library/yql/dq/actors:spilling",
     # "//ydb/public/api/protos",

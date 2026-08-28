@@ -1,5 +1,8 @@
 library("certificate_check") {
-  public_deps = [ "//ydb/core/base" ]
+  public_deps = [
+    "//contrib/libs/openssl",
+    "//ydb/core/base",
+  ]
 
   deps = [
     "//ydb/core/protos",
@@ -70,38 +73,33 @@ library("sasl") {
 
 library("security") {
   public_deps = [
-    # "//library/cpp/digest/md5",
+    "//library/cpp/digest/md5",
     "//library/cpp/monlib/dynamic_counters",
-    # "//ydb/core/mon",
+    "//ydb/core/mon",
     # "//ydb/core/protos",
-    # "//ydb/library/aclib",
+    "//ydb/library/aclib",
     # "//ydb/library/actors/core",
     # "//ydb/library/grpc/actor_client",
     # "//ydb/library/login:protos",
-    # "//ydb/library/ncloud/impl",
-    # "//ydb/library/security",
+    "//ydb/library/ncloud/impl",
+    "//ydb/library/security",
     "//ydb/library/ycloud/api",
-    # "//ydb/library/ycloud/impl",
-    # ":certificate_check",
+    "//ydb/library/ycloud/impl",
+    ":certificate_check",
     # ":ldap_auth_provider",
     # ":token_manager",
   ]
 
   deps = [
-    "//library/cpp/json",
     "//library/cpp/string_utils/base64",
-    # "//ydb/core/audit",
     "//ydb/core/base",
     # "//ydb/core/grpc_services/base",
-    "//ydb/core/grpc_services/local_rpc",
     # "//ydb/core/util",
-    "//ydb/library/actors/http",
-    # "//ydb/library/login",
+    "//ydb/library/login",
     # "//ydb/public/api/grpc",
   ]
 
   sources = [
-    "login_page.cpp",
     "login_shared_func.cpp",
     "ticket_parser.cpp",
   ]

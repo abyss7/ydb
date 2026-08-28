@@ -1,8 +1,8 @@
 library("store") {
   public_deps = [
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/tx/schemeshard",
-    # "//ydb/core/tx/schemeshard/olap/layout",
+    "//ydb/core/tx/schemeshard/olap/layout",
     # "//ydb/core/tx/schemeshard/olap/schema",
   ]
 
