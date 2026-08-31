@@ -1,10 +1,10 @@
 #pragma once
-#include <ydb/core/tx/columnshard/engines/reader/common_reader/constructor/read_metadata.h>
+#include <ydb/core/tx/columnshard/engines/reader/common_reader/constructor/read_metadata_shard.h>
 
 namespace NKikimr::NOlap::NReader::NSimple {
 
-class TReadMetadata: public NCommon::TReadMetadata {
-    using TBase = NCommon::TReadMetadata;
+class TReadMetadata: public NCommon::TReadMetadataWithTablet {
+    using TBase = NCommon::TReadMetadataWithTablet;
 
 public:
     using TConstPtr = std::shared_ptr<const TReadMetadata>;

@@ -6,6 +6,10 @@ library("evlog") {
     "//ydb/library/actors/core",
   ]
 
+  deps = [
+    "//library/cpp/time_provider",
+  ]
+
   sources = [ "evlog/log.cpp" ]
 }
 

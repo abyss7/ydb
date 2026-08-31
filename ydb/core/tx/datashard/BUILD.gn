@@ -1,12 +1,14 @@
 library("datashard") {
   public_deps = [
+    ":range_ops",
+    ":read_events",
     # "//library/cpp/containers/absl_flat_hash",
     # "//library/cpp/containers/stack_vector",
     # "//library/cpp/lwtrace",
     # "//library/cpp/time_provider",
     # "//ydb/core/base",
     "//ydb/core/engine:minikql",
-    # "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime",
     # "//ydb/core/scheme",
     "//ydb/core/tablet_flat",
     "//ydb/core/tx",
@@ -42,6 +44,7 @@ library("datashard") {
     # "//ydb/core/engine",
     # "//ydb/core/formats",
     # "//ydb/core/formats/arrow",
+    "//ydb/core/http_proxy",
     # "//ydb/core/io_formats/cell_maker",
     "//ydb/core/io_formats/ydb_dump",
     # "//ydb/core/kqp/common",
@@ -60,7 +63,13 @@ library("datashard") {
     "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/schemeshard",
     # "//ydb/core/tx/time_cast",
-    "//ydb/core/tx/tx_proxy",
+    # библиотеке datashard из tx_proxy нужны только MakeTxProxyID/TTxProxyMon
+    # (proxy.h: datashard_impl.h:33, change_sender_table_base.cpp:7,
+    # datashard_distributed_erase.cpp:8) и CreateUploadRowsInternal/TUploadRows
+    # (build_index/*.cpp, buffer_data.h:5). CreateReadTableSnapshotWorker
+    # используется только в *_ut_*.cpp. Сам актор прокси не нужен.
+    "//ydb/core/tx/tx_proxy:public",
+    "//ydb/core/tx/tx_proxy:upload_rows",
     "//ydb/core/wrappers",
     # "//ydb/core/wrappers:events",
     "//ydb/core/ydb_convert",
@@ -273,7 +282,6 @@ library("datashard") {
     "prepare_write_tx_in_rs_unit.cpp",
     "probes.cpp",
     "protect_scheme_echoes_unit.cpp",
-    "range_ops.cpp",
     "read_op_unit.cpp",
     "read_table_scan.cpp",
     "read_table_scan_unit.cpp",
@@ -314,4 +322,28 @@ library("datashard") {
     "operation.h",
     "volatile_tx.h",
   ]
+}
+
+library("range_ops") {
+  public_deps = [
+    "//ydb/core/base",
+    "//ydb/core/scheme",
+  ]
+
+  sources = [ "range_ops.cpp" ]
+}
+
+library("read_events") {
+  public_deps = [
+    "//ydb/core/base",
+    "//ydb/core/formats/arrow",
+    "//ydb/core/protos",
+    "//ydb/core/scheme",
+  ]
+
+  deps = [
+    "//ydb/library/actors/wilson",
+  ]
+
+  sources = [ "datashard_read_events.cpp" ]
 }

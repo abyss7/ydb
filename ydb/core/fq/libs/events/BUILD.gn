@@ -9,6 +9,8 @@ library("events") {
     "//ydb/core/fq/libs/protos",
   ]
 
+  sources = [ "events.cpp" ]
+
   serialize_enum_headers = [
     "event_ids.h",
     "events.h",

@@ -1,6 +1,9 @@
 #include "manager.h"
 
+#include <ydb/core/base/appdata_fwd.h>
 #include <ydb/core/tx/columnshard/columnshard_schema.h>
+
+#include <library/cpp/time_provider/time_provider.h>
 
 namespace NKikimr::NColumnShard {
 
@@ -50,7 +53,7 @@ bool TOperationsManager::Load(NTabletFlatExecutor::TTransactionContext& txc) {
 
             auto it = LockFeatures.try_emplace(lockId, lockId, 0).first;
             it->second.AddWriteOperation(operation);
-            // all the operations are finished at the moment of transaction proposal (or later) 
+            // all the operations are finished at the moment of transaction proposal (or later)
             it->second.OnWriteOperationFinished();
             LastWriteId = std::max(LastWriteId, operation->GetWriteId());
             if (!rowset.Next()) {
@@ -328,7 +331,7 @@ void TOperationsManager::AddEventForLock(
         // if commitLockId not found, it means the conflicting tx is already committed or aborted
         if (GetLockOptional(commitLockId)) {
             GetLockVerified(commitLockId).AddBreakOnCommit(breakLockIds);
-        } 
+        }
         // if the conflicting tx is already committed, we cannot commit the given tx, so break its lock
         if (txLock.IsCommitted(commitLockId)) {
             txLock.SetBroken();

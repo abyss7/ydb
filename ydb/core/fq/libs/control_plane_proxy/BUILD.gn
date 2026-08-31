@@ -1,8 +1,9 @@
 library("actors") {
   public_deps = [
+    "//ydb/core/fq/libs/compute/common",
     # "//ydb/core/fq/libs/config:protos",
     # "//ydb/core/fq/libs/signer",
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
     # ":events",
   ]
 
@@ -10,7 +11,7 @@ library("actors") {
     # "//contrib/libs/fmt",
     # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/fq/libs/actors:logging",
-    # "//ydb/core/fq/libs/common",
+    "//ydb/core/fq/libs/common",
     # "//ydb/core/fq/libs/config",
     # "//ydb/core/fq/libs/control_plane_storage",
     # "//ydb/core/fq/libs/control_plane_storage:events",
@@ -36,7 +37,8 @@ library("actors") {
 library("control_plane_proxy") {
   public_deps = [
     # "//library/cpp/monlib/dynamic_counters",
-    # "//ydb/core/fq/libs/actors:logging",
+    "//ydb/core/fq/libs/actors:logging",
+    ":events",
     # "//ydb/core/fq/libs/config:protos",
     # "//ydb/core/fq/libs/shared_resources",
     # "//ydb/core/fq/libs/signer",
@@ -46,11 +48,11 @@ library("control_plane_proxy") {
 
   deps = [
     # "//contrib/libs/fmt",
-    # "//library/cpp/lwtrace",
+    "//library/cpp/lwtrace",
     # "//library/cpp/lwtrace/mon",
     # "//library/cpp/monlib/service/pages",
     # "//library/cpp/retry",
-    # "//ydb/core/base",
+    "//ydb/core/base",
     # "//ydb/core/fq/libs/compute/ydb:control_plane",
     # "//ydb/core/fq/libs/compute/ydb:events",
     # "//ydb/core/fq/libs/config",
@@ -70,8 +72,7 @@ library("control_plane_proxy") {
     # "//ydb/library/ycloud/impl",
     # "//ydb/public/lib/fq",
     # "//yql/essentials/public/issue",
-    # ":actors",
-    # ":events",
+    ":actors",
     # ":utils",
   ]
 

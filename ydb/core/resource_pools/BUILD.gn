@@ -1,6 +1,9 @@
 library("resource_pools") {
-  deps = [
+  public_deps = [
     "//contrib/libs/protobuf",
+  ]
+
+  deps = [
     "//ydb/library/aclib",
   ]
 

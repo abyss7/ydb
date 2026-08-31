@@ -17,15 +17,15 @@ library("quota_manager") {
   public_deps = [
     # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/fq/libs/config:protos",
-    # "//ydb/core/fq/libs/shared_resources",
-    # "//ydb/core/mon",
+    "//ydb/core/fq/libs/shared_resources",
+    "//ydb/core/mon",
     # ":events",
   ]
 
   deps = [
     # "//library/cpp/protobuf/interop",
     # "//ydb/core/fq/libs/control_plane_storage",
-    # "//ydb/core/fq/libs/ydb",
+    "//ydb/core/fq/libs/ydb",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/services",

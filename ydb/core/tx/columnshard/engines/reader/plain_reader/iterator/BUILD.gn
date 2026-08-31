@@ -4,7 +4,7 @@ library("iterator") {
     # "//ydb/core/tx/columnshard/engines/reader/common",
     # "//ydb/core/tx/columnshard/engines/reader/common_reader/common",
     # "//ydb/core/tx/columnshard/engines/reader/common_reader/constructor",
-    # "//ydb/core/tx/columnshard/engines/reader/common_reader/iterator",
+    "//ydb/core/tx/columnshard/engines/reader/common_reader/iterator",
     # "//ydb/library/accessor",
   ]
 
@@ -19,13 +19,18 @@ library("iterator") {
     # "//ydb/core/tx/columnshard/blobs_reader",
     # "//ydb/core/tx/columnshard/common",
     # "//ydb/core/tx/columnshard/counters",
-    # "//ydb/core/tx/columnshard/engines",
+    "//ydb/core/tx/columnshard/data_accessor",
+    "//ydb/core/tx/columnshard/engines:filter",
     # "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/core/tx/columnshard/engines/predicate",
-    # "//ydb/core/tx/columnshard/engines/reader/plain_reader/constructor",
+    # plain_reader/constructor убран: единственной причиной был мёртвый локал
+    # в plain_read_data.cpp с dynamic_pointer_cast<const NPlain::TReadMetadata>,
+    # требовавший typeinfo из constructor/read_metadata.cpp. Зависимость
+    # перевёрнутая (constructor строит TColumnShardScanIterator/TPlainReadData),
+    # в iterator/ya.make её нет, и в simple_reader такого ребра тоже нет.
     # "//ydb/core/tx/columnshard/engines/scheme",
     # "//ydb/core/tx/columnshard/engines/scheme/versions",
-    # "//ydb/core/tx/columnshard/hooks/abstract",
+    "//ydb/core/tx/columnshard/hooks/abstract",
     # "//ydb/core/tx/columnshard/resource_subscriber",
     # "//ydb/core/tx/conveyor/usage",
     # "//ydb/core/tx/conveyor_composite/usage",

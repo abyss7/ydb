@@ -9,6 +9,8 @@
 
 namespace NFq::NPrivate {
 
+using NActors::TActorId;
+
 enum class ETaskCompletionStatus {
     NONE,
     SUCCESS,

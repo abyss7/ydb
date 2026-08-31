@@ -45,6 +45,7 @@ SRCS(
     create_volatile_snapshot_unit.cpp
     block_fail_point_unit.cpp
     datashard.cpp
+    datashard_read_events.cpp
     datashard.h
     datashard__cancel_tx_proposal.cpp
     datashard__cleanup_borrowed.cpp

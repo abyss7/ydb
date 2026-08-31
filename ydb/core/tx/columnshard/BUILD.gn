@@ -7,28 +7,31 @@ library("columnshard") {
     # "//ydb/core/protos",
     # "//ydb/core/statistics",
     # "//ydb/core/tablet",
-    # "//ydb/core/tablet_flat",
+    "//ydb/core/tablet_flat",
     # "//ydb/core/tx",
     # "//ydb/core/tx/columnshard/bg_tasks/events",
     # "//ydb/core/tx/columnshard/blobs_action:abstract",
     # "//ydb/core/tx/columnshard/blobs_action:events",
     # "//ydb/core/tx/columnshard/column_fetching",
     "//ydb/core/tx/columnshard/common",
+    ":background_controller",
+    ":tables_manager_paths",
+    ":write_actor",
     # "//ydb/core/tx/columnshard/counters",
     # "//ydb/core/tx/columnshard/data_sharing/destination/events",
     # "//ydb/core/tx/columnshard/data_sharing/manager",
     # "//ydb/core/tx/columnshard/data_sharing/modification/events",
     # "//ydb/core/tx/columnshard/data_sharing/source/events",
-    # "//ydb/core/tx/columnshard/engines",
+    "//ydb/core/tx/columnshard/engines",
     "//ydb/core/tx/columnshard/engines/changes/abstract",
     # "//ydb/core/tx/columnshard/engines/writer",
     # "//ydb/core/tx/columnshard/normalizer/abstract",
-    # "//ydb/core/tx/columnshard/operations",
+    "//ydb/core/tx/columnshard/operations",
     "//ydb/core/tx/columnshard/overload_manager",
     # "//ydb/core/tx/columnshard/resource_subscriber",
     # "//ydb/core/tx/columnshard/subscriber/abstract/manager",
+    "//ydb/core/tx/columnshard/subscriber/events/tx_completed",
     # "//ydb/core/tx/columnshard/tablet",
-    "//ydb/core/tx/columnshard/transactions",
     # "//ydb/core/tx/data_events",
     # "//ydb/core/tx/data_events:common",
     # "//ydb/core/tx/datashard",
@@ -37,7 +40,7 @@ library("columnshard") {
     # "//ydb/core/tx/long_tx_service:public",
     # "//ydb/core/tx/priorities/usage",
     # "//ydb/core/tx/scheme_cache",
-    # "//ydb/core/tx/tiering",
+    "//ydb/core/tx/tiering",
     # "//ydb/core/tx/time_cast",
     # "//ydb/library/actors/core",
     # "//ydb/library/yverify_stream",
@@ -99,7 +102,6 @@ library("columnshard") {
   ]
 
   sources = [
-    "background_controller.cpp",
     "blob.cpp",
     "blob_cache.cpp",
     "columnshard.cpp",
@@ -125,11 +127,48 @@ library("columnshard") {
     "defs.cpp",
     "inflight_request_tracker.cpp",
     "tables_manager.cpp",
-    "write_actor.cpp",
+    "transactions/locks_db.cpp",
+    "transactions/tx_controller.cpp",
   ]
 
   serialize_enum_headers = [
     "columnshard.h",
     "columnshard_impl.h",
+    "transactions/tx_controller.h",
   ]
+}
+
+library("background_controller") {
+  public_deps = [
+    "//ydb/core/tx/columnshard/common",
+    "//ydb/core/tx/columnshard/counters",
+    "//ydb/core/tx/columnshard/engines/changes/abstract",
+    "//ydb/core/tx/columnshard/engines/changes/counters",
+    "//ydb/core/tx/columnshard/engines/portions",
+  ]
+
+  sources = [ "background_controller.cpp" ]
+}
+
+library("tables_manager_paths") {
+  public_deps = [
+    "//ydb/core/tablet_flat",
+    "//ydb/core/tx/columnshard/common",
+    "//ydb/library/actors/core",
+  ]
+
+  sources = [ "tables_manager_paths.cpp" ]
+}
+
+library("write_actor") {
+  public_deps = [
+    "//ydb/core/base",
+    "//ydb/core/tx/columnshard/engines/writer",
+    "//ydb/core/tx/columnshard/hooks/abstract",
+    "//ydb/core/util",
+    "//ydb/library/actors/core",
+    "//ydb/library/signals",
+  ]
+
+  sources = [ "write_actor.cpp" ]
 }

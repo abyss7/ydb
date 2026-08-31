@@ -46,7 +46,7 @@ library("cache_policy") {
 library("data_accessor") {
   public_deps = [
     # "//ydb/core/tx/columnshard/common",
-    # "//ydb/core/tx/columnshard/engines/portions",
+    "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/core/tx/columnshard/resource_subscriber",
     # "//ydb/core/tx/general_cache/usage",
     # "//ydb/library/signals",
@@ -56,6 +56,7 @@ library("data_accessor") {
   ]
 
   deps = [
+    "//ydb/core/base",
     # "//ydb/core/tx/columnshard/hooks/abstract",
     # "//ydb/library/accessor",
   ]

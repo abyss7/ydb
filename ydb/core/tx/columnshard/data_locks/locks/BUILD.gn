@@ -1,8 +1,8 @@
 library("locks") {
   public_deps = [
     # "//ydb/core/tx/columnshard/common",
+    "//ydb/core/tx/columnshard/engines",
     "//ydb/core/tx/columnshard/engines/portions",
-    "//ydb/core/tx/columnshard/engines/storage/granule",
     # "//ydb/library/accessor",
   ]
 

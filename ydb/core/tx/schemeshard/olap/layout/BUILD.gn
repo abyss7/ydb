@@ -1,12 +1,11 @@
 library("layout") {
   public_deps = [
     "//ydb/core/scheme",
-    "//ydb/core/tx/schemeshard",
     # "//ydb/library/accessor",
   ]
 
   deps = [
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
   ]
 
   sources = [ "layout.cpp" ]

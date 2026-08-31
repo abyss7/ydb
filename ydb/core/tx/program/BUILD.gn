@@ -2,22 +2,22 @@ library("program") {
   public_deps = [
     # "//ydb/core/formats/arrow",
     # "//ydb/core/formats/arrow:printer",
-    # "//ydb/core/formats/arrow:program",
-    # "//ydb/core/protos",
+    "//ydb/core/formats/arrow:program",
+    "//ydb/core/protos",
     # "//ydb/core/tx/columnshard/engines/scheme/indexes/abstract",
-    # "//ydb/core/tx/schemeshard/olap/schema",
+    "//ydb/core/tx/schemeshard/olap/columns",
     # "//ydb/library/formats/arrow:protos",
   ]
 
   deps = [
-    # "//contrib/libs/apache/arrow",
+    "//contrib/libs/apache/arrow",
     # "//ydb/core/tx/columnshard/common",
     # "//ydb/core/tx/columnshard/engines/scheme/abstract",
     # "//ydb/library/arrow_kernels",
     # "//ydb/library/formats/arrow:validation",
-    # "//yql/essentials/core/arrow_kernels/registry",
-    # "//yql/essentials/minikql/comp_nodes",
-    # "//yql/essentials/minikql/invoke_builtins",
+    "//yql/essentials/core/arrow_kernels/registry",
+    "//yql/essentials/minikql/comp_nodes",
+    "//yql/essentials/minikql/invoke_builtins",
   ]
 
   sources = [

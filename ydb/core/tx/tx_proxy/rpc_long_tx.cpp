@@ -2,14 +2,14 @@
 
 #include <ydb/core/formats/arrow/size_calcer.h>
 #include <ydb/core/kqp/query_data/kqp_predictor.h>
-#include <ydb/core/tx/columnshard/columnshard.h>
 #include <ydb/core/tx/data_events/shard_writer.h>
 #include <ydb/core/tx/long_tx_service/public/events.h>
-#include <ydb/core/tx/schemeshard/schemeshard.h>
 
 #include <ydb/library/actors/prof/tag.h>
 #include <ydb/library/actors/wilson/wilson_profile_span.h>
 #include <ydb/library/signals/object_counter.h>
+#include <ydb/library/ydb_issue/issue_helpers.h>
+#include <ydb/library/ydb_issue/proto/issue_id.pb.h>
 #include <ydb/services/ext_index/common/service.h>
 
 #include <contrib/libs/apache/arrow/cpp/src/arrow/compute/api.h>

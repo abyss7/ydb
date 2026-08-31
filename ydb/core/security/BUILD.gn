@@ -24,6 +24,7 @@ library("ldap_auth_provider") {
   ]
 
   deps = [
+    "//contrib/libs/openldap",
     "//ydb/core/security",
     "//ydb/core/util",
     "//ydb/library/actors/core",
@@ -54,11 +55,12 @@ library("sasl") {
     "//library/cpp/string_utils/base64",
     "//ydb/core/protos",
     "//ydb/core/security",
+    "//ydb/core/tablet",
     "//ydb/core/tx/scheme_cache",
-    "//ydb/core/tx/schemeshard",
     "//ydb/library/login:hashes_checker",
     "//ydb/library/login:sasl",
     "//ydb/library/services",
+    "//ydb/library/ydb_issue",
   ]
 
   sources = [

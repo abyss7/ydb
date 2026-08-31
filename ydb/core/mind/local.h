@@ -8,7 +8,13 @@
 #include <ydb/core/base/tablet.h>
 #include <ydb/core/base/blobstorage.h>
 #include <util/generic/map.h>
+#include <util/stream/output.h>
 #include <ydb/core/tablet/tablet_metrics.h>
+
+template <>
+inline void Out<std::pair<ui64, ui32>>(IOutputStream& out, const std::pair<ui64, ui32>& p) {
+    out << '(' << p.first << ',' << p.second << ')';
+}
 
 namespace NKikimr {
 

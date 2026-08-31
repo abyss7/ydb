@@ -1,12 +1,12 @@
 library("bits_storage") {
   public_deps = [
-    # "//ydb/library/conclusion",
+    "//ydb/library/conclusion",
   ]
 
   deps = [
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/accessor",
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
   ]
 
   sources = [

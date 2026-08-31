@@ -30,7 +30,7 @@ std::vector<std::unique_ptr<TPartialReadResult>> TPlainReadData::DoExtractReadyR
 
     AFL_DEBUG(NKikimrServices::TX_COLUMNSHARD_SCAN)("event", "DoExtractReadyResults")("result", result.size())("count", count)(
         "finished", Scanner->IsFinished());
-    return std::move(result);
+    return result;
 }
 
 TConclusion<bool> TPlainReadData::DoReadNextInterval() {

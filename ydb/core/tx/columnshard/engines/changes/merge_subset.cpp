@@ -1,5 +1,7 @@
 #include "merge_subset.h"
 
+#include <ydb/core/tx/columnshard/engines/storage/granule/granule.h>
+
 namespace NKikimr::NOlap::NCompaction {
 
 std::shared_ptr<NArrow::TColumnFilter> ISubsetToMerge::BuildPortionFilter(const std::optional<TGranuleShardingInfo>& shardingActual,

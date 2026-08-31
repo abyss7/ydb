@@ -1,6 +1,7 @@
 #include "quota_manager.h"
 
 #include <ydb/library/actors/core/actor_bootstrapped.h>
+#include <ydb/library/actors/interconnect/interconnect.h>
 #include <ydb/library/actors/interconnect/interconnect_impl.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <ydb/library/actors/core/log.h>
@@ -229,7 +230,7 @@ private:
         if (oldPeerCount != NodeIds.size()) {
             LOG_D("IC Peers[" << NodeIds.size() << "]: " << ToString(NodeIds));
         }
-        NActors::TActivationContext::Schedule(TDuration::Seconds(NodeIds.empty() ? 1 : 5), new IEventHandle(NActors::GetNameserviceActorId(), SelfId(), new NActors::TEvInterconnect::TEvListNodes()));
+        NActors::TActivationContext::Schedule(TDuration::Seconds(NodeIds.empty() ? 1 : 5), new NActors::IEventHandle(NActors::GetNameserviceActorId(), SelfId(), new NActors::TEvInterconnect::TEvListNodes()));
     }
 
     void Handle(TEvQuotaService::TQuotaGetRequest::TPtr& ev) {
@@ -275,7 +276,7 @@ private:
         }
     }
 
-    void CheckUsageMaybeReply(const TString& subjectType, const TString& subjectId, TQuotaCache& cache, bool allowStaleUsage, const TActorId& sender, ui64 cookie) {
+    void CheckUsageMaybeReply(const TString& subjectType, const TString& subjectId, TQuotaCache& cache, bool allowStaleUsage, const NActors::TActorId& sender, ui64 cookie) {
         bool pended = false;
         auto& infoMap = QuotaInfoMap[subjectType];
         if (!allowStaleUsage) {
@@ -309,7 +310,7 @@ private:
         }
     }
 
-    void ChangeLimitsAndReply(const TString& subjectType, const TString& subjectId, TQuotaCache& cache, const TLimits& limits, const TActorId& sender, ui64 cookie) {
+    void ChangeLimitsAndReply(const TString& subjectType, const TString& subjectId, TQuotaCache& cache, const TLimits& limits, const NActors::TActorId& sender, ui64 cookie) {
 
         auto pended = false;
         auto& infoMap = QuotaInfoMap[subjectType];
@@ -519,7 +520,7 @@ private:
                 notification.set_metric_usage(usage.Usage->Value);
                 *notification.mutable_usage_updated_at() = NProtoInterop::CastToProto(usage.Usage->UpdatedAt);
             }
-            Send(MakeQuotaServiceActorId(nodeId), new TEvQuotaService::TEvQuotaUpdateNotification(notification), IEventHandle::FlagTrackDelivery);
+            Send(MakeQuotaServiceActorId(nodeId), new TEvQuotaService::TEvQuotaUpdateNotification(notification), NActors::IEventHandle::FlagTrackDelivery);
         }
     }
 

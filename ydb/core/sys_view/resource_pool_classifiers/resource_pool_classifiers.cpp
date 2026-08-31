@@ -7,6 +7,8 @@
 #include <ydb/core/sys_view/common/events.h>
 #include <ydb/core/sys_view/common/registry.h>
 #include <ydb/core/sys_view/common/scan_actor_base_impl.h>
+#include <ydb/services/metadata/abstract/common.h>
+#include <ydb/services/metadata/events.h>
 #include <ydb/services/metadata/service.h>
 
 #include <ydb/library/yql/dq/actors/compute/dq_compute_actor.h>

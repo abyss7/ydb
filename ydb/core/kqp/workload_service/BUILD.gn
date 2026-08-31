@@ -2,40 +2,54 @@ library("actors") {
   public_deps = [
     # "//ydb/core/kqp/common:events",
     # "//ydb/core/protos",
+    ":scheme_actors",
   ]
 
   deps = [
     # "//ydb/core/base",
-    # "//ydb/core/kqp/common:simple",
+    "//ydb/core/kqp/common:simple",
     # "//ydb/core/protos/schemeshard",
     # "//ydb/core/tx/schemeshard",
     # "//ydb/core/tx/tx_proxy",
-    # "//ydb/library/query_actor",
-    # "//ydb/library/table_creator",
-    # ":common",
-    # ":tables",
+    ":common",
+    ":tables",
   ]
 
-  sources = [
-    "actors/cpu_load_actors.cpp",
-    "actors/pool_handlers_actors.cpp",
-    "actors/scheme_actors.cpp",
+  sources = [ "actors/pool_handlers_actors.cpp" ]
+}
+
+library("scheme_actors") {
+  deps = [
+    "//ydb/core/kqp/common:simple",
+    "//ydb/core/tablet",
+    "//ydb/core/tx/tx_proxy:public",
+    "//ydb/library/table_creator",
+    "//ydb/library/ydb_issue",
+    ":common",
   ]
+
+  sources = [ "actors/scheme_actors.cpp" ]
+}
+
+library("cpu_load_actors") {
+  deps = [ "//ydb/library/query_actor" ]
+
+  sources = [ "actors/cpu_load_actors.cpp" ]
 }
 
 library("common") {
   public_deps = [
-    # "//library/cpp/monlib/dynamic_counters",
+    "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/retry",
-    # "//ydb/core/kqp/common:events",
+    "//ydb/core/kqp/common:events",
     # "//ydb/core/protos",
-    # "//ydb/core/resource_pools",
+    "//ydb/core/resource_pools",
     # "//ydb/core/scheme",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/library/actors/core",
     # "//ydb/public/api/protos",
     # "//ydb/public/sdk/cpp/src/client/types",
-    # "//yql/essentials/public/issue",
+    "//yql/essentials/public/issue",
   ]
 
   deps = [
@@ -51,13 +65,13 @@ library("common") {
 
 library("tables") {
   public_deps = [
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
   ]
 
   deps = [
     # "//ydb/core/base",
     # "//ydb/core/kqp/common:simple",
-    # "//ydb/library/query_actor",
+    "//ydb/library/query_actor",
     # "//ydb/library/table_creator",
     # ":common",
   ]
@@ -80,6 +94,7 @@ library("workload_service") {
     # "//ydb/core/protos",
     # "//ydb/library/actors/interconnect",
     # ":actors",
+    ":cpu_load_actors",
     # ":common",
     # ":tables",
   ]

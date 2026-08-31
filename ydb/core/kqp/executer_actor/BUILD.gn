@@ -99,13 +99,13 @@ library("executer_actor") {
 library("shards_resolver") {
   public_deps = [
     # "//ydb/core/kqp/common:simple",
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
     # "//ydb/public/api/protos",
-    # "//yql/essentials/public/issue",
+    "//yql/essentials/public/issue",
   ]
 
   deps = [
-    # "//ydb/core/base",
+    "//ydb/core/base",
   ]
 
   sources = [ "shards_resolver/kqp_shards_resolver.cpp" ]

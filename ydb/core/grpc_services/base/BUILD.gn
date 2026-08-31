@@ -1,7 +1,7 @@
 group("base") {
   public_deps = [
     # "//library/cpp/containers/stack_vector",
-    # "//library/cpp/string_utils/quote",
+    "//library/cpp/string_utils/quote",
     # "//ydb/core/base",
     # "//ydb/core/grpc_services/counters",
     # "//ydb/core/grpc_streaming",

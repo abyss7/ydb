@@ -24,7 +24,7 @@ library("mon") {
     "//library/cpp/monlib/service",
     # "//library/cpp/monlib/service/pages:resources",
     # "//library/cpp/monlib/service/pages:tablesorter",
-    # "//ydb/library/actors/http",
+    "//ydb/library/actors/http",
     "//ydb/public/sdk/cpp/src/client/types/status",
     "//yql/essentials/public/issue",
   ]

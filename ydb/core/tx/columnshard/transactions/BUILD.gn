@@ -29,30 +29,6 @@ protobuf_library("protos") {
   sources = [ "protos/tx_event.proto" ]
 }
 
-library("transactions") {
-  public_deps = [
-    "//ydb/core/tablet_flat",
-    # "//ydb/core/tx",
-    # "//ydb/core/tx/columnshard",
-    "//ydb/core/tx/columnshard/engines",
-    # "//ydb/core/tx/columnshard/counters",
-    # "//ydb/core/tx/data_events",
-    # "//ydb/core/tx/locks",
-  ]
-
-  deps = [
-    # "//ydb/core/tx/columnshard/subscriber/events/tx_completed",
-    # ":transactions_transactions",
-  ]
-
-  sources = [
-    "locks_db.cpp",
-    "tx_controller.cpp",
-  ]
-
-  serialize_enum_headers = [ "tx_controller.h" ]
-}
-
 library("transactions_transactions") {
   public_deps = [
     # "//ydb/core/tx/columnshard",

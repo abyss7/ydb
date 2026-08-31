@@ -1,5 +1,6 @@
 library("host") {
   public_deps = [
+    ":transform",
     # "//ydb/core/kqp/common",
     # "//ydb/core/kqp/common:simple",
     "//ydb/core/kqp/federated_query",
@@ -77,9 +78,20 @@ library("host") {
     "kqp_host.cpp",
     "kqp_runner.cpp",
     "kqp_statement_rewrite.cpp",
-    "kqp_transform.cpp",
-    # kqp_translate.cpp перенесён в ydb/core/kqp/provider (разрыв цикла
-    # provider <-> host); host получает символы через public_deps -> provider,
-    # а старый путь заголовка сохранён forwarder'ом kqp_translate.h.
   ]
+}
+
+library("transform") {
+  public_deps = [
+    "//ydb/core/kqp/common",
+    "//yql/essentials/core",
+    "//yql/essentials/minikql",
+    "//yql/essentials/providers/common/provider",
+  ]
+
+  deps = [
+    "//yql/essentials/utils/log",
+  ]
+
+  sources = [ "kqp_transform.cpp" ]
 }

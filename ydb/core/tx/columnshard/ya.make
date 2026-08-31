@@ -27,6 +27,7 @@ SRCS(
     defs.cpp
     inflight_request_tracker.cpp
     tables_manager.cpp
+    tables_manager_paths.cpp
     write_actor.cpp
 )
 

@@ -6,18 +6,18 @@ library("peephole") {
   deps = [
     "//ydb/core/kqp/common",
     # "//ydb/core/kqp/gateway",
-    "//ydb/core/kqp/host",
+    "//ydb/core/kqp/host:transform",
     "//ydb/core/kqp/opt/physical",
     # "//ydb/core/kqp/provider",
     # "//ydb/core/protos",
-    # "//ydb/library/naming_conventions",
+    "//ydb/library/naming_conventions",
     # "//ydb/library/yql/dq/opt",
-    # "//ydb/library/yql/dq/type_ann",
+    "//ydb/library/yql/dq/type_ann",
     # "//yql/essentials/ast",
     # "//yql/essentials/core",
     "//yql/essentials/core/peephole_opt",
     "//yql/essentials/core/services",
-    # "//yql/essentials/providers/common/transform",
+    "//yql/essentials/providers/common/transform",
   ]
 
   sources = [

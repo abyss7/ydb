@@ -1,5 +1,5 @@
 #pragma once
-#include <ydb/core/tx/columnshard/engines/reader/common_reader/constructor/read_metadata.h>
+#include <ydb/core/tx/columnshard/engines/reader/common_reader/constructor/read_metadata_shard.h>
 
 namespace NKikimr::NColumnShard {
 class TLockSharingInfo;
@@ -8,9 +8,9 @@ class TLockSharingInfo;
 namespace NKikimr::NOlap::NReader::NPlain {
 
 // Holds all metadata that is needed to perform read/scan
-class TReadMetadata: public NCommon::TReadMetadata {
+class TReadMetadata: public NCommon::TReadMetadataWithTablet {
 private:
-    using TBase = NCommon::TReadMetadata;
+    using TBase = NCommon::TReadMetadataWithTablet;
     virtual TConclusionStatus DoInitCustom(const NColumnShard::TColumnShard* owner, const TReadDescription& readDescription) override;
 
 public:

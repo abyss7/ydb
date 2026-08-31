@@ -2,6 +2,7 @@ LIBRARY()
 
 SRCS(
     read_metadata.cpp
+    read_metadata_shard.cpp
     resolver.cpp
 )
 

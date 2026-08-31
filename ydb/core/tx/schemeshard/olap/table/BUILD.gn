@@ -1,0 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
+group("table") {
+  public_deps = [ "//ydb/core/tx/schemeshard" ]
+}

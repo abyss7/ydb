@@ -1,19 +1,10 @@
-library("abstract") {
-  public_deps = [
-    "//ydb/core/protos",
-    # "//ydb/core/protos/schemeshard",
-    # "//ydb/core/scheme",
-    # "//ydb/core/scheme:protos",
-    # "//ydb/core/tx/columnshard/common",
-    "//ydb/core/tx/schemeshard",
-    # "//ydb/core/tx/schemeshard/olap/common",
-    # "//ydb/library/accessor",
-  ]
+# yamake2gn: keep  -- hand-written, do not regenerate
+#
+# These sources are schemeshard operations: they need TOperationContext and the
+# compile environment of schemeshard_impl.h, and schemeshard's operation factory
+# needs their Create*/Construct* symbols back. In gn that is one link unit, so
+# library("schemeshard") compiles them directly. This target only redirects.
 
-  sources = [
-    "context.cpp",
-    "converter.cpp",
-    "object.cpp",
-    "update.cpp",
-  ]
+group("abstract") {
+  public_deps = [ "//ydb/core/tx/schemeshard" ]
 }

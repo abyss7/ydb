@@ -80,9 +80,14 @@ public:
 class TReadMetadata: public TReadMetadataBase {
     using TBase = TReadMetadataBase;
 
+public:
+    virtual ~TReadMetadata();
+
+protected:
+    std::shared_ptr<NColumnShard::TLockSharingInfo> LockSharingInfo;
+
 private:
     mutable TAtomicCounter BreakLockOnReadFinished = TAtomicCounter();
-    std::shared_ptr<NColumnShard::TLockSharingInfo> LockSharingInfo;
 
     class TWriteIdInfo {
     private:
@@ -110,10 +115,6 @@ private:
 
     THashMap<ui64, std::shared_ptr<TAtomicCounter>> LockConflictCounters;
     THashMap<TInsertWriteId, TWriteIdInfo> ConflictingWrites;
-
-    virtual void DoOnReadFinished(NColumnShard::TColumnShard& owner) const override;
-    virtual void DoOnBeforeStartReading(NColumnShard::TColumnShard& owner) const override;
-    virtual void DoOnReplyConstruction(const ui64 tabletId, NKqp::NInternalImplementation::TEvScanData& scanData) const override;
 
     virtual TConclusionStatus DoInitCustom(const NColumnShard::TColumnShard* owner, const TReadDescription& readDescription) = 0;
 

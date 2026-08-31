@@ -1,7 +1,7 @@
 library("service") {
   public_deps = [
-    # "//ydb/core/base",
-    # "//ydb/core/tx/limiter/grouped_memory/usage",
+    "//ydb/core/base",
+    "//ydb/core/tx/limiter/grouped_memory/usage",
     # "//ydb/library/actors/core",
     # "//ydb/library/signals",
   ]

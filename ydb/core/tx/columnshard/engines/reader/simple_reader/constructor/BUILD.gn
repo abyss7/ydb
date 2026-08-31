@@ -1,7 +1,7 @@
 library("constructor") {
   public_deps = [
     # "//ydb/core/tx/columnshard/engines/reader/abstract",
-    # "//ydb/core/tx/columnshard/engines/reader/common_reader/constructor",
+    "//ydb/core/tx/columnshard/engines/reader/common_reader/constructor:shard",
   ]
 
   deps = [

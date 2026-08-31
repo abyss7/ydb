@@ -6,15 +6,8 @@ library("ttl") {
     # "//ydb/library/conclusion",
   ]
 
-  deps = [
-    "//ydb/core/tx/schemeshard",
-    "//ydb/core/tx/schemeshard:common",
-    # "//ydb/core/tx/tiering:tier",
-  ]
-
   sources = [
     "schema.cpp",
     "update.cpp",
-    "validator.cpp",
   ]
 }

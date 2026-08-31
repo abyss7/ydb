@@ -1,6 +1,9 @@
 library("chunks") {
-    deps = [
+    public_deps = [
         "//ydb/core/tx/columnshard/engines/portions",
+    ]
+
+    deps = [
         "//ydb/core/tx/columnshard/splitter",
     ]
 

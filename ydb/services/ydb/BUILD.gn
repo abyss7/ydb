@@ -1,6 +1,12 @@
 library("ydb") {
   public_deps = [
     # "//ydb/core/grpc_services",
+    # ydb_query.cpp:66 ссылается на DoFetchScriptResults — он вынесен из
+    # grpc_services в отдельный таргет, чтобы тот не тянул KQP proxy_service.
+    "//ydb/core/grpc_services:fetch_script_results",
+    # ydb_clickhouse_internal.cpp:54 ссылается на DoReadColumnsRequest — вынесен
+    # из grpc_services в отдельный таргет, чтобы тот не тянул sys_view.
+    "//ydb/core/grpc_services:read_columns",
     # "//ydb/core/grpc_services/base",
     # "//ydb/library/actors/core",
     # "//ydb/library/grpc/server",

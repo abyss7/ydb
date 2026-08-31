@@ -1,5 +1,5 @@
 #include "background_controller.h"
-#include <ydb/core/tx/columnshard/engines/changes/compaction.h>
+#include <ydb/core/tx/columnshard/engines/changes/abstract/settings.h>
 #include <ydb/core/tx/columnshard/engines/changes/counters/general.h>
 
 namespace NKikimr::NColumnShard {

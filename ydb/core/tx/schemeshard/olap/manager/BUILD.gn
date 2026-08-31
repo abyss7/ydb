@@ -1,10 +1,5 @@
-library("manager") {
-  public_deps = [
-    "//ydb/core/scheme",
-    "//ydb/core/tx/schemeshard/olap/layout",
-    # "//ydb/core/tx/schemeshard/olap/store",
-    # "//ydb/core/tx/schemeshard/olap/table",
-  ]
+# yamake2gn: keep  -- hand-written, do not regenerate
 
-  sources = [ "manager.cpp" ]
+group("manager") {
+  public_deps = [ "//ydb/core/tx/schemeshard" ]
 }

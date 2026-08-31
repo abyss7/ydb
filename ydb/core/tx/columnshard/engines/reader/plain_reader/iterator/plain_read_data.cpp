@@ -8,7 +8,6 @@ TPlainReadData::TPlainReadData(const std::shared_ptr<TReadContext>& context)
     : TBase(context)
     , SpecialReadContext(std::make_shared<TSpecialReadContext>(context)) {
     std::deque<std::shared_ptr<IDataSource>> sources;
-    const auto readMetadata = GetReadMetadataVerifiedAs<const TReadMetadata>();
     auto constructor = GetReadMetadata()->ExtractSelectInfo();
     constructor->FillReadStats(GetReadMetadata()->ReadStats);
     Scanner = std::make_shared<TScanHead>(std::move(constructor), SpecialReadContext);
@@ -29,7 +28,7 @@ std::vector<std::unique_ptr<TPartialReadResult>> TPlainReadData::DoExtractReadyR
 
     AFL_DEBUG(NKikimrServices::TX_COLUMNSHARD_SCAN)("event", "DoExtractReadyResults")("result", result.size())("count", count)(
         "finished", Scanner->IsFinished());
-    return std::move(result);
+    return result;
 }
 
 TConclusion<bool> TPlainReadData::DoReadNextInterval() {

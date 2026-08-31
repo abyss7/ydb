@@ -1,5 +1,7 @@
 #include <library/cpp/monlib/service/pages/templates.h>
+#include <library/cpp/json/json_reader.h>
 #include <library/cpp/json/json_writer.h>
+#include <library/cpp/protobuf/json/json2proto.h>
 #include <library/cpp/protobuf/json/proto2json.h>
 #include <library/cpp/digest/md5/md5.h>
 #include <util/string/vector.h>

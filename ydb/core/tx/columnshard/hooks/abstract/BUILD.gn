@@ -2,27 +2,14 @@ library("abstract") {
   public_deps = [
     "//ydb/core/protos",
     "//ydb/core/tablet_flat",
-    # columnshard/common даёт common/* заголовки abstract.h И include-config arrow
-    # (для транзитивной цепочки portion_info.h -> abstract_scheme.h -> formats/arrow).
     "//ydb/core/tx/columnshard/common",
-    # engines/writer убран: abstract.h брал оттуда только TBlobPutResult, который
-    # перенесён в лёгкий put_status.h (резолвится по пути, header-only inline).
-    # Полный engines/writer тянет blobs_action:abstract и замыкал цикл
-    # blobs_action:abstract -> hooks/abstract -> engines/writer -> blobs_action:abstract.
     "//ydb/core/tx/columnshard/splitter",
     "//ydb/core/tx/tiering:tier",
     "//ydb/library/accessor",
     "//ydb/services/metadata/abstract",
   ]
 
-  deps = [
-    # columnshard (main) убран: abstract.cpp тянул его только ради TSettings-констант
-    # (вынесены в common/tablet_defaults.h) и TPortionInfo (portion_info.h, header-only).
-    # Это ребро замыкало цикл ...-> blobs_action:abstract -> hooks/abstract -> columnshard.
-    # Нужные заголовки узлов цикла (portion_info.h, storages_manager.h, abstract_scheme.h)
-    # резолвятся по пути; их символов hooks не линкует, поэтому deps на них (=узлы цикла)
-    # НЕ добавляем.
-  ]
+  deps = []
 
   sources = [ "abstract.cpp" ]
 }

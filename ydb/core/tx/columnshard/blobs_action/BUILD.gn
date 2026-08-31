@@ -14,7 +14,7 @@ library("abstract") {
     # "//ydb/library/services",
     ":blobs_action",
     # ":common",
-    # ":counters",
+    ":counters",
     ":events",
     ":protos",
   ]

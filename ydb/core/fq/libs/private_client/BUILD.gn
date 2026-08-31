@@ -1,20 +1,20 @@
 library("private_client") {
   public_deps = [
-    # "//library/cpp/monlib/dynamic_counters",
+    "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/fq/libs/control_plane_storage:proto",
     # "//ydb/core/fq/libs/events",
-    # "//ydb/core/fq/libs/grpc",
+    "//ydb/core/fq/libs/grpc",
     # "//ydb/core/fq/libs/protos",
     # "//ydb/core/fq/libs/shared_resources",
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
     # "//ydb/public/sdk/cpp/adapters/issue",
-    # "//ydb/public/sdk/cpp/src/client/table",
+    "//ydb/public/sdk/cpp/src/client/table",
   ]
 
   deps = [
     # "//ydb/core/fq/libs/control_plane_config",
     # "//ydb/core/fq/libs/control_plane_config:events",
-    # "//ydb/core/fq/libs/control_plane_storage",
+    "//ydb/core/fq/libs/control_plane_storage",
     # "//ydb/core/fq/libs/control_plane_storage:events",
     # "//ydb/library/services",
     # "//ydb/public/sdk/cpp/src/client/common_client:impl",

@@ -45,6 +45,8 @@
 #include <ydb/core/tx/scheme_cache/scheme_cache.h>
 #include <ydb/core/tx/tiering/common.h>
 #include <ydb/core/tx/time_cast/time_cast.h>
+
+#include <util/generic/utility.h>
 #include <ydb/core/tx/tx_processing.h>
 
 #include <ydb/services/metadata/abstract/common.h>
@@ -579,7 +581,13 @@ private:
     void RescheduleWaitingReads();
     NOlap::TSnapshot GetMaxReadVersion() const;
     NOlap::TSnapshot GetMinReadSnapshot() const;
-    ui64 GetOutdatedStep() const;
+    ui64 GetOutdatedStep() const {
+        ui64 step = LastPlannedStep;
+        if (MediatorTimeCastEntry) {
+            step = Max(step, MediatorTimeCastEntry->Get(TabletID()));
+        }
+        return step;
+    }
     TDuration GetTxCompleteLag() const {
         ui64 mediatorTime = MediatorTimeCastEntry ? MediatorTimeCastEntry->Get(TabletID()) : 0;
         return ProgressTxController->GetTxCompleteLag(mediatorTime);

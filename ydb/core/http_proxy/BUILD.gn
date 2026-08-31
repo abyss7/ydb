@@ -7,7 +7,7 @@ library("http_proxy") {
     # "//ydb/public/api/grpc",
     # "//ydb/public/api/grpc:draft",
     "//ydb/public/api/protos",
-    # "//ydb/public/sdk/cpp/src/client/driver",
+    "//ydb/public/sdk/cpp/src/client/driver",
     # "//ydb/public/sdk/cpp/src/library/grpc/client",
     # "//ydb/services/datastreams:codes",
   ]
@@ -25,7 +25,8 @@ library("http_proxy") {
     # "//library/cpp/uri",
     # "//ydb/core/base",
     # "//ydb/core/grpc_caching",
-    # "//ydb/core/grpc_services",
+    "//ydb/core/grpc_services",
+    "//ydb/core/grpc_services/counters",
     # "//ydb/core/grpc_services/local_rpc",
     "//ydb/core/security",
     # "//ydb/core/tx/scheme_board",

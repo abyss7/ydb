@@ -1,6 +1,6 @@
 library("common") {
   public_deps = [
-    # "//ydb/core/formats/arrow:rows",
+    "//ydb/core/formats/arrow:rows",
     # "//ydb/core/tx/columnshard",
     # "//ydb/core/tx/columnshard/blobs_reader",
     # "//ydb/core/tx/columnshard/common",
@@ -8,7 +8,7 @@ library("common") {
     # "//ydb/core/tx/columnshard/engines",
     # "//ydb/core/tx/columnshard/engines/predicate",
     # "//ydb/core/tx/columnshard/operations",
-    # "//ydb/core/tx/conveyor/usage",
+    "//ydb/core/tx/conveyor/usage",
     # "//ydb/core/tx/limiter/grouped_memory/usage",
     # "//ydb/core/tx/program",
     # "//ydb/library/accessor",
@@ -18,7 +18,8 @@ library("common") {
   ]
 
   deps = [
-    # "//ydb/core/tx/columnshard/engines/portions",
+    "//ydb/core/base",
+    "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/core/tx/columnshard/engines/reader/abstract",
     # "//ydb/library/actors/core",
     # "//ydb/library/services",

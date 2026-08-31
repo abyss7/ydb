@@ -217,7 +217,7 @@ public:
     }
 
     TBuildFilterContext(TBuildFilterContext&& other) = default;
-    TBuildFilterContext& operator=(TBuildFilterContext&& other) = default;
+    TBuildFilterContext& operator=(TBuildFilterContext&& other) = delete;
 
     TJobStatus::TResultInFlightGuard MakeResultInFlightGuard() const {
         return TJobStatus::TResultInFlightGuard(Status);

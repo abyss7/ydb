@@ -1,33 +1,34 @@
 library("grpc_services") {
   public_deps = [
-    # "//ydb/core/actorlib_impl",
+    "//ydb/core/actorlib_impl",
     "//ydb/core/base",
     "//ydb/core/cms/console",
     # "//ydb/core/control/lib",
-    # "//ydb/core/fq/libs/control_plane_proxy:utils",
-    # "//ydb/core/grpc_services/base",
-    # "//ydb/core/grpc_services/cancelation",
-    # "//ydb/core/grpc_services/counters",
-    # "//ydb/core/health_check",
+    "//ydb/core/grpc_services/base",
+    "//ydb/core/grpc_services/cancelation",
+    "//ydb/core/grpc_services/counters",
+    "//ydb/core/health_check",
     # "//ydb/core/kqp/common",
     # "//ydb/core/protos",
     # "//ydb/core/scheme",
-    # "//ydb/core/tx/scheme_board",
+    "//ydb/core/tx/scheme_board",
     # "//ydb/core/tx/schemeshard",
-    "//ydb/core/tx/tx_proxy",
+    "//ydb/core/tx/tx_proxy:public",
+    "//ydb/core/tx/tx_proxy:read_table",
+    "//ydb/core/tx/tx_proxy:upload_rows",
     # "//ydb/core/util",
-    # "//ydb/core/ydb_convert",
+    "//ydb/core/ydb_convert",
     # "//ydb/library/aclib",
     # "//ydb/library/actors/core",
-    # "//ydb/library/grpc/server",
+    "//ydb/library/grpc/server",
     # "//ydb/library/persqueue/topic_parser",
     # "//ydb/library/services",
     # "//ydb/library/wilson_ids",
-    # "//ydb/library/ydb_issue",
+    "//ydb/library/ydb_issue",
     # "//ydb/public/api/grpc:draft",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     # "//ydb/public/sdk/cpp/src/client/resources",
-    # "//ydb/public/sdk/cpp/src/library/operation_id",
+    "//ydb/public/sdk/cpp/src/library/operation_id",
     # "//yql/essentials/public/issue",
   ]
 
@@ -35,82 +36,86 @@ library("grpc_services") {
     # "//library/cpp/cache",
     # "//library/cpp/digest/old_crc",
     # "//library/cpp/monlib/service/pages",
-    # "//library/cpp/regex/pcre",
+    "//library/cpp/regex/pcre",
     # "//library/cpp/retry",
     # "//library/cpp/streams/zstd",
+    "//library/cpp/threading/hot_swap",
     # "//library/cpp/yson",
     "//ydb/core/audit",
-    # "//ydb/core/audit:audit_config",
-    # "//ydb/core/backup/common",
-    # "//ydb/core/backup/regexp",
+    "//ydb/core/audit:audit_config",
+    "//ydb/core/backup/common",
+    "//ydb/core/backup/regexp",
     # "//ydb/core/blobstorage/base",
+    "//ydb/core/blobstorage/events",
     # "//ydb/core/blobstorage/nodewarden",
     # "//ydb/core/client/minikql_compile",
-    # "//ydb/core/client/server",
     # "//ydb/core/cms",
     # "//ydb/core/counters_info",
-    # "//ydb/core/discovery",
+    "//ydb/core/discovery",
     # "//ydb/core/driver_lib/run",
     # "//ydb/core/engine",
     # "//ydb/core/formats",
-    # "//ydb/core/fq/libs/audit",
+    "//ydb/core/fq/libs/audit",
     "//ydb/core/fq/libs/audit:events",
     "//ydb/core/fq/libs/control_plane_proxy:events",
-    # "//ydb/core/fq/libs/control_plane_storage",
-    # "//ydb/core/fq/libs/events",
+    "//ydb/core/fq/libs/control_plane_storage:util",
+    "//ydb/core/fq/libs/events",
     # "//ydb/core/fq/libs/protos",
     "//ydb/core/grpc_services/local_rpc",
-    # "//ydb/core/io_formats/ydb_dump",
-    # "//ydb/core/kesus/tablet",
-    # "//ydb/core/keyvalue",
+    "//ydb/core/io_formats/arrow/scheme",
+    "//ydb/core/io_formats/ydb_dump",
+    "//ydb/core/kesus/tablet",
+    "//ydb/core/keyvalue",
     "//ydb/core/kqp/common",
     # "//ydb/core/kqp/common:events",
     # "//ydb/core/kqp/common:simple",
     # "//ydb/core/kqp/compute_actor",
     # "//ydb/core/kqp/executer_actor",
-    # "//ydb/core/kqp/executer_actor:shards_resolver",
+    "//ydb/core/kqp/executer_actor:shards_resolver",
     # "//ydb/core/kqp/node_service",
-    # "//ydb/core/kqp/opt",
-    "//ydb/core/kqp/proxy_service",
+    "//ydb/core/kqp/opt",
     # "//ydb/core/mind",
     # "//ydb/core/mind:bscontroller",
     # "//ydb/core/mind:hive",
     # "//ydb/core/mon",
-    # "//ydb/core/nbs/cloud/blockstore/config",
+    "//ydb/core/nbs/cloud/blockstore/config",
+    "//ydb/core/nbs/cloud/blockstore/libs/service",
     # "//ydb/core/nbs/cloud/blockstore/libs/storage/api",
-    # "//ydb/core/nbs/cloud/blockstore/libs/storage/partition_direct",
+    "//ydb/core/nbs/cloud/blockstore/libs/storage/partition_direct",
+    "//ydb/core/nbs/cloud/blockstore/public/api/protos",
     # "//ydb/core/nbs/cloud/storage/core/protos",
     # "//ydb/core/node_whiteboard",
     # "//ydb/core/protos/schemeshard",
-    # "//ydb/core/quoter:public",
+    "//ydb/core/quoter:public",
     "//ydb/core/security",
     # "//ydb/core/security:ldap_auth_provider",
-    # "//ydb/core/security:sasl",
-    # "//ydb/core/sys_view",
+    "//ydb/core/security:sasl",
+    "//ydb/core/tablet",
     # "//ydb/core/tablet_flat",
     # "//ydb/core/test_tablet",
     # "//ydb/core/tx",
-    # "//ydb/core/tx/datashard",
+    "//ydb/core/tx/datashard:read_events",
     # "//ydb/core/tx/replication/controller",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/schemeshard/olap/bg_tasks/events",
+    "//ydb/core/tx/schemeshard/olap/bg_tasks/protos",
     "//ydb/library/actors/http",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/cloud_permissions",
     # "//ydb/library/fyamlcpp",
     "//ydb/library/login",
-    # "//ydb/library/login:sasl",
+    "//ydb/library/login:sasl",
     # "//ydb/library/mkql_proto",
     # "//ydb/library/protobuf_printer",
     "//ydb/library/security",
-    # "//ydb/library/yaml_config",
+    "//ydb/library/yaml_config:protos",
     # "//ydb/library/yaml_config:public",
     # "//ydb/library/yaml_config/tools/util",
     "//ydb/library/yql/public/ydb_issue",
     # "//ydb/public/lib/base",
-    # "//ydb/public/lib/fq",
-    # "//ydb/public/sdk/cpp/src/client/proto",
-    # "//ydb/public/sdk/cpp/src/library/operation_id:protos",
+    "//ydb/public/lib/fq",
+    "//ydb/public/sdk/cpp/src/client/proto",
+    "//ydb/public/sdk/cpp/src/library/operation_id:protos",
     # "//yql/essentials/core/issue",
     # "//yql/essentials/core/issue:protos",
     # "//yql/essentials/minikql",
@@ -132,16 +137,13 @@ library("grpc_services") {
     "grpc_helper.cpp",
     "grpc_mon.cpp",
     "grpc_publisher_service_actor.cpp",
-    "grpc_request_proxy.cpp",
     "grpc_request_proxy_simple.cpp",
-    "legacy/rpc_legacy.cpp",
     "local_rate_limiter.cpp",
     "login_page.cpp",
     "operation_helpers.cpp",
     "query/rpc_attach_session.cpp",
     "query/rpc_execute_query.cpp",
     "query/rpc_execute_script.cpp",
-    "query/rpc_fetch_script_results.cpp",
     "query/rpc_kqp_tx.cpp",
     "resolve_local_db_table.cpp",
     "rpc_alter_coordination_node.cpp",
@@ -186,10 +188,10 @@ library("grpc_services") {
     "rpc_import.cpp",
     "rpc_import_data.cpp",
     "rpc_keep_alive.cpp",
+    "rpc_kqp_base.cpp",
     "rpc_keyvalue.cpp",
     "rpc_kh_describe.cpp",
     "rpc_kh_snapshots.cpp",
-    "rpc_kqp_base.cpp",
     "rpc_list_objects_in_s3_export.cpp",
     "rpc_list_operations.cpp",
     "rpc_load_rows.cpp",
@@ -206,7 +208,6 @@ library("grpc_services") {
     "rpc_ping.cpp",
     "rpc_prepare_data_query.cpp",
     "rpc_rate_limiter_api.cpp",
-    "rpc_read_columns.cpp",
     "rpc_read_rows.cpp",
     "rpc_read_table.cpp",
     "rpc_remove_directory.cpp",
@@ -227,4 +228,49 @@ library("grpc_services") {
     "ydb_over_fq/keep_alive.cpp",
     "ydb_over_fq/list_directory.cpp",
   ]
+}
+
+library("fetch_script_results") {
+  public_deps = [
+    ":grpc_services",
+    "//ydb/core/kqp/proxy_service",
+  ]
+
+  sources = [ "query/rpc_fetch_script_results.cpp" ]
+}
+
+# grpc_request_proxy.cpp инстанцирует TGRpcRequestProxyImpl::Handle<> и
+# TGrpcRequestCheckActor<> для потоковых обёрток, а сами перегрузки
+# TGRpcRequestProxyHandleMethods::Handle (объявлены в
+# grpc_request_proxy_handle_methods.h) реализованы В СЕРВИСАХ, лежащих выше:
+#   TEvBiStreamPingRequest            -> ydb/services/ydb/ydb_dummy.cpp:184
+#   TEvStreamPQWrite/TopicWrite       -> ydb/services/persqueue_v1/grpc_pq_write.cpp:181,185
+#   TEvStreamPQMigrationRead/
+#   TopicRead/TopicDirectRead         -> ydb/services/persqueue_v1/grpc_pq_read.cpp:211,215,220
+#   TEvCoordinationSessionRequest     -> ydb/services/kesus/grpc_service.cpp:707
+# Подключить их к самому grpc_services нельзя (persqueue_v1 -> :actors ->
+# persqueue/public -> grpc_services и services/ydb -> grpc_services), поэтому
+# файл вынесен в таргет, стоящий над сервисами. Его потребители —
+# driver_lib/run (kikimr_services_initializers.cpp:1792) и testlib.
+library("request_proxy") {
+  public_deps = [
+    ":grpc_services",
+    "//ydb/services/kesus",
+    "//ydb/services/persqueue_v1",
+    "//ydb/services/ydb",
+  ]
+
+  sources = [ "grpc_request_proxy.cpp" ]
+}
+
+# rpc_read_columns.cpp is the only file here that needs NSysView::CreateSystemViewScan,
+# and that factory reaches metadata/initializer, which does a local RPC back into
+# grpc_services. Kept above sys_view; DoReadColumnsRequest is only called from
+# ydb/services/ydb/ydb_clickhouse_internal.cpp anyway.
+library("read_columns") {
+  public_deps = [ ":grpc_services" ]
+
+  deps = [ "//ydb/core/sys_view" ]
+
+  sources = [ "rpc_read_columns.cpp" ]
 }

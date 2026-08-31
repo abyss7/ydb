@@ -13,8 +13,8 @@ library("manager") {
     # "//ydb/public/api/protos",
     # "//ydb/public/lib/scheme_types",
     # "//ydb/services/metadata",
-    # "//ydb/services/metadata/abstract",
-    # "//yql/essentials/sql:settings",
+    "//ydb/services/metadata/abstract",
+    "//yql/essentials/sql:settings",
     "//ydb/services/metadata/request",
   ]
 

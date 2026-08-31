@@ -10,7 +10,7 @@ class TIcNodeCacheServiceActor : public TActorBootstrapped<TIcNodeCacheServiceAc
     using TBase = TActorBootstrapped<TIcNodeCacheServiceActor>;
 public:
     TIcNodeCacheServiceActor(TIcNodeCacheServiceActor&&) = default;
-    TIcNodeCacheServiceActor& operator=(TIcNodeCacheServiceActor&&) = default;
+    TIcNodeCacheServiceActor& operator=(TIcNodeCacheServiceActor&&) = delete;
 
     TIcNodeCacheServiceActor(const ::NMonitoring::TDynamicCounterPtr& counters,
                              const TDuration& cacheUpdateInterval)
@@ -28,7 +28,7 @@ private:
         InfoRequested = true;
         this->ActorContext().Send(nameserviceId, new TEvInterconnect::TEvListNodes());
     }
- 
+
     void HandleNodesInfo(TEvInterconnect::TEvNodesInfo::TPtr& ev) {
         Y_ABORT_UNLESS(InfoRequested);
         InfoRequested = false;
@@ -89,7 +89,7 @@ public:
         Become(&TIcNodeCacheServiceActor::StateFunc);
         HandleWakeup();
     }
-    
+
     STRICT_STFUNC(StateFunc,
           hFunc(TEvInterconnect::TEvNodesInfo, HandleNodesInfo)
           sFunc(TEvents::TEvWakeup, HandleWakeup)

@@ -22,11 +22,6 @@
 #include <unordered_map>
 #include <unordered_set>
 
-template <>
-void Out<std::pair<ui64, ui32>>(IOutputStream& out, const std::pair<ui64, ui32>& p) {
-    out << '(' << p.first << ',' << p.second << ')';
-}
-
 namespace NKikimr {
 
 using NNodeWhiteboard::TTabletId;

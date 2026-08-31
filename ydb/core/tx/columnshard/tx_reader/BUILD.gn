@@ -1,7 +1,7 @@
 library("tx_reader") {
   public_deps = [
-    # "//ydb/core/tablet_flat",
-    # "//ydb/core/tx/columnshard/counters",
+    "//ydb/core/tablet_flat",
+    "//ydb/core/tx/columnshard/counters",
     # "//ydb/library/actors/core",
   ]
 

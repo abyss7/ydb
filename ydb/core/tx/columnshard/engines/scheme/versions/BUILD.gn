@@ -17,7 +17,6 @@ library("versions") {
     # "//ydb/core/formats/arrow/accessor/plain",
     # "//ydb/core/formats/arrow:serializer",
     # "//ydb/core/protos",
-    # "//ydb/core/tx/columnshard/engines",
     # "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator/sys_view/abstract",
     # "//ydb/core/tx/columnshard/engines/storage/chunks",

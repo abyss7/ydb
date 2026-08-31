@@ -1,14 +1,5 @@
-library("granule") {
-  # granule.cpp/portion_interval_tree.cpp/portions_index.cpp/stages.cpp/storage.cpp
-  # реально компилируются как часть engines (заголовки этого каталога никуда не
-  # переносились) — granule реально нужен engines (TGranuleMeta) и наоборот engines
-  # реально нужен granule (TColumnEngineForLogs::AppendPortion), из-за чего они не
-  # могут быть раздельными gn-таргетами без цикла granule -> engines -> granule.
-  # Этот таргет — форвардер для существующих потребителей ":granule"
-  # (например data_locks/locks).
-  public_deps = [
-    "//ydb/core/tx/columnshard/engines",
-  ]
+# yamake2gn: keep  -- hand-written, do not regenerate
 
-  sources = []
+group("granule") {
+  public_deps = [ "//ydb/core/tx/columnshard/engines" ]
 }

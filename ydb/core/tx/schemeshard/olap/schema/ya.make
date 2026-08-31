@@ -3,6 +3,7 @@ LIBRARY()
 SRCS(
     schema.cpp
     update.cpp
+    validate_ttl.cpp
 )
 
 PEERDIR(

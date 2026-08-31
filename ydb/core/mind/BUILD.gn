@@ -134,32 +134,33 @@ library("bscontroller") {
 
 library("hive") {
   public_deps = [
-    # "//ydb/core/base",
-    # "//ydb/core/engine:minikql",
+    "//ydb/core/base",
+    "//ydb/core/engine:minikql",
     # "//ydb/core/mind",
     # "//ydb/core/protos",
     # "//ydb/core/scheme",
-    # "//ydb/core/tablet",
-    # "//ydb/core/tablet_flat",
+    "//ydb/core/tablet",
+    "//ydb/core/tablet_flat",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
     # "//library/cpp/containers/absl_flat_hash",
     # "//library/cpp/containers/ring_buffer",
-    # "//library/cpp/digest/md5",
+    "//library/cpp/digest/md5",
     # "//library/cpp/json",
     # "//library/cpp/monlib/service/pages",
-    # "//library/cpp/protobuf/json",
+    "//library/cpp/protobuf/json",
     # "//library/cpp/random_provider",
     # "//library/cpp/time_provider",
+    "//ydb/core/blobstorage/events",
     # "//ydb/core/cms/console",
     # "//ydb/core/node_whiteboard",
     # "//ydb/core/sys_view:common",
-    # "//ydb/core/tx",
-    # "//ydb/core/tx/scheme_cache",
+    "//ydb/core/tx",
+    "//ydb/core/tx/scheme_cache",
     # "//ydb/core/util",
-    # "//ydb/library/aclib",
+    "//ydb/library/aclib",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/yverify_stream",
   ]
@@ -234,11 +235,6 @@ library("hive") {
   ]
 }
 
-# Лёгкий лист: обе перегрузки NNodeBroker::BuildNameserverTable(), вынесенные из
-# dynamic_nameserver.cpp. Это единственный символ из mind, который линкует nodewarden
-# (distconf.cpp). Объявления остались на месте, в dynamic_nameserver.h.
-# Выделено, чтобы разорвать цикл
-# nodewarden -> mind:mind -> mind:bscontroller -> nodewarden.
 library("nameserver_table_builder") {
   public_deps = [
     "//ydb/core/base",
@@ -250,16 +246,24 @@ library("nameserver_table_builder") {
   sources = [ "nameserver_table_builder.cpp" ]
 }
 
+library("tenant_node_enumeration") {
+  public_deps = [ "//ydb/core/base" ]
+
+  deps = [ "//ydb/library/actors/core" ]
+
+  sources = [ "tenant_node_enumeration.cpp" ]
+}
+
 library("mind") {
   public_deps = [
     "//ydb/core/base",
     ":nameserver_table_builder",
-    # "//ydb/core/cms/console",
+    ":tenant_node_enumeration",
+    "//ydb/core/cms/console",
     # "//ydb/core/engine:minikql",
     # "//ydb/core/protos",
     # "//ydb/core/tablet",
     # "//ydb/core/tablet_flat",
-    "//ydb/core/tablet_flat/recovery",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
   ]
@@ -267,34 +271,19 @@ library("mind") {
   deps = [
     # "//library/cpp/random_provider",
     # "//ydb/core/actorlib_impl",
-    "//ydb/core/backup/controller",
-    # "//ydb/core/blob_depot",
-    # "//ydb/core/cms",
-    # "//ydb/core/kesus/tablet",
-    # "//ydb/core/keyvalue",
     "//ydb/core/mon",
     # "//ydb/core/node_whiteboard",
     # "//ydb/core/scheme",
-    # "//ydb/core/statistics:aggregator",
-    # "//ydb/core/sys_view:processor",
-    # "//ydb/core/test_tablet",
-    # "//ydb/core/tx/coordinator",
-    # "//ydb/core/tx/datashard",
-    # "//ydb/core/tx/mediator",
-    # "//ydb/core/tx/replication/controller",
     # "//ydb/core/tx/scheme_board",
     # "//ydb/core/tx/scheme_cache",
-    # "//ydb/core/tx/schemeshard",
-    # "//ydb/core/tx/sequenceshard",
-    # "//ydb/core/tx/tx_allocator",
+    "//ydb/core/tx/schemeshard",
     # "//ydb/core/util",
     # "//ydb/library/actors/util",
     # "//ydb/library/services",
-    ":bscontroller",
+    ":hive",
   ]
 
   sources = [
-    "configured_tablet_bootstrapper.cpp",
     "dynamic_nameserver.cpp",
     "dynamic_nameserver_mon.cpp",
     "labels_maintainer.cpp",
@@ -311,7 +300,6 @@ library("mind") {
     "node_broker__update_config_subscription.cpp",
     "node_broker__update_epoch.cpp",
     "slot_indexes_pool.cpp",
-    "tenant_node_enumeration.cpp",
     "tenant_pool.cpp",
     "tenant_slot_broker.cpp",
     "tenant_slot_broker__alter_tenant.cpp",
@@ -324,4 +312,38 @@ library("mind") {
     "tenant_slot_broker__update_pool_status.cpp",
     "tenant_slot_broker__update_slot_status.cpp",
   ]
+}
+
+# Composition root: maps every tablet type to its Create* factory, so it must
+# sit above all tablets rather than inside `mind`.
+library("configured_tablet_bootstrapper") {
+  public_deps = [
+    "//ydb/core/base",
+    "//ydb/core/tablet",
+    ":mind",
+  ]
+
+  deps = [
+    "//ydb/core/backup/controller",
+    "//ydb/core/blob_depot",
+    "//ydb/core/cms",
+    "//ydb/core/cms/console",
+    "//ydb/core/kesus/tablet",
+    "//ydb/core/keyvalue",
+    "//ydb/core/statistics:aggregator",
+    "//ydb/core/sys_view:processor",
+    "//ydb/core/tablet_flat",
+    "//ydb/core/tablet_flat/recovery",
+    "//ydb/core/test_tablet",
+    "//ydb/core/tx/coordinator",
+    "//ydb/core/tx/datashard",
+    "//ydb/core/tx/mediator",
+    "//ydb/core/tx/replication/controller",
+    "//ydb/core/tx/schemeshard",
+    "//ydb/core/tx/sequenceshard",
+    "//ydb/core/tx/tx_allocator",
+    ":bscontroller",
+  ]
+
+  sources = [ "configured_tablet_bootstrapper.cpp" ]
 }

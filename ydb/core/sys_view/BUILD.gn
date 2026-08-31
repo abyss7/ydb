@@ -26,7 +26,7 @@ library("common") {
     # "//ydb/core/base",
     # "//ydb/core/kqp/compute_actor",
     # "//ydb/core/kqp/runtime",
-    # "//ydb/core/mind",
+    "//ydb/core/mind:tenant_node_enumeration",
     "//ydb/core/protos",
     # "//ydb/core/scheme",
     "//ydb/core/tablet_flat",
@@ -76,12 +76,13 @@ library("compile_cache") {
 
 library("nodes") {
   public_deps = [
-    # "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime",
     # "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
+    "//ydb/core/mind:tenant_node_enumeration",
     # "//ydb/core/node_whiteboard",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/yql/dq/actors:compute",
@@ -93,13 +94,14 @@ library("nodes") {
 
 library("partition_stats") {
   public_deps = [
-    # "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime",
     # "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
     # "//ydb/core/base",
+    "//ydb/core/mind:tenant_node_enumeration",
     # "//ydb/library/yql/dq/actors:compute",
     # ":common",
   ]
@@ -187,14 +189,14 @@ library("query_stats") {
 
 library("resource_pool_classifiers") {
   public_deps = [
-    # "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime",
     # "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
-    # "//ydb/core/kqp/gateway/behaviour/resource_pool_classifier",
-    # "//ydb/core/kqp/workload_service:actors",
+    "//ydb/core/kqp/gateway/behaviour/resource_pool_classifier",
+    "//ydb/core/kqp/workload_service:scheme_actors",
     # "//ydb/core/node_whiteboard",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/yql/dq/actors:compute",
@@ -208,7 +210,7 @@ library("resource_pool_classifiers") {
 
 library("resource_pools") {
   public_deps = [
-    # "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime",
     # "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
@@ -216,8 +218,9 @@ library("resource_pools") {
   deps = [
     # "//library/cpp/json",
     # "//library/cpp/protobuf/json",
+    "//ydb/core/mind:tenant_node_enumeration",
     # "//ydb/library/actors/interconnect",
-    # "//ydb/library/table_creator",
+    "//ydb/library/table_creator",
     # "//ydb/library/yql/dq/actors:compute",
     # "//yql/essentials/types/binary_json",
     # ":common",
@@ -256,7 +259,7 @@ library("service") {
 
 library("sessions") {
   public_deps = [
-    # "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime",
     # "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
@@ -264,6 +267,7 @@ library("sessions") {
   deps = [
     # "//ydb/core/kqp/common:events",
     # "//ydb/core/kqp/common:simple",
+    "//ydb/core/mind:tenant_node_enumeration",
     # "//ydb/core/node_whiteboard",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/yql/dq/actors:compute",
@@ -374,13 +378,13 @@ library("sys_view") {
     # ":auth",
     # ":common",
     # ":compile_cache",
-    # ":nodes",
-    # ":partition_stats",
+    ":nodes",
+    ":partition_stats",
     # ":pg_tables",
     # ":query_stats",
-    # ":resource_pool_classifiers",
-    # ":resource_pools",
-    # ":sessions",
+    ":resource_pool_classifiers",
+    ":resource_pools",
+    ":sessions",
     # ":show_create",
     # ":storage",
     # ":streaming_queries",

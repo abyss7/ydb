@@ -9,17 +9,6 @@ library("proxy_service") {
     "//ydb/core/base",
     "//ydb/core/kqp/common",
     # "//ydb/core/kqp/common:events",
-    # kqp/federated_query убран: kqp_proxy_service.h включает оттуда
-    # kqp_federated_query_helpers.h, но линкуемых символов не берёт — используется
-    # только IKqpFederatedQuerySetupFactory::TPtr (shared_ptr, вызов чисто виртуального
-    # Make() идёт через vtable) и std::optional<TKqpFederatedQuerySetup> (агрегат
-    # smart-pointer'ов с неявным деструктором). Конкретные фабрики здесь не
-    # инстанцируются и Cleanup() не вызывается, поэтому vtable-символ
-    # IKqpFederatedQuerySetupFactory::Cleanup тоже не нужен. В proxy_service/ya.make
-    # PEERDIR на federated_query тоже нет. Замыкало цикл grpc_services ->
-    # proxy_service -> federated_query -> local_pq_client -> grpc_services.
-    # Ниже — низкоуровневые зависимости, которые раньше приезжали транзитивно
-    # через federated_query и нужны заголовку для компиляции.
     # "//ydb/core/kqp/federated_query",
     "//ydb/library/logger",
     "//ydb/library/yql/providers/generic/connector/libcpp",
@@ -46,7 +35,7 @@ library("proxy_service") {
     # "//ydb/core/grpc_services",
     # "//ydb/core/kqp/common:simple",
     # "//ydb/core/kqp/compile_service",
-    # "//ydb/core/kqp/compute_actor",
+    "//ydb/core/kqp/compute_actor",
     # "//ydb/core/kqp/counters",
     # "//ydb/core/kqp/executer_actor",
     # "//ydb/core/kqp/gateway/behaviour/resource_pool_classifier",

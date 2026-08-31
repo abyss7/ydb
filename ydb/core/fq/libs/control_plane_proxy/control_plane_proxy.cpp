@@ -2561,11 +2561,6 @@ private:
 
 } // anonymous namespace
 
-TActorId ControlPlaneProxyActorId() {
-    constexpr TStringBuf name = "YQCTLPRX";
-    return NActors::TActorId(0, name);
-}
-
 IActor* CreateControlPlaneProxyActor(
     const NConfig::TControlPlaneProxyConfig& config,
     const NConfig::TControlPlaneStorageConfig& storageConfig,

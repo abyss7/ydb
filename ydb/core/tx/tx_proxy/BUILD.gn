@@ -1,8 +1,7 @@
 library("tx_proxy") {
   public_deps = [
-    "//contrib/restricted/boost/container_hash",
     # "//library/cpp/monlib/dynamic_counters",
-    # "//ydb/core/actorlib_impl",
+    "//ydb/core/actorlib_impl",
     "//ydb/core/base",
     # "//ydb/core/control/lib",
     # "//ydb/core/formats/arrow",
@@ -12,7 +11,10 @@ library("tx_proxy") {
     # "//ydb/core/mon",
     # "//ydb/core/protos",
     # "//ydb/core/scheme",
-    # "//ydb/core/tx",
+    "//ydb/core/tx",
+    ":public",
+    ":read_table",
+    ":upload_rows",
     # "//ydb/core/tx/datashard",
     # "//ydb/core/tx/locks",
     # "//ydb/core/tx/long_tx_service:public",
@@ -30,34 +32,34 @@ library("tx_proxy") {
 
   deps = [
     # "//contrib/libs/apache/arrow",
-    # "//ydb/core/docapi",
+    "//ydb/core/docapi",
     "//ydb/core/engine",
     "//ydb/core/kqp/common",
     # "//ydb/core/kqp/executer_actor",
     "//ydb/core/kqp/query_data",
     # "//ydb/core/protos/schemeshard",
     # "//ydb/core/security:sasl",
-    # "//ydb/core/sys_view:common",
-    # "//ydb/core/tablet",
+    "//ydb/core/sys_view:common",
+    "//ydb/core/tablet",
     # "//ydb/core/tablet_flat",
-    # "//ydb/core/tx/balance_coverage",
+    "//ydb/core/tx/balance_coverage",
     # "//ydb/core/tx/columnshard",
     "//ydb/core/tx/data_events",
-    # "//ydb/core/tx/scheme_board",
-    # "//ydb/core/tx/schemeshard",
+    "//ydb/core/tx/scheme_board",
+    "//ydb/core/tx/schemeshard",
     # "//ydb/core/tx/tx_allocator",
-    # "//ydb/core/tx/tx_allocator_client",
-    # "//ydb/core/ydb_convert",
+    "//ydb/core/tx/tx_allocator_client",
+    "//ydb/core/ydb_convert",
     # "//ydb/library/aclib",
     # "//ydb/library/actors/prof",
     # "//ydb/library/actors/protos",
     # "//ydb/library/actors/wilson",
     # "//ydb/library/login",
-    # "//ydb/library/login:hashes_checker",
+    "//ydb/library/login:hashes_checker",
     # "//ydb/library/login:protos",
     # "//ydb/library/mkql_proto:protos",
     # "//ydb/library/protobuf_printer",
-    # "//ydb/services/ext_index/common",
+    "//ydb/services/ext_index/common",
     # "//yql/essentials/core/issue",
     # "//yql/essentials/core/issue:protos",
     # "//yql/essentials/public/issue",
@@ -68,22 +70,90 @@ library("tx_proxy") {
     "datareq.cpp",
     "describe.cpp",
     "global.cpp",
-    "mon.cpp",
-    "proxy.cpp",
     "proxy_impl.cpp",
-    "read_table_impl.cpp",
     "resolvereq.cpp",
-    "rpc_long_tx.cpp",
     "schemereq.cpp",
     "snapshotreq.cpp",
     "upload_columns.cpp",
+  ]
+
+}
+
+library("public") {
+  public_deps = [
+    "//ydb/core/base",
+    "//ydb/core/mon",
+    "//ydb/core/protos",
+    "//yql/essentials/minikql",
+  ]
+
+  deps = [
+    "//library/cpp/monlib/dynamic_counters",
+  ]
+
+  sources = [
+    "mon.cpp",
+    "proxy.cpp",
+  ]
+}
+
+library("upload_rows") {
+  public_deps = [
+    ":public",
+    "//contrib/restricted/boost/container_hash",
+    "//ydb/core/base",
+    "//ydb/core/protos",
+    "//ydb/core/scheme",
+    "//ydb/core/tx/long_tx_service:public",
+    "//ydb/core/tx/scheme_cache",
+    "//ydb/library/signals",
+  ]
+
+  deps = [
+    "//contrib/libs/apache/arrow",
+    "//ydb/core/actorlib_impl",
+    "//ydb/core/formats/arrow",
+    "//ydb/core/io_formats/arrow/scheme",
+    "//ydb/core/kqp/query_data",
+    "//ydb/core/tx/data_events",
+    "//ydb/core/util",
+    "//ydb/library/actors/prof",
+    "//ydb/library/actors/wilson",
+    "//ydb/library/ydb_issue",
+    "//ydb/services/ext_index/common",
+  ]
+
+  sources = [
+    "rpc_long_tx.cpp",
     "upload_rows.cpp",
     "upload_rows_common_impl.cpp",
     "upload_rows_counters.cpp",
   ]
 
-  serialize_enum_headers = [
-    "read_table_impl.h",
-    "upload_rows_counters.h",
+  serialize_enum_headers = [ "upload_rows_counters.h" ]
+}
+
+library("read_table") {
+  public_deps = [
+    ":public",
+    "//ydb/core/base",
+    "//ydb/core/protos",
+    "//ydb/core/scheme",
+    "//ydb/core/tx",
   ]
+
+  deps = [
+    "//ydb/core/actorlib_impl",
+    "//ydb/core/engine",
+    "//ydb/core/tx/scheme_cache",
+    "//ydb/core/ydb_convert",
+    "//ydb/library/aclib",
+    "//ydb/library/ydb_issue",
+    "//yql/essentials/core/issue",
+    "//yql/essentials/public/issue",
+  ]
+
+  sources = [ "read_table_impl.cpp" ]
+
+  serialize_enum_headers = [ "read_table_impl.h" ]
 }

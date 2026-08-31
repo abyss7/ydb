@@ -4,9 +4,13 @@ library("usage") {
     # "//ydb/core/protos",
     # "//ydb/core/tx/conveyor/service",
     # "//ydb/library/accessor",
-    # "//ydb/library/actors/core",
-    # "//ydb/library/conclusion",
+    "//ydb/library/actors/core",
+    "//ydb/library/conclusion",
     # "//ydb/library/signals",
+  ]
+
+  deps = [
+    "//library/cpp/time_provider",
   ]
 
   sources = [

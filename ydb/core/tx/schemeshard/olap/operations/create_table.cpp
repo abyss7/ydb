@@ -154,7 +154,7 @@ private:
         description.SetSchemaPresetName(PresetName);
 
         auto layoutPolicy = StoreInfo.GetTablesLayoutPolicy();
-        auto currentLayout = context.SS->ColumnTables.GetTablesLayout(TColumnTablesLayout::ShardIdxToTabletId(StoreInfo.GetColumnShards(), *context.SS));
+        auto currentLayout = context.SS->ColumnTables.GetTablesLayout(context.SS->ShardIdxToTabletId(StoreInfo.GetColumnShards()));
         auto layoutConclusion = layoutPolicy->Layout(currentLayout, ShardsCount);
         if (layoutConclusion.IsFail()) {
             return layoutConclusion;
@@ -387,7 +387,7 @@ public:
 
         auto table = context.SS->ColumnTables.TakeAlterVerified(pathId);
         if (table->IsStandalone()) {
-            table->SetColumnShards(TColumnTablesLayout::ShardIdxToTabletId(table->BuildOwnedColumnShardsVerified(), *context.SS));
+            table->SetColumnShards(context.SS->ShardIdxToTabletId(table->BuildOwnedColumnShardsVerified()));
         }
 
         context.SS->PersistColumnTableAlterRemove(db, pathId);

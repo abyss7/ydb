@@ -1,6 +1,7 @@
 #pragma once
 #include "abstract/abstract.h"
 #include <ydb/core/tx/columnshard/common/path_id.h>
+#include <ydb/core/tx/columnshard/data_locks/locks/list.h>
 
 namespace NKikimr::NOlap {
 

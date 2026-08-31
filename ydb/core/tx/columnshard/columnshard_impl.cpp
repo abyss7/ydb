@@ -183,14 +183,6 @@ NOlap::TSnapshot TColumnShard::GetMaxReadVersion() const {
     }
 }
 
-ui64 TColumnShard::GetOutdatedStep() const {
-    ui64 step = LastPlannedStep;
-    if (MediatorTimeCastEntry) {
-        step = Max(step, MediatorTimeCastEntry->Get(TabletID()));
-    }
-    return step;
-}
-
 NOlap::TSnapshot TColumnShard::GetMinReadSnapshot() const {
     ui64 delayMillisec = NYDBTest::TControllers::GetColumnShardController()->GetMaxReadStaleness().MilliSeconds();
     ui64 passedStep = GetOutdatedStep();

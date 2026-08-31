@@ -1,18 +1,21 @@
 library("initializer") {
   public_deps = [
     # "//library/cpp/threading/future",
-    # "//ydb/core/base",
+    "//ydb/core/base",
     # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
     # "//ydb/services/metadata/abstract",
     # "//ydb/services/metadata/ds_table",
-    # "//ydb/services/metadata/manager",
-    # "//ydb/services/metadata/request",
+    "//ydb/services/metadata/manager",
+    "//ydb/services/metadata/request",
   ]
 
   deps = [
     # "//library/cpp/time_provider",
-    # "//ydb/core/grpc_services/local_rpc",
+    "//ydb/core/grpc_services",
+    "//ydb/core/grpc_services/local_rpc",
+    "//ydb/library/aclib",
+    "//ydb/library/yql/public/ydb_issue",
     # "//ydb/services/metadata",
   ]
 

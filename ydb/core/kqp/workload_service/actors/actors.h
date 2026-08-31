@@ -3,6 +3,7 @@
 #include <ydb/core/kqp/common/events/workload_service.h>
 #include <ydb/core/protos/workload_manager_config.pb.h>
 
+#include <library/cpp/monlib/dynamic_counters/counters.h>
 
 namespace NKikimr::NKqp::NWorkload {
 

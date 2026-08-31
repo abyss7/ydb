@@ -1,0 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
+group("plain") {
+  public_deps = [ "//ydb/core/formats/arrow/accessor:plain" ]
+}

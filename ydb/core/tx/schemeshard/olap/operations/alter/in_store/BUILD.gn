@@ -1,96 +1,30 @@
-library("common") {
-  public_deps = [
-    # "//ydb/core/tx/schemeshard/olap/operations/alter/abstract",
-    # "//ydb/core/tx/schemeshard/olap/operations/alter/common",
-    # "//ydb/core/tx/schemeshard/olap/ttl",
-  ]
+# yamake2gn: keep  -- hand-written, do not regenerate
+#
+# These sources are schemeshard operations: they need TOperationContext and the
+# compile environment of schemeshard_impl.h, and schemeshard's operation factory
+# needs their Create*/Construct* symbols back. In gn that is one link unit, so
+# library("schemeshard") compiles them directly. This target only redirects.
 
-  deps = [
-    # "//ydb/core/tx/schemeshard",
-    # "//ydb/core/tx/schemeshard/olap/operations/alter/in_store",
-  ]
-
-  sources = [ "common/update.cpp" ]
+group("common") {
+  public_deps = [ "//ydb/core/tx/schemeshard" ]
 }
 
-library("config_shards") {
-  public_deps = [
-    # "//ydb/core/tx/schemeshard/olap/operations/alter/abstract",
-    # "//ydb/core/tx/schemeshard/olap/operations/alter/in_store",
-    # "//ydb/core/tx/schemeshard/olap/ttl",
-    # ":common",
-  ]
-
-  deps = [
-    # "//ydb/core/tx/schemeshard",
-  ]
-
-  sources = [ "config_shards/update.cpp" ]
+group("config_shards") {
+  public_deps = [ "//ydb/core/tx/schemeshard" ]
 }
 
-library("in_store") {
-  public_deps = [
-    "//ydb/core/tx/schemeshard/olap/operations/alter/common",
-    # "//ydb/core/tx/schemeshard/olap/schema",
-    # "//ydb/core/tx/schemeshard/olap/store",
-    # "//ydb/core/tx/schemeshard/olap/table",
-    # "//ydb/core/tx/schemeshard/olap/ttl",
-  ]
-
-  deps = [
-    # "//ydb/core/tx/schemeshard",
-    # ":config_shards",
-    # ":resharding",
-    # ":schema",
-    # ":transfer",
-  ]
-
-  sources = [ "object.cpp" ]
+group("in_store") {
+  public_deps = [ "//ydb/core/tx/schemeshard" ]
 }
 
-library("resharding") {
-  public_deps = [
-    # "//ydb/core/tx/schemeshard/olap/bg_tasks/tx_chain",
-    # "//ydb/core/tx/schemeshard/olap/operations/alter/abstract",
-    # "//ydb/core/tx/schemeshard/olap/operations/alter/in_store",
-    # "//ydb/core/tx/schemeshard/olap/ttl",
-  ]
-
-  deps = [
-    # "//ydb/core/tx/columnshard/bg_tasks/abstract",
-    # "//ydb/core/tx/schemeshard",
-    # "//ydb/core/tx/sharding",
-  ]
-
-  sources = [ "resharding/update.cpp" ]
+group("resharding") {
+  public_deps = [ "//ydb/core/tx/schemeshard" ]
 }
 
-library("schema") {
-  public_deps = [
-    # "//ydb/core/protos",
-    # "//ydb/core/tx/schemeshard/olap/operations/alter/abstract",
-    # "//ydb/core/tx/schemeshard/olap/operations/alter/in_store",
-    # "//ydb/core/tx/schemeshard/olap/ttl",
-    # ":common",
-  ]
-
-  sources = [ "schema/update.cpp" ]
+group("schema") {
+  public_deps = [ "//ydb/core/tx/schemeshard" ]
 }
 
-library("transfer") {
-  public_deps = [
-    # "//ydb/core/tx/columnshard/data_sharing/protos",
-    # "//ydb/core/tx/schemeshard/olap/operations/alter/abstract",
-    # "//ydb/core/tx/schemeshard/olap/operations/alter/in_store",
-    # "//ydb/core/tx/schemeshard/olap/ttl",
-    # ":common",
-  ]
-
-  deps = [
-    # "//ydb/core/tx/columnshard/common",
-    # "//ydb/core/tx/columnshard/data_sharing/initiator/controller",
-    # "//ydb/core/tx/schemeshard",
-  ]
-
-  sources = [ "transfer/update.cpp" ]
+group("transfer") {
+  public_deps = [ "//ydb/core/tx/schemeshard" ]
 }

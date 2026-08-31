@@ -1,19 +1,10 @@
-library("standalone") {
-  public_deps = [
-    # "//ydb/core/tx/schemeshard/olap/operations/alter/common",
-    # "//ydb/core/tx/schemeshard/olap/table",
-    # "//ydb/core/tx/schemeshard/olap/ttl",
-  ]
+# yamake2gn: keep  -- hand-written, do not regenerate
+#
+# These sources are schemeshard operations: they need TOperationContext and the
+# compile environment of schemeshard_impl.h, and schemeshard's operation factory
+# needs their Create*/Construct* symbols back. In gn that is one link unit, so
+# library("schemeshard") compiles them directly. This target only redirects.
 
-  deps = [
-    # "//ydb/core/tx/schemeshard",
-    # "//ydb/core/tx/schemeshard/olap/common",
-    # "//ydb/core/tx/schemeshard/olap/operations/alter/abstract",
-    # "//ydb/core/tx/schemeshard/olap/schema",
-  ]
-
-  sources = [
-    "object.cpp",
-    "update.cpp",
-  ]
+group("standalone") {
+  public_deps = [ "//ydb/core/tx/schemeshard" ]
 }
