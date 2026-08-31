@@ -3,9 +3,7 @@ config("private_config") {
 }
 
 library("parser") {
-  public_deps = [
-    "//yql/essentials/minikql/jsonpath/rewrapper",
-  ]
+  public_deps = [ "//yql/essentials/minikql/jsonpath/rewrapper" ]
 
   deps = [
     "//contrib/libs/double-conversion",

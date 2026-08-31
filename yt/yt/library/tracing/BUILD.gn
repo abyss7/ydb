@@ -1,14 +1,14 @@
 library("tracing") {
-    deps = [
-        "//library/cpp/yt/error",
-        "//library/cpp/yt/threading",
-        "//yt/yt/core",
-    ]
+  deps = [
+    # "//library/cpp/yt/memory",
+    "//library/cpp/yt/threading",
+    "//yt/yt/core",
+  ]
 
-    sources = [
-        "async_queue_trace.cpp",
-        "batch_trace.cpp",
-        "public.cpp",
-        "tracer.cpp",
-    ]
+  sources = [
+    "async_queue_trace.cpp",
+    "batch_trace.cpp",
+    "public.cpp",
+    "tracer.cpp",
+  ]
 }

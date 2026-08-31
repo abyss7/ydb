@@ -1,5 +1,10 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("control_plane_storage") {
   public_deps = [
+    # ":events",
+    # ":internal",
+    # ":proto",
     ":util",
     # "//library/cpp/lwtrace/mon",
     # "//library/cpp/monlib/dynamic_counters",
@@ -33,9 +38,6 @@ library("control_plane_storage") {
     # "//ydb/public/sdk/cpp/src/client/value",
     # "//yql/essentials/providers/common/proto",
     # "//yql/essentials/public/issue",
-    # ":events",
-    # ":internal",
-    # ":proto",
   ]
 
   deps = [
@@ -65,6 +67,7 @@ library("control_plane_storage") {
 
 library("events") {
   public_deps = [
+    ":proto",
     # "//ydb/core/fq/libs/common",
     "//ydb/core/fq/libs/control_plane_config:events",
     # "//ydb/core/fq/libs/events",
@@ -76,7 +79,6 @@ library("events") {
     # "//ydb/public/sdk/cpp/src/client/params",
     # "//ydb/public/sdk/cpp/src/client/proto",
     # "//yql/essentials/public/issue",
-    ":proto",
   ]
 
   sources = [ "events/events.cpp" ]
@@ -84,12 +86,12 @@ library("events") {
 
 library("internal") {
   public_deps = [
+    # ":events",
+    # ":proto",
     # "//ydb/core/fq/libs/config:protos",
     # "//ydb/core/fq/libs/protos",
     # "//ydb/public/sdk/cpp/src/client/value",
     # "//yql/essentials/public/issue",
-    # ":events",
-    # ":proto",
   ]
 
   deps = [
@@ -133,19 +135,13 @@ protobuf_library("proto") {
   sources = [ "proto/yq_internal.proto" ]
 }
 
-# util.cpp — набор свободных функций-хелперов над статусами/конфигом FQ
-# (IsTerminalStatus и т.п.), включает только util.h и две утилиты из util/.
-# Нужен grpc_services (ydb_over_fq/rpc_base.h:148,179 зовёт NFq::IsTerminalStatus),
-# которому весь control_plane_storage ни к чему — иначе цикл
-# grpc_services -> control_plane_storage -> quota_manager -> fq/libs/ydb
-# -> query_actor -> grpc_services.
 library("util") {
   public_deps = [
+    ":events",
     "//ydb/core/fq/libs/common",
     "//ydb/core/fq/libs/config:protos",
     "//ydb/library/yql/dq/actors:protos",
     "//ydb/public/sdk/cpp/src/client/value",
-    ":events",
   ]
 
   sources = [ "util.cpp" ]

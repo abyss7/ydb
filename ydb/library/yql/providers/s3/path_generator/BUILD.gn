@@ -1,7 +1,5 @@
 library("path_generator") {
-  public_deps = [
-    "//yql/essentials/public/udf",
-  ]
+  public_deps = [ "//yql/essentials/public/udf" ]
 
   deps = [
     "//library/cpp/scheme",

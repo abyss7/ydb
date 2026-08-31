@@ -3,9 +3,7 @@ protobuf_library("protos") {
 }
 
 library("retry") {
-  public_deps = [
-    ":protos",
-  ]
+  public_deps = [ ":protos" ]
 
   sources = [
     "retry.cpp",

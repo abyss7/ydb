@@ -1,11 +1,7 @@
 library("common") {
-  public_deps = [
-    "//ydb/core/control/lib",
-  ]
+  public_deps = [ "//ydb/core/control/lib" ]
 
-  deps = [
-    "//ydb/core/blobstorage",
-  ]
+  deps = [ "//ydb/core/blobstorage" ]
 
   sources = [ "immediate_control_defaults.cpp" ]
 }

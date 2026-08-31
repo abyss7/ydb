@@ -9,9 +9,7 @@ library("abstract") {
     # "//ydb/library/services",
   ]
 
-  deps = [
-    "//ydb/services/bg_tasks/protos",
-  ]
+  deps = [ "//ydb/services/bg_tasks/protos" ]
 
   sources = [ "interface.cpp" ]
 }

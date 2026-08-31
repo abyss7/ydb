@@ -1,19 +1,17 @@
-protobuf_library("proto") {
-    sources = [ "proto/quantile_digest.proto" ]
+protobuf_library("private_proto") {
+  sources = [ "proto/quantile_digest.proto" ]
 }
 
 library("quantile_digest") {
-    deps = [
-        ":proto",
-        "//library/cpp/tdigest",
-        "//library/cpp/yt/error",
-        "//library/cpp/yt/memory",
-        "//library/cpp/yt/string",
-        "//yt/yt/core",
-    ]
+  deps = [
+    ":private_proto",
+    "//library/cpp/tdigest",
+    "//library/cpp/yt/memory",
+    "//yt/yt/core",
+  ]
 
-    sources = [
-        "config.cpp",
-        "quantile_digest.cpp",
-    ]
+  sources = [
+    "config.cpp",
+    "quantile_digest.cpp",
+  ]
 }

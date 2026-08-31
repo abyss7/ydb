@@ -1,9 +1,9 @@
 library("format") {
   public_deps = [
     "//yql/essentials/public/issue",
+    "//yql/essentials/sql:settings",
     "//yql/essentials/sql/v1/lexer",
     "//yql/essentials/sql/v1/proto_parser",
-    "//yql/essentials/sql:settings",
   ]
 
   deps = [

@@ -3,7 +3,7 @@ library("sparsed") {
     "//contrib/libs/apache/arrow",
     "//library/cpp/string_utils/base64",
     "//ydb/core/formats/arrow/accessor:abstract",
-    "//ydb/core/formats/arrow/accessor:common",
+    "//ydb/core/formats/arrow/accessor/common",
     "//ydb/core/formats/arrow/accessor:plain",
     "//ydb/library/accessor",
     "//ydb/library/formats/arrow",

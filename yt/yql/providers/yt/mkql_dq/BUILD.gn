@@ -1,7 +1,5 @@
 library("mkql_dq") {
-  public_deps = [
-    "//yql/essentials/core/dq_integration:transform",
-  ]
+  public_deps = [ "//yql/essentials/core/dq_integration:transform" ]
 
   deps = [
     "//library/cpp/yson:node",

@@ -1,11 +1,7 @@
 library("init") {
-  public_deps = [
-    "//contrib/libs/libxml",
-  ]
+  public_deps = [ "//contrib/libs/libxml" ]
 
-  deps = [
-    "//library/cpp/charset",
-  ]
+  deps = [ "//library/cpp/charset" ]
 
   sources = [
     "init.cpp",

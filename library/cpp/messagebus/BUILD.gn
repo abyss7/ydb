@@ -23,9 +23,9 @@ library("config") {
 library("messagebus") {
   public_deps = [
     ":monitoring",
+    "//library/cpp/codecs",
     # "//library/cpp/deprecated/atomic",
     # "//library/cpp/deprecated/enum_codegen",
-    "//library/cpp/codecs",
     "//library/cpp/getopt",
   ]
 
@@ -37,7 +37,6 @@ library("messagebus") {
     "//library/cpp/lwtrace",
     "//library/cpp/string_utils/indent_text",
     "//library/cpp/threading/future",
-
   ]
 
   sources = [

@@ -5,9 +5,7 @@ library("messagebus") {
     # "//library/cpp/monlib/service/pages",
   ]
 
-  deps = [
-    "//library/cpp/monlib/service",
-  ]
+  deps = [ "//library/cpp/monlib/service" ]
 
   sources = [
     "mon_messagebus.cpp",

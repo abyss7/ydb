@@ -12,6 +12,7 @@ library("version") {
 
   sources = [
     "version.cpp",
+
     "//ydb/apps/version/version_definition.cpp",
   ]
 }

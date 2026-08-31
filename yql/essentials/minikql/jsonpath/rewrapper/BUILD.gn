@@ -3,9 +3,7 @@ protobuf_library("proto") {
 }
 
 library("rewrapper") {
-  deps = [
-    ":proto",
-  ]
+  deps = [ ":proto" ]
 
   sources = [ "dispatcher.cpp" ]
 }

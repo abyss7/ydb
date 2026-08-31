@@ -1,7 +1,5 @@
 library("vdisk") {
-  public_deps = [
-    "//ydb/core/blobstorage",
-  ]
+  public_deps = [ "//ydb/core/blobstorage" ]
 
   deps = [
     "//ydb/core/blobstorage/vdisk/ingress",

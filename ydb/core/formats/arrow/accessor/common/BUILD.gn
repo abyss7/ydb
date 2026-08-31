@@ -1,5 +1,5 @@
 # yamake2gn: keep  -- hand-written, do not regenerate
 
 group("common") {
-  public_deps = [ "//ydb/core/formats/arrow/accessor:common" ]
+  public_deps = [ "//ydb/core/formats/arrow/accessor:_common" ]
 }

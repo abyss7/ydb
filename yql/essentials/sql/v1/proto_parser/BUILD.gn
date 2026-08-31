@@ -1,7 +1,5 @@
 library("antlr4") {
-  public_deps = [
-    "//yql/essentials/parser/proto_ast",
-  ]
+  public_deps = [ "//yql/essentials/parser/proto_ast" ]
 
   deps = [
     "//yql/essentials/parser/proto_ast/antlr4",
@@ -12,9 +10,7 @@ library("antlr4") {
 }
 
 library("antlr4_ansi") {
-  public_deps = [
-    "//yql/essentials/parser/proto_ast",
-  ]
+  public_deps = [ "//yql/essentials/parser/proto_ast" ]
 
   deps = [
     # "//yql/essentials/parser/proto_ast/antlr4",

@@ -1,7 +1,5 @@
 library("validation") {
-  public_deps = [
-    "//ydb/core/protos",
-  ]
+  public_deps = [ "//ydb/core/protos" ]
 
   deps = [
     "//library/cpp/protobuf/json",

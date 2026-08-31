@@ -88,7 +88,7 @@ library("actors") {
     # "//yql/essentials/providers/common/codec",
     # "//yql/essentials/providers/common/comp_nodes",
     # "//yql/essentials/providers/common/provider",
-    # "//yql/essentials/providers/common/schema/mkql",
+    # "//yql/essentials/providers/common/schema:mkql",
     # "//yql/essentials/providers/common/udf_resolve",
     # "//yql/essentials/public/issue",
     # "//yql/essentials/public/issue:protos",

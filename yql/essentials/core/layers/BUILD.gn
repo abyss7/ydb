@@ -1,7 +1,5 @@
 library("layers") {
-  public_deps = [
-    "//library/cpp/threading/future",
-  ]
+  public_deps = [ "//library/cpp/threading/future" ]
 
   deps = [
     # "//library/cpp/json",

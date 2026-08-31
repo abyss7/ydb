@@ -1,8 +1,8 @@
 library("cancelation") {
   public_deps = [
+    ":protos",
     "//ydb/core/base",
     "//ydb/library/actors/core",
-    ":protos",
   ]
 
   deps = [

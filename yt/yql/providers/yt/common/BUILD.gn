@@ -19,8 +19,8 @@ library("common") {
   sources = [
     "yql_configuration.cpp",
     "yql_names.cpp",
-    "yql_yt_ypath_attrs.cpp",
     "yql_yt_settings.cpp",
+    "yql_yt_ypath_attrs.cpp",
   ]
 
   serialize_enum_headers = [ "yql_yt_settings.h" ]

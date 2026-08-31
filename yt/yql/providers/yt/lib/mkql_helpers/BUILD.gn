@@ -1,7 +1,5 @@
 library("mkql_helpers") {
-  public_deps = [
-    "//yql/essentials/minikql",
-  ]
+  public_deps = [ "//yql/essentials/minikql" ]
 
   deps = [
     "//yql/essentials/ast",

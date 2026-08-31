@@ -38,7 +38,7 @@ library("abstract") {
   public_deps = [ "//ydb/core/formats/arrow" ]
 }
 
-library("common") {
+library("_common") {
   public_deps = [
     "//contrib/libs/apache/arrow",
     "//ydb/library/accessor",
@@ -58,7 +58,7 @@ library("common") {
 
 source_set("plain_srcs") {
   deps += [
-    ":common",
+    ":_common",
     # "//contrib/libs/apache/arrow",
     # "//ydb/library/formats/arrow",
     # "//ydb/library/formats/arrow:switch",

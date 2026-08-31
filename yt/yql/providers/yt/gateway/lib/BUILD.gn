@@ -30,7 +30,7 @@ library("lib") {
     # "//yql/essentials/providers/common/codec",
     # "//yql/essentials/providers/common/proto",
     "//yql/essentials/providers/common/provider",
-    "//yql/essentials/providers/common/schema/expr",
+    "//yql/essentials/providers/common/schema:expr",
     # "//yql/essentials/utils",
     "//yt/cpp/mapreduce/client",
     "//yt/cpp/mapreduce/common",

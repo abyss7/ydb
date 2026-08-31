@@ -2,21 +2,21 @@ library("external_sources") {
   public_deps = [
     "//library/cpp/regex/pcre",
     # "//ydb/library/actors/core",
-    # "//ydb/library/yql/providers/common/db_id_async_resolver",
+    "//ydb/library/yql/providers/common/db_id_async_resolver",
     # "//ydb/library/yql/providers/common/token_accessor/client",
     # "//ydb/public/api/protos",
   ]
 
   deps = [
-    "object_storage",
+    # "//contrib/libs/apache/arrow",
     # "//library/cpp/json",
     "//library/cpp/scheme",
     # "//library/cpp/threading/future",
+    "//ydb/core/external_sources/object_storage",
     "//ydb/core/external_sources/object_storage:inference",
     "//ydb/core/kqp/gateway:actors",
     "//ydb/core/protos",
     "//ydb/library/actors/http",
-    "//ydb/library/yql/providers/common/db_id_async_resolver",
     # "//ydb/library/yql/providers/common/http_gateway",
     # "//ydb/library/yql/providers/s3/credentials",
     "//ydb/library/yql/providers/s3/object_listers",

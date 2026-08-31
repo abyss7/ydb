@@ -42,6 +42,7 @@ library("common") {
     "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-core",
     "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-s3",
     "//contrib/libs/openssl",
+    # "//contrib/libs/yaml-cpp",
     "//contrib/restricted/patched/replxx",
     "//library/cpp/http/simple",
     # "//library/cpp/json:writer",
@@ -114,9 +115,7 @@ library("ini_config") {
 }
 
 library("yql_parser") {
-  public_deps = [
-    "//ydb/public/sdk/cpp/src/client/value",
-  ]
+  public_deps = [ "//ydb/public/sdk/cpp/src/client/value" ]
 
   deps = [
     # "//yql/essentials/public/issue",

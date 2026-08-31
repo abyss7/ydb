@@ -7,6 +7,7 @@ library("repl") {
   ]
 
   deps = [
+    # "//library/cpp/monlib/service/pages",
     "//ydb/core/blobstorage/backpressure",
     # "//ydb/core/blobstorage/vdisk",
     "//ydb/core/blobstorage/vdisk/common",

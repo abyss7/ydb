@@ -42,7 +42,10 @@ library("agent") {
 
 library("blob_depot") {
   public_deps = [
+    # "//library/cpp/json",
+    # "//library/cpp/monlib/service/pages",
     "//ydb/core/base",
+    # "//ydb/core/blobstorage",
     # "//ydb/core/blobstorage/groupinfo",
     "//ydb/core/blobstorage/testing/group_overseer",
     # "//ydb/core/blobstorage/vdisk/common",

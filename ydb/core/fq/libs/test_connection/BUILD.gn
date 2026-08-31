@@ -28,6 +28,7 @@ library("test_connection") {
   ]
 
   deps = [
+    # ":events",
     # "//library/cpp/lwtrace",
     # "//library/cpp/lwtrace/mon",
     # "//library/cpp/monlib/service/pages",
@@ -44,7 +45,6 @@ library("test_connection") {
     # "//ydb/library/yql/utils/actors",
     # "//yql/essentials/providers/common/structured_token",
     # "//yql/essentials/utils",
-    # ":events",
   ]
 
   sources = [

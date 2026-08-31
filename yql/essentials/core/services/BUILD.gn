@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("mounts") {
   public_deps = [
     # "//yql/essentials/core",
@@ -57,7 +59,7 @@ library("services") {
     "//yql/essentials/providers/common/codec",
     "//yql/essentials/providers/common/mkql",
     # "//yql/essentials/providers/common/provider",
-    "//yql/essentials/providers/common/schema/expr",
+    "//yql/essentials/providers/common/schema:expr",
     # "//yql/essentials/providers/result/expr_nodes",
     # "//yql/essentials/utils",
   ]

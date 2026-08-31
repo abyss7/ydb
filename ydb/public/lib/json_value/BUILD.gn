@@ -1,5 +1,6 @@
 library("json_value") {
   public_deps = [
+    # "//library/cpp/json:writer",
     "//ydb/public/sdk/cpp/src/client/result",
     "//ydb/public/sdk/cpp/src/client/types/fatal_error_handlers",
     # "//ydb/public/sdk/cpp/src/client/value",

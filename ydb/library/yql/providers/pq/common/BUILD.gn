@@ -1,7 +1,5 @@
 library("common") {
-  public_deps = [
-    "//yql/essentials/public/udf",
-  ]
+  public_deps = [ "//yql/essentials/public/udf" ]
 
   deps = [
     # "//yql/essentials/minikql",

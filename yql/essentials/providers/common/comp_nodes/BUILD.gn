@@ -1,7 +1,5 @@
 library("comp_nodes") {
-  public_deps = [
-    "//yql/essentials/minikql/computation",
-  ]
+  public_deps = [ "//yql/essentials/minikql/computation" ]
 
   deps = [
     # "//yql/essentials/ast",
@@ -11,7 +9,7 @@ library("comp_nodes") {
     # "//yql/essentials/minikql",
     # "//yql/essentials/parser/pg_catalog",
     "//yql/essentials/providers/common/codec",
-    "//yql/essentials/providers/common/schema/expr",
+    "//yql/essentials/providers/common/schema:expr",
     # "//yql/essentials/public/issue",
     # "//yql/essentials/public/udf",
   ]

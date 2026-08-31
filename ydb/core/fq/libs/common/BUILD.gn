@@ -11,8 +11,8 @@ library("common") {
   ]
 
   deps = [
-    "//contrib/libs/re2",
     "//contrib/libs/fmt",
+    "//contrib/libs/re2",
     # "//ydb/core/external_sources",
     "//ydb/core/fq/libs/result_formatter",
     "//ydb/public/sdk/cpp/src/client/proto",

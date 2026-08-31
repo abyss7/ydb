@@ -1,7 +1,5 @@
 library("audit") {
-  deps = [
-    "//ydb/library/actors/core",
-  ]
+  deps = [ "//ydb/library/actors/core" ]
 
   sources = [ "yq_audit_service.cpp" ]
 }

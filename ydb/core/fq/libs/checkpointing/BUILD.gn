@@ -1,5 +1,6 @@
 library("checkpointing") {
   public_deps = [
+    # ":events",
     "//ydb/core/fq/libs/checkpoint_storage:events",
     "//ydb/core/fq/libs/checkpointing_common",
     # "//ydb/library/accessor",
@@ -7,7 +8,6 @@ library("checkpointing") {
     # "//ydb/library/yql/dq/actors:common",
     "//ydb/library/yql/dq/actors:compute",
     # "//ydb/public/api/protos",
-    # ":events",
   ]
 
   deps = [

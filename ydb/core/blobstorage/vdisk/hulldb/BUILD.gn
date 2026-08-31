@@ -1,9 +1,9 @@
 library("barriers") {
   public_deps = [
-    # "//ydb/core/blobstorage/vdisk/hulldb",
     # ":base",
     # ":fresh",
     ":generic",
+    # "//ydb/core/blobstorage/vdisk/hulldb",
   ]
 
   deps = [
@@ -41,6 +41,9 @@ library("base_types") {
 
 library("base") {
   public_deps = [
+    ":base_types",
+    # ":fresh",
+    # ":generic",
     "//ydb/core/base",
     # "//ydb/core/blobstorage/base",
     # "//ydb/core/blobstorage/groupinfo",
@@ -50,9 +53,6 @@ library("base") {
     # "//ydb/core/blobstorage/vdisk/protos",
     # "//ydb/core/protos",
     # "//ydb/library/actors/util",
-    # ":fresh",
-    # ":generic",
-    ":base_types",
   ]
 
   deps = [
@@ -68,8 +68,8 @@ library("base") {
 
 library("bulksst_add") {
   public_deps = [
-    # "//ydb/core/blobstorage/vdisk/hulldb",
     ":generic",
+    # "//ydb/core/blobstorage/vdisk/hulldb",
   ]
 
   deps = [
@@ -80,9 +80,7 @@ library("bulksst_add") {
 }
 
 library("cache_block") {
-  public_deps = [
-    "//ydb/core/blobstorage/vdisk/hulldb",
-  ]
+  public_deps = [ "//ydb/core/blobstorage/vdisk/hulldb" ]
 
   deps = [
     # ":base",
@@ -94,8 +92,8 @@ library("cache_block") {
 
 library("compstrat") {
   public_deps = [
-    # "//ydb/core/blobstorage/vdisk/hulldb",
     ":generic",
+    # "//ydb/core/blobstorage/vdisk/hulldb",
   ]
 
   deps = [
@@ -113,10 +111,11 @@ library("compstrat") {
 
 library("fresh") {
   public_deps = [
-    # "//ydb/core/blobstorage/base",
-    "//ydb/core/blobstorage/vdisk/protos",
     ":base",
     # ":generic",
+    # "//library/cpp/monlib/service/pages",
+    # "//ydb/core/blobstorage/base",
+    "//ydb/core/blobstorage/vdisk/protos",
   ]
 
   deps = [
@@ -135,15 +134,15 @@ library("fresh") {
 
 library("generic") {
   public_deps = [
+    # ":base",
+    # ":bulksst_add",
+    ":fresh",
     # "//ydb/core/blobstorage/base",
     # "//ydb/core/blobstorage/pdisk",
     # "//ydb/core/blobstorage/vdisk/common",
     # "//ydb/core/blobstorage/vdisk/hullop:hullcompdelete",
     # "//ydb/core/blobstorage/vdisk/protos",
     # "//ydb/core/util",
-    # ":base",
-    # ":bulksst_add",
-    ":fresh",
   ]
 
   deps = [

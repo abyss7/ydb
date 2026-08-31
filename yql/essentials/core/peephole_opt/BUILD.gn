@@ -1,7 +1,5 @@
 library("peephole_opt") {
-  public_deps = [
-    "//yql/essentials/core",
-  ]
+  public_deps = [ "//yql/essentials/core" ]
 
   deps = [
     "//library/cpp/svnversion",

@@ -56,6 +56,7 @@ library("run") {
     # "//ydb/core/audit:heartbeat_actor",
     # "//ydb/core/backup/controller",
     # "//ydb/core/blob_depot",
+    # "//ydb/core/blobstorage",
     # "//ydb/core/blobstorage/backpressure",
     # "//ydb/core/blobstorage/nodewarden",
     # "//ydb/core/blobstorage/other",

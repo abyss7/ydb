@@ -6,6 +6,7 @@ library("audit") {
   ]
 
   deps = [
+    # "//library/cpp/cgiparam",
     "//ydb/core/audit",
     "//ydb/core/audit:audit_config",
     "//ydb/core/base",
@@ -21,7 +22,9 @@ library("audit") {
 
 library("mon") {
   public_deps = [
+    # "//library/cpp/cgiparam",
     "//library/cpp/monlib/service",
+    # "//library/cpp/monlib/service/pages",
     # "//library/cpp/monlib/service/pages:resources",
     # "//library/cpp/monlib/service/pages:tablesorter",
     "//ydb/library/actors/http",

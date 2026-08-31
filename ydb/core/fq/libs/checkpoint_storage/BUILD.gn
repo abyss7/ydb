@@ -6,6 +6,9 @@ library("checkpoint_storage") {
   ]
 
   deps = [
+    # ":events",
+    # ":proto",
+    # "//contrib/libs/fmt",
     # "//library/cpp/retry",
     # "//library/cpp/threading/future",
     # "//ydb/core/base",
@@ -24,8 +27,6 @@ library("checkpoint_storage") {
     # "//ydb/public/sdk/cpp/src/client/scheme",
     # "//yql/essentials/minikql/comp_nodes",
     # "//yql/essentials/public/issue",
-    # ":events",
-    # ":proto",
   ]
 
   sources = [
@@ -40,13 +41,13 @@ library("checkpoint_storage") {
 
 library("events") {
   public_deps = [
+    ":proto",
     "//ydb/core/fq/libs/checkpointing_common",
     # "//ydb/core/fq/libs/events",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/yql/dq/actors:protos",
     # "//yql/essentials/public/issue",
-    ":proto",
   ]
 
   sources = [ "events/events.cpp" ]

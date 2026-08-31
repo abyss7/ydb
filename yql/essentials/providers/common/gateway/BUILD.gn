@@ -5,9 +5,7 @@ library("gateway") {
     # "//yql/essentials/public/issue",
   ]
 
-  deps = [
-    "//yql/essentials/utils/log",
-  ]
+  deps = [ "//yql/essentials/utils/log" ]
 
   sources = [ "yql_provider_gateway.cpp" ]
 }

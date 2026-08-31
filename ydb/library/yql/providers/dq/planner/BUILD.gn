@@ -23,8 +23,8 @@ library("planner") {
     # "//yql/essentials/core/type_ann",
     # "//yql/essentials/providers/common/mkql",
     "//yql/essentials/providers/common/provider",
-    # "//yql/essentials/providers/common/schema/expr",
-    # "//yql/essentials/providers/common/schema/mkql",
+    # "//yql/essentials/providers/common/schema:expr",
+    # "//yql/essentials/providers/common/schema:mkql",
     "//yql/essentials/utils/log",
   ]
 

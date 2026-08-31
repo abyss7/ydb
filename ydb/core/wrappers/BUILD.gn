@@ -16,6 +16,7 @@ library("events") {
 
 library("wrappers") {
   public_deps = [
+    ":events",
     # "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-core",
     "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-s3",
     "//ydb/core/base",
@@ -23,7 +24,6 @@ library("wrappers") {
     # "//ydb/library/accessor",
     "//ydb/library/actors/core",
     # "//ydb/public/api/protos",
-    ":events",
   ]
 
   deps = [

@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 static_library("svnversion") {
   public_deps = [ "//build/scripts/c_templates" ]
 

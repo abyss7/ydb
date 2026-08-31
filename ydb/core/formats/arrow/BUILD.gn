@@ -277,7 +277,7 @@ library("program") {
     # "//library/cpp/string_utils/quote",
     # "//ydb/core/formats/arrow",
     "//ydb/core/formats/arrow/accessor:abstract",
-    "//ydb/core/formats/arrow/accessor:common",
+    "//ydb/core/formats/arrow/accessor/common",
     "//ydb/core/formats/arrow/accessor/composite",
     # "//ydb/library/accessor",
     "//ydb/library/arrow_kernels",

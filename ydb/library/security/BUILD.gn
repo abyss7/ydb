@@ -1,7 +1,5 @@
 library("security") {
-  public_deps = [
-    "//ydb/public/sdk/cpp/src/client/types/credentials",
-  ]
+  public_deps = [ "//ydb/public/sdk/cpp/src/client/types/credentials" ]
 
   deps = [
     "//library/cpp/digest/crc32c",

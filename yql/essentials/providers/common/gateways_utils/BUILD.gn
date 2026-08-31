@@ -4,9 +4,7 @@ library("gateways_utils") {
     "//yql/essentials/utils",
   ]
 
-  deps = [
-    "//yql/essentials/providers/common/proto",
-  ]
+  deps = [ "//yql/essentials/providers/common/proto" ]
 
   sources = [ "gateways_utils.cpp" ]
 }

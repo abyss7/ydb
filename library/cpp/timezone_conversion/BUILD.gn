@@ -1,8 +1,10 @@
 library("timezone_conversion") {
-    public_deps = [ "//contrib/libs/cctz" ]
+  public_deps = [ "//contrib/libs/cctz" ]
 
-    sources = [
-        "civil.cpp",
-        "convert.cpp",
-    ]
+  sources = [
+    "civil.cpp",
+    "convert.cpp",
+  ]
+
+  serialize_enum_headers = [ "civil.h" ]
 }

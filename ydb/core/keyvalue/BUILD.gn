@@ -16,6 +16,7 @@ library("keyvalue") {
 
   deps = [
     # "//library/cpp/json:writer",
+    # "//library/cpp/monlib/service/pages",
     # "//library/cpp/time_provider",
     # "//ydb/core/mind",
     # "//ydb/core/scheme",

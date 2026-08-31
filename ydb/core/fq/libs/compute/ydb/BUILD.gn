@@ -9,6 +9,8 @@ library("control_plane") {
   ]
 
   deps = [
+    # ":events",
+    # ":synchronization_service",
     # "//library/cpp/json",
     # "//ydb/core/fq/libs/control_plane_storage",
     # "//ydb/core/fq/libs/control_plane_storage:events",
@@ -25,8 +27,6 @@ library("control_plane") {
     # "//ydb/public/sdk/cpp/src/client/resources",
     # "//yql/essentials/public/issue",
     # "//yql/essentials/utils",
-    # ":events",
-    # ":synchronization_service",
   ]
 
   sources = [
@@ -68,6 +68,7 @@ library("synchronization_service") {
   ]
 
   deps = [
+    # ":events",
     # "//contrib/libs/fmt",
     # "//ydb/core/fq/libs/common",
     # "//ydb/core/fq/libs/compute/common",
@@ -79,7 +80,6 @@ library("synchronization_service") {
     # "//ydb/public/sdk/cpp/adapters/issue",
     # "//ydb/public/sdk/cpp/src/client/operation",
     # "//ydb/public/sdk/cpp/src/client/query",
-    # ":events",
   ]
 
   sources = [ "synchronization_service/synchronization_service.cpp" ]
@@ -109,6 +109,8 @@ library("ydb") {
   ]
 
   deps = [
+    # ":control_plane",
+    # ":events",
     # "//library/cpp/protobuf/interop",
     # "//library/cpp/retry",
     # "//ydb/core/fq/libs/common",
@@ -123,8 +125,6 @@ library("ydb") {
     # "//ydb/public/sdk/cpp/src/client/proto",
     # "//ydb/public/sdk/cpp/src/client/types",
     # "//yql/essentials/public/issue",
-    # ":control_plane",
-    # ":events",
   ]
 
   sources = [

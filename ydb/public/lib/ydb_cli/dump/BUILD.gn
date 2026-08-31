@@ -6,6 +6,8 @@ library("dump") {
   ]
 
   deps = [
+    # ":files",
+    # ":util",
     # "//library/cpp/bucket_quoter",
     # "//library/cpp/json",
     # "//library/cpp/logger",
@@ -29,8 +31,6 @@ library("dump") {
     # "//ydb/public/sdk/cpp/src/client/table",
     # "//ydb/public/sdk/cpp/src/client/value",
     # "//yql/essentials/public/issue",
-    # ":files",
-    # ":util",
   ]
 
   sources = [

@@ -1,7 +1,5 @@
 library("misc") {
-  deps = [
-    "//library/cpp/yt/exception",
-  ]
+  deps = [ "//library/cpp/yt/exception" ]
 
   sources = [
     "guid.cpp",

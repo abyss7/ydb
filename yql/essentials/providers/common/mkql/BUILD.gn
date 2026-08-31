@@ -9,7 +9,7 @@ library("mkql") {
     # "//yql/essentials/core/expr_nodes",
     "//yql/essentials/core/type_ann",
     # "//yql/essentials/parser/pg_catalog",
-    "//yql/essentials/providers/common/schema/expr",
+    "//yql/essentials/providers/common/schema:expr",
     "//yql/essentials/public/decimal",
     # "//yql/essentials/public/udf",
     # "//yql/essentials/utils",

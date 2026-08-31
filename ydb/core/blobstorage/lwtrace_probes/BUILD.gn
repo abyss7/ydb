@@ -1,7 +1,5 @@
 library("lwtrace_probes") {
-  public_deps = [
-    "//library/cpp/lwtrace",
-  ]
+  public_deps = [ "//library/cpp/lwtrace" ]
 
   deps = [
     "//ydb/core/base",

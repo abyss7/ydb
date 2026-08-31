@@ -16,7 +16,7 @@ library("type_ann") {
     # "//yql/essentials/parser/pg_catalog",
     # "//yql/essentials/parser/pg_wrapper/interface",
     # "//yql/essentials/providers/common/provider",
-    "//yql/essentials/providers/common/schema/expr",
+    "//yql/essentials/providers/common/schema:expr",
     "//yql/essentials/public/decimal",
     "//yql/essentials/public/langver",
     # "//yql/essentials/public/udf",

@@ -4,9 +4,7 @@ library("langver") {
     "//yql/essentials/public/langver",
   ]
 
-  deps = [
-    "//yql/essentials/core/issue",
-  ]
+  deps = [ "//yql/essentials/core/issue" ]
 
   sources = [ "yql_core_langver.cpp" ]
 }

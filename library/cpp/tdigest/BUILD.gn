@@ -1,8 +1,9 @@
-protobuf_library("proto") {
-    sources = [ "tdigest.proto" ]
+protobuf_library("private_proto") {
+  sources = [ "tdigest.proto" ]
 }
 
 library("tdigest") {
-    deps = [ ":proto" ]
-    sources = [ "tdigest.cpp" ]
+  deps = [ ":private_proto" ]
+
+  sources = [ "tdigest.cpp" ]
 }

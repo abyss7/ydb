@@ -1,7 +1,5 @@
 library("arrow_resolve") {
-  public_deps = [
-    "//yql/essentials/core",
-  ]
+  public_deps = [ "//yql/essentials/core" ]
 
   deps = [
     # "//yql/essentials/minikql",

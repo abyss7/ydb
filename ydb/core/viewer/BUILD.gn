@@ -19,17 +19,19 @@ protobuf_library("protos") {
 
 library("viewer") {
   public_deps = [
+    # ":json",
+    # ":protos",
     # "//ydb/core/driver_lib/run",
     # "//ydb/core/sys_view:common",
     # "//ydb/core/tablet",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/http",
     # "//ydb/public/sdk/cpp/src/client/types/status",
-    # ":json",
-    # ":protos",
   ]
 
   deps = [
+    # ":yaml",
+    # "//contrib/libs/yaml-cpp",
     # "//library/cpp/digest/md5",
     # "//library/cpp/json",
     # "//library/cpp/mime/types",
@@ -38,6 +40,7 @@ library("viewer") {
     # "//library/cpp/protobuf/json",
     # "//library/cpp/yaml/as",
     # "//ydb/core/base",
+    # "//ydb/core/blobstorage",
     # "//ydb/core/blobstorage/vdisk/common",
     # "//ydb/core/client/server",
     # "//ydb/core/cms/console",
@@ -85,7 +88,6 @@ library("viewer") {
     # "//ydb/services/lib/sharding",
     # "//ydb/services/replication",
     # "//yql/essentials/public/issue",
-    # ":yaml",
   ]
 
   sources = [

@@ -4,9 +4,7 @@ library("scheme") {
     "//ydb/library/formats/arrow/csv/converter",
   ]
 
-  deps = [
-    "//ydb/core/formats/arrow",
-  ]
+  deps = [ "//ydb/core/formats/arrow" ]
 
   sources = [ "scheme.cpp" ]
 }

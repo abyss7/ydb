@@ -1,9 +1,9 @@
 library("events") {
   public_deps = [
+    ":proto",
     # "//ydb/core/fq/libs/events",
     "//ydb/library/actors/core",
     # "//yql/essentials/public/issue",
-    ":proto",
   ]
 
   sources = [ "events/events.cpp" ]
@@ -15,11 +15,11 @@ protobuf_library("proto") {
 
 library("quota_manager") {
   public_deps = [
+    # ":events",
     # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/fq/libs/config:protos",
     "//ydb/core/fq/libs/shared_resources",
     "//ydb/core/mon",
-    # ":events",
   ]
 
   deps = [

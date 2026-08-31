@@ -1,3 +1,3 @@
 protobuf_library("proto") {
-    sources = [ "source.proto" ]
+  sources = [ "source.proto" ]
 }

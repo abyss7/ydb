@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 config("public_config") {
   cflags = [ "-mcx16" ]
 }
@@ -13,8 +15,6 @@ library("profiling") {
 
   deps = [
     "//library/cpp/yt/assert",
-    "//library/cpp/yt/error",
-    "//library/cpp/yt/malloc",
     "//library/cpp/yt/threading",
     # "//yt/yt/core",
   ]

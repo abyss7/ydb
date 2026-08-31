@@ -14,8 +14,8 @@ library("result_formatter") {
     "//ydb/public/sdk/cpp/src/client/proto",
     "//yql/essentials/minikql/computation",
     "//yql/essentials/providers/common/codec",
-    "//yql/essentials/providers/common/schema/expr",
-    # "//yql/essentials/providers/common/schema/mkql",
+    "//yql/essentials/providers/common/schema:expr",
+    # "//yql/essentials/providers/common/schema:mkql",
     # "//yql/essentials/public/udf",
   ]
 

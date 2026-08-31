@@ -29,6 +29,8 @@ library("common") {
 library("compute") {
   public_deps = [
     ":common",
+    # ":protos",
+    # ":task_runner",
     # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/library/actors/core",
     "//ydb/library/actors/wilson",
@@ -46,8 +48,6 @@ library("compute") {
     # "//yql/essentials/minikql/computation",
     # "//yql/essentials/public/issue",
     # "//yql/essentials/utils",
-    # ":protos",
-    # ":task_runner",
   ]
 
   deps = [
@@ -134,21 +134,21 @@ library("spilling") {
 
 library("task_runner") {
   public_deps = [
+    # ":compute",
     # "//ydb/library/actors/core",
     # "//ydb/library/yql/dq/common",
     # "//ydb/library/yql/dq/proto",
     # "//ydb/library/yql/dq/runtime",
     # "//yql/essentials/minikql",
     # "//yql/essentials/minikql/computation",
-    # ":compute",
   ]
 
   deps = [
+    # ":spilling",
     # "//ydb/library/services",
     # "//ydb/library/yql/dq/actors",
     # "//yql/essentials/core/issue",
     # "//yql/essentials/core/issue:protos",
-    # ":spilling",
   ]
 
   sources = [

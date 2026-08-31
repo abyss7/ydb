@@ -1,6 +1,7 @@
 library("query") {
   public_deps = [
     "//ydb/core/base",
+    # "//ydb/core/blobstorage",
     # "//ydb/core/blobstorage/vdisk/hulldb",
   ]
 

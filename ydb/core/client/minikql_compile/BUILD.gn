@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("db_key_resolver") {
   public_deps = [
     "//ydb/core/scheme",
@@ -10,8 +12,8 @@ library("db_key_resolver") {
 
 library("minikql_compile") {
   public_deps = [
-    # "//library/cpp/threading/future",
     ":db_key_resolver",
+    # "//library/cpp/threading/future",
     "//ydb/core/client/scheme_cache_lib",
     "//ydb/core/engine",
     # "//ydb/core/scheme",
@@ -39,8 +41,6 @@ library("minikql_compile") {
   sources = [
     "compile_context.cpp",
     "compile_result.cpp",
-    # db_key_resolver.cpp вынесен в саб-таргет :db_key_resolver (см. выше),
-    # реэкспортится через public_deps.
     "mkql_compile_service.cpp",
     "yql_expr_minikql.cpp",
   ]

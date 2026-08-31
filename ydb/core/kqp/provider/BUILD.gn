@@ -29,7 +29,7 @@ library("provider") {
         "//yql/essentials/parser/pg_wrapper/interface",
         "//yql/essentials/providers/common/config",
         "//yql/essentials/providers/common/provider",
-        "//yql/essentials/providers/common/schema/expr",
+        "//yql/essentials/providers/common/schema:expr",
         "//yql/essentials/providers/common/transform",
         "//yql/essentials/providers/result/expr_nodes",
         "//yql/essentials/public/decimal",

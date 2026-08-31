@@ -2,7 +2,7 @@ library("sub_columns") {
   public_deps = [
     "//contrib/libs/apache/arrow",
     "//ydb/core/formats/arrow/accessor:abstract",
-    "//ydb/core/formats/arrow/accessor:common",
+    "//ydb/core/formats/arrow/accessor/common",
     "//ydb/library/accessor",
     "//ydb/library/conclusion",
     "//yql/essentials/minikql/jsonpath/parser",

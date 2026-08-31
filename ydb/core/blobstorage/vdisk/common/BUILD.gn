@@ -1,11 +1,9 @@
-library("guids") {
-  public_deps = [
-    "//ydb/core/base",
-  ]
+# yamake2gn: keep  -- hand-written, do not regenerate
 
-  deps = [
-    "//library/cpp/random_provider",
-  ]
+library("guids") {
+  public_deps = [ "//ydb/core/base" ]
+
+  deps = [ "//library/cpp/random_provider" ]
 
   sources = [ "blobstorage_vdisk_guids.cpp" ]
 }
@@ -14,9 +12,11 @@ library("common") {
   public_deps = [
     ":guids",
     "//library/cpp/monlib/dynamic_counters",
+    # "//library/cpp/monlib/service/pages",
     "//library/cpp/string_utils/base64",
     # "//library/cpp/time_provider",
     "//ydb/core/base",
+    # "//ydb/core/blobstorage",
     # "//ydb/core/blobstorage/backpressure",
     "//ydb/core/blobstorage/base",
     "//ydb/core/blobstorage/groupinfo",

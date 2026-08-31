@@ -6,7 +6,7 @@ library("schema") {
   ]
 
   deps = [
-    "//yql/essentials/providers/common/schema/expr",
+    "//yql/essentials/providers/common/schema:expr",
     # "//yql/essentials/utils",
     "//yql/essentials/utils/log",
     # "//yt/yql/providers/yt/common",

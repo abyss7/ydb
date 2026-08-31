@@ -1,11 +1,7 @@
 library("metrics") {
-  public_deps = [
-    "//library/cpp/monlib/dynamic_counters",
-  ]
+  public_deps = [ "//library/cpp/monlib/dynamic_counters" ]
 
-  deps = [
-    ":protos",
-  ]
+  deps = [ ":protos" ]
 
   sources = [
     "metrics_registry.cpp",

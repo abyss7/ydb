@@ -1,11 +1,7 @@
 library("gateway") {
-  public_deps = [
-    "//ydb/library/yql/providers/solomon/provider",
-  ]
+  public_deps = [ "//ydb/library/yql/providers/solomon/provider" ]
 
-  deps = [
-    "//yql/essentials/providers/common/proto",
-  ]
+  deps = [ "//yql/essentials/providers/common/proto" ]
 
   sources = [ "yql_solomon_gateway.cpp" ]
 }

@@ -1,7 +1,5 @@
 library("exception") {
-  deps = [
-    "//library/cpp/yt/assert",
-  ]
+  deps = [ "//library/cpp/yt/assert" ]
 
   sources = [ "exception.cpp" ]
 }

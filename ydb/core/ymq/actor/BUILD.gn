@@ -21,6 +21,7 @@ library("actor") {
   ]
 
   deps = [
+    # "//contrib/libs/openssl",
     # "//library/cpp/containers/intrusive_rb_tree",
     # "//library/cpp/digest/md5",
     # "//library/cpp/json",

@@ -13,9 +13,7 @@ library("tasks") {
     "//yql/essentials/public/types",
   ]
 
-  deps = [
-    "//yql/essentials/core",
-  ]
+  deps = [ "//yql/essentials/core" ]
 
   sources = [ "dq_task_program.cpp" ]
 }

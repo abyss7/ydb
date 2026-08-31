@@ -2,7 +2,7 @@ library("common") {
   public_deps = [
     # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/library/conclusion",
-    # "//ydb/library/conclusion:generic",
+    # "//ydb/library/conclusion/generic",
     # "//ydb/library/yql/dq/actors:protos",
   ]
 
@@ -11,16 +11,17 @@ library("common") {
 
 library("filters") {
   public_deps = [
+    # ":common",
     # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/fq/libs/row_dispatcher/events",
     # "//yql/essentials/public/udf",
-    # ":common",
   ]
 
   deps = [
+    # "//contrib/libs/fmt",
     # "//ydb/core/fq/libs/actors:logging",
     # "//yql/essentials/minikql/computation",
-    # "//yql/essentials/providers/common/schema/parser",
+    # "//yql/essentials/providers/common/schema:parser",
     # "//yql/essentials/public/purecalc/common",
   ]
 
@@ -32,12 +33,12 @@ library("filters") {
 
 library("format_handler") {
   public_deps = [
+    # ":filters",
+    # ":parsers",
     # "//ydb/core/fq/libs/row_dispatcher/common",
     # "//ydb/core/fq/libs/row_dispatcher/events",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/util",
-    # ":filters",
-    # ":parsers",
   ]
 
   deps = [
@@ -56,15 +57,15 @@ library("parsers") {
   ]
 
   deps = [
+    # ":common",
     # "//contrib/libs/simdjson",
     # "//library/cpp/containers/absl_flat_hash",
     # "//ydb/core/fq/libs/actors:logging",
     # "//ydb/core/fq/libs/row_dispatcher/events",
     # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
     # "//yql/essentials/minikql/dom",
-    # "//yql/essentials/providers/common/schema/mkql",
+    # "//yql/essentials/providers/common/schema:mkql",
     # "//yql/essentials/public/udf",
-    # ":common",
   ]
 
   sources = [

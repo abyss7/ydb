@@ -4,9 +4,7 @@ library("ydb_dump") {
     # "//ydb/core/scheme_types",
   ]
 
-  deps = [
-    "//ydb/core/io_formats/cell_maker",
-  ]
+  deps = [ "//ydb/core/io_formats/cell_maker" ]
 
   sources = [ "csv_ydb_dump.cpp" ]
 }

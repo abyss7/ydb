@@ -28,6 +28,7 @@ library("hullop") {
   ]
 
   deps = [
+    ":hullcompdelete",
     # "//library/cpp/random_provider",
     "//ydb/core/base",
     # "//ydb/core/blobstorage/pdisk",
@@ -41,7 +42,6 @@ library("hullop") {
     # "//ydb/core/blobstorage/vdisk/scrub",
     "//ydb/library/actors/wilson",
     # "//ydb/library/wilson_ids",
-    ":hullcompdelete",
   ]
 
   sources = [

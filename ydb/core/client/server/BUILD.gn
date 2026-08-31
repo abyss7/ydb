@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("server") {
   public_deps = [
     "//ydb/core/base",
@@ -25,6 +27,7 @@ library("server") {
     # "//library/cpp/monlib/service/pages",
     # "//library/cpp/protobuf/json",
     # "//library/cpp/random_provider",
+    # "//ydb/core/blobstorage",
     # "//ydb/core/client/metadata",
     # "//ydb/core/cms",
     # "//ydb/core/cms/console",
@@ -59,7 +62,6 @@ library("server") {
   sources = [
     "grpc_proxy_status.cpp",
     "grpc_server.cpp",
-    "//ydb/core/grpc_services/legacy/rpc_legacy.cpp",
     "ic_nodes_cache_service.cpp",
     "msgbus_blobstorage_config.cpp",
     "msgbus_http_server.cpp",
@@ -85,5 +87,7 @@ library("server") {
     "msgbus_server_test_shard_request.cpp",
     "msgbus_server_tx_request.cpp",
     "msgbus_server_types.cpp",
+
+    "//ydb/core/grpc_services/legacy/rpc_legacy.cpp",
   ]
 }

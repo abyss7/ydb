@@ -1,7 +1,5 @@
 library("provider") {
-  public_deps = [
-    "//yql/essentials/core",
-  ]
+  public_deps = [ "//yql/essentials/core" ]
 
   deps = [
     # "//library/cpp/yson:node",

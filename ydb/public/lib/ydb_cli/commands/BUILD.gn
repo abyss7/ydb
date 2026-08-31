@@ -20,6 +20,9 @@ library("commands") {
   ]
 
   deps = [
+    # "//contrib/libs/apache/arrow",
+    # "//contrib/libs/fmt",
+    # "//contrib/libs/openssl",
     # "//library/cpp/colorizer",
     # "//library/cpp/digest/md5",
     # "//library/cpp/json",

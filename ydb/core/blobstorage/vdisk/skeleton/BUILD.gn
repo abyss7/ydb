@@ -11,6 +11,7 @@ library("skeleton") {
 
   deps = [
     # "//library/cpp/monlib/service/pages",
+    # "//ydb/core/blobstorage",
     "//ydb/core/blobstorage/backpressure",
     # "//ydb/core/blobstorage/pdisk",
     "//ydb/core/blobstorage/vdisk/anubis_osiris",

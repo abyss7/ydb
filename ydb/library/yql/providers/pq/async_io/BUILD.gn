@@ -29,7 +29,7 @@ library("async_io") {
     # "//ydb/public/sdk/cpp/src/client/types/credentials",
     # "//yql/essentials/minikql",
     # "//yql/essentials/minikql/comp_nodes",
-    # "//yql/essentials/providers/common/schema/mkql",
+    # "//yql/essentials/providers/common/schema:mkql",
     # "//yql/essentials/public/issue",
     # "//yql/essentials/public/udf",
     # "//yql/essentials/utils",

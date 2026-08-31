@@ -1,6 +1,7 @@
 library("authorization") {
   deps = [
     "//contrib/libs/openssl",
+    # "//library/cpp/cgiparam",
     "//library/cpp/http/io",
     "//library/cpp/http/misc",
     "//ydb/library/http_proxy/error",

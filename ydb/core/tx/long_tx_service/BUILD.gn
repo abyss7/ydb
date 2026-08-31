@@ -4,6 +4,7 @@ library("long_tx_service") {
   ]
 
   deps = [
+    # ":public",
     # "//library/cpp/lwtrace",
     # "//library/cpp/lwtrace/mon",
     # "//ydb/core/actorlib_impl",
@@ -13,7 +14,6 @@ library("long_tx_service") {
     # "//ydb/core/util",
     # "//ydb/library/actors/core",
     # "//ydb/library/services",
-    # ":public",
   ]
 
   sources = [
@@ -40,6 +40,7 @@ library("public") {
   ]
 
   deps = [
+    # "//library/cpp/cgiparam",
     "//library/cpp/uri",
     "//ydb/library/actors/core",
   ]

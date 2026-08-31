@@ -1,14 +1,17 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("base") {
   public_deps = [
     # "//library/cpp/containers/stack_vector",
     "//ydb/core/base",
-    # NB: :guids only, not all of vdisk/common -- `common` depends back on this
-    # library, so a dep on it would be a cycle. blobstorage_syncstate.h holds a
-    # TVDiskIncarnationGuid and needs its Out<> spec.
     "//ydb/core/blobstorage/vdisk/common:guids",
     # "//ydb/core/protos",
     # "//ydb/core/util",
     # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//library/cpp/monlib/service/pages",
   ]
 
   sources = [
