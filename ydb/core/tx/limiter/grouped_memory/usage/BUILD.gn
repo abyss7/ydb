@@ -2,6 +2,7 @@ library("usage") {
   public_deps = [
     # "//ydb/core/base",
     "//ydb/core/protos",
+    # "//ydb/core/tx/limiter/grouped_memory/service",
     "//ydb/library/accessor",
     "//ydb/library/signals",
     # "//ydb/library/actors/core",

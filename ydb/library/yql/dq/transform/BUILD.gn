@@ -1,7 +1,5 @@
 library("transform") {
-  public_deps = [
-    "//yql/essentials/core/dq_integration:transform",
-  ]
+  public_deps = [ "//yql/essentials/core/dq_integration:transform" ]
 
   deps = [
     "//ydb/library/actors/core",

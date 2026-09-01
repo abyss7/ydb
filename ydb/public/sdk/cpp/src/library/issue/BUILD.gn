@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("issue") {
   public_deps = [ "//ydb/public/api/protos" ]
 

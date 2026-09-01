@@ -1,10 +1,9 @@
 library("mon") {
-  public_deps = [
-    "//library/cpp/monlib/service",
-  ]
+  public_deps = [ "//library/cpp/monlib/service" ]
 
   deps = [
     # "//library/cpp/html/pcdata",
+    # "//library/cpp/monlib/service/pages",
     # "//library/cpp/resource",
     "//ydb/library/schlab/schemu",
   ]

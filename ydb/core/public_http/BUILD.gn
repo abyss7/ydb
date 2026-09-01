@@ -12,6 +12,7 @@ library("public_http") {
   ]
 
   deps = [
+    # ":protos",
     # "//library/cpp/protobuf/json",
     # "//library/cpp/resource",
     # "//ydb/core/fq/libs/result_formatter",
@@ -24,7 +25,6 @@ library("public_http") {
     # "//ydb/library/services",
     # "//ydb/public/api/protos",
     # "//ydb/public/sdk/cpp/src/client/types",
-    # ":protos",
   ]
 
   sources = [

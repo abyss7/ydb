@@ -4,9 +4,10 @@ library("tablet") {
     "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/monlib/service/pages",
     "//ydb/core/base",
-    # "//ydb/core/node_whiteboard",
+    "//ydb/core/node_whiteboard",
     # "//ydb/core/protos",
     # "//ydb/core/sys_view:common",
+    # "//ydb/core/tablet_flat",
     "//ydb/core/util",
     # "//ydb/library/actors/core",
     # "//ydb/library/services",
@@ -14,10 +15,9 @@ library("tablet") {
 
   deps = [
     # "//library/cpp/random_provider",
-    "//library/cpp/http/io",
     "//library/cpp/svnversion",
     # "//library/cpp/time_provider",
-    "//ydb/core/blobstorage/base",
+    # "//ydb/core/blobstorage",
     "//ydb/core/blobstorage/events",
     "//ydb/core/graph/shard/protos",
     # "//ydb/core/mind",

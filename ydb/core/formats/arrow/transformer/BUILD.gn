@@ -1,0 +1,7 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
+source_set("_srcs") {
+  deps += [ "//ydb/library/formats/arrow:transformer" ]
+
+  sources = [ "dictionary.cpp" ]
+}

@@ -1,11 +1,11 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 config("private_config") {
   cflags = [ "-Wno-deprecated-enum-enum-conversion" ]
 }
 
 library("url_mapper") {
-  public_deps = [
-    "//library/cpp/regex/pcre",
-  ]
+  public_deps = [ "//library/cpp/regex/pcre" ]
 
   deps = [
     "//library/cpp/cgiparam",

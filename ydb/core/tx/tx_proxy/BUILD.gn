@@ -1,5 +1,25 @@
+library("public") {
+  public_deps = [
+    "//ydb/core/base",
+    "//ydb/core/mon",
+    "//ydb/core/protos",
+    "//yql/essentials/minikql",
+  ]
+
+  deps = [
+    "//library/cpp/monlib/dynamic_counters",
+  ]
+
+  sources = [
+    "mon.cpp",
+    "proxy.cpp",
+  ]
+}
+
 library("tx_proxy") {
   public_deps = [
+    ":public",
+    # "//contrib/restricted/boost/container_hash",
     # "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/actorlib_impl",
     "//ydb/core/base",
@@ -59,6 +79,7 @@ library("tx_proxy") {
     # "//ydb/library/login:protos",
     # "//ydb/library/mkql_proto:protos",
     # "//ydb/library/protobuf_printer",
+    # "//ydb/library/ydb_issue:proto",
     "//ydb/services/ext_index/common",
     # "//yql/essentials/core/issue",
     # "//yql/essentials/core/issue:protos",
@@ -77,24 +98,6 @@ library("tx_proxy") {
     "upload_columns.cpp",
   ]
 
-}
-
-library("public") {
-  public_deps = [
-    "//ydb/core/base",
-    "//ydb/core/mon",
-    "//ydb/core/protos",
-    "//yql/essentials/minikql",
-  ]
-
-  deps = [
-    "//library/cpp/monlib/dynamic_counters",
-  ]
-
-  sources = [
-    "mon.cpp",
-    "proxy.cpp",
-  ]
 }
 
 library("upload_rows") {

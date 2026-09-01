@@ -1,5 +1,8 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("abstract") {
   public_deps = [
+    # ":cache_policy",
     # "//library/cpp/cache",
     "//library/cpp/json:writer",
     "//ydb/core/protos",
@@ -10,7 +13,6 @@ library("abstract") {
     # "//ydb/library/accessor",
     # "//ydb/library/conclusion",
     "//ydb/services/bg_tasks/abstract",
-    # ":cache_policy",
   ]
 
   deps = [
@@ -36,8 +38,8 @@ library("cache_policy") {
   ]
 
   deps = [
-    # "//ydb/core/tx/columnshard",
     # ":abstract",
+    # "//ydb/core/tx/columnshard",
   ]
 
   sources = [ "cache_policy/policy.cpp" ]
@@ -45,14 +47,14 @@ library("cache_policy") {
 
 library("data_accessor") {
   public_deps = [
+    # ":abstract",
+    # ":cache_policy",
     # "//ydb/core/tx/columnshard/common",
     "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/core/tx/columnshard/resource_subscriber",
     # "//ydb/core/tx/general_cache/usage",
     # "//ydb/library/signals",
     # "//ydb/services/bg_tasks/abstract",
-    # ":abstract",
-    # ":cache_policy",
   ]
 
   deps = [

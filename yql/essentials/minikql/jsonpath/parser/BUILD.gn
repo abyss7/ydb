@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 config("private_config") {
   defines = [ "YDB_REWRAPPER_LIB_ID=kHyperscan" ]
 }

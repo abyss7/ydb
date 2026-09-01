@@ -1,7 +1,7 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("shared_blobs") {
-  public_deps = [
-    "//ydb/core/tablet_flat",
-  ]
+  public_deps = [ "//ydb/core/tablet_flat" ]
 
   deps = [
     "//ydb/core/tx/columnshard/blobs_action",
@@ -13,6 +13,7 @@ library("shared_blobs") {
 
 library("manager") {
   public_deps = [
+    ":shared_blobs",
     "//ydb/core/tablet_flat",
     # "//ydb/core/tx/columnshard",
     # "//ydb/core/tx/columnshard/blobs_action:abstract",
@@ -20,7 +21,6 @@ library("manager") {
     # "//ydb/core/tx/columnshard/data_sharing/destination/session",
     "//ydb/core/tx/columnshard/data_sharing/source/session",
     # "//ydb/library/accessor",
-    ":shared_blobs",
   ]
 
   deps = [

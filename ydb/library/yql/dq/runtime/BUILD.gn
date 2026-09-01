@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("runtime") {
   public_deps = [
     # "//contrib/libs/apache/arrow",
@@ -21,7 +23,6 @@ library("runtime") {
     "//ydb/core/mon",
     "//ydb/library/formats/arrow:hash",
     # "//ydb/library/mkql_proto",
-    # "//ydb/library/services",
     "//ydb/library/yql/dq/actors",
     # "//ydb/library/yql/dq/expr_nodes",
     "//ydb/library/yql/dq/type_ann",
@@ -33,13 +34,11 @@ library("runtime") {
     # "//yql/essentials/parser/pg_wrapper/interface",
     "//yql/essentials/providers/common/comp_nodes",
     # "//yql/essentials/providers/common/mkql",
-    # "//yql/essentials/providers/common/schema/mkql",
+    # "//yql/essentials/providers/common/schema:mkql",
     # "//yql/essentials/public/udf:arrow",
   ]
 
   sources = [
-    "//ydb/library/yql/dq/actors/compute/dq_compute_actor_watermarks.cpp", # break dependency cycle
-
     "dq_arrow_helpers.cpp",
     "dq_async_input.cpp",
     "dq_async_output.cpp",
@@ -54,6 +53,8 @@ library("runtime") {
     "dq_tasks_counters.cpp",
     "dq_tasks_runner.cpp",
     "dq_transport.cpp",
+
+    "//ydb/library/yql/dq/actors/compute/dq_compute_actor_watermarks.cpp",
   ]
 
   serialize_enum_headers = [ "dq_tasks_runner.h" ]

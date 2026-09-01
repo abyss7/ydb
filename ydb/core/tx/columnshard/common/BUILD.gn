@@ -9,6 +9,7 @@ library("common") {
   ]
 
   deps = [
+    # ":protos",
     # "//library/cpp/json:writer",
     # "//ydb/core/protos",
     # "//ydb/core/scheme:protos",
@@ -19,7 +20,6 @@ library("common") {
     # "//ydb/library/actors/core",
     # "//ydb/library/formats/arrow:switch",
     # "//ydb/library/yverify_stream",
-    # ":protos",
   ]
 
   sources = [
@@ -35,7 +35,7 @@ library("common") {
     "volume.cpp",
   ]
 
-  serialize_enum_headers = ["portion.h" ]
+  serialize_enum_headers = [ "portion.h" ]
 }
 
 protobuf_library("protos") {

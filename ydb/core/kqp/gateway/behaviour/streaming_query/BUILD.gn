@@ -19,6 +19,8 @@ library("streaming_query") {
   ]
 
   deps = [
+    # ":common",
+    # "//contrib/libs/fmt",
     # "//library/cpp/protobuf/interop",
     # "//library/cpp/protobuf/json",
     # "//library/cpp/retry",
@@ -45,7 +47,6 @@ library("streaming_query") {
     # "//ydb/services/metadata/optimization",
     # "//yql/essentials/core",
     # "//yql/essentials/providers/common/provider",
-    # ":common",
   ]
 
   sources = [

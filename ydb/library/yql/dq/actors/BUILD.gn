@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("actors") {
   public_deps = [
     ":protos",
@@ -66,8 +68,6 @@ library("compute") {
     "compute/dq_compute_actor_checkpoints.cpp",
     "compute/dq_compute_actor_metrics.cpp",
     "compute/dq_compute_actor_stats.cpp",
-    # dq_compute_actor_watermarks.cpp is compiled in //ydb/library/yql/dq/runtime
-    # (runtime calls it, and depending on :compute from there would be a cycle).
     "compute/dq_compute_issues_buffer.cpp",
     "compute/dq_info_aggregation_actor.cpp",
     "compute/dq_request_context.cpp",
@@ -116,6 +116,7 @@ library("spilling") {
   ]
 
   deps = [
+    # "//library/cpp/monlib/service/pages",
     # "//library/cpp/threading/future",
     # "//ydb/library/services",
     # "//yql/essentials/minikql/computation",

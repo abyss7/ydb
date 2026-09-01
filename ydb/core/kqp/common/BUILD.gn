@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("arrow") {
   deps = [
     "//contrib/libs/apache/arrow",
@@ -21,7 +23,11 @@ library("buffer") {
 
 library("common") {
   public_deps = [
-    "//contrib/libs/openssl",
+    # ":compilation",
+    # ":events",
+    # ":shutdown",
+    ":simple",
+    # "//contrib/libs/openssl",
     "//library/cpp/json:writer",
     # "//library/cpp/lwtrace",
     # "//library/cpp/string_utils/base64",
@@ -45,6 +51,7 @@ library("common") {
     # "//ydb/core/util",
     # "//ydb/library/aclib",
     # "//ydb/library/actors/core",
+    # "//ydb/library/mkql_proto",
     # "//ydb/library/mkql_proto:protos",
     # "//ydb/library/services",
     # "//ydb/library/yql/dq/actors",
@@ -52,10 +59,6 @@ library("common") {
     "//ydb/public/sdk/cpp/src/library/operation_id",
     "//yql/essentials/ast",
     "//yql/essentials/minikql",
-    # ":compilation",
-    # ":events",
-    # ":shutdown",
-    ":simple",
   ]
 
   deps = [
@@ -100,14 +103,14 @@ library("common") {
 
 library("compilation") {
   public_deps = [
-    # ":simple",
+    ":simple",
     # "//library/cpp/lwtrace",
     # "//ydb/core/kqp/common",
     # "//ydb/core/kqp/counters",
     # "//ydb/library/aclib",
     # "//ydb/library/actors/core",
     # "//yql/essentials/ast",
-    # "//yql/essentials/public/issue",
+    "//yql/essentials/public/issue",
   ]
 
   deps = [

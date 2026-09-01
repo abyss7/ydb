@@ -1,14 +1,14 @@
 library("blob") {
   public_deps = [
-    # "//ydb/core/persqueue/common",
-    # "//ydb/core/protos",
+    "//ydb/core/persqueue/common",
+    "//ydb/core/protos",
   ]
 
   deps = [
     # "//library/cpp/containers/bitseq",
     # "//library/cpp/packedtypes",
-    # "//ydb/core/scheme",
-    # "//ydb/library/actors/core",
+    "//ydb/core/scheme",
+    "//ydb/library/actors/core",
   ]
 
   sources = [

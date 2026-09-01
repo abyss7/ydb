@@ -1,0 +1,16 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
+source_set("_srcs") {
+  deps += [
+    # "//contrib/libs/apache/arrow",
+    "//ydb/core/formats/arrow/serializer:_srcs",
+    # "//ydb/library/accessor",
+    "//ydb/library/formats/arrow:splitter",
+    # "//ydb/library/formats/arrow:validation",
+  ]
+
+  sources = [
+    "scheme_info.cpp",
+    "simple.cpp",
+  ]
+}

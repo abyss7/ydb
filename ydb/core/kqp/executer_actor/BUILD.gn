@@ -1,5 +1,6 @@
 library("executer_actor") {
   public_deps = [
+    # ":shards_resolver",
     # "//library/cpp/lwtrace",
     "//ydb/core/kqp/common",
     # "//ydb/core/kqp/counters",
@@ -15,7 +16,6 @@ library("executer_actor") {
     # "//ydb/library/yql/dq/common",
     # "//ydb/library/yql/dq/runtime",
     # "//yql/essentials/core/pg_settings",
-    # ":shards_resolver",
   ]
 
   deps = [
@@ -65,6 +65,7 @@ library("executer_actor") {
     # "//ydb/library/yql/providers/pq/proto",
     # "//ydb/public/api/protos",
     # "//ydb/services/metadata/abstract",
+    # "//ydb/services/metadata/manager",
     # "//ydb/services/metadata/secret",
     # "//yql/essentials/core",
     # "//yql/essentials/minikql",
@@ -104,9 +105,7 @@ library("shards_resolver") {
     "//yql/essentials/public/issue",
   ]
 
-  deps = [
-    "//ydb/core/base",
-  ]
+  deps = [ "//ydb/core/base" ]
 
   sources = [ "shards_resolver/kqp_shards_resolver.cpp" ]
 }

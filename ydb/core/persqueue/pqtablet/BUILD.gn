@@ -4,6 +4,7 @@ library("pqtablet") {
   ]
 
   deps = [
+    # "//contrib/libs/fmt",
     # "//library/cpp/json",
     # "//library/cpp/monlib/service/pages",
     # "//ydb/core/base",

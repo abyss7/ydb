@@ -1,0 +1,15 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
+source_set("_srcs") {
+  deps += [
+    "//contrib/libs/apache/arrow",
+    "//ydb/core/formats/arrow/common:_srcs",
+    # "//ydb/core/formats/arrow:switch",
+    # "//ydb/library/actors/core",
+    "//ydb/library/formats/arrow:hash",
+    # "//ydb/library/formats/arrow:validation",
+    # "//ydb/library/services",
+  ]
+
+  sources = [ "calcer.cpp" ]
+}

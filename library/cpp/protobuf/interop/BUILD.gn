@@ -1,4 +1,7 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("interop") {
   deps = [ "//contrib/libs/protobuf" ]
+
   sources = [ "cast.cpp" ]
 }

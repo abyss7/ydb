@@ -19,6 +19,8 @@ library("proxy_service") {
   ]
 
   deps = [
+    ":proto",
+    # ":script_executions_utils",
     # "//contrib/libs/fmt",
     # "//library/cpp/lwtrace/mon",
     # "//library/cpp/monlib/service/pages",
@@ -72,9 +74,8 @@ library("proxy_service") {
     # "//ydb/public/sdk/cpp/src/client/result",
     # "//ydb/public/sdk/cpp/src/library/operation_id",
     # "//ydb/public/sdk/cpp/src/library/operation_id:protos",
+    # "//ydb/services/metadata",
     # "//yql/essentials/core/services:mounts",
-    ":proto",
-    # ":script_executions_utils",
   ]
 
   sources = [

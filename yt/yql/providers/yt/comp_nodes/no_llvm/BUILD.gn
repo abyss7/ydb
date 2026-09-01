@@ -1,0 +1,103 @@
+_comp_gen_dir = "$target_gen_dir/yql/essentials/minikql/computation"
+_inv_gen_dir = "$target_gen_dir/yql/essentials/minikql/invoke_builtins"
+
+# Copies from computation/header.ya.make.inc (first INCLUDE in chain)
+copy("mkql_computation_node_codegen_h") {
+  sources = [
+    "//yql/essentials/minikql/computation/mkql_computation_node_codegen.h.txt",
+  ]
+  outputs = [ "$_comp_gen_dir/mkql_computation_node_codegen.h" ]
+}
+
+copy("mkql_llvm_base_h") {
+  sources = [ "//yql/essentials/minikql/computation/mkql_llvm_base.h.txt" ]
+  outputs = [ "$_comp_gen_dir/mkql_llvm_base.h" ]
+}
+
+copy("mkql_block_impl_codegen_h") {
+  sources =
+      [ "//yql/essentials/minikql/computation/mkql_block_impl_codegen.h.txt" ]
+  outputs = [ "$_comp_gen_dir/mkql_block_impl_codegen.h" ]
+}
+
+# Copies from invoke_builtins/header.ya.make.inc (second INCLUDE in chain;
+# computation/header.ya.make.inc is deduplicated via INCLUDE_ONCE)
+copy("mkql_builtins_codegen_h") {
+  sources =
+      [ "//yql/essentials/minikql/invoke_builtins/mkql_builtins_codegen.h.txt" ]
+  outputs = [ "$_inv_gen_dir/mkql_builtins_codegen.h" ]
+}
+
+copy("mkql_builtins_codegen_llvm_h") {
+  sources = [
+    "//yql/essentials/minikql/invoke_builtins/mkql_builtins_codegen_llvm.h.txt",
+  ]
+  outputs = [ "$_inv_gen_dir/mkql_builtins_codegen_llvm.h" ]
+}
+
+copy("mkql_builtins_impl_h") {
+  sources =
+      [ "//yql/essentials/minikql/invoke_builtins/mkql_builtins_impl.h.txt" ]
+  outputs = [ "$_inv_gen_dir/mkql_builtins_impl.h" ]
+}
+
+copy("mkql_builtins_decimal_h") {
+  sources =
+      [ "//yql/essentials/minikql/invoke_builtins/mkql_builtins_decimal.h.txt" ]
+  outputs = [ "$_inv_gen_dir/mkql_builtins_decimal.h" ]
+}
+
+config("_includes") {
+  include_dirs = [
+    target_gen_dir,
+    _comp_gen_dir,
+    _inv_gen_dir,
+    "//yql/essentials/minikql/invoke_builtins",
+    "//yql/essentials/minikql/codegen/llvm_stub",
+    "//yt/yql/providers/yt/comp_nodes",
+  ]
+}
+
+library("no_llvm") {
+  sources = [
+    "../yql_mkql_block_table_content.cpp",
+    "../yql_mkql_file_block_stream.cpp",
+    "../yql_mkql_file_input_state.cpp",
+    "../yql_mkql_file_list.cpp",
+    "../yql_mkql_input.cpp",
+    "../yql_mkql_input_stream.cpp",
+    "../yql_mkql_output.cpp",
+    "../yql_mkql_table.cpp",
+    "../yql_mkql_table_content.cpp",
+    "../yql_mkql_ungrouping_list.cpp",
+  ]
+
+  defines = [ "MKQL_DISABLE_CODEGEN" ]
+
+  configs = [ ":_includes" ]
+
+  deps = [
+    ":mkql_block_impl_codegen_h",
+    ":mkql_builtins_codegen_h",
+    ":mkql_builtins_codegen_llvm_h",
+    ":mkql_builtins_decimal_h",
+    ":mkql_builtins_impl_h",
+    ":mkql_computation_node_codegen_h",
+    ":mkql_llvm_base_h",
+    "//library/cpp/streams/brotli",
+  ]
+
+  public_deps = [
+    "//yql/essentials/minikql",
+    "//yql/essentials/minikql/computation",
+    "//yql/essentials/minikql/computation/no_llvm",
+    "//yql/essentials/minikql/invoke_builtins/no_llvm",
+    "//yql/essentials/providers/common/codec",
+    "//yql/essentials/providers/common/mkql",
+    "//yql/essentials/public/udf",
+    "//yql/essentials/utils",
+    "//yt/cpp/mapreduce/interface",
+    "//yt/yql/providers/yt/codec",
+    "//yt/yql/providers/yt/expr_nodes",
+  ]
+}

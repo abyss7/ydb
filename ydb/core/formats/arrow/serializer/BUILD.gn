@@ -1,0 +1,27 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
+source_set("_srcs") {
+  public_deps = [
+    "//ydb/core/protos",
+    "//ydb/library/formats/arrow:validation",
+    "//ydb/services/bg_tasks/abstract",
+  ]
+
+  deps += [
+    "//contrib/libs/apache/arrow",
+    # "//ydb/core/base",
+    # "//ydb/library/accessor",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/conclusion",
+    # "//ydb/library/services",
+    "//ydb/services/metadata/abstract",
+  ]
+
+  sources = [
+    "abstract.cpp",
+    "native.cpp",
+    "parsing.cpp",
+    "stream.cpp",
+    "utils.cpp",
+  ]
+}

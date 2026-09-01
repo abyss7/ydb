@@ -1,8 +1,8 @@
 library("pgproxy") {
   public_deps = [
+    # ":protos",
     # "//ydb/core/raw_socket",
     # "//ydb/library/actors/core",
-    # ":protos",
   ]
 
   deps = [

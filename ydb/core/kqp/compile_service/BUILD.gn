@@ -8,6 +8,7 @@ library("compile_service") {
   ]
 
   deps = [
+    # ":helpers",
     # "//library/cpp/cache",
     # "//library/cpp/digest/md5",
     # "//library/cpp/json",
@@ -26,7 +27,6 @@ library("compile_service") {
     # "//ydb/library/actors/wilson",
     # "//ydb/library/wilson_ids",
     # "//ydb/library/yql/utils/actor_log",
-    # ":helpers",
   ]
 
   sources = [

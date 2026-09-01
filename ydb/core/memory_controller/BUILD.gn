@@ -9,6 +9,7 @@ library("memory_controller") {
 
   deps = [
     # "//contrib/libs/apache/arrow",
+    # "//contrib/libs/tcmalloc",
     # "//ydb/core/cms/console",
     # "//ydb/core/node_whiteboard",
     # "//ydb/core/tablet",

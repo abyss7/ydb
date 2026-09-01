@@ -28,7 +28,7 @@ library("codecs") {
 library("counters") {
   public_deps = [
     # "//library/cpp/monlib/dynamic_counters",
-    # "//ydb/library/persqueue/topic_parser",
+    "//ydb/library/persqueue/topic_parser",
   ]
 
   deps = [
@@ -60,13 +60,13 @@ library("fetcher") {
   ]
 
   deps = [
+    # ":describer",
+    # ":write_meta",
     # "//ydb/core/actorlib_impl",
     # "//ydb/core/base",
     # "//ydb/core/client/server",
     # "//ydb/core/persqueue/events",
     # "//ydb/core/tx/replication/ydb_proxy",
-    # ":describer",
-    # ":write_meta",
   ]
 
   sources = [ "fetcher/fetch_request_actor.cpp" ]
@@ -84,10 +84,10 @@ library("list_topics") {
 
 library("mlp") {
   public_deps = [
+    # ":describer",
     # "//ydb/core/persqueue/events",
     # "//ydb/library/actors/core",
     # "//ydb/public/api/protos",
-    # ":describer",
   ]
 
   deps = [
@@ -185,8 +185,8 @@ library("write_meta") {
   ]
 
   deps = [
-    # "//ydb/library/actors/core",
     # ":codecs",
+    # "//ydb/library/actors/core",
   ]
 
   sources = [ "write_meta/write_meta.cpp" ]

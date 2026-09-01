@@ -5,6 +5,8 @@ library("aggregator") {
   ]
 
   deps = [
+    # ":database",
+    # ":service",
     # "//library/cpp/monlib/service/pages",
     # "//ydb/core/cms/console",
     # "//ydb/core/engine:minikql",
@@ -24,8 +26,6 @@ library("aggregator") {
     # "//yql/essentials/core/histogram",
     # "//yql/essentials/core/minsketch",
     # "//yql/essentials/public/udf",
-    # ":database",
-    # ":service",
   ]
 
   sources = [
@@ -79,6 +79,7 @@ library("service") {
   ]
 
   deps = [
+    # ":database",
     "//library/cpp/json",
     # "//library/cpp/monlib/service/pages",
     "//ydb/core/base",
@@ -96,7 +97,6 @@ library("service") {
     "//yql/essentials/core/histogram",
     "//yql/essentials/core/minsketch",
     # "//yql/essentials/public/issue",
-    # ":database",
   ]
 
   sources = [

@@ -4,6 +4,7 @@ library("coordinator") {
   ]
 
   deps = [
+    # ":public",
     # "//library/cpp/containers/absl_flat_hash",
     # "//library/cpp/time_provider",
     # "//ydb/core/base",
@@ -18,7 +19,6 @@ library("coordinator") {
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/services",
-    # ":public",
   ]
 
   sources = [
@@ -50,9 +50,9 @@ protobuf_library("protos") {
 
 library("public") {
   public_deps = [
+    # ":protos",
     # "//ydb/core/base",
     # "//ydb/core/protos",
-    # ":protos",
   ]
 
   sources = [ "public/events.cpp" ]

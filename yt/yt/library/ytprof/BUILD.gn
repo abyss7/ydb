@@ -10,6 +10,9 @@ library("api") {
 
 library("ytprof") {
   deps = [
+    # ":api",
+    # "//contrib/libs/tcmalloc",
+    # "//contrib/restricted/abseil-cpp",
     # "//library/cpp/resource",
     # "//library/cpp/svnversion",
     # "//library/cpp/yt/assert",
@@ -21,7 +24,6 @@ library("ytprof") {
     # "//library/cpp/yt/threading",
     # "//yt/yt/core",
     # "//yt/yt/library/ytprof/proto",
-    # ":api",
   ]
 
   sources = [

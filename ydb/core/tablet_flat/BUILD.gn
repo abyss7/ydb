@@ -1,12 +1,3 @@
-protobuf_library("private_proto") {
-  public_deps = [
-    "//ydb/core/protos",
-    "//ydb/library/actors/protos",
-  ]
-
-  sources = [ "flat_executor.proto" ]
-}
-
 protobuf_library("protos") {
   deps = [
     "//ydb/core/protos",
@@ -17,6 +8,36 @@ protobuf_library("protos") {
     "protos/flat_table_part.proto",
     "protos/flat_table_shard.proto",
   ]
+}
+
+library("recovery") {
+  public_deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/tablet_flat",
+  ]
+
+  deps = [
+    # "//library/cpp/protobuf/json",
+    # "//library/cpp/string_utils/base64",
+    # "//ydb/core/engine:minikql",
+    # "//ydb/core/io_formats/cell_maker",
+    # "//ydb/core/protos",
+    # "//ydb/library/actors/core",
+    # "//yql/essentials/types/binary_json",
+  ]
+
+  sources = [ "recovery/flat_executor_recovery.cpp" ]
+
+  serialize_enum_headers = [ "recovery/flat_executor_recovery.h" ]
+}
+
+protobuf_library("private_proto") {
+  public_deps = [
+    "//ydb/core/protos",
+    "//ydb/library/actors/protos",
+  ]
+
+  sources = [ "flat_executor.proto" ]
 }
 
 library("tablet_flat") {
@@ -30,6 +51,7 @@ library("tablet_flat") {
     # "//ydb/core/protos",
     "//ydb/core/util",
     # "//ydb/library/actors/core",
+    "//ydb/library/actors/util",
     "//ydb/library/actors/wilson",
     # "//ydb/library/services",
     # "//ydb/library/wilson_ids",
@@ -46,6 +68,7 @@ library("tablet_flat") {
     # "//library/cpp/json:writer",
     "//library/cpp/lwtrace/mon",
     "//library/cpp/monlib/dynamic_counters",
+    # "//library/cpp/monlib/service/pages",
     "//library/cpp/protobuf/json",
     # "//library/cpp/random_provider",
     "//library/cpp/string_utils/base64",
@@ -56,7 +79,6 @@ library("tablet_flat") {
     "//ydb/core/scheme_types",
     "//ydb/core/tablet",
     # "//ydb/library/actors/interconnect",
-    # "//ydb/library/actors/util",
     "//yql/essentials/types/binary_json",
     "//yql/essentials/types/dynumber",
   ]

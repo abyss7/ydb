@@ -1,7 +1,7 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("types") {
-  deps = [
-    "//ydb/public/sdk/cpp/src/client/impl/internal/common",
-  ]
+  deps = [ "//ydb/public/sdk/cpp/src/client/impl/internal/common" ]
 
   sources = [ "ydb.cpp" ]
 

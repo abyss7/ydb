@@ -9,6 +9,10 @@ ragel6_source_set("httpfsm") {
 }
 
 library("fetch") {
+    public_deps = [
+        "//library/cpp/mime/types",
+    ]
+
     deps = [
         ":httpfsm",
         "//contrib/libs/zlib",
@@ -16,7 +20,6 @@ library("fetch") {
         "//library/cpp/digest/md5",
         "//library/cpp/http/misc",
         "//library/cpp/logger",
-        "//library/cpp/mime/types",
         "//library/cpp/uri",
     ]
 

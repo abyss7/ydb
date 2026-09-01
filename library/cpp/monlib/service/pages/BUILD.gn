@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("pages") {
   public_deps = [ "//library/cpp/resource" ]
 

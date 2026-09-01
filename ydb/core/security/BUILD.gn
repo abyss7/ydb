@@ -75,6 +75,9 @@ library("sasl") {
 
 library("security") {
   public_deps = [
+    ":certificate_check",
+    # ":ldap_auth_provider",
+    # ":token_manager",
     "//library/cpp/digest/md5",
     "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/mon",
@@ -87,9 +90,6 @@ library("security") {
     "//ydb/library/security",
     "//ydb/library/ycloud/api",
     "//ydb/library/ycloud/impl",
-    ":certificate_check",
-    # ":ldap_auth_provider",
-    # ":token_manager",
   ]
 
   deps = [

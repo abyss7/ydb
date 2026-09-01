@@ -6,16 +6,15 @@ library("mon") {
   public_deps = [
     "//library/cpp/lwtrace",
     "//library/cpp/lwtrace:protos",
-    # "//library/cpp/monlib/service",
+    "//library/cpp/monlib/service",
   ]
 
   deps = [
-    "//library/cpp/cgiparam",
+    # ":analytics",
     "//library/cpp/html/pcdata",
     "//library/cpp/monlib/service/pages",
     "//library/cpp/resource",
     "//library/cpp/string_utils/base64",
-    # ":analytics",
   ]
 
   sources = [ "mon_lwtrace.cpp" ]

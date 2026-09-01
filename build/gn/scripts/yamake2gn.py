@@ -178,6 +178,79 @@ def active_lines(lines):
             if stack:
                 stack.pop()
 
+# Include roots that contrib publishes to everyone via `ADDINCL(GLOBAL <dir>)`,
+# tried by Resolver.resolve as a last resort. Without them `#include <openssl/
+# sha.h>` resolves to no file at all -- the header lives in
+# contrib/libs/openssl/include/openssl/sha.h, not at the repo root -- so the
+# include is merely reported unresolved and the dependency on
+# //contrib/libs/openssl is silently lost. Same story for grpc, poco, arrow,
+# aws, boost, ...
+#
+# This is deliberately a hand-kept list, not a scan of contrib's ya.make files:
+# the first root that holds the header wins, so the set has to stay small,
+# ordered and reviewable. Note what is NOT here -- contrib/libs/cxxsupp/libcxx/
+# include is a GLOBAL ADDINCL too, and adding it would resolve `#include
+# <vector>` into contrib and give every single module a dependency on libcxx;
+# the same goes for linux-headers, libc_compat and the Python headers.
+#
+# To extend: an include that no root covers shows up in the report's
+# "unresolved" section -- find the ADDINCL(GLOBAL ...) that publishes it
+#     grep -rn "GLOBAL contrib/" --include=ya.make contrib/
+# and add the directory below, keeping the list sorted.
+CONTRIB_INCLUDE_ROOTS = [
+    "contrib/libs/apache/arrow/cpp/src",                   # <arrow/api.h>
+    "contrib/libs/apache/arrow/src",                       # <arrow/util/config.h>
+    "contrib/libs/aws-sdk-cpp/aws-cpp-sdk-core/include",   # <aws/core/Aws.h>
+    "contrib/libs/aws-sdk-cpp/aws-cpp-sdk-s3/include",     # <aws/s3/S3Client.h>
+    "contrib/libs/aws-sdk-cpp/aws-cpp-sdk-sqs/include",    # <aws/sqs/SQSClient.h>
+    "contrib/libs/c-ares/include",                         # <ares.h>
+    "contrib/libs/cctz/include",                           # <cctz/time_zone.h>
+    "contrib/libs/curl/include",                           # <curl/curl.h>
+    "contrib/libs/double-conversion",                      # <double-conversion/double-conversion.h>
+    "contrib/libs/fmt/include",                            # <fmt/format.h>
+    "contrib/libs/ftxui/include",                          # <ftxui/dom/node.hpp>
+    "contrib/libs/grpc/include",                           # <grpcpp/alarm.h>
+    "contrib/libs/icu/include",                            # <unicode/ucnv.h>
+    "contrib/libs/jinja2cpp/include",                      # <jinja2cpp/value.h>
+    "contrib/libs/libaio/include",                         # <libaio.h>
+    "contrib/libs/libiconv/include",                       # <iconv.h>
+    "contrib/libs/libidn/include",                         # <idna.h>
+    "contrib/libs/liburing/src/include",                   # <liburing.h>
+    "contrib/libs/libxml/include",                         # <libxml/uri.h>
+    "contrib/libs/llvm16/include",                         # <llvm-c/Core.h>
+    "contrib/libs/openldap/include",                       # <ldap.h>
+    "contrib/libs/openssl/include",                        # <openssl/bn.h>
+    "contrib/libs/opentelemetry-cpp/exporters/otlp/include", # <opentelemetry/exporters/otlp/...>
+    "contrib/libs/opentelemetry-cpp/sdk/include",          # <opentelemetry/sdk/resource/resource.h>
+    "contrib/libs/poco/Foundation/include",                # <Poco/URI.h>
+    "contrib/libs/poco/JSON/include",                      # <Poco/JSON/JSON.h>
+    "contrib/libs/poco/Net/include",                       # <Poco/Net/DNS.h>
+    "contrib/libs/poco/NetSSL_OpenSSL/include",            # <Poco/Net/NetSSL.h>
+    "contrib/libs/poco/Util/include",                      # <Poco/Util/Application.h>
+    "contrib/libs/protobuf/src",                           # <google/protobuf/any.h>
+    "contrib/libs/protoc/src",                             # <google/protobuf/compiler/plugin.h>
+    "contrib/libs/re2/include",                            # <re2/re2.h>
+    "contrib/libs/tcmalloc",                               # <tcmalloc/common.h>
+    "contrib/libs/yaml-cpp/include",                       # <yaml-cpp/yaml.h>
+    "contrib/libs/zlib/include",                           # <zlib.h>
+    "contrib/restricted/abseil-cpp",                       # <absl/base/internal/spinlock.h>
+    "contrib/restricted/boost/algorithm/include",          # <boost/algorithm/string.hpp>
+    "contrib/restricted/boost/container_hash/include",     # <boost/container_hash/hash_fwd.hpp>
+    "contrib/restricted/boost/core/include",               # <boost/noncopyable.hpp>
+    "contrib/restricted/boost/detail/include",             # <boost/blank.hpp>
+    "contrib/restricted/boost/iterator/include",           # <boost/iterator/transform_iterator.hpp>
+    "contrib/restricted/boost/multi_index/include",        # <boost/multi_index/member.hpp>
+    "contrib/restricted/boost/program_options/include",    # <boost/program_options/options_description.hpp>
+    "contrib/restricted/boost/range/include",              # <boost/range/adaptor/map.hpp>
+    "contrib/restricted/boost/smart_ptr/include",          # <boost/smart_ptr/intrusive_ptr.hpp>
+    "contrib/restricted/cityhash-1.0.2",                   # <city.h>
+    "contrib/restricted/dragonbox/include",                # <dragonbox/dragonbox_to_chars.h>
+    "contrib/restricted/google/benchmark/include",         # <benchmark/benchmark.h>
+    "contrib/restricted/googletest/googlemock/include",    # <gmock/gmock.h>
+    "contrib/restricted/googletest/googletest/include",    # <gtest/gtest.h>
+    "contrib/restricted/nlohmann_json/include",            # <nlohmann/json.hpp>
+]
+
 # Resolver.nearest_module fallback path remaps, tried only when no ancestor of
 # the original path declares a real module. `include/ydb-cpp-sdk/<rest>`
 # (ydb/public/sdk/cpp's public headers) mostly has no ya.make of its own --
@@ -698,6 +771,14 @@ class Resolver:
                 continue
             if os.path.exists(os.path.join(self.root, rel)):
                 return rel
+        # Last resort: the GLOBAL ADDINCL roots contrib publishes, so that
+        # `#include <openssl/sha.h>` finds contrib/libs/openssl/include/... and
+        # the dependency on //contrib/libs/openssl is derived like any other.
+        if not inc.startswith((".", "/")):
+            for base in CONTRIB_INCLUDE_ROOTS:
+                rel = os.path.normpath(os.path.join(base, inc))
+                if os.path.exists(os.path.join(self.root, rel)):
+                    return rel
         return None
 
 
@@ -1034,6 +1115,57 @@ def parse_existing_buildgn_uncommented(path):
     return out
 
 
+def dep_sort_key(label):
+    """Order inside deps/public_deps: local ":target" labels first, then all the
+    rest; alphabetical within each group. `gn format` sorts a list this way too
+    -- but it treats a commented-out entry as a comment attached to the *next*
+    label and moves the two together, which scatters our disabled deps. The
+    order is therefore re-established by normalize_dep_lists after formatting,
+    with commented and uncommented entries ranked exactly alike."""
+    return (0 if label.startswith(":") else 1, label)
+
+
+# One entry of a rendered deps/public_deps list: `"//foo/bar",`, optionally
+# commented out (a dep the generator derived but left disabled).
+_DEP_ENTRY_RE = re.compile(r'^([ \t]*)(#\s*)?"([^"]+)",?[ \t]*$')
+# A multi-line `deps = [` / `public_deps = [` block, closed by `]` at the same
+# indentation as the assignment.
+_DEP_BLOCK_RE = re.compile(
+    r'^(?P<indent>[ \t]*)(?P<key>public_deps|deps)\s*=\s*\[[ \t]*\n'
+    r'(?P<body>.*?)'
+    r'^(?P=indent)\]',
+    re.M | re.S)
+
+
+def normalize_dep_lists(text):
+    """Re-emit every multi-line deps/public_deps list in `text` with no blank
+    lines and in dep_sort_key order.
+
+    Undoes what `gn format` does to lists holding commented-out entries: it
+    hangs each comment block on the label that follows it (so the two travel
+    together when the list is sorted) and prints a blank line in front of it.
+    A block whose lines are not all plain `"label",` entries is left untouched.
+    """
+    def fix(m):
+        entries, item_indent = [], None
+        for line in m.group("body").splitlines():
+            if not line.strip():
+                continue                      # blank line inserted by gn format
+            e = _DEP_ENTRY_RE.match(line)
+            if not e:
+                return m.group(0)             # not a plain label list: hands off
+            if item_indent is None:
+                item_indent = e.group(1)      # keep the file's own indentation
+            entries.append((bool(e.group(2)), e.group(3)))
+        if not entries:
+            return m.group(0)
+        body = "".join('%s%s"%s",\n' % (item_indent, "# " if c else "", label)
+                       for c, label in sorted(entries, key=lambda e: dep_sort_key(e[1])))
+        return "%s%s = [\n%s%s]" % (m.group("indent"), m.group("key"),
+                                    body, m.group("indent"))
+    return _DEP_BLOCK_RE.sub(fix, text)
+
+
 def shorten(label, host):
     prefix = "//%s:" % host
     if label.startswith(prefix):
@@ -1102,8 +1234,8 @@ def render_spec(spec, host, remap, existing, uncommented):
     if split_proto:
         dep.add(":private_proto")
 
-    pub = sorted(pub)
-    dep = sorted(dep)
+    pub = sorted(pub, key=dep_sort_key)
+    dep = sorted(dep, key=dep_sort_key)
     main_sources = spec.sources + spec.proto_sources if tmpl == "protobuf_library" else spec.sources
     srcs = sorted(os.path.relpath(s, host) for s in main_sources)
     enums = sorted(os.path.relpath(h, host) for h in spec.enum_headers)
@@ -1119,18 +1251,22 @@ def render_spec(spec, host, remap, existing, uncommented):
     # closes the dep cycles GN forbids). Only the user's own choices survive a
     # regen -- a label left UNcommented in the existing file stays uncommented;
     # everything else (new, or previously commented) is re-emitted commented.
-    # Scoped to library/executable targets: group() aggregators and the
-    # private_proto sub-target are left intact, and the library's own
-    # :private_proto edge (an internal artifact, never a cycle) is never hidden.
+    # group() plays by the same rules as library(), whether it is a sourceless
+    # facade or a pure aggregator: nothing about forwarding deps instead of
+    # linking them makes a freshly derived edge more trustworthy. Left intact:
+    # the protobuf_library sub-target (its deps are proto imports the generated
+    # .pb.h genuinely needs) and a library's own :private_proto edge (an
+    # internal artifact, never a cycle).
     commented = frozenset()
-    if tmpl in ("library", "contrib_library", "executable"):
+    if tmpl in ("library", "contrib_library", "executable", "group"):
         keep = uncommented.get(spec.name, set())
         commented = frozenset(l for l in pub + dep
                               if l not in keep and l != ":private_proto")
 
     out = []
     if split_proto:
-        proto_pub = sorted({shorten(remap.get(l, l), host) for l in spec.proto_public})
+        proto_pub = sorted({shorten(remap.get(l, l), host) for l in spec.proto_public},
+                           key=dep_sort_key)
         proto_srcs = sorted(os.path.relpath(s, host) for s in spec.proto_sources)
         out.append(_render_target("protobuf_library", "private_proto", proto_pub, [], proto_srcs))
     out.append(_render_target(tmpl, spec.name, pub, dep, srcs, enums, commented=commented))
@@ -1141,8 +1277,9 @@ def render_file(root, host, specs, remap):
     path = os.path.join(root, host, "BUILD.gn")
     existing = parse_existing_buildgn(path)
     uncommented = parse_existing_buildgn_uncommented(path)
-    return "\n\n".join(render_spec(s, host, remap, existing, uncommented)
-                       for s in sorted(specs, key=lambda s: s.name)) + "\n"
+    return normalize_dep_lists(
+        "\n\n".join(render_spec(s, host, remap, existing, uncommented)
+                    for s in sorted(specs, key=lambda s: s.name)) + "\n")
 
 
 # --- reporting -------------------------------------------------------------
@@ -1379,6 +1516,16 @@ def main():
             if not args.no_format:
                 subprocess.run(["gn", "format", out], cwd=root, check=False,
                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                # `gn format` reflows the dep lists around the commented-out
+                # entries (blank line before each comment block, comment blocks
+                # dragged along when sorting) -- put them back in shape. This
+                # runs last on purpose, so the file on disk is the final word.
+                with open(out, encoding="utf-8") as f:
+                    formatted = f.read()
+                normalized = normalize_dep_lists(formatted)
+                if normalized != formatted:
+                    with open(out, "w", encoding="utf-8") as f:
+                        f.write(normalized)
 
     for c in sorted(absorbed | collapsed):
         old = os.path.join(root, c, "BUILD.gn")

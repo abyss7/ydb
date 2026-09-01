@@ -1,6 +1,6 @@
 library("logical") {
   public_deps = [
-    # "//ydb/core/kqp/opt",
+    "//ydb/core/kqp/opt",
     # "//yql/essentials/ast",
     # "//yql/essentials/core/cbo",
   ]
@@ -8,7 +8,6 @@ library("logical") {
   deps = [
     "//ydb/core/base",
     # "//ydb/core/kqp/common",
-    "//ydb/core/kqp/opt",
     # "//ydb/core/kqp/opt/physical",
     # "//ydb/core/kqp/provider",
     # "//ydb/core/protos",

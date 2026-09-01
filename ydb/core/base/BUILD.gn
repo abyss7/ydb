@@ -7,6 +7,7 @@ config("public_config") {
 library("base") {
   public_deps = [
     "generated",
+    "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/erasure",
     "//ydb/core/protos",
     "//ydb/core/protos:out",
@@ -20,7 +21,6 @@ library("base") {
     "//library/cpp/dot_product",
     "//library/cpp/dwarf_backtrace",
     "//library/cpp/l2_distance",
-    "//library/cpp/monlib/dynamic_counters",
     "//library/cpp/random_provider",
     "//library/cpp/threading/hot_swap",
     "//ydb/core/audit:audit_config",

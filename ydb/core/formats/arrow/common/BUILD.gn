@@ -1,0 +1,24 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
+source_set("_srcs") {
+  public_deps = [
+    "//ydb/core/formats/arrow/accessor:abstract_srcs",
+  ]
+
+  deps += [
+    # "//contrib/libs/apache/arrow",
+    # "//ydb/library/accessor",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/conclusion",
+    # "//ydb/library/formats/arrow",
+    # "//ydb/library/formats/arrow:modifier",
+    # "//ydb/library/formats/arrow:validation",
+    # "//ydb/library/yverify_stream",
+    # "//ydb/services/metadata/abstract",
+  ]
+
+  sources = [
+    "adapter.cpp",
+    "container.cpp",
+  ]
+}

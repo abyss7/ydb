@@ -1,0 +1,24 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
+source_set("_srcs") {
+  deps += [
+    # "//contrib/libs/apache/arrow",
+    # "//library/cpp/json:writer",
+    "//ydb/core/formats/arrow/accessor:abstract_srcs",
+    # "//ydb/core/formats/arrow:switch",
+    # "//ydb/core/scheme_types",
+    # "//ydb/library/accessor",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/formats/arrow",
+    # "//ydb/library/formats/arrow:validation",
+    # "//ydb/library/services",
+  ]
+
+  sources = [
+    "batch_iterator.cpp",
+    "heap.cpp",
+    "merger.cpp",
+    "position.cpp",
+    "result_builder.cpp",
+  ]
+}

@@ -19,6 +19,7 @@ source_set("alloc") {
 library("minikql") {
   public_deps = [
     "//contrib/libs/apache/arrow",
+    "//library/cpp/monlib/dynamic_counters",
     "//yql/essentials/public/udf",
     "//yql/essentials/utils",
   ]

@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("scheme_cache_lib") {
   public_deps = [
     # "//ydb/core/base",

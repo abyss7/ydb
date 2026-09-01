@@ -1,0 +1,19 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
+source_set("_srcs") {
+  public_deps = [ "//ydb/library/actors/core" ]
+
+  deps += [
+    # "//contrib/libs/apache/arrow",
+    # "//ydb/library/accessor",
+    # "//ydb/library/conclusion",
+    # "//ydb/library/formats/arrow",
+    "//ydb/library/formats/arrow:switch",
+  ]
+
+  sources = [
+    "collection.cpp",
+    "view.cpp",
+    "view_v0.cpp",
+  ]
+}

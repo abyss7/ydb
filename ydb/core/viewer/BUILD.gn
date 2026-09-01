@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("json") {
   deps = [
     "//contrib/libs/protobuf",

@@ -6,6 +6,7 @@ library("dnsresolver") {
 
   deps = [
     "//contrib/libs/c-ares",
+    # "//library/cpp/threading/queue",
   ]
 
   sources = [

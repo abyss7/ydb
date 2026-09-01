@@ -9,6 +9,7 @@ library("http") {
   ]
 
   deps = [
+    # "//contrib/libs/libxml",
     # "//library/cpp/http/misc",
     # "//library/cpp/protobuf/json",
     # "//library/cpp/scheme",

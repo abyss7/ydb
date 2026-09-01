@@ -8,11 +8,11 @@ library("sequenceshard") {
   ]
 
   deps = [
+    # ":public",
     # "//ydb/core/engine:minikql",
     # "//ydb/core/protos",
     # "//ydb/core/tablet",
     # "//ydb/core/tablet_flat",
-    # ":public",
   ]
 
   sources = [

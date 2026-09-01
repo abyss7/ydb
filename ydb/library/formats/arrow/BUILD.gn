@@ -1,8 +1,8 @@
 library("arrow") {
   public_deps = [
     # ":switch",
-    # "//library/cpp/cache",
     "//contrib/libs/apache/arrow",
+    # "//library/cpp/cache",
     "//library/cpp/json:writer",
     # "//library/cpp/string_utils/base64",
     "//ydb/library/accessor",
@@ -127,6 +127,8 @@ library("transformer") {
 
 library("validation") {
   public_deps = [ "//contrib/libs/apache/arrow" ]
+
   deps = [ "//ydb/library/actors/core" ]
+
   sources = [ "validation/validation.cpp" ]
 }

@@ -49,6 +49,9 @@ library("gateway") {
   ]
 
   deps = [
+    # ":actors",
+    # ":local_rpc",
+    # ":utils",
     # "//ydb/core/base",
     # "//ydb/core/cms/console",
     # "//ydb/core/engine",
@@ -74,9 +77,6 @@ library("gateway") {
     # "//yql/essentials/providers/common/structured_token",
     # "//yql/essentials/public/issue",
     # "//yql/essentials/utils/signals",
-    # ":actors",
-    # ":local_rpc",
-    # ":utils",
   ]
 
   sources = [
@@ -102,23 +102,15 @@ library("local_rpc") {
 
 library("utils") {
   public_deps = [
-    # "//ydb/core/base",
-    # provider убран: scheme_helpers.cpp перенесён в provider (разрыв цикла
-    # provider <-> gateway:utils). Оставшийся metadata_helpers.cpp provider не
-    # использует (TYqlConclusionStatus/TAsyncStatus — из metadata/manager).
-    # "//ydb/core/protos",
+    # "//ydb/core/kqp/provider",
     # "//ydb/services/metadata/manager",
   ]
 
   deps = [
+    # ":actors",
     # "//ydb/core/cms/console",
     # "//ydb/core/protos/schemeshard",
-    # ":actors",
   ]
 
-  sources = [
-    "utils/metadata_helpers.cpp",
-    # utils/scheme_helpers.cpp перенесён в ydb/core/kqp/provider; на старом пути
-    # остался forwarder scheme_helpers.h.
-  ]
+  sources = [ "utils/metadata_helpers.cpp" ]
 }
