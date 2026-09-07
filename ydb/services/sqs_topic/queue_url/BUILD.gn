@@ -4,7 +4,7 @@ library("holder") {
   ]
 
   deps = [
-    # "//ydb/core/base",
+    "//ydb/core/base",
   ]
 
   sources = [ "holder/queue_url_holder.cpp" ]
@@ -12,7 +12,7 @@ library("holder") {
 
 library("queue_url") {
   deps = [
-    # "//library/cpp/string_utils/url",
+    "//library/cpp/string_utils/url",
   ]
 
   sources = [

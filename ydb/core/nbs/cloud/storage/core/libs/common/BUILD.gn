@@ -1,7 +1,7 @@
 library("common") {
   public_deps = [
     # "//library/cpp/deprecated/atomic",
-    "//library/cpp/json",
+    "//library/cpp/json:writer",
     "//library/cpp/lwtrace",
     # "//library/cpp/threading/future",
     "//ydb/core/nbs/cloud/storage/core/protos",

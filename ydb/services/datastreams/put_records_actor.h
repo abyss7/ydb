@@ -26,7 +26,7 @@ namespace NKikimr::NDataStreams::V1 {
         TString Ip;
     };
 
-    TString GetSerializedData(const TPutRecordsItem& item) {
+    static TString GetSerializedData(const TPutRecordsItem& item) {
         NKikimrPQClient::TDataChunk proto;
 
         //TODO: get ip from client, not grpc;
@@ -388,7 +388,7 @@ namespace NKikimr::NDataStreams::V1 {
         }
     }
 
-    TString GetErrorText(const NPersQueue::NErrorCode::EErrorCode errorCode) {
+    static TString GetErrorText(const NPersQueue::NErrorCode::EErrorCode errorCode) {
         if (errorCode == NPersQueue::NErrorCode::OVERLOAD)
             return "ProvisionedThroughputExceededException";
         return "InternalFailure";
@@ -479,11 +479,11 @@ namespace NKikimr::NDataStreams::V1 {
         void SendResult(const Ydb::DataStreams::V1::PutRecordsResult& result, const TActorContext& ctx);
     };
 
-    const Ydb::DataStreams::V1::PutRecordsRequest& TPutRecordsActor::GetPutRecordsRequest() const {
+    inline const Ydb::DataStreams::V1::PutRecordsRequest& TPutRecordsActor::GetPutRecordsRequest() const {
         return *GetProtoRequest();
     }
 
-    void TPutRecordsActor::SendResult(const Ydb::DataStreams::V1::PutRecordsResult& result, const TActorContext& ctx) {
+    inline void TPutRecordsActor::SendResult(const Ydb::DataStreams::V1::PutRecordsResult& result, const TActorContext& ctx) {
         this->ReplyWithResult(Ydb::StatusIds::SUCCESS, result, ctx);
     }
 
@@ -511,28 +511,8 @@ namespace NKikimr::NDataStreams::V1 {
         Ydb::DataStreams::V1::PutRecordsRequest PutRecordsRequest;
     };
 
-    const Ydb::DataStreams::V1::PutRecordsRequest& TPutRecordActor::GetPutRecordsRequest() const {
+    inline const Ydb::DataStreams::V1::PutRecordsRequest& TPutRecordActor::GetPutRecordsRequest() const {
         return PutRecordsRequest;
-    }
-
-    void TPutRecordActor::SendResult(const Ydb::DataStreams::V1::PutRecordsResult& putRecordsResult, const TActorContext& ctx) {
-        Ydb::DataStreams::V1::PutRecordResult result;
-
-        if (putRecordsResult.failed_record_count() == 0) {
-            result.set_sequence_number(putRecordsResult.records(0).sequence_number());
-            result.set_shard_id(putRecordsResult.records(0).shard_id());
-            result.set_encryption_type(Ydb::DataStreams::V1::EncryptionType::NONE);
-            return ReplyWithResult(Ydb::StatusIds::SUCCESS, result, ctx);
-        } else {
-            if (putRecordsResult.records(0).error_code() == "ProvisionedThroughputExceededException"
-                || putRecordsResult.records(0).error_code() == "ThrottlingException")
-            {
-                return ReplyWithError(Ydb::StatusIds::OVERLOADED, Ydb::PersQueue::ErrorCode::OVERLOAD, putRecordsResult.records(0).error_message());
-            }
-            //TODO: other codes - access denied and so on
-            return ReplyWithError(Ydb::StatusIds::INTERNAL_ERROR, Ydb::PersQueue::ErrorCode::ERROR, putRecordsResult.records(0).error_message());
-
-        }
     }
 
 }

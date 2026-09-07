@@ -1,10 +1,10 @@
 library("range_helpers") {
   public_deps = [
-    # "//ydb/library/yql/providers/s3/proto",
+    "//ydb/library/yql/providers/s3/proto",
   ]
 
   deps = [
-    # "//library/cpp/protobuf/util",
+    "//library/cpp/protobuf/util",
     # "//yql/essentials/providers/common/provider",
     # "//yql/essentials/utils",
   ]

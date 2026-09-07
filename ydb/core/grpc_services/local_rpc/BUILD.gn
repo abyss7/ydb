@@ -2,10 +2,12 @@ group("local_rpc") {
   public_deps = [
     "//library/cpp/threading/future",
     "//ydb/core/base",
+    # "//ydb/core/grpc_services",
     "//ydb/core/grpc_services/base",
+    "//ydb/library/aclib",
     "//ydb/library/actors/wilson",
     "//ydb/library/wilson_ids",
-    "//ydb/public/sdk/cpp/src/client/resources",
+    "//ydb/library/yql/public/ydb_issue",
     "//yql/essentials/public/issue",
   ]
 }

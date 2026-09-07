@@ -14,6 +14,7 @@
 #include <ydb/library/aclib/aclib.h>
 #include <ydb/library/actors/core/actor_bootstrapped.h>
 #include <ydb/library/actors/core/actor.h>
+#include <ydb/services/metadata/events.h>
 #include <ydb/services/metadata/service.h>
 #include <ydb/services/persqueue_v1/actors/read_init_auth_actor.h>
 #include <util/datetime/base.h>

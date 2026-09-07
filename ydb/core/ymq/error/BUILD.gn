@@ -1,6 +1,6 @@
 library("error") {
   public_deps = [
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/http_proxy/error",
   ]
 

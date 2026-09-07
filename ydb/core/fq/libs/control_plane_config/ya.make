@@ -2,6 +2,7 @@ LIBRARY()
 
 SRCS(
     control_plane_config.cpp
+    service_id.cpp
 )
 
 PEERDIR(

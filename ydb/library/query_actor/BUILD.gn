@@ -2,12 +2,12 @@ library("query_actor") {
   public_deps = [
     # "//library/cpp/retry",
     # "//library/cpp/threading/future",
-    # "//ydb/core/grpc_services/local_rpc",
+    "//ydb/core/grpc_services/local_rpc",
     # "//ydb/library/actors/core",
     # "//ydb/public/api/protos",
-    # "//ydb/public/sdk/cpp/src/client/params",
-    # "//ydb/public/sdk/cpp/src/client/proto",
-    # "//ydb/public/sdk/cpp/src/client/result",
+    "//ydb/public/sdk/cpp/src/client/params",
+    "//ydb/public/sdk/cpp/src/client/proto",
+    "//ydb/public/sdk/cpp/src/client/result",
     # "//ydb/public/sdk/cpp/src/client/types",
     # "//yql/essentials/public/issue",
   ]

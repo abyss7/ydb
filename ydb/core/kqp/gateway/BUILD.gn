@@ -15,7 +15,6 @@ library("actors") {
   deps = [
     "//ydb/core/util",
     # "//ydb/library/services",
-    "//ydb/library/yql/dq/actors",
   ]
 
   sources = [
@@ -26,15 +25,16 @@ library("actors") {
 
 library("gateway") {
   public_deps = [
+    ":interface",
     # "//library/cpp/lwtrace",
     # "//library/cpp/protobuf/util",
     # "//library/cpp/threading/future",
     # "//ydb/core/control/lib",
     # "//ydb/core/kqp/common:simple",
     # "//ydb/core/kqp/counters",
-    # "//ydb/core/kqp/federated_query",
+    "//ydb/core/kqp/federated_query",
     # "//ydb/core/kqp/provider",
-    # "//ydb/core/kqp/query_data",
+    "//ydb/core/kqp/query_data",
     # "//ydb/core/kqp/topics",
     # "//ydb/core/protos",
     # "//ydb/core/scheme",
@@ -49,8 +49,8 @@ library("gateway") {
   ]
 
   deps = [
-    # ":actors",
-    # ":local_rpc",
+    ":actors",
+    ":local_rpc",
     # ":utils",
     # "//ydb/core/base",
     # "//ydb/core/cms/console",
@@ -58,42 +58,55 @@ library("gateway") {
     # "//ydb/core/external_sources",
     # "//ydb/core/grpc_services/local_rpc",
     # "//ydb/core/kqp/common",
-    # "//ydb/core/kqp/executer_actor",
-    # "//ydb/core/kqp/federated_query:actors",
+    "//ydb/core/kqp/executer_actor",
+    "//ydb/core/kqp/federated_query:actors",
     # "//ydb/core/kqp/rm_service",
     # "//ydb/core/statistics",
-    # "//ydb/core/statistics:service",
-    # "//ydb/core/sys_view:common",
+    "//ydb/core/statistics:service",
+    "//ydb/core/sys_view:common",
+    "//ydb/core/tablet",
     # "//ydb/core/tx/schemeshard",
     # "//ydb/core/tx/tx_proxy",
     # "//ydb/library/aclib",
     # "//ydb/library/ydb_issue",
+    "//ydb/library/yql/providers/common/db_id_async_resolver",
     # "//ydb/library/yql/providers/common/token_accessor/client",
     # "//ydb/public/lib/base",
     # "//ydb/public/sdk/cpp/src/client/params",
     # "//ydb/services/metadata/abstract",
-    # "//ydb/services/persqueue_v1",
-    # "//yql/essentials/providers/common/codec",
-    # "//yql/essentials/providers/common/structured_token",
+    "//ydb/services/metadata/manager",
+    "//ydb/services/persqueue_v1:actors",
+    "//yql/essentials/providers/common/codec",
+    "//yql/essentials/providers/common/structured_token",
     # "//yql/essentials/public/issue",
     # "//yql/essentials/utils/signals",
   ]
 
   sources = [
-    "kqp_gateway.cpp",
     "kqp_ic_gateway.cpp",
     "kqp_metadata_loader.cpp",
   ]
 }
 
+library("interface") {
+  public_deps = [
+    "//ydb/core/kqp/query_data",
+    "//ydb/core/protos",
+  ]
+
+  sources = [ "kqp_gateway.cpp" ]
+}
+
 library("local_rpc") {
   public_deps = [
-    # "//ydb/core/kqp/provider",
+    "//ydb/core/kqp/provider",
   ]
 
   deps = [
-    # "//ydb/core/grpc_services/local_rpc",
-    # "//ydb/library/ydb_issue",
+    "//ydb/core/grpc_services/local_rpc",
+    "//ydb/library/ydb_issue",
+    "//yql/essentials/core/issue",
+    "//yql/essentials/providers/common/gateway",
     # "//yql/essentials/public/issue",
   ]
 

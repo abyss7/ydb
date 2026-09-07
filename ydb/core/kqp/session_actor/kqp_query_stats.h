@@ -4,6 +4,8 @@
 #include <ydb/core/base/defs.h>
 #include <ydb/core/protos/kqp_stats.pb.h>
 
+#include <ydb/library/actors/core/actor.h>
+
 namespace NKikimr::NKqp {
 
 struct TKqpQueryStats {

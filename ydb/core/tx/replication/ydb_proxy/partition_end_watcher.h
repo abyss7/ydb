@@ -2,6 +2,8 @@
 
 #include "ydb_proxy.h"
 
+#include <ydb/library/actors/core/actor.h>
+
 #include <util/generic/maybe.h>
 
 namespace NKikimr::NReplication {

@@ -1,32 +1,33 @@
 library("compile_service") {
   public_deps = [
-    # "//ydb/core/kqp/common",
+    "//ydb/core/kqp/common",
     # "//ydb/core/kqp/common:simple",
-    # "//ydb/core/kqp/federated_query",
-    # "//ydb/core/kqp/gateway",
-    # "//ydb/core/kqp/host",
+    "//ydb/core/kqp/federated_query",
+    "//ydb/core/kqp/gateway",
+    "//ydb/core/kqp/host",
   ]
 
   deps = [
-    # ":helpers",
+    ":helpers",
     # "//library/cpp/cache",
     # "//library/cpp/digest/md5",
     # "//library/cpp/json",
     # "//library/cpp/protobuf/json",
-    # "//library/cpp/string_utils/base64",
-    # "//ydb/core/actorlib_impl",
+    "//library/cpp/string_utils/base64",
+    "//ydb/core/actorlib_impl",
     # "//ydb/core/base",
     # "//ydb/core/client/minikql_compile",
     # "//ydb/core/cms/console",
     # "//ydb/core/kqp/counters",
-    # "//ydb/core/kqp/rm_service",
+    "//ydb/core/kqp/rm_service",
+    "//ydb/core/kqp/query_data",
     # "//ydb/core/kqp/session_actor",
-    # "//ydb/core/ydb_convert",
+    "//ydb/core/ydb_convert",
     # "//ydb/library/aclib",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/wilson",
     # "//ydb/library/wilson_ids",
-    # "//ydb/library/yql/utils/actor_log",
+    "//ydb/library/yql/utils/actor_log",
   ]
 
   sources = [
@@ -38,7 +39,7 @@ library("compile_service") {
 
 library("helpers") {
   deps = [
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
   ]
 
   sources = [ "helpers/kqp_compile_service_helpers.cpp" ]

@@ -6,7 +6,6 @@ library("hullcompdelete") {
   ]
 
   deps = [
-    "//ydb/core/base",
     # "//ydb/core/blobstorage/pdisk",
     "//ydb/core/blobstorage/vdisk/common",
   ]
@@ -30,7 +29,6 @@ library("hullop") {
   deps = [
     ":hullcompdelete",
     # "//library/cpp/random_provider",
-    "//ydb/core/base",
     # "//ydb/core/blobstorage/pdisk",
     # "//ydb/core/blobstorage/vdisk/balance",
     # "//ydb/core/blobstorage/vdisk/huge",

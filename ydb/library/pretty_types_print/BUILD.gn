@@ -1,0 +1,4 @@
+library("protobuf") {
+  deps = [ "//contrib/libs/protobuf" ]
+  sources = [ "protobuf/out.cpp" ]
+}

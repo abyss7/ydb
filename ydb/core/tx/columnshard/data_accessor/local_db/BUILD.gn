@@ -1,0 +1,15 @@
+library("local_db") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard/data_accessor:abstract",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/engines/storage/granule",
+  ]
+
+  sources = [
+    "constructor.cpp",
+    "manager.cpp",
+  ]
+}

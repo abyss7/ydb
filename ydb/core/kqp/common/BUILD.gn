@@ -23,11 +23,11 @@ library("buffer") {
 
 library("common") {
   public_deps = [
-    # ":compilation",
+    ":compilation",
     # ":events",
     # ":shutdown",
     ":simple",
-    # "//contrib/libs/openssl",
+    "//contrib/libs/openssl",
     "//library/cpp/json:writer",
     # "//library/cpp/lwtrace",
     # "//library/cpp/string_utils/base64",
@@ -125,6 +125,7 @@ library("compilation") {
 
 library("events") {
   public_deps = [
+    ":common",
     # ":compilation",
     # ":result_set_format",
     # ":shutdown",
@@ -134,7 +135,7 @@ library("events") {
     # "//ydb/core/scheme",
     # "//ydb/library/aclib",
     # "//ydb/library/actors/core",
-    # "//ydb/library/yql/dq/actors",
+    "//ydb/library/yql/dq/actors",
     # "//ydb/public/api/protos",
     # "//ydb/public/sdk/cpp/src/library/operation_id",
     # "//yql/essentials/public/issue",
@@ -143,7 +144,6 @@ library("events") {
   deps = [
     # "//ydb/core/grpc_services/base",
     "//ydb/core/grpc_services/cancelation",
-    # "//ydb/core/kqp/common",
     # "//yql/essentials/core/issue",
   ]
 

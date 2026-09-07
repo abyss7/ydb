@@ -15,7 +15,7 @@ protobuf_library("proto") {
 
 library("quota_manager") {
   public_deps = [
-    # ":events",
+    ":events",
     # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/fq/libs/config:protos",
     "//ydb/core/fq/libs/shared_resources",
@@ -23,11 +23,13 @@ library("quota_manager") {
   ]
 
   deps = [
-    # "//library/cpp/protobuf/interop",
-    # "//ydb/core/fq/libs/control_plane_storage",
+    ":proto",
+    "//library/cpp/protobuf/interop",
+    "//ydb/core/fq/libs/control_plane_storage:util",
     "//ydb/core/fq/libs/ydb",
+    "//ydb/core/util",
     # "//ydb/library/actors/core",
-    # "//ydb/library/actors/interconnect",
+    "//ydb/library/actors/interconnect",
     # "//ydb/library/services",
     # "//ydb/public/sdk/cpp/src/client/table",
   ]

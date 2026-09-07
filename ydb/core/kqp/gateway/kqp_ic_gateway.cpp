@@ -28,6 +28,7 @@
 #include <ydb/public/lib/base/msgbus_status.h>
 #include <ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/params/params.h>
 #include <ydb/services/metadata/abstract/kqp_common.h>
+#include <ydb/services/metadata/manager/abstract.h>
 #include <ydb/services/persqueue_v1/rpc_calls.h>
 #include <yql/essentials/providers/common/codec/yql_codec.h>
 
@@ -50,8 +51,6 @@ using namespace NThreading;
 using namespace NYql::NCommon;
 using namespace NSchemeShard;
 using namespace NKikimrSchemeOp;
-
-constexpr const IKqpGateway::TKqpSnapshot IKqpGateway::TKqpSnapshot::InvalidSnapshot = TKqpSnapshot();
 
 #define STATIC_ASSERT_STATE_EQUAL(name) \
     static_assert(static_cast<ui32>(NYql::TIndexDescription::EIndexState::name) \

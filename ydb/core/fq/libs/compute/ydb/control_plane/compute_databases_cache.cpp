@@ -66,7 +66,7 @@ class TComputeDatabasesCacheActor : public NActors::TActorBootstrapped<TComputeD
 
 public:
     using TBase =NActors::TActorBootstrapped<TComputeDatabasesCacheActor>;
-    TComputeDatabasesCacheActor(const TActorId& databaseClientActorId, const TString& databasesCacheReloadPeriod, const ::NMonitoring::TDynamicCounterPtr& counters)
+    TComputeDatabasesCacheActor(const NActors::TActorId& databaseClientActorId, const TString& databasesCacheReloadPeriod, const ::NMonitoring::TDynamicCounterPtr& counters)
         : StartCacheReload(TInstant::Now())
         , DatabaseClientActorId(databaseClientActorId)
         , Counters(counters)
@@ -174,7 +174,7 @@ private:
 private:
     TVector<TPendingItem> PendingRequests;
     TInstant StartCacheReload;
-    TActorId DatabaseClientActorId;
+    NActors::TActorId DatabaseClientActorId;
     TSet<TString> Databases;
     TCounters Counters;
     bool InFlight = false;
@@ -182,7 +182,7 @@ private:
     const TDuration DatabasesCacheReloadPeriod = TDuration::Seconds(30);
 };
 
-std::unique_ptr<NActors::IActor> CreateComputeDatabasesCacheActor(const TActorId& databaseClientActorId, const TString& databasesCacheReloadPeriod, const ::NMonitoring::TDynamicCounterPtr& counters) {
+std::unique_ptr<NActors::IActor> CreateComputeDatabasesCacheActor(const NActors::TActorId& databaseClientActorId, const TString& databasesCacheReloadPeriod, const ::NMonitoring::TDynamicCounterPtr& counters) {
     return std::make_unique<TComputeDatabasesCacheActor>(databaseClientActorId, databasesCacheReloadPeriod, counters);
 }
 

@@ -13,7 +13,5 @@ library("monitoring") {
 
   sources = [ "monitoring.cpp" ]
 
-  serialize_enum_headers = [
-    "ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/monitoring/monitoring.h",
-  ]
+  serialize_enum_headers = [ "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/monitoring/monitoring.h" ]
 }

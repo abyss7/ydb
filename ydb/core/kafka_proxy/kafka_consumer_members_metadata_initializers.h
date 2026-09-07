@@ -2,6 +2,7 @@
 
 #include <ydb/services/metadata/service.h>
 #include <ydb/services/metadata/abstract/initialization.h>
+#include <ydb/services/metadata/abstract/kqp_common.h>
 
 namespace NKikimr::NGRpcProxy::V1 {
 

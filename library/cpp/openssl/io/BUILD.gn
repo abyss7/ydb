@@ -1,6 +1,7 @@
 library("io") {
+  public_deps = [ "//contrib/libs/openssl" ]
+
   deps = [
-    # "//contrib/libs/openssl",
     "//library/cpp/openssl/method",
     "//library/cpp/resource",
   ]

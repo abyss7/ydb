@@ -1,0 +1,17 @@
+library("phantom_flag_storage") {
+  deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/blobstorage/pdisk",
+    # "//ydb/core/blobstorage/vdisk/skeleton",
+    # "//ydb/core/blobstorage/vdisk/synclog",
+    # "//ydb/core/util",
+    # "//ydb/library/actors/core",
+  ]
+
+  sources = [
+    "phantom_flag_storage_builder.cpp",
+    "phantom_flag_storage_snapshot.cpp",
+    "phantom_flag_storage_state.cpp",
+    "phantom_flag_thresholds.cpp",
+  ]
+}

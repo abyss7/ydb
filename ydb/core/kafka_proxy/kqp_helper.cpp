@@ -1,6 +1,7 @@
 #include "kqp_helper.h"
 
 #include <ydb/core/kqp/common/simple/services.h>
+#include <ydb/services/metadata/events.h>
 #include <ydb/services/metadata/service.h>
 
 namespace NKafka {

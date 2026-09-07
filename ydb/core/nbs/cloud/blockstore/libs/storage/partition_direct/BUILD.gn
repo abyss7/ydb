@@ -18,6 +18,7 @@ library("partition_direct") {
   deps = [
     ":load_actor_adapter",
     # "//ydb/core/base",
+    # "//ydb/core/blobstorage",
     # "//ydb/core/mind:bscontroller",
     "//ydb/core/nbs/cloud/blockstore/bootstrap",
     # "//ydb/core/nbs/cloud/blockstore/config",

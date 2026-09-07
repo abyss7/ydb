@@ -4,6 +4,8 @@ library("decimal") {
   ]
 
   deps = [
+    "//library/cpp/yt/assert",
+    "//library/cpp/yt/error",
     # "//yt/yt/core",
   ]
 

@@ -56,7 +56,7 @@ class TComputeDatabaseMonitoringActor : public NActors::TActorBootstrapped<TComp
 
 public:
     using TBase = NActors::TActorBootstrapped<TComputeDatabaseMonitoringActor>;
-    TComputeDatabaseMonitoringActor(const TActorId& monitoringClientActorId, NFq::NConfig::TLoadControlConfig config, const ::NMonitoring::TDynamicCounterPtr& counters)
+    TComputeDatabaseMonitoringActor(const NActors::TActorId& monitoringClientActorId, NFq::NConfig::TLoadControlConfig config, const ::NMonitoring::TDynamicCounterPtr& counters)
         : MonitoringClientActorId(monitoringClientActorId)
         , Counters(counters)
         , MaxClusterLoad(std::min<ui32>(config.GetMaxClusterLoadPercentage(), 100) / 100.0)
@@ -189,7 +189,7 @@ public:
     }
 
 private:
-    TActorId MonitoringClientActorId;
+    NActors::TActorId MonitoringClientActorId;
     TCounters Counters;
     const double MaxClusterLoad;
     const ui32 PendingQueueSize;

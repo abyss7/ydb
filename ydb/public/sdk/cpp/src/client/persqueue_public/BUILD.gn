@@ -1,3 +1,31 @@
+library("impl") {
+  deps = [
+    "//library/cpp/monlib/dynamic_counters",
+    "//library/cpp/string_utils/url",
+    "//library/cpp/threading/future",
+    "//ydb/public/api/grpc:draft",
+    "//ydb/public/sdk/cpp/src/client/impl/internal/logger",
+    "//ydb/public/sdk/cpp/src/client/impl/internal/make_request",
+    "//ydb/public/sdk/cpp/src/client/persqueue_public",
+    "//ydb/public/sdk/cpp/src/client/topic",
+    "//ydb/public/sdk/cpp/src/client/topic/codecs",
+    "//ydb/public/sdk/cpp/src/client/topic/common",
+    "//ydb/public/sdk/cpp/src/client/topic/impl",
+    "//ydb/public/sdk/cpp/src/library/persqueue/obfuscate",
+    "//ydb/public/sdk/cpp/src/library/string_utils:helpers",
+  ]
+
+  sources = [
+    "impl/common.cpp",
+    "impl/persqueue_impl.cpp",
+    "impl/persqueue.cpp",
+    "impl/read_session.cpp",
+    "impl/read_session_messages.cpp",
+    "impl/write_session_impl.cpp",
+    "impl/write_session.cpp",
+  ]
+}
+
 library("persqueue_public") {
   public_deps = [
     "//ydb/public/sdk/cpp/src/client/topic",

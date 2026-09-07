@@ -68,6 +68,8 @@ library("partition") {
   ]
 
   deps = [
+    # ":mirrorer",
+    # ":mlp",
     # "//library/cpp/containers/absl_flat_hash",
     # "//library/cpp/containers/stack_vector",
     # "//library/cpp/html/escape",
@@ -97,8 +99,6 @@ library("partition") {
     # "//ydb/library/wilson_ids",
     # "//ydb/library/yverify_stream",
     # "//ydb/public/lib/base",
-    # ":mirrorer",
-    # ":mlp",
   ]
 
   sources = [

@@ -44,9 +44,9 @@ library("group_mapper") {
 
 library("bscontroller") {
   public_deps = [
+    ":group_mapper",
     "//ydb/core/base",
     "//ydb/library/yaml_config",
-    ":group_mapper",
   ]
 
   deps = [
@@ -135,6 +135,7 @@ library("bscontroller") {
 library("hive") {
   public_deps = [
     "//ydb/core/base",
+    "//ydb/core/blobstorage/events",
     "//ydb/core/engine:minikql",
     # "//ydb/core/mind",
     # "//ydb/core/protos",
@@ -153,7 +154,6 @@ library("hive") {
     "//library/cpp/protobuf/json",
     # "//library/cpp/random_provider",
     # "//library/cpp/time_provider",
-    "//ydb/core/blobstorage/events",
     # "//ydb/core/cms/console",
     # "//ydb/core/node_whiteboard",
     # "//ydb/core/sys_view:common",
@@ -269,6 +269,7 @@ library("mind") {
   ]
 
   deps = [
+    ":hive",
     # "//library/cpp/random_provider",
     # "//ydb/core/actorlib_impl",
     "//ydb/core/mon",
@@ -280,7 +281,6 @@ library("mind") {
     # "//ydb/core/util",
     # "//ydb/library/actors/util",
     # "//ydb/library/services",
-    ":hive",
   ]
 
   sources = [

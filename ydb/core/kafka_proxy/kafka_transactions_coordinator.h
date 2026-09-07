@@ -6,6 +6,7 @@
 #include "ydb/core/base/feature_flags.h"
 
 #include <ydb/library/actors/core/actor_bootstrapped.h>
+#include <ydb/services/metadata/events.h>
 
 #include <ydb/core/kafka_proxy/kafka_consumer_groups_metadata_initializers.h>
 #include <ydb/core/kafka_proxy/kafka_consumer_members_metadata_initializers.h>

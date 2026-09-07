@@ -1,8 +1,6 @@
 library("future") {
   public_deps = [ "//library/cpp/deprecated/atomic" ]
 
-  deps = [ "//library/cpp/threading/cancellation" ]
-
   sources = [
     "async.cpp",
     "async_semaphore.cpp",

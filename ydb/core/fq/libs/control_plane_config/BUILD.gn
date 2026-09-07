@@ -1,15 +1,16 @@
 library("control_plane_config") {
   public_deps = [
     # "//library/cpp/monlib/dynamic_counters",
-    # "//ydb/core/fq/libs/actors:logging",
+    "//ydb/core/fq/libs/actors:logging",
     # "//ydb/core/fq/libs/config:protos",
-    # "//ydb/core/fq/libs/shared_resources",
+    "//ydb/core/fq/libs/shared_resources",
     # "//ydb/library/actors/core",
+    ":service_id",
   ]
 
   deps = [
     # "//ydb/core/fq/libs/common",
-    # "//ydb/core/fq/libs/control_plane_storage",
+    "//ydb/core/fq/libs/control_plane_storage",
     # "//ydb/core/fq/libs/control_plane_storage:events",
     # "//ydb/core/fq/libs/db_schema",
     # "//ydb/core/fq/libs/quota_manager",
@@ -33,4 +34,10 @@ library("events") {
   ]
 
   sources = [ "events/events.cpp" ]
+}
+
+library("service_id") {
+  public_deps = [ "//ydb/library/actors/core" ]
+
+  sources = [ "service_id.cpp" ]
 }

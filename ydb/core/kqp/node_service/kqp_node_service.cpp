@@ -331,7 +331,10 @@ private:
                 .ShareMailbox = false,
                 .RlPath = rlPath,
                 .ComputesByStages = &computesByStage,
-                .State = State_, // pass state to later inform when task is finished
+                // inform the state when the task is finished
+                .OnTaskFinished = [state = State_](ui64 txId, ui64 taskId, bool success) {
+                    state->OnTaskFinished(txId, taskId, success);
+                },
                 .Database = msg.GetDatabase(),
                 .Query = query,
                 // TODO: block tracking mode is not set!

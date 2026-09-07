@@ -1,11 +1,10 @@
 library("yt_download") {
   public_deps = [
-    # "//yql/essentials/core/file_storage:defs",
+    "//yql/essentials/core/file_storage:defs",
   ]
 
   deps = [
     "//library/cpp/cgiparam",
-    "//library/cpp/uri",
     "//yql/essentials/utils",
     "//yql/essentials/utils/log",
     "//yt/cpp/mapreduce/client",

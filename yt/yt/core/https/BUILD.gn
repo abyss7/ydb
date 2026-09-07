@@ -5,11 +5,10 @@ library("https") {
   ]
 
   deps = [
-    "//contrib/libs/openssl",
+    "//library/cpp/openssl/io",
     "//library/cpp/yt/error",
     "//library/cpp/yt/logging",
     "//library/cpp/yt/threading",
-    # "//library/cpp/openssl/io",
   ]
 
   sources = [

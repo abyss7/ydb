@@ -1,18 +1,19 @@
 library("actors") {
   public_deps = [
+    ":scheme_actors",
+    # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/kqp/common:events",
     # "//ydb/core/protos",
-    ":scheme_actors",
   ]
 
   deps = [
+    ":common",
+    ":tables",
     # "//ydb/core/base",
     "//ydb/core/kqp/common:simple",
     # "//ydb/core/protos/schemeshard",
     # "//ydb/core/tx/schemeshard",
     # "//ydb/core/tx/tx_proxy",
-    ":common",
-    ":tables",
   ]
 
   sources = [ "actors/pool_handlers_actors.cpp" ]
@@ -20,12 +21,12 @@ library("actors") {
 
 library("scheme_actors") {
   deps = [
+    ":common",
     "//ydb/core/kqp/common:simple",
     "//ydb/core/tablet",
     "//ydb/core/tx/tx_proxy:public",
     "//ydb/library/table_creator",
     "//ydb/library/ydb_issue",
-    ":common",
   ]
 
   sources = [ "actors/scheme_actors.cpp" ]
@@ -64,16 +65,14 @@ library("common") {
 }
 
 library("tables") {
-  public_deps = [
-    "//ydb/library/actors/core",
-  ]
+  public_deps = [ "//ydb/library/actors/core" ]
 
   deps = [
+    ":common",
     # "//ydb/core/base",
     # "//ydb/core/kqp/common:simple",
     "//ydb/library/query_actor",
-    # "//ydb/library/table_creator",
-    # ":common",
+    "//ydb/library/table_creator",
   ]
 
   sources = [ "tables/table_queries.cpp" ]
@@ -86,6 +85,10 @@ library("workload_service") {
   ]
 
   deps = [
+    # ":actors",
+    # ":common",
+    ":cpu_load_actors",
+    # ":tables",
     # "//ydb/core/base",
     # "//ydb/core/cms/console",
     # "//ydb/core/kqp/common:events",
@@ -93,10 +96,6 @@ library("workload_service") {
     # "//ydb/core/mind",
     # "//ydb/core/protos",
     # "//ydb/library/actors/interconnect",
-    # ":actors",
-    ":cpu_load_actors",
-    # ":common",
-    # ":tables",
   ]
 
   sources = [ "kqp_workload_service.cpp" ]

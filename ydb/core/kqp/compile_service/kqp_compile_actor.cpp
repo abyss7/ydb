@@ -252,7 +252,7 @@ private:
             return;
         }
 
-        auto splitResult = std::move(AsyncSplitResult->GetResult());
+        auto splitResult = AsyncSplitResult->GetResult();
         ReplySplitResult(ctx, std::move(splitResult));
     }
 
@@ -554,7 +554,7 @@ private:
             return;
         }
 
-        auto kqpResult = std::move(AsyncCompileResult->GetResult());
+        auto kqpResult = AsyncCompileResult->GetResult();
         auto status = GetYdbStatus(kqpResult);
         auto meta = CollectMeta();
 

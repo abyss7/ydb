@@ -4,6 +4,8 @@
 #include <ydb/core/kqp/runtime/scheduler/fwd.h>
 #include <ydb/core/protos/tx_datashard.pb.h>
 #include <yql/essentials/utils/yql_panic.h>
+
+#include <functional>
 #include <ydb/library/actors/core/actor.h>
 #include <ydb/library/accessor/accessor.h>
 #include <ydb/library/yql/dq/actors/compute/dq_compute_actor.h>
@@ -12,7 +14,6 @@
 
 namespace NKikimr::NKqp {
     struct TKqpFederatedQuerySetup;
-    class TNodeState;
 }
 
 namespace NKikimr::NKqp::NComputeActor {
@@ -122,7 +123,10 @@ public:
         const NKikimrConfig::TTableServiceConfig::EBlockTrackingMode BlockTrackingMode;
 
         TComputeStagesWithScan* ComputesByStages = nullptr;
-        std::shared_ptr<TNodeState> State = nullptr;
+        // Invoked when the task terminates. Supplied by whoever owns the task
+        // registry (kqp/node_service), so that the factory does not have to
+        // know that owner's type.
+        std::function<void(ui64 txId, ui64 taskId, bool success)> OnTaskFinished;
         TIntrusiveConstPtr<NACLib::TUserToken> UserToken;
         TString Database;
 

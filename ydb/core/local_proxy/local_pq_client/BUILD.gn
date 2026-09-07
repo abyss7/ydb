@@ -6,21 +6,18 @@ library("local_pq_client") {
   ]
 
   deps = [
-    # "//library/cpp/protobuf/interop",
+    "//library/cpp/protobuf/interop",
     # "//ydb/core/base",
     "//ydb/core/grpc_services",
     "//ydb/core/grpc_services/local_rpc",
-    # DoDescribeTopicRequest объявлен в grpc_services/service_topic.h, но
-    # его определение (линк-символ) компилируется в persqueue_v1
-    # (grpc_pq_schema.cpp) — берём символ отсюда, как в ya.make.
     "//ydb/services/persqueue_v1",
     # "//ydb/core/kqp/common",
     # "//ydb/library/services",
     # "//ydb/library/yql/providers/pq/gateway/abstract",
     # "//ydb/library/yverify_stream",
     # "//ydb/public/api/protos",
-    # "//ydb/public/sdk/cpp/adapters/issue",
-    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
+    "//ydb/public/sdk/cpp/adapters/issue",
+    "//ydb/public/sdk/cpp/src/client/topic/impl",
     # "//ydb/public/sdk/cpp/src/client/common_client",
     # "//ydb/public/sdk/cpp/src/client/types",
     # "//ydb/services/persqueue_v1:actors",

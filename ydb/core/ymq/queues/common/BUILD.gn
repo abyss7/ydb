@@ -1,8 +1,8 @@
 library("common") {
   public_deps = [
     # "//ydb/core/ymq/base",
-    # "//ydb/core/ymq/queues/fifo",
-    # "//ydb/core/ymq/queues/std",
+    "//ydb/core/ymq/queues/fifo",
+    "//ydb/core/ymq/queues/std",
     # "//ydb/library/yverify_stream",
   ]
 

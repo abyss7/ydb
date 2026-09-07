@@ -27,7 +27,7 @@ library("checkpointing") {
 
 library("events") {
   public_deps = [
-    # "//ydb/core/fq/libs/events",
+    "//ydb/core/fq/libs/events",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
     # "//yql/essentials/public/issue",

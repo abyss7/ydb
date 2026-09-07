@@ -1,7 +1,7 @@
 library("events") {
   public_deps = [
-    # "//ydb/core/fq/libs/events",
-    # "//ydb/core/fq/libs/row_dispatcher/protos",
+    "//ydb/core/fq/libs/events",
+    "//ydb/core/fq/libs/row_dispatcher/protos",
     # "//ydb/library/actors/core",
     # "//ydb/library/yql/providers/pq/proto",
     # "//yql/essentials/public/issue",

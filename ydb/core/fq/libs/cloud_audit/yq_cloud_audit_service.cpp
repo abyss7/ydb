@@ -141,7 +141,7 @@ void FillResponse(TEvent& cloudEvent, const NYql::TIssues& issues) {
     cloudEvent.set_event_status(issues.Empty()
         ? yandex::cloud::events::EventStatus::DONE
         : yandex::cloud::events::EventStatus::ERROR);
-    
+
     // response and error fields are mutually exclusive
     // exactly one of them is required
     if (issues) {
@@ -284,7 +284,7 @@ private:
                 AuditServiceSensors->ReportCloudIdResolvedRetry();
                 LOG_YQ_AUDIT_SERVICE_ERROR("Folder resolve error. Retry with delay " << *delay << ", EventId: " << *EventId << " cloud id resolve error. "
                     << "Status " << status.GRpcStatusCode << " " << status.Msg << " details: " << status.Details);
-                NActors::TActivationContext::Schedule(*delay, new IEventHandle(NKikimr::NFolderService::FolderServiceActorId(), Base::SelfId(), CreateRequest().release()));
+                NActors::TActivationContext::Schedule(*delay, new NActors::IEventHandle(NKikimr::NFolderService::FolderServiceActorId(), Base::SelfId(), CreateRequest().release()));
                 return;
             }
             AuditServiceSensors->ReportCloudIdResolvedError();

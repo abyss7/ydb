@@ -1,16 +1,16 @@
 library("cloud_events") {
   public_deps = [
-    # ":proto",
-    # "//ydb/core/kqp/common",
-    # "//ydb/core/ymq/base",
+    ":proto",
+    "//ydb/core/kqp/common",
+    "//ydb/core/ymq/base",
     # "//ydb/library/aclib",
     # "//ydb/library/actors/core",
     # "//ydb/public/sdk/cpp/src/client/proto",
-    # "//ydb/public/sdk/cpp/src/client/table",
+    "//ydb/public/sdk/cpp/src/client/table",
   ]
 
   deps = [
-    # "//ydb/core/audit",
+    "//ydb/core/audit",
   ]
 
   sources = [ "cloud_events.cpp" ]

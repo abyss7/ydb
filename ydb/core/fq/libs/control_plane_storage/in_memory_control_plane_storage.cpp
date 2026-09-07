@@ -1225,11 +1225,6 @@ private:
     }
 };
 
-NActors::TActorId ControlPlaneStorageServiceActorId(ui32 nodeId) {
-    constexpr TStringBuf name = "CTRLSTORAGE";
-    return NActors::TActorId(nodeId, name);
-}
-
 NActors::IActor* CreateInMemoryControlPlaneStorageServiceActor(
     const NConfig::TControlPlaneStorageConfig& config,
     const NYql::TS3GatewayConfig& s3Config,

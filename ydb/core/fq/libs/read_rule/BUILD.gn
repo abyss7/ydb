@@ -1,19 +1,20 @@
 library("read_rule") {
   public_deps = [
-    # "//ydb/core/fq/libs/protos",
-    # "//ydb/library/actors/core",
+    "//ydb/core/fq/libs/protos",
+    "//ydb/library/actors/core",
     # "//ydb/library/yql/providers/pq/gateway/abstract",
     # "//ydb/public/sdk/cpp/src/client/driver",
   ]
 
   deps = [
     # "//ydb/core/fq/libs/common",
-    # "//ydb/core/fq/libs/events",
+    "//ydb/core/fq/libs/events",
     # "//ydb/library/services",
     # "//ydb/library/yql/providers/dq/api/protos",
     # "//ydb/library/yql/providers/pq/proto",
-    # "//ydb/public/sdk/cpp/adapters/issue",
-    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
+    "//ydb/public/sdk/cpp/adapters/issue",
+    "//ydb/public/sdk/cpp/src/client/topic/common",
+    "//ydb/public/sdk/cpp/src/client/topic/impl",
   ]
 
   sources = [

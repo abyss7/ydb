@@ -6,7 +6,7 @@ config("public_config") {
 
 library("profiling") {
   public_deps = [
-    # "//library/cpp/yt/compact_containers",
+    "//library/cpp/yt/compact_containers",
     "//library/cpp/yt/cpu_clock",
     "//library/cpp/yt/memory",
     # "//library/cpp/yt/misc",
@@ -15,6 +15,7 @@ library("profiling") {
 
   deps = [
     "//library/cpp/yt/assert",
+    "//library/cpp/yt/error",
     "//library/cpp/yt/threading",
     # "//yt/yt/core",
   ]

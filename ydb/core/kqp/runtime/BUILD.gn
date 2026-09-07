@@ -35,7 +35,6 @@ library("runtime") {
   ]
 
   deps = [
-    "//contrib/libs/openssl",
     # "//library/cpp/containers/absl_flat_hash",
     # "//library/cpp/monlib/dynamic_counters",
     "//library/cpp/regex/pire",
@@ -54,8 +53,6 @@ library("runtime") {
     # "//ydb/core/tx/schemeshard/olap/schema",
     # "//ydb/core/tx/sequenceproxy:public",
     "//ydb/core/tx/sharding",
-    "//ydb/library/formats/arrow",
-    "//ydb/library/mkql_proto",
     # "//ydb/library/wilson_ids",
     "//ydb/library/ydb_issue",
     # "//ydb/library/yql/dq/proto",

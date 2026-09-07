@@ -1,13 +1,13 @@
 library("gateway") {
   public_deps = [
     # "//ydb/library/actors/core",
-    # "//ydb/library/yql/providers/dq/provider",
+    "//ydb/library/yql/providers/dq/provider",
   ]
 
   deps = [
     # "//ydb/core/fq/libs/events",
-    # "//ydb/core/fq/libs/graph_params/proto",
-    # "//ydb/core/fq/libs/tasks_packer",
+    "//ydb/core/fq/libs/graph_params/proto",
+    "//ydb/core/fq/libs/tasks_packer",
   ]
 
   sources = [ "empty_gateway.cpp" ]

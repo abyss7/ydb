@@ -6,7 +6,6 @@ library("ingress") {
 
   deps = [
     "//ydb/core/base",
-    "//ydb/core/erasure",
     # "//ydb/library/actors/core",
     # "//ydb/library/services",
   ]

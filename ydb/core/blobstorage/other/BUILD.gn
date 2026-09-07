@@ -4,7 +4,7 @@ library("other") {
   ]
 
   deps = [
-    "//library/cpp/json",
+    "//library/cpp/json:writer",
     # "//library/cpp/threading/future",
     "//ydb/core/base",
     # "//ydb/core/blobstorage",

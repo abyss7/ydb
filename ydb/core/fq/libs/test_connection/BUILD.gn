@@ -1,11 +1,11 @@
 library("events") {
   public_deps = [
-    # "//ydb/core/fq/libs/control_plane_config:events",
+    "//ydb/core/fq/libs/control_plane_config:events",
     # "//ydb/core/fq/libs/control_plane_storage:events",
     # "//ydb/core/fq/libs/events",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     # "//yql/essentials/public/issue",
   ]
 
@@ -17,7 +17,7 @@ library("test_connection") {
     # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/fq/libs/actors:logging",
     # "//ydb/core/fq/libs/config:protos",
-    # "//ydb/core/fq/libs/db_id_async_resolver_impl",
+    "//ydb/core/fq/libs/db_id_async_resolver_impl",
     # "//ydb/core/fq/libs/shared_resources",
     # "//ydb/core/fq/libs/signer",
     # "//ydb/library/actors/core",
@@ -28,22 +28,22 @@ library("test_connection") {
   ]
 
   deps = [
-    # ":events",
-    # "//library/cpp/lwtrace",
+    ":events",
+    "//library/cpp/lwtrace",
     # "//library/cpp/lwtrace/mon",
     # "//library/cpp/monlib/service/pages",
-    # "//library/cpp/xml/document",
-    # "//ydb/core/fq/libs/actors",
+    "//library/cpp/xml/document",
+    "//ydb/core/fq/libs/actors",
     # "//ydb/core/fq/libs/common",
     # "//ydb/core/fq/libs/config",
-    # "//ydb/core/fq/libs/control_plane_storage",
+    "//ydb/core/fq/libs/control_plane_storage",
     # "//ydb/core/mon",
     # "//ydb/library/security",
-    # "//ydb/library/yql/providers/pq/gateway/native",
-    # "//ydb/library/yql/providers/s3/provider",
-    # "//ydb/library/yql/providers/solomon/actors",
+    "//ydb/library/yql/providers/pq/gateway/native",
+    "//ydb/library/yql/providers/s3/provider",
+    "//ydb/library/yql/providers/solomon/actors",
     # "//ydb/library/yql/utils/actors",
-    # "//yql/essentials/providers/common/structured_token",
+    "//yql/essentials/providers/common/structured_token",
     # "//yql/essentials/utils",
   ]
 

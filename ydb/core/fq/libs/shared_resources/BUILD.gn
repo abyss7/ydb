@@ -12,7 +12,7 @@ library("shared_resources") {
     "//ydb/core/fq/libs/common",
     # "//ydb/core/fq/libs/config",
     # "//ydb/core/fq/libs/config:protos",
-    # "//ydb/core/fq/libs/db_schema",
+    "//ydb/core/fq/libs/db_schema",
     "//ydb/core/fq/libs/events",
     # "//ydb/core/util",
     # "//ydb/library/actors/core",

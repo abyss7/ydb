@@ -6,7 +6,6 @@ library("balance") {
   ]
 
   deps = [
-    "//ydb/core/base",
     "//ydb/core/blobstorage/backpressure",
     "//ydb/core/blobstorage/groupinfo",
     "//ydb/core/blobstorage/vdisk/common",

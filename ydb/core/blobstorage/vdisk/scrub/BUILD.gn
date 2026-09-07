@@ -1,13 +1,12 @@
 library("scrub") {
   deps = [
-    "//ydb/core/base",
+    # "//ydb/core/blobstorage",
     "//ydb/core/blobstorage/backpressure",
     # "//ydb/core/blobstorage/groupinfo",
     # "//ydb/core/blobstorage/vdisk",
     "//ydb/core/blobstorage/vdisk/common",
     "//ydb/core/blobstorage/vdisk/hulldb:barriers",
     # "//ydb/core/blobstorage/vdisk/hulldb:base",
-    "//ydb/core/blobstorage/vdisk/hulldb:generic",
     # "//ydb/core/blobstorage/vdisk/skeleton",
     "//ydb/core/util",
     # "//ydb/library/actors/core",

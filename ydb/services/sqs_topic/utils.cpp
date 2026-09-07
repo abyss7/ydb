@@ -7,6 +7,7 @@
 
 #include <library/cpp/digest/md5/md5.h>
 
+#include <util/stream/format.h>
 #include <util/system/hostname.h>
 #include <util/system/unaligned_mem.h>
 

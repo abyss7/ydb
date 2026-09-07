@@ -127,7 +127,6 @@ library("www") {
     ":config",
     "//library/cpp/html/pcdata",
     "//library/cpp/http/fetch",
-    "//library/cpp/http/io",
     "//library/cpp/http/server",
     # "//library/cpp/json:writer",
     "//library/cpp/monlib/deprecated/json",

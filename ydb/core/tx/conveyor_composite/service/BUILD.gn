@@ -1,17 +1,17 @@
 library("service") {
   public_deps = [
     # "//library/cpp/monlib/dynamic_counters",
-    # "//ydb/core/tx/conveyor_composite/usage",
-    # "//ydb/library/accessor",
+    "//ydb/core/tx/conveyor_composite/usage",
+    "//ydb/library/accessor",
     # "//ydb/library/actors/core",
-    # "//ydb/library/signals",
+    "//ydb/library/signals",
   ]
 
   deps = [
-    # "//library/cpp/lwtrace/mon",
-    # "//ydb/core/kqp/query_data",
-    # "//ydb/core/tx/conveyor/usage",
-    # "//ydb/core/tx/conveyor_composite/tracing",
+    "//library/cpp/lwtrace/mon",
+    "//ydb/core/kqp/query_data",
+    "//ydb/core/tx/conveyor/usage",
+    "//ydb/core/tx/conveyor_composite/tracing",
     # "//ydb/library/conclusion",
     # "//ydb/library/services",
   ]

@@ -9,9 +9,6 @@ expand_template("protocol_version_variables") {
     ]
 }
 
-# `api/rpc_proxy/protocol_version.h` includes the generated header by its bare
-# name, so its gen dir has to be on the include path -- publicly, since that
-# header travels to consumers through `api_service_proxy.h`.
 config("protocol_version_config") {
     include_dirs = [ "$target_gen_dir/api/rpc_proxy" ]
 }
@@ -21,6 +18,7 @@ library("client") {
 
     public_deps = [
         ":protocol_version_variables",
+        "//yt/yt_proto/yt/client",
         "//yt/yt/core",
         "//yt/yt/library/re2",
     ]
@@ -48,7 +46,6 @@ library("client") {
         "//yt/yt/library/quantile_digest",
         "//yt/yt/library/tracing",
         "//yt/yt/library/tz_types",
-        "//yt/yt_proto/yt/client",
     ]
 
     sources = [

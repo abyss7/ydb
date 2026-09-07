@@ -1,15 +1,15 @@
 library("auth") {
   public_deps = [
-    # ":common",
+    ":common",
     # "//ydb/core/base",
-    # "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime",
     # "//ydb/core/protos",
     # "//ydb/library/actors/core",
     # "//ydb/library/login:protos",
   ]
 
   deps = [
-    # "//ydb/core/ydb_convert",
+    "//ydb/core/ydb_convert",
   ]
 
   sources = [
@@ -42,7 +42,6 @@ library("common") {
 
   deps = [
     # "//library/cpp/deprecated/atomic",
-    "//ydb/library/actors/util",
     "//yql/essentials/parser/pg_catalog",
     "//yql/essentials/parser/pg_wrapper/interface",
   ]
@@ -55,15 +54,15 @@ library("common") {
 
 library("compile_cache") {
   public_deps = [
-    # "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime",
     # "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
     # ":auth",
-    # ":common",
-    # "//library/cpp/protobuf/interop",
+    ":common",
+    "//library/cpp/protobuf/interop",
     # "//ydb/core/kqp/common:events",
     # "//ydb/core/kqp/common:simple",
     # "//ydb/core/node_whiteboard",
@@ -82,11 +81,11 @@ library("nodes") {
   ]
 
   deps = [
+    # ":common",
     "//ydb/core/mind:tenant_node_enumeration",
     # "//ydb/core/node_whiteboard",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/yql/dq/actors:compute",
-    # ":common",
   ]
 
   sources = [ "nodes/nodes.cpp" ]
@@ -114,8 +113,8 @@ library("partition_stats") {
 
 library("pg_tables") {
   public_deps = [
-    # ":common",
-    # "//ydb/core/kqp/runtime",
+    ":common",
+    "//ydb/core/kqp/runtime",
     # "//ydb/library/actors/core",
   ]
 
@@ -124,6 +123,7 @@ library("pg_tables") {
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/schemeshard",
     # "//ydb/library/yql/dq/actors:compute",
+    "//yql/essentials/parser/pg_catalog",
   ]
 
   sources = [ "pg_tables/pg_tables.cpp" ]
@@ -168,13 +168,13 @@ library("processor") {
 
 library("query_stats") {
   public_deps = [
-    # "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime",
     # "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
-    # ":common",
+    ":common",
     # ":service",
     # "//ydb/core/base",
     # "//ydb/library/actors/interconnect",
@@ -195,7 +195,7 @@ library("resource_pool_classifiers") {
   ]
 
   deps = [
-    # ":common",
+    ":common",
     "//ydb/core/kqp/gateway/behaviour/resource_pool_classifier",
     "//ydb/core/kqp/workload_service:scheme_actors",
     # "//ydb/core/node_whiteboard",
@@ -239,15 +239,12 @@ library("service") {
   ]
 
   deps = [
-    "//library/cpp/monlib/dynamic_counters",
-    "//ydb/core/graph/protos",
-    # "//ydb/library/actors/core:events",
+    # ":common",
     # "//library/cpp/time_provider",
-    # "//ydb/core/graph/api",
+    "//ydb/core/graph/api",
     # "//ydb/core/tablet",
     "//ydb/core/tx/scheme_cache",
     # "//ydb/library/services",
-    # ":common",
   ]
 
   sources = [
@@ -280,13 +277,13 @@ library("sessions") {
 
 library("show_create") {
   public_deps = [
-    # "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime",
     # "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
-    # ":common",
+    ":common",
     # "//library/cpp/json",
     # "//library/cpp/protobuf/json",
     # "//library/cpp/protobuf/util",
@@ -299,20 +296,20 @@ library("show_create") {
     # "//ydb/core/tx/schemeshard",
     # "//ydb/core/tx/sequenceproxy:public",
     # "//ydb/core/tx/tx_proxy",
-    # "//ydb/core/ydb_convert",
+    "//ydb/core/ydb_convert",
     # "//ydb/library/yql/dq/actors:compute",
-    # "//ydb/public/api/protos",
-    # "//ydb/public/lib/ydb_cli/dump:util",
+    "//ydb/public/api/protos",
+    "//ydb/public/lib/ydb_cli/dump:util",
     # "//ydb/public/sdk/cpp/src/client/value",
-    # "//yql/essentials/ast",
-    # "//yql/essentials/minikql",
+    "//yql/essentials/ast",
+    "//yql/essentials/minikql",
     # "//yql/essentials/public/issue",
-    # "//yql/essentials/sql/v1",
-    # "//yql/essentials/sql/v1/lexer:antlr4",
-    # "//yql/essentials/sql/v1/lexer:antlr4_ansi",
-    # "//yql/essentials/sql/v1/proto_parser:antlr4",
-    # "//yql/essentials/sql/v1/proto_parser:antlr4_ansi",
-    # "//yql/essentials/sql:settings",
+    "//yql/essentials/sql/v1",
+    "//yql/essentials/sql/v1/lexer:antlr4",
+    "//yql/essentials/sql/v1/lexer:antlr4_ansi",
+    "//yql/essentials/sql/v1/proto_parser:antlr4",
+    "//yql/essentials/sql/v1/proto_parser:antlr4_ansi",
+    "//yql/essentials/sql:settings",
   ]
 
   sources = [
@@ -325,13 +322,13 @@ library("show_create") {
 
 library("storage") {
   public_deps = [
-    # "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime",
     # "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
-    # ":common",
+    ":common",
     # "//ydb/core/base",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/yql/dq/actors:compute",
@@ -348,20 +345,20 @@ library("storage") {
 
 library("streaming_queries") {
   public_deps = [
-    # "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime",
     # "//ydb/core/scheme",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
-    # ":common",
-    # "//contrib/libs/fmt",
-    # "//library/cpp/protobuf/json",
-    # "//ydb/core/kqp/common",
+    ":common",
+    "//contrib/libs/fmt",
+    "//library/cpp/protobuf/json",
+    "//ydb/core/kqp/common",
     # "//ydb/core/kqp/common:events",
-    # "//ydb/core/kqp/gateway/behaviour/streaming_query:common",
-    # "//ydb/core/kqp/workload_service:actors",
-    # "//ydb/library/query_actor",
+    "//ydb/core/kqp/gateway/behaviour/streaming_query:common",
+    "//ydb/core/kqp/workload_service:actors",
+    "//ydb/library/query_actor",
   ]
 
   sources = [ "streaming_queries/streaming_queries.cpp" ]
@@ -375,20 +372,20 @@ library("sys_view") {
   ]
 
   deps = [
-    # ":auth",
+    ":auth",
     # ":common",
-    # ":compile_cache",
+    ":compile_cache",
     ":nodes",
     ":partition_stats",
-    # ":pg_tables",
-    # ":query_stats",
+    ":pg_tables",
+    ":query_stats",
     ":resource_pool_classifiers",
     ":resource_pools",
     ":sessions",
-    # ":show_create",
-    # ":storage",
-    # ":streaming_queries",
-    # ":tablets",
+    ":show_create",
+    ":storage",
+    ":streaming_queries",
+    ":tablets",
     # "//ydb/core/kqp/compute_actor",
   ]
 
@@ -397,13 +394,13 @@ library("sys_view") {
 
 library("tablets") {
   public_deps = [
-    # "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime",
     # "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
-    # ":common",
+    ":common",
     # "//ydb/core/base",
     # "//ydb/core/mind:hive",
     # "//ydb/library/yql/dq/actors:compute",

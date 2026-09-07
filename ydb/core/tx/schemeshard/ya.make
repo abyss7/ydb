@@ -93,6 +93,7 @@ SRCS(
     schemeshard__shred_manager.cpp
     schemeshard__delete_tablet_reply.cpp
     schemeshard__describe_scheme.cpp
+    find_subdomain_path_id_actor.cpp
     schemeshard__find_subdomain_path_id.cpp
     schemeshard__fix_bad_paths.cpp
     schemeshard__init.cpp

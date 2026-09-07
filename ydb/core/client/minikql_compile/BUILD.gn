@@ -17,6 +17,7 @@ library("minikql_compile") {
     "//ydb/core/client/scheme_cache_lib",
     "//ydb/core/engine",
     # "//ydb/core/scheme",
+    "//yql/essentials/ast",
     "//yql/essentials/minikql",
   ]
 
@@ -31,7 +32,6 @@ library("minikql_compile") {
     # "//ydb/library/services",
     # "//ydb/library/ydb_issue:proto",
     # "//ydb/public/lib/scheme_types",
-    "//yql/essentials/ast",
     # "//yql/essentials/core",
     "//yql/essentials/core/type_ann",
     # "//yql/essentials/minikql/invoke_builtins",

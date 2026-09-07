@@ -1,14 +1,13 @@
 library("proxy") {
   public_deps = [
-    # "//ydb/core/blobstorage/groupinfo",
-    # "//ydb/library/actors/core",
+    "//ydb/core/blobstorage/groupinfo",
+    "//ydb/library/actors/core",
   ]
 
   deps = [
-    "//ydb/core/base",
     # "//ydb/core/blobstorage",
-    "//ydb/core/blobstorage/events",
     # "//ydb/core/blobstorage/dsproxy",
+    "//ydb/core/blobstorage/events", # anti-cycle
     "//ydb/core/util",
     # "//ydb/library/actors/async",
     "//ydb/library/actors/wilson",

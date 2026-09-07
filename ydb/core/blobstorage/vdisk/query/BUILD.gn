@@ -13,7 +13,6 @@ library("query") {
     # "//ydb/core/blobstorage/vdisk/common",
     "//ydb/core/blobstorage/vdisk/hulldb:barriers",
     # "//ydb/core/blobstorage/vdisk/hulldb:base",
-    "//ydb/core/blobstorage/vdisk/hulldb:generic",
     # "//ydb/core/blobstorage/vdisk/scrub",
     # "//ydb/core/util",
     "//ydb/library/actors/wilson",

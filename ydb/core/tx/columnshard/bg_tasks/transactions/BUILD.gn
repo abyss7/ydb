@@ -9,7 +9,6 @@ library("transactions") {
   deps = [
     # "//ydb/core/tx/columnshard/bg_tasks/events",
     # "//ydb/core/tx/columnshard/bg_tasks/manager",
-    "//ydb/library/actors/core",
   ]
 
   sources = [

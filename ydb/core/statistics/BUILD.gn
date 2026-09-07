@@ -64,8 +64,10 @@ library("database") {
   ]
 
   deps = [
+    "//ydb/core/grpc_services",
+    "//ydb/core/grpc_services/local_rpc",
     "//ydb/library/query_actor",
-    # "//ydb/library/table_creator",
+    "//ydb/library/table_creator",
     # "//ydb/public/lib/scheme_types",
   ]
 
@@ -84,14 +86,15 @@ library("service") {
     # "//library/cpp/monlib/service/pages",
     "//ydb/core/base",
     # "//ydb/core/cms/console",
+    # "//ydb/core/engine",
     # "//ydb/core/grpc_services/local_rpc",
-    # "//ydb/core/io_formats/cell_maker",
+    "//ydb/core/io_formats/cell_maker",
     "//ydb/core/mon",
     # "//ydb/core/protos",
     "//ydb/core/statistics:database",
     "//ydb/core/tablet",
-    # "//ydb/core/tx/scheme_cache",
-    # "//ydb/core/util",
+    "//ydb/core/tx/scheme_cache",
+    "//ydb/core/util",
     # "//ydb/library/services",
     # "//ydb/public/sdk/cpp/src/client/proto",
     "//yql/essentials/core/histogram",
@@ -116,11 +119,6 @@ group("statistics") {
   ]
 }
 
-# service/service.cpp — 52 строки: MakeStatServiceID() и конструктор
-# TStatServiceSettings. Ни сервиса, ни базы статистики он не тянет.
-# Нужен kqp/opt (kqp_column_statistics_requester.cpp), которому весь
-# statistics:service ни к чему — иначе цикл grpc_services -> kqp/opt ->
-# statistics:service -> statistics:database -> query_actor -> grpc_services.
 library("service_id") {
   public_deps = [ ":statistics" ]
 

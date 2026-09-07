@@ -1,6 +1,6 @@
 library("common") {
   public_deps = [
-    # "//ydb/core/fq/libs/ydb",
+    "//ydb/core/fq/libs/ydb",
     # "//ydb/library/accessor",
   ]
 

@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 config("private_config") {
   cflags = [ "-Wno-deprecated-enum-enum-conversion" ]
 }
@@ -5,7 +7,7 @@ config("private_config") {
 library("dsproxy") {
   public_deps = [
     # "//library/cpp/containers/stack_vector",
-    "//library/cpp/monlib/dynamic_counters",
+    # "//library/cpp/monlib/dynamic_counters:percentile",
     # "//library/cpp/monlib/metrics",
     # "//ydb/core/base",
     "//ydb/core/blobstorage/backpressure",
@@ -20,7 +22,7 @@ library("dsproxy") {
     # "//ydb/core/protos",
     "//ydb/core/retro_tracing_impl",
     "//ydb/core/util",
-    "//ydb/library/actors/core:events",
+    # "//ydb/library/actors/core",
     # "//ydb/library/actors/wilson",
     # "//ydb/library/wilson_ids",
   ]

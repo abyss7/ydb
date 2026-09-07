@@ -1,11 +1,13 @@
 # yamake2gn: keep  -- hand-written, do not regenerate
 
 library("client") {
-  public_deps = [ "//contrib/libs/grpc" ]
+  public_deps = [
+    "//contrib/libs/grpc",
+    "//ydb/public/sdk/cpp/src/library/time",
+  ]
 
   deps = [
     "//library/cpp/containers/stack_vector",
-    "//ydb/public/sdk/cpp/src/library/time",
   ]
 
   sources = [ "grpc_client_low.cpp" ]

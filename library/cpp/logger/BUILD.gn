@@ -9,7 +9,7 @@ library("global") {
 }
 
 library("logger") {
-  deps = [ "//library/cpp/json" ]
+  public_deps = [ "//library/cpp/json" ]
 
   sources = [
     "backend.cpp",

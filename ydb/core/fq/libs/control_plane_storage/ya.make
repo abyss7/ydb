@@ -2,6 +2,7 @@ LIBRARY()
 
 SRCS(
     config.cpp
+    control_plane_storage.cpp
     control_plane_storage_counters.cpp
     in_memory_control_plane_storage.cpp
     probes.cpp

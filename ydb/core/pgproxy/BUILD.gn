@@ -1,13 +1,13 @@
 library("pgproxy") {
   public_deps = [
-    # ":protos",
-    # "//ydb/core/raw_socket",
-    # "//ydb/library/actors/core",
+    ":protos",
+    "//ydb/core/raw_socket",
+    "//ydb/library/actors/core",
   ]
 
   deps = [
-    # "//library/cpp/string_utils/base64",
-    # "//ydb/core/base",
+    "//library/cpp/string_utils/base64",
+    "//ydb/core/base",
     # "//ydb/library/actors/interconnect:poller",
     # "//ydb/library/services",
   ]

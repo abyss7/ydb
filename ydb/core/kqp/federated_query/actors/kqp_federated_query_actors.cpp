@@ -2,8 +2,10 @@
 
 #include <ydb/core/kqp/common/simple/services.h>
 #include <ydb/core/tx/scheme_board/subscriber.h>
+#include <ydb/services/metadata/events.h>
 #include <ydb/services/metadata/secret/fetcher.h>
 #include <ydb/services/metadata/secret/snapshot.h>
+#include <ydb/services/metadata/service.h>
 #include <ydb/library/actors/core/log.h>
 
 #define LOG_D(stream) LOG_DEBUG_S(*TlsActivationContext, NKikimrServices::SCHEMA_SECRET_CACHE, stream)
@@ -210,7 +212,7 @@ void TDescribeSchemaSecretsService::HandleSchemeShardResponse(NSchemeShard::TEvS
     LOG_D(GetLogLabel("TEvDescribeSchemeResult", requestId));
 
     const auto respIt = ResolveInFlight.find(requestId);
-    if (respIt == ResolveInFlight.end()) {        
+    if (respIt == ResolveInFlight.end()) {
         Y_ENSURE(respIt->second.Secrets.size() > 1, "This is possible only for batch requests");
         LOG_N(GetLogLabel("TEvDescribeSchemeResult", requestId) << "response handling was skipped due to previous errors");
         // no need to fill response, since it has been filled on the first SchemeShard error
@@ -276,7 +278,7 @@ void TDescribeSchemaSecretsService::SendSchemeCacheRequests(const TEvResolveSecr
     for (const auto& secretName : ev.SecretNames) {
         NSchemeCache::TSchemeCacheNavigate::TEntry entry;
         entry.Operation = NSchemeCache::TSchemeCacheNavigate::OpPath;
-        entry.Path = SplitPath(secretName);    
+        entry.Path = SplitPath(secretName);
         if (userToken && userToken->GetUserSID()) {
             entry.Access = NACLib::SelectRow;
         }

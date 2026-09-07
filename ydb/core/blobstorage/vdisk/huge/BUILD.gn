@@ -9,7 +9,6 @@ library("huge") {
   ]
 
   deps = [
-    "//ydb/core/base",
     # "//library/cpp/monlib/service/pages",
     # "//library/cpp/random_provider",
     "//ydb/core/blobstorage/lwtrace_probes",

@@ -4,12 +4,13 @@ library("grpc_services") {
     "//ydb/core/base",
     "//ydb/core/cms/console",
     # "//ydb/core/control/lib",
+    # "//ydb/core/fq/libs/control_plane_proxy:utils",
     "//ydb/core/grpc_services/base",
     "//ydb/core/grpc_services/cancelation",
     "//ydb/core/grpc_services/counters",
     "//ydb/core/health_check",
     "//ydb/core/kqp/common",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/scheme",
     "//ydb/core/tx/scheme_board",
     # "//ydb/core/tx/schemeshard",
@@ -36,11 +37,10 @@ library("grpc_services") {
     # "//library/cpp/cache",
     # "//library/cpp/digest/old_crc",
     # "//library/cpp/json",
-    # "//library/cpp/monlib/service/pages",
+    "//library/cpp/monlib/service/pages",
     "//library/cpp/regex/pcre",
     # "//library/cpp/retry",
     # "//library/cpp/streams/zstd",
-    "//library/cpp/threading/hot_swap",
     # "//library/cpp/yson",
     "//ydb/core/audit",
     "//ydb/core/audit:audit_config",
@@ -74,8 +74,8 @@ library("grpc_services") {
     # "//ydb/core/kqp/compute_actor",
     # "//ydb/core/kqp/executer_actor",
     "//ydb/core/kqp/executer_actor:shards_resolver",
-    # "//ydb/core/kqp/node_service",
     "//ydb/core/kqp/opt",
+    # "//ydb/core/kqp/proxy_service",
     # "//ydb/core/mind",
     # "//ydb/core/mind:bscontroller",
     # "//ydb/core/mind:hive",
@@ -92,15 +92,14 @@ library("grpc_services") {
     "//ydb/core/security",
     # "//ydb/core/security:ldap_auth_provider",
     "//ydb/core/security:sasl",
-    "//ydb/core/tablet",
+    # "//ydb/core/sys_view",
     # "//ydb/core/tablet_flat",
     # "//ydb/core/test_tablet",
     # "//ydb/core/tx",
     "//ydb/core/tx/datashard:read_events",
     # "//ydb/core/tx/replication/controller",
     # "//ydb/core/tx/scheme_cache",
-    # "//ydb/core/tx/schemeshard/olap/bg_tasks/events",
-    "//ydb/core/tx/schemeshard/olap/bg_tasks/protos",
+    "//ydb/core/tx/schemeshard/olap/bg_tasks/events",
     "//ydb/library/actors/http",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/cloud_permissions",
@@ -110,10 +109,11 @@ library("grpc_services") {
     # "//ydb/library/mkql_proto",
     # "//ydb/library/protobuf_printer",
     "//ydb/library/security",
+    # "//ydb/library/yaml_config",
+    # "//ydb/library/yaml_config/tools/util",
     "//ydb/library/yaml_config:protos",
     # "//ydb/library/yaml_config:public",
-    # "//ydb/library/yaml_config/tools/util",
-    "//ydb/library/yql/public/ydb_issue",
+    # "//ydb/public/api/grpc",
     # "//ydb/public/lib/base",
     "//ydb/public/lib/fq",
     "//ydb/public/sdk/cpp/src/client/proto",
@@ -241,19 +241,6 @@ library("fetch_script_results") {
   sources = [ "query/rpc_fetch_script_results.cpp" ]
 }
 
-# grpc_request_proxy.cpp инстанцирует TGRpcRequestProxyImpl::Handle<> и
-# TGrpcRequestCheckActor<> для потоковых обёрток, а сами перегрузки
-# TGRpcRequestProxyHandleMethods::Handle (объявлены в
-# grpc_request_proxy_handle_methods.h) реализованы В СЕРВИСАХ, лежащих выше:
-#   TEvBiStreamPingRequest            -> ydb/services/ydb/ydb_dummy.cpp:184
-#   TEvStreamPQWrite/TopicWrite       -> ydb/services/persqueue_v1/grpc_pq_write.cpp:181,185
-#   TEvStreamPQMigrationRead/
-#   TopicRead/TopicDirectRead         -> ydb/services/persqueue_v1/grpc_pq_read.cpp:211,215,220
-#   TEvCoordinationSessionRequest     -> ydb/services/kesus/grpc_service.cpp:707
-# Подключить их к самому grpc_services нельзя (persqueue_v1 -> :actors ->
-# persqueue/public -> grpc_services и services/ydb -> grpc_services), поэтому
-# файл вынесен в таргет, стоящий над сервисами. Его потребители —
-# driver_lib/run (kikimr_services_initializers.cpp:1792) и testlib.
 library("request_proxy") {
   public_deps = [
     ":grpc_services",
@@ -265,10 +252,6 @@ library("request_proxy") {
   sources = [ "grpc_request_proxy.cpp" ]
 }
 
-# rpc_read_columns.cpp is the only file here that needs NSysView::CreateSystemViewScan,
-# and that factory reaches metadata/initializer, which does a local RPC back into
-# grpc_services. Kept above sys_view; DoReadColumnsRequest is only called from
-# ydb/services/ydb/ydb_clickhouse_internal.cpp anyway.
 library("read_columns") {
   public_deps = [ ":grpc_services" ]
 

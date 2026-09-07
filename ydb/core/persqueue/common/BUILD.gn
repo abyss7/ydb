@@ -28,9 +28,9 @@ library("common") {
 library("proxy") {
   public_deps = [
     # "//library/cpp/logger",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/actors/core",
-    # "//ydb/library/logger",
+    "//ydb/library/logger",
     # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
     # "//ydb/public/sdk/cpp/src/client/driver",
   ]

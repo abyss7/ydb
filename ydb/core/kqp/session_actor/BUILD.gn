@@ -1,8 +1,21 @@
+library("response") {
+  public_deps = [ "//ydb/core/kqp/common" ]
+
+  deps = [
+    "//ydb/core/kqp/federated_query",
+    "//ydb/core/ydb_convert",
+    "//yql/essentials/public/issue",
+  ]
+
+  sources = [ "kqp_response.cpp" ]
+}
+
 library("session_actor") {
   public_deps = [
     # "//library/cpp/json",
     # "//ydb/core/docapi",
-    # "//ydb/core/kqp/common",
+    "//ydb/core/kqp/common",
+    ":response",
     # "//ydb/core/kqp/provider",
     # "//ydb/core/protos",
     # "//ydb/library/actors/core",
@@ -19,11 +32,11 @@ library("session_actor") {
     # "//ydb/core/kqp/common:events",
     # "//ydb/core/kqp/common:simple",
     # "//ydb/core/kqp/compile_service",
-    # "//ydb/core/kqp/counters",
+    "//ydb/core/kqp/counters",
     # "//ydb/core/kqp/executer_actor",
     # "//ydb/core/kqp/executer_actor:shards_resolver",
-    # "//ydb/core/kqp/federated_query",
-    # "//ydb/core/kqp/gateway",
+    "//ydb/core/kqp/federated_query",
+    "//ydb/core/kqp/gateway",
     # "//ydb/core/kqp/gateway:actors",
     # "//ydb/core/kqp/host",
     # "//ydb/core/kqp/opt",
@@ -53,7 +66,6 @@ library("session_actor") {
   sources = [
     "kqp_query_state.cpp",
     "kqp_query_stats.cpp",
-    "kqp_response.cpp",
     "kqp_session_actor.cpp",
     "kqp_temp_tables_manager.cpp",
     "kqp_worker_actor.cpp",

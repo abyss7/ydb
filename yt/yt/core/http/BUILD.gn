@@ -10,6 +10,8 @@ library("http") {
     "//contrib/deprecated/http-parser",
     "//library/cpp/blockcodecs",
     "//library/cpp/streams/brotli",
+    "//library/cpp/yt/error",
+    "//library/cpp/yt/logging",
     "//library/cpp/yt/threading",
   ]
 

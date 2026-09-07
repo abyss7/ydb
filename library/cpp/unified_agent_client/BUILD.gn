@@ -12,8 +12,6 @@ library("unified_agent_client") {
 
   deps = [
     ":proto",
-    "//contrib/libs/grpc",
-    "//library/cpp/json",
     "//library/cpp/logger:global",
     "//library/cpp/monlib/dynamic_counters",
   ]

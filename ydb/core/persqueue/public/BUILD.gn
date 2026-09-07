@@ -17,7 +17,7 @@ library("cluster_tracker") {
 
 library("codecs") {
   public_deps = [
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
     # "//ydb/public/sdk/cpp/src/client/persqueue_public",
   ]
@@ -41,11 +41,13 @@ library("counters") {
 
 library("describer") {
   public_deps = [
-    # "//ydb/core/persqueue/events",
-    # "//ydb/core/tx/scheme_cache",
+    "//ydb/core/persqueue/events",
+    "//ydb/core/tx/scheme_cache",
     # "//ydb/library/actors/core",
     # "//ydb/public/api/protos",
   ]
+
+  deps = [ "//ydb/library/aclib" ]
 
   sources = [ "describer/describer.cpp" ]
 
@@ -54,18 +56,19 @@ library("describer") {
 
 library("fetcher") {
   public_deps = [
-    # "//ydb/core/persqueue/public",
+    "//ydb/core/persqueue/public",
     # "//ydb/library/aclib",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
-    # ":describer",
-    # ":write_meta",
+    ":describer",
+    ":write_meta",
     # "//ydb/core/actorlib_impl",
     # "//ydb/core/base",
     # "//ydb/core/client/server",
     # "//ydb/core/persqueue/events",
+    "//ydb/core/tablet",
     # "//ydb/core/tx/replication/ydb_proxy",
   ]
 
@@ -74,8 +77,9 @@ library("fetcher") {
 
 library("list_topics") {
   deps = [
-    # "//ydb/core/persqueue/events",
+    "//ydb/core/persqueue/events",
     # "//ydb/core/tx/scheme_cache",
+    "//ydb/library/aclib",
     # "//ydb/library/actors/core",
   ]
 
@@ -84,8 +88,8 @@ library("list_topics") {
 
 library("mlp") {
   public_deps = [
-    # ":describer",
-    # "//ydb/core/persqueue/events",
+    ":describer",
+    "//ydb/core/persqueue/events",
     # "//ydb/library/actors/core",
     # "//ydb/public/api/protos",
   ]
@@ -93,7 +97,7 @@ library("mlp") {
   deps = [
     # "//ydb/core/base",
     # "//ydb/core/persqueue/common",
-    # "//ydb/core/persqueue/public",
+    "//ydb/core/persqueue/public",
     # "//ydb/core/protos",
     # "//ydb/core/util",
     # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
@@ -131,12 +135,6 @@ library("partition_key_range") {
   ]
 }
 
-# utils.cpp самодостаточен (scheme_board не тянет). Выделен в отдельный таргет,
-# чтобы низкоуровневый scheme_board мог брать из него символы (Migrate,
-# MakePartitionGraph, TPartitionGraph) не завися от всего library("public"),
-# который через pq_rl_helpers.cpp зависит от scheme_board (иначе цикл
-# public <-> scheme_board). Заголовок остаётся по пути persqueue/public/utils.h,
-# а public реэкспортирует символы через public_deps — потребители не меняются.
 library("utils") {
   public_deps = [
     "//ydb/core/base",
@@ -152,6 +150,7 @@ library("utils") {
 
 library("public") {
   public_deps = [
+    ":utils",
     # "//library/cpp/sliding_window",
     "//ydb/core/base",
     "//ydb/core/grpc_services",
@@ -159,7 +158,6 @@ library("public") {
     "//ydb/core/metering",
     "//ydb/core/protos",
     "//ydb/core/tx/scheme_board",
-    ":utils",
   ]
 
   deps = [
@@ -179,14 +177,14 @@ library("public") {
 
 library("write_meta") {
   public_deps = [
-    # "//ydb/core/protos",
-    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
-    # "//ydb/public/sdk/cpp/src/client/persqueue_public",
+    "//ydb/core/protos",
+    "//ydb/public/sdk/cpp/src/client/persqueue_public:impl",
+    "//ydb/public/sdk/cpp/src/client/topic/impl",
   ]
 
   deps = [
-    # ":codecs",
-    # "//ydb/library/actors/core",
+    ":codecs",
+    "//ydb/library/actors/core",
   ]
 
   sources = [ "write_meta/write_meta.cpp" ]

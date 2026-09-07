@@ -1,6 +1,7 @@
 library("tracing") {
   deps = [
     # "//library/cpp/yt/memory",
+    "//library/cpp/yt/error",
     "//library/cpp/yt/threading",
     "//yt/yt/core",
   ]

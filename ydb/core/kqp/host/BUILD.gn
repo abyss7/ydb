@@ -2,7 +2,6 @@ library("host") {
   public_deps = [
     ":transform",
     # "//ydb/core/kqp/common",
-    # "//ydb/core/kqp/common:simple",
     "//ydb/core/kqp/federated_query",
     # "//ydb/core/kqp/gateway",
     # "//ydb/core/kqp/opt/logical",
@@ -12,7 +11,6 @@ library("host") {
     # "//ydb/library/yql/providers/common/http_gateway",
     # "//ydb/library/yql/providers/common/token_accessor/client",
     # "//yql/essentials/core",
-    # "//yql/essentials/core/pg_settings",
     # "//yql/essentials/utils/log",
   ]
 
@@ -41,7 +39,6 @@ library("host") {
     # "//ydb/library/yql/providers/s3/expr_nodes",
     # "//ydb/library/yql/providers/s3/provider",
     # "//ydb/library/yql/providers/solomon/provider",
-    # "//ydb/public/api/protos",
     # "//ydb/services/lib/actors",
     # "//ydb/services/metadata/abstract",
     # "//yql/essentials/ast",
@@ -52,7 +49,6 @@ library("host") {
     # "//yql/essentials/core/type_ann",
     # "//yql/essentials/minikql",
     # "//yql/essentials/minikql/invoke_builtins",
-    # "//yql/essentials/parser/pg_wrapper/interface",
     # "//yql/essentials/providers/common/arrow_resolve",
     # "//yql/essentials/providers/common/codec",
     # "//yql/essentials/providers/common/mkql",
@@ -61,13 +57,6 @@ library("host") {
     # "//yql/essentials/providers/config",
     # "//yql/essentials/providers/pg/provider",
     # "//yql/essentials/providers/result/provider",
-    # "//yql/essentials/sql",
-    # "//yql/essentials/sql/v0",
-    # "//yql/essentials/sql/v1",
-    # "//yql/essentials/sql/v1/lexer:antlr4",
-    # "//yql/essentials/sql/v1/lexer:antlr4_ansi",
-    # "//yql/essentials/sql/v1/proto_parser:antlr4",
-    # "//yql/essentials/sql/v1/proto_parser:antlr4_ansi",
     # "//yt/yql/providers/yt/expr_nodes",
     # "//yt/yql/providers/yt/provider",
   ]

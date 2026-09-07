@@ -4,6 +4,7 @@
 
 #include <ydb/library/actors/core/actor_bootstrapped.h>
 #include <ydb/services/metadata/abstract/initialization.h>
+#include <ydb/services/metadata/events.h>
 #include <ydb/services/metadata/service.h>
 
 constexpr ui32 TX_ABORT_RETRY_MAX_COUNT = 3;
@@ -21,7 +22,7 @@ namespace NKafka {
 
             enum EInitProducerIdKqpRequests : ui8 {
                 NO_REQUEST = 0,
-                
+
                 SELECT,
                 INSERT,
                 UPDATE,
@@ -41,7 +42,7 @@ namespace NKafka {
             const ui64 CorrelationId;
             const std::optional<TString> TransactionalId;
             const std::optional<i32> TransactionTimeoutMs;
-            
+
             // kqp related staff
             std::unique_ptr<NKafka::TKqpTxHelper> Kqp;
             ui64 KqpReqCookie = 0;
@@ -70,7 +71,7 @@ namespace NKafka {
             void RequestFullRetry(const TActorContext& ctx);
             // event from KafkaTransactionCoordinator actor about successful or unsuccessful save of producer new state
             void Handle(NKafka::TEvKafka::TEvSaveTxnProducerResponse::TPtr& ev, const TActorContext& ctx);
-            
+
 
             void Die(const TActorContext& ctx);
 

@@ -50,6 +50,7 @@ library("sasl") {
 
   deps = [
     ":ldap_auth_provider",
+    # "//contrib/libs/openssl",
     "//library/cpp/digest/argonish",
     "//library/cpp/json",
     "//library/cpp/string_utils/base64",
@@ -57,6 +58,7 @@ library("sasl") {
     "//ydb/core/security",
     "//ydb/core/tablet",
     "//ydb/core/tx/scheme_cache",
+    # "//ydb/core/tx/schemeshard",
     "//ydb/library/login:hashes_checker",
     "//ydb/library/login:sasl",
     "//ydb/library/services",
@@ -79,7 +81,6 @@ library("security") {
     # ":ldap_auth_provider",
     # ":token_manager",
     "//library/cpp/digest/md5",
-    "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/mon",
     # "//ydb/core/protos",
     "//ydb/library/aclib",
@@ -95,10 +96,6 @@ library("security") {
   deps = [
     "//library/cpp/string_utils/base64",
     "//ydb/core/base",
-    # "//ydb/core/grpc_services/base",
-    # "//ydb/core/util",
-    "//ydb/library/login",
-    # "//ydb/public/api/grpc",
   ]
 
   sources = [

@@ -194,7 +194,7 @@ public:
     void Read(TKafkaReadable& readable, TKafkaVersion version) override;
     void Write(TKafkaWritable& writable, TKafkaVersion version) const override;
 
-    bool operator==(const TKafkaRecord& other) const = default;
+    bool operator==(const TKafkaRecord& other) const = delete;
 
     NKikimrPQClient::TDataChunk DataChunk;
 };

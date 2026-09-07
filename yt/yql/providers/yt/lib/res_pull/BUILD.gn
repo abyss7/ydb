@@ -8,7 +8,6 @@ library("res_pull") {
   ]
 
   deps = [
-    "//yql/essentials/minikql/computation",
     # "//yql/essentials/providers/common/codec",
     # "//yql/essentials/utils",
     # "//yt/yql/providers/yt/lib/mkql_helpers",

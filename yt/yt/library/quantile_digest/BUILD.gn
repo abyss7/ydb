@@ -6,6 +6,7 @@ library("quantile_digest") {
   deps = [
     ":private_proto",
     "//library/cpp/tdigest",
+    "//library/cpp/yt/error",
     "//library/cpp/yt/memory",
     "//yt/yt/core",
   ]

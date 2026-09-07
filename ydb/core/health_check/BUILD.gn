@@ -8,6 +8,7 @@ library("health_check") {
   deps = [
     "//library/cpp/digest/old_crc",
     "//library/cpp/protobuf/json",
+    # "//ydb/core/blobstorage",
     "//ydb/core/blobstorage/events",
     # "//ydb/core/cms/console",
     # "//ydb/core/mind",
@@ -23,9 +24,7 @@ library("health_check") {
     "//ydb/library/actors/wilson",
     # "//ydb/library/wilson_ids",
     "//ydb/public/api/grpc",
-    "//ydb/public/api/protos",
     "//ydb/public/sdk/cpp/src/library/grpc/client",
-    "//ydb/public/sdk/cpp/src/library/time",
     # "//yql/essentials/public/issue",
   ]
 

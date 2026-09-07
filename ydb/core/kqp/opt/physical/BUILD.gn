@@ -25,9 +25,10 @@ library("effects") {
   ]
 
   deps = [
+    ":helpers",
     # "//ydb/core/base",
     "//ydb/core/kqp/common",
-    ":helpers",
+    # "//ydb/core/kqp/opt/physical",
     "//ydb/library/yql/dq/opt",
     # "//yql/essentials/core",
     # "//yql/essentials/core/expr_nodes",
@@ -61,6 +62,7 @@ library("physical") {
   ]
 
   deps = [
+    ":effects",
     # "//library/cpp/iterator",
     "//ydb/core/kqp/common",
     # "//ydb/core/scheme",
@@ -75,7 +77,6 @@ library("physical") {
     "//yql/essentials/core/peephole_opt",
     "//yql/essentials/providers/common/transform",
     "//yql/essentials/utils/log",
-    ":effects",
   ]
 
   sources = [

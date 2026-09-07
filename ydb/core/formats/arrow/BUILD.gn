@@ -99,9 +99,7 @@ group("transformer") {
 library("printer") {
   public_deps = [ "//ydb/library/formats/arrow:protos" ]
 
-  deps = [
-    # "//yql/essentials/core/arrow_kernels/request",
-  ]
+  deps = [ "//yql/essentials/core/arrow_kernels/request" ]
 
   sources = [ "printer/printer.cpp" ]
 }
@@ -175,8 +173,8 @@ library("switch") {
   public_deps = [
     # "//contrib/libs/apache/arrow",
     # "//ydb/core/scheme",
-    # "//ydb/core/scheme_types",
-    # "//ydb/library/formats/arrow:switch",
+    "//ydb/core/scheme_types",
+    "//ydb/library/formats/arrow:switch",
     # "//yql/essentials/parser/pg_wrapper",
     # "//yql/essentials/parser/pg_wrapper/interface",
   ]

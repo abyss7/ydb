@@ -1,12 +1,12 @@
 library("metrics") {
   public_deps = [
-    # "//library/cpp/monlib/dynamic_counters",
-    # "//ydb/library/yql/dq/actors:protos",
+    "//library/cpp/monlib/dynamic_counters",
+    "//ydb/library/yql/dq/actors:protos",
     # "//yql/essentials/public/issue",
   ]
 
   deps = [
-    # "//yql/essentials/core/issue:protos",
+    "//yql/essentials/core/issue:protos",
   ]
 
   sources = [

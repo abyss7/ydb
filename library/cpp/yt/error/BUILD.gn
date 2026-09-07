@@ -1,6 +1,7 @@
 library("error") {
   public_deps = [
     # "//library/cpp/yt/misc",
+    "//library/cpp/yt/string",
     # "//library/cpp/yt/threading",
     # "//library/cpp/yt/yson_string",
   ]
@@ -13,7 +14,6 @@ library("error") {
     "//library/cpp/yt/global",
     "//library/cpp/yt/logging",
     # "//library/cpp/yt/memory",
-    # "//library/cpp/yt/string",
     # "//library/cpp/yt/system",
   ]
 

@@ -4,6 +4,7 @@ library("events_stats") {
 
 library("compute_actor") {
   public_deps = [
+    ":events_stats",
     # "//contrib/libs/apache/arrow",
     # "//ydb/core/base",
     # "//ydb/core/formats/arrow",
@@ -11,10 +12,10 @@ library("compute_actor") {
     # "//ydb/core/kqp/counters",
     "//ydb/core/kqp/federated_query",
     "//ydb/core/kqp/rm_service",
-    # "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime",
     # "//ydb/core/protos",
     # "//ydb/core/scheme",
-    # "//ydb/core/sys_view",
+    "//ydb/core/sys_view",
     # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
     # "//ydb/library/formats/arrow:validation",
@@ -24,31 +25,23 @@ library("compute_actor") {
     # "//ydb/library/yql/providers/s3/actors_factory",
     # "//ydb/library/yverify_stream",
     # "//yql/essentials/utils",
-    # kqp_compute_events_stats.cpp вынесен в отдельный лёгкий листовой таргет
-    # :events_stats (зависит только от util/datetime, ничего больше) — он же нужен
-    # columnshard/counters:counters (TConcreteScanCounters::DebugString ->
-    # FormatDurationAsMilliseconds), которому весь тяжёлый compute_actor со
-    # множеством ещё не разведённых зависимостей (dq, federated_query, rm_service...)
-    # не нужен и не должен требоваться.
-    ":events_stats",
   ]
 
   deps = [
     # "//ydb/core/actorlib_impl",
-    # "//ydb/core/grpc_services",
-    # "//ydb/core/kqp/node_service",
-    # "//ydb/core/tx/columnshard/hooks/abstract",
+    "//ydb/core/grpc_services",
+    "//ydb/core/tx/columnshard/hooks/abstract",
     # "//ydb/core/tx/datashard",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/library/actors/wilson",
     # "//ydb/library/formats/arrow:protos",
     # "//ydb/library/wilson_ids",
-    # "//ydb/library/yql/dq/actors:input_transforms",
+    "//ydb/library/yql/dq/actors:input_transforms",
     # "//ydb/library/yql/dq/actors:protos",
     "//ydb/library/yql/dq/comp_nodes",
-    # "//ydb/library/yql/providers/generic/actors",
-    # "//ydb/library/yql/providers/pq/async_io",
-    # "//ydb/library/yql/providers/solomon/actors",
+    "//ydb/library/yql/providers/generic/actors",
+    "//ydb/library/yql/providers/pq/async_io",
+    "//ydb/library/yql/providers/solomon/actors",
     # "//yql/essentials/core/issue",
     # "//yql/essentials/core/issue:protos",
     # "//yql/essentials/public/issue",

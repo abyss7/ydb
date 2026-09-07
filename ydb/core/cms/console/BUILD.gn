@@ -2,7 +2,7 @@ library("console") {
   public_deps = [
     "//ydb/core/base",
     "//ydb/core/config/init",
-    "//ydb/core/control/lib/generated",
+    "//ydb/core/control/lib",
     "//ydb/core/jaeger_tracing",
     "//ydb/core/protos",
     "//ydb/core/tablet_flat",
@@ -14,8 +14,6 @@ library("console") {
   deps = [
     ":util",
     ":validators",
-    "//library/cpp/getopt",
-    "//library/cpp/http/io",
     "//library/cpp/json",
     "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/monlib/service/pages",

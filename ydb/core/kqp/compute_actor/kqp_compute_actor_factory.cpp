@@ -2,7 +2,7 @@
 #include "kqp_compute_actor.h"
 
 #include <ydb/core/kqp/common/kqp_resolve.h>
-#include <ydb/core/kqp/node_service/kqp_node_state.h>
+#include <ydb/core/base/appdata.h>
 #include <ydb/core/kqp/rm_service/kqp_resource_estimation.h>
 
 namespace NKikimr::NKqp::NComputeActor {
@@ -188,13 +188,13 @@ public:
         }
 
         NYql::NDq::IMemoryQuotaManager::TWeakPtr memoryQuotaManager = memoryLimits.MemoryQuotaManager;
-        runtimeSettings.TerminateHandler = [memoryQuotaManager, state=args.State, txId=args.TxId, taskId=args.Task->GetId()]
+        runtimeSettings.TerminateHandler = [memoryQuotaManager, onTaskFinished=args.OnTaskFinished, txId=args.TxId, taskId=args.Task->GetId()]
             (bool success, const NYql::TIssues& issues) {
                 if (auto manager = memoryQuotaManager.lock()) {
                     static_cast<TMemoryQuotaManager*>(manager.get())->TerminateHandler(success, issues);
                 }
-                if (state) {
-                    state->OnTaskFinished(txId, taskId, success);
+                if (onTaskFinished) {
+                    onTaskFinished(txId, taskId, success);
                 }
             };
 

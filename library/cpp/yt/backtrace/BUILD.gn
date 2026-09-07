@@ -1,7 +1,11 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("backtrace") {
-    deps = [
-        "symbolizers:dwarf",
-        "//library/cpp/yt/assert",
-    ]
-    sources = [ "backtrace.cpp" ]
+  deps = [
+    "symbolizers:dwarf",
+    "//library/cpp/yt/memory",
+    # "//library/cpp/yt/string",
+  ]
+
+  sources = [ "backtrace.cpp" ]
 }

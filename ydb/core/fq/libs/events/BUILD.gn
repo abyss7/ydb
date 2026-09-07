@@ -1,7 +1,11 @@
 library("events") {
   public_deps = [
-    "//ydb/library/actors/core:events",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/yql/providers/common/db_id_async_resolver",
     "//ydb/library/yql/providers/dq/provider",
+    # "//ydb/public/sdk/cpp/src/client/table",
+    # "//yql/essentials/core/facade",
+    # "//yql/essentials/public/issue",
   ]
 
   deps = [

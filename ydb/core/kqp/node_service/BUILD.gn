@@ -3,11 +3,11 @@ library("node_service") {
     "//ydb/core/base",
     # "//ydb/core/kqp/common",
     # "//ydb/core/kqp/common:simple",
-    # "//ydb/core/kqp/compute_actor",
+    "//ydb/core/kqp/compute_actor",
     # "//ydb/core/kqp/counters",
     "//ydb/core/kqp/federated_query",
     # "//ydb/core/kqp/rm_service",
-    # "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime",
     # "//ydb/core/protos",
     # "//ydb/core/util",
     # "//ydb/library/accessor",
@@ -19,7 +19,7 @@ library("node_service") {
   ]
 
   deps = [
-    # "//library/cpp/monlib/service/pages",
+    "//library/cpp/monlib/service/pages",
     # "//ydb/core/actorlib_impl",
     # "//ydb/core/cms/console",
     # "//ydb/core/kqp/common:shutdown",

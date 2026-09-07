@@ -1,6 +1,6 @@
 library("init") {
   public_deps = [
-    # "//library/cpp/getopt:small",
+    "//library/cpp/getopt:small",
     "//ydb/core/base",
     # "//ydb/core/driver_lib/run",
     # "//ydb/core/protos",
@@ -10,9 +10,7 @@ library("init") {
   ]
 
   deps = [
-    "//library/cpp/messagebus:config",
     "//library/cpp/svnversion",
-    "//library/cpp/threading/future",
     # "//ydb/core/config/validation",
     "//ydb/core/driver_lib/cli_config_base",
     # "//ydb/library/aclib",
@@ -22,7 +20,6 @@ library("init") {
     "//ydb/public/sdk/cpp/src/client/config",
     "//ydb/public/sdk/cpp/src/client/discovery",
     # "//ydb/public/sdk/cpp/src/client/driver",
-    "//ydb/public/sdk/cpp/src/client/types/status",
   ]
 
   sources = [

@@ -1,10 +1,10 @@
 library("attributes") {
   public_deps = [
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
   ]
 
   deps = [
-    # "//library/cpp/digest/md5",
+    "//library/cpp/digest/md5",
   ]
 
   sources = [

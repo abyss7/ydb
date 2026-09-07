@@ -1,7 +1,7 @@
 library("common") {
   public_deps = [
     # "//library/cpp/monlib/dynamic_counters",
-    # "//ydb/library/conclusion",
+    "//ydb/library/conclusion",
     # "//ydb/library/conclusion/generic",
     # "//ydb/library/yql/dq/actors:protos",
   ]
@@ -13,15 +13,15 @@ library("filters") {
   public_deps = [
     # ":common",
     # "//library/cpp/monlib/dynamic_counters",
-    # "//ydb/core/fq/libs/row_dispatcher/events",
+    "//ydb/core/fq/libs/row_dispatcher/events",
     # "//yql/essentials/public/udf",
   ]
 
   deps = [
-    # "//contrib/libs/fmt",
+    "//contrib/libs/fmt",
     # "//ydb/core/fq/libs/actors:logging",
-    # "//yql/essentials/minikql/computation",
-    # "//yql/essentials/providers/common/schema:parser",
+    "//yql/essentials/minikql/computation",
+    "//yql/essentials/providers/common/schema:parser",
     # "//yql/essentials/public/purecalc/common",
   ]
 
@@ -33,18 +33,22 @@ library("filters") {
 
 library("format_handler") {
   public_deps = [
-    # ":filters",
-    # ":parsers",
-    # "//ydb/core/fq/libs/row_dispatcher/common",
+    ":filters",
+    ":parsers",
+    "//ydb/core/fq/libs/row_dispatcher/common",
     # "//ydb/core/fq/libs/row_dispatcher/events",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/util",
   ]
 
   deps = [
+    ":common",
     # "//ydb/core/fq/libs/actors:logging",
     # "//ydb/library/yql/dq/common",
-    # "//yql/essentials/minikql/computation",
+    "//ydb/public/sdk/cpp/src/client/topic/impl",
+    "//yql/essentials/minikql",
+    "//yql/essentials/minikql/computation",
+    "//yql/essentials/public/udf",
   ]
 
   sources = [ "format_handler.cpp" ]
@@ -53,19 +57,19 @@ library("format_handler") {
 library("parsers") {
   public_deps = [
     # "//ydb/core/fq/libs/row_dispatcher/common",
-    # "//yql/essentials/minikql",
+    "//yql/essentials/minikql",
   ]
 
   deps = [
-    # ":common",
-    # "//contrib/libs/simdjson",
+    ":common",
+    "//contrib/libs/simdjson",
     # "//library/cpp/containers/absl_flat_hash",
-    # "//ydb/core/fq/libs/actors:logging",
+    "//ydb/core/fq/libs/actors:logging",
     # "//ydb/core/fq/libs/row_dispatcher/events",
-    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
-    # "//yql/essentials/minikql/dom",
-    # "//yql/essentials/providers/common/schema:mkql",
-    # "//yql/essentials/public/udf",
+    "//ydb/public/sdk/cpp/src/client/topic/impl",
+    "//yql/essentials/minikql/dom",
+    "//yql/essentials/providers/common/schema:mkql",
+    "//yql/essentials/public/udf",
   ]
 
   sources = [

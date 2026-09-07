@@ -1,4 +1,8 @@
 library("global") {
-    deps = [ "//library/cpp/yt/assert" ]
-    sources = [ "impl.cpp" ]
+  public_deps = [
+    "//library/cpp/yt/memory",
+    # "//library/cpp/yt/misc",
+  ]
+
+  sources = [ "impl.cpp" ]
 }

@@ -2,14 +2,11 @@ library("inference") {
   public_deps = [ "//ydb/library/actors/core" ]
 
   deps = [
+    ":object_storage",
     "//contrib/libs/apache/arrow",
-    # "//ydb/core/external_sources/object_storage",
     "//ydb/library/yql/providers/s3/compressors",
-    "//ydb/library/yql/udfs/common/clickhouse/client",
+    "//ydb/library/yql/udfs/common/clickhouse/client", # ADDINCL
     # "//ydb/public/api/protos",
-    "//ydb/public/sdk/cpp/adapters/issue",
-    "//ydb/public/sdk/cpp/src/client/types/status",
-    "//yql/essentials/public/issue",
   ]
 
   sources = [
@@ -30,8 +27,8 @@ library("object_storage") {
     "//ydb/library/yql/providers/s3/common",
     "//ydb/library/yql/providers/s3/credentials",
     # "//ydb/public/api/protos",
-    # "//ydb/public/sdk/cpp/adapters/issue",
-    # "//ydb/public/sdk/cpp/src/client/types/status",
+    "//ydb/public/sdk/cpp/adapters/issue",
+    "//ydb/public/sdk/cpp/src/client/types/status",
   ]
 
   sources = [ "s3_fetcher.cpp" ]
