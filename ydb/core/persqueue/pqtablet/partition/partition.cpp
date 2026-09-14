@@ -10,6 +10,8 @@
 #include <ydb/core/base/blobstorage.h>
 #include <ydb/core/base/counters.h>
 #include <ydb/core/base/path.h>
+#include <ydb/core/persqueue/common/metering.h>
+#include <ydb/core/persqueue/pqtablet/partition/explicit_message_groups.h>
 #include <ydb/core/persqueue/pqtablet/common/event_helpers.h>
 #include <ydb/core/persqueue/pqtablet/common/logging.h>
 #include <ydb/core/persqueue/pqtablet/common/tracing_support.h>
@@ -126,11 +128,6 @@ static const ui32 MAX_USERS = 1000;
 static const ui32 MAX_KEYS = 10000;
 static const ui32 MAX_TXS = 1000;
 static const ui32 MAX_WRITE_CYCLE_SIZE = 16_MB;
-
-TEvPQ::TMessageGroupsPtr CreateExplicitMessageGroups(const NKikimrPQ::TBootstrapConfig& bootstrapCfg,
-                                                     const NKikimrPQ::TPartitions& partitionsData,
-                                                     const TPartitionGraph& graph,
-                                                     ui32 partitionId);
 
 TStringBuilder MakeTxWriteErrorMessage(TMaybe<ui64> txId,
                                        TStringBuf topicName, const TPartitionId& partitionId,
@@ -1515,14 +1512,14 @@ void TPartition::ProcessPendingEvent(std::unique_ptr<TEvPQ::TEvGetWriteInfoReque
               std::back_inserter(response->BodyKeys));
     std::move(BlobEncoder.DataKeysBody.begin(), BlobEncoder.DataKeysBody.end(),
               std::back_inserter(response->BodyKeys));
-    response->SrcIdInfo = std::move(SourceIdStorage.ExtractInMemorySourceIds());
+    response->SrcIdInfo = SourceIdStorage.ExtractInMemorySourceIds();
 
     response->BytesWrittenGrpc = BytesWrittenGrpc.Value();
     response->BytesWrittenUncompressed = BytesWrittenUncompressed.Value();
     response->BytesWrittenTotal = BytesWrittenTotal.Value();
     response->MessagesWrittenTotal = MsgsWrittenTotal.Value();
     response->MessagesWrittenGrpc = MsgsWrittenGrpc.Value();
-    response->MessagesSizes = std::move(MessageSize.GetValues());
+    response->MessagesSizes = MessageSize.GetValues();
     response->InputLags = std::move(SupportivePartitionTimeLag);
     response->WrittenBytes = AutopartitioningManager->GetWrittenBytes();
 
@@ -1839,7 +1836,7 @@ void TPartition::Handle(TEvPQ::TEvUpdateReadMetrics::TPtr& ev, const TActorConte
     if (!UsersInfoStorage) {
         return;
     }
-    
+
     auto userInfo = UsersInfoStorage.Get()->GetIfExists(ev->Get()->ClientId);
     if (!userInfo || !userInfo->LabeledCounters) {
         return;

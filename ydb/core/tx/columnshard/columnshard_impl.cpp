@@ -183,21 +183,6 @@ NOlap::TSnapshot TColumnShard::GetMaxReadVersion() const {
     }
 }
 
-NOlap::TSnapshot TColumnShard::GetMinReadSnapshot() const {
-    ui64 delayMillisec = NYDBTest::TControllers::GetColumnShardController()->GetMaxReadStaleness().MilliSeconds();
-    ui64 passedStep = GetOutdatedStep();
-    ui64 minReadStep = (passedStep > delayMillisec ? passedStep - delayMillisec : 0);
-
-    if (auto ssClean = InFlightReadsTracker.GetSnapshotToClean()) {
-        if (ssClean->GetPlanStep() < minReadStep) {
-            Counters.GetRequestsTracingCounters()->OnDefaultMinSnapshotInstant(TInstant::MilliSeconds(ssClean->GetPlanStep()));
-            return *ssClean;
-        }
-    }
-    Counters.GetRequestsTracingCounters()->OnDefaultMinSnapshotInstant(TInstant::MilliSeconds(minReadStep));
-    return NOlap::TSnapshot::MaxForPlanStep(minReadStep);
-}
-
 void TColumnShard::UpdateSchemaSeqNo(const TMessageSeqNo& seqNo, NTabletFlatExecutor::TTransactionContext& txc) {
     if (LastSchemaSeqNo < seqNo) {
         LastSchemaSeqNo = seqNo;
@@ -1536,11 +1521,6 @@ void TColumnShard::OnTieringModified(const std::optional<TInternalPathId> pathId
             TablesManager.MutablePrimaryIndex().OnTieringModified(TablesManager.GetTtl());
         }
     }
-}
-
-const NKikimr::NColumnShard::NTiers::TManager* TColumnShard::GetTierManagerPointer(const TString& tierId) const {
-    Y_ABORT_UNLESS(!!Tiers);
-    return Tiers->GetManagerOptional(tierId);
 }
 
 } // namespace NKikimr::NColumnShard

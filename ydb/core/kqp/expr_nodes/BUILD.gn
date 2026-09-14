@@ -5,11 +5,7 @@ generate_expr_nodes("gen") {
 }
 
 library("expr_nodes") {
-    deps = [
-        ":gen",
-    ]
+    public_deps = [ ":gen" ]
 
-    sources = [
-        "kqp_expr_nodes.cpp",
-    ]
+    sources = [ "kqp_expr_nodes.cpp" ]
 }

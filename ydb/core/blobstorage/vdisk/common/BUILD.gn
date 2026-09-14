@@ -23,7 +23,7 @@ library("common") {
     # "//ydb/core/blobstorage/pdisk",
     # "//ydb/core/blobstorage/storagepoolmon",
     # "//ydb/core/blobstorage/vdisk/ingress",
-    # "//ydb/core/blobstorage/vdisk/protos",
+    "//ydb/core/blobstorage/vdisk/protos",
     "//ydb/core/control/lib",
     # "//ydb/core/protos",
     "//ydb/core/util",

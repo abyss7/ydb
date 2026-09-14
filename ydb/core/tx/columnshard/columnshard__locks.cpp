@@ -29,14 +29,6 @@ private:
     ui64 LockId;
 };
 
-void TColumnShard::SubscribeLockIfNotAlready(const ui64 lockId, const ui32 lockNodeId) const {
-    auto& lock = OperationsManager->GetLockVerified(lockId);
-    if (!lock.IsSubscribed()) {
-        lock.SetSubscribed();
-        Send(NLongTxService::MakeLongTxServiceID(SelfId().NodeId()), std::make_unique<NLongTxService::TEvLongTxService::TEvSubscribeLock>(lockId, lockNodeId));
-    }
-}
-
 void TColumnShard::TransactionToAbort(const ui64 lockId) {
     if (auto lock = OperationsManager->GetLockOptional(lockId)) {
         lock->SetNeedsAborting();

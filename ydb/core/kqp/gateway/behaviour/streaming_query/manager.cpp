@@ -6,6 +6,7 @@
 #include <ydb/core/protos/feature_flags.pb.h>
 #include <ydb/core/protos/schemeshard/operations.pb.h>
 #include <ydb/library/yql/providers/pq/proto/dq_io.pb.h>
+#include <ydb/services/metadata/events.h>
 #include <ydb/services/metadata/service.h>
 
 #include <library/cpp/protobuf/interop/cast.h>
@@ -211,7 +212,7 @@ TAsyncStatus TStreamingQueryManager::DoModify(const NYql::TObjectSettingsImpl& s
 }
 
 TYqlConclusionStatus TStreamingQueryManager::DoPrepare(NKqpProto::TKqpSchemeOperation& schemeOperation, const NYql::TObjectSettingsImpl& settings, const NMetadata::IClassBehaviour::TPtr& manager, TInternalModificationContext& context) const {
-    Y_UNUSED(manager);    
+    Y_UNUSED(manager);
 
     try {
         switch (context.GetActivityType()) {

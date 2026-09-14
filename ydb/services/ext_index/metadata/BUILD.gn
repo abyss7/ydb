@@ -26,19 +26,19 @@ library("extractor") {
 
 library("metadata") {
   public_deps = [
+    # ":extractor",
     # "//contrib/libs/apache/arrow",
     # "//library/cpp/json",
     # "//library/cpp/json:writer",
     # "//ydb/library/accessor",
     # "//ydb/public/api/protos",
-    # "//ydb/services/metadata/abstract",
-    # "//ydb/services/metadata/manager",
-    # ":extractor",
+    "//ydb/services/metadata/abstract",
+    "//ydb/services/metadata/manager",
   ]
 
   deps = [
-    # "//ydb/core/ydb_convert",
-    # "//ydb/services/metadata/ds_table",
+    "//ydb/core/ydb_convert",
+    "//ydb/services/metadata/ds_table",
   ]
 
   sources = [

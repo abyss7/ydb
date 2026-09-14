@@ -14,7 +14,12 @@ library("evlog") {
 }
 
 library("memory_tracker") {
-  deps = [ "//ydb/core/base" ]
+  deps = [
+    "//library/cpp/html/escape",
+    "//ydb/core/base",
+    "//ydb/core/mon",
+  ]
+
   sources = [ "memory_tracker.cpp" ]
 }
 

@@ -1,10 +1,14 @@
 library("kv") {
   public_deps = [
-    # "//ydb/library/workload/abstract",
+    "//ydb/library/workload/abstract",
   ]
 
   deps = [
+    "//library/cpp/getopt:small",
     # "//ydb/core/util",
+    "//ydb/public/sdk/cpp/src/client/query",
+    "//ydb/public/sdk/cpp/src/client/result",
+    "//ydb/public/sdk/cpp/src/client/table",
   ]
 
   sources = [

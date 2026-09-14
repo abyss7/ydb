@@ -7,6 +7,7 @@
 #include <ydb/core/tx/scheme_cache/scheme_cache.h>
 #include <ydb/library/actors/core/actor_bootstrapped.h>
 #include <ydb/library/actors/core/hfunc.h>
+#include <ydb/services/metadata/events.h>
 #include <ydb/services/metadata/secret/fetcher.h>
 #include <ydb/services/metadata/secret/secret.h>
 #include <ydb/services/metadata/secret/snapshot.h>

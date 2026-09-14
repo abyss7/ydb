@@ -1,13 +1,13 @@
 library("ds_table") {
   public_deps = [
     # "//ydb/core/protos",
-    # "//ydb/core/tx/schemeshard",
+    "//ydb/core/tx/schemeshard",
     # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
     # "//ydb/services/metadata",
-    # "//ydb/services/metadata/abstract",
+    "//ydb/services/metadata/abstract",
     # "//ydb/services/metadata/common",
-    # "//ydb/services/metadata/initializer",
+    "//ydb/services/metadata/initializer",
     # "//ydb/services/metadata/manager",
     # "//ydb/services/metadata/request",
   ]

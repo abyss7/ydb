@@ -1,24 +1,24 @@
 library("service") {
   public_deps = [
     # "//ydb/core/base",
-    # "//ydb/core/change_exchange",
+    "//ydb/core/change_exchange",
     # "//ydb/core/protos",
     # "//ydb/core/scheme",
     # "//ydb/core/scheme_types",
     # "//ydb/core/tablet_flat",
-    # "//ydb/core/tx/replication/common",
+    "//ydb/core/tx/replication/common",
   ]
 
   deps = [
     # "//library/cpp/json",
-    # "//ydb/core/fq/libs/row_dispatcher/purecalc_compilation",
-    # "//ydb/core/io_formats/cell_maker",
+    "//ydb/core/fq/libs/row_dispatcher/purecalc_compilation",
+    "//ydb/core/io_formats/cell_maker",
     # "//ydb/core/tx/datashard",
-    # "//ydb/core/tx/replication/ydb_proxy",
-    # "//ydb/core/tx/scheme_cache",
-    # "//ydb/core/tx/tx_proxy",
-    # "//ydb/core/wrappers",
-    # "//ydb/library/actors/core",
+    "//ydb/core/tx/replication/ydb_proxy:local_proxy",
+    "//ydb/core/tx/scheme_cache",
+    "//ydb/core/tx/tx_proxy:public",
+    "//ydb/core/wrappers",
+    "//ydb/library/actors/core",
     # "//ydb/library/services",
   ]
 

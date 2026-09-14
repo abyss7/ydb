@@ -21,6 +21,7 @@
 #include "data_sharing/modification/events/change_owning.h"
 #include "data_sharing/source/events/control.h"
 #include "data_sharing/source/events/transfer.h"
+#include "hooks/abstract/abstract.h"
 #include "normalizer/abstract/abstract.h"
 #include "operations/events.h"
 #include "operations/manager.h"
@@ -318,7 +319,16 @@ class TColumnShard: public TActor<TColumnShard>, public NTabletFlatExecutor::TTa
 
     void Handle(TEvColumnShard::TEvOverloadUnsubscribe::TPtr& ev, const TActorContext& ctx);
     void Handle(NLongTxService::TEvLongTxService::TEvLockStatus::TPtr& ev, const TActorContext& ctx);
-    void SubscribeLockIfNotAlready(const ui64 lockId, const ui32 lockNodeId) const;
+    // Inline so that reader code built outside this target
+    // (engines/reader/common_reader/constructor:shard) can call it without linking
+    // the tablet; everything it touches is complete in this header.
+    void SubscribeLockIfNotAlready(const ui64 lockId, const ui32 lockNodeId) const {
+        auto& lock = OperationsManager->GetLockVerified(lockId);
+        if (!lock.IsSubscribed()) {
+            lock.SetSubscribed();
+            Send(NLongTxService::MakeLongTxServiceID(SelfId().NodeId()), std::make_unique<NLongTxService::TEvLongTxService::TEvSubscribeLock>(lockId, lockNodeId));
+        }
+    }
     void ProposeTransaction(std::shared_ptr<TCommitOperation> op, const TActorId source, const ui64 cookie);
     void TransactionToAbort(const ui64 lockId);
     void MaybeAbortTransaction(const ui64 lockId);
@@ -337,8 +347,6 @@ class TColumnShard: public TActor<TColumnShard>, public NTabletFlatExecutor::TTa
     void DefaultSignalTabletActive(const TActorContext& ctx) override {
         Y_UNUSED(ctx);
     }
-
-    const NTiers::TManager* GetTierManagerPointer(const TString& tierId) const;
 
     void Die(const TActorContext& ctx) override;
 
@@ -580,7 +588,24 @@ private:
     void SendWaitPlanStep(ui64 step);
     void RescheduleWaitingReads();
     NOlap::TSnapshot GetMaxReadVersion() const;
-    NOlap::TSnapshot GetMinReadSnapshot() const;
+    // Inline so that the reader scanner constructors
+    // (engines/reader/{plain,simple}_reader/constructor), which are built outside
+    // this target, can call it without linking the tablet. Everything it touches
+    // is inline and complete here.
+    NOlap::TSnapshot GetMinReadSnapshot() const {
+        ui64 delayMillisec = NYDBTest::TControllers::GetColumnShardController()->GetMaxReadStaleness().MilliSeconds();
+        ui64 passedStep = GetOutdatedStep();
+        ui64 minReadStep = (passedStep > delayMillisec ? passedStep - delayMillisec : 0);
+
+        if (auto ssClean = InFlightReadsTracker.GetSnapshotToClean()) {
+            if (ssClean->GetPlanStep() < minReadStep) {
+                Counters.GetRequestsTracingCounters()->OnDefaultMinSnapshotInstant(TInstant::MilliSeconds(ssClean->GetPlanStep()));
+                return *ssClean;
+            }
+        }
+        Counters.GetRequestsTracingCounters()->OnDefaultMinSnapshotInstant(TInstant::MilliSeconds(minReadStep));
+        return NOlap::TSnapshot::MaxForPlanStep(minReadStep);
+    }
     ui64 GetOutdatedStep() const {
         ui64 step = LastPlannedStep;
         if (MediatorTimeCastEntry) {

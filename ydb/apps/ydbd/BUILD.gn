@@ -12,7 +12,12 @@ executable("ydbd") {
     deps += [
         ":export",
         "//ydb/core/driver_lib:run",
+        "//ydb/core/http_proxy",
+        "//ydb/core/security",
+        "//ydb/core/security:token_manager",
+        "//ydb/core/transfer",
         "//ydb/core/ymq/actor",
+        "//ydb/library/pdisk_io",
     ]
 
     sources = [ "main.cpp" ]

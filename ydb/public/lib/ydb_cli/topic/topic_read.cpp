@@ -2,7 +2,10 @@
 #include "topic_read.h"
 #include "topic_write.h"
 
-#include <ydb/public/lib/ydb_cli/commands/ydb_common.h>
+#include <ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/driver/driver.h>
+#include <ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/types/operation/operation.h>
+#include <ydb/public/lib/ydb_cli/common/command.h>
+#include <ydb/public/lib/ydb_cli/common/duration.h>
 
 #include <library/cpp/json/json_reader.h>
 #include <library/cpp/json/json_writer.h>

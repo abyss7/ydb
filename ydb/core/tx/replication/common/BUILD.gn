@@ -1,11 +1,11 @@
 library("common") {
   public_deps = [
     # "//ydb/library/actors/core",
-    # "//ydb/library/protobuf_printer",
+    "//ydb/library/protobuf_printer",
   ]
 
   deps = [
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
   ]
 
   sources = [ "worker_id.cpp" ]

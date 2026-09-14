@@ -12,7 +12,7 @@ class THttpRequestContext {
 public:
     THttpRequestContext(TActorSystem* actorSystem, NHttp::THttpIncomingRequestPtr request, NActors::TActorId sender, TInstant startedAt, TIntrusivePtr<::NMonitoring::TDynamicCounters> counters);
     THttpRequestContext(const THttpRequestContext&) = default;
-    THttpRequestContext(const THttpRequestContext&&) = default;
+    THttpRequestContext(const THttpRequestContext&&) = delete;
 
     void ResponseBadRequest(Ydb::StatusIds::StatusCode status, const TString& errorText) const;
     void ResponseBadRequestJson(Ydb::StatusIds::StatusCode status, const TString& json) const;

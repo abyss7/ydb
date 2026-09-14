@@ -1,11 +1,11 @@
 library("auth") {
   public_deps = [
-    # "//ydb/core/grpc_services/base",
-    # "//ydb/public/api/grpc",
+    "//ydb/core/grpc_services/base",
+    "//ydb/public/api/grpc",
   ]
 
   deps = [
-    # "//ydb/core/grpc_services",
+    "//ydb/core/grpc_services",
     # "//ydb/library/grpc/server",
     # "//ydb/public/sdk/cpp/src/client/resources",
   ]

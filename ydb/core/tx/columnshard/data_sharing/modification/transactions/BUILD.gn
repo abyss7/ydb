@@ -1,14 +1,15 @@
-library("transactions") {
-  public_deps = [
-    # "//ydb/core/tx/columnshard",
-    # "//ydb/core/tx/columnshard/engines/writer",
-    # "//ydb/core/tx/columnshard/tablet",
-  ]
+# yamake2gn: keep  -- hand-written, do not regenerate
+#
+# tx_change_blobs_owning.cpp is compiled inside //ydb/core/tx/columnshard.
+# TTxApplyLinksModification derives from TExtendedTransactionBase and its header
+# includes columnshard_impl.h, while columnshard_impl.cpp is the only caller of
+# TTaskForTablet::BuildModificationTransaction, which constructs it -- so the
+# transaction belongs to the tablet's target. That also keeps
+# data_sharing/modification/tasks free of any edge towards the tablet, which
+# would otherwise close a cycle back through data_sharing/manager ->
+# source/session -> destination/events. Kept as a redirect for existing
+# dependants.
 
-  deps = [
-    # "//ydb/core/tx/columnshard/data_sharing/modification/events",
-    # "//ydb/core/tx/columnshard/data_sharing/modification/tasks",
-  ]
-
-  sources = [ "tx_change_blobs_owning.cpp" ]
+group("transactions") {
+  public_deps = [ "//ydb/core/tx/columnshard" ]
 }

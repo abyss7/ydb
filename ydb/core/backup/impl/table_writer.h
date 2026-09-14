@@ -2,6 +2,8 @@
 
 #include <ydb/core/base/defs.h>
 
+#include <ydb/library/actors/core/actor.h>
+
 namespace NKikimr {
     struct TPathId;
 }

@@ -1,9 +1,11 @@
 library("scheduler") {
-    deps = [
-        "//ydb/library/actors/core",
-    ]
+  deps = [
+    "//library/cpp/time_provider",
+    "//ydb/library/actors/core",
+    "//ydb/library/actors/interconnect:poller",
+  ]
 
-    sources = [
-        "scheduler_actor.cpp",
-    ]
+  sources = [
+    "scheduler_actor.cpp",
+  ]
 }

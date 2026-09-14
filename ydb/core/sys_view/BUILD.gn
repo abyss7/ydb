@@ -131,22 +131,22 @@ library("pg_tables") {
 
 library("processor") {
   public_deps = [
-    # "//ydb/core/base",
-    # "//ydb/library/actors/core",
+    "//ydb/core/base",
+    "//ydb/library/actors/core",
   ]
 
   deps = [
     # ":common",
-    # ":service",
+    ":service",
     # "//library/cpp/monlib/service/pages",
-    # "//ydb/core/engine:minikql",
-    # "//ydb/core/grpc_services/counters",
-    # "//ydb/core/kqp/counters",
+    "//ydb/core/engine:minikql",
+    "//ydb/core/grpc_services/counters",
+    "//ydb/core/kqp/counters",
     # "//ydb/core/protos",
-    # "//ydb/core/tablet",
-    # "//ydb/core/tablet_flat",
-    # "//ydb/core/tx",
-    # "//ydb/core/tx/scheme_cache",
+    "//ydb/core/tablet",
+    "//ydb/core/tablet_flat",
+    "//ydb/core/tx",
+    "//ydb/core/tx/scheme_cache",
     # "//ydb/library/actors/util",
   ]
 

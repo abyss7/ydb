@@ -1,6 +1,6 @@
 library("actors") {
   public_deps = [
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",
     # "//ydb/library/grpc/server",
   ]
 
@@ -9,18 +9,18 @@ library("actors") {
 
 library("server") {
   public_deps = [
+    "//contrib/libs/grpc",
+    "//contrib/libs/protobuf",
     # "//library/cpp/logger",
     "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/monlib/dynamic_counters:percentile",
     # "//library/cpp/string_utils/quote",
     # "//library/cpp/threading/future",
-    # "//ydb/library/protobuf_printer",
+    "//ydb/library/protobuf_printer",
     # "//ydb/public/sdk/cpp/src/client/resources",
   ]
 
   deps = [
-    "//contrib/libs/grpc",
-    "//contrib/libs/protobuf",
     "//library/cpp/time_provider",
   ]
 

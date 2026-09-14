@@ -1,31 +1,53 @@
 library("antlr4") {
   public_deps = [
-    # "//contrib/libs/antlr4_cpp_runtime",
+    "//contrib/libs/antlr4-c3",
+    "//contrib/libs/antlr4_cpp_runtime",
   ]
 
   sources = [ "antlr4/vocabulary.cpp" ]
 }
 
+library("check") {
+  deps = [
+    ":complete",
+    "//yql/essentials/ast",
+    "//yql/essentials/sql/v1/complete/analysis/yql",
+    "//yql/essentials/sql/v1/complete/name/cluster:static",
+    "//yql/essentials/sql/v1/complete/name/object/simple",
+    "//yql/essentials/sql/v1/complete/name/object/simple:static",
+    "//yql/essentials/sql/v1/complete/name/service:cluster",
+    "//yql/essentials/sql/v1/complete/name/service:ranking",
+    "//yql/essentials/sql/v1/complete/name/service:schema",
+    "//yql/essentials/sql/v1/complete/name/service:union",
+    "//yql/essentials/sql/v1/lexer",
+    "//yql/essentials/sql/v1/lexer:antlr4_pure",
+    "//yql/essentials/sql/v1/lexer:antlr4_pure_ansi",
+  ]
+
+  sources = [ "check/check_complete.cpp" ]
+}
+
 library("complete") {
   public_deps = [
+    ":core",
     # "//library/cpp/threading/future",
     # "//yql/essentials/sql/v1/complete/name/service",
-    # "//yql/essentials/sql/v1/complete/name/service:ranking",
-    # "//yql/essentials/sql/v1/lexer",
-    # ":core",
+    "//yql/essentials/sql/v1/complete/name/service:ranking",
+    "//yql/essentials/sql/v1/lexer",
   ]
 
   deps = [
-    # "//yql/essentials/sql/v1/complete/analysis/global",
-    # "//yql/essentials/sql/v1/complete/analysis/local",
+    ":syntax",
+    # ":text",
+    "//library/cpp/yson:node",
+    "//yql/essentials/sql/v1/complete/analysis/global",
+    "//yql/essentials/sql/v1/complete/analysis/local",
     # "//yql/essentials/sql/v1/complete/name/object/simple:static",
-    # "//yql/essentials/sql/v1/complete/name/service:binding",
-    # "//yql/essentials/sql/v1/complete/name/service:column",
+    "//yql/essentials/sql/v1/complete/name/service:binding",
+    "//yql/essentials/sql/v1/complete/name/service:column",
     # "//yql/essentials/sql/v1/complete/name/service:schema",
     # "//yql/essentials/sql/v1/complete/name/service:static",
-    # "//yql/essentials/sql/v1/complete/name/service:union",
-    # ":syntax",
-    # ":text",
+    "//yql/essentials/sql/v1/complete/name/service:union",
   ]
 
   sources = [
@@ -37,11 +59,11 @@ library("complete") {
 
 library("core") {
   public_deps = [
-    # "//library/cpp/yson:node",
+    "//library/cpp/yson:node",
   ]
 
   deps = [
-    # "//yql/essentials/core/sql_types",
+    "//yql/essentials/core/sql_types",
   ]
 
   sources = [
@@ -54,16 +76,17 @@ library("core") {
 
 library("syntax") {
   public_deps = [
+    ":antlr4",
     # "//contrib/libs/antlr4_cpp_runtime",
-    # ":antlr4",
+    "//yql/essentials/parser/antlr_ast/gen/v1_antlr4",
   ]
 
   deps = [
-    # "//contrib/libs/re2",
-    # "//yql/essentials/public/issue",
-    # "//yql/essentials/sql/v1/lexer/regex",
-    # "//yql/essentials/sql/v1/reflect",
-    # "//yql/essentials/sql:settings",
+    "//contrib/libs/re2",
+    "//yql/essentials/public/issue",
+    "//yql/essentials/sql/v1/lexer/regex",
+    "//yql/essentials/sql/v1/reflect",
+    "//yql/essentials/sql:settings",
   ]
 
   sources = [

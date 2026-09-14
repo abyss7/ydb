@@ -4,7 +4,6 @@
 #include "subscriber.h"
 #include <ydb/core/persqueue/public/counters/percentile_counter.h>
 #include <ydb/core/persqueue/public/constants.h>
-#include <ydb/core/persqueue/pqtablet/metering_sink.h>
 #include <ydb/core/persqueue/dread_cache_service/caching_service.h>
 
 #include <ydb/core/base/counters.h>

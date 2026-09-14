@@ -2,6 +2,7 @@
 
 #include "defs.h"
 
+#include <ydb/library/actors/core/actor.h>
 #include <ydb/library/actors/core/mon.h>
 
 namespace NKikimr::NCms {

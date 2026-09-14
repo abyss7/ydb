@@ -2,7 +2,7 @@ library("test_tablet") {
   deps = [
     # "//contrib/libs/t1ha",
     # "//library/cpp/json",
-    # "//ydb/core/keyvalue",
+    "//ydb/core/keyvalue",
     # "//ydb/core/protos",
     # "//ydb/core/tablet_flat",
     # "//ydb/core/util",

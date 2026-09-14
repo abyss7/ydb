@@ -95,12 +95,13 @@ template("library") {
 
     if (defined(invoker.serialize_enum_headers)) {
         _enum_target = "${target_name}_enum"
-        _output = "{{source_gen_dir}}/{{source_name_part}}_serialized.cpp"
+        _output = "{{source_gen_dir}}/{{source_file_part}}_serialized.cpp"
+        _header = "{{source_gen_dir}}/{{source_file_part}}_serialized.h"
 
         action_foreach(_enum_target) {
             script = "//build/gn/scripts/run.py"
             sources = invoker.serialize_enum_headers
-            outputs = [ "$_output" ]
+            outputs = [ "$_output", "$_header" ]
 
             _enum_parser_bin = rebase_path("$root_out_dir/enum_parser", root_build_dir)
 
@@ -109,6 +110,7 @@ template("library") {
                 "{{source}}",
                 "--include-path", "{{source_root_relative_dir}}/{{source_file_part}}",
                 "--output", "$_output",
+                "--header", "$_header",
             ]
 
             deps = [ "//tools/enum_parser:enum_parser" ]

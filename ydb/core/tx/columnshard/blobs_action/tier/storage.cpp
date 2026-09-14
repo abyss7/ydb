@@ -104,7 +104,11 @@ TOperator::TOperator(const TString& storageId, const NColumnShard::TColumnShard&
     , TabletActorId(shard.SelfId())
     , Generation(shard.Executor()->Generation())
     , ExternalStorageOperator(std::make_shared<TExternalStorageOperatorHolder>()) {
-    InitNewExternalOperator(shard.GetTierManagerPointer(storageId));
+    // Reads shard.Tiers directly (TOperator is a friend of TColumnShard) rather than
+    // through a TColumnShard method defined in columnshard_impl.cpp -- that single
+    // call was the only thing tying the tier storage to the tablet's target.
+    Y_ABORT_UNLESS(!!shard.Tiers);
+    InitNewExternalOperator(shard.Tiers->GetManagerOptional(storageId));
 }
 
 TOperator::TOperator(const TString& storageId, const TActorId& shardActorId,

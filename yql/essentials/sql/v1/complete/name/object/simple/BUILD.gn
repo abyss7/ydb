@@ -1,19 +1,19 @@
 library("cached") {
   public_deps = [
+    ":simple",
     # "//yql/essentials/sql/v1/complete/name/cache",
-    # "//yql/essentials/sql/v1/complete/name/object/simple",
   ]
+
+  deps = [ "//library/cpp/threading/future" ]
 
   sources = [ "cached/schema.cpp" ]
 }
 
 library("simple") {
   public_deps = [
-    # "//yql/essentials/sql/v1/complete/name/object",
-  ]
-
-  deps = [
-    # "//library/cpp/case_insensitive_string",
+    "//library/cpp/case_insensitive_string",
+    "//library/cpp/threading/future",
+    "//yql/essentials/sql/v1/complete/name/object",
   ]
 
   sources = [ "schema.cpp" ]
@@ -21,12 +21,12 @@ library("simple") {
 
 library("static") {
   public_deps = [
-    # "//yql/essentials/sql/v1/complete/name/object/simple",
+    ":simple",
   ]
 
   deps = [
     # "//library/cpp/iterator",
-    # "//library/cpp/json",
+    "//library/cpp/json",
   ]
 
   sources = [

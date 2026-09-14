@@ -1,13 +1,23 @@
 library("binding") {
   public_deps = [
-    # "//yql/essentials/sql/v1/complete/name/service",
+    "//yql/essentials/sql/v1/complete/name/service",
   ]
 
   deps = [
-    # ":static",
+    ":static",
   ]
 
   sources = [ "binding/name_service.cpp" ]
+}
+
+library("cluster") {
+  deps = [
+    "//library/cpp/case_insensitive_string",
+    "//library/cpp/threading/future",
+    "//yql/essentials/sql/v1/complete/name/service",
+  ]
+
+  sources = [ "cluster/name_service.cpp" ]
 }
 
 library("column") {
@@ -19,7 +29,7 @@ library("column") {
 
   deps = [
     # "//library/cpp/case_insensitive_string",
-    # "//yql/essentials/sql/v1/complete/name/object/simple:static",
+    "//yql/essentials/sql/v1/complete/name/object/simple:static",
   ]
 
   sources = [
@@ -38,12 +48,12 @@ library("impatient") {
 
 library("ranking") {
   public_deps = [
-    # "//yql/essentials/sql/v1/complete/name/service",
+    "//yql/essentials/sql/v1/complete/name/service",
   ]
 
   deps = [
-    # "//library/cpp/json",
-    # "//library/cpp/resource",
+    "//library/cpp/json",
+    "//library/cpp/resource",
   ]
 
   sources = [
@@ -61,7 +71,7 @@ library("schema") {
 
   deps = [
     # "//library/cpp/iterator",
-    # "//library/cpp/threading/future",
+    "//library/cpp/threading/future",
   ]
 
   sources = [ "schema/name_service.cpp" ]
@@ -70,7 +80,7 @@ library("schema") {
 library("service") {
   public_deps = [
     # "//library/cpp/threading/future",
-    # "//yql/essentials/sql/v1/complete:core",
+    "//yql/essentials/sql/v1/complete:core",
   ]
 
   sources = [ "name_service.cpp" ]
@@ -79,15 +89,16 @@ library("service") {
 library("static") {
   public_deps = [
     # "//yql/essentials/sql/v1/complete/name/service",
-    # "//yql/essentials/sql/v1/complete:text",
+    "//yql/essentials/sql/v1/complete:text",
     # ":ranking",
   ]
 
   deps = [
-    # "//library/cpp/json",
-    # "//library/cpp/resource",
+    ":union",
+    "//library/cpp/json",
+    "//library/cpp/resource",
+    "//library/cpp/threading/future",
     # "//yql/essentials/sql/v1/complete:core",
-    # ":union",
   ]
 
   sources = [
@@ -100,12 +111,12 @@ library("static") {
 
 library("union") {
   public_deps = [
+    ":ranking",
     # "//yql/essentials/sql/v1/complete/name/service",
-    # ":ranking",
   ]
 
   deps = [
-    # "//library/cpp/threading/future",
+    "//library/cpp/threading/future",
   ]
 
   sources = [ "union/name_service.cpp" ]

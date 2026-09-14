@@ -16,6 +16,7 @@ library("base") {
     "//ydb/library/actors/interconnect",
     "//ydb/library/login",
     "//ydb/library/pdisk_io:device_type",
+    "//ydb/library/pretty_types_print:protobuf",
   ]
 
   deps = [

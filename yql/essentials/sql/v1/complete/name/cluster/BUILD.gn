@@ -1,0 +1,3 @@
+library("static") {
+  sources = [ "static/discovery.cpp" ]
+}

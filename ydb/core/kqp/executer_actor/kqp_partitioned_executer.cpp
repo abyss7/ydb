@@ -4,10 +4,10 @@
 
 #include <ydb/core/engine/minikql/minikql_engine_host.h>
 #include <ydb/core/kqp/common/kqp_batch_operations.h>
-#include <ydb/core/kqp/common/buffer/buffer.h>
 #include <ydb/core/kqp/common/buffer/events.h>
 #include <ydb/core/kqp/common/events/events.h>
 #include <ydb/core/kqp/common/kqp_resolve.h>
+#include <ydb/core/kqp/runtime/kqp_buffer_write_actor.h>
 #include <ydb/core/scheme/scheme_tabledefs.h>
 #include <ydb/core/tx/datashard/range_ops.h>
 #include <ydb/core/tx/scheme_cache/scheme_cache.h>

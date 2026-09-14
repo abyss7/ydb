@@ -1,14 +1,14 @@
 library("control") {
   public_deps = [
     # "//library/cpp/monlib/dynamic_counters",
-    # "//ydb/core/control/lib",
-    # "//ydb/library/actors/core",
+    "//ydb/core/control/lib",
+    "//ydb/library/actors/core",
   ]
 
   deps = [
     # "//library/cpp/monlib/service/pages",
-    # "//ydb/core/base",
-    # "//ydb/core/mon",
+    "//ydb/core/base",
+    "//ydb/core/mon",
     # "//ydb/library/services",
   ]
 

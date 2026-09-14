@@ -1,0 +1,12 @@
+library("yql") {
+    deps = [
+        "//yql/essentials/ast",
+        "//yql/essentials/core",
+    ]
+
+    sources = [
+        "cluster.cpp",
+        "table.cpp",
+        "yql.cpp",
+    ]
+}

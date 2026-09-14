@@ -1,19 +1,19 @@
 library("coordinator") {
   public_deps = [
-    # "//ydb/core/tx",
+    "//ydb/core/tx",
   ]
 
   deps = [
-    # ":public",
+    ":public",
     # "//library/cpp/containers/absl_flat_hash",
     # "//library/cpp/time_provider",
     # "//ydb/core/base",
     # "//ydb/core/control/lib",
-    # "//ydb/core/engine:minikql",
-    # "//ydb/core/protos",
+    "//ydb/core/engine:minikql",
+    "//ydb/core/protos",
     # "//ydb/core/scheme",
-    # "//ydb/core/tablet",
-    # "//ydb/core/tablet_flat",
+    "//ydb/core/tablet",
+    "//ydb/core/tablet_flat",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/util",
     # "//ydb/library/actors/core",
@@ -50,8 +50,8 @@ protobuf_library("protos") {
 
 library("public") {
   public_deps = [
-    # ":protos",
-    # "//ydb/core/base",
+    ":protos",
+    "//ydb/core/base",
     # "//ydb/core/protos",
   ]
 

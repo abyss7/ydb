@@ -36,7 +36,7 @@ library("executer_actor") {
     # "//ydb/core/kqp/node_service",
     "//ydb/core/kqp/opt",
     # "//ydb/core/kqp/rm_service",
-    # "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime",
     "//ydb/core/kqp/session_actor:response",
     # "//ydb/core/persqueue/events",
     # "//ydb/core/protos/schemeshard",

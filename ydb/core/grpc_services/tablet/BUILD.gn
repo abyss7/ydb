@@ -2,9 +2,10 @@ library("tablet") {
   deps = [
     # "//library/cpp/protobuf/json",
     # "//ydb/core/base",
-    # "//ydb/core/grpc_services",
-    # "//ydb/core/grpc_services/base",
+    "//ydb/core/grpc_services",
+    "//ydb/core/grpc_services/base",
     # "//ydb/core/protos",
+    "//ydb/core/tablet",
     # "//ydb/library/mkql_proto",
     # "//ydb/public/api/protos",
     # "//yql/essentials/minikql",

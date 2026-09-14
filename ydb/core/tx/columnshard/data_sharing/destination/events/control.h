@@ -1,5 +1,5 @@
 #pragma once
-#include <ydb/core/tx/columnshard/columnshard.h>
+#include <ydb/core/tx/columnshard/columnshard_ev_ids.h>
 #include <ydb/core/tx/columnshard/data_sharing/protos/events.pb.h>
 
 #include <ydb/library/actors/core/events/event_pb.h>

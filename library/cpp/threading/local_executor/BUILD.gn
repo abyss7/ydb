@@ -1,10 +1,10 @@
 library("local_executor") {
   public_deps = [
-    # "//library/cpp/threading/future",
+    "//library/cpp/threading/future",
   ]
 
   deps = [
-    # "//contrib/libs/tbb",
+    "//contrib/libs/tbb",
   ]
 
   sources = [

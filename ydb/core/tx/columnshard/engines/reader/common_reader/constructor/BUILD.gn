@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("constructor") {
   public_deps = [
     "//ydb/core/formats/arrow:program",
@@ -29,9 +31,11 @@ library("shard") {
 
   deps = [
     "//ydb/core/kqp/compute_actor",
-    "//ydb/core/tx/columnshard",
+    "//ydb/core/protos",
     "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator",
+    "//ydb/core/tx/columnshard/operations",
     "//ydb/core/tx/columnshard/transactions:locks",
+    "//ydb/library/actors/core",
   ]
 
   sources = [ "read_metadata_shard.cpp" ]

@@ -7,11 +7,11 @@ library("service") {
   ]
 
   deps = [
-    # "//library/cpp/lwtrace/mon",
+    "//library/cpp/lwtrace/mon",
     # "//library/cpp/monlib/dynamic_counters",
-    # "//ydb/core/mon",
+    "//ydb/core/mon",
     # "//ydb/core/tx/columnshard/common",
-    # "//ydb/core/tx/limiter/grouped_memory/tracing",
+    "//ydb/core/tx/limiter/grouped_memory/tracing",
     # "//ydb/library/accessor",
   ]
 

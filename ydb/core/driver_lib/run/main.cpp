@@ -33,29 +33,6 @@
 
 namespace NKikimr {
 
-int MainRun(const TKikimrRunConfig& runConfig, std::shared_ptr<TModuleFactories> factories) {
-#ifdef _win32_
-    WSADATA dummy;
-    WSAStartup(MAKEWORD(2, 2), &dummy);
-#endif
-
-    TKikimrRunner::SetSignalHandlers();
-    Cout << "Starting Kikimr" << Endl;
-    Cout << GetProgramSvnVersion() << Endl;
-
-    TIntrusivePtr<TKikimrRunner> runner = TKikimrRunner::CreateKikimrRunner(runConfig, std::move(factories));
-    if (runner) {
-        runner->KikimrStart();
-        runner->BusyLoop();
-        // exit busy loop by a signal
-        Cout << "Shutting Kikimr down" << Endl;
-        runner->KikimrStop(false);
-    }
-
-    return 0;
-}
-
-
     void PrintAllocatorInfoAndExit() {
         Cout << "linked with malloc: " << NMalloc::MallocInfo().Name << Endl;
         exit(0);

@@ -2,21 +2,22 @@ library("logical") {
   public_deps = [
     "//ydb/core/kqp/opt",
     # "//yql/essentials/ast",
-    # "//yql/essentials/core/cbo",
+    "//yql/essentials/core/cbo",
   ]
 
   deps = [
     "//ydb/core/base",
     # "//ydb/core/kqp/common",
-    # "//ydb/core/kqp/opt/physical",
+    "//ydb/core/kqp/opt/physical",
     # "//ydb/core/kqp/provider",
     # "//ydb/core/protos",
-    # "//ydb/library/yql/dq/opt",
+    "//ydb/library/yql/dq/opt",
     # "//ydb/library/yql/providers/dq/common",
     # "//yql/essentials/core",
-    # "//yql/essentials/core/common_opt",
-    # "//yql/essentials/core/extract_predicate",
-    # "//yql/essentials/providers/common/transform",
+    "//yql/essentials/core/common_opt",
+    "//yql/essentials/core/extract_predicate",
+    "//yql/essentials/providers/common/provider",
+    "//yql/essentials/providers/common/transform",
     # "//yql/essentials/utils/log",
   ]
 

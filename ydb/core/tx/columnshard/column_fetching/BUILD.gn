@@ -1,6 +1,6 @@
 library("column_fetching") {
   public_deps = [
-    # "//ydb/core/tx/columnshard/engines/portions",
+    "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/core/tx/general_cache/source",
     # "//ydb/core/tx/general_cache/usage",
     # "//ydb/core/tx/limiter/grouped_memory/usage",

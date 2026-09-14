@@ -1,13 +1,13 @@
 library("highlight") {
   public_deps = [
-    # "//yql/essentials/sql/v1/lexer/regex",
-    # "//yql/essentials/sql/v1/reflect",
+    "//yql/essentials/sql/v1/lexer/regex",
+    "//yql/essentials/sql/v1/reflect",
   ]
 
   deps = [
-    # "//contrib/libs/re2",
-    # "//library/cpp/json",
-    # "//library/cpp/resource",
+    "//contrib/libs/re2",
+    "//library/cpp/json",
+    "//library/cpp/resource",
   ]
 
   sources = [

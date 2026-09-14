@@ -1,14 +1,15 @@
 library("address_classification") {
   public_deps = [
     # "//library/cpp/monlib/dynamic_counters",
-    # "//ydb/core/base",
-    # "//ydb/core/util",
+    "//ydb/core/base",
+    "//ydb/core/util",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
-    # "//ydb/core/cms/console",
-    # "//ydb/core/mon",
+    "//library/cpp/ipmath",
+    "//ydb/core/cms/console",
+    "//ydb/core/mon",
     # "//ydb/core/protos",
   ]
 
@@ -314,16 +315,16 @@ library("mind") {
   ]
 }
 
-# Composition root: maps every tablet type to its Create* factory, so it must
-# sit above all tablets rather than inside `mind`.
 library("configured_tablet_bootstrapper") {
   public_deps = [
+    ":mind",
     "//ydb/core/base",
     "//ydb/core/tablet",
-    ":mind",
   ]
 
   deps = [
+    ":bscontroller",
+    ":hive",
     "//ydb/core/backup/controller",
     "//ydb/core/blob_depot",
     "//ydb/core/cms",
@@ -342,7 +343,6 @@ library("configured_tablet_bootstrapper") {
     "//ydb/core/tx/schemeshard",
     "//ydb/core/tx/sequenceshard",
     "//ydb/core/tx/tx_allocator",
-    ":bscontroller",
   ]
 
   sources = [ "configured_tablet_bootstrapper.cpp" ]

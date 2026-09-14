@@ -1,7 +1,7 @@
 library("table") {
   public_deps = [
-    # "//ydb/library/formats/arrow/csv/converter",
-    # "//ydb/public/sdk/cpp/src/client/table",
+    "//ydb/library/formats/arrow/csv/converter",
+    "//ydb/public/sdk/cpp/src/client/table",
   ]
 
   deps = [

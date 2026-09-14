@@ -1,19 +1,25 @@
+config("lz_private_config") {
+  defines = [ "OPENSOURCE" ]
+}
+
 library("lz") {
   public_deps = [
-    # ":lz4",
-    # ":snappy",
+    ":lz4",
+    ":snappy",
   ]
 
   deps = [
-    # "//contrib/libs/fastlz",
+    "//contrib/libs/fastlz",
   ]
 
   sources = [ "lz.cpp" ]
+
+  configs = [ ":lz_private_config" ]
 }
 
 library("lz4") {
   public_deps = [
-    # "//contrib/libs/lz4",
+    "//contrib/libs/lz4",
   ]
 
   sources = [ "lz4/lz4.cpp" ]
@@ -21,7 +27,7 @@ library("lz4") {
 
 library("snappy") {
   public_deps = [
-    # "//contrib/libs/snappy",
+    "//contrib/libs/snappy",
   ]
 
   sources = [ "snappy/snappy.cpp" ]

@@ -1,11 +1,11 @@
 library("view") {
   public_deps = [
-    # "//ydb/core/grpc_services/base",
-    # "//ydb/public/api/grpc:draft",
+    "//ydb/core/grpc_services/base",
+    "//ydb/public/api/grpc:draft",
   ]
 
   deps = [
-    # "//ydb/core/grpc_services",
+    "//ydb/core/grpc_services",
     # "//ydb/library/grpc/server",
   ]
 

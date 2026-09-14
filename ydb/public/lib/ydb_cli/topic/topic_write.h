@@ -1,6 +1,11 @@
 #pragma once
 
-#include "ydb/public/lib/ydb_cli/commands/ydb_command.h"
+#include <ydb/public/lib/ydb_cli/common/command.h>
+#include <ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/driver/driver.h>
+#include <ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/types/operation/operation.h>
+#include <ydb/public/lib/ydb_cli/common/duration.h>
+#include <ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/draft/ydb_scripting.h>
+#include <library/cpp/logger/backend.h>
 #include <ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic/client.h>
 #include <ydb/public/lib/ydb_cli/common/format.h>
 #include <ydb/public/lib/ydb_cli/common/interruptable.h>
@@ -55,7 +60,7 @@ namespace NYdb::NConsoleClient {
     class TTopicWriter {
     public:
         TTopicWriter();
-        TTopicWriter(const TTopicWriter&) = default;
+        TTopicWriter(const TTopicWriter&) = delete;
         TTopicWriter(TTopicWriter&&) = default;
         TTopicWriter(std::shared_ptr<NTopic::IWriteSession>, TTopicWriterParams);
 

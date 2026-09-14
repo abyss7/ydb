@@ -3,6 +3,7 @@ LIBRARY()
 SRCS(
     autopartitioning_manager.cpp
     consumer_offset_tracker.cpp
+    explicit_message_groups.cpp
     message_id_deduplicator.cpp
     offload_actor.cpp
     ownerinfo.cpp

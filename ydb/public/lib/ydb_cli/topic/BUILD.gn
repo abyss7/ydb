@@ -1,14 +1,20 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("topic") {
   public_deps = [
-    # "//ydb/public/lib/ydb_cli/commands",
-    # "//ydb/public/lib/ydb_cli/common",
-    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
+    "//library/cpp/logger",
+    "//ydb/public/lib/ydb_cli/common",
+    "//ydb/public/sdk/cpp/src/client/draft",
+    "//ydb/public/sdk/cpp/src/client/driver",
+    "//ydb/public/sdk/cpp/src/client/persqueue_public",
+    "//ydb/public/sdk/cpp/src/client/proto",
+    "//ydb/public/sdk/cpp/src/client/topic/impl",
   ]
 
   deps = [
-    # "//contrib/libs/openssl",
-    # "//library/cpp/json",
-    # "//library/cpp/string_utils/base64",
+    "//contrib/libs/openssl",
+    "//library/cpp/json",
+    "//library/cpp/string_utils/base64",
   ]
 
   sources = [

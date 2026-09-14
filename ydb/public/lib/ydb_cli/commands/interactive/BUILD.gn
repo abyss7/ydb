@@ -1,14 +1,14 @@
 library("interactive") {
   public_deps = [
     # "//ydb/public/lib/ydb_cli/commands",
-    # "//ydb/public/lib/ydb_cli/common",
+    "//ydb/public/lib/ydb_cli/common",
   ]
 
   deps = [
     # "//library/cpp/resource",
     # "//ydb/library/yverify_stream",
-    # "//ydb/public/lib/ydb_cli/commands/interactive/common",
-    # "//ydb/public/lib/ydb_cli/commands/interactive/session",
+    "//ydb/public/lib/ydb_cli/commands/interactive/common",
+    "//ydb/public/lib/ydb_cli/commands/interactive/session",
     # "//ydb/public/sdk/cpp/src/client/query",
   ]
 

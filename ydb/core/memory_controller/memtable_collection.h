@@ -1,5 +1,7 @@
 #include <ydb/core/base/memory_controller_iface.h>
 
+#include <library/cpp/monlib/dynamic_counters/counters.h>
+
 namespace NKikimr::NMemory {
 
 using TCounterPtr = ::NMonitoring::TDynamicCounters::TCounterPtr;

@@ -5,6 +5,7 @@ library("actors") {
     "//ydb/core/kqp/common:events",
     # "//ydb/core/kqp/provider",
     # "//ydb/core/statistics",
+    "//ydb/core/tablet",
     "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/schemeshard",
     # "//ydb/core/tx/tx_proxy",
@@ -116,13 +117,17 @@ library("local_rpc") {
 library("utils") {
   public_deps = [
     # "//ydb/core/kqp/provider",
-    # "//ydb/services/metadata/manager",
+    "//ydb/services/metadata/manager",
   ]
 
   deps = [
     # ":actors",
     # "//ydb/core/cms/console",
     # "//ydb/core/protos/schemeshard",
+    "//ydb/core/tablet",
+    "//ydb/core/tx/tx_proxy",
+    "//ydb/library/yql/public/ydb_issue",
+    "//yql/essentials/providers/common/gateway",
   ]
 
   sources = [ "utils/metadata_helpers.cpp" ]

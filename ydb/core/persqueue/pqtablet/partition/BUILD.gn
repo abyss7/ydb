@@ -1,25 +1,33 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("mirrorer") {
   deps = [
-    # "//ydb/core/persqueue/common",
+    "//library/cpp/string_utils/base64",
+    "//ydb/core/persqueue/common",
     # "//ydb/core/persqueue/common:proxy",
     # "//ydb/core/persqueue/events",
-    # "//ydb/core/persqueue/public:counters",
-    # "//ydb/core/persqueue/public:write_meta",
-    # "//ydb/core/persqueue/writer",
+    "//ydb/core/persqueue/public:counters",
+    "//ydb/core/persqueue/public:write_meta",
+    "//ydb/core/persqueue/writer",
     # "//ydb/core/protos",
+    "//ydb/library/logger",
     # "//ydb/library/persqueue/counter_time_keeper",
-    # "//ydb/library/persqueue/topic_parser",
+    "//ydb/library/persqueue/topic_parser",
     # "//ydb/public/lib/base",
-    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
+    "//ydb/public/sdk/cpp/src/client/topic/impl",
   ]
 
   sources = [ "mirrorer/mirrorer.cpp" ]
 }
 
+config("mlp_private_config") {
+  cflags = [ "-Wno-c++11-narrowing" ]
+}
+
 library("mlp") {
   public_deps = [
-    # "//ydb/core/persqueue/public",
-    # "//ydb/core/tablet",
+    "//ydb/core/persqueue/public",
+    "//ydb/core/tablet",
     # "//ydb/library/actors/core",
   ]
 
@@ -28,10 +36,11 @@ library("mlp") {
     # "//library/cpp/time_provider",
     # "//ydb/core/base",
     # "//ydb/core/keyvalue",
-    # "//ydb/core/persqueue/common",
+    "//ydb/core/persqueue/common",
     # "//ydb/core/persqueue/events",
-    # "//ydb/core/persqueue/public:describer",
-    # "//ydb/core/persqueue/writer",
+    "//ydb/core/persqueue/public:describer",
+    "//ydb/core/persqueue/public:partition_key_range",
+    "//ydb/core/persqueue/writer",
     # "//ydb/core/protos",
     # "//ydb/core/util",
     # "//ydb/library/persqueue/counter_time_keeper",
@@ -50,50 +59,55 @@ library("mlp") {
   ]
 
   serialize_enum_headers = [ "mlp/mlp_storage.h" ]
+
+  configs = [ ":mlp_private_config" ]
 }
 
 library("partition") {
+  # No dep on //ydb/core/persqueue/pqtablet. Nothing here includes a header from
+  # that directory, and the name that looks shared -- struct TTransaction -- is
+  # declared right here in partition.h; pq_impl.h only forward-declares it.
   public_deps = [
     # "//library/cpp/sliding_window",
     # "//ydb/core/jaeger_tracing",
     # "//ydb/core/keyvalue",
-    # "//ydb/core/persqueue/common",
-    # "//ydb/core/persqueue/pqtablet/blob",
-    # "//ydb/core/persqueue/pqtablet/quota",
-    # "//ydb/core/persqueue/public",
-    # "//ydb/core/persqueue/public:partition_key_range",
-    # "//ydb/core/protos",
+    "//ydb/core/persqueue/common",
+    "//ydb/core/persqueue/pqtablet/blob",
+    "//ydb/core/persqueue/pqtablet/quota",
+    "//ydb/core/persqueue/public",
+    "//ydb/core/persqueue/public:partition_key_range",
+    "//ydb/core/protos",
     # "//ydb/library/actors/core",
     # "//ydb/library/persqueue/counter_time_keeper",
   ]
 
   deps = [
-    # ":mirrorer",
-    # ":mlp",
+    ":mirrorer",
+    ":mlp",
     # "//library/cpp/containers/absl_flat_hash",
     # "//library/cpp/containers/stack_vector",
-    # "//library/cpp/html/escape",
-    # "//library/cpp/html/pcdata",
+    "//library/cpp/html/escape",
+    "//library/cpp/html/pcdata",
     # "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/monlib/service/pages",
     # "//library/cpp/time_provider",
-    # "//ydb/core/backup/impl",
+    "//ydb/core/backup/impl",
     # "//ydb/core/base",
     # "//ydb/core/persqueue",
-    # "//ydb/core/persqueue/events",
-    # "//ydb/core/persqueue/pqtablet",
+    "//ydb/core/persqueue/events",
     # "//ydb/core/persqueue/pqtablet/cache",
-    # "//ydb/core/persqueue/pqtablet/common",
-    # "//ydb/core/persqueue/public:counters",
-    # "//ydb/core/persqueue/public:write_meta",
-    # "//ydb/core/persqueue/writer",
+    "//ydb/core/persqueue/pqtablet/common",
+    "//ydb/core/persqueue/public:counters",
+    "//ydb/core/persqueue/public:utils",
+    "//ydb/core/persqueue/public:write_meta",
+    "//ydb/core/persqueue/writer",
     # "//ydb/core/quoter:public",
     # "//ydb/core/scheme",
     # "//ydb/core/tablet",
-    # "//ydb/core/tx/replication/service",
+    "//ydb/core/tx/replication/service",
     # "//ydb/core/tx/replication/ydb_proxy",
     # "//ydb/core/tx/scheme_cache",
-    # "//ydb/library/persqueue/topic_parser",
+    "//ydb/library/persqueue/topic_parser",
     # "//ydb/library/protobuf_printer",
     # "//ydb/library/services",
     # "//ydb/library/wilson_ids",
@@ -104,6 +118,7 @@ library("partition") {
   sources = [
     "autopartitioning_manager.cpp",
     "consumer_offset_tracker.cpp",
+    "explicit_message_groups.cpp",
     "message_id_deduplicator.cpp",
     "offload_actor.cpp",
     "ownerinfo.cpp",

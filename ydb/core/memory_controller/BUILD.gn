@@ -1,7 +1,7 @@
 library("memory_controller") {
   public_deps = [
     # "//library/cpp/monlib/dynamic_counters",
-    # "//ydb/core/base",
+    "//ydb/core/base",
     # "//ydb/core/mon_alloc",
     # "//ydb/core/protos",
     # "//ydb/library/actors/core",
@@ -9,7 +9,7 @@ library("memory_controller") {
 
   deps = [
     # "//contrib/libs/apache/arrow",
-    # "//contrib/libs/tcmalloc",
+    "//contrib/libs/tcmalloc:malloc_extension",
     # "//ydb/core/cms/console",
     # "//ydb/core/node_whiteboard",
     # "//ydb/core/tablet",

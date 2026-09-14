@@ -7,10 +7,15 @@ library("rbo") {
   ]
 
   deps = [
-    # "//ydb/core/kqp/opt/logical",
+    "//ydb/core/kqp/opt/logical",
+    "//ydb/core/kqp/opt/peephole",
+    "//ydb/core/kqp/opt/physical",
     # "//ydb/core/kqp/provider",
-    # "//ydb/library/yql/dq/opt",
+    "//ydb/library/yql/dq/opt",
+    "//ydb/library/yql/dq/type_ann",
     # "//yql/essentials/core/cbo",
+    "//yql/essentials/core/peephole_opt",
+    "//yql/essentials/core/services",
     # "//yql/essentials/core/type_ann",
     "//yql/essentials/utils/log",
   ]
@@ -36,5 +41,24 @@ library("rbo") {
     "physical_convertion/kqp_rbo_physical_query_builder.cpp",
     "physical_convertion/kqp_rbo_physical_sort_builder.cpp",
     "physical_convertion/kqp_rbo_physical_source_builder.cpp",
+    "rules/apply_cbo.cpp",
+    "rules/assign_stages.cpp",
+    "rules/build_initial_cbo_tree.cpp",
+    "rules/constant_folding_stage.cpp",
+    "rules/correlated_filter_pullup.cpp",
+    "rules/expand_cbo_tree.cpp",
+    "rules/extract_join_expressions.cpp",
+    "rules/inline_cbo_tree.cpp",
+    "rules/inline_scalar_subplan.cpp",
+    "rules/inline_simple_in_exists_subplan.cpp",
+    "rules/peephole_predicate.cpp",
+    "rules/prune_columns_stage.cpp",
+    "rules/push_filter_into_join.cpp",
+    "rules/push_filter_under_map.cpp",
+    "rules/push_limit_into_sort.cpp",
+    "rules/push_map.cpp",
+    "rules/push_olap_filter.cpp",
+    "rules/remove_extra_renames_stage.cpp",
+    "rules/remove_identity_map.cpp",
   ]
 }

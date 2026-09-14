@@ -33,8 +33,8 @@ library("common") {
     "//ydb/public/sdk/cpp/src/client/table:query_stats",
     # "//ydb/public/sdk/cpp/src/client/types",
     # "//ydb/public/sdk/cpp/src/client/types/credentials",
-    # "//ydb/public/sdk/cpp/src/client/types/credentials:oauth2_token_exchange",
-    # "//ydb/public/sdk/cpp/src/client/types/status",
+    "//ydb/public/sdk/cpp/src/client/types/credentials:oauth2_token_exchange",
+    "//ydb/public/sdk/cpp/src/client/types/status",
   ]
 
   deps = [

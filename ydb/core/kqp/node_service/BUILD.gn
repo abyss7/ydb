@@ -24,7 +24,7 @@ library("node_service") {
     # "//ydb/core/cms/console",
     # "//ydb/core/kqp/common:shutdown",
     # "//ydb/core/mon",
-    # "//ydb/library/actors/async",
+    "//ydb/library/actors/async",
     # "//ydb/library/actors/wilson",
     # "//ydb/library/wilson_ids",
   ]

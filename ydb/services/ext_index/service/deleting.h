@@ -6,6 +6,7 @@
 
 #include <contrib/libs/apache/arrow/cpp/src/arrow/record_batch.h>
 #include <ydb/services/ext_index/common/config.h>
+#include <ydb/services/metadata/initializer/common.h>
 
 namespace NKikimr::NCSIndex {
 

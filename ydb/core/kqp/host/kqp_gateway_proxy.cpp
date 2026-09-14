@@ -9,6 +9,7 @@
 #include <ydb/core/ydb_convert/column_families.h>
 #include <ydb/core/ydb_convert/ydb_convert.h>
 #include <ydb/services/metadata/abstract/kqp_common.h>
+#include <ydb/services/metadata/manager/abstract.h>
 #include <ydb/services/lib/actors/pq_schema_actor.h>
 
 #include <util/generic/overloaded.h>

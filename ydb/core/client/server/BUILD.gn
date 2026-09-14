@@ -52,7 +52,6 @@ library("server") {
     # "//ydb/core/tx/tx_proxy",
     # "//ydb/library/aclib",
     # "//ydb/library/actors/protos",
-    "//ydb/library/protobuf_printer",
     # "//ydb/library/services",
     # "//ydb/library/wilson_ids",
     # "//ydb/library/ydb_issue",

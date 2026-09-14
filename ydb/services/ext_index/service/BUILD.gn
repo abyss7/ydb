@@ -1,9 +1,9 @@
 library("service") {
   public_deps = [
-    # "//ydb/services/ext_index/common",
-    # "//ydb/services/ext_index/metadata",
+    "//ydb/services/ext_index/common",
+    "//ydb/services/ext_index/metadata",
     # "//ydb/services/metadata",
-    # "//ydb/services/metadata/ds_table",
+    "//ydb/services/metadata/ds_table",
     # "//ydb/services/metadata/initializer",
   ]
 

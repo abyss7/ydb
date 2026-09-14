@@ -23,7 +23,7 @@ template("ragel6_source_set") {
         forward_variables_from(invoker, "*", [ "sources" ])
 
         if (defined(invoker.deps)) {
-            deps = invoker.deps
+            deps += invoker.deps
         } else {
             deps = []
         }

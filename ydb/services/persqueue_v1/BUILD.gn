@@ -88,7 +88,6 @@ library("persqueue_v1") {
     # "//ydb/core/persqueue/public:cluster_tracker",
     # "//ydb/core/tx/scheme_board",
     # "//ydb/library/cloud_permissions",
-    "//ydb/library/protobuf_printer",
     "//ydb/public/sdk/cpp/src/client/resources",
   ]
 

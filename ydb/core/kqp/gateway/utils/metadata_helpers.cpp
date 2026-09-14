@@ -2,6 +2,7 @@
 
 #include <ydb/core/cms/console/configs_dispatcher.h>
 #include <ydb/core/kqp/gateway/actors/scheme.h>
+#include <ydb/core/protos/console_config.pb.h>
 #include <ydb/core/protos/schemeshard/operations.pb.h>
 
 namespace NKikimr::NKqp {

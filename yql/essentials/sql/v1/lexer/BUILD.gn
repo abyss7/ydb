@@ -35,8 +35,9 @@ library("antlr4_pure") {
   ]
 
   deps = [
-    # "//yql/essentials/parser/common",
-    # "//yql/essentials/parser/common:antlr4",
+    "//yql/essentials/parser/antlr_ast/gen/v1_antlr4",
+    "//yql/essentials/parser/common",
+    "//yql/essentials/parser/common:antlr4",
     # "//yql/essentials/public/issue",
   ]
 
@@ -49,8 +50,9 @@ library("antlr4_pure_ansi") {
   ]
 
   deps = [
-    # "//yql/essentials/parser/common",
-    # "//yql/essentials/parser/common:antlr4",
+    "//yql/essentials/parser/antlr_ast/gen/v1_ansi_antlr4",
+    "//yql/essentials/parser/common",
+    "//yql/essentials/parser/common:antlr4",
     # "//yql/essentials/public/issue",
   ]
 

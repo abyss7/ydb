@@ -35,7 +35,7 @@ public:
         if (!any.has_value()) {
             return {};
         }
-        TColumnContext context = std::move(std::any_cast<TColumnContext>(any));
+        TColumnContext context = std::any_cast<TColumnContext>(any);
 
         TMaybe<TString> alias = GetAlias(ctx);
         if (alias.Empty()) {
@@ -69,7 +69,7 @@ public:
     std::any visitSelect_core(SQLv1::Select_coreContext* ctx) override {
         TColumnContext without;
         if (std::any any = VisitNullable(ctx->without_column_list()); any.has_value()) {
-            without = std::move(std::any_cast<TColumnContext>(any));
+            without = std::any_cast<TColumnContext>(any);
         }
 
         TColumnContext context = AccumulatingVisit(ctx->result_column());
@@ -265,7 +265,7 @@ private:
                     return acc;
                 }
 
-                TColumnContext child = std::move(std::any_cast<TColumnContext>(any));
+                TColumnContext child = std::any_cast<TColumnContext>(any);
                 return std::move(acc) | std::move(child);
             });
     }

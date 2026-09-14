@@ -1,0 +1,10 @@
+library("service") {
+    deps = [
+        "//ydb/core/graph/api",
+        "//ydb/core/tablet",
+        "//ydb/core/tx/scheme_cache",
+        "//ydb/library/actors/core",
+    ]
+
+    sources = [ "service_impl.cpp" ]
+}

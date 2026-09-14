@@ -1,9 +1,2 @@
-ydb/core/driver_lib/run
-ydb/core/blobstorage/vdisk/balance
-ydb/core/blobstorage/vdisk/query
-ydb/core/blobstorage/vdisk/repl
-ydb/core/health_check
-ydb/core/config/init
-ydb/core/blobstorage/bridge/proxy
-ydb/core/blobstorage/vdisk/scrub
+ydb/public/sdk/cpp/src/client/types/executor
 ydb/apps/ydbd

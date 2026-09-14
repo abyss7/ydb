@@ -21,13 +21,14 @@ library("compile_service") {
     # "//ydb/core/kqp/counters",
     "//ydb/core/kqp/rm_service",
     "//ydb/core/kqp/query_data",
-    # "//ydb/core/kqp/session_actor",
+    "//ydb/core/kqp/session_actor:worker_common",
     "//ydb/core/ydb_convert",
     # "//ydb/library/aclib",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/wilson",
     # "//ydb/library/wilson_ids",
     "//ydb/library/yql/utils/actor_log",
+    "//yql/essentials/providers/common/config",
   ]
 
   sources = [

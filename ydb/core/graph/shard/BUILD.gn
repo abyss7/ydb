@@ -1,0 +1,21 @@
+library("shard") {
+    deps = [
+        "//ydb/core/engine:minikql",
+        "//ydb/core/graph/protos",
+        "//ydb/core/tablet_flat",
+        "//ydb/core/tx",
+        "//ydb/library/actors/core",
+    ]
+
+    sources = [
+        "backends.cpp",
+        "shard_impl.cpp",
+        "tx_aggregate_data.cpp",
+        "tx_change_backend.cpp",
+        "tx_get_metrics.cpp",
+        "tx_init_schema.cpp",
+        "tx_monitoring.cpp",
+        "tx_startup.cpp",
+        "tx_store_metrics.cpp",
+    ]
+}

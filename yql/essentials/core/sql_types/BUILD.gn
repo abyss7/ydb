@@ -1,6 +1,9 @@
 library("sql_types") {
-  deps = [
+  public_deps = [
     "//yql/essentials/core/issue",
+  ]
+
+  deps = [
     "//yql/essentials/utils",
   ]
 

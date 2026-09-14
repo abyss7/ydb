@@ -6,16 +6,19 @@ library("long_tx_service") {
   ]
 
   deps = [
-    # ":public",
+    ":public",
     # "//library/cpp/lwtrace",
-    # "//library/cpp/lwtrace/mon",
-    # "//ydb/core/actorlib_impl",
-    # "//ydb/core/base",
+    "//library/cpp/lwtrace/mon",
+    "//ydb/core/actorlib_impl",
+    "//ydb/core/base",
+    "//ydb/core/tx",
     # "//ydb/core/tx/columnshard",
-    # "//ydb/core/tx/tx_proxy",
+    "//ydb/core/tx/tx_proxy:public",
+    "//ydb/core/tx/scheme_cache",
     # "//ydb/core/util",
     # "//ydb/library/actors/core",
     # "//ydb/library/services",
+    "//ydb/library/ydb_issue",
   ]
 
   sources = [
@@ -38,7 +41,7 @@ library("public") {
     "//ydb/core/protos",
     "//ydb/core/util",
     # "//ydb/public/api/protos",
-    # "//yql/essentials/public/issue",
+    "//yql/essentials/public/issue",
   ]
 
   deps = [

@@ -1,5 +1,6 @@
 #include "viewer_topic_data.h"
 #include <library/cpp/protobuf/json/proto2json.h>
+#include <library/cpp/string_utils/base64/base64.h>
 #include <ydb/core/persqueue/public/constants.h>
 #include <ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic/codecs.h>
 #include <ydb/services/lib/auth/auth_helpers.h>
@@ -174,7 +175,7 @@ void TTopicData::FillProtoResponse(ui64 maxTotalSize) {
             data.resize(MaxSingleMessageSize);
         }
         totalSize += data.size();
-        protoMessage.SetMessage(std::move(Base64Encode(data)));
+        protoMessage.SetMessage(Base64Encode(data));
     };
     ProtoResponse.SetStartOffset(cmdRead.GetStartOffset());
     ProtoResponse.SetEndOffset(cmdRead.GetEndOffset());
@@ -203,7 +204,7 @@ void TTopicData::FillProtoResponse(ui64 maxTotalSize) {
                 return ReplyAndPassAway(GetHTTPINTERNALERROR("text/plain", "Message decompression failed"));
             }
             try {
-                setData(*messageProto, std::move(codec->Decompress(dataChunk.GetData())));
+                setData(*messageProto, codec->Decompress(dataChunk.GetData()));
             } catch (const std::exception& e) {
                 setData(*messageProto, ">>> Message decompression failed <<<");
             }

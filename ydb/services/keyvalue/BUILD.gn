@@ -2,12 +2,12 @@ library("keyvalue") {
   public_deps = [
     # "//ydb/library/actors/core",
     # "//ydb/library/grpc/server",
-    # "//ydb/public/api/grpc",
+    "//ydb/public/api/grpc",
   ]
 
   deps = [
-    # "//ydb/core/base",
-    # "//ydb/core/grpc_services",
+    "//ydb/core/base",
+    "//ydb/core/grpc_services",
     # "//ydb/core/grpc_services/base",
     # "//ydb/core/jaeger_tracing",
   ]

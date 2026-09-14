@@ -42,7 +42,7 @@ using TRequestMaker = std::function<bool()>;
 using TCallableFactory = std::function<TRequestMaker()>;
 
 struct TResult {
-    TResult() = default;
+    TResult() = delete;
 
     TResult(TCommandPing::EPingKind kind, int threadCount, NHdr::THistogram&& hist, int throughput)
         : Kind(kind)

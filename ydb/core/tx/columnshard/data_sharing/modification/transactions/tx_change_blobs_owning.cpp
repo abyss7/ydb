@@ -4,6 +4,13 @@
 
 namespace NKikimr::NOlap::NDataSharing {
 
+// Defined here rather than in modification/tasks: it constructs
+// TTxApplyLinksModification, so keeping it there made the whole task module
+// depend on this one -- and on the tablet behind it.
+NKikimr::TConclusion<std::unique_ptr<NKikimr::NTabletFlatExecutor::ITransaction>> TTaskForTablet::BuildModificationTransaction(NColumnShard::TColumnShard* self, const TTabletId initiator, const TString& sessionId, const ui64 packIdx, const std::shared_ptr<TTaskForTablet>& selfPtr) {
+    return std::unique_ptr<NTabletFlatExecutor::ITransaction>(new TTxApplyLinksModification(self, selfPtr, sessionId, initiator, packIdx));
+}
+
 bool TTxApplyLinksModification::DoExecute(TTransactionContext& txc, const TActorContext&) {
     NActors::TLogContextGuard logGuard = NActors::TLogContextBuilder::Build(NKikimrServices::TX_COLUMNSHARD)("tablet_id", Self->TabletID())("tx_state", "execute");
     Task->ApplyForDB(txc, Self->GetStoragesManager()->GetSharedBlobsManager());

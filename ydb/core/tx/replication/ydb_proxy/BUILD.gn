@@ -1,7 +1,7 @@
 library("local_proxy") {
   public_deps = [
-    # "//ydb/core/grpc_services/base",
     ":ydb_proxy",
+    # "//ydb/core/grpc_services/base",
     # "//ydb/library/actors/core",
   ]
 

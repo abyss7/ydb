@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ydb/library/actors/core/actor.h>
 #include <ydb/core/base/defs.h>
 
 namespace NKikimr {

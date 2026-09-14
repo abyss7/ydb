@@ -2,7 +2,7 @@ library("benchmark_base") {
   public_deps = [
     # "//library/cpp/json",
     # "//ydb/library/accessor",
-    # "//ydb/library/workload/abstract",
+    "//ydb/library/workload/abstract",
   ]
 
   deps = [
@@ -10,12 +10,12 @@ library("benchmark_base") {
     # "//contrib/libs/fmt",
     # "//contrib/libs/yaml-cpp",
     # "//library/cpp/colorizer",
-    # "//library/cpp/streams/factory/open_by_signature",
-    # "//ydb/library/formats/arrow:validation",
-    # "//ydb/library/yaml_json",
+    "//library/cpp/streams/factory/open_by_signature",
+    "//ydb/library/formats/arrow:validation",
+    "//ydb/library/yaml_json",
     # "//ydb/library/yverify_stream",
-    # "//ydb/public/api/protos",
-    # "//ydb/public/lib/ydb_cli/import",
+    "//ydb/public/api/protos",
+    "//ydb/public/lib/ydb_cli/import",
   ]
 
   sources = [

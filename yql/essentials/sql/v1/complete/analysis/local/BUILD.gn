@@ -2,15 +2,16 @@ library("local") {
   public_deps = [
     # "//yql/essentials/sql/v1/complete",
     # "//yql/essentials/sql/v1/complete:core",
-    # "//yql/essentials/sql/v1/lexer",
+    "//yql/essentials/sql/v1/lexer",
   ]
 
   deps = [
-    # "//yql/essentials/core/issue",
+    "//yql/essentials/core/issue",
+    "//yql/essentials/parser/antlr_ast/gen/v1_ansi_antlr4",
     # "//yql/essentials/parser/lexer_common",
-    # "//yql/essentials/sql/v1/complete:antlr4",
-    # "//yql/essentials/sql/v1/complete:syntax",
-    # "//yql/essentials/sql/v1/complete:text",
+    "//yql/essentials/sql/v1/complete:antlr4",
+    "//yql/essentials/sql/v1/complete:syntax",
+    "//yql/essentials/sql/v1/complete:text",
   ]
 
   sources = [

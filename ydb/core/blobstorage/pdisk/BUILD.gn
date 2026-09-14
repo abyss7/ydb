@@ -1,11 +1,13 @@
 library("metadata") {
+  allow_undefined = true
+
   public_deps = [
-    # "//ydb/core/blobstorage/pdisk",
+    "//ydb/core/blobstorage/pdisk",
     # "//ydb/core/protos",
   ]
 
   deps = [
-    # "//library/cpp/openssl/crypto",
+    "//library/cpp/openssl/crypto",
     # "//ydb/library/actors/core",
   ]
 

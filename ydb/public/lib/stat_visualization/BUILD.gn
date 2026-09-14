@@ -1,7 +1,7 @@
 library("stat_visualization") {
   deps = [
     # "//library/cpp/json",
-    # "//ydb/public/lib/ydb_cli/common",
+    "//ydb/public/lib/ydb_cli/common",
   ]
 
   sources = [

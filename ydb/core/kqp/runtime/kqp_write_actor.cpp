@@ -1,6 +1,7 @@
 #include "kqp_write_actor.h"
 
 #include "kqp_buffer_lookup_actor.h"
+#include "kqp_buffer_write_actor.h"
 #include "kqp_write_actor_settings.h"
 #include "kqp_write_table.h"
 
@@ -9,7 +10,6 @@
 #include <ydb/core/base/tablet_pipecache.h>
 #include <ydb/core/engine/minikql/minikql_engine_host.h>
 #include <ydb/core/formats/arrow/arrow_batch_builder.h>
-#include <ydb/core/kqp/common/buffer/buffer.h>
 #include <ydb/core/kqp/common/kqp_data_integrity_trails.h>
 #include <ydb/core/kqp/common/kqp_locks_tli_helpers.h>
 #include <ydb/core/kqp/common/kqp_tx_manager.h>

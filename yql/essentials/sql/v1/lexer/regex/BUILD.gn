@@ -10,9 +10,17 @@ config("private_config") {
 }
 
 library("regex") {
+    deps = [
+        "//contrib/libs/re2",
+        "//yql/essentials/core/issue",
+        "//yql/essentials/sql/v1/reflect",
+    ]
+
     sources = [
         "generic.cpp",
         "lexer.cpp",
         "regex.cpp",
     ]
+
+    configs = [ ":private_config" ]
 }

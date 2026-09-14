@@ -1237,9 +1237,9 @@ namespace NYdb::NConsoleClient {
         {
             auto writeSession = NTopic::TTopicClient(*driver).CreateWriteSession(std::move(PrepareWriteSessionSettings()));
             auto writer =
-                TTopicWriter(writeSession, std::move(TTopicWriterParams(MessagingFormat, Delimiter_, MessageSizeLimit_, BatchDuration_,
-                                                                        BatchSize_, BatchMessagesCount_, GetTransform(),
-                                                                        MessagesWaitTimeout_)));
+                TTopicWriter(writeSession, TTopicWriterParams(MessagingFormat, Delimiter_, MessageSizeLimit_, BatchDuration_,
+                                                              BatchSize_, BatchMessagesCount_, GetTransform(),
+                                                              MessagesWaitTimeout_));
 
             if (int status = writer.Init(); status) {
                 return status;

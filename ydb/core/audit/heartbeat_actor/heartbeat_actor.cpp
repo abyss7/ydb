@@ -10,6 +10,8 @@
 
 #include <ydb/core/audit/audit_log.h>
 
+#include <util/string/cast.h>
+
 namespace NKikimr::NAudit {
 
 namespace {

@@ -43,6 +43,14 @@ template("antlr_run") {
             "$target_gen_dir/${_name}Lexer.cpp",
             "$target_gen_dir/${_name}Lexer.h",
         ]
+        # RUN_ANTLR4_CPP(... VISITOR): the visitor headers are real outputs that
+        # consumers include, so ninja must know who produces them.
+        if (defined(invoker.visitor) && invoker.visitor) {
+            _outputs += [
+                "$target_gen_dir/${_name}Visitor.h",
+                "$target_gen_dir/${_name}BaseVisitor.h",
+            ]
+        }
     } else {
         assert(false, "antlr_run: unknown language '${invoker.language}'")
     }
@@ -70,6 +78,9 @@ template("antlr_run") {
             "-lib", ".",
             _out_flag, rebase_path(target_gen_dir),
         ]
+        if (defined(invoker.visitor) && invoker.visitor) {
+            args += [ "-visitor" ]
+        }
         if (defined(invoker.extra_args)) {
             args += invoker.extra_args
         }

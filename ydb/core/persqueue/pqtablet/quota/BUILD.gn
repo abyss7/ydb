@@ -1,17 +1,17 @@
 library("quota") {
   public_deps = [
-    # "//ydb/core/persqueue/events",
+    "//ydb/core/persqueue/events",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
     # "//ydb/core/base",
     # "//ydb/core/persqueue/common",
-    # "//ydb/core/persqueue/pqtablet/common",
-    # "//ydb/core/persqueue/public",
-    # "//ydb/core/persqueue/public:counters",
-    # "//ydb/core/quoter:public",
-    # "//ydb/library/persqueue/topic_parser",
+    "//ydb/core/persqueue/pqtablet/common",
+    "//ydb/core/persqueue/public",
+    "//ydb/core/persqueue/public:counters",
+    "//ydb/core/quoter:public",
+    "//ydb/library/persqueue/topic_parser",
   ]
 
   sources = [

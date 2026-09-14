@@ -262,10 +262,10 @@ class TLogWriterLoadTestActor : public TActorBootstrapped<TLogWriterLoadTestActo
             ui32 blobSize = SizeGenerator.Generate();
             const TLogoBlobID id(tabletId, gen, step, channel, blobSize, BlobCookie++);
             const TRcBuf buffer = GenerateBuffer(id, contentType, nullptr, false, ctx);
-            
+
             auto ev = std::make_unique<TEvBlobStorage::TEvPut>(id, buffer, TInstant::Max(), PutHandleClass);
             InFlightTracker.Request(blobSize);
-            return std::move(ev);
+            return ev;
         }
 
         std::unique_ptr<TEvBlobStorage::TEvCollectGarbage> ManageKeepFlags(ui64 tabletId, ui32 gen, ui32 step,
@@ -320,7 +320,7 @@ class TLogWriterLoadTestActor : public TActorBootstrapped<TLogWriterLoadTestActo
         ui32 BlobsToWrite = 0;
         ui64 ConfirmedDataSize = 0;
         TVector<TLogoBlobID> ConfirmedBlobs;
-        ui32 CollectedBlobsPerMille = 0; 
+        ui32 CollectedBlobsPerMille = 0;
 
         TInFlightTracker InFlightTracker;
 

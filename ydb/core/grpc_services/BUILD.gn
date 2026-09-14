@@ -249,6 +249,11 @@ library("request_proxy") {
     "//ydb/services/ydb",
   ]
 
+  deps = [
+    "//ydb/core/audit:audit_config",
+    "//ydb/core/security:sasl",
+  ]
+
   sources = [ "grpc_request_proxy.cpp" ]
 }
 

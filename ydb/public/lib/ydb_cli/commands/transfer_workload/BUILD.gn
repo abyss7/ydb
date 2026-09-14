@@ -1,20 +1,9 @@
-library("transfer_workload") {
-  public_deps = [
-    # "//ydb/public/lib/ydb_cli/common",
-  ]
+# yamake2gn: keep  -- hand-written, do not regenerate
+#
+# Compiled inside //ydb/public/lib/ydb_cli/commands: this workload's commands and
+# the topic scenarios in the parent directory need each other, and that target
+# is the only user. Kept as a redirect for existing dependants.
 
-  deps = [
-    # "//ydb/public/lib/ydb_cli/commands",
-    # "//ydb/public/lib/ydb_cli/commands/topic_workload",
-    # "//ydb/public/sdk/cpp/src/client/impl/internal/logger",
-  ]
-
-  sources = [
-    "transfer_workload.cpp",
-    "transfer_workload_defines.cpp",
-    "transfer_workload_topic_to_table.cpp",
-    "transfer_workload_topic_to_table_clean.cpp",
-    "transfer_workload_topic_to_table_init.cpp",
-    "transfer_workload_topic_to_table_run.cpp",
-  ]
+group("transfer_workload") {
+  public_deps = [ "//ydb/public/lib/ydb_cli/commands" ]
 }

@@ -107,7 +107,6 @@ library("schemeshard") {
     # "//ydb/library/actors/http",
     # "//ydb/library/login:account_lockout",
     "//ydb/library/login:password_checker",
-    "//ydb/library/pretty_types_print:protobuf",
     "//ydb/library/protobuf_printer",
     # "//ydb/library/security",
     # "//ydb/public/api/protos/annotations",

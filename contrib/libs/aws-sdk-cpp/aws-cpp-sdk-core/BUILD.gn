@@ -22,10 +22,12 @@ config("private_config") {
 }
 
 contrib_library("aws-cpp-sdk-core") {
-    public_deps = [ "//contrib/restricted/aws:crt-cpp" ]
+    public_deps = [
+        "//contrib/libs/curl",
+        "//contrib/restricted/aws:crt-cpp",
+    ]
 
     deps = [
-        "//contrib/libs/curl",
         "//contrib/libs/openssl",
         "//contrib/libs/zlib",
         "//contrib/restricted/aws:checksums",

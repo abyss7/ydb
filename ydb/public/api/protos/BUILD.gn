@@ -58,7 +58,10 @@ protobuf_library("protos") {
     ]
 
     serialize_enum_headers = [
+        "draft/persqueue_common.pb.h",
+        "ydb_cms.pb.h",
         "ydb_monitoring.pb.h",
+        "ydb_persqueue_cluster_discovery.pb.h",
         "ydb_status_codes.pb.h",
         "ydb_topic.pb.h",
     ]

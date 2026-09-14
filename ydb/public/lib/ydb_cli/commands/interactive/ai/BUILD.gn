@@ -1,9 +1,9 @@
 library("ai") {
   public_deps = [
-    # "//ydb/public/lib/ydb_cli/commands/interactive/common",
+    ":models",
+    ":tools",
+    "//ydb/public/lib/ydb_cli/commands/interactive/common",
     # "//ydb/public/lib/ydb_cli/common",
-    # ":models",
-    # ":tools",
   ]
 
   deps = [
@@ -23,7 +23,7 @@ library("models") {
     # "//library/cpp/string_utils/url",
     # "//library/cpp/threading/future",
     # "//ydb/library/yverify_stream",
-    # "//ydb/public/lib/ydb_cli/commands/interactive/common",
+    "//ydb/public/lib/ydb_cli/commands/interactive/common",
     # "//ydb/public/lib/ydb_cli/common",
   ]
 
@@ -44,8 +44,8 @@ library("tools") {
   deps = [
     # "//ydb/library/yverify_stream",
     # "//ydb/public/lib/json_value",
-    # "//ydb/public/lib/ydb_cli/commands/interactive/common",
-    # "//ydb/public/lib/ydb_cli/commands/interactive/highlight",
+    "//ydb/public/lib/ydb_cli/commands/interactive/common",
+    "//ydb/public/lib/ydb_cli/commands/interactive/highlight",
     # "//ydb/public/sdk/cpp/src/client/query",
     # "//ydb/public/sdk/cpp/src/client/scheme",
   ]

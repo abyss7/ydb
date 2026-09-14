@@ -1,9 +1,10 @@
+config("public_config") {
+    include_dirs = [ "include" ]
+}
+
 config("private_config") {
     cflags = [ "-Wno-unused-variable" ]
-    include_dirs = [
-        "include",
-        "src",
-    ]
+    include_dirs = [ "src" ]
 }
 
 contrib_library("replxx") {
@@ -21,5 +22,6 @@ contrib_library("replxx") {
         "src/windows.cxx",
     ]
 
+    public_configs = [ ":public_config" ]
     configs = [ ":private_config" ]
 }

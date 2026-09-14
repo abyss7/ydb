@@ -2,7 +2,7 @@ library("cache") {
   public_deps = [
     # "//ydb/core/base",
     # "//ydb/core/keyvalue",
-    # "//ydb/core/persqueue/common",
+    "//ydb/core/persqueue/common",
     # "//ydb/core/persqueue/events",
     # "//ydb/core/persqueue/pqtablet/blob",
     # "//ydb/library/actors/core",
@@ -11,7 +11,8 @@ library("cache") {
   deps = [
     # "//library/cpp/cache",
     # "//library/cpp/monlib/dynamic_counters",
-    # "//ydb/core/mon",
+    "//ydb/core/mon",
+    "//ydb/core/persqueue/public",
     # "//ydb/core/protos",
   ]
 

@@ -1,16 +1,17 @@
 library("common") {
   public_deps = [
-    # "//ydb/core/jaeger_tracing",
-    # "//ydb/core/persqueue/common",
+    "//ydb/core/jaeger_tracing",
+    "//ydb/core/persqueue/common",
     # "//ydb/core/tablet",
     # "//ydb/library/actors/core",
-    # "//ydb/library/actors/wilson",
+    "//ydb/library/actors/wilson",
     # "//ydb/library/services",
     # "//ydb/public/api/protos",
   ]
 
   deps = [
     # "//ydb/core/persqueue/events",
+    "//ydb/core/persqueue/public",
     # "//ydb/core/protos",
     # "//ydb/library/wilson_ids",
   ]

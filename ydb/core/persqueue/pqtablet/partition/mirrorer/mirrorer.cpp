@@ -8,6 +8,8 @@
 #include <ydb/library/persqueue/topic_parser/counters.h>
 #include <ydb/public/lib/base/msgbus.h>
 
+#include <library/cpp/string_utils/base64/base64.h>
+
 #define PQ_ENSURE(condition) AFL_ENSURE(condition)("tablet_id", TabletId)("partition_id", Partition)
 
 using namespace NPersQueue;
