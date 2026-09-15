@@ -3,7 +3,7 @@ library("actors") {
     # "//library/cpp/retry",
     "//ydb/library/actors/core",
     "//ydb/library/actors/http",
-    # "//ydb/library/yql/providers/solomon/proto",
+    "//ydb/library/yql/providers/solomon/proto",
     # "//yql/essentials/public/udf",
   ]
 

@@ -16,7 +16,7 @@ library("opt") {
     # "//library/cpp/iterator",
     "//ydb/library/yql/dq/type_ann",
     # "//ydb/library/yql/providers/dq/common",
-    # "//ydb/library/yql/providers/dq/expr_nodes",
+    "//ydb/library/yql/providers/dq/expr_nodes",
     # "//yql/essentials/core/common_opt",
     # "//yql/essentials/parser/pg_wrapper/interface",
     "//yql/essentials/providers/common/provider",

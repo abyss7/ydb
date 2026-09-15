@@ -6,6 +6,7 @@
 #include <ydb/core/tx/limiter/grouped_memory/usage/abstract.h>
 
 #include <ydb/library/actors/core/actorid.h>
+#include <ydb/core/tx/columnshard/data_accessor/cache_policy/policy.h>
 
 namespace NKikimr::NOlap::NGeneralCache {
 

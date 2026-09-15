@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 import("//yql/essentials/core/expr_nodes_gen/gen.gni")
 
 generate_expr_nodes("gen") {
@@ -6,7 +8,10 @@ generate_expr_nodes("gen") {
 
 library("provider") {
     public_deps = [
+        "//ydb/core/grpc_services/base",  # include path
+        "//ydb/library/actors/wilson",  # include path
         "//ydb/library/yql/dq/runtime",
+        "//ydb/public/api/grpc",  # include path
     ]
 
     deps = [

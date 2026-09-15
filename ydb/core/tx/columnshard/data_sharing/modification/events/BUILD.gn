@@ -1,9 +1,6 @@
 # yamake2gn: keep  -- hand-written, do not regenerate
 
 library("events") {
-  # No dep on //ydb/core/tx/columnshard: change_owning.h references only the
-  # TEvColumnShard::Ev* enumerators, which live in the standalone
-  # columnshard_ev_ids.h.
   public_deps = [
     "//ydb/core/tx/columnshard/common",
     "//ydb/core/tx/columnshard/data_sharing/protos",

@@ -2,7 +2,7 @@ library("common") {
   public_deps = [
     "//ydb/library/actors/core",
     "//ydb/library/yql/providers/common/http_gateway",
-    # "//ydb/library/yql/providers/s3/events",
+    "//ydb/library/yql/providers/s3/events",
     # "//yql/essentials/ast",
     "//yql/essentials/public/issue",
   ]

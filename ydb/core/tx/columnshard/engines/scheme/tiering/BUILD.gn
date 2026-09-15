@@ -10,7 +10,7 @@ library("tiering") {
   ]
 
   deps = [
-    # "//ydb/core/tx/columnshard/blobs_action:abstract",
+    "//ydb/core/tx/columnshard/blobs_action:abstract",
     "//ydb/library/actors/util",
   ]
 

@@ -1,11 +1,4 @@
 # yamake2gn: keep  -- hand-written, do not regenerate
-#
-# tx_scan.cpp and tx_internal_scan.cpp are compiled inside
-# //ydb/core/tx/columnshard: both are TTransactionBase<TColumnShard> with headers
-# that include columnshard_impl.h, they use the tablet's TablesManager and
-# InFlightReadsTracker, and the tablet's own columnshard__scan.cpp is their only
-# user -- two halves of one class, so they cannot be a separate gn target. Kept
-# as a redirect for existing dependants.
 
 group("transaction") {
   public_deps = [ "//ydb/core/tx/columnshard" ]

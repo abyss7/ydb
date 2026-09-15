@@ -1,5 +1,5 @@
 #pragma once
-#include <ydb/core/tx/columnshard/data_accessor/cache_policy/policy.h>
+#include <ydb/core/tx/columnshard/blobs_action/counters/storage.h>
 #include <ydb/core/tx/columnshard/data_accessor/request.h>
 #include <ydb/core/tx/columnshard/engines/portions/data_accessor.h>
 #include <library/cpp/cache/cache.h>
@@ -40,7 +40,7 @@ public:
 
 class TPortionsByConsumer {
 private:
-    THashMap<NGeneralCache::TPortionsMetadataCachePolicy::EConsumer, TConsumerPortions> Consumers;
+    THashMap<NBlobOperations::EConsumer, TConsumerPortions> Consumers;
 
 public:
     ui64 GetPortionsCount() const {
@@ -55,7 +55,7 @@ public:
         return Consumers.empty();
     }
 
-    TConsumerPortions& UpsertConsumer(const NGeneralCache::TPortionsMetadataCachePolicy::EConsumer consumer) {
+    TConsumerPortions& UpsertConsumer(const NBlobOperations::EConsumer consumer) {
         auto it = Consumers.find(consumer);
         if (it == Consumers.end()) {
             it = Consumers.emplace(consumer, TConsumerPortions()).first;
@@ -63,7 +63,7 @@ public:
         return it->second;
     }
 
-    const THashMap<NGeneralCache::TPortionsMetadataCachePolicy::EConsumer, TConsumerPortions>& GetConsumers() const {
+    const THashMap<NBlobOperations::EConsumer, TConsumerPortions>& GetConsumers() const {
         return Consumers;
     }
 };

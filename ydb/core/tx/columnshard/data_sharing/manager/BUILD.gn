@@ -11,9 +11,6 @@ library("shared_blobs") {
   sources = [ "shared_blobs.cpp" ]
 }
 
-# sessions.cpp (TSessionsManager) is compiled inside //ydb/core/tx/columnshard
-# together with the rest of the data-sharing session layer -- see the comment
-# in that target's sources. :shared_blobs above stays a standalone leaf.
 group("manager") {
   public_deps = [
     ":shared_blobs",

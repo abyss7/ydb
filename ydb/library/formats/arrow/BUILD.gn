@@ -40,7 +40,7 @@ library("modifier") {
     "//contrib/libs/apache/arrow",
     # "//ydb/library/accessor",
     "//ydb/library/actors/core",
-    # "//ydb/library/conclusion",
+    "//ydb/library/conclusion",
   ]
 
   sources = [

@@ -1,5 +1,9 @@
 #include "update.h"
-#include <ydb/core/tx/schemeshard/schemeshard_info_types.h>
+#include <ydb/core/base/appdata.h>
+#include <ydb/core/base/table_index.h>
+#include <ydb/core/protos/config.pb.h>
+#include <ydb/core/protos/feature_flags.pb.h>
+#include <yql/essentials/parser/pg_wrapper/interface/type_desc.h>
 #include <yql/essentials/minikql/mkql_type_ops.h>
 #include <ydb/core/scheme/scheme_types_proto.h>
 #include <ydb/core/scheme_types/scheme_type_registry.h>

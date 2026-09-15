@@ -111,12 +111,6 @@ library("slice_builder") {
   ]
 }
 
-# events.cpp — это DTO/события пути записи (TWriteResult, TInsertedPortion(s),
-# TEvWritePortionResult), а не менеджер операций. Их конструируют и slice_builder,
-# и сам :operations, поэтому файл вынесен в отдельный листовой таргет.
-# Таблет ему не нужен: TInsertedPortion::Finalize() ходит в TColumnShard только
-# через inline MutableIndexAs<>(), а реальные символы берёт у engines
-# (GetLastPortionPointer, TDbWrapper::WriteCounter, TPortionInfoConstructor::Build).
 library("events") {
   public_deps = [
     "//ydb/core/tablet_flat",

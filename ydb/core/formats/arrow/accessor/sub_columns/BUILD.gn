@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("sub_columns") {
   public_deps = [
     "//contrib/libs/apache/arrow",
@@ -23,7 +25,7 @@ library("sub_columns") {
     "//ydb/library/formats/arrow:validation",
     "//ydb/library/signals",
     "//ydb/services/bg_tasks/abstract",
-    "//ydb/services/metadata/abstract",
+    "//ydb/services/metadata/abstract:request_features",  # cycle
     "//yql/essentials/minikql/jsonpath",
     "//yql/essentials/types/binary_json",
   ]

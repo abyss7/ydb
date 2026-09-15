@@ -1,6 +1,6 @@
 library("local_db") {
   public_deps = [
-    # "//ydb/core/tx/columnshard/data_accessor:abstract",
+    "//ydb/core/tx/columnshard/data_accessor:abstract",
   ]
 
   deps = [

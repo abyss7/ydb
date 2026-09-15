@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("auth") {
   public_deps = [
     ":common",
@@ -293,7 +295,7 @@ library("show_create") {
     # "//ydb/core/scheme",
     # "//ydb/core/tx/columnshard/engines/scheme/defaults:protos",
     # "//ydb/core/tx/scheme_cache",
-    # "//ydb/core/tx/schemeshard",
+    "//ydb/core/tx/schemeshard:common",  # cycle
     # "//ydb/core/tx/sequenceproxy:public",
     # "//ydb/core/tx/tx_proxy",
     "//ydb/core/ydb_convert",

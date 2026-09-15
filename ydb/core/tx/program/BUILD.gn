@@ -13,6 +13,7 @@ library("program") {
     "//contrib/libs/apache/arrow",
     # "//ydb/core/tx/columnshard/common",
     # "//ydb/core/tx/columnshard/engines/scheme/abstract",
+    "//ydb/core/tx/schemeshard/olap/schema",
     # "//ydb/library/arrow_kernels",
     # "//ydb/library/formats/arrow:validation",
     "//yql/essentials/core/arrow_kernels/registry",

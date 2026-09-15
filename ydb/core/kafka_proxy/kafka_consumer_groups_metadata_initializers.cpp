@@ -1,6 +1,8 @@
 #include "kafka_consumer_groups_metadata_initializers.h"
 #include "actors/kafka_balancer_actor.h"
 
+#include <ydb/services/metadata/initializer/common.h>
+
 namespace NKikimr::NGRpcProxy::V1 {
 
 using namespace NMetadata;

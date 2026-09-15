@@ -2,6 +2,8 @@
 #include "secret.h"
 #include "access.h"
 
+#include <ydb/services/metadata/initializer/common.h>
+
 namespace NKikimr::NMetadata::NSecret {
 
 void TSecretInitializer::DoPrepare(NInitializer::IInitializerInput::TPtr controller) const {

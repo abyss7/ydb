@@ -6,7 +6,7 @@ source_set("_srcs") {
   deps += [
     # "//contrib/libs/apache/arrow",
     # "//ydb/library/accessor",
-    # "//ydb/library/conclusion",
+    "//ydb/library/conclusion",
     # "//ydb/library/formats/arrow",
     "//ydb/library/formats/arrow:switch",
   ]

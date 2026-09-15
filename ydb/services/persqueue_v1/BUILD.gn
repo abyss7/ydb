@@ -3,7 +3,7 @@ library("actors") {
     # "//library/cpp/containers/disjoint_interval_tree",
     # "//ydb/core/base",
     "//ydb/core/client/server",
-    # "//ydb/core/grpc_services",
+    "//ydb/core/grpc_services",
     # "//ydb/core/jaeger_tracing",
     # "//ydb/core/kqp/common",
     # "//ydb/core/kqp/common:events",

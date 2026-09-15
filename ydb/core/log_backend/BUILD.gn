@@ -1,7 +1,7 @@
 library("log_backend") {
   public_deps = [
     # "//library/cpp/logger",
-    "//ydb/core/driver_lib/run:config",
+    "//ydb/core/driver_lib/run:config",  # cycle
   ]
 
   deps = [

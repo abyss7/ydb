@@ -65,6 +65,10 @@ library("minikql") {
 }
 
 source_set("terminator") {
-  deps += [ "//yql/essentials/public/issue" ]
+  deps += [
+    "//yql/essentials/core/issue",
+    "//yql/essentials/public/issue",
+  ]
+
   sources = [ "mkql_terminator.cpp" ]
 }

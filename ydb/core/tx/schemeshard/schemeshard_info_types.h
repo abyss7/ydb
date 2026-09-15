@@ -2,6 +2,7 @@
 
 #include "olap/schema/schema.h"
 #include "olap/schema/update.h"
+#include "common/partitioning.h"
 #include "schemeshard_identificators.h"
 #include "schemeshard_info_types_helpers.h"
 #include "schemeshard_path_element.h"
@@ -814,11 +815,7 @@ public:
         TString& errStr, const THashSet<TString>& localSequences = {});
 
     static ui32 ShardsToCreate(const NKikimrSchemeOp::TTableDescription& descr) {
-        if (descr.HasUniformPartitionsCount()) {
-            return descr.GetUniformPartitionsCount();
-        } else {
-            return descr.SplitBoundarySize() + 1;
-        }
+        return NSchemeShard::ShardsToCreate(descr);
     }
 
     void ResetDescriptionCache();
@@ -3823,20 +3820,6 @@ std::optional<std::pair<i64, i64>> ValidateSequenceType(const TString& sequenceN
     const NKikimr::NScheme::TTypeRegistry& typeRegistry, bool pgTypesEnabled, TString& errStr);
 
 NProtoBuf::Timestamp SecondsToProtoTimeStamp(ui64 sec);
-
-inline bool IsValidColumnName(const TString& name, bool allowSystemColumnNames = false) {
-    if (!allowSystemColumnNames && name.StartsWith(SYSTEM_COLUMN_PREFIX)) {
-        return false;
-    }
-
-    for (auto c: name) {
-        if (!std::isalnum(c) && c != '_' && c != '-') {
-            return false;
-        }
-    }
-
-    return true;
-}
 
 }
 

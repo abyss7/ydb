@@ -1,5 +1,7 @@
 #include "metadata_initializers.h"
 
+#include <ydb/services/metadata/initializer/common.h>
+
 namespace NKikimr::NGRpcProxy::V1 {
 
 using namespace NMetadata;

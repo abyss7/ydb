@@ -127,7 +127,10 @@ library("util") {
 }
 
 library("service_id") {
-  public_deps = [ "//ydb/library/actors/core" ]
+  public_deps = [
+    "//ydb/core/fq/libs/config:protos",
+    "//ydb/library/actors/core",
+  ]
 
   sources = [ "control_plane_storage.cpp" ]
 }

@@ -1,6 +1,8 @@
 #include "initializer.h"
 #include "object.h"
 
+#include <ydb/services/metadata/initializer/common.h>
+
 
 namespace NKikimr::NKqp {
 

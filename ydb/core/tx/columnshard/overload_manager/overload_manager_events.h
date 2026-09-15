@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ydb/core/tx/columnshard/columnshard_private_events.h>
+#include <ydb/library/actors/core/events/event_local.h>
 #include <ydb/core/tx/columnshard/overload_manager/overload_manager_common_types.h>
 #include <ydb/core/base/events.h>
 

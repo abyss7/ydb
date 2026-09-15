@@ -10,13 +10,15 @@ protobuf_library("protos") {
 
 library("scheme") {
   public_deps = [
-    "//ydb/public/api/protos",
     ":protos",
+    "//ydb/library/aclib",
+    "//ydb/public/api/protos",
     "//yql/essentials/parser/pg_wrapper/interface",
   ]
 
   deps = [
     "//library/cpp/containers/absl_flat_hash",
+    "//ydb/core/protos",
     "//ydb/core/scheme_types",
     "//ydb/library/actors/core",
   ]

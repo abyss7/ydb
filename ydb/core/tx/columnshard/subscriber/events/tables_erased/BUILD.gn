@@ -1,9 +1,6 @@
 library("tables_erased") {
   public_deps = [
-    # Out<TInternalPathId> — невстроенный, тело в common/path_id.cpp:255;
-    # нужен JoinSeq(",", PathIds) в event.cpp. Ровно этот PEERDIR стоит и в ya.make.
     "//ydb/core/tx/columnshard/common",
-    # базовый ISubscriptionEvent и его EEventType (там же GENERATE_ENUM_SERIALIZATION)
     "//ydb/core/tx/columnshard/subscriber/abstract/events",
   ]
 

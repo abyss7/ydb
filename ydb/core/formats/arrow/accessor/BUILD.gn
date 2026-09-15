@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("abstract_enums") {
   public_deps = [
     "//contrib/libs/apache/arrow",
@@ -22,7 +24,7 @@ source_set("abstract_srcs") {
     # "//ydb/library/formats/arrow:protos",
     # "//ydb/library/formats/arrow:splitter",
     # "//ydb/library/formats/arrow:switch",
-    # "//ydb/services/bg_tasks/abstract",
+    "//ydb/services/bg_tasks/abstract",
     # "//ydb/services/metadata/abstract",
   ]
 
@@ -60,6 +62,7 @@ source_set("plain_srcs") {
   deps += [
     ":_common",
     # "//contrib/libs/apache/arrow",
+    "//ydb/core/formats/arrow/serializer:_srcs",  # cycle
     # "//ydb/library/formats/arrow",
     # "//ydb/library/formats/arrow:switch",
     # "//ydb/library/formats/arrow:validation",

@@ -1,10 +1,5 @@
-library("store") {
-  public_deps = [
-    "//ydb/core/protos",
-    # "//ydb/core/tx/schemeshard",
-    "//ydb/core/tx/schemeshard/olap/layout",
-    "//ydb/core/tx/schemeshard/olap/schema",
-  ]
+# yamake2gn: keep  -- hand-written, do not regenerate
 
-  sources = [ "store.cpp" ]
+group("store") {
+  public_deps = [ "//ydb/core/tx/schemeshard" ]
 }

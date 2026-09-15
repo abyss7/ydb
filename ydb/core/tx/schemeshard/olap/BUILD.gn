@@ -1,57 +1,21 @@
-library("columns") {
-    public_deps = [
-        ":common",
-        "//ydb/core/formats/arrow/accessor:abstract",
-    ]
+# yamake2gn: keep  -- hand-written, do not regenerate
 
-    deps = [
-        "//ydb/core/tx/columnshard/engines/scheme/defaults:common",
-        "//yql/essentials/minikql",
-    ]
-
-    sources = [
-        "columns/schema.cpp",
-        "columns/update.cpp",
-    ]
+group("columns") {
+  public_deps = [ "//ydb/core/tx/schemeshard/olap/columns" ]
 }
 
-library("common") {
-    public_deps = [
-        "//ydb/core/base",
-    ]
-
-    sources = [
-        "common/common.cpp",
-    ]
+group("common") {
+  public_deps = [ "//ydb/core/tx/schemeshard/olap/common" ]
 }
 
-library("manager") {
-    public_deps = [
-        ":store",
-    ]
-
-    sources = [
-        "manager/manager.cpp",
-    ]
+group("manager") {
+  public_deps = [ "//ydb/core/tx/schemeshard" ]
 }
 
-library("schema") {
-    public_deps = [
-        ":columns",
-    ]
-
-    sources = [
-        "schema/schema.cpp",
-        "schema/update.cpp",
-    ]
+group("schema") {
+  public_deps = [ "//ydb/core/tx/schemeshard/olap/schema" ]
 }
 
-library("store") {
-    public_deps = [
-        ":schema",
-    ]
-
-    sources = [
-        "store/store.cpp",
-    ]
+group("store") {
+  public_deps = [ "//ydb/core/tx/schemeshard" ]
 }

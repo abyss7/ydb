@@ -1,11 +1,12 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("control_plane_config") {
   public_deps = [
+    ":service_id",
     # "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/fq/libs/actors:logging",
-    # "//ydb/core/fq/libs/config:protos",
     "//ydb/core/fq/libs/shared_resources",
     # "//ydb/library/actors/core",
-    ":service_id",
   ]
 
   deps = [
@@ -37,7 +38,10 @@ library("events") {
 }
 
 library("service_id") {
-  public_deps = [ "//ydb/library/actors/core" ]
+  public_deps = [
+    "//ydb/core/fq/libs/config:protos",
+    "//ydb/library/actors/core",
+  ]
 
   sources = [ "service_id.cpp" ]
 }

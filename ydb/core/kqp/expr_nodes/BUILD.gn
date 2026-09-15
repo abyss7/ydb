@@ -5,7 +5,10 @@ generate_expr_nodes("gen") {
 }
 
 library("expr_nodes") {
-    public_deps = [ ":gen" ]
+    public_deps = [
+        ":gen",
+        "//ydb/library/yql/dq/expr_nodes",
+    ]
 
     sources = [ "kqp_expr_nodes.cpp" ]
 }

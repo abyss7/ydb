@@ -10,6 +10,7 @@
 #include <util/generic/string.h>
 #include <util/string/builder.h>
 
+#include <cctype>
 #include <optional>
 #include <span>
 #include <string_view>
@@ -26,6 +27,20 @@ namespace NKikimrTxDataShard {
 namespace NKikimr {
 
 inline constexpr const char* SYSTEM_COLUMN_PREFIX = "__ydb_";
+
+inline bool IsValidColumnName(const TString& name, bool allowSystemColumnNames = false) {
+    if (!allowSystemColumnNames && name.StartsWith(SYSTEM_COLUMN_PREFIX)) {
+        return false;
+    }
+
+    for (auto c: name) {
+        if (!std::isalnum(c) && c != '_' && c != '-') {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 namespace NTableIndex {
 

@@ -54,10 +54,6 @@ library("blobs_action") {
   sources = [ "blob_manager_db.cpp" ]
 }
 
-# No dep on //ydb/core/tx/columnshard: bs/*.cpp include columnshard_impl.h, but
-# the TColumnShard& parameters are either unused or only reach inline accessors
-# (Counters.GetTabletCounters()->On*Write*), and blob_cache.h is used only for
-# its inline events and MakeBlobCacheServiceId().
 library("bs") {
   public_deps = [
     ":abstract",
@@ -67,7 +63,7 @@ library("bs") {
     "//ydb/core/protos",
     "//ydb/core/tablet_flat",
     "//ydb/core/tx/columnshard/counters",
-    "//ydb/core/tx/columnshard/data_sharing/manager:shared_blobs",
+    "//ydb/core/tx/columnshard/data_sharing/manager:shared_blobs",  # cycle
     "//ydb/core/util",
     "//ydb/library/accessor",
   ]
@@ -124,7 +120,7 @@ library("events") {
   public_deps = [
     # ":protos",
     # "//ydb/core/tx/columnshard",
-    # "//ydb/core/tx/columnshard/common",
+    "//ydb/core/tx/columnshard/common",
     "//ydb/library/actors/core",
   ]
 
@@ -149,7 +145,7 @@ protobuf_library("protos") {
 library("storages_manager") {
   public_deps = [
     ":abstract",
-    "//ydb/core/tx/columnshard/data_sharing/manager:shared_blobs",
+    "//ydb/core/tx/columnshard/data_sharing/manager:shared_blobs",  # cycle
   ]
 
   deps = [

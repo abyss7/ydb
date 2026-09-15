@@ -63,11 +63,19 @@ config("base") {
         "-Wno-logical-op-parentheses",
         "-Wno-parentheses",
         "-Wno-vla-cxx-extension",
+
+        # every function and object in its own section, for --gc-sections
+        "-ffunction-sections",
+        "-fdata-sections",
     ]
 
     cflags_cc = [
         "-std=c++20",
         "-fsized-deallocation",
+
+        # don't export inline functions from every shared library:
+        # shrinks .dynsym/.dynstr, PLT and dynamic relocations
+        "-fvisibility-inlines-hidden",
     ]
 
     include_dirs = [
@@ -90,10 +98,42 @@ config("no_stdlibs") {
     ]
 }
 
-config("debug") {
+config("debug_info") {
     cflags = [
         "-g",
+        # keep DWARF in .dwo files next to objects instead of linking it into .so
+        "-gsplit-dwarf",
+        # no template arguments in DW_AT_name - debugger rebuilds them
+        "-gsimple-template-names",
+    ]
+
+    if (debug_compression != "none") {
+        cflags += [ "-gz=$debug_compression" ]
+        ldflags = [ "-Wl,--compress-debug-sections=$debug_compression" ]
+    }
+}
+
+config("debug") {
+    cflags = [
         "-O0",
+    ]
+
+    configs = [ ":debug_info" ]
+}
+
+config("relwithdebinfo") {
+    cflags = [
+        "-O3",
+        "-UNDEBUG",
+    ]
+
+    configs = [ ":debug_info" ]
+}
+
+config("time_trace") {
+    cflags = [
+        "-ftime-trace",
+        "-ftime-trace-granularity=$time_trace_granularity",
     ]
 }
 

@@ -6,11 +6,11 @@ library("core") {
     "//library/cpp/cgiparam",
     "//library/cpp/containers/absl_flat_hash",
     "//library/cpp/lwtrace",
-    # mon.h exposes NMonitoring::IMonHttpRequest and its TCgiParameters API
     "//library/cpp/monlib/service",
     "//library/cpp/monlib/service/pages",
     "//ydb/library/actors/actor_type",
     "//ydb/library/actors/memory_log",
+    "//ydb/library/services",
   ]
 
   deps = [

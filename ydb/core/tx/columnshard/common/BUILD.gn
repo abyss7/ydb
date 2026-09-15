@@ -15,7 +15,7 @@ library("common") {
     # "//ydb/core/scheme:protos",
     # "//ydb/core/sys_view:common",
     "//ydb/core/tx/columnshard/data_sharing/protos",
-    # "//ydb/core/tx/columnshard/export/protos",
+    "//ydb/core/tx/columnshard/export/protos",
     "//ydb/core/tx/columnshard/transactions:protos",
     # "//ydb/library/actors/core",
     # "//ydb/library/formats/arrow:switch",

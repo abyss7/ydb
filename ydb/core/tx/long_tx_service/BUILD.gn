@@ -17,6 +17,7 @@ library("long_tx_service") {
     "//ydb/core/tx/scheme_cache",
     # "//ydb/core/util",
     # "//ydb/library/actors/core",
+    "//ydb/library/actors/wilson",  # include path
     # "//ydb/library/services",
     "//ydb/library/ydb_issue",
   ]

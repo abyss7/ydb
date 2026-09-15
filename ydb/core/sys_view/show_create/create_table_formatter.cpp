@@ -1,9 +1,10 @@
 #include "create_table_formatter.h"
 #include "formatters_common.h"
 
+#include <ydb/core/base/path.h>
 #include <ydb/core/engine/mkql_proto.h>
 #include <ydb/core/formats/arrow/serializer/parsing.h>
-#include <ydb/core/tx/schemeshard/schemeshard_info_types.h>
+#include <ydb/core/tx/schemeshard/common/partitioning.h>
 #include <ydb/core/ydb_convert/table_description.h>
 #include <ydb/core/ydb_convert/ydb_convert.h>
 
@@ -15,6 +16,8 @@
 #include <library/cpp/protobuf/json/proto2json.h>
 
 #include <util/generic/yexception.h>
+
+#include <arrow/type_fwd.h>
 
 namespace NKikimr {
 namespace NSysView {
@@ -362,7 +365,7 @@ TFormatResult TCreateTableFormatter::Format(const TString& tablePath, const TStr
 
     if (tableDesc.HasPartitionConfig()) {
         if (tableDesc.GetPartitionConfig().HasPartitioningPolicy()) {
-            ui32 shardsToCreate = NSchemeShard::TTableInfo::ShardsToCreate(tableDesc);
+            ui32 shardsToCreate = NSchemeShard::ShardsToCreate(tableDesc);
             printed |= Format(tableDesc.GetPartitionConfig().GetPartitioningPolicy(), shardsToCreate, del, !printed);
         }
     }
@@ -1175,7 +1178,7 @@ void TCreateTableFormatter::FormatIndexImplTable(const TString& tablePath, const
 
     const auto& policy = indexImplDesc.GetPartitionConfig().GetPartitioningPolicy();
 
-    ui32 shardsToCreate = NSchemeShard::TTableInfo::ShardsToCreate(indexImplDesc);
+    ui32 shardsToCreate = NSchemeShard::ShardsToCreate(indexImplDesc);
 
     bool printed = false;
     if ((policy.HasSizeToSplit() && (policy.GetSizeToSplit() != defaultSizeToSplit)) || policy.HasSplitByLoadSettings()

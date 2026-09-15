@@ -4,7 +4,7 @@ library("service") {
     "//ydb/services/ext_index/metadata",
     # "//ydb/services/metadata",
     "//ydb/services/metadata/ds_table",
-    # "//ydb/services/metadata/initializer",
+    "//ydb/services/metadata/initializer",
   ]
 
   deps = [

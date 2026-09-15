@@ -7,7 +7,7 @@ library("state") {
   deps = [
     "//ydb/library/yql/providers/pq/proto",
     "//ydb/library/yql/providers/pq/task_meta",
-    # "//yql/essentials/core/issue:protos",
+    "//yql/essentials/core/issue:protos",
   ]
 
   sources = [ "dq_state_load_plan.cpp" ]

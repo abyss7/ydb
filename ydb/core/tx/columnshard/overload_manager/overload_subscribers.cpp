@@ -1,7 +1,7 @@
 #include "overload_subscribers.h"
 
 #include <ydb/library/actors/core/log.h>
-#include <ydb/core/tx/columnshard/columnshard.h>
+#include <ydb/core/tx/columnshard/columnshard_overload_events.h>
 #include <ydb/library/actors/core/interconnect.h>
 
 namespace NKikimr::NColumnShard::NOverload {

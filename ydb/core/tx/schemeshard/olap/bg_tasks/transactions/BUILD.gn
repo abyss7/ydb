@@ -1,9 +1,4 @@
 # yamake2gn: keep  -- hand-written, do not regenerate
-#
-# TTxTasksList is a TTransactionBase<TSchemeShard>: tasks_list.h includes
-# schemeshard_impl.h, the body uses TPath::Resolve(.., Self) and
-# Self->BackgroundSessionsManager, and schemeshard_bg_tasks__list.cpp:8
-# constructs it. One link unit -- library("schemeshard") compiles it directly.
 
 group("transactions") {
   public_deps = [ "//ydb/core/tx/schemeshard" ]

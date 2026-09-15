@@ -12,7 +12,7 @@ library("abstract") {
   ]
 
   deps = [
-    # "//ydb/core/tx/columnshard/engines/changes/abstract",
+    "//ydb/core/tx/columnshard/engines/changes/abstract",
     # "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/library/actors/core",
   ]

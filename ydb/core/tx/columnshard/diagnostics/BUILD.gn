@@ -1,16 +1,18 @@
 # yamake2gn: keep  -- hand-written, do not regenerate
 
 library("diagnostics") {
-  public_deps = [ "//ydb/library/actors/core" ]
+  public_deps = [
+    "//ydb/core/protos",  # include path
+    "//ydb/core/tx/columnshard/blobs_action:abstract",  # include path
+    "//ydb/core/tx/columnshard/counters",  # include path
+    "//ydb/core/tx/columnshard/engines",  # include path
+    "//ydb/library/actors/core",
+  ]
 
   deps = [
     "//contrib/libs/fmt",
     "//library/cpp/monlib/service/pages",
     "//ydb/core/mon",
-    "//ydb/core/protos",
-    "//ydb/core/tx/columnshard/blobs_action:abstract",
-    "//ydb/core/tx/columnshard/counters",
-    "//ydb/core/tx/columnshard/engines",
   ]
 
   sources = [ "scan_diagnostics_actor.cpp" ]

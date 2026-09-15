@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("public") {
   public_deps = [
     "//ydb/core/base",
@@ -138,6 +140,7 @@ library("upload_rows") {
 library("read_table") {
   public_deps = [
     ":public",
+    "//contrib/libs/opentelemetry-proto",  # include path
     "//ydb/core/base",
     "//ydb/core/protos",
     "//ydb/core/scheme",

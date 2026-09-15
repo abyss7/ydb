@@ -87,7 +87,7 @@ library("service") {
     "//ydb/core/base",
     # "//ydb/core/cms/console",
     # "//ydb/core/engine",
-    # "//ydb/core/grpc_services/local_rpc",
+    "//ydb/core/grpc_services/local_rpc",
     "//ydb/core/io_formats/cell_maker",
     "//ydb/core/mon",
     # "//ydb/core/protos",

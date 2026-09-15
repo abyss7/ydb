@@ -39,6 +39,7 @@ library("metadata") {
   deps = [
     "//ydb/core/ydb_convert",
     "//ydb/services/metadata/ds_table",
+    "//ydb/services/metadata/initializer",
   ]
 
   sources = [

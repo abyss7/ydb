@@ -1,2 +1,0 @@
-ydb/public/sdk/cpp/src/client/types/executor
-ydb/apps/ydbd

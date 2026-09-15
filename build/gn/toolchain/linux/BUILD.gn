@@ -6,6 +6,15 @@ toolchain("clang") {
 
   sysroot = "--sysroot=/home/ilezhankin/.ya/tools/v4/243881345"
 
+  # clang writes -ftime-trace output next to the object as <object without .o>.json;
+  # compress it right away (~12x) - uncompressed traces of a full build take tens of GB.
+  # Targets that override default configs produce no trace, hence the existence check.
+  compile_post = ""
+  if (time_trace) {
+    _trace = "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.json"
+    compile_post = " && { test ! -f $_trace || gzip -1f $_trace; }"
+  }
+
   tool("stamp") {
     command = "touch {{output}}"
     description = "STAMP {{output}}"
@@ -28,7 +37,7 @@ toolchain("clang") {
 
   tool("cc") {
     depfile = "{{output}}.d"
-    command = "$cc $sysroot -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}"
+    command = "$cc $sysroot -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}$compile_post"
     depsformat = "gcc"
     description = "CC {{output}}"
     outputs = [
@@ -38,7 +47,7 @@ toolchain("clang") {
 
   tool("cxx") {
     depfile = "{{output}}.d"
-    command = "$cxx $sysroot -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
+    command = "$cxx $sysroot -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}$compile_post"
     depsformat = "gcc"
     description = "CXX {{output}}"
     outputs = [

@@ -5,6 +5,10 @@ generate_expr_nodes("gen") {
 }
 
 library("expr_nodes") {
-    deps = [ ":gen" ]
+    public_deps = [
+        ":gen",
+        "//yql/essentials/core/expr_nodes",
+        "//yql/essentials/providers/common/provider",
+    ]
     sources = [ "yql_solomon_expr_nodes.cpp" ]
 }

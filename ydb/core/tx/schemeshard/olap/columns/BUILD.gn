@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("columns") {
   public_deps = [
     "//ydb/core/formats/arrow/accessor/abstract",
@@ -11,12 +13,11 @@ library("columns") {
   ]
 
   deps = [
-    # "//ydb/core/formats/arrow",
-    # "//ydb/core/scheme",
-    # "//ydb/core/tx/schemeshard",
+    "//ydb/core/formats/arrow",
+    "//ydb/core/scheme",
     "//ydb/library/formats/arrow:validation",
     "//yql/essentials/minikql",
-    # "//yql/essentials/parser/pg_wrapper",
+    "//yql/essentials/parser/pg_wrapper/interface",
   ]
 
   sources = [

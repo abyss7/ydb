@@ -4,7 +4,7 @@ library("provider") {
     "//ydb/library/yql/providers/common/token_accessor/client",
     # "//ydb/library/yql/providers/generic/connector/api/service:protos",
     "//ydb/library/yql/providers/generic/connector/libcpp",
-    # "//ydb/library/yql/providers/generic/expr_nodes",
+    "//ydb/library/yql/providers/generic/expr_nodes",
     # "//ydb/public/sdk/cpp/src/client/types/credentials",
     # "//yql/essentials/core",
     # "//yql/essentials/providers/common/proto",

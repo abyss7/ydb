@@ -1,7 +1,7 @@
 library("request") {
   public_deps = [
     "//ydb/core/base",
-    # "//ydb/core/grpc_services/base",
+    "//ydb/core/grpc_services/base",
     # "//ydb/core/grpc_services/local_rpc",
     # "//ydb/core/protos",
     # "//ydb/library/accessor",

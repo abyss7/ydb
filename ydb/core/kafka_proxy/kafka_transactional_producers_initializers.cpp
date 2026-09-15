@@ -1,6 +1,8 @@
 #include "kafka_transactional_producers_initializers.h"
 #include "kafka_constants.h"
 
+#include <ydb/services/metadata/initializer/common.h>
+
 namespace NKikimr::NGRpcProxy::V1 {
 
 using namespace NMetadata;

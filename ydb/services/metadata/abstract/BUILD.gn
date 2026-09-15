@@ -1,13 +1,16 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("abstract") {
   public_deps = [
+    ":request_features",
     # "//library/cpp/json:writer",
     "//ydb/core/base",
     # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
     # "//ydb/library/services",
-    # "//ydb/public/api/protos",
-    # "//ydb/services/metadata/initializer",
+    "//ydb/public/api/protos",
     # "//ydb/services/metadata/manager",
+    "//ydb/services/metadata/request",  # include path
     "//yql/essentials/core/expr_nodes",
   ]
 
@@ -25,8 +28,11 @@ library("abstract") {
     "initialization.cpp",
     "kqp_common.cpp",
     "parsing.cpp",
-    "request_features.cpp",
   ]
 
   serialize_enum_headers = [ "kqp_common.h" ]
+}
+
+library("request_features") {
+  sources = [ "request_features.cpp" ]
 }

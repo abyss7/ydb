@@ -1,11 +1,12 @@
-# No dep on //ydb/core/tx/columnshard: actor2.cpp includes columnshard_impl.h
-# but never touches TColumnShard or anything defined in the tablet's own
-# sources, and events.h needs only the header-only TEvPrivate ids. The tablet
-# creates this actor (columnshard.cpp), so a dep back on it closes a cycle.
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("buffer") {
   public_deps = [
     "//ydb/core/formats/arrow",
+    "//ydb/core/protos",  # include path
     "//ydb/core/tx/columnshard/common",
+    "//ydb/core/tx/columnshard/counters",  # include path
+    "//ydb/core/tx/columnshard/engines",  # include path
     "//ydb/core/tx/columnshard/engines/writer",
     "//ydb/core/tx/columnshard/operations",
     "//ydb/core/tx/columnshard/operations:common",
@@ -20,11 +21,6 @@ library("buffer") {
     "//ydb/core/tx/columnshard/blobs_action:abstract",
     "//ydb/core/tx/conveyor/usage",
     "//ydb/core/tx/conveyor_composite/usage",
-    # Providers of headers pulled in via columnshard_private_events.h, generated
-    # ones included; previously they arrived only through the tablet.
-    "//ydb/core/protos",
-    "//ydb/core/tx/columnshard/counters",
-    "//ydb/core/tx/columnshard/engines",
   ]
 
   sources = [

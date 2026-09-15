@@ -1,5 +1,7 @@
 #include "initializer.h"
 
+#include <ydb/services/metadata/initializer/common.h>
+
 namespace NKikimr::NMetadata::NInitializer {
 
 void TInitializer::DoPrepare(IInitializerInput::TPtr controller) const {

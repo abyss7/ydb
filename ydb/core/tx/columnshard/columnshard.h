@@ -2,6 +2,7 @@
 #include "defs.h"
 #include "blob.h"
 #include "columnshard_ev_ids.h"
+#include "columnshard_overload_events.h"
 #include "common/snapshot.h"
 
 #include <ydb/core/protos/statistics.pb.h>
@@ -206,30 +207,6 @@ namespace TEvColumnShard {
         }
     };
 
-    struct TEvOverloadReady
-        : public TEventPB<
-              TEvOverloadReady,
-              NKikimrTxColumnShard::TEvOverloadReady,
-              EvOverloadReady> {
-        TEvOverloadReady() = default;
-
-        explicit TEvOverloadReady(ui64 tabletId, ui64 seqNo) {
-            Record.SetTabletID(tabletId);
-            Record.SetSeqNo(seqNo);
-        }
-    };
-
-    struct TEvOverloadUnsubscribe
-        : public TEventPB<
-              TEvOverloadUnsubscribe,
-              NKikimrTxColumnShard::TEvOverloadUnsubscribe,
-              EvOverloadUnsubscribe> {
-        TEvOverloadUnsubscribe() = default;
-
-        explicit TEvOverloadUnsubscribe(ui64 seqNo) {
-            Record.SetSeqNo(seqNo);
-        }
-    };
 };
 
 inline auto& Proto(TEvColumnShard::TEvProposeTransaction* ev) {

@@ -1,9 +1,4 @@
 # yamake2gn: keep  -- hand-written, do not regenerate
-#
-# Compiled inside //ydb/core/tx/columnshard: this directory is part of the
-# data-sharing session layer, which is one strongly connected component with the
-# tablet at the symbol level (see the comment in that target's sources). Kept as
-# a redirect for existing dependants.
 
 group("events") {
   public_deps = [ "//ydb/core/tx/columnshard" ]

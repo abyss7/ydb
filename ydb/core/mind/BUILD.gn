@@ -32,6 +32,7 @@ library("group_mapper") {
     "//ydb/core/blobstorage/base",
     "//ydb/core/blobstorage/groupinfo",
     "//ydb/core/control/lib",
+    "//ydb/core/engine:minikql",
     "//ydb/core/tablet",
     "//ydb/core/util",
     "//ydb/library/aclib",

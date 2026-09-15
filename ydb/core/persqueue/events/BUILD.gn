@@ -10,7 +10,7 @@ library("events") {
     # "//ydb/core/persqueue/public:partition_key_range",
     # "//ydb/core/protos",
     # "//ydb/core/tablet",
-    # "//ydb/core/tx/datashard",
+    "//ydb/core/tx/datashard",
     # "//ydb/library/actors/core",
     # "//ydb/library/persqueue/topic_parser",
     # "//ydb/public/api/protos",

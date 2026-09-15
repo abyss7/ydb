@@ -1,20 +1,23 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("abstract") {
   public_deps = [
     # "//library/cpp/json:writer",
     # "//ydb/core/formats/arrow:program",
     # "//ydb/core/protos",
     # "//ydb/core/tx/columnshard/engines/storage/chunks",
-    # "//ydb/core/tx/columnshard/splitter",
-    # "//ydb/core/tx/schemeshard/olap/common",
+    "//ydb/core/tx/columnshard/splitter:abstract",  # cycle
+    "//ydb/core/tx/schemeshard/olap/common:common",  # include path
     # "//ydb/library/accessor",
+    "//ydb/library/actors/wilson",  # include path
     # "//ydb/library/conclusion",
     "//ydb/library/formats/arrow:protos",
     "//ydb/services/bg_tasks/abstract",
   ]
 
   deps = [
-    "//library/cpp/json",
     "//contrib/libs/xxhash",
+    "//library/cpp/json",
     # "//ydb/core/tx/columnshard/blobs_reader",
     "//ydb/core/tx/columnshard/common",
     # "//ydb/core/tx/columnshard/engines/portions",

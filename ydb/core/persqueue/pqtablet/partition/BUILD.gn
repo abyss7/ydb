@@ -64,9 +64,6 @@ library("mlp") {
 }
 
 library("partition") {
-  # No dep on //ydb/core/persqueue/pqtablet. Nothing here includes a header from
-  # that directory, and the name that looks shared -- struct TTransaction -- is
-  # declared right here in partition.h; pq_impl.h only forward-declares it.
   public_deps = [
     # "//library/cpp/sliding_window",
     # "//ydb/core/jaeger_tracing",

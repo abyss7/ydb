@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("abstract") {
   public_deps = [
     "//contrib/libs/apache/arrow",
@@ -16,13 +18,23 @@ library("abstract") {
   ]
 }
 
+library("settings") {
+  public_deps = [
+    "//ydb/library/accessor",
+    "//ydb/library/actors/core",
+  ]
+
+  sources = [ "settings.cpp" ]
+}
+
 library("splitter") {
   public_deps = [
+    ":settings",
     "//contrib/libs/apache/arrow",
     "//ydb/core/formats/arrow:splitter",
     # "//ydb/core/tx/columnshard/counters",
     # "//ydb/core/tx/columnshard/engines/portions",
-    # "//ydb/core/tx/columnshard/engines/scheme",
+    "//ydb/core/tx/columnshard/engines/scheme",
     "//ydb/library/accessor",
     "//ydb/library/actors/core",
     "//ydb/library/formats/arrow:splitter",
@@ -39,6 +51,5 @@ library("splitter") {
     "chunk_meta.cpp",
     "chunks.cpp",
     "column_info.cpp",
-    "settings.cpp",
   ]
 }

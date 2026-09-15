@@ -29,15 +29,14 @@ library("common") {
     ":simple",
     "//contrib/libs/openssl",
     "//library/cpp/json:writer",
-    # "//library/cpp/lwtrace",
+    "//library/cpp/lwtrace",  # include path
     # "//library/cpp/string_utils/base64",
     "//ydb/core/control/lib",
     "//ydb/core/engine",
-    # "//ydb/core/grpc_services/cancelation",
-    # "//ydb/core/kqp/counters",
+    "//ydb/core/grpc_services/cancelation:protos",  # include path
+    "//ydb/core/kqp/counters",  # include path
     # "//ydb/core/kqp/executer_actor",
     "//ydb/core/kqp/expr_nodes",
-    # "//ydb/core/kqp/gateway",
     "//ydb/core/kqp/provider",
     "//ydb/core/kqp/topics",
     "//ydb/core/protos",
@@ -46,14 +45,19 @@ library("common") {
     # "//ydb/core/scheme_types",
     # "//ydb/core/tx/data_events",
     # "//ydb/core/tx/datashard",
+    "//ydb/core/tx/long_tx_service:public",  # include path
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/sharding",
     # "//ydb/core/util",
+    "//ydb/core/ydb_convert",  # include path
+    "//ydb/library/accessor",  # include path
     # "//ydb/library/aclib",
-    # "//ydb/library/actors/core",
+    "//ydb/library/actors/core",  # include path
+    "//ydb/library/actors/wilson",  # include path
     # "//ydb/library/mkql_proto",
     # "//ydb/library/mkql_proto:protos",
     # "//ydb/library/services",
+    "//ydb/library/ydb_issue:proto",  # include path
     # "//ydb/library/yql/dq/actors",
     # "//ydb/public/api/protos",
     "//ydb/public/sdk/cpp/src/library/operation_id",
@@ -62,11 +66,10 @@ library("common") {
   ]
 
   deps = [
-    "//contrib/libs/openssl",
     "//library/cpp/protobuf/json",
     "//ydb/core/base",
-    "//ydb/library/yql/public/ydb_issue",
     # "//ydb/core/tx/locks",
+    "//ydb/library/yql/public/ydb_issue",
     "//ydb/public/sdk/cpp/src/library/operation_id:protos",
     # "//yql/essentials/core",
     "//yql/essentials/core/dq_integration",
@@ -142,7 +145,7 @@ library("events") {
   ]
 
   deps = [
-    # "//ydb/core/grpc_services/base",
+    "//ydb/core/grpc_services/base",
     "//ydb/core/grpc_services/cancelation",
     # "//yql/essentials/core/issue",
   ]

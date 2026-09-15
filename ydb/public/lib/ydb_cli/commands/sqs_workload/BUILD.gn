@@ -9,10 +9,6 @@ library("sqs_json") {
   sources = [ "sqs_json/sqs_json_client.cpp" ]
 }
 
-# sqs_workload's commands are compiled inside //ydb/public/lib/ydb_cli/commands:
-# they derive from TYdbSimpleCommand and use ydb_workload.h, while that target's
-# ydb_workload.cpp creates them -- mutually dependent, with that target as the
-# only user. :sqs_json above does not touch it and stays a standalone library.
 group("sqs_workload") {
   public_deps = [ "//ydb/public/lib/ydb_cli/commands" ]
 }

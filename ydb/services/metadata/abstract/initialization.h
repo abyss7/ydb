@@ -1,6 +1,6 @@
 #pragma once
 #include <ydb/services/metadata/manager/table_record.h>
-#include <ydb/services/metadata/initializer/common.h>
+#include <ydb/services/metadata/initializer/modifier.h>
 
 namespace NKikimr::NMetadata::NInitializer {
 

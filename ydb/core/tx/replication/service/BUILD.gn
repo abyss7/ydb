@@ -13,7 +13,7 @@ library("service") {
     # "//library/cpp/json",
     "//ydb/core/fq/libs/row_dispatcher/purecalc_compilation",
     "//ydb/core/io_formats/cell_maker",
-    # "//ydb/core/tx/datashard",
+    "//ydb/core/tx/datashard",
     "//ydb/core/tx/replication/ydb_proxy:local_proxy",
     "//ydb/core/tx/scheme_cache",
     "//ydb/core/tx/tx_proxy:public",

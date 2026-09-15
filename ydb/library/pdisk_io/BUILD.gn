@@ -8,10 +8,11 @@ library("pdisk_io") {
   public_deps = [
     ":device_type",
     "//contrib/libs/lz4",
-    # "//ydb/core/blobstorage/pdisk",
+    "//library/cpp/lwtrace",
     # "//ydb/core/debug",
+    "//ydb/core/util",
     # "//ydb/library/actors/util",
-    # "//ydb/library/actors/wilson",
+    "//ydb/library/actors/wilson",
     # "//ydb/library/yverify_stream",
   ]
 

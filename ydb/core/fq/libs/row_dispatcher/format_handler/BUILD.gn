@@ -3,7 +3,7 @@ library("common") {
     # "//library/cpp/monlib/dynamic_counters",
     "//ydb/library/conclusion",
     # "//ydb/library/conclusion/generic",
-    # "//ydb/library/yql/dq/actors:protos",
+    "//ydb/library/yql/dq/actors:protos",
   ]
 
   sources = [ "common/common.cpp" ]
@@ -56,7 +56,7 @@ library("format_handler") {
 
 library("parsers") {
   public_deps = [
-    # "//ydb/core/fq/libs/row_dispatcher/common",
+    "//ydb/core/fq/libs/row_dispatcher/common",
     "//yql/essentials/minikql",
   ]
 

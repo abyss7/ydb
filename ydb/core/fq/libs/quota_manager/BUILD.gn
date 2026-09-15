@@ -3,7 +3,7 @@ library("events") {
     ":proto",
     # "//ydb/core/fq/libs/events",
     "//ydb/library/actors/core",
-    # "//yql/essentials/public/issue",
+    "//yql/essentials/public/issue",
   ]
 
   sources = [ "events/events.cpp" ]

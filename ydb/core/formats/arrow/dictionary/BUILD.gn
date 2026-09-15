@@ -5,7 +5,7 @@ source_set("_srcs") {
     "//contrib/libs/apache/arrow",
     "//ydb/core/formats/arrow/rows:_srcs",
     # "//ydb/core/formats/arrow:switch",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/library/conclusion",
     # "//ydb/library/formats/arrow:simple_builder",
     # "//ydb/library/formats/arrow:transformer",

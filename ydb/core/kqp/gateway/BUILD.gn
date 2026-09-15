@@ -3,7 +3,7 @@ library("actors") {
     # "//ydb/core/base",
     # "//ydb/core/kqp/common",
     "//ydb/core/kqp/common:events",
-    # "//ydb/core/kqp/provider",
+    "//ydb/core/kqp/provider",
     # "//ydb/core/statistics",
     "//ydb/core/tablet",
     "//ydb/core/tx/scheme_cache",
@@ -91,6 +91,7 @@ library("gateway") {
 
 library("interface") {
   public_deps = [
+    "//ydb/core/kqp/provider",
     "//ydb/core/kqp/query_data",
     "//ydb/core/protos",
   ]

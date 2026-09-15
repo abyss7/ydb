@@ -11,7 +11,7 @@ library("tasks") {
   ]
 
   deps = [
-    "//ydb/core/tx/columnshard/data_sharing/manager:shared_blobs",
+    "//ydb/core/tx/columnshard/data_sharing/manager:shared_blobs",  # cycle
   ]
 
   sources = [ "modification.cpp" ]
