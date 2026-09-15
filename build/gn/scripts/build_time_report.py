@@ -13,7 +13,7 @@ Sources of data:
   * <out>/.ninja_log   - wall time of every command (compile, link, codegen actions);
   * <out>/.ninja_deps  - header dependencies of every object;
   * <out>/**/*.ninja   - build graph, rules, gn target of every command;
-  * <out>/obj/**/*.json.gz - clang -ftime-trace of every object.
+  * <out>/obj/**/*.json - clang -ftime-trace of every object (gzipped *.json.gz are read too).
 
 Report (<report dir>/report.md plus CSV tables with full data):
   * overview: time by kind of command, clang frontend/backend split;

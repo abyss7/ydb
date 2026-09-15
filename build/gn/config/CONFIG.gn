@@ -24,7 +24,7 @@ declare_args() {
   # (zstd needs gdb >= 13, system gdb 9 understands only zlib)
   debug_compression = "zstd"
 
-  # clang -ftime-trace for every C/C++ object: <object>.json.gz next to <object>.o,
+  # clang -ftime-trace for every C/C++ object: <object>.json next to <object>.o,
   # aggregated by build/gn/scripts/build_time_report.py
   time_trace = false
 
