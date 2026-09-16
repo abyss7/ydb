@@ -4,7 +4,7 @@ library("actors") {
     "//ydb/library/actors/core",
     "//ydb/library/actors/http",
     "//ydb/library/yql/providers/solomon/proto",
-    # "//yql/essentials/public/udf",
+    "//yql/essentials/public/udf",
   ]
 
   sources = [

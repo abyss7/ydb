@@ -26,6 +26,7 @@ library("base") {
     "//library/cpp/l2_distance",
     "//library/cpp/random_provider",
     "//ydb/core/audit:audit_config",
+    "//ydb/core/control/lib",
     "//ydb/core/jaeger_tracing",
     "//ydb/library/aclib",
     "//ydb/library/actors/helpers",

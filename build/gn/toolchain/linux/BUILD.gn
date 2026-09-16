@@ -37,6 +37,7 @@ toolchain("clang") {
   }
 
   tool("cxx") {
+    precompiled_header_type = "gcc"
     depfile = "{{output}}.d"
     command = "$cxx $sysroot -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
     depsformat = "gcc"

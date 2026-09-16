@@ -147,5 +147,11 @@ template("library") {
         if (defined(allow_undefined) && allow_undefined == true) {
             configs -= [ "//build/gn/config:no_undefined" ]
         }
+
+        if (enable_pch && label_matches(get_label_info(":$target_name", "label_no_toolchain"), pch_targets)) {
+            precompiled_header = "pch.h"
+            precompiled_source = "//build/gn/pch/$_path/$target_name.h"
+            configs += [ "//build/gn/config:pch" ]
+        }
     }
 }

@@ -137,6 +137,12 @@ config("time_trace") {
     ]
 }
 
+config("pch") {
+    cflags_cc = [
+        "-fpch-instantiate-templates",
+    ]
+}
+
 config("release") {
     cflags = [
         "-fomit-frame-pointer",

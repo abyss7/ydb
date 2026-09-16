@@ -8,6 +8,7 @@ import("//build/gn/flatbuffers.gni")
 import("//build/gn/protobuf.gni")
 import("//build/gn/python.gni")
 import("//build/gn/rodata.gni")
+import("//build/gn/pch/targets.gni")
 
 import("//build/gn/config/${host_os}/deps.gni")
 
@@ -30,6 +31,9 @@ declare_args() {
 
   # events shorter than this (in microseconds) are not recorded
   time_trace_granularity = 500
+
+  # precompiled headers for targets from //build/gn/pch/targets.gni
+  enable_pch = true
 }
 
 assert(build_type == "debug" || build_type == "relwithdebinfo" || build_type == "release",

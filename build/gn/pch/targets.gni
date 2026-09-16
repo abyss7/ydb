@@ -1,0 +1,5 @@
+pch_targets = [
+  "//ydb/core/grpc_services:grpc_services",
+  "//ydb/core/tx/datashard:datashard",
+  "//ydb/core/tx/schemeshard:schemeshard",
+]

@@ -885,17 +885,24 @@ def main():
         log("aggregating header rebuild cost...")
         cost = collections.defaultdict(lambda: [0, 0])
         compile_wall = dict((edges[i].outputs[0], durations[i]) for i in compile_edges)
+        # the same header may be spelled differently, e.g. absolute paths from a precompiled header
+        dep_names = {}
         for obj, dep_list in ninja_deps.items():
             d = compile_wall.get(obj)
             if d is None:
                 continue
-            for dep in set(dep_list):
-                c = cost[dep]
+            names = set()
+            for dep in dep_list:
+                name = dep_names.get(dep)
+                if name is None:
+                    name = dep_names[dep] = paths.normalize(dep_paths[dep])
+                names.add(name)
+            for name in names:
+                c = cost[name]
                 c[0] += d
                 c[1] += 1
         rows = []
-        for k, v in cost.items():
-            name = paths.normalize(dep_paths[k])
+        for name, v in cost.items():
             # system and compiler headers never change, the sources themselves are not headers
             if os.path.isabs(name) or name.startswith("<sysroot>/") or name.endswith((".cpp", ".cc", ".c", ".cxx")):
                 continue
