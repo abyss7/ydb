@@ -7,6 +7,11 @@ library("counters") {
     # "//ydb/library/signals",
   ]
 
+  deps = [
+    # "//ydb/core/protos",  # peerdir only
+    # "//ydb/core/tablet_flat",  # peerdir only
+  ]
+
   sources = [
     "changes.cpp",
     "general.cpp",

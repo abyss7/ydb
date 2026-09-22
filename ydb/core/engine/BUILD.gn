@@ -6,6 +6,7 @@ library("engine") {
     # "//ydb/core/protos",
     "//ydb/core/scheme",
     # "//ydb/core/scheme_types",
+    "//ydb/core/tablet_flat",
     "//ydb/library/mkql_proto",
     # "//ydb/library/mkql_proto:protos",
     # "//ydb/public/api/protos",
@@ -14,9 +15,9 @@ library("engine") {
   ]
 
   deps = [
+    # "//library/cpp/containers/stack_vector",  # peerdir only
     # "//ydb/core/base",
     # "//ydb/core/tablet",
-    "//ydb/core/tablet_flat",
     "//ydb/library/actors/core",
     # "//ydb/public/lib/scheme_types",
     "//yql/essentials/minikql/comp_nodes",
@@ -36,7 +37,7 @@ library("engine") {
 
 library("minikql") {
   public_deps = [
-    # "//ydb/core/engine",
+    # ":engine",
     "//ydb/core/scheme",
     # "//ydb/core/tablet",
     "//ydb/core/tablet_flat",
@@ -51,7 +52,6 @@ library("minikql") {
     # "//ydb/core/protos",
     # "//ydb/core/tx/locks",
     # "//ydb/library/ydb_issue:proto",
-    "//ydb/library/yql/public/ydb_issue",
     # "//ydb/public/api/protos",
     "//yql/essentials/minikql/computation",
     # "//yql/essentials/parser/pg_wrapper/interface",

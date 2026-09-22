@@ -7,9 +7,6 @@ library("infer_schema") {
 
   deps = [
     # "//library/cpp/yson",
-    "//library/cpp/yt/compact_containers",
-    "//library/cpp/yt/memory",
-    "//library/cpp/yt/threading",
     # "//yql/essentials/core/issue",
     # "//yql/essentials/public/issue",
     # "//yql/essentials/utils",

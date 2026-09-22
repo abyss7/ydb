@@ -9,9 +9,9 @@ PEERDIR(
 
     ydb/core/fq/libs/compute/common
 
-    ydb/core/kqp/workload_service/actors
+    ydb/core/kqp/workload_service/actors  # gn: :cpu_load_actors
 
-    ydb/core/mind
+    ydb/core/mind  # gn: :tenant_node_enumeration
 
     ydb/library/actors/interconnect
 )

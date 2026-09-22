@@ -5,10 +5,15 @@ library("provider") {
     # "//ydb/public/lib/experimental",
     # "//ydb/public/sdk/cpp/src/client/driver",
     # "//yql/essentials/core",
+    # "//yql/essentials/providers/common/config",
+    # "//yql/essentials/providers/common/proto",
   ]
 
   deps = [
+    # "//library/cpp/random_provider",  # peerdir only
+    # "//library/cpp/time_provider",  # peerdir only
     # "//library/cpp/yson:node",
+    # "//ydb/core/fq/libs/common",  # peerdir only
     # "//ydb/library/yql/dq/expr_nodes",
     # "//ydb/library/yql/providers/dq/common",
     # "//ydb/library/yql/providers/dq/expr_nodes",
@@ -19,11 +24,11 @@ library("provider") {
     # "//yql/essentials/ast",
     # "//yql/essentials/core/dq_integration",
     # "//yql/essentials/core/expr_nodes",
+    # "//yql/essentials/core/type_ann",  # peerdir only
     # "//yql/essentials/minikql",
-    # "//yql/essentials/providers/common/config",
+    # "//yql/essentials/minikql/comp_nodes",  # peerdir only
     # "//yql/essentials/providers/common/dq",
     # "//yql/essentials/providers/common/mkql",
-    # "//yql/essentials/providers/common/proto",
     # "//yql/essentials/providers/common/provider",
     # "//yql/essentials/providers/common/schema:expr",
     # "//yql/essentials/providers/common/structured_token",

@@ -16,6 +16,7 @@
 #include <yql/essentials/minikql/dom/json.h>
 #include <yql/essentials/minikql/dom/yson.h>
 #include <yql/essentials/minikql/mkql_type_ops.h>
+#include <yql/essentials/public/decimal/yql_decimal.h>
 #include <yql/essentials/public/udf/udf_types.h>
 #include <yql/essentials/core/expr_nodes/yql_expr_nodes.h>
 #include <yql/essentials/utils/utf8.h>

@@ -1,11 +1,11 @@
 library("defrag") {
   public_deps = [
     "//ydb/core/base",
+    # "//ydb/core/blobstorage/vdisk",
     # "//ydb/core/blobstorage/vdisk/common",
   ]
 
   deps = [
-    # "//ydb/core/blobstorage/vdisk",
     # "//ydb/core/blobstorage/vdisk/huge",
     "//ydb/core/blobstorage/vdisk/hulldb",
     # "//ydb/core/blobstorage/vdisk/hulldb:base",

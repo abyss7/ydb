@@ -1,57 +1,60 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("control_plane_storage") {
   public_deps = [
-    # ":events",
-    ":service_id",
-    # ":proto",
     ":util",
+    # "//library/cpp/scheme",
+    "//ydb/core/external_sources",
+    # "//ydb/core/fq/libs/config",
+    # "//ydb/core/fq/libs/config:protos",
+    "//ydb/core/kqp/proxy_service:script_executions_utils",
+    # "//ydb/library/yql/providers/s3/path_generator",
+    # "//ydb/public/api/protos",
+    # "//yql/essentials/providers/common/proto",
+    # "//yql/essentials/public/issue",
+  ]
+
+  deps = [
+    # ":events",
+    # ":proto",
+    ":service_id",
+    "//contrib/libs/fmt",
+    # "//contrib/libs/protobuf",
+    # "//library/cpp/json:yson",
+    "//library/cpp/lwtrace",
     "//library/cpp/lwtrace/mon",
     # "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/monlib/service/pages",
-    # "//library/cpp/protobuf/interop",
-    # "//library/cpp/scheme",
+    "//library/cpp/protobuf/interop",
     "//ydb/core/base",
-    "//ydb/core/external_sources",
-    # "//ydb/core/fq/libs/actors:logging",
+    # "//ydb/core/fq/libs/actors:logging",  # peerdir only
     # "//ydb/core/fq/libs/common",
-    # "//ydb/core/fq/libs/config",
-    # "//ydb/core/fq/libs/config:protos",
+    "//ydb/core/fq/libs/compute/common",
     # "//ydb/core/fq/libs/db_schema",
     # "//ydb/core/fq/libs/events",
+    # "//ydb/core/fq/libs/graph_params/proto",  # peerdir only
     "//ydb/core/fq/libs/metrics",
+    # "//ydb/core/fq/libs/protos",
+    "//ydb/core/fq/libs/quota_manager",
     # "//ydb/core/fq/libs/quota_manager:events",
     "//ydb/core/fq/libs/rate_limiter/events",
     # "//ydb/core/fq/libs/shared_resources",
     "//ydb/core/fq/libs/ydb",
-    "//ydb/core/kqp/proxy_service:script_executions_utils",
+    # "//ydb/core/kqp/opt",  # peerdir only
+    "//ydb/core/metering",
     # "//ydb/core/mon",
     "//ydb/core/util",
     # "//ydb/library/actors/core",
     # "//ydb/library/db_pool",
     "//ydb/library/protobuf_printer",
     "//ydb/library/security",
-    # "//ydb/library/yql/dq/actors:protos",
-    # "//ydb/library/yql/providers/s3/path_generator",
-    # "//ydb/public/api/protos",
-    "//ydb/public/sdk/cpp/adapters/issue",
-    # "//ydb/public/sdk/cpp/src/client/scheme",
-    # "//ydb/public/sdk/cpp/src/client/value",
-    # "//yql/essentials/providers/common/proto",
-    # "//yql/essentials/public/issue",
-  ]
-
-  deps = [
-    "//contrib/libs/fmt",
-    "//library/cpp/lwtrace",
-    "//library/cpp/protobuf/interop",
-    "//ydb/core/fq/libs/compute/common",
-    "//ydb/core/fq/libs/quota_manager",
-    "//ydb/core/metering",
     "//ydb/public/lib/fq",
+    "//ydb/public/sdk/cpp/adapters/issue",
     # "//ydb/public/sdk/cpp/src/client/params",
     # "//ydb/public/sdk/cpp/src/client/result",
+    # "//ydb/public/sdk/cpp/src/client/scheme",
     # "//ydb/public/sdk/cpp/src/client/table",
+    # "//ydb/public/sdk/cpp/src/client/value",
+    # "//yql/essentials/core/issue:protos",
+    # "//yql/essentials/utils",  # peerdir only
   ]
 
   sources = [
@@ -97,10 +100,6 @@ library("events") {
   sources = [ "events/events.cpp" ]
 }
 
-group("internal") {
-  public_deps = [ ":control_plane_storage" ]
-}
-
 protobuf_library("proto") {
   public_deps = [
     "//ydb/core/fq/libs/config:protos",
@@ -114,23 +113,26 @@ protobuf_library("proto") {
   sources = [ "proto/yq_internal.proto" ]
 }
 
-library("util") {
-  public_deps = [
-    ":events",
-    "//ydb/core/fq/libs/common",
-    "//ydb/core/fq/libs/config:protos",
-    "//ydb/library/yql/dq/actors:protos",
-    "//ydb/public/sdk/cpp/src/client/value",
-  ]
-
-  sources = [ "util.cpp" ]
-}
-
 library("service_id") {
   public_deps = [
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//ydb/core/fq/libs/actors:logging",
     "//ydb/core/fq/libs/config:protos",
+    # "//ydb/core/fq/libs/shared_resources",
     "//ydb/library/actors/core",
   ]
 
   sources = [ "control_plane_storage.cpp" ]
+}
+
+library("util") {
+  public_deps = [
+    ":events",
+    # "//contrib/libs/protobuf",
+    "//ydb/core/fq/libs/common",
+    "//ydb/core/fq/libs/config:protos",
+    "//ydb/library/yql/dq/actors:protos",
+  ]
+
+  sources = [ "util.cpp" ]
 }

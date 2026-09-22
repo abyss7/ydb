@@ -6,6 +6,10 @@ protobuf_library("protos") {
     "//ydb/core/tx/columnshard/engines/protos",
   ]
 
+  deps = [
+    # "//ydb/library/actors/protos",  # peerdir only
+  ]
+
   sources = [
     "data.proto",
     "events.proto",

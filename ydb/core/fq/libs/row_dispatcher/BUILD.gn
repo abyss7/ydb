@@ -14,6 +14,7 @@ library("row_dispatcher") {
     # "//ydb/core/base",
     # "//ydb/core/fq/libs/actors",
     # "//ydb/core/fq/libs/actors:logging",
+    # "//ydb/core/fq/libs/config:protos",  # peerdir only
     # "//ydb/core/fq/libs/events",
     "//ydb/core/fq/libs/metrics",
     # "//ydb/core/fq/libs/row_dispatcher/events",
@@ -23,17 +24,23 @@ library("row_dispatcher") {
     # "//ydb/core/fq/libs/ydb",
     "//ydb/core/grpc_services",
     "//ydb/core/grpc_services/local_rpc",
-    "//ydb/core/mind",
+    # "//ydb/core/mind",  # peerdir only
+    "//ydb/core/mind:tenant_node_enumeration",
     "//ydb/core/mon",
     # "//ydb/library/actors/protos",
     "//ydb/library/logger",
     # "//ydb/library/yql/dq/actors",
     "//ydb/library/yql/dq/actors:common",
+    # "//ydb/library/yql/dq/actors:compute",  # peerdir only
+    # "//ydb/library/yql/dq/proto",  # peerdir only
     # "//ydb/library/yql/providers/dq/counters",
     # "//ydb/library/yql/providers/pq/common",
+    # "//ydb/library/yql/providers/pq/provider",  # peerdir only
     "//ydb/public/sdk/cpp/adapters/issue",
-    "//ydb/public/sdk/cpp/src/client/topic/impl",
     # "//ydb/public/sdk/cpp/src/client/driver",
+    # "//ydb/public/sdk/cpp/src/client/scheme",  # peerdir only
+    # "//ydb/public/sdk/cpp/src/client/table",  # peerdir only
+    "//ydb/public/sdk/cpp/src/client/topic",
     # "//yql/essentials/public/issue",
     # "//yql/essentials/public/purecalc/common",
   ]

@@ -3,12 +3,12 @@ library("simple") {
     "//library/cpp/http/io",
     # "//library/cpp/http/misc",
     "//library/cpp/openssl/io",
+    "//library/cpp/string_utils/url",
     "//library/cpp/threading/cancellation",
   ]
 
   deps = [
     # "//library/cpp/cache",
-    "//library/cpp/string_utils/url",
   ]
 
   sources = [ "http_client.cpp" ]

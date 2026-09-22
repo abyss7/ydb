@@ -3,12 +3,14 @@ protobuf_library("private_proto") {
 }
 
 library("quantile_digest") {
+  public_deps = [
+    "//library/cpp/yt/memory",
+    "//yt/yt/core",
+  ]
+
   deps = [
     ":private_proto",
     "//library/cpp/tdigest",
-    "//library/cpp/yt/error",
-    "//library/cpp/yt/memory",
-    "//yt/yt/core",
   ]
 
   sources = [

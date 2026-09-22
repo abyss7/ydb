@@ -1,24 +1,17 @@
-# group("common") {
-#   public_deps = [
-#     "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/iam/common",
-#     "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/iam_private/common",
-#   ]
-# }
+group("common") {
+  public_deps = [
+    # "//ydb/public/sdk/cpp/src/client/iam",
+    # "//ydb/public/sdk/cpp/src/client/iam:common",
+  ]
+}
 
 library("iam_private") {
   public_deps = [
-    "//contrib/libs/grpc",
-    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/iam/common",
-    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/iam_private/common",
+    # ":common",
+    # "//ydb/public/sdk/cpp/src/client/iam:common",
   ]
 
-  deps = [
-    "//library/cpp/threading/future",
-    "//ydb/public/api/client/yc_private/iam",
-    "//ydb/public/sdk/cpp/src/client/types/credentials",
-    "//ydb/public/sdk/cpp/src/library/jwt",
-    # ":common",
-  ]
+  deps = [ "//ydb/public/api/client/yc_private/iam" ]
 
   sources = [ "iam.cpp" ]
 }

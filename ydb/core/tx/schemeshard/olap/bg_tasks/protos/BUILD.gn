@@ -1,8 +1,0 @@
-protobuf_library("protos") {
-  public_deps = [
-    "//ydb/core/protos",
-    "//ydb/public/api/protos",
-  ]
-
-  sources = [ "data.proto" ]
-}

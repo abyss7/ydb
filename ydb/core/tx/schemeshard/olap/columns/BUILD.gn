@@ -2,8 +2,8 @@
 
 library("columns") {
   public_deps = [
-    "//ydb/core/formats/arrow/accessor/abstract",
-    "//ydb/core/formats/arrow:dictionary",
+    "//ydb/core/formats/arrow",
+    "//ydb/core/formats/arrow/dictionary",
     # "//ydb/core/formats/arrow/serializer",
     # "//ydb/core/protos",
     "//ydb/core/scheme_types",

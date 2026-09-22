@@ -9,7 +9,9 @@ library("quoter_service") {
   deps = [
     # "//library/cpp/retry",
     "//ydb/core/base",
+    # "//ydb/core/fq/libs/rate_limiter/events",  # peerdir only
     "//ydb/core/fq/libs/ydb",
+    # "//ydb/core/protos",  # peerdir only
     # "//ydb/core/quoter:public",
     # "//ydb/library/services",
   ]

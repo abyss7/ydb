@@ -8,7 +8,7 @@ SRCS(
     dq_compute_actor_checkpoints.cpp
     dq_compute_actor_metrics.cpp
     dq_compute_actor_stats.cpp
-    dq_compute_actor_watermarks.cpp
+    dq_compute_actor_watermarks.cpp  # gn: into ydb/library/yql/dq/runtime
     dq_compute_actor.cpp
     dq_compute_issues_buffer.cpp
     dq_info_aggregation_actor.cpp

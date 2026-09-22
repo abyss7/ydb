@@ -4,7 +4,7 @@ PEERDIR(
     ydb/library/actors/protos
     library/cpp/monlib/service/pages
     ydb/core/base
-    ydb/core/blobstorage/vdisk/hulldb/base
+    ydb/core/blobstorage/vdisk/hulldb/base  # gn: :base_types
     ydb/core/blobstorage/vdisk/protos
     ydb/core/protos
 )
@@ -19,7 +19,7 @@ SRCS(
     blobstorage_event_filter.h
     blobstorage_status.cpp
     blobstorage_status.h
-    blobstorage_vdisk_guids.cpp
+    blobstorage_vdisk_guids.cpp  # gn: guids
     blobstorage_vdisk_guids.h
     defs.h
     disk_part.h
@@ -64,6 +64,7 @@ SRCS(
     vdisk_response.h
     vdisk_syncneighbors.h
 )
+# gn: guids headers blobstorage_vdisk_guids.h
 
 END()
 

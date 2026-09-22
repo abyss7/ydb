@@ -7,10 +7,13 @@ library("mon_alloc") {
   ]
 
   deps = [
-    "//contrib/libs/tcmalloc:malloc_extension",
+    # "//contrib/libs/tcmalloc",
+    "//contrib/libs/tcmalloc:malloc_extension",  # peerdir only
     # "//library/cpp/cache",
+    # "//library/cpp/dwarf_backtrace",  # peerdir only
     "//library/cpp/execprofile",
     "//library/cpp/html/pcdata",
+    # "//library/cpp/lfalloc/alloc_profiler",  # peerdir only
     "//library/cpp/lfalloc/dbg_info",
     # "//library/cpp/malloc/api",
     # "//library/cpp/monlib/service/pages",
@@ -18,6 +21,7 @@ library("mon_alloc") {
     "//ydb/core/mon",
     # "//ydb/library/actors/prof",
     # "//ydb/library/services",
+    # "//yql/essentials/utils/memory_profiling",  # peerdir only
   ]
 
   sources = [

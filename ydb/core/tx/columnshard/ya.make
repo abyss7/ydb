@@ -1,7 +1,7 @@
 LIBRARY()
 
 SRCS(
-    background_controller.cpp
+    background_controller.cpp  # gn: background_controller
     blob.cpp
     blob_cache.cpp
     columnshard.cpp
@@ -27,9 +27,10 @@ SRCS(
     defs.cpp
     inflight_request_tracker.cpp
     tables_manager.cpp
-    tables_manager_paths.cpp
-    write_actor.cpp
+    tables_manager_paths.cpp  # gn: tables_manager_paths
+    write_actor.cpp  # gn: write_actor
 )
+# gn: background_controller headers background_controller.h
 
 GENERATE_ENUM_SERIALIZATION(columnshard.h)
 GENERATE_ENUM_SERIALIZATION(columnshard_impl.h)
@@ -85,6 +86,7 @@ PEERDIR(
     ydb/library/yql/dq/actors/compute
     ydb/public/api/protos
 )
+# gn: peerdir ydb/core/tx/columnshard/data_sharing/manager:shared_blobs ydb/core/tx/columnshard/engines/reader/common_reader/constructor:shard
 
 IF (OS_WINDOWS)
     CFLAGS(

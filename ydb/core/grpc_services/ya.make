@@ -14,7 +14,7 @@ SRCS(
     grpc_helper.cpp
     grpc_mon.cpp
     grpc_publisher_service_actor.cpp
-    grpc_request_proxy.cpp
+    grpc_request_proxy.cpp  # gn: request_proxy
     grpc_request_proxy_simple.cpp
     local_rate_limiter.cpp
     login_page.cpp
@@ -80,7 +80,7 @@ SRCS(
     rpc_ping.cpp
     rpc_prepare_data_query.cpp
     rpc_rate_limiter_api.cpp
-    rpc_read_columns.cpp
+    rpc_read_columns.cpp  # gn: read_columns
     rpc_read_rows.cpp
     rpc_read_table.cpp
     rpc_remove_directory.cpp
@@ -97,11 +97,11 @@ SRCS(
 
     rpc_common/rpc_common_kqp_session.cpp
 
-    legacy/rpc_legacy.cpp
+    legacy/rpc_legacy.cpp  # gn: into ydb/core/client/server
 
     query/rpc_execute_query.cpp
     query/rpc_execute_script.cpp
-    query/rpc_fetch_script_results.cpp
+    query/rpc_fetch_script_results.cpp  # gn: fetch_script_results
     query/rpc_attach_session.cpp
     query/rpc_kqp_tx.cpp
     query/service_query.h
@@ -113,6 +113,7 @@ SRCS(
     ydb_over_fq/keep_alive.cpp
     ydb_over_fq/list_directory.cpp
 )
+# gn: request_proxy headers grpc_request_proxy.h
 
 PEERDIR(
     contrib/libs/xxhash
@@ -145,7 +146,7 @@ PEERDIR(
     ydb/core/scheme
     ydb/core/sys_view
     ydb/core/tx
-    ydb/core/tx/datashard
+    ydb/core/tx/datashard  # gn: :read_events
     ydb/core/tx/sharding
     ydb/core/tx/data_events
     ydb/core/tx/schemeshard/olap/bg_tasks/events
@@ -189,6 +190,7 @@ IF (OS_LINUX)
         ydb/core/nbs/cloud/storage/core/libs/common
     )
 ENDIF()
+# gn: peerdir ydb/core/fq/libs/control_plane_storage:util ydb/core/tx/tx_proxy:public ydb/core/tx/tx_proxy:read_table ydb/core/tx/tx_proxy:upload_rows
 
 YQL_LAST_ABI_VERSION()
 

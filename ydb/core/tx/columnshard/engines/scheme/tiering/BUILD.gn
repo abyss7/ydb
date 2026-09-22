@@ -3,16 +3,12 @@ library("tiering") {
     # "//contrib/libs/apache/arrow",
     # "//ydb/core/base",
     "//ydb/core/formats/arrow",
-    # "//ydb/core/formats/arrow:serializer",
     # "//ydb/core/tx/columnshard/common",
     # "//ydb/core/tx/tiering:tier",
     # "//ydb/library/formats/arrow:validation",
   ]
 
-  deps = [
-    "//ydb/core/tx/columnshard/blobs_action:abstract",
-    "//ydb/library/actors/util",
-  ]
+  deps = [ "//ydb/core/tx/columnshard/blobs_action:abstract" ]
 
   sources = [
     "common.cpp",

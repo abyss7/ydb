@@ -1,14 +1,18 @@
 library("scheme_cache") {
   public_deps = [
     "//ydb/core/base",
-    # "//ydb/core/persqueue/public",
-    # "//ydb/core/persqueue/writer",
+    # "//ydb/core/persqueue/public:utils",
+    # "//ydb/core/persqueue/writer:partition_chooser",
     "//ydb/core/protos",
     # "//ydb/core/scheme",
     # "//ydb/core/scheme_types",
     # "//ydb/core/tx/locks",
     # "//ydb/library/aclib",
     # "//ydb/library/login:protos",
+  ]
+
+  deps = [
+    # "//ydb/core/persqueue/writer",  # peerdir only
   ]
 
   sources = [ "scheme_cache.cpp" ]

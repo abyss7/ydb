@@ -1,5 +1,6 @@
 library("common") {
   public_deps = [
+    # "//contrib/libs/protobuf",
     # "//library/cpp/iterator",
     "//ydb/core/fq/libs/config",
     # "//ydb/core/fq/libs/config:protos",
@@ -14,8 +15,11 @@ library("common") {
     "//contrib/libs/fmt",
     "//contrib/libs/re2",
     # "//ydb/core/external_sources",
+    # "//ydb/core/fq/libs/control_plane_storage:events",  # peerdir only
+    # "//ydb/core/fq/libs/events",  # peerdir only
     "//ydb/core/fq/libs/result_formatter",
     "//ydb/public/sdk/cpp/src/client/proto",
+    # "//yql/essentials/providers/common/structured_token",  # peerdir only
   ]
 
   sources = [

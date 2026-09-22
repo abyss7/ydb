@@ -8,31 +8,38 @@ library("sqs_topic") {
   ]
 
   deps = [
+    # "//contrib/libs/protobuf",
     "//library/cpp/digest/md5",
     # "//library/cpp/json",
     "//library/cpp/string_utils/base64",
     # "//ydb/core/base",
     # "//ydb/core/grpc_services/base",
+    "//ydb/core/grpc_services:request_proxy",
     # "//ydb/core/http_proxy",
+    # "//ydb/core/mind",  # peerdir only
     # "//ydb/core/persqueue/events",
     # "//ydb/core/persqueue/public",
     # "//ydb/core/persqueue/public:describer",
     "//ydb/core/persqueue/public:list_topics",
     "//ydb/core/persqueue/public:mlp",
-    "//ydb/core/persqueue/writer",
     "//ydb/core/protos",
     "//ydb/core/ymq/attributes",
     # "//ydb/core/ymq/base",
     "//ydb/core/ymq/error",
     "//ydb/library/http_proxy/error",
+    # "//ydb/public/api/grpc",  # peerdir only
     # "//ydb/public/api/protos",
+    # "//ydb/public/sdk/cpp/src/client/resources",  # peerdir only
+    # "//ydb/public/sdk/cpp/src/library/operation_id",  # peerdir only
     # "//ydb/services/datastreams:codes",
     "//ydb/services/lib/actors",
     # "//ydb/services/lib/sharding",
+    # "//ydb/services/persqueue_v1",  # peerdir only
     # "//ydb/services/persqueue_v1:actors",
     "//ydb/services/sqs_topic/protos/receipt",
     "//ydb/services/sqs_topic/queue_url",
     "//ydb/services/sqs_topic/queue_url:holder",
+    # "//ydb/services/ydb",  # peerdir only
   ]
 
   sources = [

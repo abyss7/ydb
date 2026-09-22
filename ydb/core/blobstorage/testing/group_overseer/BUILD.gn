@@ -1,5 +1,5 @@
 library("group_overseer") {
-  deps = [
+  public_deps = [
     "//contrib/libs/t1ha",
     "//ydb/core/base",
   ]

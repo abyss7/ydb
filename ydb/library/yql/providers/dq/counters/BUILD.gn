@@ -4,9 +4,7 @@ library("counters") {
     "//yql/essentials/core",
   ]
 
-  deps = [
-    "//ydb/library/yql/providers/dq/common",
-  ]
+  deps = [ "//ydb/library/yql/providers/dq/common" ]
 
   sources = [
     "counters.cpp",

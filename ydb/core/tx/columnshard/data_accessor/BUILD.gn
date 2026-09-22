@@ -14,7 +14,7 @@ library("abstract") {
     # "//ydb/library/accessor",
     "//ydb/library/aclib:protos",  # include path
     # "//ydb/library/conclusion",
-    "//ydb/services/bg_tasks/abstract",
+    "//ydb/services/bg_tasks:abstract",
     "//yql/essentials/core/issue:protos",  # include path
     "//yql/essentials/public/issue:protos",  # include path
   ]
@@ -58,7 +58,7 @@ library("data_accessor") {
     # "//ydb/core/tx/columnshard/resource_subscriber",
     # "//ydb/core/tx/general_cache/usage",
     # "//ydb/library/signals",
-    # "//ydb/services/bg_tasks/abstract",
+    # "//ydb/services/bg_tasks:abstract",
   ]
 
   deps = [

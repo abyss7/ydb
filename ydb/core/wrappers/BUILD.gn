@@ -5,6 +5,11 @@ library("events") {
     # "//ydb/library/actors/core",
   ]
 
+  deps = [
+    # "//contrib/libs/curl",  # peerdir only
+    # "//ydb/core/protos",  # peerdir only
+  ]
+
   sources = [
     "events/abstract.cpp",
     "events/common.cpp",

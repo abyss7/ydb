@@ -1,9 +1,10 @@
 LIBRARY()
 
 SRCS(
-    kqp_formats_arrow.cpp
+    kqp_formats_arrow.cpp  # gn: arrow
     kqp_result_set_builders.cpp
 )
+# gn: arrow headers kqp_formats_arrow.h
 
 PEERDIR(
     contrib/libs/apache/arrow

@@ -1,0 +1,8 @@
+link_slot("yql_pg_runtime") {
+}
+
+link_slot("YqlServicePolicy") {
+}
+
+link_slot("allocator") {
+}

@@ -2,6 +2,7 @@ library("skiff") {
   public_deps = [ "//library/cpp/yson:node" ]
 
   deps = [
+    # "//library/cpp/yson",  # peerdir only
     # "//yql/essentials/providers/common/codec",
     "//yql/essentials/providers/common/schema:skiff",
     "//yql/essentials/utils",

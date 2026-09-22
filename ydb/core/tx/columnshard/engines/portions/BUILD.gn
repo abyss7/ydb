@@ -2,17 +2,18 @@ library("portions") {
   public_deps = [
     # "//contrib/libs/apache/arrow",
     # "//ydb/core/formats/arrow",
-    "//ydb/core/formats/arrow/accessor/composite_serial",
-    "//ydb/core/formats/arrow:save_load",
-    "//ydb/core/formats/arrow:splitter",
+    "//ydb/core/formats/arrow/accessor:composite_serial",
     # "//ydb/core/protos",
+    # "//ydb/core/tx/columnshard",
     # "//ydb/core/tx/columnshard/blobs_action:abstract",
     # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/counters",
     "//ydb/core/tx/columnshard/engines/protos",
     # "//ydb/core/tx/columnshard/engines/scheme",
     "//ydb/core/tx/columnshard/engines/scheme/versions",
     "//ydb/core/tx/columnshard/splitter",
     "//ydb/core/tx/columnshard/splitter:abstract",
+    # "//ydb/core/tx/data_events:common",
     # "//ydb/library/accessor",
     # "//ydb/library/formats/arrow",
     # "//ydb/library/formats/arrow:splitter",
@@ -20,11 +21,8 @@ library("portions") {
 
   deps = [
     "//ydb/core/base",
-    # "//ydb/core/formats/arrow/accessor/abstract",
-    "//ydb/core/formats/arrow/accessor/composite",
-    # "//ydb/core/formats/arrow/accessor/plain",
-    "//ydb/core/formats/arrow/accessor/sparsed",
-    # "//ydb/core/formats/arrow:common",
+    "//ydb/core/formats/arrow/accessor:composite",
+    "//ydb/core/formats/arrow/accessor:sparsed",
     # "//ydb/core/tablet_flat",
     # "//ydb/core/tx/columnshard/blobs_action:common",
     # "//ydb/core/tx/columnshard/blobs_reader",
@@ -35,6 +33,8 @@ library("portions") {
   ]
 
   sources = [
+    "//ydb/core/tx/columnshard/engines/storage/chunks/column.cpp",
+    "//ydb/core/tx/columnshard/engines/storage/chunks/data.cpp",
     "base_with_blobs.cpp",
     "column_record.cpp",
     "common.cpp",
@@ -51,8 +51,6 @@ library("portions") {
     "write_prepare.cpp",
     "write_with_blobs.cpp",
     "written.cpp",
-    "//ydb/core/tx/columnshard/engines/storage/chunks/column.cpp",
-    "//ydb/core/tx/columnshard/engines/storage/chunks/data.cpp",
   ]
 
   serialize_enum_headers = [ "portion_info.h" ]

@@ -6,9 +6,11 @@ library("config") {
   ]
 
   deps = [
+    # "//ydb/core/blobstorage",  # peerdir only
     "//ydb/core/grpc_services",
     # "//ydb/core/grpc_services/base",
     # "//ydb/core/jaeger_tracing",
+    # "//ydb/core/kesus/tablet",  # peerdir only
   ]
 
   sources = [ "grpc_service.cpp" ]

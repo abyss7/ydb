@@ -49,6 +49,7 @@ PEERDIR(
     ydb/core/formats
     ydb/core/kqp/common
     ydb/core/kqp/common/buffer
+    ydb/core/kqp/topics
     ydb/core/protos
     ydb/core/scheme
     ydb/core/ydb_convert
@@ -61,6 +62,7 @@ PEERDIR(
     yql/essentials/utils
     ydb/core/kqp/common/result_set_format
 )
+# gn: peerdir ydb/core/tx/datashard:range_ops ydb/core/tx/datashard:read_events
 
 YQL_LAST_ABI_VERSION()
 

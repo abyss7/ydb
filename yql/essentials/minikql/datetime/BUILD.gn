@@ -5,5 +5,9 @@ library("datetime") {
     "//yql/essentials/public/udf",
   ]
 
+  deps = [
+    # "//yql/essentials/minikql/computation",  # peerdir only
+  ]
+
   sources = [ "datetime.cpp" ]
 }

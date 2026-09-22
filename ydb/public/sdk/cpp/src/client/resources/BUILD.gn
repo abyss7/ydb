@@ -5,4 +5,11 @@ library("resources") {
     "ydb_ca.cpp",
     "ydb_resources.cpp",
   ]
+
+  resources = [
+    {
+      path = "ydb_root_ca.pem"
+      key = "ydb_root_ca_dev.pem"
+    },
+  ]
 }

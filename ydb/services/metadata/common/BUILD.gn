@@ -1,14 +1,16 @@
 library("common") {
   public_deps = [
+    # "//library/cpp/time_provider",
     # "//ydb/core/base",
     # "//ydb/core/tx/scheme_cache",
+    # "//ydb/library/actors/core",
+    # "//ydb/services/metadata/abstract",
   ]
 
   deps = [
-    # "//library/cpp/time_provider",
-    # "//ydb/library/actors/core",
     # "//ydb/library/services",
-    # "//ydb/services/metadata/abstract",
+    # "//ydb/services/bg_tasks:abstract",  # peerdir only
+    # "//ydb/services/metadata/initializer",  # peerdir only
   ]
 
   sources = [

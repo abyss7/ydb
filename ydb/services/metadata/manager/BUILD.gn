@@ -14,14 +14,16 @@ library("manager") {
     # "//ydb/public/lib/scheme_types",
     # "//ydb/services/metadata",
     "//ydb/services/metadata/abstract",
-    "//yql/essentials/sql:settings",
     "//ydb/services/metadata/request",
+    "//yql/essentials/sql/settings",
   ]
 
   deps = [
     # "//library/cpp/retry",
     # "//ydb/library/services",
     "//ydb/library/table_creator",
+    # "//ydb/services/bg_tasks:abstract",  # peerdir only
+    # "//ydb/services/metadata/initializer",  # peerdir only
   ]
 
   sources = [

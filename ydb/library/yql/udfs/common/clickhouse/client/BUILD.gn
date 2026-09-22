@@ -6,7 +6,7 @@ config("public_config") {
     ]
 }
 
-config("private_config") {
+config("client_private_config") {
     defines = [
         "ARCADIA_BUILD",
         "DBMS_VERSION_MAJOR=21",
@@ -18,6 +18,8 @@ config("private_config") {
 }
 
 library("client") {
+    yql_abi_version = "2.44.0"
+
     public_deps = [
         "//contrib/libs/double-conversion",
         "//contrib/libs/fmt",
@@ -406,5 +408,5 @@ library("client") {
     ]
 
     public_configs = [ ":public_config" ]
-    configs = [ ":private_config" ]
+    configs = [ ":client_private_config" ]
 }

@@ -13,7 +13,7 @@ PEERDIR(
 )
 
 SRCS(
-    calcer.cpp
+    calcer.cpp  # gn: into ydb/core/formats/arrow
 )
 
 END()

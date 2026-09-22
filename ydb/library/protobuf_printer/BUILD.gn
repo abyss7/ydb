@@ -1,8 +1,10 @@
 library("protobuf_printer") {
-  deps = [
+  public_deps = [
     "//contrib/libs/protobuf",
-    "//ydb/library/security",
+    # "//ydb/public/api/protos:annotations",
   ]
+
+  deps = [ "//ydb/library/security" ]
 
   sources = [
     "hide_field_printer.cpp",

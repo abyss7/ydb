@@ -15,12 +15,16 @@ library("init") {
     # "//library/cpp/protobuf/json",
     "//ydb/core/fq/libs/audit",
     "//ydb/core/fq/libs/checkpoint_storage",
+    # "//ydb/core/fq/libs/checkpointing",  # peerdir only
     "//ydb/core/fq/libs/cloud_audit",
+    # "//ydb/core/fq/libs/common",  # peerdir only
     "//ydb/core/fq/libs/compute/ydb:control_plane",
     "//ydb/core/fq/libs/control_plane_config",
     "//ydb/core/fq/libs/control_plane_proxy",
-    "//ydb/core/fq/libs/control_plane_storage",
+    "//ydb/core/fq/libs/control_plane_storage",  # peerdir only
+    "//ydb/core/fq/libs/control_plane_storage:service_id",
     "//ydb/core/fq/libs/db_id_async_resolver_impl",
+    # "//ydb/core/fq/libs/gateway",  # peerdir only
     "//ydb/core/fq/libs/health",
     # "//ydb/core/fq/libs/private_client",
     "//ydb/core/fq/libs/quota_manager",
@@ -38,18 +42,26 @@ library("init") {
     "//ydb/library/security",
     # "//ydb/library/yql/dq/actors:compute",
     "//ydb/library/yql/dq/actors:input_transforms",
-    "//ydb/library/yql/dq/actors:task_runner",
     "//ydb/library/yql/dq/comp_nodes",
     "//ydb/library/yql/dq/transform",
     # "//ydb/library/yql/providers/common/http_gateway",
+    # "//ydb/library/yql/providers/dq/actors",  # peerdir only
+    # "//ydb/library/yql/providers/dq/api/protos",  # peerdir only
+    # "//ydb/library/yql/providers/dq/provider",  # peerdir only
     "//ydb/library/yql/providers/dq/task_runner",
     "//ydb/library/yql/providers/dq/worker_manager",
+    # "//ydb/library/yql/providers/dq/worker_manager:interface",  # peerdir only
     "//ydb/library/yql/providers/generic/actors",
     "//ydb/library/yql/providers/pq/async_io",
     "//ydb/library/yql/providers/pq/gateway/native",
+    # "//ydb/library/yql/providers/pq/provider",  # peerdir only
     "//ydb/library/yql/providers/s3/actors",
     # "//ydb/library/yql/providers/s3/proto",
+    # "//ydb/library/yql/providers/s3/provider",  # peerdir only
     "//ydb/library/yql/providers/solomon/actors",
+    # "//ydb/library/yql/providers/solomon/gateway",  # peerdir only
+    # "//ydb/library/yql/providers/solomon/proto",  # peerdir only
+    # "//ydb/library/yql/providers/solomon/provider",  # peerdir only
     # "//ydb/library/yql/utils/actor_log",
     # "//yql/essentials/minikql/comp_nodes",
     "//yql/essentials/providers/common/comp_nodes",

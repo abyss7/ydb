@@ -6,6 +6,10 @@ library("service") {
     # "//ydb/core/nbs/cloud/storage/core/protos",
   ]
 
+  deps = [
+    # "//ydb/core/nbs/cloud/blockstore/public/api/protos",  # peerdir only
+  ]
+
   sources = [
     "aligned_device_handler.cpp",
     "blocks_info.cpp",

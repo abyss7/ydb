@@ -11,6 +11,7 @@ library("common") {
     "//library/cpp/string_utils/quote",
     "//yql/essentials/core",
     # "//yql/essentials/minikql/dom",
+    # "//yql/essentials/public/issue:protos",  # peerdir only
   ]
 
   sources = [

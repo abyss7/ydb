@@ -1,8 +1,8 @@
 LIBRARY()
 
 SRCS(
-    tx_scan.cpp
-    tx_internal_scan.cpp
+    tx_scan.cpp  # gn: into ydb/core/tx/columnshard
+    tx_internal_scan.cpp  # gn: into ydb/core/tx/columnshard
 )
 
 PEERDIR(

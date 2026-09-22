@@ -10,7 +10,10 @@ library("cloud_events") {
   ]
 
   deps = [
+    # "//contrib/libs/protobuf",
     "//ydb/core/audit",
+    # "//ydb/core/protos",  # peerdir only
+    # "//ydb/core/util",  # peerdir only
   ]
 
   sources = [ "cloud_events.cpp" ]

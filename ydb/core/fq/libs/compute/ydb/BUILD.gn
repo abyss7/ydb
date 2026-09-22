@@ -12,19 +12,27 @@ library("control_plane") {
     # ":events",
     ":synchronization_service",
     # "//library/cpp/json",
-    "//ydb/core/fq/libs/control_plane_storage",
     # "//ydb/core/fq/libs/control_plane_storage:events",
+    # "//ydb/core/fq/libs/control_plane_storage:proto",  # peerdir only
+    "//ydb/core/fq/libs/control_plane_storage:service_id",
+    "//ydb/core/fq/libs/control_plane_storage:util",
+    # "//ydb/core/fq/libs/quota_manager:proto",  # peerdir only
     # "//ydb/core/fq/libs/ydb",
     "//ydb/core/kqp/workload_service:common",
+    # "//ydb/core/protos",  # peerdir only
     "//ydb/library/actors/http",
+    # "//ydb/library/actors/protos",  # peerdir only
+    # "//ydb/library/db_pool:protos",  # peerdir only
     # "//ydb/library/services",
     "//ydb/library/ycloud/api",
     "//ydb/library/yql/utils/actors",
     # "//ydb/public/api/grpc",
+    # "//ydb/public/api/grpc:draft",  # peerdir only
     "//ydb/public/lib/fq",
     # "//ydb/public/sdk/cpp/src/client/operation",
     # "//ydb/public/sdk/cpp/src/client/query",
     # "//ydb/public/sdk/cpp/src/client/resources",
+    # "//ydb/public/sdk/cpp/src/library/operation_id:protos",  # peerdir only
     # "//yql/essentials/public/issue",
     # "//yql/essentials/utils",
   ]
@@ -54,6 +62,11 @@ library("events") {
     # "//yql/essentials/public/issue",
   ]
 
+  deps = [
+    # "//ydb/public/api/grpc:draft",  # peerdir only
+    # "//ydb/public/sdk/cpp/src/library/operation_id",  # peerdir only
+  ]
+
   sources = [ "events/events.cpp" ]
 }
 
@@ -73,13 +86,21 @@ library("synchronization_service") {
     # "//ydb/core/fq/libs/common",
     "//ydb/core/fq/libs/compute/common",
     "//ydb/core/fq/libs/control_plane_proxy:actors",
-    "//ydb/core/fq/libs/control_plane_storage",
     # "//ydb/core/fq/libs/control_plane_storage:events",
+    # "//ydb/core/fq/libs/control_plane_storage:proto",  # peerdir only
+    "//ydb/core/fq/libs/control_plane_storage:service_id",
+    # "//ydb/core/fq/libs/quota_manager:proto",  # peerdir only
     # "//ydb/core/fq/libs/ydb",
+    # "//ydb/library/actors/protos",  # peerdir only
+    # "//ydb/library/db_pool:protos",  # peerdir only
+    # "//ydb/library/services",  # peerdir only
+    # "//ydb/public/api/grpc",  # peerdir only
+    # "//ydb/public/api/grpc:draft",  # peerdir only
     # "//ydb/public/lib/fq",
     # "//ydb/public/sdk/cpp/adapters/issue",
     # "//ydb/public/sdk/cpp/src/client/operation",
     # "//ydb/public/sdk/cpp/src/client/query",
+    # "//ydb/public/sdk/cpp/src/library/operation_id",  # peerdir only
   ]
 
   sources = [ "synchronization_service/synchronization_service.cpp" ]
@@ -111,20 +132,35 @@ library("ydb") {
   deps = [
     ":control_plane",
     # ":events",
+    # "//contrib/libs/protobuf",
+    # "//library/cpp/lwtrace/protos",  # peerdir only
     "//library/cpp/protobuf/interop",
     # "//library/cpp/retry",
     "//ydb/core/fq/libs/common",
-    # "//ydb/core/fq/libs/control_plane_storage",
-    "//ydb/core/fq/libs/protos",
+    # "//ydb/core/fq/libs/control_plane_storage:proto",  # peerdir only
+    # "//ydb/core/fq/libs/control_plane_storage:util",
+    # "//ydb/core/fq/libs/graph_params/proto",  # peerdir only
+    # "//ydb/core/fq/libs/grpc",  # peerdir only
+    # "//ydb/core/fq/libs/quota_manager:proto",  # peerdir only
     "//ydb/core/fq/libs/ydb",
+    # "//ydb/core/protos",  # peerdir only
     "//ydb/core/util",
     # "//ydb/library/actors/core",
+    # "//ydb/library/actors/protos",  # peerdir only
+    # "//ydb/library/db_pool:protos",  # peerdir only
     # "//ydb/library/services",
     # "//ydb/library/yql/dq/actors",
+    # "//ydb/library/yql/dq/expr_nodes",  # peerdir only
+    # "//ydb/library/yql/providers/dq/api/protos",  # peerdir only
+    # "//ydb/public/api/grpc",  # peerdir only
+    # "//ydb/public/api/grpc:draft",  # peerdir only
     "//ydb/public/sdk/cpp/adapters/issue",
     "//ydb/public/sdk/cpp/src/client/operation",
     # "//ydb/public/sdk/cpp/src/client/proto",
     # "//ydb/public/sdk/cpp/src/client/types",
+    # "//ydb/public/sdk/cpp/src/library/operation_id",  # peerdir only
+    # "//yql/essentials/core/expr_nodes",  # peerdir only
+    # "//yql/essentials/minikql/arrow",  # peerdir only
     # "//yql/essentials/public/issue",
   ]
 

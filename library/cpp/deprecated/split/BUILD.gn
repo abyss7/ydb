@@ -1,5 +1,5 @@
 library("split") {
-  deps = [ "//library/cpp/deprecated/kmp" ]
+  public_deps = [ "//library/cpp/deprecated/kmp" ]
 
   sources = [
     "delim_string_iter.cpp",

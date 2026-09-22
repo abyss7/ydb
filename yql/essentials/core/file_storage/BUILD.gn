@@ -10,6 +10,7 @@ library("defs") {
 library("download") {
   deps = [
     ":proto",
+    # "//contrib/libs/protobuf",
     "//library/cpp/protobuf/util",
   ]
 
@@ -33,6 +34,7 @@ library("file_storage") {
     # "//library/cpp/cache",
     "//library/cpp/digest/md5",
     "//library/cpp/http/io",
+    # "//library/cpp/logger:global",  # peerdir only
     "//library/cpp/protobuf/util",
     "//library/cpp/resource",
     # "//yql/essentials/public/issue",

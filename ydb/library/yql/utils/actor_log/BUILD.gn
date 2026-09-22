@@ -5,5 +5,9 @@ library("actor_log") {
     "//yql/essentials/utils/log",
   ]
 
+  deps = [
+    # "//ydb/library/actors/protos",  # peerdir only
+  ]
+
   sources = [ "log.cpp" ]
 }

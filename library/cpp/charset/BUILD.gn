@@ -1,7 +1,10 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("charset") {
   public_deps = [ ":lite" ]
+
+  deps = [
+    # "//contrib/libs/libiconv",
+  ]
+
   sources = [
     "decodeunknownplane.cpp",
     "iconv.cpp",

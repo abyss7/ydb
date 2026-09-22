@@ -6,5 +6,9 @@ library("grpc_caching") {
     # "//ydb/public/sdk/cpp/src/library/grpc/client",
   ]
 
+  deps = [
+    # "//ydb/library/actors/protos",  # peerdir only
+  ]
+
   sources = [ "cached_grpc_request_actor.cpp" ]
 }

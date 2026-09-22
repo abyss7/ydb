@@ -11,11 +11,10 @@ library("complete") {
     # "//ydb/public/lib/ydb_cli/commands",
     # "//ydb/public/sdk/cpp/src/client/table",
     "//yql/essentials/sql/v1/complete",
-    "//yql/essentials/sql/v1/complete:check",
     "//yql/essentials/sql/v1/complete/name/cache:local",
+    # "//yql/essentials/sql/v1/complete/name/object",  # peerdir only
     "//yql/essentials/sql/v1/complete/name/object/simple:cached",
     "//yql/essentials/sql/v1/complete/name/service:impatient",
-    "//yql/essentials/sql/v1/complete/name/service:ranking",
     "//yql/essentials/sql/v1/complete/name/service:schema",
     "//yql/essentials/sql/v1/complete/name/service:static",
     "//yql/essentials/sql/v1/complete/name/service:union",

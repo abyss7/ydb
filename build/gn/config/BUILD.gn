@@ -178,6 +178,14 @@ config("no_warnings") {
     cflags = [ "-Wno-everything" ]
 }
 
+config("link_slots") {
+    defines = [ "YQL_GN_LINK_SLOTS" ]
+}
+
+config("yql_abi_current") {
+    defines = [ "USE_CURRENT_UDF_ABI_VERSION" ]
+}
+
 config("no_undefined") {
     ldflags = [ "-Wl,--no-undefined" ]
 }

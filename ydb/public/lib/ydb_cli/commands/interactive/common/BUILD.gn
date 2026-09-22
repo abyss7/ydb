@@ -1,5 +1,10 @@
+config("common_private_config") {
+  defines = [ "YDB_CLI_AI_ENABLED=1" ]
+}
+
 library("common") {
   public_deps = [
+    # "//contrib/libs/yaml-cpp",
     # "//library/cpp/json:writer",
     "//ydb/library/yql/providers/common/http_gateway",
     # "//ydb/public/lib/ydb_cli/commands/interactive/highlight:color",
@@ -30,4 +35,6 @@ library("common") {
   ]
 
   serialize_enum_headers = [ "interactive_config.h" ]
+
+  configs = [ ":common_private_config" ]
 }

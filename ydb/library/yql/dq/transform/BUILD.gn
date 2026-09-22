@@ -4,6 +4,7 @@ library("transform") {
   deps = [
     "//ydb/library/actors/core",
     # "//yql/essentials/minikql",
+    # "//yql/essentials/minikql/computation",  # peerdir only
     # "//yql/essentials/utils",
   ]
 

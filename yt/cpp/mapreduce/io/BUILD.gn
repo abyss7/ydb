@@ -2,15 +2,17 @@ library("io") {
   public_deps = [
     # "//library/cpp/yson",
     # "//yt/cpp/mapreduce/client",
+    # "//yt/cpp/mapreduce/common",
     "//yt/cpp/mapreduce/interface",
     # "//yt/cpp/mapreduce/skiff",
   ]
 
   deps = [
+    # "//contrib/libs/protobuf",
+    # "//library/cpp/protobuf/runtime",  # peerdir only
     "//library/cpp/skiff",
     # "//library/cpp/yson:node",
     "//library/cpp/yt/logging",
-    # "//yt/cpp/mapreduce/common",
     "//yt/cpp/mapreduce/interface:logging",
     "//yt/yt/core",
     # "//yt/yt_proto/yt/formats",

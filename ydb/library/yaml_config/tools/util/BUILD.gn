@@ -1,3 +1,6 @@
 group("util") {
-  public_deps = [ "//library/cpp/protobuf/json" ]
+  public_deps = [
+    # "//contrib/libs/protobuf",
+    "//library/cpp/protobuf/json",
+  ]
 }

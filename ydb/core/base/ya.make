@@ -76,6 +76,7 @@ SRCS(
     tablet.h
     tablet_killer.cpp
     tablet_pipe.h
+    tablet_pipecache.cpp
     tablet_pipecache.h
     tablet_resolver.h
     tablet_status_checker.cpp
@@ -119,7 +120,7 @@ PEERDIR(
     ydb/core/protos/out
     ydb/library/aclib
     ydb/library/login
-    ydb/library/pdisk_io
+    ydb/library/pdisk_io  # gn: :device_type
     ydb/library/pretty_types_print/protobuf
     ydb/library/ydb_issue
     ydb/public/api/protos/out

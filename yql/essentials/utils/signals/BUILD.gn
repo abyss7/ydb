@@ -1,6 +1,8 @@
 library("signals") {
   deps = [
+    # "//contrib/libs/protobuf",
     # "//library/cpp/json:yson",
+    # "//library/cpp/logger:global",  # peerdir only
     # "//library/cpp/protobuf/json",
     # "//yql/essentials/utils/backtrace",
   ]

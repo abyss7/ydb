@@ -1,18 +1,18 @@
 library("resource_pool_classifier") {
   public_deps = [
-    "//ydb/services/metadata/initializer",
+    "//ydb/core/resource_pools",
+    # "//ydb/services/metadata/abstract",
+    "//ydb/services/metadata/manager",
   ]
 
   deps = [
     # "//library/cpp/json",
     # "//ydb/core/base",
     # "//ydb/core/cms/console",
-    "//ydb/core/grpc_services",
     "//ydb/core/kqp/workload_service:actors",
     # "//ydb/core/protos",
-    "//ydb/core/resource_pools",
     "//ydb/library/query_actor",
-    "//ydb/services/metadata/manager",
+    "//ydb/services/metadata/initializer",
   ]
 
   sources = [

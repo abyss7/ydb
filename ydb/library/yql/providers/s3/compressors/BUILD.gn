@@ -1,15 +1,19 @@
 library("compressors") {
   deps = [
-    "//contrib/libs/brotli",
+    # "//contrib/libs/brotli:common",
+    "//contrib/libs/brotli:dec",  # peerdir only
+    "//contrib/libs/brotli:enc",  # peerdir only
+    # "//contrib/libs/fmt",  # peerdir only
     "//contrib/libs/libbz2",
     "//contrib/libs/lz4",
     "//contrib/libs/lzma",
+    # "//contrib/libs/poco/Util",  # peerdir only
     "//contrib/libs/zlib",
     "//contrib/libs/zstd",
     "//ydb/core/util",
     "//ydb/library/yql/dq/actors:protos",
-    "//yql/essentials/utils",
     "//ydb/library/yql/udfs/common/clickhouse/client",
+    "//yql/essentials/utils",
   ]
 
   sources = [

@@ -1,46 +1,47 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
-config("private_config") {
+config("dsproxy_private_config") {
   cflags = [ "-Wno-deprecated-enum-enum-conversion" ]
 }
 
 library("dsproxy") {
   public_deps = [
     # "//library/cpp/containers/stack_vector",
+    # "//library/cpp/digest/crc32c",
     # "//library/cpp/monlib/dynamic_counters:percentile",
     # "//library/cpp/monlib/metrics",
+    # "//library/cpp/monlib/service/pages",
+    # "//library/cpp/random_provider",
     # "//ydb/core/base",
+    # "//ydb/core/blobstorage",
     "//ydb/core/blobstorage/backpressure",
     "//ydb/core/blobstorage/base",
     "//ydb/core/blobstorage/common",
+    # "//ydb/core/blobstorage/crypto",
+    "//ydb/core/blobstorage/events",
     "//ydb/core/blobstorage/groupinfo",
     "//ydb/core/blobstorage/lwtrace_probes",
+    # "//ydb/core/blobstorage/nodewarden",
     # "//ydb/core/blobstorage/storagepoolmon",
     "//ydb/core/blobstorage/vdisk/common",
     "//ydb/core/blobstorage/vdisk/ingress",
+    # "//ydb/core/blobstorage/vdisk/query",
     "//ydb/core/mon",
     # "//ydb/core/protos",
     "//ydb/core/retro_tracing_impl",
     "//ydb/core/util",
     # "//ydb/library/actors/core",
+    # "//ydb/library/actors/interconnect",
     # "//ydb/library/actors/wilson",
     # "//ydb/library/wilson_ids",
   ]
 
   deps = [
-    # "//library/cpp/digest/crc32c",
-    # "//library/cpp/monlib/service/pages",
-    # "//library/cpp/random_provider",
-    "//ydb/core/blobstorage",
-    "//ydb/core/blobstorage/bridge/proxy",
-    # "//ydb/core/blobstorage/crypto",
-    # "//ydb/core/blobstorage/nodewarden",
-    # "//ydb/core/blobstorage/vdisk/query",
+    # "//ydb/core/control/lib",  # peerdir only
     # "//ydb/core/node_whiteboard",
-    # "//ydb/library/actors/interconnect",
+    # "//ydb/library/actors/async",
   ]
 
   sources = [
+    "//ydb/core/blobstorage/bridge/proxy/bridge_proxy.cpp",
     "dsproxy_assimilate.cpp",
     "dsproxy_blackboard.cpp",
     "dsproxy_block.cpp",
@@ -74,15 +75,17 @@ library("dsproxy") {
     "group_sessions.cpp",
   ]
 
-  configs = [ ":private_config" ]
+  configs = [ ":dsproxy_private_config" ]
 }
 
 library("mock") {
-  public_deps = [ "//ydb/core/base" ]
-
-  deps = [
+  public_deps = [
+    "//ydb/core/base",
     # "//ydb/core/blobstorage",
     # "//ydb/core/blobstorage/pdisk",
+  ]
+
+  deps = [
     # "//ydb/core/blobstorage/vdisk/common",
     "//ydb/core/util",
   ]

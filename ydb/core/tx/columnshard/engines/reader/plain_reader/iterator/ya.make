@@ -20,5 +20,6 @@ PEERDIR(
     ydb/core/tx/conveyor/usage
     ydb/core/tx/limiter/grouped_memory/usage
 )
+# gn: peerdir ydb/core/tx/columnshard/engines:filter
 
 END()

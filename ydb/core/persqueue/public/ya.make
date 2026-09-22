@@ -5,9 +5,10 @@ SRCS(
     inflight_limiter.cpp
     pq_database.cpp
     pq_rl_helpers.cpp
-    utils.cpp
+    utils.cpp  # gn: utils
     write_id.cpp
 )
+# gn: utils headers utils.h
 
 PEERDIR(
     ydb/core/base

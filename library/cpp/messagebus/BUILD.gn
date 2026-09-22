@@ -1,5 +1,5 @@
 library("actor") {
-  deps = [ "//library/cpp/deprecated/atomic" ]
+  public_deps = [ "//library/cpp/deprecated/atomic" ]
 
   sources = [
     "actor/executor.cpp",
@@ -22,21 +22,22 @@ library("config") {
 
 library("messagebus") {
   public_deps = [
+    ":actor",
+    ":config",
     ":monitoring",
+    ":scheduler",
+    "//contrib/libs/sparsehash",
     "//library/cpp/codecs",
     # "//library/cpp/deprecated/atomic",
     # "//library/cpp/deprecated/enum_codegen",
     "//library/cpp/getopt",
+    "//library/cpp/string_utils/indent_text",
+    "//library/cpp/threading/future",
   ]
 
   deps = [
-    ":actor",
-    ":config",
-    ":scheduler",
-    "//contrib/libs/sparsehash",
+    # "//library/cpp/getopt:small",  # peerdir only
     "//library/cpp/lwtrace",
-    "//library/cpp/string_utils/indent_text",
-    "//library/cpp/threading/future",
   ]
 
   sources = [
@@ -86,13 +87,9 @@ protobuf_library("monitoring") {
 }
 
 library("oldmodule") {
-  public_deps = [ "//library/cpp/messagebus" ]
+  public_deps = [ ":messagebus" ]
 
-  deps = [
-    ":actor",
-    ":config",
-    ":scheduler",
-  ]
+  deps = [ ":actor" ]
 
   sources = [
     "oldmodule/module.cpp",
@@ -101,7 +98,10 @@ library("oldmodule") {
 }
 
 library("protobuf") {
-  public_deps = [ "//library/cpp/messagebus" ]
+  public_deps = [
+    ":messagebus",
+    # "//contrib/libs/protobuf",
+  ]
 
   deps = [ ":actor" ]
 
@@ -109,22 +109,22 @@ library("protobuf") {
 }
 
 library("scheduler") {
-  public_deps = [ "//library/cpp/deprecated/atomic" ]
-
-  deps = [ "//library/cpp/threading/future" ]
+  public_deps = [
+    "//library/cpp/deprecated/atomic",
+    "//library/cpp/threading/future",
+  ]
 
   sources = [ "scheduler/scheduler.cpp" ]
 }
 
 library("www") {
   public_deps = [
+    ":messagebus",
     ":oldmodule",
     "//library/cpp/cgiparam",
-    "//library/cpp/messagebus",
   ]
 
   deps = [
-    ":config",
     "//library/cpp/html/pcdata",
     "//library/cpp/http/fetch",
     "//library/cpp/http/server",
@@ -137,5 +137,16 @@ library("www") {
   sources = [
     "www/html_output.cpp",
     "www/www.cpp",
+  ]
+
+  resources = [
+    {
+      path = "www/messagebus.js"
+      key = "/messagebus.js"
+    },
+    {
+      path = "www/bus-ico.png"
+      key = "/bus-ico.png"
+    },
   ]
 }

@@ -1,13 +1,14 @@
 library("log") {
   public_deps = [
     "//library/cpp/deprecated/atomic",
+    "//library/cpp/logger",
     "//library/cpp/logger:global",
   ]
 
   deps = [
     ":proto",
+    # "//contrib/libs/protobuf",  # peerdir only
     "//library/cpp/json",
-    "//library/cpp/logger",
     "//yql/essentials/utils",
     "//yql/essentials/utils/backtrace",
   ]

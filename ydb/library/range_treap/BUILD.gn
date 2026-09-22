@@ -1,5 +1,5 @@
 library("range_treap") {
-  deps = [
+  public_deps = [
     # "//ydb/library/accessor",
   ]
 

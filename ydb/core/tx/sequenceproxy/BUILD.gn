@@ -13,14 +13,13 @@ library("public") {
 library("sequenceproxy") {
   public_deps = [
     # ":public",
+    "//ydb/core/base",
   ]
 
   deps = [
     "//library/cpp/monlib/dynamic_counters",
-    "//ydb/core/base",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/sequenceshard:public",
-    "//ydb/library/aclib",
     # "//ydb/library/actors/core",
     # "//ydb/library/services",
     "//ydb/library/ydb_issue",

@@ -1,7 +1,5 @@
 library("helper") {
-  public_deps = [
-    "//yql/essentials/core/dq_integration",
-  ]
+  public_deps = [ "//yql/essentials/core/dq_integration" ]
 
   deps = [
     # "//ydb/library/yql/dq/expr_nodes",

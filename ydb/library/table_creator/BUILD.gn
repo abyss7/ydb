@@ -1,5 +1,6 @@
 library("table_creator") {
   public_deps = [
+    "//ydb/core/base",
     # "//ydb/core/protos",
     "//ydb/core/tx/scheme_cache",
     # "//ydb/library/actors/core",
@@ -10,12 +11,9 @@ library("table_creator") {
 
   deps = [
     # "//library/cpp/retry",
-    "//ydb/core/base",
-    # "//ydb/core/protos/schemeshard",
-    "//ydb/core/tablet",
+    # "//ydb/core/protos:schemeshard",
     # "//ydb/core/tx/schemeshard",
     "//ydb/core/tx/tx_proxy:public",
-    "//ydb/library/aclib",
     # "//ydb/public/api/protos",
   ]
 

@@ -4,14 +4,14 @@ library("direct_block_group") {
     # "//ydb/core/mind:bscontroller",
     "//ydb/core/nbs/cloud/blockstore/libs/service",
     "//ydb/core/nbs/cloud/blockstore/libs/service/fast_path_service:storage_transport",
+    # "//ydb/library/actors/util",
+    "//ydb/library/actors/wilson",
     "//ydb/library/pdisk_io",
   ]
 
   deps = [
     # "//ydb/core/nbs/cloud/storage/core/libs/common",
     "//ydb/library/actors/core",
-    # "//ydb/library/actors/util",
-    "//ydb/library/actors/wilson",
     # "//ydb/library/wilson_ids",
   ]
 

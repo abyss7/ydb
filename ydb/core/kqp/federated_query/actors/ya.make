@@ -13,7 +13,7 @@ PEERDIR(
     ydb/core/tx/scheme_board
     ydb/core/tx/scheme_cache
     ydb/core/tx/schemeshard
-    ydb/core/tx/tx_proxy
+    ydb/core/tx/tx_proxy  # gn: :public
     ydb/library/aclib
     ydb/library/actors/core
     ydb/services/metadata/secret

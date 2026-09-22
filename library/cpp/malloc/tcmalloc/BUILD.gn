@@ -1,4 +1,10 @@
 contrib_library("tcmalloc") {
-    deps = [ "//library/cpp/malloc/api" ]
-    sources = [ "malloc-info.cpp" ]
+  deps = [
+    # "//contrib/libs/tcmalloc:malloc_extension",  # peerdir only
+    "//library/cpp/malloc/api",
+  ]
+
+  sources = [ "malloc-info.cpp" ]
+
+  link_slot_provides = [ "allocator" ]
 }

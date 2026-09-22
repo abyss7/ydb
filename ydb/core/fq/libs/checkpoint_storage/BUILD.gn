@@ -1,6 +1,8 @@
 library("checkpoint_storage") {
   public_deps = [
     "//ydb/core/fq/libs/shared_resources",
+    "//ydb/core/fq/libs/ydb",
+    # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
     # "//ydb/library/security",
   ]
@@ -17,15 +19,15 @@ library("checkpoint_storage") {
     "//ydb/core/fq/libs/checkpointing_common",
     # "//ydb/core/fq/libs/common",
     # "//ydb/core/fq/libs/config:protos",
-    # "//ydb/core/fq/libs/control_plane_storage",
-    "//ydb/core/fq/libs/ydb",
+    # "//ydb/core/fq/libs/control_plane_storage",  # peerdir only
+    # "//ydb/core/fq/libs/control_plane_storage:util",
     "//ydb/core/protos",
-    # "//ydb/library/accessor",
     # "//ydb/library/aclib",
     # "//ydb/library/yql/dq/actors:compute",
+    # "//ydb/library/yql/dq/proto",  # peerdir only
     "//ydb/public/sdk/cpp/adapters/issue",
-    "//ydb/public/sdk/cpp/src/client/query",
     # "//ydb/public/sdk/cpp/src/client/scheme",
+    # "//ydb/public/sdk/cpp/src/client/table",  # peerdir only
     # "//yql/essentials/minikql/comp_nodes",
     # "//yql/essentials/public/issue",
   ]

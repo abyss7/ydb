@@ -8,5 +8,9 @@ library("events") {
     # "//yql/essentials/public/purecalc/common",
   ]
 
+  deps = [
+    # "//ydb/library/yql/providers/pq/provider",  # peerdir only
+  ]
+
   sources = [ "data_plane.cpp" ]
 }

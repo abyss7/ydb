@@ -8,8 +8,10 @@ library("fq") {
   ]
 
   deps = [
+    # "//library/cpp/retry",  # peerdir only
     "//ydb/core/grpc_services",
     "//ydb/core/grpc_services/base",
+    "//ydb/core/grpc_services:request_proxy",
     "//ydb/library/protobuf_printer",
   ]
 

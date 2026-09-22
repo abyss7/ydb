@@ -1,5 +1,3 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("scheme") {
   public_deps = [ "//library/cpp/json" ]
 

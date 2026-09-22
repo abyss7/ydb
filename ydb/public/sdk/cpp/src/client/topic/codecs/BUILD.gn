@@ -1,4 +1,0 @@
-library("codecs") {
-    deps = [ "//library/cpp/streams/zstd" ]
-    sources = [ "codecs.cpp" ]
-}

@@ -1,13 +1,12 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
-source_set("alloc") {
-  deps += [
-    "//contrib/libs/apache/arrow",
+library("alloc") {
+  public_deps = [
     "//library/cpp/monlib/dynamic_counters",
-    # "//yql/essentials/parser/pg_catalog",
-    "//yql/essentials/public/udf:_udf",
-    "//yql/essentials/sql:pg_dummy",
+    # "//yql/essentials/core/pg_settings",
+    "//yql/essentials/parser/pg_wrapper/interface",
+    "//yql/essentials/public/udf",
   ]
+
+  deps = [ "//contrib/libs/apache/arrow" ]
 
   sources = [
     "aligned_page_pool.cpp",
@@ -18,23 +17,40 @@ source_set("alloc") {
 
 library("minikql") {
   public_deps = [
+    ":alloc",
     "//contrib/libs/apache/arrow",
-    "//library/cpp/monlib/dynamic_counters",
+    # "//library/cpp/containers/stack_vector",
+    # "//library/cpp/deprecated/enum_codegen",
+    "//library/cpp/type_info:tz",
+    "//yql/essentials/core/sql_types",
+    # "//yql/essentials/parser/pg_wrapper/interface",
+    "//yql/essentials/public/decimal",
+    # "//yql/essentials/public/langver",
     "//yql/essentials/public/udf",
+    "//yql/essentials/public/udf:arrow",
     "//yql/essentials/utils",
   ]
 
   deps = [
+    ":terminator",
     "//contrib/libs/cctz",
-    "//library/cpp/type_info:tz",
+    # "//contrib/libs/cctz/tzdata",  # peerdir only
+    # "//library/cpp/enumbitset",  # peerdir only
+    # "//library/cpp/json",
+    "//library/cpp/monlib/dynamic_counters",  # peerdir only
+    # "//library/cpp/packedtypes",
+    # "//library/cpp/resource",
     "//library/cpp/yson",
-    "//yql/essentials/core/sql_types",
+    # "//yql/essentials/core/issue",  # peerdir only
+    # "//yql/essentials/core/pg_settings",  # peerdir only
+    # "//yql/essentials/minikql/computation",
+    # "//yql/essentials/minikql/dom",
     "//yql/essentials/parser/pg_catalog",
-    "//yql/essentials/public/decimal",
-    "//yql/essentials/public/udf:arrow",
+    # "//yql/essentials/public/issue",  # peerdir only
     "//yql/essentials/types/binary_json",
     "//yql/essentials/types/dynumber",
     "//yql/essentials/types/uuid",
+    # "//yql/essentials/utils/memory_profiling",  # peerdir only
   ]
 
   sources = [
@@ -64,10 +80,12 @@ library("minikql") {
   ]
 }
 
-source_set("terminator") {
-  deps += [
+library("terminator") {
+  public_deps = [ "//yql/essentials/public/issue" ]
+
+  deps = [
+    # ":minikql",
     "//yql/essentials/core/issue",
-    "//yql/essentials/public/issue",
   ]
 
   sources = [ "mkql_terminator.cpp" ]

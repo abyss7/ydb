@@ -3,11 +3,7 @@ library("decimal") {
     # "//library/cpp/int128",
   ]
 
-  deps = [
-    "//library/cpp/yt/assert",
-    "//library/cpp/yt/error",
-    # "//yt/yt/core",
-  ]
+  deps = [ "//yt/yt/core" ]
 
   sources = [ "decimal.cpp" ]
 }

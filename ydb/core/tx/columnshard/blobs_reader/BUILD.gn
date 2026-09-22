@@ -11,7 +11,7 @@ library("blobs_reader") {
   ]
 
   deps = [
-    "//ydb/core/base",
+    # "//ydb/core/tablet_flat",  # peerdir only
   ]
 
   sources = [

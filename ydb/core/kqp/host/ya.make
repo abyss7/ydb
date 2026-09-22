@@ -5,9 +5,10 @@ SRCS(
     kqp_gateway_proxy.cpp
     kqp_host.cpp
     kqp_runner.cpp
-    kqp_transform.cpp
+    kqp_transform.cpp  # gn: transform
     kqp_statement_rewrite.cpp
 )
+# gn: transform headers kqp_transform.h
 
 PEERDIR(
     ydb/core/base

@@ -1,11 +1,8 @@
 library("document") {
   public_deps = [
+    # "//contrib/libs/libxml",
     "//library/cpp/string_utils/ztstrbuf",
     "//library/cpp/xml/init",
-  ]
-
-  deps = [
-    # "//contrib/libs/libxml",
   ]
 
   sources = [

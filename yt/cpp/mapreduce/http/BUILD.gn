@@ -7,6 +7,8 @@ library("http") {
   deps = [
     # "//library/cpp/json",
     "//library/cpp/string_utils/base64",
+    # "//library/cpp/string_utils/quote",  # peerdir only
+    # "//library/cpp/threading/cron",  # peerdir only
     # "//library/cpp/yson:node",
     # "//yt/cpp/mapreduce/client",
     "//yt/cpp/mapreduce/common",

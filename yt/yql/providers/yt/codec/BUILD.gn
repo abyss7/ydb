@@ -4,6 +4,7 @@ library("codec") {
     # "//library/cpp/yson:node",
     # "//yql/essentials/minikql",
     # "//yql/essentials/minikql/computation",
+    # "//yql/essentials/minikql:alloc",
     "//yql/essentials/providers/common/codec",
     # "//yql/essentials/public/udf",
     "//yt/cpp/mapreduce/interface",
@@ -11,7 +12,8 @@ library("codec") {
   ]
 
   deps = [
-    "codegen/llvm16",
+    ":codegen",
+    # "//contrib/libs/apache/arrow",
     "//library/cpp/streams/brotli",
     "//yql/essentials/core",
     # "//yql/essentials/parser/pg_wrapper/interface",
@@ -36,5 +38,12 @@ library("codec") {
     "yt_codec.cpp",
     "yt_codec_io.cpp",
     "yt_codec_job.cpp",
+  ]
+}
+
+group("codegen") {
+  public_deps = [
+    "//yt/yql/providers/yt/codec/codegen/llvm16",
+    # "//yt/yql/providers/yt/codec/codegen/no_llvm",
   ]
 }

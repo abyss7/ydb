@@ -1,11 +1,11 @@
 library("util") {
-  public_deps = [ "//library/cpp/sse" ]
-
-  deps = [
-    "//library/cpp/containers/absl_flat_hash",
+  public_deps = [
     "//library/cpp/containers/stack_vector",
     "//library/cpp/deprecated/atomic",
+    "//library/cpp/sse",
   ]
+
+  deps = [ "//library/cpp/containers/absl_flat_hash" ]
 
   sources = [
     "affinity.cpp",

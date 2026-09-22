@@ -22,11 +22,17 @@ library("shared_resources") {
   ]
 
   deps = [
+    # "//library/cpp/monlib/dynamic_counters",  # peerdir only
+    # "//ydb/core/fq/libs/control_plane_storage:proto",  # peerdir only
+    # "//ydb/core/fq/libs/quota_manager:events",  # peerdir only
+    # "//ydb/core/protos",  # peerdir only
     "//ydb/library/logger",
     # "//ydb/library/services",
     # "//ydb/public/api/protos",
+    # "//ydb/public/sdk/cpp/src/client/extension_common",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/extensions/discovery_mutator",
     "//ydb/public/sdk/cpp/src/client/extensions/solomon_stats",
+    # "//ydb/public/sdk/cpp/src/client/table",  # peerdir only
   ]
 
   sources = [

@@ -13,5 +13,7 @@ PEERDIR(
     ydb/core/tx/columnshard/engines/scheme
     ydb/core/tx/columnshard/engines/writer
 )
+# gn: peerdir ydb/core/tx/columnshard:write_actor
+# gn: peerdir ydb/core/tx/columnshard/operations:events
 
 END()

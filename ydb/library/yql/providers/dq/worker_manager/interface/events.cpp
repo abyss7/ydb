@@ -1,9 +1,6 @@
 #include "events.h"
 
-namespace NYql::NCommonAttrs {
-    extern TString OPERATIONID_ATTR;
-    extern TString JOBID_ATTR;
-}
+#include <ydb/library/yql/providers/dq/common/attrs.h>
 
 namespace NYql::NDqs {
     TEvAllocateWorkersRequest::TEvAllocateWorkersRequest(

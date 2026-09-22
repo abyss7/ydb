@@ -1,46 +1,16 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
-library("abstract_enums") {
+group("accessor") {
   public_deps = [
-    "//contrib/libs/apache/arrow",
-    "//ydb/library/accessor",
-  ]
-  serialize_enum_headers = [ "abstract/accessor.h" ]
-}
-
-source_set("abstract_srcs") {
-  public_deps = [
-    ":abstract_enums",
-    "//contrib/libs/apache/arrow",
-    "//ydb/library/accessor",
-  ]
-
-  deps += [
-    # "//library/cpp/json:writer",
-    # "//ydb/core/formats/arrow/accessor/common",
-    # "//ydb/core/scheme_types",
-    # "//ydb/library/actors/core",
-    # "//ydb/library/formats/arrow",
-    # "//ydb/library/formats/arrow:protos",
-    # "//ydb/library/formats/arrow:splitter",
-    # "//ydb/library/formats/arrow:switch",
-    "//ydb/services/bg_tasks/abstract",
-    # "//ydb/services/metadata/abstract",
-  ]
-
-  sources = [
-    "abstract/accessor.cpp",
-    "abstract/common.cpp",
-    "abstract/constructor.cpp",
-    "abstract/request.cpp",
+    # ":common",
+    # ":composite",  # peerdir only
+    # ":composite_serial",  # peerdir only
+    # ":dictionary",  # peerdir only
+    # ":sparsed",  # peerdir only
+    # ":sub_columns",  # peerdir only
+    # "//ydb/core/formats/arrow",  # peerdir only
   ]
 }
 
-library("abstract") {
-  public_deps = [ "//ydb/core/formats/arrow" ]
-}
-
-library("_common") {
+library("common") {
   public_deps = [
     "//contrib/libs/apache/arrow",
     "//ydb/library/accessor",
@@ -58,23 +28,123 @@ library("_common") {
   ]
 }
 
-source_set("plain_srcs") {
-  deps += [
-    ":_common",
-    # "//contrib/libs/apache/arrow",
-    "//ydb/core/formats/arrow/serializer:_srcs",  # cycle
+library("composite") {
+  public_deps = [
+    # "//ydb/core/formats/arrow",
+    "//ydb/library/accessor",
+  ]
+
+  deps = [
+    # "//contrib/libs/apache/arrow",  # peerdir only
+    "//ydb/library/formats/arrow",
+    # "//ydb/library/formats/arrow:common",  # peerdir only
+  ]
+
+  sources = [ "composite/accessor.cpp" ]
+}
+
+library("composite_serial") {
+  public_deps = [
+    ":composite",
+    # "//ydb/core/formats/arrow",
+  ]
+
+  deps = [
+    # ":sparsed",
+    # "//contrib/libs/apache/arrow",  # peerdir only
+    "//ydb/library/actors/core",
+    "//ydb/library/actors/prof",
+  ]
+
+  sources = [ "composite_serial/accessor.cpp" ]
+}
+
+library("dictionary") {
+  public_deps = [
+    # ":common",
+    # "//ydb/core/formats/arrow",
     # "//ydb/library/formats/arrow",
     # "//ydb/library/formats/arrow:switch",
     # "//ydb/library/formats/arrow:validation",
   ]
 
+  deps = [
+    # "//contrib/libs/apache/arrow",
+    # "//ydb/library/formats/arrow:protos",  # peerdir only
+  ]
+
   sources = [
-    "plain/accessor.cpp",
-    "plain/constructor.cpp",
-    "plain/request.cpp",
+    "dictionary/accessor.cpp",
+    "dictionary/constructor.cpp",
+    "dictionary/request.cpp",
   ]
 }
 
-group("plain") {
-  public_deps = [ "//ydb/core/formats/arrow" ]
+library("sparsed") {
+  public_deps = [
+    ":common",
+    "//contrib/libs/apache/arrow",
+    # "//ydb/core/formats/arrow",
+    "//ydb/library/accessor",
+    "//ydb/library/formats/arrow",
+    "//ydb/library/formats/arrow:switch",
+  ]
+
+  deps = [
+    # "//ydb/library/formats/arrow:protos",  # peerdir only
+  ]
+
+  sources = [
+    "sparsed/accessor.cpp",
+    "sparsed/constructor.cpp",
+    "sparsed/request.cpp",
+  ]
+}
+
+library("sub_columns") {
+  public_deps = [
+    ":common",
+    # ":sparsed",
+    "//contrib/libs/apache/arrow",
+    # "//ydb/core/formats/arrow",
+    "//ydb/library/accessor",
+    "//ydb/library/actors/core",
+    "//ydb/library/conclusion",
+    "//ydb/library/formats/arrow:protos",
+    "//ydb/services/bg_tasks:abstract",
+    "//ydb/services/metadata/abstract:request_features",
+    "//yql/essentials/minikql/jsonpath/parser",
+  ]
+
+  deps = [
+    # ":composite_serial",
+    "//contrib/libs/simdjson",
+    "//contrib/libs/xxhash",
+    "//library/cpp/json",  # peerdir only
+    "//library/cpp/monlib/dynamic_counters",
+    "//ydb/library/formats/arrow",
+    "//ydb/library/formats/arrow:modifier",  # peerdir only
+    "//ydb/library/formats/arrow:validation",
+    "//ydb/library/signals",
+    "//yql/essentials/minikql/jsonpath",
+    "//yql/essentials/types/binary_json",
+  ]
+
+  sources = [
+    "sub_columns/accessor.cpp",
+    "sub_columns/columns_storage.cpp",
+    "sub_columns/constructor.cpp",
+    "sub_columns/data_extractor.cpp",
+    "sub_columns/direct_builder.cpp",
+    "sub_columns/header.cpp",
+    "sub_columns/iterators.cpp",
+    "sub_columns/json_extractors.cpp",
+    "sub_columns/json_value_path.cpp",
+    "sub_columns/others_storage.cpp",
+    "sub_columns/partial.cpp",
+    "sub_columns/request.cpp",
+    "sub_columns/settings.cpp",
+    "sub_columns/signals.cpp",
+    "sub_columns/stats.cpp",
+  ]
 }

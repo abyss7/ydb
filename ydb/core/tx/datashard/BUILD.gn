@@ -67,23 +67,15 @@ library("datashard") {
     "//ydb/core/wrappers",
     # "//ydb/core/wrappers:events",
     "//ydb/core/ydb_convert",
-    # "//ydb/library/accessor",
     # "//ydb/library/aclib",
-    # "//ydb/library/actors/core",
     "//ydb/library/actors/http",
-    # "//ydb/library/actors/interconnect",
     # "//ydb/library/actors/util",
     "//ydb/library/chunks_limiter",
     "//ydb/library/protobuf_printer",
-    # "//ydb/library/services",
-    # "//ydb/library/wilson_ids",
-    # "//ydb/library/ydb_issue",
     # "//ydb/library/yql/dq/actors:compute",
     # "//ydb/library/yql/dq/common",
     # "//ydb/library/yql/dq/runtime",
-    # "//ydb/library/yverify_stream",
     # "//ydb/public/lib/base",
-    # "//ydb/public/lib/scheme_types",
     # "//ydb/public/sdk/cpp/src/client/value",
     "//ydb/services/lib/sharding",
     "//yql/essentials/core/minsketch",
@@ -316,11 +308,18 @@ library("datashard") {
     "operation.h",
     "volatile_tx.h",
   ]
+
+  resources = [
+    {
+      path = "ui/index.html"
+      key = "datashard/index.html"
+    },
+  ]
 }
 
 library("range_ops") {
   public_deps = [
-    "//ydb/core/base",
+    # "//library/cpp/containers/stack_vector",
     "//ydb/core/scheme",
   ]
 
@@ -328,15 +327,11 @@ library("range_ops") {
 }
 
 library("read_events") {
-  public_deps = [
-    "//ydb/core/base",
-    "//ydb/core/formats/arrow",
-    "//ydb/core/protos",
-    "//ydb/core/scheme",
-  ]
-
   deps = [
-    "//ydb/library/actors/wilson",
+    # ":datashard",
+    # "//contrib/libs/apache/arrow",
+    "//ydb/core/formats/arrow",
+    "//ydb/core/scheme",
   ]
 
   sources = [ "datashard_read_events.cpp" ]

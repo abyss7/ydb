@@ -41,26 +41,21 @@ library("parser") {
     "//library/cpp/yson:node",
   ]
 
-  deps = [
-    "//yql/essentials/parser/pg_catalog",
-  ]
+  deps = [ "//yql/essentials/parser/pg_catalog" ]
 
   sources = [ "parser/yql_type_parser.cpp" ]
 }
 
 library("schema") {
-  deps = [
-    "//library/cpp/yson:node",
-    "//yql/essentials/utils",
-  ]
+  public_deps = [ "//library/cpp/yson:node" ]
+
+  deps = [ "//yql/essentials/utils" ]
 
   sources = [ "yql_schema_utils.cpp" ]
 }
 
 library("skiff") {
-  public_deps = [
-    "//library/cpp/yson:node",
-  ]
+  public_deps = [ "//library/cpp/yson:node" ]
 
   deps = [
     # ":parser",

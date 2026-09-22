@@ -6,7 +6,10 @@ library("signals") {
     "//ydb/library/services",
   ]
 
-  deps = [ "//ydb/core/base" ]
+  deps = [
+    "//ydb/core/base",
+    # "//ydb/core/protos",  # peerdir only
+  ]
 
   sources = [
     "agent.cpp",

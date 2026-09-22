@@ -7,7 +7,8 @@ library("extractor") {
 
   deps = [
     # "//library/cpp/json:fast_sax",
-    # "//ydb/core/formats/arrow:hash",
+    # "//ydb/core/formats/arrow",
+    # "//ydb/core/protos",  # peerdir only
     # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
     # "//ydb/library/services",
@@ -37,9 +38,15 @@ library("metadata") {
   ]
 
   deps = [
+    # "//ydb/core/base",  # peerdir only
+    # "//ydb/core/grpc_services",  # peerdir only
+    # "//ydb/core/grpc_services/base",  # peerdir only
+    # "//ydb/core/grpc_services/local_rpc",  # peerdir only
     "//ydb/core/ydb_convert",
+    # "//ydb/library/actors/core",  # peerdir only
     "//ydb/services/metadata/ds_table",
     "//ydb/services/metadata/initializer",
+    # "//ydb/services/metadata/request",  # peerdir only
   ]
 
   sources = [

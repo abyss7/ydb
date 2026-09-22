@@ -8,6 +8,8 @@ library("rate_limiter") {
   deps = [
     "//ydb/core/grpc_services",
     # "//ydb/core/grpc_services/base",
+    # "//ydb/core/kesus/tablet",  # peerdir only
+    # "//ydb/services/ydb",  # peerdir only
   ]
 
   sources = [ "grpc_service.cpp" ]

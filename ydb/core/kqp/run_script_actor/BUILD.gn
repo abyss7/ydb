@@ -1,5 +1,0 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
-group("run_script_actor") {
-  public_deps = [ "//ydb/core/kqp/proxy_service" ]
-}

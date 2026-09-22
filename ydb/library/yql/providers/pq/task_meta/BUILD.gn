@@ -1,4 +1,8 @@
 library("task_meta") {
+  public_deps = [
+    # "//contrib/libs/protobuf",
+  ]
+
   deps = [
     "//ydb/library/yql/providers/dq/api/protos",
     "//ydb/library/yql/providers/pq/proto",

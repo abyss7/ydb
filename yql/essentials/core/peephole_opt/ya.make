@@ -16,6 +16,7 @@ PEERDIR(
     yql/essentials/core/type_ann
     library/cpp/svnversion
 )
+# gn: peerdir yql/essentials/core/services:pipeline
 
 YQL_LAST_ABI_VERSION()
 

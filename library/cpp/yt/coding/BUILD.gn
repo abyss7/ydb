@@ -1,2 +1,5 @@
 group("coding") {
+  public_deps = [
+    # "//library/cpp/yt/exception",
+  ]
 }

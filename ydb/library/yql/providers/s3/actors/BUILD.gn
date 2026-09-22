@@ -16,6 +16,9 @@ library("actors") {
 
   deps = [
     # "//contrib/libs/apache/arrow",
+    # "//contrib/libs/fmt",  # peerdir only
+    # "//contrib/libs/poco/Util",  # peerdir only
+    # "//contrib/libs/protobuf",
     "//library/cpp/protobuf/util",
     "//library/cpp/string_utils/base64",
     "//library/cpp/string_utils/quote",
@@ -28,6 +31,8 @@ library("actors") {
     # "//ydb/library/services",
     "//ydb/library/yql/dq/actors:common",
     # "//ydb/library/yql/dq/actors:protos",
+    # "//ydb/library/yql/providers/common/arrow",  # peerdir only
+    # "//ydb/library/yql/providers/common/arrow:interface",  # peerdir only
     # "//ydb/library/yql/providers/generic/connector/api/service:protos",
     "//ydb/library/yql/providers/generic/pushdown",
     "//ydb/library/yql/providers/s3/common",
@@ -35,15 +40,17 @@ library("actors") {
     # "//ydb/library/yql/providers/s3/credentials",
     "//ydb/library/yql/providers/s3/events",
     "//ydb/library/yql/providers/s3/serializations",
-    "//ydb/library/yql/udfs/common/clickhouse/client",
+    # "//ydb/library/yql/udfs/common/clickhouse/client",
     # "//yql/essentials/core",
     # "//yql/essentials/minikql",
     # "//yql/essentials/minikql/comp_nodes",
     "//yql/essentials/minikql/computation",
     # "//yql/essentials/minikql/invoke_builtins",
+    # "//yql/essentials/minikql:terminator",
     "//yql/essentials/parser/pg_catalog",
     # "//yql/essentials/providers/common/provider",
     # "//yql/essentials/public/issue",
+    # "//yql/essentials/public/types",  # peerdir only
     # "//yql/essentials/public/udf",
     # "//yql/essentials/public/udf:arrow",
     # "//yql/essentials/utils",

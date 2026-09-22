@@ -1,7 +1,5 @@
 library("color") {
-  public_deps = [
-    "//contrib/restricted/patched/replxx",
-  ]
+  public_deps = [ "//contrib/restricted/patched/replxx" ]
 
   sources = [ "color/schema.cpp" ]
 }
@@ -13,9 +11,7 @@ library("highlight") {
     "//contrib/restricted/patched/replxx",
   ]
 
-  deps = [
-    "//yql/essentials/sql/v1/highlight",
-  ]
+  deps = [ "//yql/essentials/sql/v1/highlight" ]
 
   sources = [ "yql_highlighter.cpp" ]
 }

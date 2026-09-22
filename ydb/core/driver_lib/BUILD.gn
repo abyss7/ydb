@@ -1,5 +1,3 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 group("cli_config_base") {
   public_deps = [ "//ydb/core/driver_lib/cli_config_base" ]
 }

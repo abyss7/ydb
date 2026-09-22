@@ -1,5 +1,3 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("discovery") {
   public_deps = [
     "//ydb/core/base",
@@ -8,7 +6,7 @@ library("discovery") {
   ]
 
   deps = [
-    # "//ydb/core/blobstorage",
+    # "//ydb/core/blobstorage/base",  # peerdir only
     "//ydb/core/blobstorage/events",
     "//ydb/core/tx/scheme_cache",
     # "//ydb/public/api/protos",

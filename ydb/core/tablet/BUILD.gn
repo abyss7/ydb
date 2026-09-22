@@ -1,5 +1,6 @@
 library("tablet") {
   public_deps = [
+    # "//contrib/libs/protobuf",
     # "//library/cpp/deprecated/enum_codegen",
     "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/monlib/service/pages",
@@ -14,21 +15,27 @@ library("tablet") {
   ]
 
   deps = [
+    # "//library/cpp/blockcodecs",  # peerdir only
     # "//library/cpp/random_provider",
     "//library/cpp/svnversion",
     # "//library/cpp/time_provider",
-    # "//ydb/core/blobstorage",
+    # "//library/cpp/yson",  # peerdir only
     "//ydb/core/blobstorage/events",
-    "//ydb/core/graph/shard/protos",
+    "//ydb/core/graph/shard:protos",
     # "//ydb/core/mind",
     "//ydb/core/mon",
+    # "//ydb/core/mon_alloc",  # peerdir only
+    # "//ydb/core/scheme",  # peerdir only
     "//ydb/core/sys_view:service",
     "//ydb/core/tracing",
     # "//ydb/core/tx",
     # "//ydb/core/tx/columnshard/common",
     # "//ydb/core/tx/scheme_cache",
     "//ydb/library/actors/async",
+    # "//ydb/library/actors/helpers",  # peerdir only
     # "//ydb/library/actors/interconnect",
+    # "//ydb/library/actors/protos",  # peerdir only
+    # "//ydb/library/actors/util",  # peerdir only
     "//ydb/library/actors/wilson",
     "//ydb/library/persqueue/topic_parser",
     # "//ydb/library/wilson_ids",

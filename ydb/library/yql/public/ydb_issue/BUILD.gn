@@ -1,8 +1,7 @@
 library("ydb_issue") {
-  deps = [
-    "//ydb/public/api/protos",
-    "//yql/essentials/public/issue",
-  ]
+  public_deps = [ "//yql/essentials/public/issue" ]
+
+  deps = [ "//ydb/public/api/protos" ]
 
   sources = [ "ydb_issue_message.cpp" ]
 }

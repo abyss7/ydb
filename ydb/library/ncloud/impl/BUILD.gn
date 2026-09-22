@@ -5,6 +5,7 @@ library("impl") {
   ]
 
   deps = [
+    # "//ydb/core/base",  # peerdir only
     # "//ydb/library/actors/core",
     # "//ydb/public/api/client/nc_private/iam/v1",
   ]

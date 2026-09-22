@@ -7,6 +7,10 @@ library("options") {
     # "//ydb/library/accessor",
   ]
 
+  deps = [
+    # "//ydb/services/bg_tasks:abstract",  # peerdir only
+  ]
+
   sources = [
     "schema.cpp",
     "update.cpp",

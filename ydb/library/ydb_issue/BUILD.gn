@@ -1,5 +1,5 @@
 protobuf_library("proto") {
-  deps = [ "//yql/essentials/public/issue:protos" ]
+  public_deps = [ "//yql/essentials/public/issue:protos" ]
 
   sources = [ "proto/issue_id.proto" ]
 }
@@ -12,4 +12,11 @@ library("ydb_issue") {
   ]
 
   sources = [ "issue_helpers.cpp" ]
+
+  resources = [
+    {
+      path = "ydb_issue.txt"
+      key = "ydb_issue.txt"
+    },
+  ]
 }

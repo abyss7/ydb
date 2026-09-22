@@ -1,29 +1,33 @@
 library("actors") {
   public_deps = [
     # ":events",
-    # "//ydb/core/fq/libs/config:protos",
-    "//ydb/core/fq/libs/compute/common",
-    "//ydb/core/fq/libs/signer",
-    "//ydb/library/actors/core",
-  ]
-
-  deps = [
     # ":utils",
     "//contrib/libs/fmt",
     # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/fq/libs/actors:logging",
     "//ydb/core/fq/libs/common",
+    "//ydb/core/fq/libs/compute/common",
     # "//ydb/core/fq/libs/config",
-    "//ydb/core/fq/libs/control_plane_storage",
+    # "//ydb/core/fq/libs/config:protos",
+    # "//ydb/core/fq/libs/control_plane_config",
     # "//ydb/core/fq/libs/control_plane_storage:events",
+    # "//ydb/core/fq/libs/rate_limiter/events",
+    "//ydb/core/fq/libs/signer",
+    "//ydb/library/actors/core",
+    # "//ydb/library/protobuf_printer",
+    # "//yql/essentials/public/issue",
+  ]
+
+  deps = [
+    # "//library/cpp/iterator",  # peerdir only
+    "//ydb/core/fq/libs/control_plane_storage:service_id",
     "//ydb/core/fq/libs/result_formatter",
     # "//ydb/core/kqp/provider",
+    # "//ydb/library/db_pool:protos",  # peerdir only
     # "//ydb/public/api/protos",
     "//ydb/public/lib/fq",
     "//ydb/public/sdk/cpp/adapters/issue",
     "//ydb/public/sdk/cpp/src/client/table",
-    "//yql/essentials/ast",
-    # "//yql/essentials/public/issue",
   ]
 
   sources = [
@@ -37,7 +41,6 @@ library("actors") {
 
 library("control_plane_proxy") {
   public_deps = [
-    ":events",
     # "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/fq/libs/actors:logging",
     "//ydb/core/fq/libs/config:protos",
@@ -49,6 +52,7 @@ library("control_plane_proxy") {
 
   deps = [
     ":actors",
+    ":events",
     ":utils",
     # "//contrib/libs/fmt",
     "//library/cpp/lwtrace",
@@ -56,12 +60,15 @@ library("control_plane_proxy") {
     # "//library/cpp/monlib/service/pages",
     # "//library/cpp/retry",
     "//ydb/core/base",
+    # "//ydb/core/fq/libs/actors",  # peerdir only
+    # "//ydb/core/fq/libs/compute/ydb",  # peerdir only
     "//ydb/core/fq/libs/compute/ydb:control_plane",
     # "//ydb/core/fq/libs/compute/ydb:events",
     # "//ydb/core/fq/libs/config",
     "//ydb/core/fq/libs/control_plane_config",
     "//ydb/core/fq/libs/control_plane_storage",
     # "//ydb/core/fq/libs/control_plane_storage:events",
+    "//ydb/core/fq/libs/control_plane_storage:service_id",
     "//ydb/core/fq/libs/quota_manager",
     "//ydb/core/fq/libs/rate_limiter/events",
     # "//ydb/core/fq/libs/result_formatter",
@@ -99,9 +106,11 @@ library("events") {
 
 library("utils") {
   public_deps = [
+    # "//ydb/core/fq/libs/actors:logging",
     "//ydb/core/fq/libs/compute/common",
     # "//ydb/core/fq/libs/config:protos",
     "//ydb/core/fq/libs/control_plane_storage",
+    # "//ydb/public/api/protos",
   ]
 
   sources = [ "utils/config.cpp" ]

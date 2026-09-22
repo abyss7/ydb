@@ -12,10 +12,13 @@ library("task_runner") {
     "//library/cpp/svnversion",
     "//library/cpp/threading/task_scheduler",
     # "//library/cpp/yson:node",
+    # "//ydb/library/yql/dq/proto",  # peerdir only
     "//ydb/library/yql/providers/dq/common",
     # "//ydb/library/yql/providers/dq/counters",
     # "//yql/essentials/minikql/invoke_builtins",
-    "//yql/essentials/providers/common/config",
+    # "//yql/essentials/minikql:alloc",
+    # "//yql/essentials/protos",  # peerdir only
+    # "//yql/essentials/providers/common/proto",  # peerdir only
     # "//yql/essentials/utils",
     # "//yql/essentials/utils/backtrace",
     "//yql/essentials/utils/failure_injector",

@@ -1,8 +1,0 @@
-library("schemu") {
-  public_deps = [
-    "//ydb/library/schlab/schine",
-    "//ydb/library/schlab/schoot",
-  ]
-
-  sources = [ "schemu.cpp" ]
-}

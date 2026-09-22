@@ -5,5 +5,11 @@ library("resources") {
     # "//ydb/library/signals",
   ]
 
+  deps = [
+    # "//contrib/libs/apache/arrow",  # peerdir only
+    # "//ydb/core/formats/arrow",  # peerdir only
+    # "//ydb/core/protos",  # peerdir only
+  ]
+
   sources = [ "memory.cpp" ]
 }

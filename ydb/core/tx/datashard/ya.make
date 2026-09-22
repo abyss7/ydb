@@ -45,7 +45,7 @@ SRCS(
     create_volatile_snapshot_unit.cpp
     block_fail_point_unit.cpp
     datashard.cpp
-    datashard_read_events.cpp
+    datashard_read_events.cpp  # gn: read_events
     datashard.h
     datashard__cancel_tx_proposal.cpp
     datashard__cleanup_borrowed.cpp
@@ -190,7 +190,7 @@ SRCS(
     probes.cpp
     progress_queue.h
     protect_scheme_echoes_unit.cpp
-    range_ops.cpp
+    range_ops.cpp  # gn: range_ops
     read_iterator.h
     read_op_unit.cpp
     read_table_scan.cpp
@@ -234,6 +234,7 @@ SRCS(
     build_index/secondary_index.cpp
     build_index/unique_index.cpp
 )
+# gn: range_ops headers range_ops.h
 
 GENERATE_ENUM_SERIALIZATION(backup_restore_traits.h)
 GENERATE_ENUM_SERIALIZATION(change_exchange.h)
@@ -297,6 +298,8 @@ PEERDIR(
     yql/essentials/types/uuid
     ydb/core/io_formats/cell_maker
 )
+# gn: peerdir ydb/core/tx/tx_proxy:public ydb/core/tx/tx_proxy:upload_rows
+# gn: peerdir ydb/core/tx/schemeshard:find_subdomain_path_id
 
 YQL_LAST_ABI_VERSION()
 

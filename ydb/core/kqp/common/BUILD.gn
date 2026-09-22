@@ -1,14 +1,19 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("arrow") {
-  deps = [
+  public_deps = [
     "//contrib/libs/apache/arrow",
     "//yql/essentials/minikql",
-    "//yql/essentials/types/binary_json",
-    "//yql/essentials/types/dynumber",
   ]
 
-  sources = [ "arrow/kqp_formats_arrow.cpp" ]
+  deps = [
+    # "//ydb/public/lib/scheme_types",
+    # "//yql/essentials/parser/pg_wrapper/interface",
+    # "//yql/essentials/public/udf:arrow",
+    "//yql/essentials/types/binary_json",
+    "//yql/essentials/types/dynumber",
+    # "//yql/essentials/utils",
+  ]
+
+  sources = [ "result_set_format/kqp_formats_arrow.cpp" ]
 }
 
 library("buffer") {
@@ -24,60 +29,62 @@ library("buffer") {
 library("common") {
   public_deps = [
     ":compilation",
-    # ":events",
+    ":events",
     ":shutdown",
     ":simple",
     "//contrib/libs/openssl",
+    # "//contrib/libs/protobuf",
     "//library/cpp/json:writer",
-    "//library/cpp/lwtrace",  # include path
+    "//library/cpp/lwtrace",
     # "//library/cpp/string_utils/base64",
+    "//ydb/core/base",
     "//ydb/core/control/lib",
     "//ydb/core/engine",
-    "//ydb/core/grpc_services/cancelation:protos",  # include path
-    "//ydb/core/kqp/counters",  # include path
+    # "//ydb/core/grpc_services/cancelation",
+    # "//ydb/core/kqp/counters",
     # "//ydb/core/kqp/executer_actor",
     "//ydb/core/kqp/expr_nodes",
+    # "//ydb/core/kqp/gateway:interface",
     "//ydb/core/kqp/provider",
-    "//ydb/core/kqp/topics",
     "//ydb/core/protos",
     # "//ydb/core/resource_pools",
     "//ydb/core/scheme",
     # "//ydb/core/scheme_types",
     # "//ydb/core/tx/data_events",
     # "//ydb/core/tx/datashard",
-    "//ydb/core/tx/long_tx_service:public",  # include path
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/sharding",
     # "//ydb/core/util",
-    "//ydb/core/ydb_convert",  # include path
-    "//ydb/library/accessor",  # include path
     # "//ydb/library/aclib",
-    "//ydb/library/actors/core",  # include path
-    "//ydb/library/actors/wilson",  # include path
+    "//ydb/library/actors/core",
     # "//ydb/library/mkql_proto",
     # "//ydb/library/mkql_proto:protos",
     # "//ydb/library/services",
-    "//ydb/library/ydb_issue:proto",  # include path
     # "//ydb/library/yql/dq/actors",
     # "//ydb/public/api/protos",
     "//ydb/public/sdk/cpp/src/library/operation_id",
     "//yql/essentials/ast",
     "//yql/essentials/minikql",
+    "//yql/essentials/public/issue",
+    # "//yql/essentials/public/udf",
   ]
 
   deps = [
     "//library/cpp/protobuf/json",
-    "//ydb/core/base",
+    "//ydb/core/kqp/topics",  # peerdir only
+    # "//ydb/core/tx/datashard:range_ops",
     # "//ydb/core/tx/locks",
-    "//ydb/library/yql/public/ydb_issue",
+    "//ydb/core/tx/long_tx_service:public",  # peerdir only
+    # "//ydb/library/yql/dq/common",  # peerdir only
+    # "//ydb/library/yql/dq/expr_nodes",  # peerdir only
     "//ydb/public/sdk/cpp/src/library/operation_id:protos",
     # "//yql/essentials/core",
     "//yql/essentials/core/dq_integration",
     # "//yql/essentials/core/expr_nodes",
-    "//yql/essentials/core/services",
+    # "//yql/essentials/core/issue",  # peerdir only
+    "//yql/essentials/core/services",  # peerdir only
+    "//yql/essentials/core/services:pipeline",
     # "//yql/essentials/parser/pg_wrapper/interface",
-    "//yql/essentials/public/issue",
-    # "//yql/essentials/public/udf",
   ]
 
   sources = [
@@ -106,9 +113,9 @@ library("common") {
 
 library("compilation") {
   public_deps = [
+    # ":common",
     ":simple",
     # "//library/cpp/lwtrace",
-    # "//ydb/core/kqp/common",
     # "//ydb/core/kqp/counters",
     # "//ydb/library/aclib",
     # "//ydb/library/actors/core",
@@ -117,6 +124,7 @@ library("compilation") {
   ]
 
   deps = [
+    # "//ydb/core/kqp/query_data",  # peerdir only
     # "//ydb/core/util",
   ]
 
@@ -128,11 +136,14 @@ library("compilation") {
 
 library("events") {
   public_deps = [
-    ":common",
+    # ":common",
     # ":compilation",
     # ":result_set_format",
     # ":shutdown",
     ":simple",
+    # "//contrib/libs/protobuf",
+    "//ydb/core/grpc_services/base",
+    "//ydb/core/grpc_services/cancelation",
     # "//ydb/core/protos",
     # "//ydb/core/resource_pools",
     # "//ydb/core/scheme",
@@ -141,13 +152,13 @@ library("events") {
     "//ydb/library/yql/dq/actors",
     # "//ydb/public/api/protos",
     # "//ydb/public/sdk/cpp/src/library/operation_id",
+    # "//yql/essentials/core/issue",
     # "//yql/essentials/public/issue",
   ]
 
   deps = [
-    "//ydb/core/grpc_services/base",
-    "//ydb/core/grpc_services/cancelation",
-    # "//yql/essentials/core/issue",
+    # "//ydb/core/base",  # peerdir only
+    # "//ydb/core/kqp/topics",  # peerdir only
   ]
 
   sources = [
@@ -163,30 +174,30 @@ library("result_set_format") {
     "//contrib/libs/apache/arrow",
     "//ydb/library/yql/dq/runtime",
     "//ydb/public/api/protos",
-  ]
-
-  deps = [
-    "//ydb/core/formats/arrow",
-    # "//ydb/core/kqp/common",
-    "//ydb/library/mkql_proto",
-    # "//ydb/public/lib/scheme_types",
-    # "//yql/essentials/minikql",
     # "//yql/essentials/utils",
   ]
 
-  sources = [
-    "result_set_format/kqp_result_set_builders.cpp",
+  deps = [
+    ":arrow",
+    "//ydb/core/formats/arrow",
+    "//ydb/library/mkql_proto",
+    # "//ydb/library/mkql_proto:protos",  # peerdir only
+    # "//ydb/library/yql/dq/proto",  # peerdir only
+    # "//ydb/public/lib/scheme_types",
+    # "//yql/essentials/minikql",
+    # "//yql/essentials/public/udf",  # peerdir only
   ]
+
+  sources = [ "result_set_format/kqp_result_set_builders.cpp" ]
 }
 
 library("shutdown") {
   public_deps = [
     ":simple",
+    "//library/cpp/deprecated/atomic",
     "//ydb/core/protos",
     "//ydb/library/actors/core",
   ]
-
-  deps = [ "//library/cpp/deprecated/atomic" ]
 
   sources = [
     "shutdown/controller.cpp",
@@ -202,11 +213,14 @@ library("simple") {
     "//ydb/library/aclib",
     # "//ydb/library/actors/core",
     # "//ydb/public/api/protos",
+    # "//yql/essentials/ast",
     "//yql/essentials/core/pg_settings",
   ]
 
   deps = [
+    # "//contrib/libs/protobuf",
     # "//library/cpp/random_provider",
+    # "//ydb/library/yql/dq/actors",  # peerdir only
   ]
 
   sources = [

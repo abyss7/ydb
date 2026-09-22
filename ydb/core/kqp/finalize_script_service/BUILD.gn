@@ -5,7 +5,7 @@ library("finalize_script_service") {
   ]
 
   deps = [
-    "//ydb/core/fq/libs/protos",
+    # "//ydb/core/fq/libs/events",
     "//ydb/core/kqp/common:events",
     "//ydb/core/kqp/counters",
     "//ydb/core/kqp/federated_query:actors",

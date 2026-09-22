@@ -8,6 +8,8 @@ library("maintenance") {
 
   deps = [
     "//ydb/core/grpc_services",
+    "//ydb/core/grpc_services:request_proxy",
+    # "//ydb/public/api/grpc",  # peerdir only
   ]
 
   sources = [ "grpc_service.cpp" ]

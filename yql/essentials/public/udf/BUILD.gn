@@ -1,47 +1,8 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
-config("udf_abi_version") {
-    defines = [ "USE_CURRENT_UDF_ABI_VERSION" ]
-}
-
-library("_udf") {
-    public_deps = [
-        "//yql/essentials/public/types",
-    ]
-
-    deps = [
-        "//library/cpp/resource",
-    ]
-
-    sources = [
-        "udf_allocator.cpp",
-        "udf_counter.cpp",
-        "udf_data_type.cpp",
-        "udf_helpers.cpp",
-        "udf_log.cpp",
-        "udf_registrator.cpp",
-        "udf_static_registry.cpp",
-        "udf_string.cpp",
-        "udf_type_builder.cpp",
-        "udf_type_inspection.cpp",
-        "udf_type_printer.cpp",
-        "udf_types.cpp",
-        "udf_validate.cpp",
-        "udf_value.cpp",
-        "udf_value_builder.cpp",
-        "udf_version.cpp",
-    ]
-
-    public_configs = [ ":udf_abi_version" ]
-
-    allow_undefined = true
-}
-
 library("arrow") {
   public_deps = [
+    ":udf",
     "//contrib/libs/apache/arrow",
     # "//yql/essentials/public/decimal",
-    "//yql/essentials/public/udf",
     # "//yql/essentials/utils",
   ]
 
@@ -58,11 +19,40 @@ library("arrow") {
     "arrow/udf_arrow_helpers.cpp",
     "arrow/util.cpp",
   ]
+
+  link_slot_provides = [ "YqlUdfSdkArrow" ]
 }
 
 library("udf") {
-    public_deps = [
-        ":_udf",
-        "service:exception_policy",
-    ]
+  public_deps = [
+    # "//library/cpp/containers/stack_vector",
+    # "//library/cpp/deprecated/atomic",
+    # "//library/cpp/deprecated/enum_codegen",
+    "//yql/essentials/public/decimal",
+    "//yql/essentials/public/types",
+    # "//yql/essentials/utils",
+  ]
+
+  deps = [ "//library/cpp/resource" ]
+
+  sources = [
+    "udf_allocator.cpp",
+    "udf_counter.cpp",
+    "udf_data_type.cpp",
+    "udf_helpers.cpp",
+    "udf_log.cpp",
+    "udf_registrator.cpp",
+    "udf_static_registry.cpp",
+    "udf_string.cpp",
+    "udf_type_builder.cpp",
+    "udf_type_inspection.cpp",
+    "udf_type_printer.cpp",
+    "udf_types.cpp",
+    "udf_validate.cpp",
+    "udf_value.cpp",
+    "udf_value_builder.cpp",
+    "udf_version.cpp",
+  ]
+
+  link_slot_provides = [ "YqlUdfSdk" ]
 }

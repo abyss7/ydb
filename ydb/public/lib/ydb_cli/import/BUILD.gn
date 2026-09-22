@@ -9,6 +9,7 @@ library("import") {
   ]
 
   deps = [
+    # "//contrib/libs/protobuf",
     # "//library/cpp/string_utils/csv",
     # "//library/cpp/threading/future",
     "//library/cpp/yaml/as",

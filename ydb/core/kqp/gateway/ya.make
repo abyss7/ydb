@@ -1,10 +1,11 @@
 LIBRARY()
 
 SRCS(
-    kqp_gateway.cpp
+    kqp_gateway.cpp  # gn: interface
     kqp_ic_gateway.cpp
     kqp_metadata_loader.cpp
 )
+# gn: interface headers kqp_gateway.h
 
 PEERDIR(
     ydb/core/actorlib_impl
@@ -23,6 +24,7 @@ PEERDIR(
     ydb/core/kqp/gateway/utils
     ydb/core/kqp/provider
     ydb/core/kqp/query_data
+    ydb/core/kqp/topics
     ydb/core/statistics/service
     ydb/core/sys_view/common
     ydb/library/actors/core

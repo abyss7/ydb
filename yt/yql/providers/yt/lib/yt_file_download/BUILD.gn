@@ -9,8 +9,11 @@ library("yt_file_download") {
 
   deps = [
     # "//library/cpp/streams/brotli",
+    # "//library/cpp/threading/future",  # peerdir only
     # "//library/cpp/yson:node",
+    # "//yql/essentials/utils",  # peerdir only
     # "//yql/essentials/utils/log",
+    # "//yt/cpp/mapreduce/client",  # peerdir only
     # "//yt/cpp/mapreduce/common",
     # "//yt/cpp/mapreduce/interface",
   ]

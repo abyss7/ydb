@@ -1,15 +1,13 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("issue") {
   public_deps = [
     ":protos",
     "//contrib/libs/protobuf",
     "//library/cpp/resource",
-    "//yql/essentials/utils",
   ]
 
   deps = [
     "//library/cpp/colorizer",
+    "//yql/essentials/utils",
   ]
 
   sources = [

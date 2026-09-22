@@ -3,20 +3,21 @@ library("repl") {
     "//ydb/core/base",
     # "//ydb/core/blobstorage/base",
     # "//ydb/core/blobstorage/groupinfo",
+    # "//ydb/core/blobstorage/vdisk",
+    "//ydb/core/blobstorage/vdisk/common",
     # "//ydb/core/blobstorage/vdisk/hulldb",
+    "//ydb/core/util",
   ]
 
   deps = [
     # "//library/cpp/monlib/service/pages",
     "//ydb/core/blobstorage/backpressure",
-    # "//ydb/core/blobstorage/vdisk",
-    "//ydb/core/blobstorage/vdisk/common",
-    "//ydb/core/blobstorage/vdisk/hulldb:barriers",
+    "//ydb/core/blobstorage/vdisk/hulldb:barriers",  # peerdir only
     # "//ydb/core/blobstorage/vdisk/hulldb:base",
     "//ydb/core/blobstorage/vdisk/hulldb:bulksst_add",
-    "//ydb/core/blobstorage/vdisk/hulldb:generic",
+    # "//ydb/core/blobstorage/vdisk/hulldb:generic",
     # "//ydb/core/blobstorage/vdisk/skeleton",
-    "//ydb/core/util",
+    # "//ydb/core/protos",  # peerdir only
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
   ]

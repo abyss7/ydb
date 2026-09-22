@@ -1,6 +1,8 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("address") {
+  deps = [
+    # "//contrib/libs/libc_compat",  # peerdir only
+  ]
+
   sources = [ "address/interconnect_address.cpp" ]
 }
 
@@ -8,28 +10,37 @@ library("interconnect") {
   public_deps = [
     ":address",
     ":poller",
-    "//ydb/library/actors/core",
-    "//ydb/library/actors/interconnect/rdma",
-  ]
-
-  deps = [
-    ":mock",
-    "//contrib/libs/openssl",
     "//contrib/libs/xxhash",
-    "//contrib/restricted/abseil-cpp-tstring",
     "//library/cpp/containers/stack_vector",
     "//library/cpp/digest/crc32c",
-    "//library/cpp/json",
     "//library/cpp/lwtrace",
     "//library/cpp/monlib/dynamic_counters",
     "//library/cpp/monlib/metrics",
-    # "//ydb/library/actors/dnsresolver",
-    "//ydb/library/actors/interconnect/rdma:cq_actor",
-    "//ydb/library/actors/memory_log",
+    "//ydb/library/actors/core",
+    "//ydb/library/actors/interconnect/rdma",
     "//ydb/library/actors/prof",
     "//ydb/library/actors/protos",
     "//ydb/library/actors/util",
     "//ydb/library/actors/wilson",
+  ]
+
+  deps = [
+    ":mock",
+    # "//contrib/libs/libc_compat",  # peerdir only
+    "//contrib/libs/openssl",
+    # "//contrib/libs/protobuf",
+    "//contrib/restricted/abseil-cpp-tstring",
+    "//library/cpp/json",
+    # "//library/cpp/monlib/service/pages",
+    # "//library/cpp/monlib/service/pages:resources",  # peerdir only
+    # "//library/cpp/monlib/service/pages:tablesorter",  # peerdir only
+    # "//library/cpp/openssl/init",  # peerdir only
+    # "//library/cpp/packedtypes",  # peerdir only
+    # "//ydb/library/actors/dnscachelib",  # peerdir only
+    # "//ydb/library/actors/dnsresolver",
+    # "//ydb/library/actors/helpers",  # peerdir only
+    "//ydb/library/actors/interconnect/rdma:cq_actor",
+    "//ydb/library/actors/memory_log",
   ]
 
   sources = [
@@ -56,16 +67,27 @@ library("interconnect") {
 }
 
 library("mock") {
-  public_deps = [ "//ydb/library/actors/core" ]
+  public_deps = [
+    # ":interconnect",
+    "//ydb/library/actors/core",
+  ]
+
   sources = [ "mock/ic_mock.cpp" ]
 }
 
 library("poller") {
+  public_deps = [
+    # ":interconnect",
+    "//ydb/library/actors/util",
+  ]
+
   deps = [
+    # "//contrib/libs/libc_compat",  # peerdir only
     "//ydb/library/actors/core",
+    # "//ydb/library/actors/helpers",  # peerdir only
     "//ydb/library/actors/prof",
     "//ydb/library/actors/protos",
-    "//ydb/library/actors/util",
+    # "//ydb/library/actors/wilson",  # peerdir only
   ]
 
   sources = [

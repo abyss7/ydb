@@ -9,6 +9,10 @@ library("events") {
     # "//yql/essentials/public/issue",
   ]
 
+  deps = [
+    # "//yql/essentials/public/issue:protos",  # peerdir only
+  ]
+
   sources = [ "events/events.cpp" ]
 }
 

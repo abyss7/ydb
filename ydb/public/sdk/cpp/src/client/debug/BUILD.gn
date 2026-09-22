@@ -1,10 +1,7 @@
 library("debug") {
-  public_deps = [
-    "//ydb/public/sdk/cpp/src/client/driver",
-  ]
+  public_deps = [ "//ydb/public/sdk/cpp/src/client/driver" ]
 
   deps = [
-    "//library/cpp/threading/future",
     # "//ydb/public/api/grpc",
     # "//ydb/public/api/protos",
     # "//ydb/public/sdk/cpp/src/client/common_client:impl",

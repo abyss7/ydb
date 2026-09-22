@@ -1,4 +1,0 @@
-library("changes") {
-  public_deps = [ "//ydb/core/tx/columnshard/engines" ]
-  sources = []
-}

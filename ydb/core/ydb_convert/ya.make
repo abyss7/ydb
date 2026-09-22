@@ -28,9 +28,11 @@ PEERDIR(
     ydb/library/conclusion
     ydb/library/mkql_proto/protos
     yql/essentials/minikql/dom
+    yql/essentials/public/decimal
     yql/essentials/public/udf
     ydb/public/api/protos
 )
+# gn: peerdir ydb/core/persqueue/public:utils
 
 YQL_LAST_ABI_VERSION()
 

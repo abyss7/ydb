@@ -3,6 +3,10 @@ protobuf_library("proto") {
 }
 
 library("util") {
+  public_deps = [
+    # "//contrib/libs/protobuf",
+  ]
+
   deps = [
     ":proto",
     "//library/cpp/binsaver",

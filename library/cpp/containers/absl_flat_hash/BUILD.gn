@@ -1,10 +1,8 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("absl_flat_hash") {
-    public_deps = [ "//contrib/restricted/abseil-cpp" ]
+  public_deps = [ "//contrib/restricted/abseil-cpp" ]
 
-    sources = [
-        "flat_hash_map.cpp",
-        "flat_hash_set.cpp",
-    ]
+  sources = [
+    "flat_hash_map.cpp",
+    "flat_hash_set.cpp",
+  ]
 }

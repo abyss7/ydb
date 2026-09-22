@@ -1,5 +1,11 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 group("transaction") {
-  public_deps = [ "//ydb/core/tx/columnshard" ]
+  public_deps = [
+    # "//ydb/core/tablet_flat",
+    "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/columnshard/engines/reader/abstract",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard/engines/reader/actor",  # peerdir only
+  ]
 }

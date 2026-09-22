@@ -1,7 +1,8 @@
 library("actor_type") {
-  public_deps = [ "//ydb/library/actors/prof" ]
-
-  deps = [ "//ydb/library/actors/util" ]
+  public_deps = [
+    "//ydb/library/actors/prof",
+    "//ydb/library/actors/util",
+  ]
 
   sources = [
     "common.cpp",

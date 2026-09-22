@@ -1,4 +1,10 @@
 library("public") {
+  public_deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/protos",
+    # "//ydb/core/scheme",
+  ]
+
   sources = [ "public/events.cpp" ]
 }
 
@@ -10,6 +16,7 @@ library("sequenceshard") {
   deps = [
     # ":public",
     "//ydb/core/engine:minikql",
+    # "//ydb/core/erasure",  # peerdir only
     # "//ydb/core/protos",
     "//ydb/core/tablet",
     "//ydb/core/tablet_flat",

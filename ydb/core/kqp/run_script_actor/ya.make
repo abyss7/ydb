@@ -1,7 +1,7 @@
 LIBRARY()
 
 SRCS(
-    kqp_run_script_actor.cpp
+    kqp_run_script_actor.cpp  # gn: into ydb/core/kqp/proxy_service
 )
 
 PEERDIR(

@@ -4,9 +4,17 @@ library("syncer") {
     "//ydb/core/blobstorage/base",
     "//ydb/core/blobstorage/groupinfo",
     "//ydb/core/blobstorage/vdisk/common",
+    "//ydb/core/blobstorage/vdisk/common:guids",
     # "//ydb/core/blobstorage/vdisk/hulldb",
+    # "//ydb/core/blobstorage/vdisk/hulldb:base",
+    # "//ydb/core/blobstorage/vdisk/hulldb:base_types",
+    # "//ydb/core/blobstorage/vdisk/hulldb:generic",
     "//ydb/core/blobstorage/vdisk/ingress",
     "//ydb/core/driver_lib/version",
+    # "//ydb/core/protos",
+    # "//ydb/core/util",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/services",
   ]
 
   deps = [
@@ -14,15 +22,9 @@ library("syncer") {
     # "//library/cpp/random_provider",
     # "//ydb/core/blobstorage/pdisk",
     # "//ydb/core/blobstorage/vdisk/anubis_osiris",
-    # "//ydb/core/blobstorage/vdisk/hulldb:base",
-    # "//ydb/core/blobstorage/vdisk/hulldb:generic",
     "//ydb/core/blobstorage/vdisk/synclog",
     # "//ydb/core/control/lib",
-    # "//ydb/core/protos",
-    # "//ydb/core/util",
-    # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
-    # "//ydb/library/services",
   ]
 
   sources = [

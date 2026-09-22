@@ -4,6 +4,10 @@
 
 #include <util/system/types.h>
 
+// gn: weak references to the YqlServicePolicy link slot, see build/gn/link_slots.gni
+#if defined(YQL_GN_LINK_SLOTS) && !defined(GN_SLOT_PROVIDER_YqlServicePolicy)
+#pragma clang attribute push (__attribute__((weak)), apply_to = function)
+#endif
 #if UDF_ABI_COMPATIBILITY_VERSION_CURRENT >= UDF_ABI_COMPATIBILITY_VERSION(2, 37)
 extern "C" void* UdfArrowAllocate(ui64 size);
 extern "C" void* UdfArrowReallocate(const void* mem, ui64 prevSize, ui64 size);
@@ -18,6 +22,9 @@ extern "C" [[deprecated("Use UdfFreeWithSize() instead")]] void UdfFree(const vo
 #else
 extern "C" void* UdfAllocate(ui64 size);
 extern "C" void UdfFree(const void* mem);
+#endif
+#if defined(YQL_GN_LINK_SLOTS) && !defined(GN_SLOT_PROVIDER_YqlServicePolicy)
+#pragma clang attribute pop
 #endif
 
 namespace NYql {

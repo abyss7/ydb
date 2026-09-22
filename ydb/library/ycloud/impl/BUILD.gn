@@ -7,6 +7,7 @@ library("impl") {
 
   deps = [
     # "//library/cpp/json",
+    # "//ydb/core/base",  # peerdir only
     # "//ydb/library/folder_service",
     "//ydb/library/folder_service:mock",
     # "//ydb/library/services",
@@ -14,6 +15,8 @@ library("impl") {
     # "//ydb/public/api/client/yc_private/iam",
     # "//ydb/public/api/client/yc_private/resourcemanager",
     # "//ydb/public/api/client/yc_private/servicecontrol",
+    # "//ydb/public/lib/deprecated/client",  # peerdir only
+    # "//ydb/public/lib/deprecated/kicli",  # peerdir only
   ]
 
   sources = [

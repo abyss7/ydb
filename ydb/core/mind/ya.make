@@ -1,14 +1,14 @@
 LIBRARY()
 
 SRCS(
-    configured_tablet_bootstrapper.cpp
+    configured_tablet_bootstrapper.cpp  # gn: configured_tablet_bootstrapper
     configured_tablet_bootstrapper.h
     defs.h
     dynamic_nameserver.cpp
     dynamic_nameserver.h
     dynamic_nameserver_impl.h
     dynamic_nameserver_mon.cpp
-    nameserver_table_builder.cpp
+    nameserver_table_builder.cpp  # gn: nameserver_table_builder
     labels_maintainer.cpp
     labels_maintainer.h
     lease_holder.cpp
@@ -31,7 +31,7 @@ SRCS(
     slot_indexes_pool.cpp
     slot_indexes_pool.h
     table_adapter.h
-    tenant_node_enumeration.cpp
+    tenant_node_enumeration.cpp  # gn: tenant_node_enumeration
     tenant_node_enumeration.h
     tenant_pool.h
     tenant_pool.cpp
@@ -49,6 +49,8 @@ SRCS(
     tenant_slot_broker__update_node_location.cpp
     tenant_slot_broker__update_slot_status.cpp
 )
+# gn: configured_tablet_bootstrapper headers configured_tablet_bootstrapper.h
+# gn: tenant_node_enumeration headers tenant_node_enumeration.h
 
 PEERDIR(
     ydb/library/actors/core

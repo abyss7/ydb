@@ -1,30 +1,48 @@
-config("private_config") {
-    cflags = [
-        "-mavx2",
-        "-mprfchw",
-    ]
+config("hash_join_utils_private_config") {
+  cflags = [
+    "-mprfchw",
+    "-mavx2",
+  ]
 }
 
 library("hash_join_utils") {
-    deps = [
-        "//library/cpp/digest/crc32c",
-        "//yql/essentials/minikql",
-        "//yql/essentials/minikql/computation",
-        "//yql/essentials/public/udf:arrow",
-    ]
+  public_deps = [
+    ":simd",
+    # "//contrib/libs/apache/arrow",
+    "//yql/essentials/minikql",
+    "//yql/essentials/minikql/computation",
+    "//yql/essentials/minikql:alloc",
+    # "//yql/essentials/public/udf",
+    # "//yql/essentials/utils",
+  ]
 
-    sources = [
-        "accumulator.cpp",
-        "alloc.cpp",
-        "block_layout_converter.cpp",
-        "join_defs.cpp",
-        "layout_converter_common.cpp",
-        "page_hash_table.cpp",
-        "print_unboxed_value.cpp",
-        "scalar_layout_converter.cpp",
-        "spilled_storage.cpp",
-        "tuple.cpp",
-    ]
+  deps = [
+    # "//library/cpp/digest/crc32c",  # peerdir only
+    # "//library/cpp/threading/future",
+    # "//ydb/library/yql/dq/comp_nodes",
+    # "//yql/essentials/minikql/arrow",
+    # "//yql/essentials/public/decimal",
+    "//yql/essentials/public/udf:arrow",
+    # "//yql/essentials/types/binary_json",  # peerdir only
+    # "//yql/essentials/utils/log",  # peerdir only
+  ]
 
-    configs = [ ":private_config" ]
+  sources = [
+    "accumulator.cpp",
+    "alloc.cpp",
+    "block_layout_converter.cpp",
+    "join_defs.cpp",
+    "layout_converter_common.cpp",
+    "page_hash_table.cpp",
+    "print_unboxed_value.cpp",
+    "scalar_layout_converter.cpp",
+    "spilled_storage.cpp",
+    "tuple.cpp",
+  ]
+
+  configs = [ ":hash_join_utils_private_config" ]
+}
+
+group("simd") {
+  public_deps = [ "//library/cpp/digest/crc32c" ]
 }

@@ -4,9 +4,7 @@ library("table") {
     "//ydb/public/sdk/cpp/src/client/table",
   ]
 
-  deps = [
-    "//ydb/public/lib/scheme_types",
-  ]
+  deps = [ "//ydb/public/lib/scheme_types" ]
 
   sources = [ "table.cpp" ]
 }

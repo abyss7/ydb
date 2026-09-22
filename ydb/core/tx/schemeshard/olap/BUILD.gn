@@ -1,21 +1,13 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
-group("columns") {
-  public_deps = [ "//ydb/core/tx/schemeshard/olap/columns" ]
-}
-
-group("common") {
-  public_deps = [ "//ydb/core/tx/schemeshard/olap/common" ]
-}
-
-group("manager") {
-  public_deps = [ "//ydb/core/tx/schemeshard" ]
-}
-
-group("schema") {
-  public_deps = [ "//ydb/core/tx/schemeshard/olap/schema" ]
-}
-
-group("store") {
-  public_deps = [ "//ydb/core/tx/schemeshard" ]
+group("olap") {
+  public_deps = [
+    # "//ydb/core/tx/schemeshard",  # peerdir only
+    # "//ydb/core/tx/schemeshard/olap/bg_tasks",  # peerdir only
+    # "//ydb/core/tx/schemeshard/olap/columns",  # peerdir only
+    # "//ydb/core/tx/schemeshard/olap/common",  # peerdir only
+    # "//ydb/core/tx/schemeshard/olap/indexes",  # peerdir only
+    # "//ydb/core/tx/schemeshard/olap/layout",  # peerdir only
+    # "//ydb/core/tx/schemeshard/olap/options",  # peerdir only
+    # "//ydb/core/tx/schemeshard/olap/schema",  # peerdir only
+    # "//ydb/core/tx/schemeshard/olap/ttl",  # peerdir only
+  ]
 }

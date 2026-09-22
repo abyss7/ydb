@@ -15,6 +15,7 @@ PEERDIR(
     ydb/core/ydb_convert
     ydb/core/kqp/compile_service/helpers
 )
+# gn: peerdir ydb/core/kqp/session_actor:worker_common
 
 YQL_LAST_ABI_VERSION()
 

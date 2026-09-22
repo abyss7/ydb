@@ -9,9 +9,8 @@ library("http") {
   deps = [
     "//contrib/deprecated/http-parser",
     "//library/cpp/blockcodecs",
+    # "//library/cpp/blockcodecs:core",  # peerdir only
     "//library/cpp/streams/brotli",
-    "//library/cpp/yt/error",
-    "//library/cpp/yt/logging",
     "//library/cpp/yt/threading",
   ]
 

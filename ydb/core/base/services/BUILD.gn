@@ -1,3 +1,0 @@
-group("services") {
-  deps = [ "//ydb/library/actors/core" ]
-}

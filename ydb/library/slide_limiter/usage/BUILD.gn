@@ -9,6 +9,10 @@ library("usage") {
     # "//ydb/library/slide_limiter/service",
   ]
 
+  deps = [
+    # "//ydb/services/metadata/request",  # peerdir only
+  ]
+
   sources = [
     "abstract.cpp",
     "config.cpp",

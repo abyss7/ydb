@@ -13,6 +13,7 @@ library("tablet") {
     "//library/cpp/protobuf/util",
     "//ydb/core/actorlib_impl",
     "//ydb/core/engine:minikql",
+    # "//ydb/core/erasure",  # peerdir only
     "//ydb/core/metering",
     "//ydb/core/tablet",
     "//ydb/core/tablet_flat",

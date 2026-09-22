@@ -5,6 +5,8 @@ library("type_ann") {
   ]
 
   deps = [
+    # "//ydb/library/yql/dq/proto",  # peerdir only
+    # "//yql/essentials/ast",  # peerdir only
     "//yql/essentials/core/type_ann",
     "//yql/essentials/providers/common/provider",
     # "//yql/essentials/utils/log",

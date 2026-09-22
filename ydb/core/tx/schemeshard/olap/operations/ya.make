@@ -1,12 +1,12 @@
 LIBRARY()
 
 SRCS(
-    create_table.cpp
-    drop_table.cpp
-    alter_table.cpp
-    create_store.cpp
-    drop_store.cpp
-    alter_store.cpp
+    create_table.cpp  # gn: into ydb/core/tx/schemeshard
+    drop_table.cpp  # gn: into ydb/core/tx/schemeshard
+    alter_table.cpp  # gn: into ydb/core/tx/schemeshard
+    create_store.cpp  # gn: into ydb/core/tx/schemeshard
+    drop_store.cpp  # gn: into ydb/core/tx/schemeshard
+    alter_store.cpp  # gn: into ydb/core/tx/schemeshard
 )
 
 PEERDIR(

@@ -1,6 +1,7 @@
 library("events") {
   public_deps = [
     ":proto",
+    # "//contrib/libs/grpc",
     # "//ydb/core/fq/libs/events",
     "//ydb/library/actors/core",
     "//yql/essentials/public/issue",
@@ -23,14 +24,19 @@ library("quota_manager") {
   ]
 
   deps = [
-    ":proto",
     "//library/cpp/protobuf/interop",
+    # "//library/cpp/protobuf/json",  # peerdir only
+    # "//ydb/core/fq/libs/control_plane_storage",
+    # "//ydb/core/fq/libs/control_plane_storage:proto",  # peerdir only
     "//ydb/core/fq/libs/control_plane_storage:util",
     "//ydb/core/fq/libs/ydb",
-    "//ydb/core/util",
+    # "//ydb/core/grpc_services/local_rpc",  # peerdir only
+    # "//ydb/core/protos",  # peerdir only
+    # "//ydb/library/aclib:protos",  # peerdir only
     # "//ydb/library/actors/core",
     "//ydb/library/actors/interconnect",
     # "//ydb/library/services",
+    # "//ydb/public/api/grpc:draft",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/table",
   ]
 

@@ -1,11 +1,14 @@
 library("agent") {
-  deps = [
+  public_deps = [
+    ":blob_depot",
     "//ydb/core/base",
-    "//ydb/core/blob_depot",
-    # "//ydb/core/blobstorage/pdisk",
     # "//ydb/core/blobstorage/vdisk/common",
-    # "//ydb/core/protos",
     # "//ydb/core/util",
+  ]
+
+  deps = [
+    # "//ydb/core/blobstorage/pdisk",
+    # "//ydb/core/protos",
     "//ydb/core/wrappers",
   ]
 
@@ -42,7 +45,7 @@ library("blob_depot") {
     # "//library/cpp/json",
     # "//library/cpp/monlib/service/pages",
     "//ydb/core/base",
-    # "//ydb/core/blobstorage",
+    # "//ydb/core/blobstorage/events",
     # "//ydb/core/blobstorage/groupinfo",
     "//ydb/core/blobstorage/testing/group_overseer",
     # "//ydb/core/blobstorage/vdisk/common",

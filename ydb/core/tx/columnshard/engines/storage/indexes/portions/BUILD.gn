@@ -5,10 +5,11 @@ library("extractor") {
     # "//ydb/core/formats/arrow/accessor/common",
     # "//ydb/core/protos",
     "//ydb/core/tx/columnshard/engines/scheme/indexes/abstract",
-    # "//ydb/services/bg_tasks/abstract",
+    # "//ydb/services/bg_tasks:abstract",
   ]
 
   deps = [
+    # "//ydb/core/formats/arrow",  # peerdir only
     "//ydb/core/formats/arrow/accessor/sub_columns",
   ]
 
@@ -21,16 +22,18 @@ library("extractor") {
 
 library("portions") {
   public_deps = [
+    ":extractor",
     "//ydb/core/tx/columnshard/engines/scheme/abstract",
     "//ydb/core/tx/columnshard/engines/scheme/indexes/abstract",
     # "//ydb/core/tx/columnshard/splitter:abstract",
-    ":extractor",
   ]
 
   deps = [
     "//ydb/core/formats/arrow",
+    # "//ydb/core/tx/columnshard/engines/portions",  # peerdir only
     # "//ydb/core/tx/columnshard/engines/scheme",
     "//ydb/core/tx/columnshard/engines/storage/chunks",
+    # "//ydb/library/formats/arrow:protos",  # peerdir only
   ]
 
   sources = [

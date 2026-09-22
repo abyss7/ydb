@@ -5,8 +5,10 @@
 import("//build/gn/base.gni")
 import("//build/gn/contrib.gni")
 import("//build/gn/flatbuffers.gni")
+import("//build/gn/link_slots.gni")
 import("//build/gn/protobuf.gni")
 import("//build/gn/python.gni")
+import("//build/gn/resources.gni")
 import("//build/gn/rodata.gni")
 import("//build/gn/pch/targets.gni")
 
@@ -61,15 +63,14 @@ _default_configs = [
   "//build/gn/config/${host_os}:base",
   "//build/gn/config:std_string",
   "//build/gn/config:no_undefined",
+  "//build/gn/config:yql_abi_current",
+  "//build/gn/config:link_slots",
 ]
 if (time_trace) {
   _default_configs += [ "//build/gn/config:time_trace" ]
 }
-_default_deps = [
-  # "//contrib/libs/tcmalloc:default", # TODO: repair this
-  "//library/cpp/malloc/tcmalloc",
-  "//util",
-]
+
+_default_deps = [ "//util" ]
 
 foreach(_target_type, [
   "static_library",

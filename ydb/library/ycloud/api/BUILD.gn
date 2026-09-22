@@ -8,4 +8,8 @@ group("api") {
     "//ydb/public/api/client/yc_private/servicecontrol",
     "//ydb/public/sdk/cpp/src/library/grpc/client",
   ]
+
+  deps = [
+    # "//ydb/core/grpc_caching",  # peerdir only
+  ]
 }

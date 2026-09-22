@@ -1,2 +1,5 @@
 group("skiff") {
+  public_deps = [
+    # "//library/cpp/skiff",
+  ]
 }

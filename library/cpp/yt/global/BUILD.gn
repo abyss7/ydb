@@ -4,5 +4,10 @@ library("global") {
     # "//library/cpp/yt/misc",
   ]
 
+  deps = [
+    # "//library/cpp/yt/assert",  # peerdir only
+    # "//library/cpp/yt/threading",  # peerdir only
+  ]
+
   sources = [ "impl.cpp" ]
 }

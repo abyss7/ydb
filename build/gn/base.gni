@@ -117,8 +117,21 @@ template("library") {
         }
     }
 
+    _has_resources = defined(invoker.resources) || defined(invoker.resource_files)
+    if (_has_resources) {
+        _resources_target = "${target_name}_resources"
+
+        resources(_resources_target) {
+            forward_variables_from(invoker, [ "resources", "resource_files" ])
+            if (defined(invoker.resource_deps)) {
+                deps = invoker.resource_deps
+            }
+            visibility = [ ":*" ]
+        }
+    }
+
     target(library_type, target_name) {
-        forward_variables_from(invoker, "*", [ "configs", "deps" ])
+        forward_variables_from(invoker, "*", [ "configs", "deps", "resources", "resource_files", "resource_deps", "link_slot_provides", "yql_abi_version" ])
 
         output_dir = "$root_out_dir/" + rebase_path(".", "//") # TODO: doesn't work for some reason
         output_name = "${_unique_name}_${target_name}"
@@ -142,6 +155,45 @@ template("library") {
                 sources = []
             }
             sources += get_target_outputs(":$_enum_target")
+        }
+
+        if (_has_resources) {
+            deps += [
+                ":$_resources_target",
+                "//library/cpp/resource",
+            ]
+            if (!defined(sources)) {
+                sources = []
+            }
+            sources += filter_include(get_target_outputs(":$_resources_target"), [ "*.cpp" ])
+        }
+
+        # Link slots, see //build/gn/link_slots.gni.
+        if (defined(invoker.link_slot_provides)) {
+            if (!defined(defines)) {
+                defines = []
+            }
+            foreach(_slot, invoker.link_slot_provides) {
+                defines += [ "GN_SLOT_PROVIDER_${_slot}" ]
+            }
+            metadata = {
+                link_slot_provides = invoker.link_slot_provides
+            }
+        }
+
+        # UDF ABI: the current one by default (//build/gn/config:yql_abi_current in
+        # the default configs); YQL_ABI_VERSION(M m p) in ya.make -> "M.m.p" here.
+        if (defined(invoker.yql_abi_version)) {
+            _abi = string_split(invoker.yql_abi_version, ".")
+            configs -= [ "//build/gn/config:yql_abi_current" ]
+            if (!defined(defines)) {
+                defines = []
+            }
+            defines += [
+                "UDF_ABI_VERSION_MAJOR=${_abi[0]}",
+                "UDF_ABI_VERSION_MINOR=${_abi[1]}",
+                "UDF_ABI_VERSION_PATCH=${_abi[2]}",
+            ]
         }
 
         if (defined(allow_undefined) && allow_undefined == true) {

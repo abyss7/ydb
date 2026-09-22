@@ -1,5 +1,3 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("version") {
   public_deps = [
     "//ydb/core/protos",
@@ -7,6 +5,8 @@ library("version") {
   ]
 
   deps = [
+    # "//contrib/libs/protobuf",
+    # "//library/cpp/monlib/service/pages",  # peerdir only
     "//library/cpp/svnversion",
     "//ydb/core/viewer:json",
     # "//ydb/library/global_plugins",
@@ -14,8 +14,7 @@ library("version") {
   ]
 
   sources = [
-    "version.cpp",
-
     "//ydb/apps/version/version_definition.cpp",
+    "version.cpp",
   ]
 }

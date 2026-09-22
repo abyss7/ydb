@@ -1,8 +1,8 @@
 LIBRARY()
 
 SRCS(
-    data.cpp
-    column.cpp
+    data.cpp  # gn: into ydb/core/tx/columnshard/engines/portions
+    column.cpp  # gn: into ydb/core/tx/columnshard/engines/portions
 )
 
 PEERDIR(

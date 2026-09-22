@@ -1,12 +1,12 @@
 LIBRARY()
 
 SRCS(
-    aligned_page_pool.cpp
+    aligned_page_pool.cpp  # gn: alloc
     aligned_page_pool.h
     compact_hash.cpp
     compact_hash.h
     defs.h
-    mkql_alloc.cpp
+    mkql_alloc.cpp  # gn: alloc
     mkql_block_map_join_utils.cpp
     mkql_block_map_join_utils.h
     mkql_buffer.cpp
@@ -15,7 +15,7 @@ SRCS(
     mkql_function_metadata.h
     mkql_function_registry.cpp
     mkql_function_registry.h
-    mkql_mem_info.cpp
+    mkql_mem_info.cpp  # gn: alloc
     mkql_node.cpp
     mkql_node.h
     mkql_node_builder.cpp
@@ -39,7 +39,7 @@ SRCS(
     mkql_stats_registry.cpp
     mkql_string_util.cpp
     mkql_string_util.h
-    mkql_terminator.cpp
+    mkql_terminator.cpp  # gn: terminator
     mkql_terminator.h
     mkql_type_builder.cpp
     mkql_type_builder.h
@@ -55,6 +55,8 @@ SRCS(
     watermark_tracker.cpp
     watermark_tracker.h
 )
+# gn: alloc headers aligned_page_pool.h mkql_alloc.h mkql_mem_info.h
+# gn: terminator headers mkql_terminator.h
 
 PEERDIR(
     contrib/libs/apache/arrow

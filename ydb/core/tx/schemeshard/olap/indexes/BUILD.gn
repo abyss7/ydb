@@ -4,7 +4,7 @@ library("indexes") {
     "//ydb/core/tx/columnshard/engines/scheme/indexes/abstract",
     # "//ydb/core/tx/schemeshard/olap/common",
     # "//ydb/library/accessor",
-    "//ydb/services/bg_tasks/abstract",
+    "//ydb/services/bg_tasks:abstract",
   ]
 
   deps = [

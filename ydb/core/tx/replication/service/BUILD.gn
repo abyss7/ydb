@@ -7,18 +7,20 @@ library("service") {
     # "//ydb/core/scheme_types",
     # "//ydb/core/tablet_flat",
     "//ydb/core/tx/replication/common",
+    "//ydb/library/actors/core",
   ]
 
   deps = [
     # "//library/cpp/json",
+    # "//ydb/core/fq/libs/row_dispatcher/events",  # peerdir only
     "//ydb/core/fq/libs/row_dispatcher/purecalc_compilation",
     "//ydb/core/io_formats/cell_maker",
     "//ydb/core/tx/datashard",
-    "//ydb/core/tx/replication/ydb_proxy:local_proxy",
+    # "//ydb/core/tx/replication/ydb_proxy",
+    "//ydb/core/tx/replication/ydb_proxy:local_proxy",  # peerdir only
     "//ydb/core/tx/scheme_cache",
     "//ydb/core/tx/tx_proxy:public",
     "//ydb/core/wrappers",
-    "//ydb/library/actors/core",
     # "//ydb/library/services",
   ]
 

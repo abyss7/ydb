@@ -7,7 +7,6 @@ library("address_classification") {
   ]
 
   deps = [
-    "//library/cpp/ipmath",
     "//ydb/core/cms/console",
     "//ydb/core/mon",
     # "//ydb/core/protos",

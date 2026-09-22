@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 config("avx2_config") {
     cflags = [ "-mavx2", "-mfma", "-mbmi", "-mbmi2" ]
 }

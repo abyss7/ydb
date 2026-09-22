@@ -33,7 +33,7 @@ toolchain("clang") {
     depsformat = "gcc"
     description = "ASM {{output}}"
     outputs = [
-      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
+      "{{source_out_dir}}/{{target_output_name}}.{{source_file_part}}.o",
     ]
   }
 
@@ -43,7 +43,7 @@ toolchain("clang") {
     depsformat = "gcc"
     description = "CC {{output}}"
     outputs = [
-      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
+      "{{source_out_dir}}/{{target_output_name}}.{{source_file_part}}.o",
     ]
   }
 
@@ -53,7 +53,7 @@ toolchain("clang") {
     depsformat = "gcc"
     description = "CXX {{output}}"
     outputs = [
-      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
+      "{{source_out_dir}}/{{target_output_name}}.{{source_file_part}}.o",
     ]
   }
 

@@ -3,11 +3,15 @@ library("computation") {
     "//contrib/libs/apache/arrow",
     # "//library/cpp/cache",
     # "//library/cpp/enumbitset",
+    # "//library/cpp/packedtypes",
     # "//library/cpp/random_provider",
     # "//library/cpp/threading/future",
     # "//library/cpp/time_provider",
     "//yql/essentials/minikql",
     "//yql/essentials/minikql/arrow",
+    "//yql/essentials/minikql:alloc",
+    "//yql/essentials/minikql:terminator",
+    "//yql/essentials/public/decimal",
     # "//yql/essentials/public/langver",
     "//yql/essentials/public/udf",
     "//yql/essentials/public/udf:arrow",
@@ -16,11 +20,10 @@ library("computation") {
 
   deps = [
     # "//library/cpp/containers/stack_vector",
-    # "//library/cpp/packedtypes",
     # "//library/cpp/resource",
     # "//library/cpp/yson:node",
     # "//yql/essentials/parser/pg_wrapper/interface",
-    "//yql/essentials/public/decimal",
+    # "//yql/essentials/public/types",  # peerdir only
   ]
 
   sources = [

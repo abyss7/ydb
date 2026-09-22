@@ -1,5 +1,5 @@
 library("frame_pointer") {
-  deps = [
+  public_deps = [
     # "//library/cpp/yt/memory",
   ]
 

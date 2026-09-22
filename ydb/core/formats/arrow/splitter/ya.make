@@ -1,8 +1,8 @@
 LIBRARY()
 
 SRCS(
-    simple.cpp
-    scheme_info.cpp
+    simple.cpp  # gn: into ydb/core/formats/arrow
+    scheme_info.cpp  # gn: into ydb/core/formats/arrow
 )
 
 PEERDIR(

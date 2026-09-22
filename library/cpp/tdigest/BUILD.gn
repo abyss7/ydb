@@ -3,7 +3,10 @@ protobuf_library("private_proto") {
 }
 
 library("tdigest") {
-  deps = [ ":private_proto" ]
+  deps = [
+    ":private_proto",
+    # "//library/cpp/protobuf/runtime",  # peerdir only
+  ]
 
   sources = [ "tdigest.cpp" ]
 }

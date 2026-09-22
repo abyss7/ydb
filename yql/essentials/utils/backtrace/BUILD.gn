@@ -1,9 +1,7 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("backtrace") {
   deps = [
     "//contrib/libs/backtrace",
-    "//contrib/libs/libunwind",
+    "//contrib/libs/libunwind",  # peerdir only
     "//library/cpp/deprecated/atomic",
     "//library/cpp/malloc/api",
   ]

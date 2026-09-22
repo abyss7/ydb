@@ -1,5 +1,5 @@
 library("test_tablet") {
-  deps = [
+  public_deps = [
     # "//contrib/libs/t1ha",
     # "//library/cpp/json",
     "//ydb/core/keyvalue",
@@ -7,8 +7,11 @@ library("test_tablet") {
     # "//ydb/core/tablet_flat",
     # "//ydb/core/util",
     # "//ydb/library/actors/core",
-    # "//ydb/library/actors/interconnect",
     # "//ydb/library/actors/interconnect:poller",
+  ]
+
+  deps = [
+    # "//ydb/library/actors/interconnect",
   ]
 
   sources = [

@@ -1,7 +1,5 @@
 library("mediator") {
-  public_deps = [
-    "//ydb/core/base",
-  ]
+  public_deps = [ "//ydb/core/base" ]
 
   deps = [
     # "//library/cpp/time_provider",

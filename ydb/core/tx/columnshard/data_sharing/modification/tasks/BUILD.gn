@@ -4,8 +4,8 @@ library("tasks") {
   public_deps = [
     "//ydb/core/tx/columnshard/blobs_action:abstract",
     "//ydb/core/tx/columnshard/common",
-    "//ydb/core/tx/columnshard/data_sharing/common/session",
-    "//ydb/core/tx/columnshard/data_sharing/initiator/controller",
+    "//ydb/core/tx/columnshard/data_sharing/common:session",
+    "//ydb/core/tx/columnshard/data_sharing/initiator:controller",
     "//ydb/core/tx/columnshard/data_sharing/protos",
     "//ydb/library/conclusion",
   ]

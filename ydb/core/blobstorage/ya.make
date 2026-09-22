@@ -10,6 +10,7 @@ PEERDIR(
     ydb/core/blobstorage/base
     ydb/core/blobstorage/crypto
     ydb/core/blobstorage/dsproxy
+    ydb/core/blobstorage/events
     ydb/core/blobstorage/groupinfo
     ydb/core/blobstorage/incrhuge
     ydb/core/blobstorage/lwtrace_probes
@@ -35,6 +36,7 @@ RECURSE(
     crypto
     ddisk
     dsproxy
+    events
     groupinfo
     incrhuge
     lwtrace_probes

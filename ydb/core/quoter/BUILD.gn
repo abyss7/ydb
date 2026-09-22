@@ -12,21 +12,20 @@ library("public") {
 library("quoter") {
   public_deps = [
     ":public",
+    # "//library/cpp/lwtrace",
+    "//ydb/core/base",
+    # "//ydb/core/tx/scheme_cache",
+    # "//ydb/library/actors/core",
   ]
 
   deps = [
     # "//library/cpp/containers/ring_buffer",
-    # "//library/cpp/lwtrace",
     "//library/cpp/lwtrace/mon",
-    "//ydb/core/base",
     "//ydb/core/kesus/tablet",
     "//ydb/core/mon",
     # "//ydb/core/protos",
-    "//ydb/core/tablet",
-    # "//ydb/core/tx/scheme_cache",
-    # "//ydb/library/actors/core",
+    # "//ydb/core/util",  # peerdir only
     # "//ydb/library/time_series_vec",
-    "//ydb/library/ydb_issue",
     "//yql/essentials/public/issue",
   ]
 

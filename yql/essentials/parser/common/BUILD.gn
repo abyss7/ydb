@@ -1,5 +1,9 @@
 library("antlr4") {
-  public_deps = [ "//yql/essentials/parser/common" ]
+  public_deps = [
+    ":common",
+    "//contrib/libs/antlr4_cpp_runtime",
+    # "//yql/essentials/parser/lexer_common",
+  ]
 
   deps = [ "//yql/essentials/core/issue" ]
 
@@ -7,9 +11,10 @@ library("antlr4") {
 }
 
 library("common") {
-  public_deps = [
-    "//contrib/libs/antlr4_cpp_runtime",
-    "//yql/essentials/public/issue",
+  public_deps = [ "//yql/essentials/public/issue" ]
+
+  deps = [
+    # "//yql/essentials/core/issue",  # peerdir only
   ]
 
   sources = [ "error.cpp" ]

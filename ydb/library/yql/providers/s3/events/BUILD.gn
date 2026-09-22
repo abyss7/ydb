@@ -9,9 +9,7 @@ library("events") {
     # "//yql/essentials/public/issue",
   ]
 
-  deps = [
-    "//ydb/library/yql/udfs/common/clickhouse/client",
-  ]
+  deps = [ "//ydb/library/yql/udfs/common/clickhouse/client" ]
 
   sources = [ "events.cpp" ]
 }

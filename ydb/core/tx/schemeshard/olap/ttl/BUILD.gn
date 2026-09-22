@@ -6,6 +6,13 @@ library("ttl") {
     # "//ydb/library/conclusion",
   ]
 
+  deps = [
+    # "//ydb/core/base",  # peerdir only
+    # "//ydb/core/tx/tiering:tier",  # peerdir only
+    # "//ydb/public/sdk/cpp/src/client/params",  # peerdir only
+    # "//ydb/public/sdk/cpp/src/client/types/credentials",  # peerdir only
+  ]
+
   sources = [
     "schema.cpp",
     "update.cpp",

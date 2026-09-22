@@ -1,7 +1,8 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("dot_product") {
-  deps = [ "//library/cpp/testing/common" ]
+  deps = [
+    # "//library/cpp/sse",
+    "//library/cpp/testing/common",
+  ]
 
   # TODO: split sources to avx2, sse, etc.
   sources = [

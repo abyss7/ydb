@@ -11,6 +11,7 @@ PEERDIR(
     ydb/core/kqp/runtime
     ydb/core/sys_view/common
 )
+# gn: peerdir ydb/core/kqp/workload_service/actors:scheme_actors
 
 YQL_LAST_ABI_VERSION()
 

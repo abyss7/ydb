@@ -1,11 +1,11 @@
 library("tracing") {
   public_deps = [
     # "//library/cpp/monlib/service/pages",
+    "//ydb/core/base",
     "//ydb/library/actors/core",
   ]
 
   deps = [
-    "//ydb/core/base",
     "//ydb/core/mon",
     "//ydb/core/node_whiteboard",
     "//ydb/core/protos",

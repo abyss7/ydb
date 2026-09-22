@@ -12,7 +12,7 @@ library("sharding") {
     # "//ydb/library/accessor",
     "//ydb/library/formats/arrow:hash",
     # "//ydb/library/formats/arrow:validation",
-    # "//ydb/services/bg_tasks/abstract",
+    # "//ydb/services/bg_tasks:abstract",
     "//yql/essentials/public/udf",
   ]
 

@@ -5,15 +5,15 @@ library("actors") {
     "//ydb/core/kqp/common:events",
     "//ydb/core/kqp/provider",
     # "//ydb/core/statistics",
-    "//ydb/core/tablet",
     "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/schemeshard",
-    # "//ydb/core/tx/tx_proxy",
+    # "//ydb/core/tx/tx_proxy:public",
     # "//ydb/library/actors/core",
     "//yql/essentials/providers/common/gateway",
   ]
 
   deps = [
+    # "//ydb/core/tx/tx_proxy",  # peerdir only
     "//ydb/core/util",
     # "//ydb/library/services",
   ]
@@ -91,24 +91,32 @@ library("gateway") {
 
 library("interface") {
   public_deps = [
+    # "//library/cpp/lwtrace",
+    # "//library/cpp/protobuf/util",
+    # "//ydb/core/control/lib",
+    # "//ydb/core/kqp/counters",
     "//ydb/core/kqp/provider",
     "//ydb/core/kqp/query_data",
+    # "//ydb/core/kqp/topics",
     "//ydb/core/protos",
+    # "//ydb/core/tx/long_tx_service:public",
+    # "//ydb/core/ydb_convert",
+    # "//ydb/library/accessor",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/actors/wilson",
+    # "//ydb/library/ydb_issue:proto",
+    # "//yql/essentials/ast",
   ]
 
   sources = [ "kqp_gateway.cpp" ]
 }
 
 library("local_rpc") {
-  public_deps = [
-    "//ydb/core/kqp/provider",
-  ]
+  public_deps = [ "//ydb/core/kqp/provider" ]
 
   deps = [
     "//ydb/core/grpc_services/local_rpc",
     "//ydb/library/ydb_issue",
-    "//yql/essentials/core/issue",
-    "//yql/essentials/providers/common/gateway",
     # "//yql/essentials/public/issue",
   ]
 
@@ -123,12 +131,10 @@ library("utils") {
 
   deps = [
     # ":actors",
+    # "//ydb/core/base",  # peerdir only
     # "//ydb/core/cms/console",
-    # "//ydb/core/protos/schemeshard",
-    "//ydb/core/tablet",
-    "//ydb/core/tx/tx_proxy",
-    "//ydb/library/yql/public/ydb_issue",
-    "//yql/essentials/providers/common/gateway",
+    # "//ydb/core/protos",
+    # "//ydb/core/protos:schemeshard",
   ]
 
   sources = [ "utils/metadata_helpers.cpp" ]

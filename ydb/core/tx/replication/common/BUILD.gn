@@ -4,9 +4,7 @@ library("common") {
     "//ydb/library/protobuf_printer",
   ]
 
-  deps = [
-    "//ydb/core/protos",
-  ]
+  deps = [ "//ydb/core/protos" ]
 
   sources = [ "worker_id.cpp" ]
 }

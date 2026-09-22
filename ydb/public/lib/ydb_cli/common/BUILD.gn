@@ -1,24 +1,21 @@
-library("retry_func") {
-  sources = [ "retry_func.cpp" ]
-}
-
 library("common") {
   public_deps = [
     ":ini_config",
-    ":retry_func",
     "//contrib/libs/ftxui",
+    # "//contrib/libs/protobuf",
     "//library/cpp/colorizer",
     "//library/cpp/getopt",
     "//library/cpp/json",
     # "//library/cpp/logger",
+    # "//library/cpp/regex/pcre",
     "//library/cpp/string_utils/csv",
     # "//library/cpp/threading/future",
     "//library/cpp/yaml/as",
     # "//ydb/library/accessor",
+    # "//ydb/library/plan2svg",
     # "//ydb/public/api/protos",
     "//ydb/public/lib/json_value",
     # "//ydb/public/lib/ydb_cli/commands",
-    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
     "//ydb/public/sdk/cpp/src/client/coordination",
     "//ydb/public/sdk/cpp/src/client/draft",
     "//ydb/public/sdk/cpp/src/client/driver",
@@ -31,13 +28,14 @@ library("common") {
     # "//ydb/public/sdk/cpp/src/client/scheme",
     "//ydb/public/sdk/cpp/src/client/table",
     "//ydb/public/sdk/cpp/src/client/table:query_stats",
-    # "//ydb/public/sdk/cpp/src/client/types",
+    "//ydb/public/sdk/cpp/src/client/topic",
     # "//ydb/public/sdk/cpp/src/client/types/credentials",
     "//ydb/public/sdk/cpp/src/client/types/credentials:oauth2_token_exchange",
     "//ydb/public/sdk/cpp/src/client/types/status",
   ]
 
   deps = [
+    ":retry_func",
     ":yql_parser",
     "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-core",
     "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-s3",
@@ -50,10 +48,10 @@ library("common") {
     "//library/cpp/string_utils/url",
     "//ydb/library/arrow_parquet",
     # "//ydb/library/yverify_stream",
-    "//ydb/public/lib/ydb_cli/dump:util",
+    # "//ydb/public/lib/ydb_cli/dump:util",
+    # "//ydb/public/lib/yson_value",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/proto",
-    "//ydb/public/sdk/cpp/src/client/topic/impl",
-    "//ydb/public/sdk/cpp/src/client/value",
+    # "//ydb/public/sdk/cpp/src/client/types",
     # "//ydb/public/sdk/cpp/src/library/operation_id",
   ]
 
@@ -114,15 +112,24 @@ library("ini_config") {
   ]
 }
 
+library("retry_func") {
+  public_deps = [
+    # "//ydb/public/sdk/cpp/src/client/types",
+  ]
+
+  sources = [ "retry_func.cpp" ]
+}
+
 library("yql_parser") {
   public_deps = [ "//ydb/public/sdk/cpp/src/client/value" ]
 
   deps = [
+    # "//ydb/public/sdk/cpp/src/client/types",  # peerdir only
     # "//yql/essentials/public/issue",
+    # "//yql/essentials/sql/settings",
     "//yql/essentials/sql/v1/lexer",
     "//yql/essentials/sql/v1/lexer:antlr4",
     "//yql/essentials/sql/v1/lexer:antlr4_ansi",
-    # "//yql/essentials/sql:settings",
   ]
 
   sources = [ "yql_parser/yql_parser.cpp" ]

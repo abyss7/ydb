@@ -1,5 +1,11 @@
 library("core") {
-    public_deps = [ "//yt/yt_proto/yt/core" ]
+    public_deps = [
+        "//yt/yt_proto/yt/core",
+        "//library/cpp/yt/error",
+        "//library/cpp/yt/logging",
+        "//library/cpp/yt/memory",
+        "//library/cpp/yt/threading",
+    ]
 
     deps = [
         "misc/isa_crc64",
@@ -17,13 +23,9 @@ library("core") {
         "//library/cpp/streams/brotli",
         "//library/cpp/yt/backtrace",
         "//library/cpp/yt/backtrace/cursors:libunwind",
-        "//library/cpp/yt/error",
         "//library/cpp/yt/global",
-        "//library/cpp/yt/logging",
         "//library/cpp/yt/logging:plain_text_formatter",
         "//library/cpp/yt/malloc",
-        "//library/cpp/yt/memory",
-        "//library/cpp/yt/threading",
         "//library/cpp/yt/yson",
         "//yt/yt/build",
         "//yt/yt/library/profiling",

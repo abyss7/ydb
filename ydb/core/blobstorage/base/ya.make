@@ -7,6 +7,7 @@ PEERDIR(
     ydb/core/base
     ydb/core/protos
 )
+# gn: peerdir ydb/core/blobstorage/vdisk/common:guids
 
 SRCS(
     batched_vec.h

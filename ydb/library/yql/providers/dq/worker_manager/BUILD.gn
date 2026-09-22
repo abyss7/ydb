@@ -4,15 +4,13 @@ library("interface") {
     "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/yql/dq/common",
+    # "//ydb/library/yql/providers/dq/api/grpc",
     "//ydb/library/yql/providers/dq/api/protos",
+    # "//yql/essentials/providers/common/metrics",
     "//yql/essentials/utils/log",
   ]
 
-  deps = [
-    # "//ydb/library/yql/providers/dq/api/grpc",
-    "//ydb/library/yql/providers/dq/common",
-    # "//yql/essentials/providers/common/metrics",
-  ]
+  deps = [ "//ydb/library/yql/providers/dq/common:attrs" ]
 
   sources = [
     "interface/counters.cpp",
@@ -23,20 +21,26 @@ library("interface") {
 
 library("worker_manager") {
   public_deps = [
+    ":interface",
     # "//ydb/library/actors/core",
     "//ydb/library/yql/dq/actors:compute",
     # "//ydb/library/yql/providers/dq/task_runner",
     # "//ydb/library/yql/providers/dq/task_runner_actor",
     # "//yql/essentials/minikql",
-    ":interface",
   ]
 
   deps = [
     # "//ydb/library/actors/helpers",
     "//ydb/library/actors/interconnect",
+    # "//ydb/library/ydb_issue",  # peerdir only
     # "//ydb/library/yql/dq/common",
     "//ydb/library/yql/providers/dq/actors",
+    # "//ydb/library/yql/providers/dq/api/grpc",  # peerdir only
+    # "//ydb/library/yql/providers/dq/api/protos",  # peerdir only
     "//ydb/library/yql/providers/dq/runtime",
+    # "//yql/essentials/providers/common/config",  # peerdir only
+    # "//yql/essentials/providers/common/gateway",  # peerdir only
+    # "//yql/essentials/providers/common/metrics",  # peerdir only
     "//yql/essentials/utils/failure_injector",
     "//yql/essentials/utils/log",
   ]

@@ -6,8 +6,10 @@ library("cluster_tracker") {
   ]
 
   deps = [
+    ":public",
+    # "//ydb/core/grpc_services/cancelation",  # peerdir only
     # "//ydb/core/kqp/common",
-    "//ydb/core/persqueue/public",
+    # "//ydb/core/persqueue/events",  # peerdir only
     # "//ydb/library/mkql_proto:protos",
     "//ydb/public/sdk/cpp/src/client/result",
   ]
@@ -18,8 +20,8 @@ library("cluster_tracker") {
 library("codecs") {
   public_deps = [
     "//ydb/public/api/protos",
-    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
     "//ydb/public/sdk/cpp/src/client/persqueue_public",
+    # "//ydb/public/sdk/cpp/src/client/topic",
   ]
 
   sources = [ "codecs/pqv1.cpp" ]
@@ -47,7 +49,9 @@ library("describer") {
     # "//ydb/public/api/protos",
   ]
 
-  deps = [ "//ydb/library/aclib" ]
+  deps = [
+    # ":public",  # peerdir only
+  ]
 
   sources = [ "describer/describer.cpp" ]
 
@@ -56,7 +60,7 @@ library("describer") {
 
 library("fetcher") {
   public_deps = [
-    "//ydb/core/persqueue/public",
+    ":public",
     # "//ydb/library/aclib",
     # "//ydb/library/actors/core",
   ]
@@ -68,7 +72,6 @@ library("fetcher") {
     # "//ydb/core/base",
     # "//ydb/core/client/server",
     # "//ydb/core/persqueue/events",
-    "//ydb/core/tablet",
     # "//ydb/core/tx/replication/ydb_proxy",
   ]
 
@@ -76,11 +79,15 @@ library("fetcher") {
 }
 
 library("list_topics") {
+  public_deps = [
+    # "//ydb/library/actors/core",
+  ]
+
   deps = [
+    # ":public",  # peerdir only
+    # "//ydb/core/grpc_services/cancelation",  # peerdir only
     "//ydb/core/persqueue/events",
     # "//ydb/core/tx/scheme_cache",
-    "//ydb/library/aclib",
-    # "//ydb/library/actors/core",
   ]
 
   sources = [ "list_topics/list_all_topics_actor.cpp" ]
@@ -95,12 +102,13 @@ library("mlp") {
   ]
 
   deps = [
+    ":public",
+    ":utils",
     # "//ydb/core/base",
     # "//ydb/core/persqueue/common",
-    "//ydb/core/persqueue/public",
     # "//ydb/core/protos",
     # "//ydb/core/util",
-    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
+    # "//ydb/public/sdk/cpp/src/client/topic",
   ]
 
   sources = [
@@ -135,25 +143,10 @@ library("partition_key_range") {
   ]
 }
 
-library("utils") {
-  public_deps = [
-    "//ydb/core/base",
-    "//ydb/core/protos",
-  ]
-
-  deps = [
-    "//ydb/library/actors/core",
-  ]
-
-  sources = [ "utils.cpp" ]
-}
-
 library("public") {
   public_deps = [
-    ":utils",
     # "//library/cpp/sliding_window",
-    "//ydb/core/base",
-    "//ydb/core/grpc_services",
+    # "//ydb/core/grpc_services",
     # "//ydb/core/kafka_proxy",
     "//ydb/core/metering",
     "//ydb/core/protos",
@@ -161,9 +154,10 @@ library("public") {
   ]
 
   deps = [
+    ":utils",
+    "//ydb/core/base",
     # "//ydb/core/grpc_services/base",
     "//ydb/library/actors/core",
-    # "//ydb/library/yverify_stream",
   ]
 
   sources = [
@@ -175,11 +169,25 @@ library("public") {
   ]
 }
 
+library("utils") {
+  public_deps = [
+    "//ydb/core/base",
+    "//ydb/core/protos",
+  ]
+
+  deps = [
+    # ":public",
+    # "//ydb/library/yverify_stream",
+  ]
+
+  sources = [ "utils.cpp" ]
+}
+
 library("write_meta") {
   public_deps = [
     "//ydb/core/protos",
-    "//ydb/public/sdk/cpp/src/client/persqueue_public:impl",
-    "//ydb/public/sdk/cpp/src/client/topic/impl",
+    "//ydb/public/sdk/cpp/src/client/persqueue_public",
+    "//ydb/public/sdk/cpp/src/client/topic",
   ]
 
   deps = [

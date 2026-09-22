@@ -64,6 +64,7 @@ PEERDIR(
     ydb/library/pdisk_io
     ydb/library/yaml_config
 )
+# gn: peerdir ydb/core/mind/bscontroller:group_mapper ydb/core/mind:nameserver_table_builder
 
 END()
 

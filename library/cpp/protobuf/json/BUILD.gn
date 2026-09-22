@@ -1,10 +1,16 @@
 library("json") {
+  public_deps = [
+    # "//contrib/libs/protobuf",
+    "//library/cpp/json",
+    # "//library/cpp/string_utils/relaxed_escaper",
+  ]
+
   deps = [
     ":proto",
-    "//library/cpp/json",
     # "//library/cpp/json:writer",
+    # "//library/cpp/protobuf/runtime",  # peerdir only
+    # "//library/cpp/protobuf/util",  # peerdir only
     "//library/cpp/string_utils/base64",
-    # "//library/cpp/string_utils/relaxed_escaper",
   ]
 
   sources = [

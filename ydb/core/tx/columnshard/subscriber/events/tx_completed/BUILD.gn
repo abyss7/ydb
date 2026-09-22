@@ -1,7 +1,0 @@
-library("tx_completed") {
-  public_deps = [
-    "//ydb/core/tx/columnshard/subscriber/abstract/events",
-  ]
-
-  sources = [ "event.cpp" ]
-}

@@ -10,6 +10,7 @@ library("fast_path_service") {
 
   deps = [
     # "//ydb/core/base",
+    # "//ydb/core/blobstorage/ddisk",  # peerdir only
     # "//ydb/core/nbs/cloud/storage/core/protos",
   ]
 
@@ -20,12 +21,9 @@ library("storage_transport") {
   public_deps = [
     "//ydb/core/blobstorage/ddisk",
     "//ydb/core/mind:bscontroller",
+    "//ydb/core/nbs/cloud/blockstore/libs/kikimr",
     "//ydb/core/nbs/cloud/storage/core/libs/common",
     # "//ydb/core/protos",
-  ]
-
-  deps = [
-    "//ydb/core/nbs/cloud/blockstore/libs/kikimr",
   ]
 
   sources = [ "storage_transport/ic_storage_transport.cpp" ]

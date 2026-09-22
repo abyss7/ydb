@@ -7,14 +7,15 @@ library("abstract") {
     # "//ydb/core/tx/columnshard/common",
     "//ydb/core/tx/columnshard/counters",
     # "//ydb/library/accessor",
+    # "//ydb/library/actors/core",
     # "//ydb/library/conclusion",
-    # "//ydb/services/bg_tasks/abstract",
+    # "//ydb/services/bg_tasks:abstract",
   ]
 
   deps = [
+    # "//ydb/core/formats/arrow",  # peerdir only
     "//ydb/core/tx/columnshard/engines/changes/abstract",
     # "//ydb/core/tx/columnshard/engines/portions",
-    # "//ydb/library/actors/core",
   ]
 
   sources = [

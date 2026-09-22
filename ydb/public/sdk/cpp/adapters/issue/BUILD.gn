@@ -1,11 +1,12 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("issue") {
   public_deps = [
     "//ydb/public/sdk/cpp/src/library/issue",
+    "//yql/essentials/public/issue",
   ]
 
-  deps = [ "//ydb/library/yql/public/ydb_issue" ]
+  deps = [
+    "//ydb/library/yql/public/ydb_issue",  # peerdir only
+  ]
 
   sources = [ "issue.cpp" ]
 }

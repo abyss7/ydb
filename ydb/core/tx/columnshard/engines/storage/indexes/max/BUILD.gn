@@ -1,6 +1,7 @@
 library("max") {
   public_deps = [
     # "//ydb/core/formats/arrow",
+    "//ydb/core/tx/columnshard/engines/scheme",
     "//ydb/core/tx/columnshard/engines/storage/indexes/portions",
     # "//ydb/core/tx/columnshard/engines/storage/indexes/portions:extractor",
     # "//ydb/library/formats/arrow:switch",
@@ -9,11 +10,10 @@ library("max") {
   deps = [
     # "//contrib/libs/apache/arrow",
     # "//library/cpp/deprecated/atomic",
-    "//ydb/core/tx/columnshard/engines/scheme",
+    # "//ydb/core/protos",  # peerdir only
     # "//ydb/core/tx/columnshard/engines/scheme/indexes/abstract",
     "//ydb/core/tx/columnshard/engines/storage/chunks",
     # "//ydb/core/tx/program",
-    "//ydb/core/tx/schemeshard/olap/columns",
     # "//ydb/core/tx/schemeshard/olap/schema",
     "//ydb/library/formats/arrow:scalar",
   ]

@@ -1,13 +1,16 @@
 library("resource_subscriber") {
   public_deps = [
     # "//library/cpp/monlib/dynamic_counters",
+    # "//ydb/core/base",
     # "//ydb/core/tablet",
+    # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
     "//ydb/library/signals",
   ]
 
   deps = [
-    # "//ydb/library/accessor",
+    # "//ydb/core/protos",  # peerdir only
+    # "//ydb/core/tablet_flat",  # peerdir only
   ]
 
   sources = [

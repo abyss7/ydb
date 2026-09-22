@@ -8,8 +8,8 @@ library("db_pool") {
   ]
 
   deps = [
-    "//library/cpp/threading/future",
     # "//ydb/library/services",
+    # "//ydb/public/sdk/cpp/src/client/driver",  # peerdir only
   ]
 
   sources = [ "db_pool.cpp" ]

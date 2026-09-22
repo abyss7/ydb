@@ -13,8 +13,9 @@ SRCS(
     kqp_scan_fetcher_actor.cpp
     kqp_scan_common.cpp
     kqp_scan_events.cpp
-    kqp_compute_events_stats.cpp
+    kqp_compute_events_stats.cpp  # gn: events_stats
 )
+# gn: events_stats headers kqp_compute_events_stats.h
 
 PEERDIR(
     ydb/core/actorlib_impl

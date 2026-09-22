@@ -24,7 +24,7 @@
 #include <google/protobuf/util/time_util.h>
 
 #include <library/cpp/cache/cache.h>
-#include <ydb/public/sdk/cpp/include/ydb-cpp-sdk/library/string_utils/misc/misc.h>
+#include <ydb/public/sdk/cpp/include/ydb-cpp-sdk/library/string_utils/helpers/helpers.h>
 
 #include <util/generic/overloaded.h>
 #include <util/random/random.h>

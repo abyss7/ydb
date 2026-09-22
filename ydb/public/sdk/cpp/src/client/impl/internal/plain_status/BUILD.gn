@@ -7,6 +7,7 @@ library("plain_status") {
   ]
 
   deps = [
+    # "//contrib/libs/protobuf",  # peerdir only
     "//ydb/public/sdk/cpp/src/client/resources",
   ]
 

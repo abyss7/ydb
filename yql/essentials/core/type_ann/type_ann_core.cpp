@@ -25,6 +25,7 @@
 #include <yql/essentials/minikql/dom/yson.h>
 #include <yql/essentials/utils/log/log.h>
 #include <yql/essentials/public/udf/udf_data_type.h>
+#include <yql/essentials/public/decimal/yql_decimal.h>
 #include <yql/essentials/public/langver/yql_langver.h>
 #include <yql/essentials/providers/common/schema/expr/yql_expr_schema.h>
 #include <yql/essentials/utils/utf8.h>

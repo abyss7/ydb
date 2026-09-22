@@ -2,24 +2,19 @@ library("predicate") {
   public_deps = [
     # "//contrib/libs/apache/arrow",
     "//ydb/core/formats/arrow",
-    # "//ydb/core/formats/arrow/accessor/abstract",
-    # "//ydb/core/formats/arrow:common",
-    # "//ydb/core/formats/arrow:reader",
-    # "//ydb/core/formats/arrow:rows",
     # "//ydb/core/protos",
+    # "//ydb/core/scheme",
     "//ydb/core/tx/columnshard/engines/portions",
     "//ydb/core/tx/columnshard/engines/scheme",
     # "//ydb/library/accessor",
+    # "//ydb/library/arrow_kernels",
     # "//ydb/library/conclusion",
     # "//ydb/library/formats/arrow",
   ]
 
   deps = [
-    # "//ydb/core/formats/arrow:program",
-    # "//ydb/core/formats/arrow:serializer",
-    # "//ydb/core/scheme",
+    # "//ydb/core/formats/arrow/program",
     # "//ydb/library/actors/core",
-    # "//ydb/library/arrow_kernels",
     # "//ydb/library/formats/arrow:switch",
   ]
 

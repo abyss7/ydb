@@ -1,14 +1,23 @@
+group("protos") {
+  deps = [
+    # "//contrib/libs/opentelemetry-proto",  # peerdir only
+  ]
+}
+
 library("wilson") {
   public_deps = [
+    # "//contrib/libs/grpc",
     "//contrib/libs/opentelemetry-proto",
     "//library/cpp/json:writer",
+    "//library/cpp/monlib/dynamic_counters",
+    # "//library/cpp/string_utils/base64",
+    "//ydb/library/actors/core",
   ]
 
   deps = [
-    "//library/cpp/monlib/dynamic_counters",
-    # "//library/cpp/string_utils/base64",
+    # ":protos",  # peerdir only
+    # "//contrib/libs/protobuf",
     "//library/cpp/string_utils/url",
-    "//ydb/library/actors/core",
     # "//ydb/library/actors/protos",
   ]
 

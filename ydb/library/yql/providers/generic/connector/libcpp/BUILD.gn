@@ -1,5 +1,7 @@
 library("libcpp") {
   public_deps = [
+    "//contrib/libs/apache/arrow",
+    # "//contrib/libs/grpc",
     # "//library/cpp/threading/future",
     # "//ydb/library/yql/dq/actors:protos",
     "//ydb/library/yql/providers/generic/connector/api/service:protos",
@@ -11,11 +13,8 @@ library("libcpp") {
   ]
 
   deps = [
-    "//contrib/libs/apache/arrow",
-    "//ydb/core/formats/arrow:serializer",
+    "//ydb/core/formats/arrow",
     "//ydb/library/yql/providers/generic/connector/api/service",
-    "//ydb/library/yql/public/ydb_issue",
-    "//ydb/public/sdk/cpp/src/library/time",
     "//yql/essentials/utils/log",
   ]
 

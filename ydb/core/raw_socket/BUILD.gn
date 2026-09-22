@@ -7,5 +7,10 @@ library("raw_socket") {
     # "//ydb/library/services",
   ]
 
+  deps = [
+    # "//ydb/core/base",  # peerdir only
+    # "//ydb/core/protos",  # peerdir only
+  ]
+
   sources = [ "sock_listener.cpp" ]
 }

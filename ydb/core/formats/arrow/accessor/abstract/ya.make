@@ -10,10 +10,10 @@ PEERDIR(
 )
 
 SRCS(
-    common.cpp
-    constructor.cpp
-    request.cpp
-    accessor.cpp
+    common.cpp  # gn: into ydb/core/formats/arrow
+    constructor.cpp  # gn: into ydb/core/formats/arrow
+    request.cpp  # gn: into ydb/core/formats/arrow
+    accessor.cpp  # gn: into ydb/core/formats/arrow
 )
 
 GENERATE_ENUM_SERIALIZATION(accessor.h)

@@ -1,8 +1,8 @@
 library("abstract") {
   public_deps = [
-    # "//ydb/core/tx/columnshard/engines/storage/chunks",
-    # "//ydb/library/accessor",
     ":common",
+    # "//ydb/core/tx/columnshard/engines/portions",
+    # "//ydb/library/accessor",
   ]
 
   sources = [ "abstract/merger.cpp" ]
@@ -26,8 +26,6 @@ library("common") {
 library("compaction") {
   public_deps = [
     "//ydb/core/formats/arrow",
-    # "//ydb/core/formats/arrow:common",
-    # "//ydb/core/formats/arrow:reader",
     # "//ydb/core/tx/columnshard/common",
     "//ydb/core/tx/columnshard/engines/changes/abstract",
     # "//ydb/core/tx/columnshard/engines/portions",
@@ -36,12 +34,15 @@ library("compaction") {
   ]
 
   deps = [
-    # "//ydb/core/formats/arrow:serializer",
-    # "//ydb/core/tx/columnshard/splitter",
-    # "//ydb/library/formats/arrow:simple_builder",
     ":abstract",
+    # ":common",  # peerdir only
+    # ":dictionary",  # peerdir only
     ":plain",
     ":sparsed",
+    # ":sub_columns",  # peerdir only
+    # "//ydb/core/tx/columnshard/splitter",
+    # "//ydb/core/tx/tiering",  # peerdir only
+    # "//ydb/library/formats/arrow:simple_builder",
   ]
 
   sources = [ "merger.cpp" ]
@@ -49,8 +50,6 @@ library("compaction") {
 
 library("plain") {
   public_deps = [
-    # "//ydb/core/formats/arrow/accessor/abstract",
-    # "//ydb/core/formats/arrow/accessor/common",
     # ":abstract",
   ]
 

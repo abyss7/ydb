@@ -5,7 +5,9 @@ library("value") {
   ]
 
   deps = [
+    # "//contrib/libs/protobuf",
     "//library/cpp/string_utils/base64",
+    # "//ydb/core/protos",  # peerdir only
     "//ydb/public/sdk/cpp/src/client/value",
     "//yql/essentials/public/decimal",
   ]

@@ -11,16 +11,20 @@ library("persqueue_cluster_discovery") {
   ]
 
   deps = [
-    "//library/cpp/ipmath",
+    # ":cluster_ordering",
     # "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/base",
+    # "//ydb/core/client/server",  # peerdir only
     "//ydb/core/grpc_services",
+    "//ydb/core/grpc_services:request_proxy",
     # "//ydb/core/mind:address_classification",
     # "//ydb/core/mon",
+    # "//ydb/core/persqueue/public",  # peerdir only
     "//ydb/core/persqueue/public:cluster_tracker",
     # "//ydb/core/protos",
     "//ydb/core/util",
-    # ":cluster_ordering",
+    # "//ydb/public/api/grpc",  # peerdir only
+    # "//ydb/public/api/protos",  # peerdir only
   ]
 
   sources = [

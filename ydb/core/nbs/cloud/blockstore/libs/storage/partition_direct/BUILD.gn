@@ -15,19 +15,22 @@ library("load_actor_adapter") {
 }
 
 library("partition_direct") {
+  public_deps = [
+    # "//ydb/core/nbs/cloud/blockstore/config",
+    # "//ydb/core/protos",
+    "//ydb/library/actors/core",
+  ]
+
   deps = [
     ":load_actor_adapter",
     # "//ydb/core/base",
-    # "//ydb/core/blobstorage",
+    # "//ydb/core/blobstorage/events",
     # "//ydb/core/mind:bscontroller",
     "//ydb/core/nbs/cloud/blockstore/bootstrap",
-    # "//ydb/core/nbs/cloud/blockstore/config",
     "//ydb/core/nbs/cloud/blockstore/libs/service/fast_path_service",
     # "//ydb/core/nbs/cloud/blockstore/libs/storage/api",
     # "//ydb/core/nbs/cloud/blockstore/libs/vhost",
-    # "//ydb/core/protos",
-    "//ydb/core/tablet",
-    "//ydb/library/actors/core",
+    # "//ydb/library/services",  # peerdir only
   ]
 
   sources = [

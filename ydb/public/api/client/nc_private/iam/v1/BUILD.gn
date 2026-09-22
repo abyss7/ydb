@@ -6,6 +6,10 @@ protobuf_library("v1") {
     "//ydb/public/api/client/nc_private/common/v1",
   ]
 
+  deps = [
+    # "//ydb/public/api/client/nc_private/audit/v1/common",  # peerdir only
+  ]
+
   sources = [
     "access.proto",
     "access_service.proto",

@@ -1,14 +1,14 @@
 library("utils") {
   public_deps = [
     "//library/cpp/deprecated/atomic",
+    "//library/cpp/digest/md5",
     "//library/cpp/threading/future",
+    "//library/cpp/time_provider",
   ]
 
   deps = [
     "//contrib/libs/miniselect",
-    "//library/cpp/digest/md5",
     "//library/cpp/string_utils/quote",
-    "//library/cpp/time_provider",
   ]
 
   sources = [

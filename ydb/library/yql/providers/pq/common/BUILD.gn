@@ -1,8 +1,13 @@
 library("common") {
-  public_deps = [ "//yql/essentials/public/udf" ]
+  public_deps = [
+    # "//ydb/library/actors/core",
+    # "//ydb/public/sdk/cpp/src/client/topic",
+    "//yql/essentials/public/udf",
+  ]
 
   deps = [
     # "//yql/essentials/minikql",
+    # "//yql/essentials/public/types",  # peerdir only
   ]
 
   sources = [

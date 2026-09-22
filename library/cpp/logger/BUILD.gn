@@ -1,5 +1,5 @@
 library("global") {
-  public_deps = [ "//library/cpp/logger" ]
+  public_deps = [ ":logger" ]
 
   sources = [
     "global/common.cpp",

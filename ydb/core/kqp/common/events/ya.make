@@ -14,6 +14,7 @@ PEERDIR(
     ydb/core/grpc_services/cancelation
     ydb/core/kqp/common/shutdown
     ydb/core/kqp/common/compilation
+    ydb/core/kqp/topics
     ydb/core/resource_pools
     ydb/core/scheme
 

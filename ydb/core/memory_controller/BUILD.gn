@@ -19,8 +19,10 @@ library("memory_controller") {
     "//ydb/core/tx/columnshard/data_accessor:cache_policy",
     # "//ydb/core/tx/columnshard/engines/storage/optimizer/abstract",
     # "//ydb/library/services",
-    # "//yql/essentials/minikql",
+    # "//yql/essentials/minikql",  # peerdir only
+    # "//yql/essentials/minikql:alloc",
     # "//yql/essentials/public/udf:arrow",
+    # "//yql/essentials/utils/memory_profiling",  # peerdir only
   ]
 
   sources = [

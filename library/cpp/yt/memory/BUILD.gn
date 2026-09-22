@@ -1,13 +1,14 @@
 library("memory") {
   public_deps = [
     "//library/cpp/yt/assert",
+    "//library/cpp/yt/malloc",
     # "//library/cpp/yt/misc",
     # "//library/cpp/yt/string",
+    "//library/cpp/yt/system",
   ]
 
   deps = [
-    "//library/cpp/yt/malloc",
-    "//library/cpp/yt/system",
+    # "//library/cpp/sanitizer/include",  # peerdir only
   ]
 
   sources = [

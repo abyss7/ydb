@@ -1,6 +1,8 @@
 library("common") {
   public_deps = [
+    # "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/random_provider",
+    # "//library/cpp/retry",
     # "//library/cpp/time_provider",
     "//ydb/core/fq/libs/config:protos",
     "//ydb/core/fq/libs/events",
@@ -20,6 +22,7 @@ library("common") {
     # "//ydb/public/lib/fq",
     # "//ydb/public/sdk/cpp/src/client/query",
     # "//ydb/public/sdk/cpp/src/client/table",
+    # "//ydb/public/sdk/cpp/src/client/types",
     # "//yql/essentials/minikql/computation",
     "//yql/essentials/providers/common/metrics",
   ]
@@ -28,11 +31,13 @@ library("common") {
     # "//library/cpp/json",
     "//library/cpp/json:yson",
     "//library/cpp/protobuf/interop",
-    # "//ydb/core/fq/libs/control_plane_storage",
     # "//ydb/core/fq/libs/control_plane_storage:events",
+    # "//ydb/core/fq/libs/control_plane_storage:service_id",
     "//ydb/core/fq/libs/db_id_async_resolver_impl",
+    # "//ydb/core/fq/libs/grpc",  # peerdir only
     "//ydb/core/fq/libs/private_client",
-    "//ydb/library/plan2svg",
+    # "//ydb/library/yql/providers/common/http_gateway",  # peerdir only
+    # "//ydb/library/yql/providers/generic/connector/api/service:protos",  # peerdir only
     # "//ydb/public/lib/ydb_cli/common",
     # "//ydb/public/sdk/cpp/src/client/proto",
     # "//yql/essentials/public/issue",

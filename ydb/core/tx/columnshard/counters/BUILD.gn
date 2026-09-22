@@ -1,3 +1,17 @@
+group("aggregation") {
+  public_deps = [
+    # ":counters",
+    # "//ydb/core/protos",
+    # "//ydb/core/tablet_flat",
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/engines",
+  ]
+
+  deps = [
+    # "//ydb/core/base",  # peerdir only
+  ]
+}
+
 library("counters") {
   public_deps = [
     # "//library/cpp/json:writer",
@@ -11,6 +25,7 @@ library("counters") {
     # "//ydb/core/tx/columnshard/blobs_action:abstract",
     "//ydb/core/tx/columnshard/common",
     # "//ydb/core/tx/columnshard/engines",
+    "//ydb/core/tx/columnshard/overload_manager",
     "//ydb/core/tx/columnshard/resource_subscriber",
     # "//ydb/core/tx/columnshard/resources",
     "//ydb/core/tx/data_events:common",
@@ -21,9 +36,9 @@ library("counters") {
   ]
 
   deps = [
-    # "//ydb/core/formats/arrow:program",
+    # ":aggregation",  # peerdir only
+    # "//ydb/core/formats/arrow/program",
     "//ydb/core/tx/columnshard/engines/portions",
-    "//ydb/core/tx/columnshard/overload_manager",
     # "//ydb/library/services",
   ]
 

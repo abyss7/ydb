@@ -1,16 +1,18 @@
 library("common") {
   public_deps = [
     # "//library/cpp/monlib/service/pages",
+    # "//ydb/core/base",
     # "//ydb/core/kafka_proxy",
     # "//ydb/core/persqueue/public",
+    # "//ydb/core/persqueue/public:partition_key_range",
+    # "//ydb/core/protos",
     "//ydb/core/tablet",
     # "//ydb/library/actors/core",
     # "//ydb/library/services",
   ]
 
   deps = [
-    # "//ydb/core/base",
-    # "//ydb/core/protos",
+    # "//ydb/library/logger",  # peerdir only
   ]
 
   sources = [
@@ -31,8 +33,12 @@ library("proxy") {
     "//ydb/core/protos",
     # "//ydb/library/actors/core",
     "//ydb/library/logger",
-    # "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic",
     # "//ydb/public/sdk/cpp/src/client/driver",
+    # "//ydb/public/sdk/cpp/src/client/topic",
+  ]
+
+  deps = [
+    # "//ydb/core/persqueue/public",  # peerdir only
   ]
 
   sources = [ "proxy/actor_persqueue_client_iface.cpp" ]

@@ -6,7 +6,6 @@ library("persqueue_v0") {
   ]
 
   deps = [
-    "//library/cpp/ipmath",
     # "//library/cpp/protobuf/util",
     # "//library/cpp/string_utils/quote",
     # "//ydb/core/base",
@@ -19,11 +18,13 @@ library("persqueue_v0") {
     "//ydb/core/persqueue/public:counters",
     "//ydb/core/persqueue/public:write_meta",
     # "//ydb/core/persqueue/writer",
+    # "//ydb/core/persqueue/writer:partition_chooser",
     # "//ydb/core/protos",
-    "//ydb/core/tablet",
     # "//ydb/core/tx/scheme_board",
     # "//ydb/core/tx/scheme_cache",
-    # "//ydb/core/tx/tx_proxy",
+    # "//ydb/core/tx/tx_proxy",  # peerdir only
+    # "//ydb/core/tx/tx_proxy:public",
+    # "//ydb/library/aclib",  # peerdir only
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/mkql_proto:protos",
     "//ydb/library/persqueue/deprecated/read_batch_converter",
@@ -34,10 +35,12 @@ library("persqueue_v0") {
     # "//ydb/public/lib/deprecated/kicli",
     # "//ydb/public/sdk/cpp/src/client/persqueue_public:include",
     "//ydb/public/sdk/cpp/src/client/result",
+    # "//ydb/services/deprecated/persqueue_v0/api/protos",  # peerdir only
     # "//ydb/services/lib/actors",
     # "//ydb/services/lib/sharding",
     # "//ydb/services/metadata",
     # "//ydb/services/metadata/manager",
+    # "//ydb/services/persqueue_v1",  # peerdir only
     "//ydb/services/persqueue_v1:actors",
   ]
 

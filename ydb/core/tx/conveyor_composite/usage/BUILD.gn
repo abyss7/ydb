@@ -10,7 +10,7 @@ library("usage") {
   ]
 
   deps = [
-    "//library/cpp/time_provider",
+    # "//ydb/services/metadata/request",  # peerdir only
   ]
 
   sources = [

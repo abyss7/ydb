@@ -1,7 +1,5 @@
 library("logger") {
-  public_deps = [
-    # "//library/cpp/logger",
-  ]
+  public_deps = [ "//library/cpp/logger" ]
 
   sources = [ "log.cpp" ]
 }

@@ -1,11 +1,13 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
-config("private_config") {
+config("engine_private_config") {
   cflags = [ "-Wno-logical-op-parentheses" ]
 }
 
 library("engine") {
   public_deps = [ "//library/cpp/containers/intrusive_rb_tree" ]
+
+  deps = [
+    # "//contrib/libs/libc_compat",  # peerdir only
+  ]
 
   sources = [
     "cont_poller.cpp",
@@ -28,5 +30,5 @@ library("engine") {
     "stack/stack_common.h",
   ]
 
-  configs = [ ":private_config" ]
+  configs = [ ":engine_private_config" ]
 }

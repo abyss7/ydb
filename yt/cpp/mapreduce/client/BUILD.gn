@@ -11,7 +11,6 @@ library("client") {
     # "//library/cpp/iterator",
     # "//library/cpp/json",
     "//library/cpp/sighandler",
-    "//library/cpp/skiff",
     # "//library/cpp/threading/blocking_queue",
     # "//library/cpp/threading/future",
     # "//library/cpp/type_info",
@@ -22,6 +21,7 @@ library("client") {
     "//yt/cpp/mapreduce/http_client",
     "//yt/cpp/mapreduce/interface:logging",
     "//yt/cpp/mapreduce/io",
+    # "//yt/cpp/mapreduce/rpc_client",  # peerdir only
     "//yt/yt/core",
     "//yt/yt/core/http",
     "//yt/yt/core/https",

@@ -4,6 +4,11 @@ library("schema") {
     "//ydb/core/tx/schemeshard/olap/indexes",
     "//ydb/core/tx/schemeshard/olap/options",
     # "//ydb/library/accessor",
+    # "//ydb/library/conclusion",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/schemeshard/common",  # peerdir only
   ]
 
   sources = [

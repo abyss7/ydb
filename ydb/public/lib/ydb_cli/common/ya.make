@@ -33,7 +33,7 @@ SRCS(
     query_utils.cpp
     recursive_list.cpp
     recursive_remove.cpp
-    retry_func.cpp
+    retry_func.cpp  # gn: retry_func
     root.cpp
     scheme_printers.cpp
     sys.cpp
@@ -43,6 +43,7 @@ SRCS(
     ydb_updater.cpp
     yt.cpp
 )
+# gn: retry_func headers retry_func.h
 
 PEERDIR(
     contrib/libs/aws-sdk-cpp/aws-cpp-sdk-s3

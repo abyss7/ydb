@@ -6,17 +6,28 @@ library("arrow") {
     "//library/cpp/json:writer",
     # "//library/cpp/string_utils/base64",
     "//ydb/library/accessor",
+    "//ydb/library/actors/core",
     "//ydb/library/conclusion",
   ]
 
   deps = [
+    # ":hash",  # peerdir only
+    # ":modifier",  # peerdir only
+    # ":scalar",  # peerdir only
+    # ":simple_builder",  # peerdir only
+    # ":splitter",  # peerdir only
+    # ":transformer",  # peerdir only
     ":validation",
     # "//contrib/libs/xxhash",
     # "//library/cpp/containers/stack_vector",
     # "//ydb/core/scheme_types",
-    "//ydb/library/actors/core",
+    # "//ydb/library/arrow_clickhouse",  # peerdir only
+    # "//ydb/library/arrow_kernels",  # peerdir only
     # "//ydb/library/services",
     # "//ydb/library/yverify_stream",
+    # "//yql/essentials/core/arrow_kernels/request",  # peerdir only
+    # "//yql/essentials/types/binary_json",  # peerdir only
+    # "//yql/essentials/types/dynumber",  # peerdir only
   ]
 
   sources = [
@@ -28,19 +39,47 @@ library("arrow") {
   ]
 }
 
+group("common") {
+  public_deps = [
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # ":splitter",  # peerdir only
+    # ":switch",  # peerdir only
+    # ":validation",  # peerdir only
+    # "//contrib/libs/apache/arrow",  # peerdir only
+    # "//ydb/library/conclusion",  # peerdir only
+  ]
+}
+
 library("hash") {
   public_deps = [ "//contrib/libs/xxhash" ]
+
+  deps = [
+    # ":simple_builder",  # peerdir only
+    # ":switch",  # peerdir only
+    # "//contrib/libs/apache/arrow",  # peerdir only
+    # "//ydb/library/actors/core",  # peerdir only
+    # "//ydb/library/actors/protos",  # peerdir only
+    # "//ydb/library/services",  # peerdir only
+  ]
 
   sources = [ "hash/xx_hash.cpp" ]
 }
 
 library("modifier") {
   public_deps = [
+    # ":common",
     ":protos",
     "//contrib/libs/apache/arrow",
     # "//ydb/library/accessor",
     "//ydb/library/actors/core",
     "//ydb/library/conclusion",
+  ]
+
+  deps = [
+    # ":switch",  # peerdir only
   ]
 
   sources = [
@@ -89,6 +128,10 @@ library("splitter") {
     "//contrib/libs/apache/arrow",
     # "//ydb/library/accessor",
     "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//ydb/library/conclusion",  # peerdir only
   ]
 
   sources = [

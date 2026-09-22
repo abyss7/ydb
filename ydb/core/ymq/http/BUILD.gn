@@ -9,6 +9,7 @@ library("http") {
   public_deps = [
     # "//library/cpp/cgiparam",
     # "//library/cpp/http/server",
+    "//library/cpp/scheme",
     # "//ydb/core/protos",
     "//ydb/core/ymq/base",
     # "//ydb/library/actors/core",
@@ -20,7 +21,6 @@ library("http") {
     "//contrib/libs/libxml",
     "//library/cpp/http/misc",
     # "//library/cpp/protobuf/json",
-    "//library/cpp/scheme",
     "//library/cpp/string_utils/base64",
     "//library/cpp/string_utils/quote",
     "//library/cpp/string_utils/url",

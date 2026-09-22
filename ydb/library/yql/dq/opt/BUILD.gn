@@ -14,6 +14,7 @@ library("opt") {
   deps = [
     # "//library/cpp/disjoint_sets",
     # "//library/cpp/iterator",
+    # "//ydb/core/kqp/expr_nodes",  # peerdir only
     "//ydb/library/yql/dq/type_ann",
     # "//ydb/library/yql/providers/dq/common",
     "//ydb/library/yql/providers/dq/expr_nodes",

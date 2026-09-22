@@ -24,5 +24,6 @@ PEERDIR(
     ydb/core/tx/columnshard/blobs_action/events
     ydb/core/tx/columnshard/blobs_action/protos
 )
+# gn: peerdir ydb/core/tx/columnshard/data_sharing/manager:shared_blobs
 
 END()

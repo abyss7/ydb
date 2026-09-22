@@ -4,6 +4,11 @@
 #include <yql/essentials/parser/pg_catalog/catalog.h>
 #include <yql/essentials/parser/pg_wrapper/interface/raw_parser.h>
 
+// gn: weak references to the yql_pg_runtime link slot, see build/gn/link_slots.gni
+#if defined(YQL_GN_LINK_SLOTS) && !defined(GN_SLOT_PROVIDER_yql_pg_runtime)
+#pragma clang attribute push (__attribute__((weak)), apply_to = function)
+#endif
+
 namespace NSQLTranslation {
 
 struct TTranslationSettings;
@@ -23,3 +28,7 @@ std::unique_ptr<NYql::NPg::ISqlLanguageParser> CreateSqlLanguageParser();
 NSQLTranslation::TTranslatorPtr MakeTranslator();
 
 } // namespace NSQLTranslationPG
+
+#if defined(YQL_GN_LINK_SLOTS) && !defined(GN_SLOT_PROVIDER_yql_pg_runtime)
+#pragma clang attribute pop
+#endif

@@ -6,7 +6,7 @@ ADDINCL(
 
 SRCS(
     auto_config_initializer.cpp
-    config.cpp
+    config.cpp  # gn: config
     config.h
     config_helpers.cpp
     config_parser.cpp
@@ -18,12 +18,14 @@ SRCS(
     kikimr_services_initializers.cpp
     kikimr_services_initializers.h
     main.h
-    main.cpp
+    main.cpp  # gn: main
     run.cpp
     run.h
     service_initializer.cpp
     service_initializer.h
 )
+# gn: config headers config.h
+# gn: main headers main.h
 
 PEERDIR(
     contrib/libs/protobuf
@@ -65,7 +67,7 @@ PEERDIR(
     ydb/core/fq/libs/logs
     ydb/core/graph/service
     ydb/core/graph/shard
-    ydb/core/grpc_services
+    ydb/core/grpc_services  # gn: :request_proxy
     ydb/core/grpc_services/base
     ydb/core/health_check
     ydb/core/http_proxy
@@ -83,7 +85,7 @@ PEERDIR(
     ydb/core/log_backend
     ydb/core/memory_controller
     ydb/core/metering
-    ydb/core/mind
+    ydb/core/mind  # gn: :configured_tablet_bootstrapper
     ydb/core/mind/address_classification
     ydb/core/mind/bscontroller
     ydb/core/mind/hive
@@ -130,7 +132,7 @@ PEERDIR(
     ydb/core/tx/time_cast
     ydb/core/tx/tx_allocator
     ydb/core/tx/tx_proxy
-    ydb/core/util
+    ydb/core/util  # gn: :memory_tracker
     ydb/core/viewer
     ydb/core/ymq/actor
     ydb/core/ymq/http
@@ -202,6 +204,7 @@ IF (NOT OS_WINDOWS)
         ydb/library/signal_backtrace
     )
 ENDIF()
+# gn: main peerdir ydb/core/driver_lib/run:config
 
 YQL_LAST_ABI_VERSION()
 

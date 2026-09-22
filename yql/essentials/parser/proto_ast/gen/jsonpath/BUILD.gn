@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 import("//build/gn/antlr.gni")
 
 _grammar = "//yql/essentials/minikql/jsonpath/JsonPath.g"

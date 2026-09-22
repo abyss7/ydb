@@ -1,29 +1,29 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("synclog") {
   public_deps = [
+    "//library/cpp/blockcodecs",
+    # "//library/cpp/containers/intrusive_avl_tree",
     "//ydb/core/base",
     # "//ydb/core/blobstorage/base",
     # "//ydb/core/blobstorage/groupinfo",
     "//ydb/core/blobstorage/vdisk/common",
+    "//ydb/core/blobstorage/vdisk/common:guids",
     # "//ydb/core/blobstorage/vdisk/hulldb:base",
-    "//ydb/core/blobstorage/vdisk/hulldb:generic",
+    # "//ydb/core/blobstorage/vdisk/hulldb:generic",
     "//ydb/core/blobstorage/vdisk/ingress",
     # "//ydb/core/protos",
+    "//ydb/core/util",
     # "//ydb/library/actors/core",
+    # "//ydb/library/services",
   ]
 
   deps = [
-    "//library/cpp/blockcodecs",
     "//library/cpp/codecs",
-    # "//library/cpp/containers/intrusive_avl_tree",
     # "//library/cpp/monlib/service/pages",
     # "//library/cpp/packedtypes",
     # "//ydb/core/blobstorage/pdisk",
+    # "//ydb/core/blobstorage/vdisk/skeleton",
     # "//ydb/core/blobstorage/vdisk/syncer",
-    "//ydb/core/util",
     # "//ydb/library/actors/interconnect",
-    # "//ydb/library/services",
   ]
 
   sources = [

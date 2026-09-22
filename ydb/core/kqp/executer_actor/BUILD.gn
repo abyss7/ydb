@@ -8,20 +8,27 @@ library("executer_actor") {
     "//ydb/core/kqp/gateway:interface",
     "//ydb/core/kqp/query_data",
     "//ydb/core/protos",
+    # "//ydb/core/scheme",
     # "//ydb/core/tx/long_tx_service:public",
+    # "//ydb/core/tx/scheme_cache",
     # "//ydb/library/aclib",
     # "//ydb/library/yql/dq/actors:compute",
     # "//ydb/library/yql/dq/actors:protos",
     # "//ydb/library/yql/dq/common",
     # "//ydb/library/yql/dq/runtime",
+    # "//ydb/library/yql/dq/tasks",
     # "//yql/essentials/core/pg_settings",
+    # "//yql/essentials/minikql/computation",
   ]
 
   deps = [
+    # "//library/cpp/containers/absl_flat_hash",  # peerdir only
     # "//ydb/core/actorlib_impl",
     # "//ydb/core/base",
-    # "//ydb/core/client/minikql_compile",
+    # "//ydb/core/client/minikql_compile",  # peerdir only
+    # "//ydb/core/client/minikql_compile:db_key_resolver",
     # "//ydb/core/engine:minikql",
+    # "//ydb/core/formats",  # peerdir only
     "//ydb/core/fq/libs/checkpointing",
     # "//ydb/core/fq/libs/checkpointing:events",
     "//ydb/core/grpc_services",
@@ -35,32 +42,34 @@ library("executer_actor") {
     # "//ydb/core/kqp/gateway:utils",
     # "//ydb/core/kqp/node_service",
     "//ydb/core/kqp/opt",
+    # "//ydb/core/kqp/query_compiler",  # peerdir only
     # "//ydb/core/kqp/rm_service",
     "//ydb/core/kqp/runtime",
-    "//ydb/core/kqp/session_actor:response",
+    "//ydb/core/kqp/session_actor:response",  # peerdir only
+    # "//ydb/core/kqp/session_actor:worker_common",
+    # "//ydb/core/kqp/topics",  # peerdir only
     # "//ydb/core/persqueue/events",
-    # "//ydb/core/protos/schemeshard",
-    # "//ydb/core/scheme",
-    "//ydb/core/tablet",
+    # "//ydb/core/protos:schemeshard",
+    # "//ydb/core/sys_view:common",  # peerdir only
     # "//ydb/core/tx/columnshard",
     "//ydb/core/tx/data_events:common",
     # "//ydb/core/tx/datashard",
+    # "//ydb/core/tx/datashard:range_ops",
     # "//ydb/core/tx/program",
-    # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/schemeshard",
     # "//ydb/core/tx/schemeshard/olap/schema",
-    # "//ydb/core/tx/tx_proxy",
+    # "//ydb/core/tx/tx_proxy:public",
     # "//ydb/core/util",
     "//ydb/core/ydb_convert",
     "//ydb/library/actors/async",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/wilson",
     # "//ydb/library/mkql_proto",
+    # "//ydb/library/mkql_proto:protos",  # peerdir only
     "//ydb/library/plan2svg",
     # "//ydb/library/wilson_ids",
     # "//ydb/library/ydb_issue",
     # "//ydb/library/yql/dq/comp_nodes",
-    # "//ydb/library/yql/dq/tasks",
     # "//ydb/library/yql/providers/common/http_gateway",
     "//ydb/library/yql/providers/pq/proto",
     # "//ydb/public/api/protos",
@@ -69,7 +78,6 @@ library("executer_actor") {
     # "//ydb/services/metadata/secret",
     # "//yql/essentials/core",
     # "//yql/essentials/minikql",
-    # "//yql/essentials/minikql/computation",
     "//yql/essentials/providers/common/structured_token",
     # "//yql/essentials/public/issue",
     # "//yql/essentials/utils",
@@ -105,7 +113,10 @@ library("shards_resolver") {
     "//yql/essentials/public/issue",
   ]
 
-  deps = [ "//ydb/core/base" ]
+  deps = [
+    # "//ydb/core/actorlib_impl",  # peerdir only
+    "//ydb/core/base",
+  ]
 
   sources = [ "shards_resolver/kqp_shards_resolver.cpp" ]
 }

@@ -1,14 +1,16 @@
 library("audit") {
-  public_deps = [ "//ydb/core/protos" ]
+  public_deps = [
+    "//ydb/core/protos",
+    "//ydb/library/actors/core",
+    "//ydb/public/api/protos",
+  ]
 
   deps = [
     "//library/cpp/json",
     "//library/cpp/logger",
     "//ydb/core/base",
     "//ydb/core/util",
-    "//ydb/library/actors/core",
     "//ydb/library/services",
-    "//ydb/public/api/protos",
   ]
 
   sources = [
@@ -18,17 +20,18 @@ library("audit") {
 }
 
 library("audit_config") {
-  public_deps = [ "//ydb/library/aclib:protos" ]
-
-  deps = [ "//ydb/core/protos" ]
+  public_deps = [
+    "//ydb/core/protos",
+    "//ydb/library/aclib:protos",
+  ]
 
   sources = [ "audit_config/audit_config.cpp" ]
 }
 
 library("heartbeat_actor") {
   deps = [
+    ":audit",
     ":audit_config",
-    "//ydb/core/audit",
     "//ydb/library/actors/core",
     "//ydb/library/yverify_stream",
   ]

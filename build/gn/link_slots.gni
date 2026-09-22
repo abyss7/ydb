@@ -1,0 +1,180 @@
+# Link slots: late-bound interfaces whose implementation the final binary
+# picks -- the gn side of ya.make's PROVIDES(): a PROGRAM PEERDIRs exactly one
+# module per PROVIDES name, and libraries below only call its symbols.
+#
+# * The interface headers declare the slot's functions inside
+#     #if defined(YQL_GN_LINK_SLOTS) && !defined(GN_SLOT_PROVIDER_<slot>)
+#     #pragma clang attribute push (__attribute__((weak)), apply_to = function)
+#   (YQL_GN_LINK_SLOTS: //build/gn/config:link_slots, a default config; ya make
+#   never defines it). Every caller gets weak references, so libraries link
+#   with --no-undefined without depending on a provider (which would be a
+#   cycle: providers are built on top of their consumers).
+# * A provider (PROVIDES(<slot>) in ya.make, or ALLOCATOR_IMPL() for the
+#   "allocator" slot -> `link_slot_provides`) gets
+#   GN_SLOT_PROVIDER_<slot> defined, so its definitions stay strong.
+# * An executable declared with linked_executable() selects a provider per
+#   slot with `link_select = [ "<slot>=<provider>" ]`, or "<slot>" for the
+#   slot's default. It links the provider plus //build/gn/slots:<slot>_guard,
+#   which references the slot's symbols listed in build/gn/slots/<slot>.h
+#   strongly: forgetting a provider fails the executable's link, not a call
+#   at run time.
+# * `link_slot_overrides` in args.gn replaces a selection for one executable:
+#   "<executable label>|<slot>=<provider>".
+#
+# Every provider is built once, as a regular library; `ninja all` links each
+# executable with its own selection.
+
+link_slots = [
+  {
+    name = "yql_pg_runtime"
+    default = "pg_dummy"
+    providers = [
+      [
+        "pg_wrapper",
+        "//yql/essentials/parser/pg_wrapper",
+      ],
+      [
+        "pg_dummy",
+        "//yql/essentials/sql/pg_dummy",
+      ],
+    ]
+  },
+  {
+    name = "YqlServicePolicy"
+    default = "exception_policy"
+    providers = [
+      [
+        "exception_policy",
+        "//yql/essentials/public/udf/service/exception_policy",
+      ],
+      [
+        "terminate_policy",
+        "//yql/essentials/public/udf/service/terminate_policy",
+      ],
+      [
+        "stub",
+        "//yql/essentials/public/udf/service/stub",
+      ],
+    ]
+  },
+  {
+    # NMalloc::MallocInfo() of library/cpp/malloc/api; the providers are the
+    # ALLOCATOR_IMPL() modules, ya.make's ALLOCATOR() of a PROGRAM picks one
+    name = "allocator"
+    default = "tcmalloc"
+    providers = [
+      [
+        "tcmalloc",
+        "//library/cpp/malloc/tcmalloc",
+      ],
+      [
+        "jemalloc",
+        "//library/cpp/malloc/jemalloc",
+      ],
+      [
+        "mimalloc",
+        "//library/cpp/malloc/mimalloc",
+      ],
+      [
+        "system",
+        "//library/cpp/malloc/system",
+      ],
+    ]
+  },
+]
+
+declare_args() {
+  link_slot_overrides = []
+}
+
+# The guard of one slot; instantiated in //build/gn/slots.
+template("link_slot") {
+  not_needed([ "invoker" ])
+
+  source_set("${target_name}_guard") {
+    sources = [ "//build/gn/slots/slot_guard.cpp" ]
+    defines = [ "GN_SLOT=$target_name" ]
+  }
+}
+
+template("linked_executable") {
+  _select = []
+  if (defined(invoker.link_select)) {
+    _select = invoker.link_select
+  }
+
+  _slot_deps = []
+  foreach(_entry, _select) {
+    _label = get_label_info(":$target_name", "label_no_toolchain")
+    _kv = []
+    _kv = string_split(_entry, "=")
+    _name = _kv[0]
+    _slot_found = false
+    foreach(_slot, link_slots) {
+      if (_slot.name == _name) {
+        _slot_found = true
+        _choice = _slot.default
+        if (_kv != [ _name ]) {
+          _choice = _kv[1]
+        }
+        foreach(_override, link_slot_overrides) {
+          _ov = []
+          _ov = string_split(_override, "|")
+          if (_ov[0] == _label) {
+            _ov_kv = []
+            _ov_kv = string_split(_ov[1], "=")
+            if (_ov_kv[0] == _name) {
+              _choice = _ov_kv[1]
+            }
+          }
+        }
+        _provider_found = false
+        foreach(_provider, _slot.providers) {
+          if (_provider[0] == _choice) {
+            _provider_found = true
+            _slot_deps += [
+              "//build/gn/slots:${_name}_guard",
+              _provider[1],
+            ]
+          }
+        }
+        assert(_provider_found,
+               "$_label: no provider \"$_choice\" for link slot \"$_name\"")
+      }
+    }
+    assert(_slot_found, "$_label: unknown link slot \"$_name\"")
+  }
+
+  executable(target_name) {
+    forward_variables_from(invoker,
+                           "*",
+                           [
+                             "configs",
+                             "deps",
+                             "link_select",
+                             "yql_abi_version",
+                           ])
+
+    # Append to default configs (assigning would drop them)
+    if (defined(invoker.configs)) {
+      configs += invoker.configs
+    }
+
+    deps += _slot_deps
+    if (defined(invoker.deps)) {
+      deps += invoker.deps
+    }
+    if (defined(invoker.yql_abi_version)) {
+      _abi = string_split(invoker.yql_abi_version, ".")
+      configs -= [ "//build/gn/config:yql_abi_current" ]
+      if (!defined(defines)) {
+        defines = []
+      }
+      defines += [
+        "UDF_ABI_VERSION_MAJOR=${_abi[0]}",
+        "UDF_ABI_VERSION_MINOR=${_abi[1]}",
+        "UDF_ABI_VERSION_PATCH=${_abi[2]}",
+      ]
+    }
+  }
+}

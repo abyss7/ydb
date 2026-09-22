@@ -2,6 +2,7 @@ library("keyvalue") {
   public_deps = [
     ":protos",
     "//library/cpp/json",
+    # "//library/cpp/time_provider",
     "//ydb/core/base",
     "//ydb/core/engine:minikql",
     # "//ydb/core/protos",
@@ -9,6 +10,7 @@ library("keyvalue") {
     "//ydb/core/tablet_flat",
     "//ydb/core/util",
     # "//ydb/library/actors/core",
+    # "//ydb/library/actors/wilson",
     # "//ydb/library/services",
     # "//ydb/library/wilson_ids",
     # "//ydb/public/lib/base",
@@ -17,11 +19,11 @@ library("keyvalue") {
   deps = [
     # "//library/cpp/json:writer",
     # "//library/cpp/monlib/service/pages",
-    # "//library/cpp/time_provider",
+    # "//ydb/core/blobstorage/base",  # peerdir only
     # "//ydb/core/mind",
     # "//ydb/core/scheme",
+    # "//ydb/core/tx",  # peerdir only
     # "//ydb/library/actors/protos",
-    # "//ydb/library/actors/wilson",
   ]
 
   sources = [

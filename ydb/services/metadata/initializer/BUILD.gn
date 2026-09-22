@@ -8,7 +8,7 @@ library("initializer") {
     # "//ydb/library/actors/core",
     # "//ydb/services/metadata/abstract",
     # "//ydb/services/metadata/ds_table",
-    "//ydb/services/metadata/manager",
+    # "//ydb/services/metadata/manager",
     "//ydb/services/metadata/request",
   ]
 

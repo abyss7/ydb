@@ -1,7 +1,21 @@
 group("comp_nodes") {
-  public_deps = [ "llvm16" ]
+  public_deps = [
+    # ":dq",
+    # "//yql/essentials/minikql",
+    # "//yql/essentials/minikql/computation",
+    # "//yql/essentials/providers/common/codec",
+    # "//yql/essentials/public/udf",
+    # "//yt/cpp/mapreduce/interface",
+    # "//yt/yql/providers/yt/codec",
+    "//yt/yql/providers/yt/comp_nodes/llvm16",
+    # "//yt/yql/providers/yt/comp_nodes/no_llvm",
+  ]
 }
 
 group("dq") {
-  public_deps = [ "//yt/yql/providers/yt/comp_nodes/dq/llvm16" ]
+  public_deps = [
+    # "//yql/essentials/minikql",
+    # "//yql/essentials/minikql/computation",
+    "//yt/yql/providers/yt/comp_nodes/dq/llvm16",
+  ]
 }

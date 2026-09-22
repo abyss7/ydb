@@ -1,9 +1,12 @@
 group("storagepoolmon") {
   public_deps = [
     "//ydb/core/base",
+    # "//ydb/core/blobstorage",
     "//ydb/core/blobstorage/base",
     "//ydb/core/mon",
   ]
 
-  deps = [ "//ydb/core/blobstorage" ]
+  deps = [
+    # "//library/cpp/monlib/dynamic_counters",  # peerdir only
+  ]
 }

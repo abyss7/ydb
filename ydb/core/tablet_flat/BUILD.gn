@@ -1,5 +1,5 @@
 protobuf_library("protos") {
-  deps = [
+  public_deps = [
     "//ydb/core/protos",
     "//ydb/core/scheme:protos",
   ]
@@ -12,8 +12,8 @@ protobuf_library("protos") {
 
 library("recovery") {
   public_deps = [
+    ":tablet_flat",
     # "//ydb/core/base",
-    "//ydb/core/tablet_flat",
   ]
 
   deps = [
@@ -42,13 +42,20 @@ protobuf_library("private_proto") {
 
 library("tablet_flat") {
   public_deps = [
+    ":protos",
     "//library/cpp/blockcodecs",
     "//library/cpp/containers/absl_flat_hash",
     # "//library/cpp/containers/stack_vector",
     # "//library/cpp/lwtrace",
+    "//library/cpp/monlib/dynamic_counters",
+    # "//library/cpp/random_provider",
     # "//library/cpp/time_provider",
+    "//ydb/core/base",
     "//ydb/core/control/lib",
     # "//ydb/core/protos",
+    # "//ydb/core/scheme",
+    "//ydb/core/scheme_types",
+    "//ydb/core/tablet",
     "//ydb/core/util",
     # "//ydb/library/actors/core",
     "//ydb/library/actors/util",
@@ -60,25 +67,21 @@ library("tablet_flat") {
 
   deps = [
     ":private_proto",
-    ":protos",
+    # "//contrib/libs/protobuf",  # peerdir only
+    # "//library/cpp/containers/intrusive_rb_tree",  # peerdir only
     "//library/cpp/digest/crc32c",
     "//library/cpp/html/pcdata",
     "//library/cpp/http/io",
     "//library/cpp/json",
     # "//library/cpp/json:writer",
     "//library/cpp/lwtrace/mon",
-    "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/monlib/service/pages",
     "//library/cpp/protobuf/json",
-    # "//library/cpp/random_provider",
     "//library/cpp/string_utils/base64",
-    "//ydb/core/base",
     # "//ydb/core/cms/console",
-    # "//ydb/core/scheme",
     # "//ydb/core/scheme:protos",
-    "//ydb/core/scheme_types",
-    "//ydb/core/tablet",
     # "//ydb/library/actors/interconnect",
+    # "//ydb/library/mkql_proto:protos",  # peerdir only
     "//yql/essentials/types/binary_json",
     "//yql/essentials/types/dynumber",
   ]

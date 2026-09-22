@@ -1,5 +1,6 @@
 library("coordinator") {
   public_deps = [
+    # "//ydb/core/base",
     "//ydb/core/tx",
   ]
 
@@ -7,7 +8,7 @@ library("coordinator") {
     ":public",
     # "//library/cpp/containers/absl_flat_hash",
     # "//library/cpp/time_provider",
-    # "//ydb/core/base",
+    # "//ydb/core/actorlib_impl",  # peerdir only
     # "//ydb/core/control/lib",
     "//ydb/core/engine:minikql",
     "//ydb/core/protos",
@@ -17,6 +18,7 @@ library("coordinator") {
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/util",
     # "//ydb/library/actors/core",
+    # "//ydb/library/actors/helpers",  # peerdir only
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/services",
   ]

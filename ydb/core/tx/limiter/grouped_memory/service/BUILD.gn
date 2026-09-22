@@ -1,18 +1,19 @@
 library("service") {
   public_deps = [
+    # "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/base",
+    "//ydb/core/tx/limiter/grouped_memory/tracing",
     "//ydb/core/tx/limiter/grouped_memory/usage",
+    # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
     # "//ydb/library/signals",
   ]
 
   deps = [
     "//library/cpp/lwtrace/mon",
-    # "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/mon",
+    # "//ydb/core/protos",  # peerdir only
     # "//ydb/core/tx/columnshard/common",
-    "//ydb/core/tx/limiter/grouped_memory/tracing",
-    # "//ydb/library/accessor",
   ]
 
   sources = [

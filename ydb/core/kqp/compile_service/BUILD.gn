@@ -3,7 +3,7 @@ library("compile_service") {
     "//ydb/core/kqp/common",
     # "//ydb/core/kqp/common:simple",
     "//ydb/core/kqp/federated_query",
-    "//ydb/core/kqp/gateway",
+    "//ydb/core/kqp/gateway:interface",
     "//ydb/core/kqp/host",
   ]
 
@@ -19,8 +19,8 @@ library("compile_service") {
     # "//ydb/core/client/minikql_compile",
     # "//ydb/core/cms/console",
     # "//ydb/core/kqp/counters",
+    "//ydb/core/kqp/gateway",
     "//ydb/core/kqp/rm_service",
-    "//ydb/core/kqp/query_data",
     "//ydb/core/kqp/session_actor:worker_common",
     "//ydb/core/ydb_convert",
     # "//ydb/library/aclib",
@@ -28,7 +28,6 @@ library("compile_service") {
     # "//ydb/library/actors/wilson",
     # "//ydb/library/wilson_ids",
     "//ydb/library/yql/utils/actor_log",
-    "//yql/essentials/providers/common/config",
   ]
 
   sources = [
@@ -40,6 +39,7 @@ library("compile_service") {
 
 library("helpers") {
   deps = [
+    # "//contrib/libs/protobuf",
     "//ydb/core/protos",
   ]
 

@@ -638,6 +638,15 @@ void TDocument::InsertAt(const char* path, const TNodeRef& node) {
     NDetail::RethrowOnError(fy_document_insert_at(Document_.get(), path, FY_NT, node.Node_), Diag_.get());
 }
 
+TNodeRef TDocument::BuildfImpl(const char* fmt, ...) {
+    ENSURE_DOCUMENT_NOT_EMPTY(Document_);
+    va_list args;
+    va_start(args, fmt);
+    fy_node* node = fy_node_vbuildf(Document_.get(), fmt, args);
+    va_end(args);
+    return TNodeRef(node);
+}
+
 TNodeRef TDocument::Buildf(const char* content) {
     ENSURE_DOCUMENT_NOT_EMPTY(Document_);
     return TNodeRef(fy_node_build_from_string(Document_.get(), content, strlen(content)));

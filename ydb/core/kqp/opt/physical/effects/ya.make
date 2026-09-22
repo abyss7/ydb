@@ -21,6 +21,7 @@ PEERDIR(
     ydb/library/yql/dq/common
     ydb/library/yql/dq/opt
 )
+# gn: peerdir ydb/core/kqp/opt/physical:helpers ydb/core/kqp/opt:helpers
 
 YQL_LAST_ABI_VERSION()
 

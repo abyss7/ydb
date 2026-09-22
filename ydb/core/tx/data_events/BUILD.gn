@@ -24,7 +24,7 @@ library("data_events") {
     "//contrib/libs/apache/arrow",
     "//library/cpp/lwtrace",
     "//ydb/core/base",
-    "//ydb/core/formats/arrow:reader",
+    "//ydb/core/formats/arrow",
     "//ydb/core/protos",
     "//ydb/core/scheme",
     # "//ydb/core/tx/columnshard",
@@ -44,14 +44,13 @@ library("data_events") {
   ]
 
   deps = [
-    "//ydb/core/blobstorage/vdisk/protos",
-    "//ydb/core/formats/arrow",
-    "//ydb/core/tablet_flat:protos",
-    "//ydb/core/tablet_flat",
+    "//ydb/core/blobstorage/vdisk/protos",  # peerdir only
     "//ydb/core/tablet",
-    "//ydb/core/tx/columnshard/splitter",
+    "//ydb/core/tablet_flat",  # peerdir only
+    "//ydb/core/tablet_flat:protos",  # peerdir only
+    "//ydb/core/tx/columnshard/splitter:settings",
     "//ydb/core/tx/sharding",
-    "//ydb/library/formats/arrow:validation",
+    # "//ydb/public/api/grpc:draft",  # peerdir only
   ]
 
   sources = [

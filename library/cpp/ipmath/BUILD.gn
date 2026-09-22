@@ -1,5 +1,5 @@
 library("ipmath") {
-  deps = [ "//library/cpp/ipv6_address" ]
+  public_deps = [ "//library/cpp/ipv6_address" ]
 
   sources = [
     "ipmath.cpp",

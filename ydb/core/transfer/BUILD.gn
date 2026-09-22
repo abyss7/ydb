@@ -8,6 +8,7 @@ library("transfer") {
     "//library/cpp/yson:node",
     # "//ydb/core/fq/libs/row_dispatcher/events",
     # "//ydb/core/fq/libs/row_dispatcher/purecalc_compilation",
+    # "//ydb/core/fq/libs/row_dispatcher/purecalc_no_pg_wrapper",  # peerdir only
     "//ydb/core/kqp/runtime",
     "//ydb/core/protos",
     # "//ydb/core/scheme",
@@ -15,6 +16,8 @@ library("transfer") {
     "//ydb/core/tx/replication/ydb_proxy",
     "//ydb/core/tx/scheme_cache",
     "//ydb/core/tx/tx_proxy",
+    "//ydb/core/tx/tx_proxy:public",
+    "//ydb/core/tx/tx_proxy:upload_rows",
     # "//ydb/core/util",
     # "//ydb/library/actors/core",
     # "//ydb/library/services",

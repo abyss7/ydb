@@ -9,6 +9,8 @@ library("bridge") {
     "//ydb/core/grpc_services",
     # "//ydb/core/grpc_services/base",
     # "//ydb/core/jaeger_tracing",
+    # "//ydb/core/kesus/tablet",  # peerdir only
+    # "//ydb/public/api/grpc",  # peerdir only
   ]
 
   sources = [ "grpc_service.cpp" ]

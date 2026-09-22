@@ -49,6 +49,7 @@ PEERDIR(
     ydb/library/yql/providers/pq/proto
     ydb/services/metadata/abstract
 )
+# gn: peerdir ydb/core/kqp/gateway:interface ydb/core/kqp/session_actor:response
 
 GENERATE_ENUM_SERIALIZATION(
     kqp_executer.h

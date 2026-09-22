@@ -70,6 +70,8 @@ library("host") {
     "kqp_runner.cpp",
     "kqp_statement_rewrite.cpp",
   ]
+
+  yql_abi_version = "current"
 }
 
 library("transform") {
@@ -85,4 +87,6 @@ library("transform") {
   ]
 
   sources = [ "kqp_transform.cpp" ]
+
+  yql_abi_version = "current"
 }

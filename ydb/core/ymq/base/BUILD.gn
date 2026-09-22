@@ -3,6 +3,7 @@ library("base") {
     # "//library/cpp/json",
     # "//library/cpp/lwtrace",
     # "//library/cpp/monlib/dynamic_counters",
+    "//library/cpp/scheme",
     "//ydb/core/kqp/common",
     # "//ydb/core/protos",
     "//ydb/core/ymq/proto",
@@ -10,17 +11,22 @@ library("base") {
     # "//ydb/library/actors/core",
     "//ydb/library/http_proxy/error",
     # "//ydb/public/lib/deprecated/kicli",
+    # "//ydb/public/lib/scheme_types",
     "//ydb/public/sdk/cpp/src/client/proto",
-    # "//yql/essentials/minikql",
+    # "//yql/essentials/minikql:alloc",
   ]
 
   deps = [
+    # "//contrib/libs/openssl",  # peerdir only
+    # "//contrib/libs/protobuf",
+    # "//library/cpp/cgiparam",  # peerdir only
+    # "//library/cpp/ipmath",  # peerdir only
     # "//library/cpp/json:writer",
     "//library/cpp/logger:global",
-    "//library/cpp/scheme",
     "//library/cpp/string_utils/base64",
     "//library/cpp/unified_agent_client",
     # "//ydb/core/base",
+    # "//ydb/library/http_proxy/authorization",  # peerdir only
     "//ydb/library/protobuf_printer",
   ]
 

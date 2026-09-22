@@ -1,7 +1,5 @@
 library("bits_storage") {
-  public_deps = [
-    "//ydb/library/conclusion",
-  ]
+  public_deps = [ "//ydb/library/conclusion" ]
 
   deps = [
     "//ydb/core/protos",

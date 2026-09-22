@@ -10,7 +10,7 @@ library("constructor") {
     "//ydb/core/tx/columnshard/counters",
     "//ydb/core/tx/columnshard/engines",
     "//ydb/core/tx/columnshard/engines/predicate",
-    "//ydb/core/tx/columnshard/engines/reader/plain_reader/iterator",
+    "//ydb/core/tx/columnshard/engines/reader/plain_reader:iterator",
     "//ydb/core/tx/columnshard/hooks/abstract",
     "//ydb/core/tx/time_cast",
   ]

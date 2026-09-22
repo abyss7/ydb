@@ -14,7 +14,7 @@ library("minikql_compile") {
   public_deps = [
     ":db_key_resolver",
     # "//library/cpp/threading/future",
-    "//ydb/core/client/scheme_cache_lib",
+    "//ydb/core/client:scheme_cache_lib",
     "//ydb/core/engine",
     # "//ydb/core/scheme",
     "//yql/essentials/ast",
@@ -27,7 +27,7 @@ library("minikql_compile") {
     "//ydb/core/base",
     "//ydb/core/kqp/provider",
     "//ydb/core/tx/scheme_board",
-    # "//ydb/core/tx/scheme_cache",
+    "//ydb/core/tx/scheme_cache",
     "//ydb/library/actors/core",
     # "//ydb/library/services",
     # "//ydb/library/ydb_issue:proto",

@@ -5,6 +5,7 @@ PEERDIR(
     ydb/library/actors/interconnect
     yql/essentials/utils/log
     ydb/library/yql/dq/common
+    ydb/library/yql/providers/dq/common   # gn: :attrs
     yql/essentials/providers/common/metrics
     ydb/library/yql/providers/dq/api/grpc
     ydb/library/yql/providers/dq/api/protos

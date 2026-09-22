@@ -1,6 +1,7 @@
 library("groupinfo") {
   public_deps = [
     # "//ydb/core/base",
+    # "//ydb/core/blobstorage",
     "//ydb/core/blobstorage/base",
     "//ydb/core/blobstorage/crypto",
     # "//ydb/core/protos",
@@ -9,8 +10,7 @@ library("groupinfo") {
 
   deps = [
     "//library/cpp/digest/crc32c",
-    # "//ydb/core/base/services",
-    "//ydb/core/blobstorage",
+    # "//ydb/core/base:services",
     # "//ydb/library/actors/core",
   ]
 

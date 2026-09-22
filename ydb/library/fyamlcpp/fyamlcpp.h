@@ -19,7 +19,6 @@ struct fy_document;
 struct fy_diag;
 struct fy_document_iterator;
 struct fy_node_pair;
-extern "C" struct fy_node *fy_node_buildf(struct fy_document *fyd, const char *fmt, ...);
 
 namespace NKikimr::NFyaml {
     namespace NDetail {
@@ -699,9 +698,9 @@ public:
     void InsertAt(const char* path, const TNodeRef& node);
 
     template <class... Args>
-    TNodeRef Buildf(const char* fmt, Args&& ...args) {
-        Y_DEBUG_ABORT_UNLESS(Document_);
-        return fy_node_buildf(Document_.get(), fmt, std::forward<Args>(args)...);
+        requires (sizeof...(Args) > 0)
+    TNodeRef Buildf(const char* fmt, Args... args) {
+        return BuildfImpl(fmt, args...);
     }
 
     TNodeRef Buildf(const char* content);
@@ -743,6 +742,8 @@ public:
     TMark EndMark() const;
 
 private:
+    TNodeRef BuildfImpl(const char* fmt, ...) Y_PRINTF_FORMAT(2, 3);
+
     std::unique_ptr<fy_document, void(*)(fy_document*)> Document_;
     std::unique_ptr<fy_diag, void(*)(fy_diag*)> Diag_;
 

@@ -4,6 +4,14 @@ library("tx") {
     "//ydb/core/protos",
     "//ydb/library/actors/core",
     "//ydb/library/conclusion",
+    # "//ydb/library/services",
+  ]
+
+  deps = [
+    # "//ydb/core/tablet",  # peerdir only
+    # "//ydb/core/tablet_flat",  # peerdir only
+    # "//ydb/core/util",  # peerdir only
+    # "//ydb/library/aclib",  # peerdir only
   ]
 
   sources = [

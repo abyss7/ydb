@@ -862,7 +862,7 @@ PEERDIR(
     ydb/core/client/server
     ydb/core/external_sources
     ydb/core/graph/api
-    ydb/core/grpc_services
+    ydb/core/grpc_services  # gn: :fetch_script_results
     ydb/core/grpc_services/local_rpc
     ydb/core/health_check
     ydb/core/mon
@@ -871,7 +871,7 @@ PEERDIR(
     ydb/core/scheme
     ydb/core/sys_view/common
     ydb/core/tx/schemeshard
-    ydb/core/tx/tx_proxy
+    ydb/core/tx/tx_proxy  # gn: :public
     ydb/core/util
     ydb/core/viewer/json
     ydb/core/viewer/yaml
@@ -888,6 +888,7 @@ PEERDIR(
     ydb/services/lib/auth
     contrib/libs/yaml-cpp
 )
+# gn: peerdir ydb/core/driver_lib/run:config
 
 YQL_LAST_ABI_VERSION()
 

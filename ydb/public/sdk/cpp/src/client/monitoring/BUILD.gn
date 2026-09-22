@@ -1,10 +1,7 @@
 library("monitoring") {
-  public_deps = [
-    "//ydb/public/sdk/cpp/src/client/driver",
-  ]
+  public_deps = [ "//ydb/public/sdk/cpp/src/client/driver" ]
 
   deps = [
-    "//library/cpp/threading/future",
     # "//ydb/public/api/grpc",
     # "//ydb/public/api/protos",
     # "//ydb/public/sdk/cpp/src/client/common_client:impl",
@@ -14,5 +11,7 @@ library("monitoring") {
 
   sources = [ "monitoring.cpp" ]
 
-  serialize_enum_headers = [ "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/monitoring/monitoring.h" ]
+  serialize_enum_headers = [
+    "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/monitoring/monitoring.h",
+  ]
 }

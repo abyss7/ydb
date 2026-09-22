@@ -38,6 +38,7 @@ PEERDIR(
     ydb/core/kqp/common/simple
     ydb/core/kqp/expr_nodes
     ydb/core/kqp/provider
+    ydb/core/kqp/topics
     ydb/core/protos
     ydb/core/scheme
     ydb/core/tx/long_tx_service/public

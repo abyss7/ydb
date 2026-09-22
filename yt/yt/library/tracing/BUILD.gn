@@ -1,9 +1,13 @@
 library("tracing") {
-  deps = [
+  public_deps = [
     # "//library/cpp/yt/memory",
-    "//library/cpp/yt/error",
+    # "//yt/yt/core",
+  ]
+
+  deps = [
     "//library/cpp/yt/threading",
-    "//yt/yt/core",
+    # "//yt/yt/build",  # peerdir only
+    # "//yt/yt_proto/yt/core",  # peerdir only
   ]
 
   sources = [

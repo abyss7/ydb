@@ -31,7 +31,7 @@ library("splitter") {
   public_deps = [
     ":settings",
     "//contrib/libs/apache/arrow",
-    "//ydb/core/formats/arrow:splitter",
+    "//ydb/core/formats/arrow/splitter",
     # "//ydb/core/tx/columnshard/counters",
     # "//ydb/core/tx/columnshard/engines/portions",
     "//ydb/core/tx/columnshard/engines/scheme",

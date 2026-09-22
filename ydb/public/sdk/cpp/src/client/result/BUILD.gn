@@ -1,9 +1,8 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("result") {
   public_deps = [ "//ydb/public/sdk/cpp/src/client/value" ]
 
   deps = [
+    # "//contrib/libs/protobuf",
     "//ydb/public/api/protos",
     # "//ydb/public/sdk/cpp/src/client/proto",
     "//ydb/public/sdk/cpp/src/client/types/fatal_error_handlers",
@@ -15,5 +14,6 @@ library("result") {
     "result.cpp",
   ]
 
-  serialize_enum_headers = [ "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/result/result.h" ]
+  serialize_enum_headers =
+      [ "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/result/result.h" ]
 }

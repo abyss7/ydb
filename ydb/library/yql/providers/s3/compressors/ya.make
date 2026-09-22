@@ -2,6 +2,7 @@ LIBRARY()
 
 PEERDIR(
     contrib/libs/brotli/c/dec
+    contrib/libs/brotli/c/enc
     contrib/libs/fmt
     contrib/libs/libbz2
     contrib/libs/lz4

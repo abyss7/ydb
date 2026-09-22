@@ -1,13 +1,14 @@
 library("query_compiler") {
   public_deps = [
     "//ydb/core/kqp/expr_nodes",
-    "//ydb/core/kqp/opt",
+    "//ydb/core/kqp/opt:helpers",
     # "//ydb/core/kqp/provider",
     # "//ydb/core/protos",
   ]
 
   deps = [
     # "//ydb/core/base",
+    # "//ydb/core/formats",  # peerdir only
     # "//ydb/core/formats/arrow",
     "//ydb/core/kqp/common",
     # "//ydb/core/kqp/gateway:utils",
@@ -23,6 +24,7 @@ library("query_compiler") {
     "//ydb/library/yql/dq/type_ann",
     "//ydb/library/yql/providers/dq/common",
     # "//ydb/library/yql/providers/dq/expr_nodes",
+    # "//ydb/library/yql/providers/s3/expr_nodes",  # peerdir only
     "//ydb/library/yql/providers/s3/statistics",
     # "//yql/essentials/core",
     "//yql/essentials/core/arrow_kernels/request",
@@ -32,7 +34,6 @@ library("query_compiler") {
     # "//yql/essentials/providers/common/mkql",
     "//yql/essentials/providers/common/provider",
     "//yql/essentials/providers/common/structured_token",
-    "//yql/essentials/utils/log",
   ]
 
   sources = [

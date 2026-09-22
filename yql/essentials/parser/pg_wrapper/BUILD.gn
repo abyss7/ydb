@@ -178,6 +178,8 @@ source_set("sse42") {
 }
 
 library("pg_wrapper") {
+    link_slot_provides = [ "yql_pg_runtime" ]
+
     deps = [
         ":sse42",
         "interface",

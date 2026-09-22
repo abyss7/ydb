@@ -1,5 +1,3 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 group("as") {
   public_deps = [ "//contrib/libs/yaml-cpp" ]
 }

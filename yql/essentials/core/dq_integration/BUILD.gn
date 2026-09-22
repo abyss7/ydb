@@ -1,5 +1,6 @@
 library("dq_integration") {
   public_deps = [
+    # "//contrib/libs/protobuf",
     # "//library/cpp/yson",
     "//yql/essentials/ast",
     "//yql/essentials/core",
@@ -14,9 +15,7 @@ library("dq_integration") {
 }
 
 library("transform") {
-  public_deps = [
-    "//yql/essentials/minikql",
-  ]
+  public_deps = [ "//yql/essentials/minikql" ]
 
   sources = [ "transform/yql_dq_task_transform.cpp" ]
 }

@@ -8,17 +8,17 @@ library("health_check") {
   deps = [
     "//library/cpp/digest/old_crc",
     "//library/cpp/protobuf/json",
-    # "//ydb/core/blobstorage",
-    "//ydb/core/blobstorage/events",
+    # "//ydb/core/blobstorage/base",  # peerdir only
+    # "//ydb/core/blobstorage/events",
     # "//ydb/core/cms/console",
     # "//ydb/core/mind",
     "//ydb/core/mon",
     # "//ydb/core/protos",
     # "//ydb/core/sys_view:common",
-    "//ydb/core/tablet",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/schemeshard",
     # "//ydb/core/util",
+    # "//ydb/library/aclib",  # peerdir only
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
     "//ydb/library/actors/wilson",
@@ -26,6 +26,7 @@ library("health_check") {
     "//ydb/public/api/grpc",
     "//ydb/public/sdk/cpp/src/library/grpc/client",
     # "//yql/essentials/public/issue",
+    # "//yql/essentials/public/issue:protos",  # peerdir only
   ]
 
   sources = [ "health_check.cpp" ]

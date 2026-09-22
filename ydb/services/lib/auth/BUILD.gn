@@ -4,9 +4,7 @@ library("auth") {
     # "//ydb/core/tx/scheme_cache",
   ]
 
-  deps = [
-    "//ydb/library/aclib",
-  ]
+  deps = [ "//ydb/library/aclib" ]
 
   sources = [ "auth_helpers.cpp" ]
 }

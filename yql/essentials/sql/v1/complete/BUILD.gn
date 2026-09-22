@@ -1,30 +1,12 @@
 library("antlr4") {
   public_deps = [
+    # ":core",
+    # ":text",
     "//contrib/libs/antlr4-c3",
     "//contrib/libs/antlr4_cpp_runtime",
   ]
 
   sources = [ "antlr4/vocabulary.cpp" ]
-}
-
-library("check") {
-  deps = [
-    ":complete",
-    "//yql/essentials/ast",
-    "//yql/essentials/sql/v1/complete/analysis/yql",
-    "//yql/essentials/sql/v1/complete/name/cluster:static",
-    "//yql/essentials/sql/v1/complete/name/object/simple",
-    "//yql/essentials/sql/v1/complete/name/object/simple:static",
-    "//yql/essentials/sql/v1/complete/name/service:cluster",
-    "//yql/essentials/sql/v1/complete/name/service:ranking",
-    "//yql/essentials/sql/v1/complete/name/service:schema",
-    "//yql/essentials/sql/v1/complete/name/service:union",
-    "//yql/essentials/sql/v1/lexer",
-    "//yql/essentials/sql/v1/lexer:antlr4_pure",
-    "//yql/essentials/sql/v1/lexer:antlr4_pure_ansi",
-  ]
-
-  sources = [ "check/check_complete.cpp" ]
 }
 
 library("complete") {
@@ -37,11 +19,12 @@ library("complete") {
   ]
 
   deps = [
+    ":antlr4",
     ":syntax",
-    # ":text",
-    "//library/cpp/yson:node",
+    ":text",
+    "//yql/essentials/core/issue",
+    # "//yql/essentials/parser/lexer_common",
     "//yql/essentials/sql/v1/complete/analysis/global",
-    "//yql/essentials/sql/v1/complete/analysis/local",
     # "//yql/essentials/sql/v1/complete/name/object/simple:static",
     "//yql/essentials/sql/v1/complete/name/service:binding",
     "//yql/essentials/sql/v1/complete/name/service:column",
@@ -51,6 +34,9 @@ library("complete") {
   ]
 
   sources = [
+    "analysis/local/cursor_token_context.cpp",
+    "analysis/local/local.cpp",
+    "analysis/local/parser_call_stack.cpp",
     "configuration.cpp",
     "name_mapping.cpp",
     "sql_complete.cpp",
@@ -58,13 +44,9 @@ library("complete") {
 }
 
 library("core") {
-  public_deps = [
-    "//library/cpp/yson:node",
-  ]
+  public_deps = [ "//library/cpp/yson:node" ]
 
-  deps = [
-    "//yql/essentials/core/sql_types",
-  ]
+  deps = [ "//yql/essentials/core/sql_types" ]
 
   sources = [
     "core/environment.cpp",
@@ -78,15 +60,21 @@ library("syntax") {
   public_deps = [
     ":antlr4",
     # "//contrib/libs/antlr4_cpp_runtime",
-    "//yql/essentials/parser/antlr_ast/gen/v1_antlr4",
   ]
 
   deps = [
+    # ":core",  # peerdir only
+    # ":text",  # peerdir only
     "//contrib/libs/re2",
+    # "//yql/essentials/core/issue",  # peerdir only
+    # "//yql/essentials/parser/antlr_ast/gen/v1_ansi_antlr4",  # peerdir only
+    "//yql/essentials/parser/antlr_ast/gen/v1_antlr4",  # peerdir only
+    # "//yql/essentials/parser/lexer_common",  # peerdir only
     "//yql/essentials/public/issue",
+    "//yql/essentials/sql/settings",
+    # "//yql/essentials/sql/v1/lexer",  # peerdir only
     "//yql/essentials/sql/v1/lexer/regex",
     "//yql/essentials/sql/v1/reflect",
-    "//yql/essentials/sql:settings",
   ]
 
   sources = [

@@ -6,27 +6,49 @@ config("private_config") {
 
 library("core") {
   public_deps = [
+    # "//library/cpp/enumbitset",
+    # "//library/cpp/json",
+    # "//library/cpp/random_provider",
+    # "//library/cpp/threading/future",
+    # "//library/cpp/time_provider",
+    # "//library/cpp/yson",
+    # "//library/cpp/yson:node",
     "//yql/essentials/ast",
+    # "//yql/essentials/core/cbo",
     "//yql/essentials/core/credentials",
+    # "//yql/essentials/core/expr_nodes",
+    "//yql/essentials/core/file_storage",
     "//yql/essentials/core/histogram",
     "//yql/essentials/core/issue",
     "//yql/essentials/core/layers",
     "//yql/essentials/core/minsketch",
+    # "//yql/essentials/core/qplayer/storage/interface",
     "//yql/essentials/core/sql_types",
+    # "//yql/essentials/core/url_lister/interface",
+    # "//yql/essentials/core/url_preprocessing/interface",
     "//yql/essentials/minikql",
     "//yql/essentials/parser/pg_catalog",
+    # "//yql/essentials/protos",
     "//yql/essentials/providers/common/proto",
     "//yql/essentials/public/issue",
+    # "//yql/essentials/public/langver",
+    # "//yql/essentials/public/udf",
     "//yql/essentials/sql",
+    # "//yql/essentials/utils",
   ]
 
   deps = [
+    # "//library/cpp/containers/stack_vector",
     "//library/cpp/disjoint_sets",
     "//library/cpp/iterator",
     "//library/cpp/string_utils/base64",
     "//library/cpp/type_info:tz",
+    # "//yql/essentials/core/type_ann",
     "//yql/essentials/minikql/dom",
     "//yql/essentials/minikql/jsonpath/parser",
+    # "//yql/essentials/parser/pg_wrapper/interface",
+    # "//yql/essentials/public/decimal",
+    # "//yql/essentials/sql/settings",  # peerdir only
     "//yql/essentials/utils/log",
   ]
 

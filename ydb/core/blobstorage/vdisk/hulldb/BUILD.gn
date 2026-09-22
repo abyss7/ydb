@@ -1,15 +1,18 @@
 library("barriers") {
   public_deps = [
     # ":base",
+    # ":base_types",
     # ":fresh",
     ":generic",
-    # "//ydb/core/blobstorage/vdisk/hulldb",
-  ]
-
-  deps = [
+    # ":hulldb",
     # "//ydb/core/blobstorage/vdisk",
     # "//ydb/core/blobstorage/vdisk/ingress",
     # "//ydb/library/actors/util",
+  ]
+
+  deps = [
+    # "//ydb/core/blobstorage/base",  # peerdir only
+    # "//ydb/core/protos",  # peerdir only
   ]
 
   sources = [
@@ -20,33 +23,13 @@ library("barriers") {
   ]
 }
 
-library("base_types") {
-  public_deps = [
-    "//ydb/core/base",
-    "//ydb/core/blobstorage/vdisk/ingress",
-  ]
-
-  deps = [
-    # "//contrib/libs/xxhash",
-    "//ydb/core/blobstorage",
-    "//ydb/core/protos",
-  ]
-
-  sources = [
-    "base/blobstorage_blob.cpp",
-    "base/hullbase_barrier.cpp",
-  ]
-}
-
 library("base") {
   public_deps = [
-    ":base_types",
     # ":fresh",
     # ":generic",
-    "//ydb/core/base",
     # "//ydb/core/blobstorage/base",
-    # "//ydb/core/blobstorage/groupinfo",
     # "//ydb/core/blobstorage/pdisk",
+    # "//ydb/core/blobstorage/vdisk",
     "//ydb/core/blobstorage/vdisk/common",
     "//ydb/core/blobstorage/vdisk/ingress",
     # "//ydb/core/blobstorage/vdisk/protos",
@@ -55,9 +38,9 @@ library("base") {
   ]
 
   deps = [
-    # "//contrib/libs/xxhash",
+    ":base_types",
     # "//library/cpp/monlib/service/pages",
-    # "//ydb/core/blobstorage/vdisk",
+    "//ydb/core/base",
   ]
 
   sources = [
@@ -66,20 +49,48 @@ library("base") {
   ]
 }
 
+library("base_types") {
+  public_deps = [
+    # ":base",
+    "//ydb/core/base",
+    # "//ydb/core/blobstorage/groupinfo",
+    # "//ydb/core/blobstorage/vdisk/common",
+    "//ydb/core/blobstorage/vdisk/ingress",
+    # "//ydb/core/protos",
+    # "//ydb/library/actors/util",
+  ]
+
+  deps = [
+    # "//contrib/libs/xxhash",
+  ]
+
+  sources = [
+    "base/blobstorage_blob.cpp",
+    "base/hullbase_barrier.cpp",
+  ]
+}
+
 library("bulksst_add") {
   public_deps = [
     ":generic",
-    # "//ydb/core/blobstorage/vdisk/hulldb",
+    # ":hulldb",
+  ]
+
+  deps = [
+    # "//ydb/core/blobstorage/vdisk/common",  # peerdir only
+    # "//ydb/core/protos",  # peerdir only
   ]
 
   sources = [ "bulksst_add/hulldb_bulksst_add.cpp" ]
 }
 
 library("cache_block") {
-  public_deps = [ "//ydb/core/blobstorage/vdisk/hulldb" ]
+  public_deps = [ ":hulldb" ]
 
   deps = [
     # ":base",
+    # "//ydb/core/blobstorage/vdisk/protos",  # peerdir only
+    # "//ydb/core/protos",  # peerdir only
   ]
 
   sources = [ "cache_block/cache_block.cpp" ]
@@ -88,13 +99,14 @@ library("cache_block") {
 library("compstrat") {
   public_deps = [
     ":generic",
-    # "//ydb/core/blobstorage/vdisk/hulldb",
+    # ":hulldb",
+    # "//ydb/core/blobstorage/vdisk",
   ]
 
   deps = [
-    ":barriers",
-    # "//ydb/core/blobstorage/vdisk",
+    # ":base",  # peerdir only
     "//ydb/core/blobstorage/vdisk/common",
+    # "//ydb/core/protos",  # peerdir only
   ]
 
   sources = [
@@ -106,16 +118,18 @@ library("compstrat") {
 library("fresh") {
   public_deps = [
     ":base",
+    ":base_types",
     # ":generic",
     # "//library/cpp/monlib/service/pages",
+    # "//library/cpp/threading/skip_list",
+    "//ydb/core/base",
     # "//ydb/core/blobstorage/base",
+    # "//ydb/core/blobstorage/vdisk",
     "//ydb/core/blobstorage/vdisk/protos",
   ]
 
   deps = [
-    # "//library/cpp/threading/skip_list",
-    "//ydb/core/base",
-    # "//ydb/core/blobstorage/vdisk",
+    # "//ydb/core/protos",  # peerdir only
   ]
 
   sources = [
@@ -129,11 +143,14 @@ library("fresh") {
 library("generic") {
   public_deps = [
     # ":base",
+    # ":base_types",
     # ":bulksst_add",
     ":fresh",
     # "//ydb/core/blobstorage/base",
     # "//ydb/core/blobstorage/pdisk",
+    # "//ydb/core/blobstorage/vdisk",
     # "//ydb/core/blobstorage/vdisk/common",
+    # "//ydb/core/blobstorage/vdisk/huge",
     # "//ydb/core/blobstorage/vdisk/hullop:hullcompdelete",
     # "//ydb/core/blobstorage/vdisk/protos",
     # "//ydb/core/util",
@@ -141,9 +158,8 @@ library("generic") {
 
   deps = [
     # "//library/cpp/monlib/service/pages",
-    # "//ydb/core/blobstorage/vdisk",
-    # "//ydb/core/blobstorage/vdisk/huge",
     # "//ydb/core/blobstorage/vdisk/hullop",
+    # "//ydb/core/protos",  # peerdir only
   ]
 
   sources = [
@@ -164,6 +180,16 @@ group("hulldb") {
     ":generic",
     # "//ydb/core/blobstorage/vdisk",
   ]
+
+  deps = [
+    # ":bulksst_add",  # peerdir only
+    # ":compstrat",  # peerdir only
+    # ":fresh",  # peerdir only
+    # ":recovery",  # peerdir only
+    # "//ydb/core/blobstorage/base",  # peerdir only
+    # "//ydb/core/blobstorage/vdisk/common",  # peerdir only
+    # "//ydb/core/protos",  # peerdir only
+  ]
 }
 
 library("recovery") {
@@ -171,8 +197,15 @@ library("recovery") {
     ":barriers",
     ":bulksst_add",
     ":cache_block",
-    # "//ydb/core/blobstorage/vdisk/hulldb",
+    # ":hulldb",
     # "//ydb/core/blobstorage/vdisk/protos",
+  ]
+
+  deps = [
+    # "//contrib/libs/protobuf",
+    # "//ydb/core/blobstorage/base",  # peerdir only
+    # "//ydb/core/blobstorage/vdisk/common",  # peerdir only
+    # "//ydb/core/protos",  # peerdir only
   ]
 
   sources = [ "recovery/hulldb_recovery.cpp" ]

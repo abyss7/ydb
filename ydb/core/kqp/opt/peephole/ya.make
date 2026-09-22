@@ -12,6 +12,7 @@ PEERDIR(
     ydb/library/yql/dq/opt
     ydb/core/kqp/opt/physical
 )
+# gn: peerdir ydb/core/kqp/host:transform
 
 YQL_LAST_ABI_VERSION()
 

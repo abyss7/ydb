@@ -4,7 +4,19 @@ library("issue") {
     "//yql/essentials/public/issue",
   ]
 
+  deps = [
+    # "//contrib/libs/protobuf",  # peerdir only
+    # "//library/cpp/resource",  # peerdir only
+  ]
+
   sources = [ "yql_issue.cpp" ]
+
+  resources = [
+    {
+      path = "yql_issue.txt"
+      key = "yql_issue.txt"
+    },
+  ]
 }
 
 protobuf_library("protos") {

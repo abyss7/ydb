@@ -5,9 +5,12 @@ library("tx_allocator") {
   ]
 
   deps = [
+    # "//ydb/core/actorlib_impl",  # peerdir only
     "//ydb/core/engine:minikql",
     "//ydb/core/tablet",
     "//ydb/core/tablet_flat",
+    # "//ydb/library/actors/helpers",  # peerdir only
+    # "//ydb/library/actors/interconnect",  # peerdir only
     # "//ydb/library/services",
   ]
 

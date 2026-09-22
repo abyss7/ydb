@@ -2,10 +2,10 @@ library("certificate_check") {
   public_deps = [
     "//contrib/libs/openssl",
     "//ydb/core/base",
+    "//ydb/core/protos",
   ]
 
   deps = [
-    "//ydb/core/protos",
     "//ydb/library/aclib",
     "//ydb/public/lib/ydb_cli/common",
   ]
@@ -24,8 +24,8 @@ library("ldap_auth_provider") {
   ]
 
   deps = [
+    ":security",
     "//contrib/libs/openldap",
-    "//ydb/core/security",
     "//ydb/core/util",
     "//ydb/library/actors/core",
     "//ydb/library/login:protos",
@@ -50,19 +50,18 @@ library("sasl") {
 
   deps = [
     ":ldap_auth_provider",
+    ":security",
     # "//contrib/libs/openssl",
     "//library/cpp/digest/argonish",
     "//library/cpp/json",
     "//library/cpp/string_utils/base64",
     "//ydb/core/protos",
-    "//ydb/core/security",
-    "//ydb/core/tablet",
     "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/schemeshard",
     "//ydb/library/login:hashes_checker",
     "//ydb/library/login:sasl",
     "//ydb/library/services",
-    "//ydb/library/ydb_issue",
+    "//ydb/library/ydb_issue:proto",  # peerdir only
   ]
 
   sources = [
@@ -81,6 +80,8 @@ library("security") {
     # ":ldap_auth_provider",
     # ":token_manager",
     "//library/cpp/digest/md5",
+    "//library/cpp/string_utils/base64",
+    "//ydb/core/base",
     "//ydb/core/mon",
     # "//ydb/core/protos",
     "//ydb/library/aclib",
@@ -94,8 +95,10 @@ library("security") {
   ]
 
   deps = [
-    "//library/cpp/string_utils/base64",
-    "//ydb/core/base",
+    # "//library/cpp/monlib/service/pages",  # peerdir only
+    # "//library/cpp/openssl/io",  # peerdir only
+    # "//ydb/library/aclib:protos",  # peerdir only
+    # "//ydb/library/login",  # peerdir only
   ]
 
   sources = [
@@ -114,6 +117,7 @@ library("token_manager") {
   deps = [
     "//library/cpp/json",
     "//library/cpp/json:writer",
+    # "//ydb/core/util",  # peerdir only
     "//ydb/library/actors/http",
   ]
 

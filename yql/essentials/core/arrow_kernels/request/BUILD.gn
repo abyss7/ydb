@@ -8,6 +8,7 @@ library("request") {
 
   deps = [
     "//yql/essentials/core",
+    # "//yql/essentials/sql",  # peerdir only
   ]
 
   sources = [ "request.cpp" ]

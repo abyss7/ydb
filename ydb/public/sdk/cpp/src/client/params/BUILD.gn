@@ -1,5 +1,6 @@
 library("params") {
   public_deps = [
+    # "//contrib/libs/protobuf",
     "//ydb/public/sdk/cpp/src/client/value",
   ]
 

@@ -1,11 +1,10 @@
 library("string") {
-  public_deps = [ "//library/cpp/yt/misc" ]
-
-  deps = [
+  public_deps = [
     "//library/cpp/yt/assert",
     # "//library/cpp/yt/compact_containers",
     # "//library/cpp/yt/containers",
     "//library/cpp/yt/exception",
+    "//library/cpp/yt/misc",
   ]
 
   sources = [

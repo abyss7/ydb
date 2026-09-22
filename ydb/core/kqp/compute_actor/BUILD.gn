@@ -1,7 +1,3 @@
-library("events_stats") {
-  sources = [ "kqp_compute_events_stats.cpp" ]
-}
-
 library("compute_actor") {
   public_deps = [
     ":events_stats",
@@ -32,8 +28,10 @@ library("compute_actor") {
     "//ydb/core/grpc_services",
     "//ydb/core/tx/columnshard/hooks/abstract",
     # "//ydb/core/tx/datashard",
+    # "//ydb/core/tx/datashard:range_ops",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/library/actors/wilson",
+    # "//ydb/library/formats/arrow:common",  # peerdir only
     # "//ydb/library/formats/arrow:protos",
     # "//ydb/library/wilson_ids",
     "//ydb/library/yql/dq/actors:input_transforms",
@@ -63,4 +61,8 @@ library("compute_actor") {
   ]
 
   serialize_enum_headers = [ "kqp_compute_state.h" ]
+}
+
+library("events_stats") {
+  sources = [ "kqp_compute_events_stats.cpp" ]
 }

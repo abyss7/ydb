@@ -1,3 +1,0 @@
-protobuf_library("schemeshard") {
-  sources = [ "operations.proto" ]
-}

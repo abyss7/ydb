@@ -1,5 +1,5 @@
 library("fyamlcpp") {
-  public_deps = [ "//contrib/libs/libfyaml" ]
+  deps = [ "//contrib/libs/libfyaml" ]
 
   sources = [ "fyamlcpp.cpp" ]
 }

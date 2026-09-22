@@ -1,7 +1,6 @@
 library("abstract") {
   public_deps = [
-    "//ydb/core/formats/arrow:common",
-    # "//ydb/core/formats/arrow:save_load",
+    # "//ydb/core/formats/arrow",
     # "//ydb/core/tx/columnshard/common",
     # "//ydb/library/accessor",
     "//ydb/library/actors/core",
@@ -10,7 +9,6 @@ library("abstract") {
 
   deps = [
     # "//contrib/libs/apache/arrow",
-    # "//ydb/core/formats/arrow",
     # "//ydb/core/sys_view:common",
     # "//ydb/library/formats/arrow",
   ]

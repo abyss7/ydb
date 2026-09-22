@@ -11,7 +11,9 @@ library("http_gateway") {
     # "//contrib/libs/openssl",
     "//ydb/library/actors/http",
     # "//ydb/library/actors/prof",
+    # "//ydb/library/actors/protos",  # peerdir only
     "//yql/essentials/providers/common/proto",
+    # "//yql/essentials/utils",  # peerdir only
     "//yql/essentials/utils/log",
   ]
 

@@ -6,6 +6,10 @@ protobuf_library("protos") {
     "//ydb/public/api/protos",
   ]
 
+  deps = [
+    # "//yql/essentials/providers/common/metrics:protos",  # peerdir only
+  ]
+
   sources = [
     "dqs.proto",
     "service.proto",

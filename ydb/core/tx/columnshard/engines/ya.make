@@ -9,9 +9,10 @@ SRCS(
     column_engine_logs.cpp
     column_engine.cpp
     db_wrapper.cpp
-    filter.cpp
+    filter.cpp  # gn: filter
     defs.cpp
 )
+# gn: filter headers filter.h
 
 GENERATE_ENUM_SERIALIZATION(column_engine_logs.h)
 
@@ -37,6 +38,7 @@ PEERDIR(
     # for NYql::NUdf alloc stuff used in binary_json
     yql/essentials/public/udf/service/exception_policy
 )
+# gn: peerdir ydb/core/tx/columnshard:background_controller ydb/core/tx/columnshard:tables_manager_paths
 
 YQL_LAST_ABI_VERSION()
 

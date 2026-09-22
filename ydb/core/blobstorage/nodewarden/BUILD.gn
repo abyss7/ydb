@@ -1,10 +1,10 @@
 library("nodewarden") {
   public_deps = [
+    # "//library/cpp/time_provider",
     "//ydb/core/base",
     "//ydb/core/blobstorage/base",
     # "//ydb/core/blobstorage/crypto",
     "//ydb/core/blobstorage/dsproxy",
-    "//ydb/core/blobstorage/events",
     "//ydb/core/blobstorage/incrhuge",
     "//ydb/core/blobstorage/pdisk",
     # "//ydb/core/blobstorage/vdisk/common",
@@ -15,20 +15,19 @@ library("nodewarden") {
     "//ydb/core/util",
     # "//ydb/library/actors/core",
     "//ydb/library/pdisk_io",
+    # "//ydb/library/yverify_stream",
   ]
 
   deps = [
+    # "//contrib/libs/protobuf",
     "//contrib/libs/xxhash",
-    "//library/cpp/digest/crc32c",
     # "//library/cpp/json",
     "//library/cpp/lwtrace/mon",
     "//library/cpp/openssl/crypto",
     # "//library/cpp/protobuf/json",
     "//library/cpp/streams/zstd",
-    # "//library/cpp/time_provider",
     "//ydb/core/audit",
     "//ydb/core/blob_depot:agent",
-    "//ydb/core/blobstorage/bridge/proxy",
     "//ydb/core/blobstorage/bridge/syncer",
     # "//ydb/core/blobstorage/common",
     "//ydb/core/blobstorage/ddisk",
@@ -39,15 +38,11 @@ library("nodewarden") {
     "//ydb/core/blobstorage/vdisk/syncer",
     "//ydb/core/config/validation",
     # "//ydb/core/control/lib",
-    "//ydb/core/mind:nameserver_table_builder",
-    "//ydb/core/tablet",
-    "//ydb/core/tx/scheme_board",
-    "//ydb/library/aclib",
-    "//ydb/library/keys",
-    "//ydb/library/pdisk_io",
+    # "//ydb/core/mind",
+    # "//ydb/core/mind:bscontroller",
+    "//ydb/core/mind:nameserver_table_builder",  # peerdir only
     # "//ydb/library/yaml_config",
     "//ydb/library/yaml_json",
-    # "//ydb/library/yverify_stream",
   ]
 
   sources = [

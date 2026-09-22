@@ -4,9 +4,12 @@ library("usage") {
     "//ydb/core/protos",
     # "//ydb/core/tx/limiter/grouped_memory/service",
     "//ydb/library/accessor",
-    "//ydb/library/signals",
     # "//ydb/library/actors/core",
     # "//ydb/library/conclusion",
+  ]
+
+  deps = [
+    # "//ydb/services/metadata/request",  # peerdir only
   ]
 
   sources = [

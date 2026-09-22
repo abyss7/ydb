@@ -6,5 +6,9 @@ library("kikimr") {
     # "//ydb/library/actors/core",
   ]
 
+  deps = [
+    # "//ydb/core/protos",  # peerdir only
+  ]
+
   sources = [ "events.cpp" ]
 }

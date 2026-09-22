@@ -1,30 +1,16 @@
 library("binding") {
-  public_deps = [
-    "//yql/essentials/sql/v1/complete/name/service",
-  ]
+  public_deps = [ ":service" ]
 
-  deps = [
-    ":static",
-  ]
+  deps = [ ":static" ]
 
   sources = [ "binding/name_service.cpp" ]
 }
 
-library("cluster") {
-  deps = [
-    "//library/cpp/case_insensitive_string",
-    "//library/cpp/threading/future",
-    "//yql/essentials/sql/v1/complete/name/service",
-  ]
-
-  sources = [ "cluster/name_service.cpp" ]
-}
-
 library("column") {
   public_deps = [
-    # "//yql/essentials/sql/v1/complete/analysis/global",
-    # "//yql/essentials/sql/v1/complete/name/service",
     # ":ranking",
+    # ":service",
+    # "//yql/essentials/sql/v1/complete/analysis/global",
   ]
 
   deps = [
@@ -40,16 +26,14 @@ library("column") {
 
 library("impatient") {
   public_deps = [
-    # "//yql/essentials/sql/v1/complete/name/service",
+    # ":service",
   ]
 
   sources = [ "impatient/name_service.cpp" ]
 }
 
 library("ranking") {
-  public_deps = [
-    "//yql/essentials/sql/v1/complete/name/service",
-  ]
+  public_deps = [ ":service" ]
 
   deps = [
     "//library/cpp/json",
@@ -61,12 +45,19 @@ library("ranking") {
     "ranking/frequency.cpp",
     "ranking/ranking.cpp",
   ]
+
+  resources = [
+    {
+      path = "//yql/essentials/data/language/rules_corr_basic.json"
+      key = "rules_corr_basic.json"
+    },
+  ]
 }
 
 library("schema") {
   public_deps = [
+    # ":service",
     # "//yql/essentials/sql/v1/complete/name/object",
-    # "//yql/essentials/sql/v1/complete/name/service",
   ]
 
   deps = [
@@ -88,17 +79,16 @@ library("service") {
 
 library("static") {
   public_deps = [
-    # "//yql/essentials/sql/v1/complete/name/service",
-    "//yql/essentials/sql/v1/complete:text",
     # ":ranking",
+    # ":service",
+    # "//yql/essentials/sql/v1/complete:core",
+    "//yql/essentials/sql/v1/complete:text",
   ]
 
   deps = [
     ":union",
     "//library/cpp/json",
     "//library/cpp/resource",
-    "//library/cpp/threading/future",
-    # "//yql/essentials/sql/v1/complete:core",
   ]
 
   sources = [
@@ -107,17 +97,42 @@ library("static") {
     "static/name_set.cpp",
     "static/name_set_json.cpp",
   ]
+
+  resources = [
+    {
+      path = "//yql/essentials/data/language/pragmas_opensource.json"
+      key = "pragmas_opensource.json"
+    },
+    {
+      path = "//yql/essentials/data/language/types.json"
+      key = "types.json"
+    },
+    {
+      path = "//yql/essentials/data/language/sql_functions.json"
+      key = "sql_functions.json"
+    },
+    {
+      path = "//yql/essentials/data/language/udfs_basic.json"
+      key = "udfs_basic.json"
+    },
+    {
+      path = "//yql/essentials/data/language/statements_opensource.json"
+      key = "statements_opensource.json"
+    },
+    {
+      path = "//yql/essentials/data/language/rules_corr_basic.json"
+      key = "rules_corr_basic.json"
+    },
+  ]
 }
 
 library("union") {
   public_deps = [
     ":ranking",
-    # "//yql/essentials/sql/v1/complete/name/service",
+    # ":service",
   ]
 
-  deps = [
-    "//library/cpp/threading/future",
-  ]
+  deps = [ "//library/cpp/threading/future" ]
 
   sources = [ "union/name_service.cpp" ]
 }

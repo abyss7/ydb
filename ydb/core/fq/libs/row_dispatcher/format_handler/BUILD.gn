@@ -2,8 +2,12 @@ library("common") {
   public_deps = [
     # "//library/cpp/monlib/dynamic_counters",
     "//ydb/library/conclusion",
-    # "//ydb/library/conclusion/generic",
+    # "//ydb/library/conclusion:generic",
     "//ydb/library/yql/dq/actors:protos",
+  ]
+
+  deps = [
+    # "//yql/essentials/public/issue",  # peerdir only
   ]
 
   sources = [ "common/common.cpp" ]
@@ -20,7 +24,12 @@ library("filters") {
   deps = [
     "//contrib/libs/fmt",
     # "//ydb/core/fq/libs/actors:logging",
+    # "//ydb/core/fq/libs/row_dispatcher/purecalc_no_pg_wrapper",  # peerdir only
+    # "//ydb/library/actors/core",  # peerdir only
+    # "//yql/essentials/minikql",  # peerdir only
+    # "//yql/essentials/minikql/comp_nodes",  # peerdir only
     "//yql/essentials/minikql/computation",
+    # "//yql/essentials/minikql/invoke_builtins",  # peerdir only
     "//yql/essentials/providers/common/schema:parser",
     # "//yql/essentials/public/purecalc/common",
   ]
@@ -42,13 +51,10 @@ library("format_handler") {
   ]
 
   deps = [
-    ":common",
+    ":common",  # peerdir only
     # "//ydb/core/fq/libs/actors:logging",
     # "//ydb/library/yql/dq/common",
-    "//ydb/public/sdk/cpp/src/client/topic/impl",
-    "//yql/essentials/minikql",
     "//yql/essentials/minikql/computation",
-    "//yql/essentials/public/udf",
   ]
 
   sources = [ "format_handler.cpp" ]
@@ -56,20 +62,21 @@ library("format_handler") {
 
 library("parsers") {
   public_deps = [
+    ":common",
     "//ydb/core/fq/libs/row_dispatcher/common",
+    # "//ydb/core/fq/libs/row_dispatcher/events",
+    "//ydb/public/sdk/cpp/src/client/topic",
     "//yql/essentials/minikql",
+    "//yql/essentials/public/udf",
   ]
 
   deps = [
-    ":common",
     "//contrib/libs/simdjson",
     # "//library/cpp/containers/absl_flat_hash",
     "//ydb/core/fq/libs/actors:logging",
-    # "//ydb/core/fq/libs/row_dispatcher/events",
-    "//ydb/public/sdk/cpp/src/client/topic/impl",
     "//yql/essentials/minikql/dom",
+    # "//yql/essentials/providers/common/schema",  # peerdir only
     "//yql/essentials/providers/common/schema:mkql",
-    "//yql/essentials/public/udf",
   ]
 
   sources = [

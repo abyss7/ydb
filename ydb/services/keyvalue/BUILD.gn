@@ -10,6 +10,8 @@ library("keyvalue") {
     "//ydb/core/grpc_services",
     # "//ydb/core/grpc_services/base",
     # "//ydb/core/jaeger_tracing",
+    # "//ydb/core/kesus/tablet",  # peerdir only
+    # "//ydb/core/keyvalue",  # peerdir only
   ]
 
   sources = [

@@ -6,8 +6,8 @@ library("url_lister") {
 
   deps = [
     "//contrib/libs/openssl",
-    "//library/cpp/threading/future",
     "//library/cpp/yson:node",
+    # "//yql/essentials/core",  # peerdir only
   ]
 
   sources = [ "qplayer_url_lister_manager.cpp" ]

@@ -1,10 +1,12 @@
-contrib_tool("config_proto_plugin") {
-    deps = [
-        "//contrib/libs/protoc",
-        "//library/cpp/protobuf/json",
-        "//ydb/core/config/protos",
-        "//ydb/core/config/utils",
-        "//ydb/public/lib/protobuf",
-    ]
-    sources = [ "main.cpp" ]
+linked_executable("config_proto_plugin") {
+  deps = [
+    # "//contrib/libs/protobuf",
+    "//contrib/libs/protoc",
+    "//library/cpp/protobuf/json",
+    "//ydb/core/config/protos",
+    "//ydb/core/config/utils",
+    "//ydb/public/lib/protobuf",
+  ]
+
+  sources = [ "main.cpp" ]
 }

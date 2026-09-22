@@ -9,6 +9,7 @@ library("json_value") {
   deps = [
     "//library/cpp/json",
     "//library/cpp/string_utils/base64",
+    # "//yql/essentials/types/uuid",  # peerdir only
   ]
 
   sources = [ "ydb_json_value.cpp" ]

@@ -4,15 +4,16 @@ library("service") {
     "//ydb/core/tx/conveyor/usage",
     "//ydb/library/accessor",
     "//ydb/library/actors/core",
+    # "//ydb/library/conclusion",
+    # "//ydb/library/services",
     "//ydb/library/signals",
   ]
 
   deps = [
     "//library/cpp/lwtrace/mon",
     "//ydb/core/kqp/query_data",
+    # "//ydb/core/protos",  # peerdir only
     "//ydb/core/tx/conveyor/tracing",
-    # "//ydb/library/conclusion",
-    # "//ydb/library/services",
   ]
 
   sources = [

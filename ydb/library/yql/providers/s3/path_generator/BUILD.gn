@@ -3,9 +3,9 @@ library("path_generator") {
 
   deps = [
     "//library/cpp/scheme",
-    # "//yql/essentials/minikql",
     "//yql/essentials/minikql/computation",
     "//yql/essentials/minikql/datetime",
+    # "//yql/essentials/minikql:alloc",
   ]
 
   sources = [ "yql_s3_path_generator.cpp" ]

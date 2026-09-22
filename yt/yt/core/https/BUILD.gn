@@ -1,14 +1,12 @@
 library("https") {
   public_deps = [
-    # "//yt/yt/core",
+    "//yt/yt/core",
     "//yt/yt/core/http",
   ]
 
   deps = [
+    # "//library/cpp/http/io",  # peerdir only
     "//library/cpp/openssl/io",
-    "//library/cpp/yt/error",
-    "//library/cpp/yt/logging",
-    "//library/cpp/yt/threading",
   ]
 
   sources = [

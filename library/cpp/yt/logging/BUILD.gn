@@ -1,5 +1,3 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("logging") {
   public_deps = [
     # "//library/cpp/yt/cpu_clock",
@@ -15,9 +13,15 @@ library("logging") {
 }
 
 library("plain_text_formatter") {
-  deps = [
-    "//library/cpp/yt/cpu_clock",
+  public_deps = [
+    # ":logging",
     "//library/cpp/yt/string",
   ]
+
+  deps = [
+    "//library/cpp/yt/cpu_clock",
+    # "//library/cpp/yt/misc",
+  ]
+
   sources = [ "plain_text_formatter/formatter.cpp" ]
 }

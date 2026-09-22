@@ -38,6 +38,7 @@ PEERDIR(
     ydb/core/persqueue/pqtablet/partition/mlp
     ydb/core/persqueue/pqtablet/quota
 )
+# gn: peerdir ydb/core/persqueue/public:utils
 
 END()
 

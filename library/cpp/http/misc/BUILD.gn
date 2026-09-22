@@ -1,10 +1,10 @@
 library("misc") {
-  public_deps = [ "//library/cpp/cgiparam" ]
-
-  deps = [
-    "//library/cpp/case_insensitive_string",
+  public_deps = [
+    "//library/cpp/cgiparam",
     "//library/cpp/digest/lower_case",
   ]
+
+  deps = [ "//library/cpp/case_insensitive_string" ]
 
   sources = [
     "httpcodes.cpp",

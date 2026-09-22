@@ -1,5 +1,6 @@
 library("kicli") {
   public_deps = [
+    # "//contrib/libs/protobuf",
     # "//library/cpp/messagebus",
     "//library/cpp/threading/future",
     "//ydb/core/protos",
@@ -12,8 +13,12 @@ library("kicli") {
   ]
 
   deps = [
-    # "//ydb/core/protos/schemeshard",
-    "//ydb/library/yql/public/ydb_issue",
+    # "//contrib/libs/grpc",  # peerdir only
+    # "//ydb/core/protos:schemeshard",
+    # "//ydb/library/aclib",  # peerdir only
+    "//ydb/library/yql/public/ydb_issue",  # peerdir only
+    # "//ydb/public/api/grpc",  # peerdir only
+    # "//ydb/public/api/grpc:draft",  # peerdir only
     "//yql/essentials/public/decimal",
     "//yql/essentials/public/issue",
   ]

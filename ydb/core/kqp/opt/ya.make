@@ -1,7 +1,7 @@
 LIBRARY()
 
 SRCS(
-    kqp_opt.cpp
+    kqp_opt.cpp  # gn: helpers
     kqp_opt_build_phy_query.cpp
     kqp_opt_build_txs.cpp
     kqp_opt_effects.cpp
@@ -19,6 +19,7 @@ SRCS(
     kqp_opt_hash_func_propagate_transformer.cpp
     kqp_type_ann.cpp
 )
+# gn: helpers headers kqp_opt.h kqp_opt_impl.h
 
 PEERDIR(
     ydb/core/kqp/common
@@ -35,6 +36,7 @@ PEERDIR(
     ydb/core/kqp/provider
     ydb/library/formats/arrow/protos
 )
+# gn: peerdir ydb/core/statistics/service:service_id
 
 YQL_LAST_ABI_VERSION()
 

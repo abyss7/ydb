@@ -1,5 +1,8 @@
 library("codecs") {
-  public_deps = [ "//library/cpp/bit_io" ]
+  public_deps = [
+    "//library/cpp/bit_io",
+    "//library/cpp/deprecated/accessors",
+  ]
 
   deps = [
     ":greedy_dict",
@@ -7,7 +10,6 @@ library("codecs") {
     "//library/cpp/blockcodecs",
     "//library/cpp/comptable",
     "//library/cpp/containers/comptrie",
-    "//library/cpp/deprecated/accessors",
     "//library/cpp/packers",
     "//library/cpp/string_utils/relaxed_escaper",
   ]
@@ -27,10 +29,9 @@ library("codecs") {
 }
 
 library("greedy_dict") {
-  deps = [
-    "//library/cpp/containers/comptrie",
-    "//library/cpp/string_utils/relaxed_escaper",
-  ]
+  public_deps = [ "//library/cpp/containers/comptrie" ]
+
+  deps = [ "//library/cpp/string_utils/relaxed_escaper" ]
 
   sources = [
     "greedy_dict/gd_builder.cpp",

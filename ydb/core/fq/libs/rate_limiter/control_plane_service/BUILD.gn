@@ -12,6 +12,7 @@ library("control_plane_service") {
     # "//ydb/core/fq/libs/rate_limiter/events",
     "//ydb/core/fq/libs/rate_limiter/utils",
     "//ydb/core/fq/libs/ydb",
+    # "//ydb/core/protos",  # peerdir only
     # "//ydb/library/services",
     "//ydb/public/sdk/cpp/adapters/issue",
   ]

@@ -1,5 +1,3 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("account_lockout") {
   sources = [ "account_lockout/account_lockout.cpp" ]
 }
@@ -23,15 +21,19 @@ library("hashes_checker") {
 }
 
 library("login") {
-  public_deps = [ ":protos" ]
-
-  deps = [
+  public_deps = [
     ":account_lockout",
     ":cache",
     ":hashes_checker",
     ":password_checker",
+    ":protos",
+  ]
+
+  deps = [
     ":sasl",
     "//contrib/libs/jwt-cpp",
+    # "//contrib/libs/openssl",
+    # "//contrib/libs/protobuf",  # peerdir only
     "//library/cpp/digest/argonish",
     "//library/cpp/json",
     "//library/cpp/string_utils/base64",

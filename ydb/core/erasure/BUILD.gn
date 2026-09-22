@@ -2,12 +2,13 @@ library("erasure") {
   public_deps = [
     "//library/cpp/containers/stack_vector",
     # "//ydb/core/debug",
+    "//ydb/library/actors/util",
     "//ydb/library/yverify_stream",
   ]
 
   deps = [
     "//library/cpp/digest/crc32c",
-    "//ydb/library/actors/util",
+    # "//library/cpp/digest/old_crc",  # peerdir only
   ]
 
   sources = [

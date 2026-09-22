@@ -11,9 +11,9 @@ PEERDIR(
 )
 
 SRCS(
-    conversion.cpp
-    object.cpp
-    diff.cpp
+    conversion.cpp  # gn: into ydb/core/formats/arrow
+    object.cpp  # gn: into ydb/core/formats/arrow
+    diff.cpp  # gn: into ydb/core/formats/arrow
 )
 
 END()

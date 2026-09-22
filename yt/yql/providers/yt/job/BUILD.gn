@@ -2,6 +2,8 @@ library("job") {
   public_deps = [
     # "//yql/essentials/minikql",
     # "//yql/essentials/minikql/computation",
+    # "//yql/essentials/minikql:alloc",
+    # "//yql/essentials/minikql:terminator",
     # "//yql/essentials/providers/common/codec",
     # "//yql/essentials/public/langver",
     # "//yql/essentials/public/udf",
@@ -20,6 +22,7 @@ library("job") {
     "//yql/essentials/parser/pg_catalog",
     # "//yql/essentials/parser/pg_wrapper/interface",
     "//yql/essentials/providers/common/comp_nodes",
+    # "//yql/essentials/providers/common/mkql",  # peerdir only
     # "//yql/essentials/providers/common/provider",
     "//yql/essentials/providers/common/schema:mkql",
     "//yql/essentials/providers/common/schema:parser",

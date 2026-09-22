@@ -1,8 +1,6 @@
 library("ydb") {
   public_deps = [
     # "//ydb/core/grpc_services",
-    "//ydb/core/grpc_services:fetch_script_results",
-    "//ydb/core/grpc_services:read_columns",
     # "//ydb/core/grpc_services/base",
     # "//ydb/library/actors/core",
     # "//ydb/library/grpc/server",
@@ -11,10 +9,23 @@ library("ydb") {
   ]
 
   deps = [
+    # "//contrib/libs/openssl",  # peerdir only
+    # "//library/cpp/monlib/encode",  # peerdir only
+    # "//library/cpp/uri",  # peerdir only
     # "//ydb/core/base",
+    # "//ydb/core/client",  # peerdir only
+    # "//ydb/core/formats",  # peerdir only
     # "//ydb/core/grpc_services/counters",
+    "//ydb/core/grpc_services:fetch_script_results",  # peerdir only
+    "//ydb/core/grpc_services:read_columns",  # peerdir only
+    # "//ydb/core/grpc_services:request_proxy",
     # "//ydb/core/grpc_streaming",
+    # "//ydb/core/protos",  # peerdir only
+    # "//ydb/core/scheme",  # peerdir only
+    # "//ydb/core/security",  # peerdir only
+    # "//ydb/library/aclib",  # peerdir only
     # "//ydb/public/api/protos",
+    # "//yql/essentials/public/types",  # peerdir only
   ]
 
   sources = [

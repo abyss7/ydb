@@ -7,6 +7,7 @@ library("cancelation") {
 
   deps = [
     "//ydb/core/grpc_services/base",
+    # "//ydb/core/protos",  # peerdir only
   ]
 
   sources = [ "cancelation.cpp" ]

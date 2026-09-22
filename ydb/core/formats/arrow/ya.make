@@ -27,12 +27,14 @@ PEERDIR(
     yql/essentials/minikql
     ydb/core/kqp/common/result_set_format
 )
+# gn: peerdir yql/essentials/public/issue/protos
 
 YQL_LAST_ABI_VERSION()
 
 SRCS(
     arrow_batch_builder.cpp
     arrow_helpers.cpp
+    arrow_type.cpp
     arrow_helpers_minikql.cpp
     arrow_filter.cpp
     converter.cpp

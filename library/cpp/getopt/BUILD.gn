@@ -10,7 +10,7 @@ library("getopt") {
 }
 
 library("small") {
-  deps = [ "//library/cpp/colorizer" ]
+  public_deps = [ "//library/cpp/colorizer" ]
 
   sources = [
     "small/completer.cpp",

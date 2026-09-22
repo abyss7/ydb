@@ -20,5 +20,6 @@ PEERDIR(
     library/cpp/deprecated/atomic
     yql/essentials/parser/pg_wrapper/interface
 )
+# gn: peerdir ydb/core/mind:tenant_node_enumeration
 
 END()

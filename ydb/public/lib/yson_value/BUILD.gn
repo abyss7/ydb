@@ -7,5 +7,9 @@ library("yson_value") {
     # "//ydb/public/sdk/cpp/src/client/value",
   ]
 
+  deps = [
+    # "//yql/essentials/types/uuid",  # peerdir only
+  ]
+
   sources = [ "ydb_yson_value.cpp" ]
 }

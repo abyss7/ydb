@@ -1,16 +1,20 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("public") {
   public_deps = [
-    "//ydb/core/base",
+    # ":tx_proxy",
+    # "//ydb/core/control/lib",
     "//ydb/core/mon",
     "//ydb/core/protos",
-    "//yql/essentials/minikql",
+    # "//ydb/core/scheme",
+    # "//ydb/core/tx",
+    # "//ydb/core/tx/locks",
+    # "//ydb/core/tx/scheme_cache",
+    # "//ydb/library/ydb_issue",
+    # "//ydb/public/api/protos",
+    # "//ydb/public/lib/base",
+    "//yql/essentials/minikql:alloc",
   ]
 
-  deps = [
-    "//library/cpp/monlib/dynamic_counters",
-  ]
+  deps = [ "//ydb/core/base" ]
 
   sources = [
     "mon.cpp",
@@ -19,6 +23,8 @@ library("public") {
 }
 
 library("tx_proxy") {
+  yql_abi_version = "current"
+
   public_deps = [
     ":public",
     ":read_table",
@@ -99,31 +105,45 @@ library("tx_proxy") {
     "upload_columns.cpp",
   ]
 
+  serialize_enum_headers = [
+    "read_table_impl.h",
+    "upload_rows_counters.h",
+  ]
 }
 
 library("upload_rows") {
   public_deps = [
-    ":public",
+    # ":tx_proxy",
     "//contrib/restricted/boost/container_hash",
+    # "//library/cpp/monlib/dynamic_counters",
+    "//ydb/core/actorlib_impl",
     "//ydb/core/base",
+    "//ydb/core/formats/arrow",
+    # "//ydb/core/formats/arrow/accessor/abstract",
+    # "//ydb/core/grpc_services/local_rpc",
+    "//ydb/core/io_formats/arrow/scheme",
     "//ydb/core/protos",
     "//ydb/core/scheme",
+    # "//ydb/core/tx/datashard",
     "//ydb/core/tx/long_tx_service:public",
     "//ydb/core/tx/scheme_cache",
+    "//ydb/core/util",
+    # "//ydb/library/actors/core",
     "//ydb/library/signals",
+    # "//ydb/library/wilson_ids",
+    "//ydb/library/ydb_issue",
+    # "//ydb/public/api/protos",
+    # "//ydb/public/sdk/cpp/src/client/impl/internal/make_request",
   ]
 
   deps = [
+    ":public",
     "//contrib/libs/apache/arrow",
-    "//ydb/core/actorlib_impl",
-    "//ydb/core/formats/arrow",
-    "//ydb/core/io_formats/arrow/scheme",
     "//ydb/core/kqp/query_data",
     "//ydb/core/tx/data_events",
-    "//ydb/core/util",
     "//ydb/library/actors/prof",
     "//ydb/library/actors/wilson",
-    "//ydb/library/ydb_issue",
+    # "//ydb/library/ydb_issue:proto",
     "//ydb/services/ext_index/common",
   ]
 
@@ -138,6 +158,8 @@ library("upload_rows") {
 }
 
 library("read_table") {
+  yql_abi_version = "current"
+
   public_deps = [
     ":public",
     "//contrib/libs/opentelemetry-proto",  # include path

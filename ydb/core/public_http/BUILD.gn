@@ -1,6 +1,10 @@
 protobuf_library("protos") {
   public_deps = [ "//ydb/public/api/protos" ]
 
+  deps = [
+    # "//ydb/core/protos",  # peerdir only
+  ]
+
   sources = [ "protos/fq.proto" ]
 }
 
@@ -17,6 +21,8 @@ library("public_http") {
     # "//library/cpp/resource",
     "//ydb/core/fq/libs/result_formatter",
     "//ydb/core/grpc_services",
+    # "//ydb/core/grpc_services/local_rpc",  # peerdir only
+    "//ydb/core/grpc_services:request_proxy",
     # "//ydb/core/http_proxy",
     "//ydb/core/viewer:json",
     "//ydb/library/actors/http",
@@ -24,8 +30,8 @@ library("public_http") {
     # "//ydb/library/http_proxy/error",
     # "//ydb/library/services",
     "//ydb/public/api/protos",
-    "//ydb/public/sdk/cpp/src/client/result",
     # "//ydb/public/sdk/cpp/src/client/types",
+    # "//yql/essentials/public/issue",  # peerdir only
   ]
 
   sources = [
@@ -33,5 +39,12 @@ library("public_http") {
     "http_req.cpp",
     "http_router.cpp",
     "http_service.cpp",
+  ]
+
+  resources = [
+    {
+      path = "openapi/openapi.yaml"
+      key = "resources/openapi.yaml"
+    },
   ]
 }

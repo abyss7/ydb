@@ -1,9 +1,10 @@
 library("holder") {
   public_deps = [
-    # "//ydb/services/sqs_topic/queue_url",
+    # ":queue_url",
   ]
 
   deps = [
+    # "//library/cpp/string_utils/url",  # peerdir only
     "//ydb/core/base",
   ]
 
@@ -11,9 +12,7 @@ library("holder") {
 }
 
 library("queue_url") {
-  deps = [
-    "//library/cpp/string_utils/url",
-  ]
+  deps = [ "//library/cpp/string_utils/url" ]
 
   sources = [
     "arn.cpp",

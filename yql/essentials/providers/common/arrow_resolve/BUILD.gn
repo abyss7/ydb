@@ -5,6 +5,7 @@ library("arrow_resolve") {
     # "//yql/essentials/minikql",
     "//yql/essentials/minikql/arrow",
     "//yql/essentials/providers/common/mkql",
+    # "//yql/essentials/public/udf",  # peerdir only
   ]
 
   sources = [ "yql_simple_arrow_resolver.cpp" ]

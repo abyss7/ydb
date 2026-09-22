@@ -1,12 +1,12 @@
 library("result_format") {
   public_deps = [
     # "//library/cpp/yson",
+    "//library/cpp/yson:node",
+    "//yql/essentials/public/issue",
   ]
 
   deps = [
     "//library/cpp/string_utils/base64",
-    "//library/cpp/yson:node",
-    "//yql/essentials/public/issue",
     "//yql/essentials/utils",
   ]
 
