@@ -1,7 +1,0 @@
-config("public_config") {
-    cflags = [ "-Wno-shift-op-parentheses" ]
-}
-
-source_set("queues") {
-    public_configs = [ ":public_config" ]
-}

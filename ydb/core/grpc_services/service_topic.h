@@ -1,5 +1,7 @@
 #pragma once
 
+#include <util/generic/ptr.h>
+
 #include <memory>
 
 namespace NKikimr {

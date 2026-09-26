@@ -11,8 +11,8 @@
 #include <ydb/library/actors/core/actor.h>
 #include <ydb/library/actors/core/actorid.h>
 #include <ydb/library/actors/core/actorsystem.h>
-#include <ydb/library/actors/core/events/event_local.h>
-#include <ydb/library/actors/core/events/events.h>
+#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events.h>
 #include <yql/essentials/public/issue/yql_issue.h>
 
 #include <ydb/public/api/protos/ydb_status_codes.pb.h>

@@ -25,11 +25,12 @@ library("partition_direct") {
     ":load_actor_adapter",
     # "//ydb/core/base",
     # "//ydb/core/blobstorage/events",
-    # "//ydb/core/mind:bscontroller",
+    # "//ydb/core/mind:group_mapper",
     "//ydb/core/nbs/cloud/blockstore/bootstrap",
     "//ydb/core/nbs/cloud/blockstore/libs/service/fast_path_service",
     # "//ydb/core/nbs/cloud/blockstore/libs/storage/api",
     # "//ydb/core/nbs/cloud/blockstore/libs/vhost",
+    "//ydb/core/tablet",
     # "//ydb/library/services",  # peerdir only
   ]
 

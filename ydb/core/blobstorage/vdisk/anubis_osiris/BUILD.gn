@@ -17,7 +17,6 @@ library("anubis_osiris") {
     "//ydb/core/blobstorage/backpressure",
     "//ydb/core/blobstorage/vdisk/hulldb:barriers",  # peerdir only
     "//ydb/core/blobstorage/vdisk/hulldb:generic",
-    # "//ydb/core/blobstorage/vdisk/skeleton",
     # "//ydb/core/protos",
   ]
 

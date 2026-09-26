@@ -9,6 +9,7 @@
 #include <ydb/core/base/appdata_fwd.h>
 #include <ydb/core/tx/columnshard/columnshard_impl.h>
 #include <ydb/core/tx/columnshard/counters/error_collector.h>
+#include <ydb/core/tx/columnshard/hooks/abstract/abstract.h>
 #include <ydb/core/tx/tiering/manager.h>
 #include <ydb/core/wrappers/unavailable_storage.h>
 

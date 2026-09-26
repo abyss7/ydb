@@ -2,9 +2,9 @@ library("localrecovery") {
   public_deps = [
     "//ydb/core/base",
     "//ydb/core/blobstorage/pdisk",
-    # "//ydb/core/blobstorage/vdisk",
     "//ydb/core/blobstorage/vdisk/common",
     "//ydb/core/blobstorage/vdisk/common:guids",
+    # "//ydb/core/blobstorage/vdisk:defs",
     # "//ydb/core/protos",
   ]
 

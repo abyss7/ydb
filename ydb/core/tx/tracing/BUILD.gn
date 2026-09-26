@@ -1,0 +1,34 @@
+library("service") {
+  deps = [
+    ":usage",
+    # "//ydb/core/protos",  # peerdir only
+    # "//ydb/library/actors/core",
+    # "//ydb/library/services",
+  ]
+
+  sources = [
+    "service/actor.cpp",
+    "service/global.cpp",
+  ]
+}
+
+group("tracing") {
+  public_deps = [
+    # ":service",  # peerdir only
+    # ":usage",  # peerdir only
+  ]
+}
+
+library("usage") {
+  public_deps = [
+    # "//library/cpp/json",
+    # "//ydb/library/accessor",
+    "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//ydb/core/protos",  # peerdir only
+  ]
+
+  sources = [ "usage/tracing.cpp" ]
+}

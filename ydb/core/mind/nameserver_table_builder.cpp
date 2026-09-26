@@ -1,10 +1,13 @@
-#include "dynamic_nameserver.h"
+#include "nameserver_table_builder.h"
 
 #include <ydb/core/protos/blobstorage_distributed_config.pb.h>
 #include <ydb/core/protos/config.pb.h>
 
 namespace NKikimr {
 namespace NNodeBroker {
+
+using NActors::TNodeLocation;
+using NActors::TTableNameserverSetup;
 
 TIntrusivePtr<TTableNameserverSetup> BuildNameserverTable(const NKikimrConfig::TStaticNameserviceConfig& nsConfig) {
     auto table = MakeIntrusive<TTableNameserverSetup>();

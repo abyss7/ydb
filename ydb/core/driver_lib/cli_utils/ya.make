@@ -58,6 +58,7 @@ PEERDIR(
     ydb/public/lib/deprecated/client
     ydb/public/sdk/cpp/src/client/driver
     ydb/public/lib/ydb_cli/commands/ydb_discovery
+    ydb/library/keys
 )
 
 YQL_LAST_ABI_VERSION()

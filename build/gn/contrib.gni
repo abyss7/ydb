@@ -17,14 +17,53 @@ template("contrib_tool") {
 }
 
 template("contrib_library") {
-    _path = rebase_path(".", "//")
-    _unique_name = exec_script("//build/gn/scripts/unique_name.py", [ _path ], "trim string")
+    # Link slots, see //build/gn/link_slots.gni
+    _slot_provider = defined(invoker.link_slot_provides)
+    if (_slot_provider) {
+        link_slot_provider_config(target_name) {
+            provides = invoker.link_slot_provides
+        }
+    }
 
-    target(library_type, target_name) {
-        forward_variables_from(invoker, "*", [ "configs", "deps", "link_slot_provides" ])
+    # Translated sources among `sources` (//build/gn/source_kinds.gni)
+    _rl6 = []
+    if (defined(invoker.sources)) {
+        _rl6 = filter_include(invoker.sources, [ "*.rl6" ])
+    }
+    if (_rl6 != []) {
+        ragel6_sources("${target_name}_rl6") {
+            sources = _rl6
+            visibility = [ ":*" ]
+        }
+    }
+    _y = []
+    if (defined(invoker.sources)) {
+        _y = filter_include(invoker.sources, [ "*.y", "*.ypp" ])
+    }
+    if (_y != []) {
+        bison_sources("${target_name}_y") {
+            sources = _y
+            visibility = [ ":*" ]
+        }
+    }
 
-        output_dir = "$root_out_dir/" + rebase_path(".", "//") # TODO: doesn't work for some reason
-        output_name = "${_unique_name}_${target_name}"
+    # static = true: the objects go right into whatever links the target, all
+    # of them (ya's GLOBAL_SRCS): a static archive would lose an allocator,
+    # whose malloc() the executable's own objects don't reference
+    _static = defined(invoker.static) && invoker.static
+    _type = library_type
+    if (_static) {
+        _type = "source_set"
+    }
+
+    target(_type, target_name) {
+        forward_variables_from(invoker, "*", [ "configs", "deps", "link_slot_provides", "static" ])
+
+        if (!_static) {
+            _unique_name = exec_script("//build/gn/scripts/unique_name.py", [ rebase_path(".", "//") ], "trim string")
+            output_dir = "$root_out_dir/" + rebase_path(".", "//") # TODO: doesn't work for some reason
+            output_name = "${_unique_name}_${target_name}"
+        }
 
         # Override default deps
         deps = []
@@ -33,22 +72,27 @@ template("contrib_library") {
             deps += invoker.deps
         }
 
-        # Link slots, see //build/gn/link_slots.gni.
-        if (defined(invoker.link_slot_provides)) {
-            if (!defined(defines)) {
-                defines = []
-            }
-            foreach(_slot, invoker.link_slot_provides) {
-                defines += [ "GN_SLOT_PROVIDER_${_slot}" ]
-            }
-            metadata = {
-                link_slot_provides = invoker.link_slot_provides
-            }
+        if (_rl6 != []) {
+            sources -= _rl6
+            sources += get_target_outputs(":${target_name}_rl6")
+            deps += [ ":${target_name}_rl6" ]
+        }
+
+        if (_y != []) {
+            sources -= _y
+            sources += filter_include(get_target_outputs(":${target_name}_y"), [ "*.cpp" ])
+            deps += [ ":${target_name}_y" ]
+            configs += [ ":${target_name}_y_config" ]
         }
 
         # Append to default configs
         if (defined(invoker.configs)) {
            configs += invoker.configs
+        }
+
+        # a link slot provider's definitions stay strong
+        if (_slot_provider) {
+            configs += [ ":${target_name}_slot_provider_config" ]
         }
     }
 }

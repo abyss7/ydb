@@ -21,7 +21,8 @@ PEERDIR(
     ydb/core/base
     ydb/core/client
     ydb/core/formats
-    ydb/core/grpc_services  # gn: :fetch_script_results :read_columns
+    ydb/core/grpc_services
+    ydb/core/kqp/proxy_service
     ydb/core/grpc_services/base
     ydb/core/security
     ydb/core/grpc_streaming

@@ -3,7 +3,7 @@
 #include <ydb/library/yql/dq/actors/protos/dq_events.pb.h>
 #include <ydb/library/yql/dq/actors/dq_events_ids.h>
 #include <yql/essentials/public/issue/yql_issue.h>
-#include <yql/essentials/public/issue/yql_issue_message.h>
+#include <ydb/library/yql/public/ydb_issue/ydb_issue_message.h>
 #include <yql/essentials/utils/chunked_buffer.h>
 
 #include <ydb/public/api/protos/ydb_status_codes.pb.h>

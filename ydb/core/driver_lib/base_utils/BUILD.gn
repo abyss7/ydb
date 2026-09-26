@@ -11,7 +11,7 @@ library("base_utils") {
   ]
 
   deps = [
-    # "//ydb/core/client/server",  # peerdir only
+    # "//ydb/core/client:server",  # peerdir only
     # "//ydb/public/sdk/cpp/src/library/grpc/client",  # peerdir only
   ]
 

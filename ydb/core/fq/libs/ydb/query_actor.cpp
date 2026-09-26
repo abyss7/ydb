@@ -1,7 +1,7 @@
 #include <ydb/core/fq/libs/ydb/query_actor.h>
 #include <ydb/core/fq/libs/actors/logging/log.h>
 
-#include <ydb/library/actors/core/events/events.h>
+#include <ydb/library/actors/core/events.h>
 #include <ydb/library/query_actor/query_actor.h>
 
 #include <ydb/public/api/protos/ydb_status_codes.pb.h>

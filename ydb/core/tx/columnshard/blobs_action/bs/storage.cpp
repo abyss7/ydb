@@ -4,6 +4,7 @@
 #include "read.h"
 #include "gc.h"
 #include "gc_actor.h"
+#include <ydb/core/tx/columnshard/blobs_action/events/delete_blobs.h>
 #include <ydb/core/tx/columnshard/columnshard_impl.h>
 
 namespace NKikimr::NOlap::NBlobOperations::NBlobStorage {

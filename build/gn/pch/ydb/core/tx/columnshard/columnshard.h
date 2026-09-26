@@ -34,7 +34,7 @@
 #include "ydb/core/base/events.h"
 #include "ydb/core/tx/data_events/common/modification_type.h"
 #include "ydb/core/formats/arrow/accessor/abstract/constructor.h"
-#include "ydb/library/actors/core/events/event_pb.h"
+#include "ydb/library/actors/core/event_pb.h"
 #include "ydb/core/scheme/scheme_tabledefs.h"
 #include "ydb/core/base/appdata_fwd.h"
 #include "ydb/library/signals/owner.h"

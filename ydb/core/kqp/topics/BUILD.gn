@@ -4,7 +4,7 @@ library("topics") {
     # "//ydb/core/kafka_proxy",
     # "//ydb/core/protos",
     "//ydb/core/tx/long_tx_service:public",
-    "//ydb/core/tx/scheme_cache",
+    # "//ydb/core/tx/scheme_cache",
     # "//ydb/library/actors/core",
     "//ydb/public/api/protos",
   ]

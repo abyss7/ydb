@@ -1,9 +1,23 @@
 #pragma once
 
-#include "defs.h"
-
 #include "scheme.h"
 #include "diff.h"
+
+#include <ydb/core/protos/blobstorage_ddisk.pb.h>
+#include <ydb/core/protos/blobstorage_disk.pb.h>
+#include <ydb/core/tablet_flat/tablet_flat_executor.h>
+
+#include <util/generic/hash.h>
+#include <util/generic/map.h>
+#include <util/generic/maybe.h>
+#include <util/generic/ptr.h>
+#include <util/stream/output.h>
+#include <util/string/builder.h>
+#include <util/system/yassert.h>
+
+#include <compare>
+#include <deque>
+#include <tuple>
 
 namespace NKikimr::NBsController {
     struct TPDiskId;

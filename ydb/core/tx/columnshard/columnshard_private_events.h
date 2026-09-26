@@ -1,5 +1,6 @@
 #pragma once
 
+#include "columnshard_private_ev_ids.h"
 #include "defs.h"
 
 #include "blobs_action/abstract/gc.h"
@@ -34,67 +35,8 @@ class TGlobalColumnAddress;
 namespace NKikimr::NColumnShard {
 
 struct TEvPrivate {
-    enum EEv {
-        EvIndexing = EventSpaceBegin(TEvents::ES_PRIVATE),
-        EvWriteIndex,
-        EvScanStats,
-        EvReadFinished,
-        EvPeriodicWakeup,
-        EvReportBaseStatistics,
-        EvReportExecutorStatistics,
-        EvEviction,
-        EvS3Settings,
-        EvExport,
-        EvForget,
-        EvGetExported,
-        EvWriteBlobsResult,
-        EvStartReadTask,
-        EvWriteDraft,
-        EvGarbageCollectionFinished,
-        EvTieringModified,
-        EvStartResourceUsageTask,
-        EvNormalizerResult,
-
-        EvWritingPortionsAddDataToBuffer,
-        EvWritingPortionsFlushBuffer,
-
-        EvExportCursorSaved,
-        EvExportSaveCursor,
-
-        EvTaskProcessedResult,
-        EvPingSnapshotsUsage,
-        EvWritePortionResult,
-        EvStartCompaction,
-
-        EvRegisterGranuleDataAccessor,
-        EvUnregisterGranuleDataAccessor,
-        EvAskTabletDataAccessors,
-        EvAskServiceDataAccessors,
-        EvAddPortionDataAccessor,
-        EvRemovePortionDataAccessor,
-        EvClearCacheDataAccessor,
-        EvMetadataAccessorsInfo,
-        EvAskColumnData,
-
-        EvRequestFilter,
-        EvFilterRequestResourcesAllocated,
-        EvFilterConstructionResult,
-
-        EvReportScanDiagnostics,
-        EvReportScanIteratorDiagnostics,
-
-        EvBackupExportRecordBatch,
-        EvBackupExportRecordBatchResult,
-        EvBackupExportState,
-        EvBackupExportError,
-        
-        EvBackupImportRecordBatch,
-        EvBackupImportRecordBatchResult,
-
-        EvEnd
-    };
-
-    static_assert(EvEnd < EventSpaceEnd(TEvents::ES_PRIVATE), "expect EvEnd < EventSpaceEnd(TEvents::ES_PRIVATE)");
+    using EEv = NPrivateEvIds::EEv;
+    using enum NPrivateEvIds::EEv;
 
     class TEvMetadataAccessorsInfo: public NActors::TEventLocal<TEvMetadataAccessorsInfo, EvMetadataAccessorsInfo> {
     private:

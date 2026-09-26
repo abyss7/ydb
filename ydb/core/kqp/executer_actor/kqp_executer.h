@@ -4,6 +4,7 @@
 #include <ydb/core/kqp/common/kqp_batch_operations.h>
 #include <ydb/core/kqp/common/kqp_tx.h>
 #include <ydb/core/kqp/common/kqp_event_ids.h>
+#include <ydb/core/kqp/common/kqp_executer_mutable_config.h>
 #include <ydb/core/kqp/common/kqp_user_request_context.h>
 #include <ydb/core/kqp/executer_actor/kqp_partition_helper.h>
 #include <ydb/core/kqp/executer_actor/shards_resolver/kqp_shards_resolver_events.h>
@@ -135,18 +136,6 @@ struct TEvKqpExecuter {
 };
 
 struct TKqpFederatedQuerySetup;
-
-struct TExecuterMutableConfig : public TAtomicRefCount<TExecuterMutableConfig>{
-    std::atomic<bool> EnableRowsDuplicationCheck = false;
-    std::atomic<bool> VerboseMemoryLimitException = false;
-    std::atomic<i32> RuntimeParameterSizeLimit = 0;
-
-    void ApplyFromTableServiceConfig(const NKikimrConfig::TTableServiceConfig& tableServiceConfig) {
-        EnableRowsDuplicationCheck.store(tableServiceConfig.GetEnableRowsDuplicationCheck());
-        VerboseMemoryLimitException.store(tableServiceConfig.GetResourceManager().GetVerboseMemoryLimitException());
-        RuntimeParameterSizeLimit.store(tableServiceConfig.GetExtractPredicateParameterListSizeLimit());
-    }
-};
 
 struct TExecuterConfig : TNonCopyable {
     TIntrusivePtr<TExecuterMutableConfig> MutableConfig;

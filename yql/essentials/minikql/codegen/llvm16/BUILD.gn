@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 copy("codegen_llvm_deps_h") {
   sources = [ "../codegen_llvm_deps.h.txt" ]
   outputs = [ "$target_gen_dir/codegen_llvm_deps.h" ]
@@ -19,4 +21,6 @@ library("llvm16") {
   sources = [ "../codegen.cpp" ]
 
   configs = [ ":private_config" ]
+
+  link_slot_provides = [ "minikql_codegen" ]
 }

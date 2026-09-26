@@ -12,7 +12,7 @@ library("cloud_audit") {
     "//library/cpp/unified_agent_client",
     # "//ydb/core/fq/libs/actors",  # peerdir only
     # "//ydb/core/fq/libs/actors:logging",
-    # "//ydb/core/fq/libs/audit:events",
+    "//ydb/core/fq/libs/audit:events",
     "//ydb/library/actors/log_backend",
     "//ydb/library/folder_service",
     "//ydb/library/security",

@@ -1,6 +1,4 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
-config("private_config") {
+config("url_mapper_private_config") {
   cflags = [ "-Wno-deprecated-enum-enum-conversion" ]
 }
 
@@ -15,5 +13,5 @@ library("url_mapper") {
 
   sources = [ "yql_yt_url_mapper.cpp" ]
 
-  configs = [ ":private_config" ]
+  configs = [ ":url_mapper_private_config" ]
 }

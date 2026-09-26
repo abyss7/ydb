@@ -3,9 +3,9 @@ library("query") {
     "//library/cpp/streams/bzip2",
     "//ydb/core/base",
     # "//ydb/core/blobstorage/events",
-    # "//ydb/core/blobstorage/vdisk",
     # "//ydb/core/blobstorage/vdisk/common",
     # "//ydb/core/blobstorage/vdisk/hulldb",
+    # "//ydb/core/blobstorage/vdisk:defs",
   ]
 
   deps = [

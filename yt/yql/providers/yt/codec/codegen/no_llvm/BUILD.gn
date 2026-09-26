@@ -1,8 +1,8 @@
-config("_includes") {
-  include_dirs = [ "//yt/yql/providers/yt/codec/codegen" ]
-}
+# yamake2gn: keep  -- hand-written, do not regenerate
 
-library("no_llvm") {
-  sources = [ "../yt_codec_cg_dummy.cpp" ]
-  configs = [ ":_includes" ]
+import("//yt/yql/providers/yt/codec/codegen/variant.gni")
+
+yt_codec_codegen_variant("no_llvm") {
+  codegen = false
+  link_slot_provides = [ "yt_codegen" ]
 }

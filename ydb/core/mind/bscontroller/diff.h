@@ -1,6 +1,10 @@
 #pragma once
 
-#include "defs.h"
+#include <util/generic/map.h>
+#include <util/generic/set.h>
+
+#include <type_traits>
+#include <utility>
 
 namespace NDiffUtils {
 

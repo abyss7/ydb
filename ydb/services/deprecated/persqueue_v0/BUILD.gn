@@ -9,7 +9,7 @@ library("persqueue_v0") {
     # "//library/cpp/protobuf/util",
     # "//library/cpp/string_utils/quote",
     # "//ydb/core/base",
-    "//ydb/core/client/server",
+    "//ydb/core/client:server",
     # "//ydb/core/grpc_services",
     "//ydb/core/kqp/common",
     # "//ydb/core/mind:address_classification",
@@ -20,6 +20,7 @@ library("persqueue_v0") {
     # "//ydb/core/persqueue/writer",
     # "//ydb/core/persqueue/writer:partition_chooser",
     # "//ydb/core/protos",
+    # "//ydb/core/tablet",
     # "//ydb/core/tx/scheme_board",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/tx_proxy",  # peerdir only

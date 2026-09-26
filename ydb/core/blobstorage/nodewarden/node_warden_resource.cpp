@@ -7,6 +7,7 @@
 #include <ydb/core/blobstorage/nodewarden/node_warden_events.h>
 #include <ydb/library/pdisk_io/file_params.h>
 #include <ydb/library/pdisk_io/wcache.h>
+#include <ydb/library/yaml_config/public/yaml_config.h>
 #include <library/cpp/streams/zstd/zstd.h>
 #include <util/string/split.h>
 

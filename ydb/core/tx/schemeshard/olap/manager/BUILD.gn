@@ -1,5 +1,0 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
-group("manager") {
-  public_deps = [ "//ydb/core/tx/schemeshard" ]
-}

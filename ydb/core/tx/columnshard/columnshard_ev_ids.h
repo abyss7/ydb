@@ -8,7 +8,7 @@
 
 #include <ydb/core/base/events.h>
 
-#include <ydb/library/actors/core/events/events.h>
+#include <ydb/library/actors/core/events.h>
 
 namespace NKikimr::TEvColumnShard {
 

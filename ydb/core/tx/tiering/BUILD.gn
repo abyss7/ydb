@@ -8,7 +8,7 @@ library("abstract") {
 
 library("tier") {
   public_deps = [
-    "//library/cpp/json:writer",
+    "//library/cpp/json",
     # "//ydb/core/base",
     # "//ydb/library/accessor",
     # "//ydb/library/conclusion",
@@ -43,7 +43,7 @@ library("tiering") {
   ]
 
   deps = [
-    # "//library/cpp/json:writer",  # peerdir only
+    # "//library/cpp/json",  # peerdir only
     # "//library/cpp/retry",
     # "//ydb/core/blobstorage",  # peerdir only
     # "//ydb/core/protos",

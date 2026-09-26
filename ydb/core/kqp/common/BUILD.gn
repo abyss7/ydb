@@ -34,9 +34,9 @@ library("common") {
     ":simple",
     "//contrib/libs/openssl",
     # "//contrib/libs/protobuf",
-    "//library/cpp/json:writer",
+    "//library/cpp/json",
     "//library/cpp/lwtrace",
-    # "//library/cpp/string_utils/base64",
+    "//library/cpp/string_utils/base64",
     "//ydb/core/base",
     "//ydb/core/control/lib",
     "//ydb/core/engine",
@@ -60,7 +60,7 @@ library("common") {
     # "//ydb/library/mkql_proto",
     # "//ydb/library/mkql_proto:protos",
     # "//ydb/library/services",
-    # "//ydb/library/yql/dq/actors",
+    "//ydb/library/yql/dq/actors",
     # "//ydb/public/api/protos",
     "//ydb/public/sdk/cpp/src/library/operation_id",
     "//yql/essentials/ast",
@@ -77,6 +77,7 @@ library("common") {
     "//ydb/core/tx/long_tx_service:public",  # peerdir only
     # "//ydb/library/yql/dq/common",  # peerdir only
     # "//ydb/library/yql/dq/expr_nodes",  # peerdir only
+    "//ydb/library/yql/public/ydb_issue",  # peerdir only
     "//ydb/public/sdk/cpp/src/library/operation_id:protos",
     # "//yql/essentials/core",
     "//yql/essentials/core/dq_integration",
@@ -171,6 +172,7 @@ library("events") {
 
 library("result_set_format") {
   public_deps = [
+    ":arrow",
     "//contrib/libs/apache/arrow",
     "//ydb/library/yql/dq/runtime",
     "//ydb/public/api/protos",
@@ -178,7 +180,6 @@ library("result_set_format") {
   ]
 
   deps = [
-    ":arrow",
     "//ydb/core/formats/arrow",
     "//ydb/library/mkql_proto",
     # "//ydb/library/mkql_proto:protos",  # peerdir only

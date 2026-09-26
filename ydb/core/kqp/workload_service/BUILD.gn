@@ -1,5 +1,7 @@
 library("actors") {
   public_deps = [
+    ":cpu_load_actors",
+    ":scheme_actors",
     # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/kqp/common:events",
     # "//ydb/core/protos",
@@ -7,8 +9,6 @@ library("actors") {
 
   deps = [
     ":common",
-    ":cpu_load_actors",
-    ":scheme_actors",
     ":tables",
     # "//ydb/core/base",
     "//ydb/core/kqp/common:simple",
@@ -62,6 +62,7 @@ library("scheme_actors") {
     "//ydb/core/kqp/common:simple",
     # "//ydb/core/protos",
     # "//ydb/core/protos:schemeshard",
+    "//ydb/core/tablet",
     # "//ydb/core/tx/schemeshard",
     "//ydb/core/tx/tx_proxy:public",
     "//ydb/library/table_creator",

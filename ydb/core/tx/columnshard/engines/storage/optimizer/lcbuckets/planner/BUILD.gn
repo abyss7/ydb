@@ -1,0 +1,65 @@
+library("level") {
+  public_deps = [
+    # ":selector",
+    # "//ydb/core/tx/columnshard/counters",
+    # "//ydb/core/tx/columnshard/engines",
+    # "//ydb/core/tx/columnshard/engines/portions",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/formats/arrow",
+    # "//ydb/services/bg_tasks:abstract",
+  ]
+
+  deps = [
+    # "//contrib/libs/apache/arrow",  # peerdir only
+    # "//ydb/core/formats/arrow",  # peerdir only
+    # "//ydb/core/protos",  # peerdir only
+    # "//ydb/core/tx/columnshard/engines/changes/abstract",  # peerdir only
+  ]
+
+  sources = [
+    "level/abstract.cpp",
+    "level/counters.cpp",
+    "level/one_layer.cpp",
+    "level/zero_level.cpp",
+  ]
+}
+
+library("planner") {
+  public_deps = [
+    ":level",
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/engines/storage/optimizer/abstract",
+  ]
+
+  deps = [
+    ":selector",
+    # "//contrib/libs/apache/arrow",  # peerdir only
+    # "//ydb/core/formats/arrow",  # peerdir only
+    # "//ydb/core/protos",  # peerdir only
+    # "//ydb/core/tx/columnshard/engines/changes/abstract",  # peerdir only
+    # "//ydb/core/tx/columnshard/engines/storage/optimizer/lcbuckets/constructor",
+  ]
+
+  sources = [ "optimizer.cpp" ]
+}
+
+library("selector") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard/engines/portions",
+    # "//ydb/services/bg_tasks:abstract",
+  ]
+
+  deps = [
+    # "//contrib/libs/apache/arrow",  # peerdir only
+    # "//ydb/core/formats/arrow",  # peerdir only
+    # "//ydb/core/protos",  # peerdir only
+    # "//ydb/core/tx/columnshard/engines/changes/abstract",  # peerdir only
+  ]
+
+  sources = [
+    "selector/abstract.cpp",
+    "selector/empty.cpp",
+    "selector/snapshot.cpp",
+    "selector/transparent.cpp",
+  ]
+}

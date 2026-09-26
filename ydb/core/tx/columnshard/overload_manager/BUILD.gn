@@ -1,5 +1,3 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("overload_manager") {
   public_deps = [
     "//ydb/core/base",
@@ -8,8 +6,10 @@ library("overload_manager") {
   ]
 
   deps = [
-    "//contrib/libs/apache/arrow",
     "//ydb/core/kqp/query_data",
+    # "//ydb/core/protos",
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/data_events",  # peerdir only
     "//ydb/library/signals",
   ]
 

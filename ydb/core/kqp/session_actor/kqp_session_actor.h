@@ -1,5 +1,7 @@
 #pragma once
 
+#include "kqp_worker_settings.h"
+
 #include <ydb/core/kqp/common/simple/temp_tables.h>
 #include <ydb/core/kqp/common/kqp_tx_manager.h>
 #include <ydb/core/kqp/counters/kqp_counters.h>
@@ -23,44 +25,6 @@ namespace NKikimr::NKqp::NRm {
 }
 
 namespace NKikimr::NKqp {
-
-struct TKqpWorkerSettings {
-    TString Cluster;
-    TString Database;
-    TMaybe<TString> ApplicationName;
-    TMaybe<TString> UserName;
-    bool LongSession = false;
-
-    TIntrusivePtr<TExecuterMutableConfig> MutableExecuterConfig;
-    NKikimrConfig::TTableServiceConfig TableService;
-    NKikimrConfig::TQueryServiceConfig QueryService;
-
-    TControlWrapper MkqlInitialMemoryLimit;
-    TControlWrapper MkqlMaxMemoryLimit;
-
-    TKqpDbCountersPtr DbCounters;
-
-    explicit TKqpWorkerSettings(const TString& cluster, const TString& database,
-            const TMaybe<TString>& applicationName, const TMaybe<TString>& userName, const TIntrusivePtr<TExecuterMutableConfig> mutableExecuterConfig, const NKikimrConfig::TTableServiceConfig& tableServiceConfig,
-            const  NKikimrConfig::TQueryServiceConfig& queryServiceConfig, TKqpDbCountersPtr dbCounters)
-        : Cluster(cluster)
-        , Database(database)
-        , ApplicationName(applicationName)
-        , UserName(userName)
-        , MutableExecuterConfig(mutableExecuterConfig)
-        , TableService(tableServiceConfig)
-        , QueryService(queryServiceConfig)
-        , MkqlInitialMemoryLimit(2097152, 1, Max<i64>())
-        , MkqlMaxMemoryLimit(1073741824, 1, Max<i64>())
-        , DbCounters(dbCounters)
-    {
-        auto& icb = *AppData()->Icb;
-        TControlBoard::RegisterSharedControl(
-            MkqlInitialMemoryLimit, icb.KQPSessionControls.MkqlInitialMemoryLimit);
-        TControlBoard::RegisterSharedControl(
-            MkqlMaxMemoryLimit, icb.KQPSessionControls.MkqlMaxMemoryLimit);
-    }
-};
 
 class TKqpQueryCache;
 

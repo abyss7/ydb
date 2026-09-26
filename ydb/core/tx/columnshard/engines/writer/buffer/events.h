@@ -2,17 +2,17 @@
 
 #include <ydb/core/formats/arrow/process_columns.h>
 #include <ydb/core/formats/arrow/size_calcer.h>
-#include <ydb/core/tx/columnshard/columnshard_private_events.h>
+#include <ydb/core/tx/columnshard/columnshard_private_ev_ids.h>
 #include <ydb/core/tx/columnshard/operations/common/context.h>
 #include <ydb/core/tx/data_events/write_data.h>
 
-#include <ydb/library/actors/core/events/event_local.h>
+#include <ydb/library/actors/core/event_local.h>
 #include <ydb/library/actors/testlib/common/events_scheduling.h>
 
 namespace NKikimr::NOlap::NWritingPortions {
 
 class TEvAddInsertedDataToBuffer
-    : public NActors::TEventLocal<TEvAddInsertedDataToBuffer, NColumnShard::TEvPrivate::EEv::EvWritingPortionsAddDataToBuffer> {
+    : public NActors::TEventLocal<TEvAddInsertedDataToBuffer, NColumnShard::NPrivateEvIds::EvWritingPortionsAddDataToBuffer> {
 private:
     YDB_READONLY_DEF(std::shared_ptr<NEvWrite::TWriteData>, WriteData);
     YDB_READONLY_DEF(NArrow::TContainerWithIndexes<arrow::RecordBatch>, RecordBatch);
@@ -30,10 +30,10 @@ public:
     }
 };
 
-class TEvFlushBuffer: public NActors::TEventLocal<TEvFlushBuffer, NColumnShard::TEvPrivate::EEv::EvWritingPortionsFlushBuffer> {
+class TEvFlushBuffer: public NActors::TEventLocal<TEvFlushBuffer, NColumnShard::NPrivateEvIds::EvWritingPortionsFlushBuffer> {
 private:
     static inline NActors::NTests::TGlobalScheduledEvents::TRegistrator TestScheduledEventRegistrator =
-        (ui32)NColumnShard::TEvPrivate::EEv::EvWritingPortionsFlushBuffer;
+        (ui32)NColumnShard::NPrivateEvIds::EvWritingPortionsFlushBuffer;
 
 public:
 };

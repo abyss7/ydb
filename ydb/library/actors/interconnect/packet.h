@@ -4,7 +4,7 @@
 #include "types.h"
 
 #include <ydb/library/actors/core/actor.h>
-#include <ydb/library/actors/core/events/events.h>
+#include <ydb/library/actors/core/events.h>
 #include <ydb/library/actors/prof/tag.h>
 #include <ydb/library/actors/util/rope.h>
 #include <ydb/library/actors/wilson/wilson_span.h>

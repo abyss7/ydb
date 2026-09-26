@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 config("private_config") {
     defines = [
         "GRAMMAR_STRING_CORE_SINGLE_DEFAULT=\"~(QUOTE_SINGLE | BACKSLASH) | (BACKSLASH .)\"",

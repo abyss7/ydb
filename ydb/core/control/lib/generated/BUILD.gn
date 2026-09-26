@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 executable("codegen") {
     _path = rebase_path(".", "//")
     _unique_name = exec_script("//build/gn/scripts/unique_name.py", [ _path ], "trim string")

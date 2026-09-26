@@ -1,3 +1,0 @@
-library("libunwind") {
-    sources = [ "libunwind/libunwind_cursor.cpp" ]
-}

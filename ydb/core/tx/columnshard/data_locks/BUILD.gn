@@ -1,0 +1,39 @@
+group("data_locks") {
+  public_deps = [
+    # ":locks",  # peerdir only
+    # ":manager",  # peerdir only
+  ]
+}
+
+library("locks") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/engines",
+    # "//ydb/core/tx/columnshard/engines/portions",
+    # "//ydb/library/accessor",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard/engines/storage",  # peerdir only
+  ]
+
+  sources = [
+    "locks/abstract.cpp",
+    "locks/composite.cpp",
+    "locks/list.cpp",
+    "locks/snapshot.cpp",
+  ]
+}
+
+library("manager") {
+  public_deps = [
+    # ":locks",
+    "//ydb/core/tx/columnshard/hooks/abstract",
+  ]
+
+  deps = [
+    # "//ydb/library/actors/core",
+  ]
+
+  sources = [ "manager/manager.cpp" ]
+}

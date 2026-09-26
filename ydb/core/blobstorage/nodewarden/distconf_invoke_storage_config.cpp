@@ -5,10 +5,12 @@
 #include <ydb/core/mind/bscontroller/bsc.h>
 
 #include <ydb/library/yaml_config/yaml_config.h>
+#include <ydb/library/yaml_config/yaml_config_compress.h>
 #include <ydb/library/yaml_config/yaml_config_parser.h>
 #include <ydb/library/yaml_config/util.h>
 #include <ydb/library/yaml_json/yaml_to_json.h>
 #include <library/cpp/protobuf/json/proto2json.h>
+#include <library/cpp/streams/zstd/zstd.h>
 
 namespace NKikimr::NStorage {
 

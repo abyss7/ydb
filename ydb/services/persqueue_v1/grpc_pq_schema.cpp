@@ -246,6 +246,7 @@ void DoPQRemoveReadRuleRequest(std::unique_ptr<IRequestOpCtx> ctx, const IFacili
 DECLARE_RPC(DescribeTopic);
 DECLARE_RPC(DescribeConsumer);
 DECLARE_RPC(DescribePartition);
+DECLARE_RPC(CommitOffset);
 
 #undef DECLARE_RPC
 

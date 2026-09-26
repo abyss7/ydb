@@ -44,6 +44,7 @@ PEERDIR(
     ydb/public/sdk/cpp/src/library/operation_id
     yql/essentials/providers/common/proto
     yql/essentials/public/issue
+    ydb/library/security
 )
 
 YQL_LAST_ABI_VERSION()

@@ -10,6 +10,7 @@ ADDINCL(
 
 PEERDIR(
     ydb/public/sdk/cpp/src/client/common_client/impl
+    ydb/public/sdk/cpp/src/client/driver
     ydb/public/sdk/cpp/src/client/types
 )
 

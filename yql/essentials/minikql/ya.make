@@ -3,6 +3,7 @@ LIBRARY()
 SRCS(
     aligned_page_pool.cpp  # gn: alloc
     aligned_page_pool.h
+    codegen/codegen.h  # gn: slot minikql_codegen
     compact_hash.cpp
     compact_hash.h
     defs.h

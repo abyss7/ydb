@@ -1,24 +1,15 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
-import("//build/gn/bison.gni")
-
-config("public_config") {
-  cflags = [
-    "-Wno-deprecated-anon-enum-enum-conversion",
-    "-Wno-unused-but-set-variable",
-  ]
-}
-
-bison_source_set("re_parser") {
-  sources = [ "pire/re_parser.y" ]
-  configs = [ ":public_config" ]
+config("pire_public_config") {
+  cflags = [ "-Wno-deprecated-anon-enum-enum-conversion" ]
 }
 
 library("pire") {
   public_deps = [
-    "//library/cpp/charset",
+    # "//library/cpp/charset:lite",
   ]
-  deps = [ ":re_parser" ]
+
+  deps = [
+    "//library/cpp/charset",  # peerdir only
+  ]
 
   sources = [
     "extraencodings.cpp",
@@ -33,10 +24,11 @@ library("pire") {
     "pire/fsm.cpp",
     "pire/half_final_fsm.cpp",
     "pire/re_lexer.cpp",
+    "pire/re_parser.y",
     "pire/read_unicode.cpp",
     "pire/scanner_io.cpp",
     "pire/scanners/null.cpp",
   ]
 
-  public_configs = [ ":public_config" ]
+  public_configs = [ ":pire_public_config" ]
 }

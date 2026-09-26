@@ -31,6 +31,7 @@
 #include <google/protobuf/text_format.h>
 
 #include <library/cpp/getopt/small/last_getopt_opts.h>
+#include <library/cpp/svnversion/svnversion.h>
 
 #include <util/system/hostname.h>
 #include <util/stream/file.h>

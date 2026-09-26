@@ -3,6 +3,7 @@
 
 #include <ydb/core/engine/mkql_keys.h>
 
+#include <yql/essentials/minikql/computation/mkql_computation_node_codegen.h>
 #include <yql/essentials/minikql/mkql_node_cast.h>
 
 #include <ydb/core/kqp/common/kqp_types.h>

@@ -7,6 +7,7 @@ library("console") {
     # "//ydb/core/mind",
     "//ydb/core/protos",
     # "//ydb/core/scheme",
+    # "//ydb/core/tablet",
     "//ydb/core/tablet_flat",
     # "//ydb/core/tx/schemeshard",
     "//ydb/core/tx/tx_proxy:public",
@@ -38,7 +39,6 @@ library("console") {
     "//ydb/core/mon",
     # "//ydb/core/node_whiteboard",
     # "//ydb/core/protos:schemeshard",
-    # "//ydb/core/tablet",  # peerdir only
     # "//ydb/core/util",
     "//ydb/library/actors/http",
     # "//ydb/library/actors/interconnect",

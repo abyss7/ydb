@@ -9,7 +9,7 @@ library("executer_actor") {
     "//ydb/core/kqp/query_data",
     "//ydb/core/protos",
     # "//ydb/core/scheme",
-    # "//ydb/core/tx/long_tx_service:public",
+    "//ydb/core/tx/long_tx_service:public",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/library/aclib",
     # "//ydb/library/yql/dq/actors:compute",
@@ -25,8 +25,8 @@ library("executer_actor") {
     # "//library/cpp/containers/absl_flat_hash",  # peerdir only
     # "//ydb/core/actorlib_impl",
     # "//ydb/core/base",
-    # "//ydb/core/client/minikql_compile",  # peerdir only
-    # "//ydb/core/client/minikql_compile:db_key_resolver",
+    # "//ydb/core/client:db_key_resolver",
+    # "//ydb/core/client:minikql_compile",  # peerdir only
     # "//ydb/core/engine:minikql",
     # "//ydb/core/formats",  # peerdir only
     "//ydb/core/fq/libs/checkpointing",
@@ -45,16 +45,15 @@ library("executer_actor") {
     # "//ydb/core/kqp/query_compiler",  # peerdir only
     # "//ydb/core/kqp/rm_service",
     "//ydb/core/kqp/runtime",
-    "//ydb/core/kqp/session_actor:response",  # peerdir only
-    # "//ydb/core/kqp/session_actor:worker_common",
-    # "//ydb/core/kqp/topics",  # peerdir only
+    "//ydb/core/kqp/session_actor:worker_common",
+    "//ydb/core/kqp/topics",  # peerdir only
     # "//ydb/core/persqueue/events",
     # "//ydb/core/protos:schemeshard",
     # "//ydb/core/sys_view:common",  # peerdir only
     # "//ydb/core/tx/columnshard",
     "//ydb/core/tx/data_events:common",
     # "//ydb/core/tx/datashard",
-    # "//ydb/core/tx/datashard:range_ops",
+    "//ydb/core/tx/datashard:range_ops",
     # "//ydb/core/tx/program",
     # "//ydb/core/tx/schemeshard",
     # "//ydb/core/tx/schemeshard/olap/schema",
@@ -69,7 +68,7 @@ library("executer_actor") {
     "//ydb/library/plan2svg",
     # "//ydb/library/wilson_ids",
     # "//ydb/library/ydb_issue",
-    # "//ydb/library/yql/dq/comp_nodes",
+    "//ydb/library/yql/dq/comp_nodes",
     # "//ydb/library/yql/providers/common/http_gateway",
     "//ydb/library/yql/providers/pq/proto",
     # "//ydb/public/api/protos",

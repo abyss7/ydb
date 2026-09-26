@@ -7,6 +7,7 @@ library("yt_download") {
     # "//yql/essentials/core/file_storage",  # peerdir only
     "//yql/essentials/utils",
     "//yql/essentials/utils/log",
+    "//yt/cpp/mapreduce/client",  # peerdir only
     "//yt/cpp/mapreduce/interface",
     "//yt/yql/providers/yt/lib/init_yt_api",
     "//yt/yql/providers/yt/lib/yson_helpers",

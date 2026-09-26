@@ -12,6 +12,8 @@ library("provider") {
         "//ydb/library/actors/wilson",  # include path
         "//ydb/library/yql/dq/runtime",
         "//ydb/public/api/grpc",  # include path
+        "//yql/essentials/providers/common/gateway",
+        "//yql/essentials/providers/common/provider",
     ]
 
     deps = [
@@ -33,7 +35,6 @@ library("provider") {
         "//yql/essentials/core/peephole_opt",
         "//yql/essentials/parser/pg_wrapper/interface",
         "//yql/essentials/providers/common/config",
-        "//yql/essentials/providers/common/provider",
         "//yql/essentials/providers/common/schema:expr",
         "//yql/essentials/providers/common/transform",
         "//yql/essentials/providers/result/expr_nodes",

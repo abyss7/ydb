@@ -1,8 +1,7 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("long_tx_service") {
   public_deps = [
     # "//library/cpp/monlib/dynamic_counters",
+    "//ydb/core/base",
   ]
 
   deps = [
@@ -10,16 +9,11 @@ library("long_tx_service") {
     # "//library/cpp/lwtrace",
     "//library/cpp/lwtrace/mon",
     "//ydb/core/actorlib_impl",
-    "//ydb/core/base",
-    "//ydb/core/tx",
     # "//ydb/core/tx/columnshard",
     "//ydb/core/tx/tx_proxy:public",
-    "//ydb/core/tx/scheme_cache",
     # "//ydb/core/util",
     # "//ydb/library/actors/core",
-    "//ydb/library/actors/wilson",  # include path
     # "//ydb/library/services",
-    "//ydb/library/ydb_issue",
   ]
 
   sources = [
@@ -31,7 +25,7 @@ library("long_tx_service") {
   ]
 }
 
-config("private_config") {
+config("public_private_config") {
   cflags = [ "-Wno-deprecated-enum-enum-conversion" ]
 }
 
@@ -57,5 +51,5 @@ library("public") {
     "public/types.cpp",
   ]
 
-  configs = [ ":private_config" ]
+  configs = [ ":public_private_config" ]
 }

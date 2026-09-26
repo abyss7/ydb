@@ -18,6 +18,7 @@ PEERDIR(
     ydb/core/tx/scheme_cache
     ydb/core/util
     yql/essentials/public/issue
+    ydb/library/yql/public/ydb_issue
     ydb/library/time_series_vec
 )
 

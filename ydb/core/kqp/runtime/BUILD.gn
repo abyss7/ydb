@@ -61,7 +61,7 @@ library("runtime") {
     # "//ydb/library/yql/dq/proto",
     # "//ydb/public/api/protos",
     "//yql/essentials/minikql/comp_nodes",
-    # "//yql/essentials/minikql/computation/llvm16",  # peerdir only
+    "//yql/essentials/minikql/computation/llvm16",  # peerdir only
     # "//yql/essentials/minikql:alloc",
     # "//yql/essentials/public/issue",
     # "//yql/essentials/public/udf",

@@ -5,9 +5,10 @@ library("actors") {
     "//ydb/core/kqp/common:events",
     "//ydb/core/kqp/provider",
     # "//ydb/core/statistics",
+    "//ydb/core/tablet",
     "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/schemeshard",
-    # "//ydb/core/tx/tx_proxy:public",
+    "//ydb/core/tx/tx_proxy:public",
     # "//ydb/library/actors/core",
     "//yql/essentials/providers/common/gateway",
   ]
@@ -27,58 +28,59 @@ library("actors") {
 library("gateway") {
   public_deps = [
     ":interface",
-    # "//library/cpp/lwtrace",
-    # "//library/cpp/protobuf/util",
     # "//library/cpp/threading/future",
-    # "//ydb/core/control/lib",
     # "//ydb/core/kqp/common:simple",
-    # "//ydb/core/kqp/counters",
     "//ydb/core/kqp/federated_query",
     # "//ydb/core/kqp/provider",
-    "//ydb/core/kqp/query_data",
-    # "//ydb/core/kqp/topics",
-    # "//ydb/core/protos",
     # "//ydb/core/scheme",
-    # "//ydb/core/tx/long_tx_service:public",
     # "//ydb/core/tx/scheme_cache",
-    # "//ydb/core/ydb_convert",
-    # "//ydb/library/accessor",
-    # "//ydb/library/actors/core",
-    # "//ydb/library/actors/wilson",
-    # "//ydb/library/ydb_issue:proto",
-    # "//yql/essentials/ast",
   ]
 
   deps = [
     ":actors",
     ":local_rpc",
-    # ":utils",
+    ":utils",
+    # "//ydb/core/actorlib_impl",  # peerdir only
     # "//ydb/core/base",
     # "//ydb/core/cms/console",
     # "//ydb/core/engine",
     # "//ydb/core/external_sources",
+    "//ydb/core/grpc_services",  # peerdir only
     # "//ydb/core/grpc_services/local_rpc",
     # "//ydb/core/kqp/common",
     "//ydb/core/kqp/executer_actor",
     "//ydb/core/kqp/federated_query:actors",
+    # "//ydb/core/kqp/gateway/behaviour/external_data_source",  # peerdir only
+    # "//ydb/core/kqp/gateway/behaviour/resource_pool",  # peerdir only
+    # "//ydb/core/kqp/gateway/behaviour/resource_pool_classifier",  # peerdir only
+    # "//ydb/core/kqp/gateway/behaviour/streaming_query",  # peerdir only
+    # "//ydb/core/kqp/gateway/behaviour/table",  # peerdir only
+    # "//ydb/core/kqp/gateway/behaviour/tablestore",  # peerdir only
+    # "//ydb/core/kqp/gateway/behaviour/view",  # peerdir only
+    "//ydb/core/kqp/query_data",  # peerdir only
     # "//ydb/core/kqp/rm_service",
+    # "//ydb/core/kqp/topics",  # peerdir only
+    # "//ydb/core/protos",
     # "//ydb/core/statistics",
-    "//ydb/core/statistics:service",
+    "//ydb/core/statistics:service",  # peerdir only
+    "//ydb/core/statistics:service_id",
     "//ydb/core/sys_view:common",
-    "//ydb/core/tablet",
+    # "//ydb/core/tablet",
     # "//ydb/core/tx/schemeshard",
-    # "//ydb/core/tx/tx_proxy",
+    # "//ydb/core/tx/tx_proxy:public",
+    "//ydb/core/ydb_convert",
     # "//ydb/library/aclib",
+    # "//ydb/library/actors/core",
     # "//ydb/library/ydb_issue",
-    "//ydb/library/yql/providers/common/db_id_async_resolver",
     # "//ydb/library/yql/providers/common/token_accessor/client",
     # "//ydb/public/lib/base",
     # "//ydb/public/sdk/cpp/src/client/params",
     # "//ydb/services/metadata/abstract",
     "//ydb/services/metadata/manager",
-    "//ydb/services/persqueue_v1:actors",
+    "//ydb/services/persqueue_v1",
     "//yql/essentials/providers/common/codec",
     "//yql/essentials/providers/common/structured_token",
+    # "//yql/essentials/providers/result/expr_nodes",  # peerdir only
     # "//yql/essentials/public/issue",
     # "//yql/essentials/utils/signals",
   ]
@@ -92,7 +94,7 @@ library("gateway") {
 library("interface") {
   public_deps = [
     # "//library/cpp/lwtrace",
-    # "//library/cpp/protobuf/util",
+    "//library/cpp/protobuf/util",
     # "//ydb/core/control/lib",
     # "//ydb/core/kqp/counters",
     "//ydb/core/kqp/provider",
@@ -130,7 +132,7 @@ library("utils") {
   ]
 
   deps = [
-    # ":actors",
+    ":actors",
     # "//ydb/core/base",  # peerdir only
     # "//ydb/core/cms/console",
     # "//ydb/core/protos",

@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 executable("enum_parser") {
     deps += [
         "//library/cpp/cppparser",

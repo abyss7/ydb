@@ -3,13 +3,9 @@
 #include "scheme_decimal_type.h"
 
 #include <ydb/public/lib/scheme_types/scheme_type_id.h>
+#include <yql/essentials/parser/pg_wrapper/interface/type_desc.h>
 
 #include <util/generic/yexception.h>
-
-namespace NKikimr::NPg {
-struct ITypeDesc;
-TString TypeModFromPgTypeName(const TStringBuf name);
-}
 
 namespace NKikimr::NScheme {
 

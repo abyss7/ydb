@@ -10,7 +10,6 @@ library("scheme_board") {
   deps = [
     # "//contrib/libs/protobuf",
     "//library/cpp/json",
-    # "//library/cpp/json:writer",
     # "//library/cpp/monlib/service/pages",
     "//ydb/core/mon",
     # "//ydb/core/node_whiteboard",

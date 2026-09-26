@@ -141,6 +141,16 @@ namespace NYdb::NConsoleClient {
         };
     }
 
+    // The CLI program defines its own list; this one is for the other binaries
+    // linking the commands (ydbd)
+    Y_WEAK TVector<NTopic::ECodec> InitAllowedCodecs() {
+        return TVector<NTopic::ECodec>{
+            NTopic::ECodec::RAW,
+            NTopic::ECodec::ZSTD,
+            NTopic::ECodec::GZIP,
+        };
+    }
+
     TString PrepareAllowedCodecsDescription(const TString& descriptionPrefix, const TVector<NTopic::ECodec>& codecs) {
         TStringStream description;
         description << descriptionPrefix << ". Available codecs: ";

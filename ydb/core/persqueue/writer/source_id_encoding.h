@@ -5,10 +5,6 @@
 #include <util/generic/fwd.h>
 #include <util/generic/string.h>
 
-namespace NKikimr::NClient {
-    class TParameters;
-}
-
 namespace NKikimr::NPQ {
 
 enum class ESourceIdTableGeneration {
@@ -38,8 +34,6 @@ struct TEncodedSourceId {
     ui64 KeysHash = 0;
     ESourceIdTableGeneration Generation;
 };
-
-void SetHashToTxParams(NClient::TParameters& parameters, const TEncodedSourceId& encodedSrcId);
 
 void SetHashToTParamsBuilder(NYdb::TParamsBuilder& builder, const TEncodedSourceId& encodedSrcId);
 

@@ -1,21 +1,20 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("http") {
   public_deps = [
     "//contrib/libs/openssl",
+    # "//library/cpp/dns",
+    "//library/cpp/monlib/metrics",
     "//ydb/library/actors/core",
+    "//ydb/library/actors/interconnect",
+    "//ydb/library/actors/protos",
   ]
 
   deps = [
     "//contrib/libs/zlib",
     "//library/cpp/digest/md5",
-    "//library/cpp/mime/types",
-    "//library/cpp/monlib/metrics",
     "//library/cpp/resource",
     "//library/cpp/string_utils/quote",
-    "//ydb/library/actors/interconnect:poller",
-    "//ydb/library/actors/protos",
     "//ydb/library/actors/wilson",
+    # "//ydb/library/wilson_ids",
   ]
 
   sources = [

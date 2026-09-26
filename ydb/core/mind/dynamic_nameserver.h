@@ -6,14 +6,7 @@
 #include <ydb/library/actors/interconnect/interconnect.h>
 #include <ydb/core/base/domain.h>
 #include <ydb/core/protos/node_broker.pb.h>
-
-namespace NKikimrConfig {
-    class TStaticNameserviceConfig;
-} // NKikimrConfig
-
-namespace NKikimrBlobStorage {
-    class TStorageConfig;
-} // NKikimrBlobStorage
+#include "nameserver_table_builder.h"
 
 namespace NKikimr {
 namespace NNodeBroker {
@@ -27,9 +20,6 @@ IActor *CreateDynamicNameserver(const TIntrusivePtr<TTableNameserverSetup> &setu
                                 const NKikimrNodeBroker::TNodeInfo &node,
                                 const TDomainsInfo &domains,
                                 ui32 poolId = 0);
-
-TIntrusivePtr<TTableNameserverSetup> BuildNameserverTable(const NKikimrConfig::TStaticNameserviceConfig& nsConfig);
-TIntrusivePtr<TTableNameserverSetup> BuildNameserverTable(const NKikimrBlobStorage::TStorageConfig& config);
 
 } // NNodeBroker
 } // NKikimr

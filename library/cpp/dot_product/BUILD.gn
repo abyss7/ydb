@@ -4,7 +4,6 @@ library("dot_product") {
     "//library/cpp/testing/common",
   ]
 
-  # TODO: split sources to avx2, sse, etc.
   sources = [
     "dot_product.cpp",
     "dot_product_avx2.cpp",

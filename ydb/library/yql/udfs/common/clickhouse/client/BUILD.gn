@@ -1,4 +1,6 @@
-config("public_config") {
+# yamake2gn: keep  -- hand-written, do not regenerate
+
+config("client_public_config") {
     include_dirs = [
         "base",
         "base/pcg-random",
@@ -407,6 +409,6 @@ library("client") {
         "src/Processors/ResizeProcessor.cpp",
     ]
 
-    public_configs = [ ":public_config" ]
+    public_configs = [ ":client_public_config" ]
     configs = [ ":client_private_config" ]
 }

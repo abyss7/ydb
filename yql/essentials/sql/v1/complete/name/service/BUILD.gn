@@ -14,7 +14,7 @@ library("column") {
   ]
 
   deps = [
-    # "//library/cpp/case_insensitive_string",
+    "//library/cpp/case_insensitive_string",
     "//yql/essentials/sql/v1/complete/name/object/simple:static",
   ]
 
@@ -70,7 +70,7 @@ library("schema") {
 
 library("service") {
   public_deps = [
-    # "//library/cpp/threading/future",
+    "//library/cpp/threading/future",
     "//yql/essentials/sql/v1/complete:core",
   ]
 

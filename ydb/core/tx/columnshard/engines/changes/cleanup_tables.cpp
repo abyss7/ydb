@@ -3,6 +3,7 @@
 #include <ydb/core/tx/columnshard/engines/column_engine_logs.h>
 #include <ydb/core/tx/columnshard/blobs_action/blob_manager_db.h>
 #include <ydb/core/tx/columnshard/columnshard_schema.h>
+#include <ydb/core/tx/columnshard/common/tables_paths_manager.h>
 #include <ydb/core/tx/columnshard/subscriber/events/tables_erased/event.h>
 #include <util/string/join.h>
 
@@ -16,15 +17,17 @@ void TCleanupTablesColumnEngineChanges::DoDebugString(TStringOutput& out) const 
 
 void TCleanupTablesColumnEngineChanges::DoWriteIndexOnExecute(NColumnShard::TColumnShard* self, TWriteIndexContext& context) {
     if (self && context.DB) {
+        const ITablesPathsManager& tables = self->TablesManager;
         for (auto&& t : TablesToDrop) {
-            AFL_VERIFY(self->TablesManager.TryFinalizeDropPathOnExecute(*context.DB, t));
+            AFL_VERIFY(tables.TryFinalizeDropPathOnExecute(*context.DB, t));
         }
     }
 }
 
 void TCleanupTablesColumnEngineChanges::DoWriteIndexOnComplete(NColumnShard::TColumnShard* self, TWriteIndexCompleteContext& /*context*/) {
+    ITablesPathsManager& tables = self->TablesManager;
     for (auto&& t : TablesToDrop) {
-        self->TablesManager.TryFinalizeDropPathOnComplete(t);
+        tables.TryFinalizeDropPathOnComplete(t);
     }
     self->Subscribers->OnEvent(std::make_shared<NColumnShard::NSubscriber::TEventTablesErased>(TablesToDrop));
 }

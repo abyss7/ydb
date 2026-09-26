@@ -13,7 +13,6 @@ library("ydb_convert") {
   deps = [
     # "//contrib/libs/protobuf",
     "//library/cpp/json",
-    # "//library/cpp/json:writer",
     "//library/cpp/protobuf/json",
     # "//ydb/core/engine",
     "//ydb/core/external_sources",

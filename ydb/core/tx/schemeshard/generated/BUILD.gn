@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 template("codegen") {
     _gen_target = "${target_name}_gen"
     _output = "{{source_gen_dir}}/{{source_name_part}}"

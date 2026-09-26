@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 executable("py3cc") {
     deps += [
         "//contrib/tools/python3",

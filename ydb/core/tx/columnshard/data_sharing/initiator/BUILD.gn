@@ -1,0 +1,33 @@
+library("controller") {
+  public_deps = [
+    ":status",
+    # "//ydb/core/tx/columnshard/data_sharing/protos",
+    # "//ydb/services/bg_tasks:abstract",
+  ]
+
+  sources = [
+    "controller/abstract.cpp",
+    "controller/schemeshard.cpp",
+    "controller/test.cpp",
+  ]
+}
+
+group("initiator") {
+  public_deps = [
+    # ":controller",  # peerdir only
+    # ":status",  # peerdir only
+  ]
+}
+
+library("status") {
+  public_deps = [
+    "//ydb/core/tx/columnshard/data_sharing/protos",
+    # "//ydb/library/accessor",
+    # "//ydb/library/conclusion",
+    "//ydb/services/bg_tasks:abstract",
+  ]
+
+  sources = [ "status/abstract.cpp" ]
+
+  serialize_enum_headers = [ "status/abstract.h" ]
+}

@@ -2,7 +2,7 @@
 
 #include <ydb/services/metadata/abstract/common.h>
 #include <ydb/services/metadata/manager/abstract.h>
-#include <ydb/library/actors/core/events/event_local.h>
+#include <ydb/library/actors/core/event_local.h>
 
 namespace NKikimr::NMetadata::NProvider {
 

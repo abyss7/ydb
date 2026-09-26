@@ -8,7 +8,7 @@
 #include <ydb/library/actors/core/actor_virtual.h>
 #include <ydb/library/actors/core/actor.h>
 #include <ydb/library/actors/core/actorid.h>
-#include <ydb/library/actors/core/events/events.h>
+#include <ydb/library/actors/core/events.h>
 #include <ydb/library/actors/core/log.h>
 #include <ydb/services/metadata/manager/common.h>
 #include <ydb/services/metadata/manager/table_record.h>

@@ -1,3 +1,10 @@
 library("metadata") {
-  # sources = [ "service.cpp" ]
+  public_deps = [
+    # "//ydb/library/actors/core",
+    # "//ydb/services/metadata/abstract",
+    # "//ydb/services/metadata/ds_table",
+    # "//ydb/services/metadata/manager",
+  ]
+
+  sources = [ "service.cpp" ]
 }

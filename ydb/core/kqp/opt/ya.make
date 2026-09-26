@@ -35,6 +35,7 @@ PEERDIR(
     ydb/library/yql/utils/plan
     ydb/core/kqp/provider
     ydb/library/formats/arrow/protos
+    yql/essentials/types/uuid
 )
 # gn: peerdir ydb/core/statistics/service:service_id
 

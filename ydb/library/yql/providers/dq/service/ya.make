@@ -26,6 +26,7 @@ PEERDIR(
     ydb/library/yql/providers/dq/interface
     ydb/library/yql/providers/dq/worker_manager
     ydb/library/yql/providers/dq/worker_manager/interface
+    ydb/library/actors/scheduler
 )
 
 YQL_LAST_ABI_VERSION()

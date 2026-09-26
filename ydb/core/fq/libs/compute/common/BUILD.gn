@@ -36,9 +36,9 @@ library("common") {
     "//ydb/core/fq/libs/db_id_async_resolver_impl",
     # "//ydb/core/fq/libs/grpc",  # peerdir only
     "//ydb/core/fq/libs/private_client",
+    "//ydb/library/plan2svg",
     # "//ydb/library/yql/providers/common/http_gateway",  # peerdir only
     # "//ydb/library/yql/providers/generic/connector/api/service:protos",  # peerdir only
-    # "//ydb/public/lib/ydb_cli/common",
     # "//ydb/public/sdk/cpp/src/client/proto",
     # "//yql/essentials/public/issue",
     # "//yql/essentials/public/issue:protos",

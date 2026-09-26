@@ -9,8 +9,6 @@ PEERDIR(
     ydb/core/base
     ydb/core/grpc_services
     ydb/core/grpc_streaming
-    ydb/core/kesus/proxy
-    ydb/core/kesus/tablet
     ydb/public/api/grpc
     ydb/public/api/grpc/draft
     ydb/public/sdk/cpp/src/library/operation_id

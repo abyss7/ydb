@@ -1,6 +1,6 @@
 library("abstract") {
   public_deps = [
-    # "//ydb/core/formats/arrow",
+    "//ydb/core/formats/arrow",
     # "//ydb/core/tx/columnshard/common",
     # "//ydb/library/accessor",
     "//ydb/library/actors/core",

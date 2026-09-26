@@ -3,7 +3,7 @@
 #include "columnshard_ev_ids.h"
 
 #include <ydb/core/protos/tx_columnshard.pb.h>
-#include <ydb/library/actors/core/events/event_pb.h>
+#include <ydb/library/actors/core/event_pb.h>
 
 namespace NKikimr::TEvColumnShard {
 

@@ -1,7 +1,19 @@
 #pragma once
 
-#include "defs.h"
 #include "types.h"
+
+#include <ydb/core/base/blobstorage_common.h>
+#include <ydb/core/blobstorage/base/blobstorage_vdiskid.h>
+#include <ydb/library/actors/core/interconnect.h>
+#include <ydb/library/yverify_stream/yverify_stream.h>
+
+#include <library/cpp/containers/absl_flat_hash/flat_hash_map.h>
+#include <library/cpp/containers/stack_vector/stack_vec.h>
+
+#include <util/generic/hash.h>
+#include <util/generic/ptr.h>
+#include <util/generic/string.h>
+#include <util/generic/vector.h>
 
 namespace NKikimr {
     namespace NBsController {

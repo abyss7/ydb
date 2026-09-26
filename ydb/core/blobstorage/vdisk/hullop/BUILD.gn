@@ -17,13 +17,13 @@ library("hullcompdelete") {
 library("hullop") {
   public_deps = [
     # "//ydb/core/blobstorage/base",
-    # "//ydb/core/blobstorage/vdisk",
     "//ydb/core/blobstorage/vdisk/common",
     # "//ydb/core/blobstorage/vdisk/hulldb",
     # "//ydb/core/blobstorage/vdisk/hulldb:bulksst_add",
     "//ydb/core/blobstorage/vdisk/hulldb:cache_block",
     "//ydb/core/blobstorage/vdisk/hulldb:recovery",
     "//ydb/core/blobstorage/vdisk/synclog",
+    # "//ydb/core/blobstorage/vdisk:defs",
     # "//ydb/core/protos",
   ]
 

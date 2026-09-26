@@ -1,13 +1,11 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
-config("public_config") {
-    cflags = [ "-Wno-deprecated-volatile" ]
+config("base_public_config") {
+  cflags = [ "-Wno-deprecated-volatile" ]
 }
 
 library("base") {
   public_deps = [
     # ":services",
-    # "//contrib/libs/protobuf",
+    "//contrib/libs/protobuf",
     # "//library/cpp/containers/stack_vector",
     # "//library/cpp/deprecated/enum_codegen",
     # "//library/cpp/lwtrace",
@@ -15,14 +13,12 @@ library("base") {
     "//library/cpp/random_provider",
     # "//library/cpp/threading/light_rw_lock",
     # "//library/cpp/time_provider",
-    "//ydb/core/base/generated",  # peerdir only
+    "//ydb/core/base/generated",
     # "//ydb/core/blobstorage",
     "//ydb/core/control/lib",
     "//ydb/core/erasure",
-    # "//ydb/core/fq/libs/events",
     "//ydb/core/jaeger_tracing",
     "//ydb/core/protos",
-    "//ydb/core/protos:out",  # peerdir only
     "//ydb/core/scheme",
     # "//ydb/core/tablet",
     # "//ydb/core/tx",
@@ -30,17 +26,14 @@ library("base") {
     "//ydb/library/aclib",
     "//ydb/library/actors/core",
     "//ydb/library/actors/interconnect",
-    # "//ydb/library/actors/interconnect:poller",
     # "//ydb/library/actors/util",
     "//ydb/library/actors/wilson",
     # "//ydb/library/grpc/server",
     "//ydb/library/login",
     "//ydb/library/pdisk_io:device_type",
-    "//ydb/library/ydb_issue",  # peerdir only
     # "//ydb/library/yql/dq/actors",
     # "//ydb/library/yverify_stream",
     # "//ydb/public/api/protos",
-    "//ydb/public/api/protos:out",  # peerdir only
     # "//ydb/public/lib/scheme_types",
   ]
 
@@ -68,6 +61,7 @@ library("base") {
     "//ydb/library/pretty_types_print/protobuf",  # peerdir only
     # "//ydb/library/services",
     # "//ydb/library/wilson_ids",
+    "//ydb/library/ydb_issue",  # peerdir only
     # "//yql/essentials/minikql",  # peerdir only
     "//yql/essentials/minikql:alloc",
   ]
@@ -122,11 +116,12 @@ library("base") {
     "memory_controller_iface.h",
   ]
 
-  public_configs = [ ":public_config" ]
+  public_configs = [ ":base_public_config" ]
 }
 
 group("services") {
   public_deps = [
+    # ":base",
     # "//ydb/library/actors/core",
   ]
 

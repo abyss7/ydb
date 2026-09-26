@@ -25,7 +25,7 @@ library("actors") {
   ]
 
   deps = [
-    # ":events",
+    ":events",
     "//library/cpp/protobuf/util",
     "//library/cpp/svnversion",
     # "//library/cpp/threading/future",

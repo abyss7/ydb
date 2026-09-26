@@ -6,6 +6,7 @@ LIBRARY()
 
 SRCS(
     metadata_accessor.cpp
+    table_accessors.cpp  # gn: into ydb/core/tx/columnshard
     column_engine_logs.cpp
     column_engine.cpp
     db_wrapper.cpp
@@ -38,7 +39,7 @@ PEERDIR(
     # for NYql::NUdf alloc stuff used in binary_json
     yql/essentials/public/udf/service/exception_policy
 )
-# gn: peerdir ydb/core/tx/columnshard:background_controller ydb/core/tx/columnshard:tables_manager_paths
+# gn: peerdir ydb/core/tx/columnshard:background_controller
 
 YQL_LAST_ABI_VERSION()
 

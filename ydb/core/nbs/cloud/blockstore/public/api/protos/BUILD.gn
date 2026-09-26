@@ -2,7 +2,7 @@ protobuf_library("protos") {
   public_deps = [ "//ydb/core/nbs/cloud/storage/core/protos" ]
 
   deps = [
-    # "//library/cpp/lwtrace:protos",  # peerdir only
+    # "//library/cpp/lwtrace/protos",  # peerdir only
   ]
 
   sources = [

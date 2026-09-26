@@ -11,14 +11,14 @@ library("ds_table") {
     "//ydb/services/metadata/initializer",
     # "//ydb/services/metadata/manager",
     # "//ydb/services/metadata/request",
+    # "//ydb/services/metadata/request:config",
   ]
 
   deps = [
     # "//ydb/core/base",
-    # "//ydb/core/grpc_services",  # peerdir only
+    # "//ydb/core/grpc_services",
     # "//ydb/core/grpc_services/base",
     # "//ydb/core/grpc_services/local_rpc",
-    # "//ydb/core/grpc_services:request_proxy",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/ydb_convert",
     # "//ydb/library/services",

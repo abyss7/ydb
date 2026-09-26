@@ -15,7 +15,7 @@ library("mon_alloc") {
     "//library/cpp/html/pcdata",
     # "//library/cpp/lfalloc/alloc_profiler",  # peerdir only
     "//library/cpp/lfalloc/dbg_info",
-    # "//library/cpp/malloc/api",
+    "//library/cpp/malloc/api",
     # "//library/cpp/monlib/service/pages",
     "//ydb/core/base",
     "//ydb/core/mon",

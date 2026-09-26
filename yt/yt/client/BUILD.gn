@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 expand_template("protocol_version_variables") {
     sources = [ "api/rpc_proxy/protocol_version_variables.h.in" ]
 

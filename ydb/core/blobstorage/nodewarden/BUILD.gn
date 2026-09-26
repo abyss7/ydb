@@ -1,10 +1,14 @@
 library("nodewarden") {
   public_deps = [
+    # "//library/cpp/monlib/service/pages",
     # "//library/cpp/time_provider",
     "//ydb/core/base",
+    # "//ydb/core/base:services",
     "//ydb/core/blobstorage/base",
     # "//ydb/core/blobstorage/crypto",
     "//ydb/core/blobstorage/dsproxy",
+    # "//ydb/core/blobstorage/events",
+    # "//ydb/core/blobstorage/groupinfo",
     "//ydb/core/blobstorage/incrhuge",
     "//ydb/core/blobstorage/pdisk",
     # "//ydb/core/blobstorage/vdisk/common",
@@ -12,8 +16,11 @@ library("nodewarden") {
     "//ydb/core/mind:group_mapper",
     # "//ydb/core/node_whiteboard",
     # "//ydb/core/protos",
+    # "//ydb/core/tablet",
     "//ydb/core/util",
+    # "//ydb/library/aclib",
     # "//ydb/library/actors/core",
+    # "//ydb/library/actors/interconnect",
     "//ydb/library/pdisk_io",
     # "//ydb/library/yverify_stream",
   ]
@@ -32,7 +39,6 @@ library("nodewarden") {
     # "//ydb/core/blobstorage/common",
     "//ydb/core/blobstorage/ddisk",
     "//ydb/core/blobstorage/dsproxy:mock",
-    # "//ydb/core/blobstorage/groupinfo",
     "//ydb/core/blobstorage/vdisk",
     "//ydb/core/blobstorage/vdisk/repl",
     "//ydb/core/blobstorage/vdisk/syncer",
@@ -41,7 +47,10 @@ library("nodewarden") {
     # "//ydb/core/mind",
     # "//ydb/core/mind:bscontroller",
     "//ydb/core/mind:nameserver_table_builder",  # peerdir only
-    # "//ydb/library/yaml_config",
+    "//ydb/core/tx/scheme_board",  # peerdir only
+    "//ydb/library/keys",  # peerdir only
+    "//ydb/library/yaml_config",
+    "//ydb/library/yaml_config:public",
     "//ydb/library/yaml_json",
   ]
 

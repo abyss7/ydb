@@ -14,7 +14,8 @@ SRCS(
     grpc_helper.cpp
     grpc_mon.cpp
     grpc_publisher_service_actor.cpp
-    grpc_request_proxy.cpp  # gn: request_proxy
+    grpc_request_proxy.cpp
+    grpc_request_proxy_handle_methods.cpp
     grpc_request_proxy_simple.cpp
     local_rate_limiter.cpp
     login_page.cpp
@@ -25,6 +26,7 @@ SRCS(
     rpc_alter_table.cpp
     rpc_backup.cpp
     rpc_begin_transaction.cpp
+    rpc_bistream_ping.cpp
     rpc_bridge.cpp
     rpc_calls.cpp
     rpc_cancel_operation.cpp
@@ -32,6 +34,7 @@ SRCS(
     rpc_commit_transaction.cpp
     rpc_config.cpp
     rpc_cluster_state.cpp
+    rpc_coordination_session.cpp
     rpc_copy_table.cpp
     rpc_copy_tables.cpp
     rpc_create_coordination_node.cpp
@@ -80,7 +83,7 @@ SRCS(
     rpc_ping.cpp
     rpc_prepare_data_query.cpp
     rpc_rate_limiter_api.cpp
-    rpc_read_columns.cpp  # gn: read_columns
+    rpc_read_columns.cpp  # gn: into ydb/services/ydb
     rpc_read_rows.cpp
     rpc_read_table.cpp
     rpc_remove_directory.cpp
@@ -93,6 +96,7 @@ SRCS(
     rpc_test_shard.cpp
     rpc_view.cpp
     rpc_whoami.cpp
+    service_topic.h  # gn: slot topic_rpc
     table_settings.cpp
 
     rpc_common/rpc_common_kqp_session.cpp
@@ -101,7 +105,7 @@ SRCS(
 
     query/rpc_execute_query.cpp
     query/rpc_execute_script.cpp
-    query/rpc_fetch_script_results.cpp  # gn: fetch_script_results
+    query/rpc_fetch_script_results.cpp  # gn: into ydb/core/kqp/proxy_service
     query/rpc_attach_session.cpp
     query/rpc_kqp_tx.cpp
     query/service_query.h
@@ -113,7 +117,7 @@ SRCS(
     ydb_over_fq/keep_alive.cpp
     ydb_over_fq/list_directory.cpp
 )
-# gn: request_proxy headers grpc_request_proxy.h
+# gn: topic_rpc headers service_topic.h
 
 PEERDIR(
     contrib/libs/xxhash
@@ -137,8 +141,10 @@ PEERDIR(
     ydb/core/grpc_services/counters
     ydb/core/grpc_services/local_rpc
     ydb/core/grpc_services/cancelation
+    ydb/core/grpc_streaming
     ydb/core/health_check
     ydb/core/io_formats/ydb_dump
+    ydb/core/kesus/proxy
     ydb/core/kesus/tablet
     ydb/core/kqp/common
     ydb/core/kqp/opt

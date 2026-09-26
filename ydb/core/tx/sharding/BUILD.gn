@@ -1,12 +1,11 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
-config("private_config") {
+config("sharding_private_config") {
   cflags = [ "-Wno-implicit-const-int-float-conversion" ]
 }
 
 library("sharding") {
   public_deps = [
     "//ydb/core/formats/arrow",
+    "//ydb/core/protos",
     # "//ydb/core/scheme_types",
     "//ydb/core/tx/columnshard/common",
     # "//ydb/library/accessor",
@@ -17,8 +16,7 @@ library("sharding") {
   ]
 
   deps = [
-    # "//ydb/core/formats/arrow/hash",
-    "//ydb/core/protos",
+    # "//ydb/core/formats",  # peerdir only
     # "//ydb/core/tx/columnshard/common:protos",
     "//yql/essentials/minikql",
     # "//yql/essentials/utils",
@@ -34,5 +32,5 @@ library("sharding") {
     "unboxed_reader.cpp",
   ]
 
-  configs = [ ":private_config" ]
+  configs = [ ":sharding_private_config" ]
 }

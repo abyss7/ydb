@@ -1,6 +1,6 @@
 #pragma once
 
-#include "defs.h"
+#include <ydb/core/base/defs.h>
 #include <ydb/core/blobstorage/vdisk/hulldb/hull_ds_all_snap.h>
 
 namespace NKikimr {

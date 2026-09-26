@@ -5,8 +5,8 @@ library("full_capture") {
   ]
 
   deps = [
-    # "//library/cpp/threading/future",  # peerdir only
-    # "//yql/essentials/utils",
+    "//library/cpp/threading/future",  # peerdir only
+    "//yql/essentials/utils",
     "//yql/essentials/utils/log",
   ]
 

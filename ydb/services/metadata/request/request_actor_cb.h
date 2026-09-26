@@ -1,14 +1,14 @@
 #pragma once
 #include "common.h"
 #include "config.h"
+#include "local_request.h"
 
 #include <ydb/library/actors/core/log.h>
 #include <ydb/core/base/appdata.h>
 #include <ydb/core/grpc_services/base/base.h>
-#include <ydb/core/grpc_services/local_rpc/local_rpc.h>
 #include <ydb/library/accessor/accessor.h>
 #include <ydb/library/aclib/aclib.h>
-#include <yql/essentials/public/issue/yql_issue_message.h>
+#include <ydb/library/yql/public/ydb_issue/ydb_issue_message.h>
 #include <yql/essentials/public/issue/yql_issue.h>
 #include <ydb/library/conclusion/result.h>
 
@@ -42,8 +42,7 @@ private:
 public:
     void Start() const {
         auto request = ProtoRequest;
-        using TRpcRequest = NGRpcService::TGrpcRequestOperationCall<TRequest, TResponse>;
-        auto result = NRpcService::DoLocalRpc<TRpcRequest>(std::move(request), AppData()->TenantName, UserToken.SerializeAsString(), TActivationContext::ActorSystem());
+        auto result = DoLocalRequest<TRequest, TResponse>(std::move(request), AppData()->TenantName, UserToken.SerializeAsString(), TActivationContext::ActorSystem());
         auto extController = ExternalController;
         const auto replyCallback = [extController](const NThreading::TFuture<TResponse>& f) {
             TYDBOneRequestSender<TDialogPolicy>::OnInternalResult(f, extController);

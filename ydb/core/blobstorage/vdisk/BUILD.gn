@@ -1,7 +1,9 @@
+group("defs") {
+  public_deps = [ "//ydb/core/blobstorage" ]
+}
+
 library("vdisk") {
-  public_deps = [
-    # "//ydb/core/blobstorage",
-  ]
+  public_deps = [ ":defs" ]
 
   deps = [
     # "//ydb/core/blobstorage/vdisk/anubis_osiris",  # peerdir only

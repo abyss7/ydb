@@ -390,6 +390,7 @@ PEERDIR(
     ydb/library/aclib/protos
     ydb/library/login
     ydb/library/login/protos
+    ydb/library/pretty_types_print/protobuf
     ydb/library/protobuf_printer
     ydb/public/lib/ydb_cli/dump/files
     ydb/public/lib/ydb_cli/dump/util

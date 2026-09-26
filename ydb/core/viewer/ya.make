@@ -862,7 +862,7 @@ PEERDIR(
     ydb/core/client/server
     ydb/core/external_sources
     ydb/core/graph/api
-    ydb/core/grpc_services  # gn: :fetch_script_results
+    ydb/core/grpc_services
     ydb/core/grpc_services/local_rpc
     ydb/core/health_check
     ydb/core/mon
@@ -887,6 +887,7 @@ PEERDIR(
     ydb/public/sdk/cpp/src/client/types
     ydb/services/lib/auth
     contrib/libs/yaml-cpp
+    ydb/services/persqueue_v1
 )
 # gn: peerdir ydb/core/driver_lib/run:config
 

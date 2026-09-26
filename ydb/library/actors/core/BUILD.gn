@@ -1,26 +1,34 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("core") {
   public_deps = [
-    ":events",
-    "//library/cpp/cgiparam",
+    # "//contrib/libs/protobuf",
     "//library/cpp/containers/absl_flat_hash",
+    # "//library/cpp/containers/stack_vector",
+    "//library/cpp/json",
+    "//library/cpp/logger",
     "//library/cpp/lwtrace",
+    "//library/cpp/monlib/dynamic_counters",
+    # "//library/cpp/monlib/metrics",
     "//library/cpp/monlib/service",
     "//library/cpp/monlib/service/pages",
+    "//library/cpp/svnversion",
+    # "//library/cpp/threading/chunk_queue",
+    "//library/cpp/threading/future",
+    "//library/cpp/time_provider",
     "//ydb/library/actors/actor_type",
     "//ydb/library/actors/memory_log",
+    "//ydb/library/actors/protos",
+    # "//ydb/library/actors/util",
+    # "//ydb/library/actors/wilson",
     "//ydb/library/services",
   ]
 
   deps = [
-    "//build/scripts/c_templates",
-    "//library/cpp/json:writer",
-    "//library/cpp/logger",
-    "//library/cpp/monlib/dynamic_counters",
-    "//library/cpp/threading/future",
-    "//ydb/library/actors/interconnect/rdma",
-    "//ydb/library/actors/protos",
+    # "//library/cpp/balloc",
+    "//library/cpp/cgiparam",
+    # "//library/cpp/execprofile",  # peerdir only
+    "//ydb/library/actors/interconnect:rdma",
+    # "//ydb/library/actors/prof",
+    # "//ydb/library/actors/scheduler",
   ]
 
   sources = [
@@ -34,6 +42,11 @@ library("core") {
     "buffer.cpp",
     "callstack.cpp",
     "cpu_manager.cpp",
+    "event.cpp",
+    "event_load.cpp",
+    "event_pb.cpp",
+    "events.cpp",
+    "events_undelivered.cpp",
     "execution_stats.cpp",
     "executor_pool_base.cpp",
     "executor_pool_basic.cpp",
@@ -68,26 +81,5 @@ library("core") {
     "actor.h",
     "defs.h",
     "log_iface.h",
-  ]
-}
-
-library("events") {
-  public_deps = [
-    "//contrib/libs/protobuf",
-    # "//ydb/library/actors/wilson",
-  ]
-
-  deps = [
-    "//library/cpp/containers/stack_vector",
-    "//ydb/library/actors/interconnect/rdma",
-    "//ydb/library/actors/protos",
-    "//ydb/library/actors/util",
-  ]
-
-  sources = [
-    "events/event.cpp",
-    "events/event_pb.cpp",
-    "events/events.cpp",
-    "events/events_undelivered.cpp",
   ]
 }

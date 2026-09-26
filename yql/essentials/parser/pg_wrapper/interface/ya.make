@@ -1,16 +1,20 @@
 LIBRARY()
 
 SRCS(
-    codec.h
-    compare.h
-    comp_factory.h
-    context.h
+    arrow.h  # gn: slot yql_pg_runtime
+    codec.h  # gn: slot yql_pg_runtime
+    compare.h  # gn: slot yql_pg_runtime
+    comp_factory.h  # gn: slot yql_pg_runtime
+    config.h  # gn: slot yql_pg_runtime
+    context.h  # gn: slot yql_pg_runtime
     interface.h
     interface.cpp
-    pack.h
-    parser.h
-    type_desc.h
-    utils.h
+    optimizer.h  # gn: slot yql_pg_runtime
+    pack.h  # gn: slot yql_pg_runtime
+    parser.h  # gn: slot yql_pg_runtime
+    raw_parser.h  # gn: slot yql_pg_runtime
+    type_desc.h  # gn: slot yql_pg_runtime
+    utils.h  # gn: slot yql_pg_runtime
 )
 
 PEERDIR(

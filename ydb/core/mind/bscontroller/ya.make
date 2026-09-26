@@ -72,7 +72,7 @@ SRCS(
     virtual_group.cpp
     yaml_config_helpers.h
 )
-# gn: group_mapper headers group_layout_checker.h group_mapper.h
+# gn: group_mapper headers diff.h group_geometry_info.h group_layout_checker.h group_mapper.h mood.h scheme.h types.h
 
 PEERDIR(
     ydb/library/actors/core
@@ -89,7 +89,7 @@ PEERDIR(
     ydb/core/sys_view/common
     ydb/core/tablet
     ydb/core/tablet_flat
-    ydb/core/tx/tx_proxy
+    ydb/core/tx/scheme_cache
 )
 
 END()

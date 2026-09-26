@@ -52,7 +52,7 @@ library("actors") {
     "//ydb/core/fq/libs/control_plane_storage:util",
     "//ydb/core/fq/libs/db_id_async_resolver_impl",
     # "//ydb/core/fq/libs/db_schema",  # peerdir only
-    # "//ydb/core/fq/libs/gateway",
+    "//ydb/core/fq/libs/gateway",
     # "//ydb/core/fq/libs/grpc",  # peerdir only
     "//ydb/core/fq/libs/metrics",
     "//ydb/core/fq/libs/rate_limiter/utils",

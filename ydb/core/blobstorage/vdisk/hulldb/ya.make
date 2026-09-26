@@ -1,5 +1,7 @@
 LIBRARY()
 
+# gn: anti-cycle facade
+
 PEERDIR(
     ydb/core/blobstorage/base
     ydb/core/blobstorage/vdisk/common
@@ -17,6 +19,7 @@ SRCS(
     blobstorage_hullgcmap.h
     hull_ds_all.h
     hull_ds_all_snap.h
+    ../skeleton/blobstorage_takedbsnap.h
 )
 
 END()

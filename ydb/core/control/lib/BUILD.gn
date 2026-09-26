@@ -1,25 +1,27 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
-config("public_config") {
-  cflags = [ "-Wno-deprecated-volatile" ]
-}
-
 library("base") {
   public_deps = [ "//library/cpp/deprecated/atomic" ]
 
   sources = [ "base/immediate_control_board_control.cpp" ]
 }
 
+config("lib_public_config") {
+  cflags = [ "-Wno-deprecated-volatile" ]
+}
+
 library("lib") {
   public_deps = [
     ":base",
-    "generated",
+    "//library/cpp/monlib/service/pages",
     "//library/cpp/threading/hot_swap",
+    # "//ydb/core/base",
+    "//ydb/core/control/lib/generated",
+    # "//ydb/core/util",
   ]
 
   deps = [
+    # "//library/cpp/containers/absl_flat_hash",  # peerdir only
+    # "//library/cpp/deprecated/atomic",  # peerdir only
     "//library/cpp/iterator",
-    "//library/cpp/monlib/service/pages",
   ]
 
   sources = [
@@ -28,5 +30,5 @@ library("lib") {
     "immediate_control_board_impl.cpp",
   ]
 
-  public_configs = [ ":public_config" ]
+  public_configs = [ ":lib_public_config" ]
 }

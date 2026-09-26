@@ -2,8 +2,10 @@ LIBRARY()
 
 SRCS(
     write.cpp
+    write_owner.cpp  # gn: into ydb/core/tx/columnshard
     write_data.cpp
     manager.cpp
+    manager_owner.cpp  # gn: into ydb/core/tx/columnshard
     events.cpp  # gn: events
 )
 # gn: events headers events.h

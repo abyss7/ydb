@@ -11,6 +11,7 @@ library("local_pq_client") {
     # "//ydb/core/base",
     "//ydb/core/grpc_services",
     "//ydb/core/grpc_services/local_rpc",
+    "//ydb/core/grpc_services:topic_rpc",
     # "//ydb/core/kqp/common",
     # "//ydb/library/services",
     # "//ydb/library/yql/providers/pq/gateway/abstract",

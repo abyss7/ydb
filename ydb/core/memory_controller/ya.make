@@ -6,6 +6,7 @@ SRCS(
 )
 
 PEERDIR(
+    contrib/libs/tcmalloc/malloc_extension
     ydb/core/base
     ydb/core/cms/console
     ydb/core/mon_alloc

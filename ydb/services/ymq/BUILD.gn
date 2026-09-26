@@ -1,6 +1,6 @@
 library("ymq") {
   public_deps = [
-    # "//ydb/core/client/server",
+    # "//ydb/core/client:server",
     "//ydb/core/grpc_services",
     # "//ydb/core/grpc_services/base",
     # "//ydb/library/actors/core",
@@ -10,7 +10,6 @@ library("ymq") {
 
   deps = [
     # "//ydb/core/base",
-    "//ydb/core/grpc_services:request_proxy",
     # "//ydb/core/mind",  # peerdir only
     # "//ydb/core/persqueue",
     # "//ydb/core/persqueue/public",

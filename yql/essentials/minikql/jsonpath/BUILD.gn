@@ -1,8 +1,8 @@
 library("jsonpath") {
   public_deps = [
     # "//library/cpp/containers/stack_vector",
-    # "//library/cpp/json",
-    # "//yql/essentials/minikql/jsonpath/parser",
+    "//library/cpp/json",
+    "//yql/essentials/minikql/jsonpath/parser",
     "//yql/essentials/public/issue",
     # "//yql/essentials/public/udf",
     "//yql/essentials/types/binary_json",

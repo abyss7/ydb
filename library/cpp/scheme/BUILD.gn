@@ -12,6 +12,7 @@ library("scheme") {
     "scimpl_json_write.cpp",
     "scimpl_private.cpp",
     "scimpl_protobuf.cpp",
+    "scimpl_select.rl6",
   ]
 
   serialize_enum_headers = [ "scheme.h" ]

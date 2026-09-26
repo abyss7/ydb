@@ -10,7 +10,7 @@ library("pgproxy") {
     "//library/cpp/string_utils/base64",
     "//ydb/core/base",
     # "//ydb/core/protos",  # peerdir only
-    # "//ydb/library/actors/interconnect:poller",
+    # "//ydb/library/actors/interconnect",
     # "//ydb/library/actors/protos",  # peerdir only
   ]
 

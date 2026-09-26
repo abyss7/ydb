@@ -1,6 +1,6 @@
 library("impl") {
   public_deps = [
-    # ":include",
+    ":include",
     "//ydb/public/api/grpc:draft",
     "//ydb/public/sdk/cpp/src/client/impl/internal/make_request",
     "//ydb/public/sdk/cpp/src/client/topic",
@@ -42,7 +42,7 @@ library("include") {
     # "//ydb/public/api/grpc:draft",
     # "//ydb/public/sdk/cpp/src/client/common_client",
     # "//ydb/public/sdk/cpp/src/client/driver",
-    # "//ydb/public/sdk/cpp/src/client/topic",
+    "//ydb/public/sdk/cpp/src/client/topic",
     # "//ydb/public/sdk/cpp/src/client/types",
   ]
 
@@ -60,12 +60,10 @@ library("include") {
 }
 
 group("persqueue_public") {
-  public_deps = [
-    # ":include",
-  ]
+  public_deps = [ ":include" ]
 
   deps = [
-    # ":impl",  # peerdir only
+    ":impl",  # peerdir only
     # "//ydb/public/api/grpc",  # peerdir only
     # "//ydb/public/api/grpc:draft",  # peerdir only
     # "//ydb/public/api/protos",  # peerdir only

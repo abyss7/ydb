@@ -39,8 +39,6 @@
 #include <ydb/core/tablet/tablet_counters_protobuf.h>
 #include <ydb/core/tablet/tablet_metrics.h>
 #include <ydb/core/tablet/tablet_responsiveness_pinger.h>
-#include <ydb/core/tx/schemeshard/schemeshard.h>
-#include <ydb/core/tx/tx_proxy/proxy.h>
 #include <ydb/core/util/pb.h>
 #include <ydb/core/util/backoff.h>
 #include <ydb/core/util/format.h>
@@ -49,7 +47,7 @@
 #include <ydb/library/actors/core/actor_coroutine.h>
 #include <ydb/library/actors/core/actor.h>
 #include <ydb/library/actors/core/actorid.h>
-#include <ydb/library/actors/core/events/events.h>
+#include <ydb/library/actors/core/events.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <ydb/library/actors/core/interconnect.h>
 #include <ydb/library/actors/core/log.h>

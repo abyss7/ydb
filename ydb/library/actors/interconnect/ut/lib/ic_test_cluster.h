@@ -5,7 +5,7 @@
 #include "port_manager.h"
 
 #include <ydb/library/actors/interconnect/interconnect_tcp_proxy.h>
-#include <ydb/library/actors/core/events/events.h>
+#include <ydb/library/actors/core/events.h>
 #include <ydb/library/actors/core/actor_bootstrapped.h>
 
 #include <util/generic/noncopyable.h>

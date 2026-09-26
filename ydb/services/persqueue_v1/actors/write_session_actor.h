@@ -11,6 +11,7 @@
 #include <ydb/core/base/tablet_pipe.h>
 #include <ydb/core/client/server/msgbus_server_pq_metacache.h>
 #include <ydb/core/grpc_services/grpc_request_proxy.h>
+#include <ydb/core/grpc_services/rpc_calls_topic.h>
 #include <ydb/core/jaeger_tracing/request_discriminator.h>
 #include <ydb/core/kqp/common/kqp.h>
 #include <ydb/core/persqueue/events/global.h>
@@ -24,10 +25,6 @@
 
 
 namespace NKikimr::NGRpcProxy::V1 {
-
-inline TActorId GetPQWriteServiceActorID() {
-    return TActorId(0, "PQWriteSvc");
-}
 
 template<bool UseMigrationProtocol>
 class TWriteSessionActor

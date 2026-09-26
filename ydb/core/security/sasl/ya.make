@@ -12,6 +12,7 @@ PEERDIR(
     ydb/library/login/password_checker
     ydb/library/login/protos
     ydb/library/login/sasl
+    ydb/library/ydb_issue
     ydb/library/ydb_issue/proto
     yql/essentials/public/issue
 )

@@ -4,9 +4,36 @@
 #include "node_warden.h"
 #include "node_warden_events.h"
 
-#include <ydb/core/protos/bridge.pb.h>
-#include <util/generic/hash_multi_map.h>
+#include <ydb/core/base/appdata.h>
+#include <ydb/core/base/blobstorage.h>
+#include <ydb/core/base/blobstorage_common.h>
+#include <ydb/core/base/bridge.h>
+#include <ydb/core/base/services/blobstorage_service_id.h>
+#include <ydb/core/base/tablet_pipe.h>
+#include <ydb/core/blobstorage/base/blobstorage_console_events.h>
+#include <ydb/core/blobstorage/base/blobstorage_vdiskid.h>
+#include <ydb/core/blobstorage/base/utility.h>
+#include <ydb/core/blobstorage/events/blobstorage_events.h>
+#include <ydb/core/blobstorage/groupinfo/blobstorage_groupinfo.h>
+#include <ydb/core/blobstorage/groupinfo/blobstorage_groupinfo_blobmap.h>
+#include <ydb/core/blobstorage/groupinfo/blobstorage_groupinfo_sets.h>
 #include <ydb/core/mind/bscontroller/group_mapper.h>
+#include <ydb/core/protos/blobstorage_distributed_config.pb.h>
+#include <ydb/core/protos/bridge.pb.h>
+#include <ydb/core/util/backoff.h>
+#include <ydb/core/util/format.h>
+#include <ydb/core/util/pb.h>
+#include <ydb/core/util/stlog.h>
+#include <ydb/library/aclib/aclib.h>
+#include <ydb/library/actors/core/actor_bootstrapped.h>
+#include <ydb/library/actors/core/actor_coroutine.h>
+#include <ydb/library/actors/core/hfunc.h>
+#include <ydb/library/actors/core/interconnect.h>
+#include <ydb/library/actors/core/log.h>
+#include <ydb/library/actors/interconnect/interconnect.h>
+#include <library/cpp/monlib/service/pages/templates.h>
+#include <util/generic/hash_multi_map.h>
+#include <util/generic/overloaded.h>
 
 namespace NKikimr::NStorage {
 

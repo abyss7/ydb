@@ -4,6 +4,7 @@ library("attrs") {
 
 library("common") {
   public_deps = [
+    ":attrs",
     # "//library/cpp/string_utils/parse_size",
     "//ydb/library/yql/dq/actors",
     "//ydb/library/yql/dq/common",
@@ -15,7 +16,6 @@ library("common") {
   ]
 
   deps = [
-    ":attrs",
     # "//yql/essentials/core/dq_integration",  # peerdir only
     # "//yql/essentials/core/issue:protos",
     # "//yql/essentials/minikql:alloc",

@@ -1,5 +1,3 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("device_type") {
   sources = [ "device_type.cpp" ]
 }
@@ -8,9 +6,11 @@ library("pdisk_io") {
   public_deps = [
     ":device_type",
     "//contrib/libs/lz4",
-    "//library/cpp/lwtrace",
+    # "//library/cpp/deprecated/atomic",
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//library/cpp/threading/queue",
+    # "//ydb/core/blobstorage/pdisk",
     # "//ydb/core/debug",
-    "//ydb/core/util",
     # "//ydb/library/actors/util",
     "//ydb/library/actors/wilson",
     # "//ydb/library/yverify_stream",
@@ -21,9 +21,6 @@ library("pdisk_io") {
     "//contrib/libs/libaio",
     "//contrib/libs/liburing",
     # "//library/cpp/containers/stack_vector",
-    # "//library/cpp/deprecated/atomic",
-    # "//library/cpp/monlib/dynamic_counters",
-    # "//library/cpp/threading/queue",
     "//ydb/library/actors/core",
   ]
 

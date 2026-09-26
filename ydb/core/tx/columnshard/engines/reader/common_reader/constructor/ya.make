@@ -2,10 +2,10 @@ LIBRARY()
 
 SRCS(
     read_metadata.cpp
-    read_metadata_shard.cpp  # gn: shard
+    read_metadata_shard.cpp  # gn: into ydb/core/tx/columnshard
     resolver.cpp
 )
-# gn: shard headers read_metadata_shard.h
+# gn: anti-cycle facade
 
 PEERDIR(
     ydb/core/tx/columnshard/engines/reader/abstract

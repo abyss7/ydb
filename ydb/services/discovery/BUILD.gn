@@ -8,7 +8,6 @@ library("discovery") {
 
   deps = [
     "//ydb/core/grpc_services",
-    "//ydb/core/grpc_services:request_proxy",
     # "//ydb/core/mind",  # peerdir only
     # "//ydb/public/sdk/cpp/src/library/operation_id",  # peerdir only
   ]

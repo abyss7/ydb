@@ -1,6 +1,6 @@
 #pragma once
 
-#include "events/events.h"
+#include "events.h"
 
 #include <ydb/library/actors/util/intrusive_vector.h>
 #include <ydb/library/actors/protos/interconnect.pb.h>

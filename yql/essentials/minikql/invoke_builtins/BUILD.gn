@@ -1,7 +1,11 @@
-group("invoke_builtins") {
+slot_interface_group("invoke_builtins") {
   public_deps = [
     # "//yql/essentials/minikql",
-    "//yql/essentials/minikql/invoke_builtins/llvm16",
-    "//yql/essentials/minikql/invoke_builtins/no_llvm",
   ]
+
+  link_slot_interface = "minikql_codegen"
+
+  link_slot_headers = [ "mkql_builtins.h" ]
+
+  link_slot_flags_from = [ "mkql_builtins.cpp" ]
 }

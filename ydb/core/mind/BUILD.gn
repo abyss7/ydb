@@ -20,29 +20,6 @@ library("address_classification") {
   serialize_enum_headers = [ "address_classification/net_classifier.h" ]
 }
 
-library("group_mapper") {
-  public_deps = [
-    "//ydb/core/base",
-    "//ydb/library/yaml_config",
-  ]
-
-  deps = [
-    "//ydb/core/audit",
-    "//ydb/core/blobstorage/base",
-    "//ydb/core/blobstorage/groupinfo",
-    "//ydb/core/control/lib",
-    "//ydb/core/engine:minikql",
-    "//ydb/core/tablet",
-    "//ydb/core/util",
-    "//ydb/library/aclib",
-  ]
-
-  sources = [
-    "bscontroller/group_layout_checker.cpp",
-    "bscontroller/group_mapper.cpp",
-  ]
-}
-
 library("bscontroller") {
   public_deps = [
     ":group_mapper",
@@ -51,24 +28,24 @@ library("bscontroller") {
   ]
 
   deps = [
+    # ":mind",
+    # "//contrib/libs/protobuf",
     # "//contrib/libs/xxhash",
-    "//library/cpp/http/io",
     # "//library/cpp/json",
     # "//library/cpp/monlib/service/pages",
     # "//library/cpp/streams/zstd",
     "//ydb/core/audit",
-    # "//ydb/core/base/services",
+    # "//ydb/core/base:services",
     # "//ydb/core/blob_depot",
+    # "//ydb/core/blobstorage",  # peerdir only
     "//ydb/core/blobstorage/base",
-    "//ydb/core/blobstorage/events",
+    # "//ydb/core/blobstorage/events",
     "//ydb/core/blobstorage/groupinfo",
     "//ydb/core/blobstorage/nodewarden",
     # "//ydb/core/cms/console",
-    "//ydb/core/control/lib",
     # "//ydb/core/debug_tools",
     "//ydb/core/driver_lib/version",
     "//ydb/core/engine:minikql",
-    # "//ydb/core/mind",
     # "//ydb/core/node_whiteboard",
     # "//ydb/core/protos",
     # "//ydb/core/scheme",
@@ -76,13 +53,12 @@ library("bscontroller") {
     "//ydb/core/tablet",
     "//ydb/core/tablet_flat",
     "//ydb/core/tx/scheme_cache",
-    # "//ydb/core/tx/schemeshard",
-    # "//ydb/core/tx/tx_proxy",
     "//ydb/core/util",
     "//ydb/library/aclib",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/services",
+    # "//ydb/library/yaml_config:public",
     "//ydb/library/yaml_json",
   ]
 
@@ -133,16 +109,42 @@ library("bscontroller") {
   ]
 }
 
+library("group_mapper") {
+  public_deps = [
+    # "//library/cpp/containers/absl_flat_hash",
+    # "//library/cpp/containers/stack_vector",
+    "//ydb/core/base",
+    # "//ydb/core/blobstorage/base",
+    "//ydb/core/blobstorage/groupinfo",
+    # "//ydb/core/erasure",
+    # "//ydb/core/protos",
+    # "//ydb/core/scheme",
+    # "//ydb/core/tablet_flat",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/yverify_stream",
+  ]
+
+  deps = [
+    # "//ydb/core/blobstorage/pdisk",
+    # "//ydb/core/control/lib",
+  ]
+
+  sources = [
+    "bscontroller/group_layout_checker.cpp",
+    "bscontroller/group_mapper.cpp",
+  ]
+}
+
 library("hive") {
   public_deps = [
+    # ":mind",
     "//ydb/core/base",
-    "//ydb/core/blobstorage/events",
     "//ydb/core/engine:minikql",
-    # "//ydb/core/mind",
     # "//ydb/core/protos",
     # "//ydb/core/scheme",
     "//ydb/core/tablet",
     "//ydb/core/tablet_flat",
+    # "//ydb/core/util",
     # "//ydb/library/actors/core",
   ]
 
@@ -151,16 +153,20 @@ library("hive") {
     # "//library/cpp/containers/ring_buffer",
     "//library/cpp/digest/md5",
     # "//library/cpp/json",
+    # "//library/cpp/monlib/dynamic_counters",  # peerdir only
     # "//library/cpp/monlib/service/pages",
     "//library/cpp/protobuf/json",
     # "//library/cpp/random_provider",
     # "//library/cpp/time_provider",
+    # "//ydb/core/blobstorage/base",  # peerdir only
+    # "//ydb/core/blobstorage/crypto",  # peerdir only
+    "//ydb/core/blobstorage/events",
+    # "//ydb/core/blobstorage/nodewarden",  # peerdir only
     # "//ydb/core/cms/console",
     # "//ydb/core/node_whiteboard",
     # "//ydb/core/sys_view:common",
     "//ydb/core/tx",
     "//ydb/core/tx/scheme_cache",
-    # "//ydb/core/util",
     "//ydb/library/aclib",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/yverify_stream",
@@ -236,33 +242,15 @@ library("hive") {
   ]
 }
 
-library("nameserver_table_builder") {
-  public_deps = [
-    "//ydb/core/base",
-    "//ydb/library/actors/interconnect",
-  ]
-
-  deps = [ "//ydb/core/protos" ]
-
-  sources = [ "nameserver_table_builder.cpp" ]
-}
-
-library("tenant_node_enumeration") {
-  public_deps = [ "//ydb/core/base" ]
-
-  deps = [ "//ydb/library/actors/core" ]
-
-  sources = [ "tenant_node_enumeration.cpp" ]
-}
-
 library("mind") {
   public_deps = [
-    "//ydb/core/base",
     ":nameserver_table_builder",
     ":tenant_node_enumeration",
+    "//ydb/core/base",
     "//ydb/core/cms/console",
     # "//ydb/core/engine:minikql",
     # "//ydb/core/protos",
+    # "//ydb/core/scheme",
     # "//ydb/core/tablet",
     # "//ydb/core/tablet_flat",
     # "//ydb/library/actors/core",
@@ -270,13 +258,26 @@ library("mind") {
   ]
 
   deps = [
-    ":hive",
+    # ":bscontroller",  # peerdir only
+    # "//library/cpp/monlib/service/pages",
     # "//library/cpp/random_provider",
-    # "//ydb/core/actorlib_impl",
+    "//ydb/core/actorlib_impl",
+    # "//ydb/core/blobstorage",  # peerdir only
+    # "//ydb/core/blobstorage/crypto",  # peerdir only
+    # "//ydb/core/blobstorage/dsproxy:mock",  # peerdir only
+    "//ydb/core/blobstorage/events",
+    # "//ydb/core/blobstorage/groupinfo",  # peerdir only
+    # "//ydb/core/blobstorage/incrhuge",  # peerdir only
+    # "//ydb/core/blobstorage/pdisk",  # peerdir only
+    # "//ydb/core/kesus/tablet",  # peerdir only
+    # "//ydb/core/keyvalue",  # peerdir only
     "//ydb/core/mon",
     # "//ydb/core/node_whiteboard",
-    # "//ydb/core/scheme",
-    # "//ydb/core/tx/scheme_board",
+    # "//ydb/core/sys_view:processor",  # peerdir only
+    # "//ydb/core/tablet_flat:recovery",  # peerdir only
+    # "//ydb/core/test_tablet",  # peerdir only
+    # "//ydb/core/tx/replication/controller",  # peerdir only
+    "//ydb/core/tx/scheme_board",
     # "//ydb/core/tx/scheme_cache",
     "//ydb/core/tx/schemeshard",
     # "//ydb/core/util",
@@ -315,35 +316,23 @@ library("mind") {
   ]
 }
 
-library("configured_tablet_bootstrapper") {
-  public_deps = [
-    ":mind",
-    "//ydb/core/base",
-    "//ydb/core/tablet",
-  ]
+library("nameserver_table_builder") {
+  public_deps = [ "//ydb/library/actors/interconnect" ]
 
   deps = [
-    ":bscontroller",
-    ":hive",
-    "//ydb/core/backup/controller",
-    "//ydb/core/blob_depot",
-    "//ydb/core/cms",
-    "//ydb/core/cms/console",
-    "//ydb/core/kesus/tablet",
-    "//ydb/core/keyvalue",
-    "//ydb/core/statistics:aggregator",
-    "//ydb/core/sys_view:processor",
-    "//ydb/core/tablet_flat",
-    "//ydb/core/tablet_flat:recovery",
-    "//ydb/core/test_tablet",
-    "//ydb/core/tx/coordinator",
-    "//ydb/core/tx/datashard",
-    "//ydb/core/tx/mediator",
-    "//ydb/core/tx/replication/controller",
-    "//ydb/core/tx/schemeshard",
-    "//ydb/core/tx/sequenceshard",
-    "//ydb/core/tx/tx_allocator",
+    # "//ydb/core/protos",
   ]
 
-  sources = [ "configured_tablet_bootstrapper.cpp" ]
+  sources = [ "nameserver_table_builder.cpp" ]
+}
+
+library("tenant_node_enumeration") {
+  public_deps = [
+    # ":mind",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [ "//ydb/core/base" ]
+
+  sources = [ "tenant_node_enumeration.cpp" ]
 }

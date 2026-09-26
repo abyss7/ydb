@@ -4,6 +4,7 @@ library("blobs_reader") {
     # "//ydb/core/tx/columnshard",
     "//ydb/core/tx/columnshard/blobs_action:abstract",
     # "//ydb/core/tx/columnshard/resource_subscriber",
+    # "//ydb/core/tx/columnshard:ev_ids",
     # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
     # "//ydb/library/conclusion",

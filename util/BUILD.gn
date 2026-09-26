@@ -1,4 +1,5 @@
-import("//build/gn/ragel.gni")
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 import("//build/gn/yasm.gni")
 
 config("private_config") {
@@ -9,8 +10,7 @@ config("private_config") {
     ]
 }
 
-ragel6_source_set("datetime_parser") {
-    deps = []
+ragel6_sources("datetime_parser") {
     sources = [
         "datetime/parser.rl6",
     ]
@@ -35,7 +35,8 @@ shared_library("util") {
     ]
     public_deps = [ "//contrib/libs/cxxsupp/libcxx" ]
 
-    sources = [
+    sources = get_target_outputs(":datetime_parser")
+    sources += [
         "charset/generated/unidata.cpp",
         "charset/recode_result.cpp",
         "charset/unicode_table.cpp",

@@ -14,6 +14,7 @@ library("quoter") {
     ":public",
     # "//library/cpp/lwtrace",
     "//ydb/core/base",
+    "//ydb/core/tablet",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/library/actors/core",
   ]
@@ -26,7 +27,8 @@ library("quoter") {
     # "//ydb/core/protos",
     # "//ydb/core/util",  # peerdir only
     # "//ydb/library/time_series_vec",
-    "//yql/essentials/public/issue",
+    "//ydb/library/yql/public/ydb_issue",
+    "//yql/essentials/public/issue",  # peerdir only
   ]
 
   sources = [

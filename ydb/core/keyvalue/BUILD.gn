@@ -17,7 +17,6 @@ library("keyvalue") {
   ]
 
   deps = [
-    # "//library/cpp/json:writer",
     # "//library/cpp/monlib/service/pages",
     # "//ydb/core/blobstorage/base",  # peerdir only
     # "//ydb/core/mind",

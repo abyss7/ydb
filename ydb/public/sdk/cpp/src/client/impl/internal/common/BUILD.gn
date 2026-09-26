@@ -1,12 +1,12 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
-config("private_config") {
+config("common_private_config") {
   cflags = [ "-Wno-deprecated-enum-enum-conversion" ]
 }
 
 library("common") {
   public_deps = [
     # "//ydb/public/sdk/cpp/src/client/types",
+    # "//ydb/public/sdk/cpp/src/library/grpc/client",
+    # "//ydb/public/sdk/cpp/src/library/issue",
   ]
 
   deps = [
@@ -22,5 +22,5 @@ library("common") {
     "parser.cpp",
   ]
 
-  configs = [ ":private_config" ]
+  configs = [ ":common_private_config" ]
 }

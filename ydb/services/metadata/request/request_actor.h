@@ -1,14 +1,14 @@
 #pragma once
 #include "common.h"
 #include "config.h"
+#include "local_request.h"
 
 #include <ydb/library/actors/core/log.h>
 #include <ydb/core/base/appdata.h>
 #include <ydb/core/grpc_services/base/base.h>
-#include <ydb/core/grpc_services/local_rpc/local_rpc.h>
 #include <ydb/library/accessor/accessor.h>
 #include <ydb/library/aclib/aclib.h>
-#include <yql/essentials/public/issue/yql_issue_message.h>
+#include <ydb/library/yql/public/ydb_issue/ydb_issue_message.h>
 #include <yql/essentials/public/issue/yql_issue.h>
 
 namespace NKikimr::NMetadata::NRequest {
@@ -73,10 +73,9 @@ public:
 
     void Handle(typename TEvRequestStart::TPtr& /*ev*/) {
         auto aSystem = TActivationContext::ActorSystem();
-        using TRpcRequest = NGRpcService::TGrpcRequestOperationCall<TRequest, TResponse>;
         auto request = ProtoRequest;
         NACLib::TUserToken uToken("metadata@system", {});
-        auto result = NRpcService::DoLocalRpc<TRpcRequest>(std::move(request), AppData()->TenantName, uToken.SerializeAsString(), aSystem);
+        auto result = DoLocalRequest<TRequest, TResponse>(std::move(request), AppData()->TenantName, uToken.SerializeAsString(), aSystem);
         const NActors::TActorId selfId = TBase::SelfId();
         const auto replyCallback = [aSystem, selfId](const NThreading::TFuture<TResponse>& f) {
             aSystem->Send(selfId, new TEvRequestInternalResult(f));

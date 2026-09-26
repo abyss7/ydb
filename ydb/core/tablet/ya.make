@@ -1,6 +1,7 @@
 LIBRARY()
 
 SRCS(
+    ../base/tablet_pipe.h
     bootstrapper.cpp
     bootstrapper.h
     bootstrapper_impl.h

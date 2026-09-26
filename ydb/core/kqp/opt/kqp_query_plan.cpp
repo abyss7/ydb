@@ -19,6 +19,7 @@
 #include <ydb/library/yql/providers/dq/common/yql_dq_settings.h>
 #include <ydb/library/yql/dq/actors/protos/dq_stats.pb.h>
 #include <ydb/library/yql/providers/dq/expr_nodes/dqs_expr_nodes.h>
+#include <yql/essentials/types/uuid/uuid.h>
 #include <yql/essentials/utils/utf8.h>
 
 #include <ydb/public/lib/ydb_cli/common/format.h>

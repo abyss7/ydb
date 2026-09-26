@@ -5,11 +5,6 @@
 #include <util/generic/strbuf.h>
 #include <util/generic/string.h>
 
-// gn: weak references to the yql_pg_runtime link slot, see build/gn/link_slots.gni
-#if defined(YQL_GN_LINK_SLOTS) && !defined(GN_SLOT_PROVIDER_yql_pg_runtime)
-#pragma clang attribute push (__attribute__((weak)), apply_to = function)
-#endif
-
 namespace NKikimr {
 namespace NMiniKQL {
 
@@ -59,7 +54,3 @@ std::shared_ptr<void> CreateMemoryArenaContext();
 
 } // namespace NCommon
 } // namespace NYql
-
-#if defined(YQL_GN_LINK_SLOTS) && !defined(GN_SLOT_PROVIDER_yql_pg_runtime)
-#pragma clang attribute pop
-#endif

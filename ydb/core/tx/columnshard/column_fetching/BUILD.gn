@@ -4,7 +4,7 @@ library("column_fetching") {
     "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/core/tx/general_cache:source",
     # "//ydb/core/tx/general_cache:usage",
-    # "//ydb/core/tx/limiter/grouped_memory/usage",
+    # "//ydb/core/tx/limiter/grouped_memory/service",
     # "//ydb/library/actors/core",
   ]
 

@@ -1,10 +1,8 @@
 library("compute_actor") {
   public_deps = [
+    ":events",
     ":events_stats",
-    # "//contrib/libs/apache/arrow",
     # "//ydb/core/base",
-    # "//ydb/core/formats/arrow",
-    # "//ydb/core/kqp/common",
     # "//ydb/core/kqp/counters",
     "//ydb/core/kqp/federated_query",
     "//ydb/core/kqp/rm_service",
@@ -14,7 +12,6 @@ library("compute_actor") {
     "//ydb/core/sys_view",
     # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
-    # "//ydb/library/formats/arrow:validation",
     # "//ydb/library/yql/dq/actors:compute",
     # "//ydb/library/yql/dq/proto",
     # "//ydb/library/yql/dq/runtime",
@@ -24,11 +21,13 @@ library("compute_actor") {
   ]
 
   deps = [
+    # "//contrib/libs/apache/arrow",
     # "//ydb/core/actorlib_impl",
     "//ydb/core/grpc_services",
+    # "//ydb/core/kqp/common",
     "//ydb/core/tx/columnshard/hooks/abstract",
-    # "//ydb/core/tx/datashard",
-    # "//ydb/core/tx/datashard:range_ops",
+    "//ydb/core/tx/datashard",
+    "//ydb/core/tx/datashard:range_ops",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/library/actors/wilson",
     # "//ydb/library/formats/arrow:common",  # peerdir only
@@ -49,7 +48,6 @@ library("compute_actor") {
     "kqp_compute_actor.cpp",
     "kqp_compute_actor_factory.cpp",
     "kqp_compute_actor_helpers.cpp",
-    "kqp_compute_events.cpp",
     "kqp_compute_state.cpp",
     "kqp_pure_compute_actor.cpp",
     "kqp_scan_common.cpp",
@@ -61,6 +59,20 @@ library("compute_actor") {
   ]
 
   serialize_enum_headers = [ "kqp_compute_state.h" ]
+}
+
+library("events") {
+  public_deps = [
+    ":events_stats",
+    # "//contrib/libs/apache/arrow",
+    "//ydb/core/formats/arrow",
+    "//ydb/core/kqp/common",
+    # "//ydb/core/protos",
+    # "//ydb/core/scheme",
+    "//ydb/library/formats/arrow:validation",
+  ]
+
+  sources = [ "kqp_compute_events.cpp" ]
 }
 
 library("events_stats") {

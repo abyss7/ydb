@@ -29,7 +29,7 @@ library("compaction") {
     # "//ydb/core/tx/columnshard/common",
     "//ydb/core/tx/columnshard/engines/changes/abstract",
     # "//ydb/core/tx/columnshard/engines/portions",
-    # "//ydb/core/tx/columnshard/engines/scheme/versions",
+    # "//ydb/core/tx/columnshard/engines/scheme",
     # "//ydb/library/formats/arrow:splitter",
   ]
 
@@ -48,25 +48,39 @@ library("compaction") {
   sources = [ "merger.cpp" ]
 }
 
+library("dictionary") {
+  deps = [
+    # ":abstract",
+    # ":common",  # peerdir only
+    # "//ydb/core/formats/arrow",
+    # "//ydb/core/formats/arrow/accessor:common",
+    # "//ydb/core/formats/arrow/accessor:composite",
+    # "//ydb/core/formats/arrow/accessor:dictionary",
+    # "//ydb/core/formats/arrow/accessor:sparsed",
+    # "//ydb/core/formats/arrow/switch",
+    # "//ydb/core/tx/columnshard/engines/portions",
+  ]
+
+  sources = [ "dictionary/logic.cpp" ]
+}
+
 library("plain") {
   public_deps = [
     # ":abstract",
+    # ":common",
+    # "//contrib/libs/apache/arrow",
+    # "//ydb/core/formats/arrow",
+    # "//ydb/core/formats/arrow/accessor:common",
+    # "//ydb/core/tx/columnshard/counters",
+    "//ydb/core/tx/columnshard/engines/portions",
+    "//ydb/core/tx/columnshard/engines/scheme",
+    # "//ydb/core/tx/columnshard/splitter",
+    "//ydb/library/formats/arrow",
   ]
 
   deps = [
-    # "//contrib/libs/apache/arrow",
-    # "//ydb/core/formats/arrow/accessor/plain",
-    "//ydb/core/formats/arrow:save_load",
-    # "//ydb/core/tx/columnshard/counters",
     # "//ydb/core/tx/columnshard/engines/changes/counters",
-    # "//ydb/core/tx/columnshard/engines/portions",
-    "//ydb/core/tx/columnshard/engines/scheme",
-    "//ydb/core/tx/columnshard/engines/storage/chunks",
-    # "//ydb/core/tx/columnshard/splitter",
-    "//ydb/library/actors/util",
-    "//ydb/library/formats/arrow",
     "//ydb/library/formats/arrow:validation",
-    # ":common",
   ]
 
   sources = [
@@ -79,18 +93,36 @@ library("plain") {
 
 library("sparsed") {
   public_deps = [
-    "//ydb/core/formats/arrow/accessor:abstract",
-    # "//ydb/core/formats/arrow/accessor/common",
-    "//ydb/core/formats/arrow/accessor/sparsed",
     # ":abstract",
+    # "//ydb/core/formats/arrow",
+    # "//ydb/core/formats/arrow/accessor:common",
+    "//ydb/core/formats/arrow/accessor:sparsed",
   ]
 
   deps = [
-    # "//ydb/core/formats/arrow:switch",
-    "//ydb/core/tx/columnshard/engines/scheme",
-    "//ydb/core/tx/columnshard/engines/storage/chunks",
-    "//ydb/library/actors/util",
+    # ":common",  # peerdir only
+    # "//ydb/core/formats/arrow/switch",
+    "//ydb/core/tx/columnshard/engines/portions",
   ]
 
   sources = [ "sparsed/logic.cpp" ]
+}
+
+library("sub_columns") {
+  deps = [
+    # ":abstract",
+    # ":common",  # peerdir only
+    # "//ydb/core/formats/arrow",
+    # "//ydb/core/formats/arrow/accessor:common",
+    # "//ydb/core/formats/arrow/accessor:sparsed",
+    # "//ydb/core/formats/arrow/accessor:sub_columns",
+    # "//ydb/core/tx/columnshard/engines/portions",
+  ]
+
+  sources = [
+    "sub_columns/builder.cpp",
+    "sub_columns/iterator.cpp",
+    "sub_columns/logic.cpp",
+    "sub_columns/remap.cpp",
+  ]
 }

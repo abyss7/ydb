@@ -1,20 +1,14 @@
 group("common") {
   public_deps = [
+    "//contrib/libs/grpc",
+    "//library/cpp/threading/future",
     "//ydb/public/sdk/cpp/src/client/types/credentials",
     "//ydb/public/sdk/cpp/src/library/jwt",
-  ]
-
-  deps = [
-    "//contrib/libs/grpc",  # peerdir only
   ]
 }
 
 library("iam") {
-  public_deps = [
-    ":common",
-    # "//contrib/libs/grpc",
-    "//library/cpp/threading/future",
-  ]
+  public_deps = [ ":common" ]
 
   deps = [
     "//library/cpp/http/simple",

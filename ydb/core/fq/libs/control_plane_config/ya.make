@@ -3,7 +3,9 @@ LIBRARY()
 SRCS(
     control_plane_config.cpp
     service_id.cpp  # gn: service_id
+    service_id.h
 )
+# gn: service_id headers service_id.h
 
 PEERDIR(
     ydb/library/actors/core

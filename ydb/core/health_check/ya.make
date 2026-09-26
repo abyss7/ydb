@@ -10,6 +10,7 @@ PEERDIR(
     ydb/core/base
     ydb/core/blobstorage/base
     ydb/core/mon
+    ydb/core/tablet
     ydb/library/aclib
     ydb/public/api/protos
     ydb/public/api/grpc

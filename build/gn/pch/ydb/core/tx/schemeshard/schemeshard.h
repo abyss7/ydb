@@ -65,7 +65,7 @@
 #include "ydb/core/base/tablet_types.h"
 #include "ydb/core/util/operation_queue.h"
 #include "library/cpp/json/writer/json_value.h"
-#include "ydb/library/actors/core/events/events.h"
+#include "ydb/library/actors/core/events.h"
 #include "ydb/core/base/fulltext.h"
 #include "ydb/core/sys_view/common/events.h"
 #include "ydb/core/base/appdata_fwd.h"

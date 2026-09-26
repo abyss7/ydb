@@ -29,7 +29,7 @@ library("backup") {
     "//ydb/public/sdk/cpp/src/client/rate_limiter",
     # "//ydb/public/sdk/cpp/src/client/scheme",
     "//ydb/public/sdk/cpp/src/client/topic",
-    # "//yql/essentials/sql/v1/format",
+    "//yql/essentials/sql/v1/format",
     "//yql/essentials/types/dynumber",
     # "//yql/essentials/types/uuid",
   ]

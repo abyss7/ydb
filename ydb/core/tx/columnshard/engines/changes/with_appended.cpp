@@ -4,6 +4,7 @@
 
 #include <ydb/core/tx/columnshard/blob_cache.h>
 #include <ydb/core/tx/columnshard/columnshard_impl.h>
+#include <ydb/core/tx/columnshard/common/tables_paths_manager.h>
 #include <ydb/core/tx/columnshard/engines/column_engine_logs.h>
 #include <ydb/core/tx/columnshard/splitter/batch_slice.h>
 #include <ydb/core/tx/columnshard/splitter/settings.h>
@@ -18,9 +19,10 @@ void TChangesWithAppend::DoWriteIndexOnExecute(NColumnShard::TColumnShard* self,
         PortionsToRemove.ApplyOnExecute(self, context, *FetchedDataAccessors);
         PortionsToMove.ApplyOnExecute(self, context, *FetchedDataAccessors);
     }
-    const auto predRemoveDroppedTable = [self](const TWritePortionInfoWithBlobsResult& item) {
+    const ITablesPathsManager* tables = self ? &self->TablesManager : nullptr;
+    const auto predRemoveDroppedTable = [tables](const TWritePortionInfoWithBlobsResult& item) {
         auto& portionInfo = item.GetPortionResult();
-        if (!!self && !self->TablesManager.HasTable(portionInfo.GetPortionInfo().GetPathId(), false)) {
+        if (tables && !tables->HasTable(portionInfo.GetPortionInfo().GetPathId(), false)) {
             AFL_WARN(NKikimrServices::TX_COLUMNSHARD)("event", "skip_inserted_data")("reason", "table_removed")(
                 "path_id", portionInfo.GetPortionInfo().GetPathId());
             return true;

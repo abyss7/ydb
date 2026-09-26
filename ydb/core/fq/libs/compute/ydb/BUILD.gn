@@ -5,7 +5,7 @@ library("control_plane") {
     # "//ydb/core/fq/libs/signer",
     # "//ydb/library/actors/core",
     # "//ydb/library/grpc/actor_client",
-    # "//ydb/library/security",
+    "//ydb/library/security",
   ]
 
   deps = [
@@ -17,7 +17,7 @@ library("control_plane") {
     "//ydb/core/fq/libs/control_plane_storage:service_id",
     "//ydb/core/fq/libs/control_plane_storage:util",
     # "//ydb/core/fq/libs/quota_manager:proto",  # peerdir only
-    # "//ydb/core/fq/libs/ydb",
+    "//ydb/core/fq/libs/ydb",
     "//ydb/core/kqp/workload_service:common",
     # "//ydb/core/protos",  # peerdir only
     "//ydb/library/actors/http",
@@ -26,7 +26,7 @@ library("control_plane") {
     # "//ydb/library/services",
     "//ydb/library/ycloud/api",
     "//ydb/library/yql/utils/actors",
-    # "//ydb/public/api/grpc",
+    "//ydb/public/api/grpc",
     # "//ydb/public/api/grpc:draft",  # peerdir only
     "//ydb/public/lib/fq",
     # "//ydb/public/sdk/cpp/src/client/operation",
@@ -50,7 +50,7 @@ library("control_plane") {
 
 library("events") {
   public_deps = [
-    # "//ydb/core/fq/libs/config:protos",
+    "//ydb/core/fq/libs/config:protos",
     # "//ydb/core/fq/libs/control_plane_storage:proto",
     # "//ydb/core/fq/libs/events",
     # "//ydb/core/fq/libs/protos",
@@ -90,14 +90,14 @@ library("synchronization_service") {
     # "//ydb/core/fq/libs/control_plane_storage:proto",  # peerdir only
     "//ydb/core/fq/libs/control_plane_storage:service_id",
     # "//ydb/core/fq/libs/quota_manager:proto",  # peerdir only
-    # "//ydb/core/fq/libs/ydb",
+    "//ydb/core/fq/libs/ydb",
     # "//ydb/library/actors/protos",  # peerdir only
     # "//ydb/library/db_pool:protos",  # peerdir only
     # "//ydb/library/services",  # peerdir only
     # "//ydb/public/api/grpc",  # peerdir only
     # "//ydb/public/api/grpc:draft",  # peerdir only
     # "//ydb/public/lib/fq",
-    # "//ydb/public/sdk/cpp/adapters/issue",
+    "//ydb/public/sdk/cpp/adapters/issue",
     # "//ydb/public/sdk/cpp/src/client/operation",
     # "//ydb/public/sdk/cpp/src/client/query",
     # "//ydb/public/sdk/cpp/src/library/operation_id",  # peerdir only

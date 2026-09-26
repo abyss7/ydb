@@ -2,7 +2,7 @@ library("service") {
   deps = [
     # "//ydb/core/base",
     "//ydb/core/graph/api",
-    "//ydb/core/tablet",  # peerdir only
+    "//ydb/core/tablet",
     "//ydb/core/tx/scheme_cache",
     "//ydb/library/actors/core",
     # "//ydb/library/services",

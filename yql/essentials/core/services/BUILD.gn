@@ -69,6 +69,7 @@ library("pipeline") {
 
 library("services") {
   public_deps = [
+    ":pipeline",
     # "//library/cpp/yson",
     # "//yql/essentials/ast",
     "//yql/essentials/core",
@@ -76,7 +77,6 @@ library("services") {
   ]
 
   deps = [
-    ":pipeline",
     "//library/cpp/string_utils/base64",
     # "//library/cpp/yson:node",
     "//yql/essentials/ast:serialize",

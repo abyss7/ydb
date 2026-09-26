@@ -12,7 +12,7 @@ library("service") {
     # "//ydb/core/formats/arrow",
     # "//ydb/core/scheme",
     # "//ydb/core/tx/tx_proxy:public",
-    # "//ydb/core/tx/tx_proxy:upload_rows",
+    "//ydb/core/tx/tx_proxy:upload_rows",
     # "//ydb/library/actors/core",  # peerdir only
     # "//ydb/public/api/protos",
     # "//ydb/services/metadata/manager",

@@ -34,7 +34,7 @@ library("test_connection") {
   deps = [
     ":events",
     "//library/cpp/lwtrace",
-    # "//library/cpp/lwtrace/mon",
+    "//library/cpp/lwtrace/mon",
     # "//library/cpp/monlib/service/pages",
     "//library/cpp/xml/document",
     "//ydb/core/fq/libs/actors",
@@ -42,7 +42,7 @@ library("test_connection") {
     # "//ydb/core/fq/libs/config",
     "//ydb/core/fq/libs/control_plane_storage",
     # "//ydb/core/mon",
-    # "//ydb/library/security",
+    "//ydb/library/security",
     "//ydb/library/yql/providers/pq/gateway/native",
     "//ydb/library/yql/providers/s3/provider",
     "//ydb/library/yql/providers/solomon/actors",

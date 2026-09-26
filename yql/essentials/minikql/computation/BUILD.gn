@@ -4,7 +4,7 @@ library("computation") {
     # "//library/cpp/cache",
     # "//library/cpp/enumbitset",
     # "//library/cpp/packedtypes",
-    # "//library/cpp/random_provider",
+    "//library/cpp/random_provider",
     # "//library/cpp/threading/future",
     # "//library/cpp/time_provider",
     "//yql/essentials/minikql",
@@ -43,5 +43,13 @@ library("computation") {
     "mkql_validate.cpp",
     "mkql_value_builder.cpp",
     "presort.cpp",
+  ]
+
+  link_slot_interface = "minikql_codegen"
+
+  link_slot_headers = [
+    "mkql_computation_node.h",
+    "mkql_computation_node_graph_saveload.h",
+    "mkql_computation_node_holders_codegen.h",
   ]
 }

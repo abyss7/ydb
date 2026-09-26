@@ -2,7 +2,7 @@
 
 #include <ydb/core/ydb_convert/ydb_convert.h>
 
-#include <yql/essentials/public/issue/yql_issue_message.h>
+#include <ydb/library/yql/public/ydb_issue/ydb_issue_message.h>
 
 namespace NKikimr {
 namespace NKqp {

@@ -78,9 +78,13 @@ template("protobuf_library") {
     # cannot see here (they are resolved from `_proto_includes_file` at runtime).
     _cpp_out = "$root_gen_dir"
 
+    # C++ sources among `sources` are compiled by the library itself, the
+    # rest go to protoc
+    _cpp_sources = filter_include(invoker.sources, [ "*.cpp", "*.cc", "*.c" ])
+
     action_foreach(_gen_target) {
         script = "//build/gn/scripts/protoc.py"
-        sources = invoker.sources
+        sources = invoker.sources - _cpp_sources
         inputs = [ _proto_includes_file ]
         outputs = [
             "$_out_base/{{source_name_part}}.grpc.pb.cc",
@@ -204,6 +208,6 @@ template("protobuf_library") {
             }
         }
 
-        sources = get_target_outputs(":$_gen_target") + _enum_sources
+        sources = get_target_outputs(":$_gen_target") + _enum_sources + _cpp_sources
     }
 }

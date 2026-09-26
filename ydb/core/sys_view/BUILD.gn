@@ -24,7 +24,7 @@ library("common") {
     # ":service",
     # "//library/cpp/deprecated/atomic",
     # "//ydb/core/base",
-    # "//ydb/core/kqp/compute_actor",
+    "//ydb/core/kqp/compute_actor:events",
     # "//ydb/core/kqp/runtime",
     "//ydb/core/mind:tenant_node_enumeration",
     "//ydb/core/protos",
@@ -80,7 +80,7 @@ library("nodes") {
   ]
 
   deps = [
-    # ":common",
+    ":common",
     # "//ydb/core/base",  # peerdir only
     "//ydb/core/mind:tenant_node_enumeration",  # peerdir only
     # "//ydb/core/node_whiteboard",
@@ -99,7 +99,7 @@ library("partition_stats") {
   ]
 
   deps = [
-    # ":common",
+    ":common",
     # "//ydb/core/base",
     "//ydb/core/mind:tenant_node_enumeration",  # peerdir only
     # "//ydb/library/yql/dq/actors:compute",
@@ -119,7 +119,8 @@ library("pg_tables") {
   ]
 
   deps = [
-    # "//ydb/core/base",
+    # "//ydb/core/base",  # peerdir only
+    # "//ydb/core/tablet",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/schemeshard",
     # "//ydb/library/yql/dq/actors:compute",
@@ -197,7 +198,7 @@ library("resource_pool_classifiers") {
   deps = [
     ":common",
     # "//ydb/core/base",  # peerdir only
-    # "//ydb/core/kqp/gateway/behaviour/resource_pool_classifier",
+    "//ydb/core/kqp/gateway/behaviour/resource_pool_classifier",
     # "//ydb/core/kqp/workload_service:actors",
     "//ydb/core/kqp/workload_service:scheme_actors",  # peerdir only
     # "//ydb/core/node_whiteboard",
@@ -219,7 +220,7 @@ library("resource_pools") {
   ]
 
   deps = [
-    # ":common",
+    ":common",
     # "//library/cpp/json",
     # "//library/cpp/protobuf/json",
     # "//ydb/core/base",  # peerdir only
@@ -267,7 +268,7 @@ library("sessions") {
   ]
 
   deps = [
-    # ":common",
+    ":common",
     # "//ydb/core/base",  # peerdir only
     # "//ydb/core/kqp/common:events",
     # "//ydb/core/kqp/common:simple",
@@ -297,6 +298,7 @@ library("show_create") {
     # "//ydb/core/engine",
     # "//ydb/core/formats/arrow",
     # "//ydb/core/scheme",
+    # "//ydb/core/tablet",
     # "//ydb/core/tx/columnshard/engines/scheme/defaults:protos",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/schemeshard",
@@ -315,7 +317,7 @@ library("show_create") {
     "//yql/essentials/ast",
     "//yql/essentials/minikql",
     "//yql/essentials/minikql:alloc",
-    # "//yql/essentials/parser/proto_ast/gen/v1_antlr4",
+    "//yql/essentials/parser/proto_ast/gen/v1_antlr4",
     # "//yql/essentials/public/issue",
     "//yql/essentials/sql/settings",
     "//yql/essentials/sql/v1",
@@ -401,7 +403,7 @@ library("sys_view") {
     ":streaming_queries",
     ":tablets",
     # "//ydb/core/base",  # peerdir only
-    # "//ydb/core/kqp/compute_actor",
+    "//ydb/core/kqp/compute_actor:events",
     # "//ydb/core/tx/schemeshard",  # peerdir only
     # "//ydb/core/tx/tx_proxy",  # peerdir only
     # "//ydb/core/wrappers",  # peerdir only

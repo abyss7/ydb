@@ -1,9 +1,6 @@
 library("duplicates") {
   public_deps = [
-    # "//ydb/core/formats/arrow",
-    "//ydb/core/formats/arrow:common",
-    # "//ydb/core/formats/arrow/reader",
-    # "//ydb/core/formats/arrow/rows",
+    "//ydb/core/formats/arrow",
     # "//ydb/core/tx/columnshard",
     # "//ydb/core/tx/columnshard/blobs_reader",
     # "//ydb/core/tx/columnshard/column_fetching",
@@ -11,9 +8,9 @@ library("duplicates") {
     # "//ydb/core/tx/columnshard/counters",
     # "//ydb/core/tx/columnshard/engines/portions",
     "//ydb/core/tx/columnshard/engines/reader/common_reader:iterator",
-    # "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator/collections",
+    # "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator",
     # "//ydb/core/tx/conveyor_composite/usage",
-    # "//ydb/core/tx/limiter/grouped_memory/usage",
+    # "//ydb/core/tx/limiter/grouped_memory/service",
     # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
     # "//ydb/library/conclusion",
@@ -21,7 +18,6 @@ library("duplicates") {
   ]
 
   deps = [
-    # "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator",
     # "//ydb/core/tx/columnshard/engines/scheme/abstract",
     # "//ydb/core/tx/conveyor/usage",
     # "//ydb/library/actors/interconnect",

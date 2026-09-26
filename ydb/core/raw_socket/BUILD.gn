@@ -2,7 +2,7 @@ library("raw_socket") {
   public_deps = [
     "//contrib/libs/openssl",
     "//ydb/library/actors/core",
-    "//ydb/library/actors/interconnect:poller",
+    "//ydb/library/actors/interconnect",
     # "//ydb/library/actors/protos",
     # "//ydb/library/services",
   ]

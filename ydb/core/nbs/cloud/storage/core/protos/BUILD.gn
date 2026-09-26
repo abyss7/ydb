@@ -1,6 +1,6 @@
 protobuf_library("protos") {
   deps = [
-    # "//library/cpp/lwtrace:protos",  # peerdir only
+    # "//library/cpp/lwtrace/protos",  # peerdir only
   ]
 
   sources = [

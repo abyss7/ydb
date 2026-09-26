@@ -1,8 +1,6 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("buffered") {
   public_deps = [
-    "//library/cpp/monlib/encode",
+    ":encode",
     "//library/cpp/monlib/metrics",
   ]
 
@@ -13,7 +11,7 @@ library("buffered") {
 }
 
 library("encode") {
-  deps = [ "//library/cpp/monlib/metrics" ]
+  public_deps = [ "//library/cpp/monlib/metrics" ]
 
   sources = [
     "encoder.cpp",
@@ -25,12 +23,11 @@ library("encode") {
 }
 
 library("json") {
-  public_deps = [ "//library/cpp/monlib/encode" ]
+  public_deps = [ ":encode" ]
 
   deps = [
     ":buffered",
     "//library/cpp/json",
-    "//library/cpp/json:writer",
     "//library/cpp/monlib/exception",
     "//library/cpp/monlib/metrics",
   ]
@@ -42,7 +39,7 @@ library("json") {
 }
 
 library("prometheus") {
-  public_deps = [ "//library/cpp/monlib/encode" ]
+  public_deps = [ ":encode" ]
 
   deps = [
     ":buffered",
@@ -59,7 +56,7 @@ library("prometheus") {
 
 library("spack") {
   public_deps = [
-    "//library/cpp/monlib/encode",
+    ":encode",
     "//library/cpp/monlib/metrics",
   ]
 
@@ -81,7 +78,7 @@ library("spack") {
 }
 
 library("text") {
-  public_deps = [ "//library/cpp/monlib/encode" ]
+  public_deps = [ ":encode" ]
 
   deps = [ "//library/cpp/monlib/metrics" ]
 

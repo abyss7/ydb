@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 _comp_gen_dir = "$target_gen_dir/yql/essentials/minikql/computation"
 _self_gen_dir = "$target_gen_dir/yql/essentials/minikql/invoke_builtins"
 
@@ -96,6 +98,8 @@ library("llvm16") {
   ]
 
   configs = [ ":_includes" ]
+
+  link_slot_provides = [ "minikql_codegen" ]
 
   deps = [
     ":mkql_block_impl_codegen_h",

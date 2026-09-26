@@ -1,6 +1,4 @@
 library("metadata") {
-  allow_undefined = true
-
   public_deps = [
     ":pdisk",
     # "//ydb/core/protos",
@@ -13,7 +11,7 @@ library("metadata") {
     # "//ydb/core/blobstorage/crypto",  # peerdir only
     # "//ydb/core/blobstorage/nodewarden",  # peerdir only
     # "//ydb/library/actors/core",
-    # "//ydb/library/keys",  # peerdir only
+    "//ydb/library/keys",  # peerdir only
   ]
 
   sources = [ "metadata/blobstorage_pdisk_metadata.cpp" ]

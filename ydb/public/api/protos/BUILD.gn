@@ -5,14 +5,6 @@ protobuf_library("annotations") {
   ]
 }
 
-library("out") {
-  deps = [
-    # ":protos",
-  ]
-
-  sources = [ "out/out.cpp" ]
-}
-
 protobuf_library("protos") {
   public_deps = [ ":annotations" ]
 
@@ -34,6 +26,7 @@ protobuf_library("protos") {
     "draft/ydb_test_shard.proto",
     "draft/ydb_view.proto",
     "draft/ymq.proto",
+    "out/out.cpp",
     "persqueue_error_codes_v1.proto",
     "ydb_auth.proto",
     "ydb_bridge_common.proto",

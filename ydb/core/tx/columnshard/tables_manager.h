@@ -11,6 +11,7 @@
 #include <ydb/core/protos/tx_columnshard.pb.h>
 #include <ydb/core/tx/columnshard/blobs_action/abstract/storage.h>
 #include <ydb/core/tx/columnshard/common/path_id.h>
+#include <ydb/core/tx/columnshard/common/tables_paths_manager.h>
 #include <ydb/core/tx/columnshard/counters/portion_index.h>
 #include <ydb/core/tx/columnshard/engines/scheme/tiering/tier_info.h>
 
@@ -312,7 +313,7 @@ public:
     }
 };
 
-class TTablesManager: public NOlap::IPathIdTranslator {
+class TTablesManager: public NOlap::IPathIdTranslator, public NOlap::ITablesPathsManager {
 private:
     THashMap<TInternalPathId, TTableInfo> Tables;
     THashMap<TSchemeShardLocalPathId, TInternalPathId> SchemeShardLocalToInternal;
@@ -420,8 +421,8 @@ public:
         return LoadTimeCounters;
     }
 
-    bool TryFinalizeDropPathOnExecute(NTable::TDatabase& dbTable, const TInternalPathId pathId) const;
-    bool TryFinalizeDropPathOnComplete(const TInternalPathId pathId);
+    bool TryFinalizeDropPathOnExecute(NTable::TDatabase& dbTable, const TInternalPathId pathId) const override;
+    bool TryFinalizeDropPathOnComplete(const TInternalPathId pathId) override;
 
     THashMap<TInternalPathId, NOlap::TTiering> GetTtl(const NOlap::TSnapshot& snapshot = NOlap::TSnapshot::Max()) const {
         THashMap<TInternalPathId, NOlap::TTiering> ttl;
@@ -542,7 +543,7 @@ public:
     THashMap<TSchemeShardLocalPathId, TInternalPathId> ResolveInternalPathIds(
         const TSchemeShardLocalPathId from, const TSchemeShardLocalPathId to) const;
     bool HasTable(const TInternalPathId pathId, const bool withDeleted = false,
-        const std::optional<NOlap::TSnapshot> minReadSnapshot = std::nullopt) const;
+        const std::optional<NOlap::TSnapshot> minReadSnapshot = std::nullopt) const override;
     bool IsReadyForStartWrite(const TInternalPathId pathId, const bool withDeleted) const;
     bool IsReadyForFinishWrite(const TInternalPathId pathId, const NOlap::TSnapshot& minReadSnapshot) const;
     bool HasPreset(const ui32 presetId) const;

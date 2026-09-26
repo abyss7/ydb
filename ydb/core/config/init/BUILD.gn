@@ -2,10 +2,11 @@ library("init") {
   public_deps = [
     # "//contrib/libs/protobuf",
     "//library/cpp/getopt:small",
+    "//library/cpp/svnversion",
     "//ydb/core/base",
     # "//ydb/core/config/validation",
     "//ydb/core/driver_lib/cli_config_base",
-    # "//ydb/core/driver_lib/run",
+    # "//ydb/core/driver_lib/run:_self",
     # "//ydb/core/driver_lib/run:config",
     # "//ydb/core/protos",
     # "//ydb/core/util",

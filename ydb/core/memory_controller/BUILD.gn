@@ -9,7 +9,8 @@ library("memory_controller") {
 
   deps = [
     # "//contrib/libs/apache/arrow",
-    "//contrib/libs/tcmalloc:malloc_extension",
+    # "//contrib/libs/tcmalloc",
+    "//contrib/libs/tcmalloc:malloc_extension",  # peerdir only
     # "//ydb/core/cms/console",
     # "//ydb/core/node_whiteboard",
     # "//ydb/core/tablet",
@@ -20,7 +21,7 @@ library("memory_controller") {
     # "//ydb/core/tx/columnshard/engines/storage/optimizer/abstract",
     # "//ydb/library/services",
     # "//yql/essentials/minikql",  # peerdir only
-    # "//yql/essentials/minikql:alloc",
+    "//yql/essentials/minikql:alloc",
     # "//yql/essentials/public/udf:arrow",
     # "//yql/essentials/utils/memory_profiling",  # peerdir only
   ]

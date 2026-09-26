@@ -5,6 +5,7 @@ PEERDIR(
     library/cpp/histogram/hdr
     library/cpp/monlib/dynamic_counters/percentile
     library/cpp/monlib/service/pages
+    library/cpp/svnversion
     ydb/core/base
     ydb/core/blobstorage/backpressure
     ydb/core/blobstorage/base
@@ -26,6 +27,7 @@ PEERDIR(
     ydb/services/metadata
     ydb/services/persqueue_cluster_discovery
     ydb/services/ydb
+    ydb/core/nbs/cloud/blockstore/public/api/protos
 )
 
 SRCS(

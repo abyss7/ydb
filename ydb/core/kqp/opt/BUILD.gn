@@ -1,3 +1,7 @@
+config("helpers_private_config") {
+  cflags = [ "-Wno-ambiguous-reversed-operator" ]
+}
+
 library("helpers") {
   public_deps = [
     "//ydb/core/kqp/common",
@@ -9,35 +13,75 @@ library("helpers") {
   ]
 
   sources = [ "kqp_opt.cpp" ]
+
+  configs = [ ":helpers_private_config" ]
+}
+
+library("logical") {
+  public_deps = [
+    ":helpers",
+    # "//yql/essentials/ast",
+    "//yql/essentials/core/cbo",
+  ]
+
+  deps = [
+    ":physical",
+    "//ydb/core/base",
+    # "//ydb/core/kqp/common",
+    "//ydb/core/kqp/provider",
+    # "//ydb/core/protos",
+    # "//ydb/library/yql/dq/common",  # peerdir only
+    "//ydb/library/yql/dq/opt",
+    # "//ydb/library/yql/providers/dq/common",
+    # "//yql/essentials/core",
+    "//yql/essentials/core/common_opt",
+    "//yql/essentials/core/extract_predicate",
+    "//yql/essentials/providers/common/transform",
+    # "//yql/essentials/utils/log",
+  ]
+
+  sources = [
+    "logical/kqp_opt_cbo.cpp",
+    "logical/kqp_opt_log.cpp",
+    "logical/kqp_opt_log_effects.cpp",
+    "logical/kqp_opt_log_extract.cpp",
+    "logical/kqp_opt_log_helpers.cpp",
+    "logical/kqp_opt_log_indexes.cpp",
+    "logical/kqp_opt_log_join.cpp",
+    "logical/kqp_opt_log_ranges.cpp",
+    "logical/kqp_opt_log_ranges_predext.cpp",
+    "logical/kqp_opt_log_sort.cpp",
+    "logical/kqp_opt_log_sqlin.cpp",
+    "logical/kqp_opt_log_sqlin_compact.cpp",
+  ]
 }
 
 library("opt") {
   public_deps = [
     ":helpers",
-    # "//library/cpp/json:writer",
+    ":logical",
+    # "//library/cpp/json",
     "//ydb/core/kqp/common",
     # "//ydb/core/kqp/expr_nodes",
     "//ydb/core/kqp/gateway:actors",
-    # "//ydb/core/kqp/opt/logical",
     "//ydb/core/kqp/provider",
     "//ydb/core/protos",
     # "//ydb/core/statistics",
     "//ydb/core/statistics:service_id",
-    # "//ydb/library/yql/dq/opt",
+    "//ydb/library/yql/dq/opt",
     # "//yql/essentials/ast",
-    # "//yql/essentials/core",
-    # "//yql/essentials/utils/log",
+    "//yql/essentials/core",
+    # "//yql/essentials/core/type_ann",
+    "//yql/essentials/utils/log",
   ]
 
   deps = [
+    ":peephole",
+    ":physical",
     # "//library/cpp/containers/absl_flat_hash",
-    # "//library/cpp/json",
     "//library/cpp/protobuf/json",
     # "//ydb/core/base",
     # "//ydb/core/kqp/gateway:interface",
-    "//ydb/core/kqp/opt/peephole",
-    "//ydb/core/kqp/opt/physical",
-    # "//ydb/core/kqp/opt/rbo",  # peerdir only
     # "//ydb/library/formats/arrow:protos",
     # "//ydb/library/yql/dq/actors:protos",
     # "//ydb/library/yql/dq/common",
@@ -53,9 +97,11 @@ library("opt") {
     # "//yql/essentials/core/cbo",
     # "//yql/essentials/core/dq_integration",
     # "//yql/essentials/core/expr_nodes",
+    "//yql/essentials/core/peephole_opt",
+    "//yql/essentials/core/services",  # peerdir only
     "//yql/essentials/core/services:pipeline",
-    # "//yql/essentials/core/type_ann",
     "//yql/essentials/providers/common/provider",
+    "//yql/essentials/types/uuid",
     # "//yql/essentials/utils",
   ]
 
@@ -76,7 +122,149 @@ library("opt") {
     "kqp_query_plan.cpp",
     "kqp_statistics_transformer.cpp",
     "kqp_type_ann.cpp",
+    "rbo/kqp_expression.cpp",
+    "rbo/kqp_operator.cpp",
+    "rbo/kqp_plan_conversion_utils.cpp",
+    "rbo/kqp_rbo.cpp",
+    "rbo/kqp_rbo_compute_statistics.cpp",
+    "rbo/kqp_rbo_statistics.cpp",
+    "rbo/kqp_rbo_transformer.cpp",
+    "rbo/kqp_rbo_type_ann.cpp",
+    "rbo/kqp_rbo_utils.cpp",
+    "rbo/kqp_rewrite_select.cpp",
+    "rbo/kqp_stage_graph.cpp",
+    "rbo/physical_convertion/kqp_rbo_convert_to_physical.cpp",
+    "rbo/physical_convertion/kqp_rbo_physical_aggregation_builder.cpp",
+    "rbo/physical_convertion/kqp_rbo_physical_convertion_utils.cpp",
+    "rbo/physical_convertion/kqp_rbo_physical_filter_builder.cpp",
+    "rbo/physical_convertion/kqp_rbo_physical_join_builder.cpp",
+    "rbo/physical_convertion/kqp_rbo_physical_map_builder.cpp",
+    "rbo/physical_convertion/kqp_rbo_physical_query_builder.cpp",
+    "rbo/physical_convertion/kqp_rbo_physical_sort_builder.cpp",
+    "rbo/physical_convertion/kqp_rbo_physical_source_builder.cpp",
+    "rbo/rules/apply_cbo.cpp",
+    "rbo/rules/assign_stages.cpp",
+    "rbo/rules/build_initial_cbo_tree.cpp",
+    "rbo/rules/constant_folding_stage.cpp",
+    "rbo/rules/correlated_filter_pullup.cpp",
+    "rbo/rules/expand_cbo_tree.cpp",
+    "rbo/rules/extract_join_expressions.cpp",
+    "rbo/rules/inline_cbo_tree.cpp",
+    "rbo/rules/inline_scalar_subplan.cpp",
+    "rbo/rules/inline_simple_in_exists_subplan.cpp",
+    "rbo/rules/peephole_predicate.cpp",
+    "rbo/rules/prune_columns_stage.cpp",
+    "rbo/rules/push_filter_into_join.cpp",
+    "rbo/rules/push_filter_under_map.cpp",
+    "rbo/rules/push_limit_into_sort.cpp",
+    "rbo/rules/push_map.cpp",
+    "rbo/rules/push_olap_filter.cpp",
+    "rbo/rules/remove_extra_renames_stage.cpp",
+    "rbo/rules/remove_identity_map.cpp",
   ]
 
   serialize_enum_headers = [ "kqp_query_plan.h" ]
+}
+
+library("opt_helpers") {
+  deps = [
+    ":helpers",  # peerdir only
+    # ":physical",
+    "//ydb/core/kqp/common",
+    "//ydb/core/kqp/provider",
+  ]
+
+  sources = [ "physical/kqp_opt_phy_helpers.cpp" ]
+}
+
+library("peephole") {
+  public_deps = [
+    # ":helpers",
+  ]
+
+  deps = [
+    ":physical",
+    "//ydb/core/kqp/common",
+    # "//ydb/core/kqp/gateway:interface",
+    "//ydb/core/kqp/host:transform",
+    # "//ydb/core/kqp/provider",
+    # "//ydb/core/protos",
+    "//ydb/library/naming_conventions",
+    # "//ydb/library/yql/dq/opt",
+    "//ydb/library/yql/dq/type_ann",
+    # "//yql/essentials/ast",
+    # "//yql/essentials/core",
+    "//yql/essentials/core/peephole_opt",
+    "//yql/essentials/core/services:pipeline",
+    "//yql/essentials/providers/common/transform",
+  ]
+
+  sources = [
+    "peephole/kqp_opt_peephole.cpp",
+    "peephole/kqp_opt_peephole_wide_read.cpp",
+    "peephole/kqp_opt_peephole_write_constraint.cpp",
+  ]
+}
+
+config("physical_private_config") {
+  cflags = [ "-Wno-ambiguous-reversed-operator" ]
+}
+
+library("physical") {
+  public_deps = [
+    ":helpers",
+    ":opt_helpers",
+    "//ydb/core/kqp/provider",
+    "//ydb/library/yql/dq/opt",
+    "//yql/essentials/ast",
+    # "//yql/essentials/core",
+    # "//yql/essentials/core/expr_nodes_gen",
+    "//yql/essentials/utils/log",
+  ]
+
+  deps = [
+    # "//library/cpp/iterator",
+    # "//ydb/core/base",
+    "//ydb/core/kqp/common",
+    # "//ydb/core/scheme",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/yql/dq/common",  # peerdir only
+    "//ydb/library/yql/dq/type_ann",
+    # "//ydb/library/yql/providers/dq/common",
+    # "//ydb/library/yql/providers/dq/expr_nodes",
+    # "//ydb/public/api/protos",
+    # "//ydb/public/lib/scheme_types",
+    # "//yql/essentials/core/expr_nodes",
+    "//yql/essentials/core/peephole_opt",
+    "//yql/essentials/providers/common/provider",
+    "//yql/essentials/providers/common/transform",
+  ]
+
+  sources = [
+    "physical/effects/kqp_opt_phy_delete_index.cpp",
+    "physical/effects/kqp_opt_phy_effects.cpp",
+    "physical/effects/kqp_opt_phy_fulltext_index.cpp",
+    "physical/effects/kqp_opt_phy_indexes.cpp",
+    "physical/effects/kqp_opt_phy_insert.cpp",
+    "physical/effects/kqp_opt_phy_insert_index.cpp",
+    "physical/effects/kqp_opt_phy_returning.cpp",
+    "physical/effects/kqp_opt_phy_uniq_helper.cpp",
+    "physical/effects/kqp_opt_phy_update.cpp",
+    "physical/effects/kqp_opt_phy_update_index.cpp",
+    "physical/effects/kqp_opt_phy_upsert_defaults.cpp",
+    "physical/effects/kqp_opt_phy_upsert_index.cpp",
+    "physical/effects/kqp_opt_phy_vector_index.cpp",
+    "physical/kqp_opt_phy.cpp",
+    "physical/kqp_opt_phy_build_stage.cpp",
+    "physical/kqp_opt_phy_limit.cpp",
+    "physical/kqp_opt_phy_olap_agg.cpp",
+    "physical/kqp_opt_phy_olap_filter.cpp",
+    "physical/kqp_opt_phy_precompute.cpp",
+    "physical/kqp_opt_phy_sort.cpp",
+    "physical/kqp_opt_phy_source.cpp",
+    "physical/kqp_opt_phy_stage_float_up.cpp",
+    "physical/predicate_collector.cpp",
+  ]
+
+  configs = [ ":physical_private_config" ]
 }

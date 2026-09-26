@@ -2,6 +2,7 @@ library("common") {
   public_deps = [
     # "//library/cpp/time_provider",
     # "//ydb/core/base",
+    # "//ydb/core/tablet",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/library/actors/core",
     # "//ydb/services/metadata/abstract",

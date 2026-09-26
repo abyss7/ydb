@@ -5,7 +5,7 @@ config("common_private_config") {
 library("common") {
   public_deps = [
     # "//contrib/libs/yaml-cpp",
-    # "//library/cpp/json:writer",
+    # "//library/cpp/json",
     "//ydb/library/yql/providers/common/http_gateway",
     # "//ydb/public/lib/ydb_cli/commands/interactive/highlight:color",
     "//ydb/public/lib/ydb_cli/common",
@@ -15,7 +15,6 @@ library("common") {
   deps = [
     # "//contrib/libs/ftxui",
     "//contrib/restricted/patched/replxx",
-    # "//library/cpp/json",
     "//library/cpp/string_utils/url",
     "//library/cpp/yaml/as",
     # "//ydb/library/yverify_stream",

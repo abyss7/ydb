@@ -23,6 +23,8 @@ library("complete") {
     ":syntax",
     ":text",
     "//yql/essentials/core/issue",
+    "//yql/essentials/parser/antlr_ast/gen/v1_ansi_antlr4",  # peerdir only
+    "//yql/essentials/parser/antlr_ast/gen/v1_antlr4",  # peerdir only
     # "//yql/essentials/parser/lexer_common",
     "//yql/essentials/sql/v1/complete/analysis/global",
     # "//yql/essentials/sql/v1/complete/name/object/simple:static",

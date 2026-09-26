@@ -29,6 +29,7 @@ library("runtime") {
     # "//ydb/library/yql/dq/actors:compute",
     # "//ydb/library/yql/dq/expr_nodes",
     "//ydb/library/yql/dq/type_ann",
+    "//ydb/library/yql/public/ydb_issue",  # peerdir only
     # "//ydb/library/yverify_stream",
     # "//ydb/public/lib/scheme_types",
     # "//yql/essentials/core",

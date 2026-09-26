@@ -227,6 +227,7 @@ PEERDIR(
     ydb/core/tablet_flat
     ydb/core/tx/datashard
     ydb/library/aclib
+    ydb/library/pretty_types_print/protobuf
     ydb/library/services
 )
 

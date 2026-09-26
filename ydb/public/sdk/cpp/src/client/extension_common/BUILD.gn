@@ -4,9 +4,7 @@ library("extension_common") {
     "//ydb/public/sdk/cpp/src/client/driver",
   ]
 
-  deps = [
-    # "//ydb/public/sdk/cpp/src/client/impl/internal/grpc_connections",
-  ]
+  deps = [ "//ydb/public/sdk/cpp/src/client/impl/internal/grpc_connections" ]
 
   sources = [ "extension.cpp" ]
 }

@@ -21,7 +21,6 @@ PEERDIR(
     ydb/core/protos
     ydb/library/wilson_ids
     ydb/public/lib/base
-    ydb/public/lib/deprecated/kicli
     ydb/public/sdk/cpp/src/client/params
 )
 # gn: partition_chooser peerdir ydb/core/persqueue/public:utils

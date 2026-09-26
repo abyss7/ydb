@@ -2,7 +2,7 @@ library("serializations") {
   deps = [
     # "//contrib/libs/fmt",  # peerdir only
     # "//contrib/libs/poco/Util",  # peerdir only
-    # "//ydb/library/yql/udfs/common/clickhouse/client",
+    "//ydb/library/yql/udfs/common/clickhouse/client",
   ]
 
   sources = [ "serialization_interval.cpp" ]

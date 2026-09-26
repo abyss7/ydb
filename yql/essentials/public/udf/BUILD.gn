@@ -19,8 +19,6 @@ library("arrow") {
     "arrow/udf_arrow_helpers.cpp",
     "arrow/util.cpp",
   ]
-
-  link_slot_provides = [ "YqlUdfSdkArrow" ]
 }
 
 library("udf") {
@@ -54,5 +52,10 @@ library("udf") {
     "udf_version.cpp",
   ]
 
-  link_slot_provides = [ "YqlUdfSdk" ]
+  link_slot_interface = "YqlServicePolicy"
+
+  link_slot_headers = [
+    "udf_allocator.h",
+    "udf_terminator.h",
+  ]
 }

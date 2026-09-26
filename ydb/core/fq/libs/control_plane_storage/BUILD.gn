@@ -1,5 +1,6 @@
 library("control_plane_storage") {
   public_deps = [
+    ":service_id",
     ":util",
     # "//library/cpp/scheme",
     "//ydb/core/external_sources",
@@ -15,7 +16,6 @@ library("control_plane_storage") {
   deps = [
     # ":events",
     # ":proto",
-    ":service_id",
     "//contrib/libs/fmt",
     # "//contrib/libs/protobuf",
     # "//library/cpp/json:yson",

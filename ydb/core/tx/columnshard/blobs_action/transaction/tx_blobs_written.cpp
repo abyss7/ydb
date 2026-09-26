@@ -42,7 +42,7 @@ bool TTxBlobsWritingFinished::DoExecute(TTransactionContext& txc, const TActorCo
             static_cast<NOlap::TWrittenPortionInfoConstructor*>(&portion.GetPortionInfoConstructor()->MutablePortionConstructor());
         constructor->SetInsertWriteId(granule.BuildNextInsertWriteId());
         InsertWriteIds.emplace_back(constructor->GetInsertWriteIdVerified());
-        portion.Finalize(Self, txc);
+        portion.Finalize(index, txc);
         if (PackBehaviour == EOperationBehaviour::NoTxWrite) {
             granule.CommitImmediateOnExecute(txc, *CommitSnapshot, portion.GetPortionInfo(), firstPKColumnId);
         } else {

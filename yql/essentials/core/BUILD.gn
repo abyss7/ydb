@@ -1,6 +1,4 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
-config("private_config") {
+config("core_private_config") {
   cflags = [ "-Wno-ambiguous-reversed-operator" ]
 }
 
@@ -100,5 +98,5 @@ library("core") {
     "yql_user_data.h",
   ]
 
-  configs = [ ":private_config" ]
+  configs = [ ":core_private_config" ]
 }

@@ -1,0 +1,45 @@
+library("ev_write") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/columnshard/tracing",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/columnshard/blobs_action:events",  # peerdir only
+    # "//ydb/core/tx/columnshard/transactions/locks",  # peerdir only
+    # "//ydb/services/metadata/abstract",  # peerdir only
+  ]
+
+  sources = [
+    "ev_write/abstract.cpp",
+    "ev_write/primary.cpp",
+    "ev_write/secondary.cpp",
+    "ev_write/simple.cpp",
+    "ev_write/sync.cpp",
+  ]
+}
+
+library("operators") {
+  deps = [
+    # ":ev_write",  # peerdir only
+    # "//ydb/core/formats/arrow",
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/columnshard/backup/import",
+    # "//ydb/core/tx/columnshard/bg_tasks:manager",
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/data_locks:locks",
+    # "//ydb/core/tx/columnshard/engines",
+    # "//ydb/core/tx/columnshard/export:session",
+    # "//ydb/core/tx/columnshard/subscriber/abstract:subscriber",
+    # "//ydb/core/tx/columnshard/subscriber/events:tables_erased",
+    # "//ydb/core/tx/columnshard/subscriber/events:tx_completed",
+  ]
+
+  sources = [
+    "backup.cpp",
+    "propose_tx.cpp",
+    "restore.cpp",
+    "schema.cpp",
+    "sharing.cpp",
+  ]
+}

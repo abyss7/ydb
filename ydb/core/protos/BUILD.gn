@@ -9,18 +9,6 @@ protobuf_library("nbs") {
   ]
 }
 
-library("out") {
-  deps = [ ":protos" ]
-
-  sources = [
-    "out/out.cpp",
-    "out/out_cms.cpp",
-    "out/out_long_tx_service.cpp",
-    "out/out_sequenceshard.cpp",
-    "out/out_tablet.cpp",
-  ]
-}
-
 protobuf_library("protos") {
   public_deps = [
     ":nbs",
@@ -162,6 +150,11 @@ protobuf_library("protos") {
     "node_broker.proto",
     "node_limits.proto",
     "node_whiteboard.proto",
+    "out/out.cpp",
+    "out/out_cms.cpp",
+    "out/out_long_tx_service.cpp",
+    "out/out_sequenceshard.cpp",
+    "out/out_tablet.cpp",
     "pdiskfit.proto",
     "pqconfig.proto",
     "profiler.proto",

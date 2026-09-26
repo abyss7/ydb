@@ -7,7 +7,6 @@ library("json") {
 
   deps = [
     ":proto",
-    # "//library/cpp/json:writer",
     # "//library/cpp/protobuf/runtime",  # peerdir only
     # "//library/cpp/protobuf/util",  # peerdir only
     "//library/cpp/string_utils/base64",

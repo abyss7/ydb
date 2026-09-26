@@ -1,13 +1,10 @@
 group("common") {
-  public_deps = [
-    # "//ydb/public/sdk/cpp/src/client/iam",
-    # "//ydb/public/sdk/cpp/src/client/iam:common",
-  ]
+  public_deps = [ "//ydb/public/sdk/cpp/src/client/iam:common" ]
 }
 
 library("iam_private") {
   public_deps = [
-    # ":common",
+    ":common",
     # "//ydb/public/sdk/cpp/src/client/iam:common",
   ]
 

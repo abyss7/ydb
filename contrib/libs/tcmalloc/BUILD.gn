@@ -7,7 +7,14 @@ config("private_config") {
         "-Wno-deprecated-declarations",
         "-Wno-sign-compare",
     ]
+}
+
+config("malloc_extension_private_config") {
     defines = [ "TCMALLOC_256K_PAGES" ]
+}
+
+config("tcmalloc_private_config") {
+    defines = [ "TCMALLOC_INTERNAL_256K_PAGES" ]
 }
 
 contrib_library("malloc_extension") {
@@ -23,10 +30,13 @@ contrib_library("malloc_extension") {
     configs = [
         ":public_config",
         ":private_config",
+        ":malloc_extension_private_config",
     ]
 }
 
-contrib_library("default") {
+contrib_library("tcmalloc") {
+    static = true
+
     deps = [ ":malloc_extension" ]
 
     sources = [
@@ -83,8 +93,14 @@ contrib_library("default") {
         "tcmalloc/tcmalloc.cc",
         "tcmalloc/thread_cache.cc",
         "tcmalloc/transfer_cache.cc",
+        "tcmalloc/want_hpaa.cc",
     ]
 
     public_configs = [ ":public_config" ]
-    configs = [ ":private_config" ]
+    configs = [
+        ":private_config",
+        ":tcmalloc_private_config",
+    ]
+
+    link_slot_provides = [ "allocator" ]
 }

@@ -10,7 +10,7 @@ library("common") {
 
   deps = [
     # ":protos",
-    # "//library/cpp/json:writer",
+    # "//library/cpp/json",
     # "//ydb/core/protos",
     # "//ydb/core/scheme:protos",
     # "//ydb/core/sys_view:common",

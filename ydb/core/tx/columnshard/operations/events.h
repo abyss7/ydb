@@ -1,9 +1,21 @@
 #pragma once
-#include <ydb/core/tx/columnshard/columnshard_private_events.h>
+#include <ydb/core/protos/base.pb.h>
+#include <ydb/core/tx/columnshard/blobs_action/abstract/write.h>
+#include <ydb/core/tx/columnshard/columnshard_private_ev_ids.h>
 #include <ydb/core/tx/columnshard/common/blob.h>
 #include <ydb/core/tx/columnshard/common/path_id.h>
 #include <ydb/core/tx/columnshard/engines/portions/write_with_blobs.h>
+#include <ydb/core/tx/data_events/write_data.h>
+#include <ydb/library/actors/core/event_local.h>
 #include <util/generic/hash.h>
+
+namespace NKikimr::NTabletFlatExecutor {
+class TTransactionContext;
+}
+
+namespace NKikimr::NOlap {
+class TColumnEngineForLogs;
+}
 
 namespace NKikimr::NColumnShard {
 
@@ -25,7 +37,7 @@ public:
         : PortionInfoConstructor(portion.DetachPortionConstructor()) {
     }
 
-    void Finalize(TColumnShard* shard, NTabletFlatExecutor::TTransactionContext& txc);
+    void Finalize(NOlap::TColumnEngineForLogs& engine, NTabletFlatExecutor::TTransactionContext& txc);
 };
 
 class TWriteResult {
@@ -117,7 +129,7 @@ public:
 
 namespace NKikimr::NColumnShard::NPrivateEvents::NWrite {
 
-class TEvWritePortionResult: public TEventLocal<TEvWritePortionResult, TEvPrivate::EvWritePortionResult> {
+class TEvWritePortionResult: public NActors::TEventLocal<TEvWritePortionResult, NPrivateEvIds::EvWritePortionResult> {
 private:
     YDB_READONLY_DEF(NKikimrProto::EReplyStatus, WriteStatus);
     std::optional<std::shared_ptr<NOlap::IBlobsWritingAction>> WriteAction;

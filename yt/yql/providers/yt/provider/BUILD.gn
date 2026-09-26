@@ -1,6 +1,14 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 # TODO: add resource
 
 library("provider") {
+    public_deps = [
+        "//yql/essentials/providers/common/schema:expr",
+        "//yt/yql/providers/yt/lib/row_spec",
+        "//yt/yql/providers/yt/lib/temp_files",
+    ]
+
     deps = [
         "//contrib/libs/openssl",
         "//contrib/libs/re2",
@@ -20,7 +28,6 @@ library("provider") {
         "//yql/essentials/providers/common/dq",
         "//yql/essentials/providers/common/mkql",
         "//yql/essentials/providers/common/provider",
-        "//yql/essentials/providers/common/schema:expr",
         "//yql/essentials/providers/common/structured_token",
         "//yql/essentials/providers/common/transform",
         "//yql/essentials/sql/v1",
@@ -41,7 +48,6 @@ library("provider") {
         "//yt/yql/providers/yt/lib/key_filter",
         "//yt/yql/providers/yt/lib/mkql_helpers",
         "//yt/yql/providers/yt/lib/res_pull",
-        "//yt/yql/providers/yt/lib/row_spec",
         "//yt/yql/providers/yt/lib/schema",
         "//yt/yql/providers/yt/lib/skiff",
         "//yt/yql/providers/yt/lib/yson_helpers",

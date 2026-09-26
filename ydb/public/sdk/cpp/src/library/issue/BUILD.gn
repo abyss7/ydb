@@ -1,11 +1,12 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("issue") {
-  public_deps = [ "//ydb/public/api/protos" ]
+  public_deps = [
+    # "//contrib/libs/protobuf",
+    "//ydb/public/api/protos",
+  ]
 
   deps = [
     "//library/cpp/colorizer",
-    "//ydb/public/sdk/cpp/src/library/string_utils:helpers",
+    "//ydb/public/sdk/cpp/src/library/string_utils/helpers",  # peerdir only
   ]
 
   sources = [

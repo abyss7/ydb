@@ -14,9 +14,8 @@ library("persqueue_cluster_discovery") {
     # ":cluster_ordering",
     # "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/base",
-    # "//ydb/core/client/server",  # peerdir only
+    # "//ydb/core/client:server",  # peerdir only
     "//ydb/core/grpc_services",
-    "//ydb/core/grpc_services:request_proxy",
     # "//ydb/core/mind:address_classification",
     # "//ydb/core/mon",
     # "//ydb/core/persqueue/public",  # peerdir only

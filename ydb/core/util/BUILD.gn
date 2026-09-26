@@ -1,44 +1,42 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("evlog") {
   public_deps = [
     "//ydb/library/accessor",
     "//ydb/library/actors/core",
   ]
 
-  deps = [
-    "//library/cpp/time_provider",
-  ]
-
   sources = [ "evlog/log.cpp" ]
-}
-
-library("memory_tracker") {
-  deps = [
-    "//library/cpp/html/escape",
-    "//ydb/core/base",
-    "//ydb/core/mon",
-  ]
-
-  sources = [ "memory_tracker.cpp" ]
 }
 
 library("util") {
   public_deps = [
+    # "//contrib/libs/lz4",
+    # "//contrib/libs/protobuf",
+    # "//library/cpp/containers/stack_vector",
+    # "//library/cpp/deprecated/atomic",
+    "//library/cpp/ipmath",
     "//library/cpp/json",
+    # "//library/cpp/monlib/dynamic_counters",
+    "//ydb/core/base",
     "//ydb/core/protos",
+    # "//ydb/core/tablet_flat",
+    "//ydb/library/actors/core",
+    # "//ydb/library/actors/interconnect",
+    # "//ydb/library/actors/util",
+    # "//ydb/library/actors/wilson",
+    # "//ydb/library/services",
+    # "//ydb/library/yverify_stream",
+    # "//ydb/public/api/protos",
   ]
 
   deps = [
     "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-core",
     "//contrib/libs/curl",
-    "//library/cpp/ipmath",
-    "//library/cpp/ipv6_address",
-    # "//library/cpp/monlib/dynamic_counters",
-    "//ydb/core/base",
-    "//ydb/library/actors/core",
-    # "//ydb/library/actors/util",
-    # "//ydb/library/services",
+    # "//library/cpp/html/escape",  # peerdir only
+    # "//library/cpp/lwtrace",
+    # "//library/cpp/monlib/service/pages",
+    # "//library/cpp/random_provider",
+    # "//ydb/core/mon",  # peerdir only
+    # "//ydb/library/actors/interconnect:mock",  # peerdir only
   ]
 
   sources = [

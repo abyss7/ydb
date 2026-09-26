@@ -1,0 +1,16 @@
+library("async_jobs") {
+  public_deps = [
+    # "//ydb/core/protos",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/conclusion",
+  ]
+
+  deps = [
+    # "//contrib/libs/protobuf",
+    # "//ydb/core/formats/arrow",
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/datashard",
+  ]
+
+  sources = [ "import_downloader.cpp" ]
+}

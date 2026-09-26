@@ -2,7 +2,7 @@
 
 #include "defs.h"
 
-#include <ydb/library/actors/core/events/events.h>
+#include <ydb/library/actors/core/events.h>
 #include <ydb/library/yql/dq/actors/dq_events_ids.h>
 
 namespace NKikimr {

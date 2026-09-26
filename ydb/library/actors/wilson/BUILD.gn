@@ -8,7 +8,7 @@ library("wilson") {
   public_deps = [
     # "//contrib/libs/grpc",
     "//contrib/libs/opentelemetry-proto",
-    "//library/cpp/json:writer",
+    "//library/cpp/json",
     "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/string_utils/base64",
     "//ydb/library/actors/core",

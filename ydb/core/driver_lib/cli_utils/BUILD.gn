@@ -6,13 +6,14 @@ library("cli_utils") {
     "//library/cpp/string_utils/parse_size",
     # "//library/cpp/svnversion",
     "//ydb/core/driver_lib/cli_base",
-    "//ydb/core/driver_lib/run",
-    # "//ydb/library/actors/interconnect:poller",
+    "//ydb/core/driver_lib/run:_self",
+    # "//ydb/library/actors/interconnect",
     # "//ydb/public/lib/deprecated/client",
     "//ydb/public/lib/deprecated/kicli",
   ]
 
   deps = [
+    "//ydb/library/keys",  # peerdir only
     # "//library/cpp/protobuf/json",
     # "//library/cpp/yson",  # peerdir only
     # "//ydb/core/actorlib_impl",  # peerdir only
@@ -20,14 +21,14 @@ library("cli_utils") {
     "//ydb/core/blobstorage/nodewarden",
     # "//ydb/core/blobstorage/pdisk",
     "//ydb/core/blobstorage/pdisk:metadata",
-    # "//ydb/core/client/minikql_compile",  # peerdir only
+    # "//ydb/core/client:minikql_compile",  # peerdir only
     # "//ydb/core/client:scheme_cache_lib",  # peerdir only
     # "//ydb/core/config/init",
     "//ydb/core/config/validation",
     # "//ydb/core/driver_lib/cli_config_base",
     # "//ydb/core/engine",  # peerdir only
     # "//ydb/core/erasure",  # peerdir only
-    "//ydb/core/mind:bscontroller",
+    "//ydb/core/mind:bscontroller",  # peerdir only
     "//ydb/core/mind:group_mapper",
     # "//ydb/core/protos",
     # "//ydb/core/scheme",
@@ -42,7 +43,7 @@ library("cli_utils") {
     "//ydb/public/api/grpc:draft",
     # "//ydb/public/api/protos",
     "//ydb/public/lib/ydb_cli/commands",
-    # "//ydb/public/lib/ydb_cli/commands/ydb_discovery",  # peerdir only
+    "//ydb/public/lib/ydb_cli/commands/ydb_discovery",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/driver",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/resources",
     # "//ydb/public/sdk/cpp/src/library/grpc/client",

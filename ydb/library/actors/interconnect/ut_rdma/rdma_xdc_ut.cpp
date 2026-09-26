@@ -1,4 +1,4 @@
-#include <ydb/library/actors/core/events/event_pb.h>
+#include <ydb/library/actors/core/event_pb.h>
 #include <ydb/library/actors/interconnect/rdma/ut/utils/utils.h>
 #include <ydb/library/actors/interconnect/rdma/mem_pool.h>
 

@@ -5,4 +5,6 @@ config("_includes") {
 library("no_llvm") {
   sources = [ "codegen_dummy.cpp" ]
   configs = [ ":_includes" ]
+
+  link_slot_provides = [ "minikql_codegen" ]
 }

@@ -1,5 +1,5 @@
 #include "utils.h"
-#include <ydb/public/lib/ydb_cli/common/plan2svg.h>
+#include <ydb/library/plan2svg/plan2svg.h>
 
 #include <library/cpp/json/json_reader.h>
 #include <library/cpp/json/json_writer.h>

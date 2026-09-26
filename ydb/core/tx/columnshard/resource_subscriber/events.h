@@ -5,8 +5,8 @@
 #include <ydb/core/base/events.h>
 
 #include <ydb/library/accessor/accessor.h>
-#include <ydb/library/actors/core/events/event_local.h>
-#include <ydb/library/actors/core/events/events.h>
+#include <ydb/library/actors/core/event_local.h>
+#include <ydb/library/actors/core/events.h>
 
 namespace NKikimr::NOlap::NResourceBroker::NSubscribe {
 

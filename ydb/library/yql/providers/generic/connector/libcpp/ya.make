@@ -17,6 +17,7 @@ PEERDIR(
     ydb/library/yql/providers/generic/connector/api/service
     ydb/library/yql/providers/generic/connector/api/service/protos
     yql/essentials/public/issue
+    ydb/library/yql/public/ydb_issue
     yql/essentials/utils
     yql/essentials/utils/log
 )

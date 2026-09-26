@@ -1,6 +1,6 @@
 #pragma once
 
-#include "events/events.h"
+#include "events.h"
 
 #include <library/cpp/monlib/service/monservice.h>
 #include <library/cpp/monlib/service/pages/mon_page.h>

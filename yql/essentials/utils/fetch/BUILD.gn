@@ -1,6 +1,4 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
-config("private_config") {
+config("fetch_private_config") {
   cflags = [ "-Wno-deprecated-enum-enum-conversion" ]
 }
 
@@ -12,7 +10,8 @@ library("fetch") {
   ]
 
   deps = [
-    "//library/cpp/charset",
+    # ":proto",  # peerdir only
+    "//library/cpp/charset:lite",
     # "//library/cpp/http/misc",
     "//library/cpp/openssl/io",
     "//yql/essentials/utils/log",
@@ -20,7 +19,7 @@ library("fetch") {
 
   sources = [ "fetch.cpp" ]
 
-  configs = [ ":private_config" ]
+  configs = [ ":fetch_private_config" ]
 }
 
 protobuf_library("proto") {

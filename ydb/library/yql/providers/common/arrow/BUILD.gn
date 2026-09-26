@@ -1,0 +1,19 @@
+library("arrow") {
+  deps = [
+    # ":interface",
+    # "//contrib/libs/apache/arrow",
+    # "//yql/essentials/utils",
+  ]
+
+  sources = [ "arrow_reader_impl.cpp" ]
+}
+
+library("interface") {
+  public_deps = [
+    # "//contrib/libs/apache/arrow",
+    # "//library/cpp/threading/future",
+    # "//ydb/library/yql/providers/common/http_gateway",
+  ]
+
+  sources = [ "interface/arrow_reader.cpp" ]
+}

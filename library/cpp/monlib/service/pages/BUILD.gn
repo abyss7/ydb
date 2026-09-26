@@ -1,18 +1,18 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("pages") {
-  public_deps = [ "//library/cpp/resource" ]
+  public_deps = [
+    # "//library/cpp/monlib/service",
+    "//library/cpp/resource",
+  ]
 
   deps = [
-    "//build/scripts/c_templates",
     "//library/cpp/build_info",
-    # "//library/cpp/malloc/api",
+    "//library/cpp/malloc/api",
     "//library/cpp/monlib/encode:json",
     "//library/cpp/monlib/encode:prometheus",
     "//library/cpp/monlib/encode:spack",
     "//library/cpp/monlib/encode:text",
     # "//library/cpp/monlib/metrics",
-    # "//library/cpp/svnversion",
+    "//library/cpp/svnversion",
   ]
 
   sources = [
@@ -28,9 +28,62 @@ library("pages") {
   ]
 }
 
-group("resources") {
-  public_deps = [ "//library/cpp/monlib/service/pages" ]
+library("resources") {
+  public_deps = [ ":pages" ]
+
+  deps = [
+    # "//library/cpp/monlib/dynamic_counters",  # peerdir only
+  ]
+
+  resources = [
+    {
+      path = "resources/static/css/bootstrap.min.css"
+      key = "static/css/bootstrap.min.css"
+    },
+    {
+      path = "resources/static/fonts/glyphicons-halflings-regular.eot"
+      key = "static/fonts/glyphicons-halflings-regular.eot"
+    },
+    {
+      path = "resources/static/fonts/glyphicons-halflings-regular.svg"
+      key = "static/fonts/glyphicons-halflings-regular.svg"
+    },
+    {
+      path = "resources/static/fonts/glyphicons-halflings-regular.ttf"
+      key = "static/fonts/glyphicons-halflings-regular.ttf"
+    },
+    {
+      path = "resources/static/fonts/glyphicons-halflings-regular.woff"
+      key = "static/fonts/glyphicons-halflings-regular.woff"
+    },
+    {
+      path = "resources/static/js/bootstrap.min.js"
+      key = "static/js/bootstrap.min.js"
+    },
+    {
+      path = "resources/static/js/jquery.min.js"
+      key = "static/js/jquery.min.js"
+    },
+  ]
 }
 
-group("tablesorter") {
+library("tablesorter") {
+  public_deps = [
+    # ":pages",
+  ]
+
+  deps = [
+    # "//library/cpp/monlib/dynamic_counters",  # peerdir only
+  ]
+
+  resources = [
+    {
+      path = "tablesorter/resources/jquery.tablesorter.css"
+      key = "jquery.tablesorter.css"
+    },
+    {
+      path = "tablesorter/resources/jquery.tablesorter.js"
+      key = "jquery.tablesorter.js"
+    },
+  ]
 }

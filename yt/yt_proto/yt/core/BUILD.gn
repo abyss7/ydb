@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 protobuf_library("core") {
     proto_public_include_dirs = [ "//yt" ]
 

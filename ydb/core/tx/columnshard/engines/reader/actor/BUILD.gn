@@ -1,14 +1,11 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("actor") {
   public_deps = [
     "//ydb/core/formats/arrow",
-    "//ydb/core/kqp/compute_actor",
-    "//ydb/core/protos",  # include path
+    "//ydb/core/kqp/compute_actor:events",
+    # "//ydb/core/tx/columnshard",
     "//ydb/core/tx/columnshard/blobs_action:abstract",
     "//ydb/core/tx/columnshard/column_fetching",
     "//ydb/core/tx/columnshard/counters",
-    "//ydb/core/tx/columnshard/engines",  # include path
     "//ydb/core/tx/columnshard/engines/reader/abstract",
     "//ydb/core/tx/conveyor_composite/usage",
     "//ydb/core/tx/tracing:usage",
@@ -17,11 +14,11 @@ library("actor") {
   ]
 
   deps = [
-    "//ydb/core/formats/arrow/reader",
+    "//ydb/core/kqp/compute_actor",  # peerdir only
     "//ydb/core/tx/columnshard/blobs_reader",
     "//ydb/core/tx/columnshard/engines/reader/tracing",
     "//ydb/core/tx/columnshard/resource_subscriber",
-    "//ydb/core/tx/tracing:service",
+    "//ydb/core/tx/tracing:service",  # peerdir only
     "//yql/essentials/core/issue",
   ]
 

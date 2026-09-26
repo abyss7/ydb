@@ -47,6 +47,7 @@ PEERDIR(
     ydb/library/yql/dq/actors
     ydb/library/yql/dq/common
     ydb/library/yql/dq/expr_nodes
+    ydb/library/yql/public/ydb_issue
     ydb/public/api/protos
     ydb/public/sdk/cpp/src/library/operation_id
     ydb/public/sdk/cpp/src/library/operation_id/protos

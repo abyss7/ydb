@@ -16,11 +16,12 @@ library("cli_base") {
     # "//ydb/core/tx/schemeshard",
     "//ydb/library/aclib",
     "//ydb/public/lib/ydb_cli/commands",
-    # "//ydb/public/lib/ydb_cli/commands/sdk_core_access",  # peerdir only
-    # "//ydb/public/lib/ydb_cli/commands/ydb_discovery",  # peerdir only
+    "//ydb/public/lib/ydb_cli/commands/sdk_core_access",  # peerdir only
+    "//ydb/public/lib/ydb_cli/commands/ydb_discovery",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/driver",
     # "//ydb/public/sdk/cpp/src/client/table",
-    # "//ydb/public/sdk/cpp/src/client/types/credentials",
+    "//ydb/public/sdk/cpp/src/client/types/credentials",
+    "//ydb/public/sdk/cpp/src/client/types/credentials:login",  # peerdir only
   ]
 
   sources = [

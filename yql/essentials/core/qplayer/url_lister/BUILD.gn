@@ -1,7 +1,7 @@
 library("url_lister") {
   public_deps = [
-    # "//yql/essentials/core/qplayer/storage/interface",
-    # "//yql/essentials/core/url_lister/interface",
+    "//yql/essentials/core/qplayer/storage/interface",
+    "//yql/essentials/core/url_lister/interface",
   ]
 
   deps = [

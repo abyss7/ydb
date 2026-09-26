@@ -16,7 +16,7 @@ library("compile_service") {
     "//library/cpp/string_utils/base64",
     "//ydb/core/actorlib_impl",
     # "//ydb/core/base",
-    # "//ydb/core/client/minikql_compile",
+    # "//ydb/core/client:minikql_compile",
     # "//ydb/core/cms/console",
     # "//ydb/core/kqp/counters",
     "//ydb/core/kqp/gateway",

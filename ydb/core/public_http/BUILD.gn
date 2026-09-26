@@ -17,12 +17,11 @@ library("public_http") {
 
   deps = [
     ":protos",
-    # "//library/cpp/protobuf/json",
+    "//library/cpp/protobuf/json",
     # "//library/cpp/resource",
     "//ydb/core/fq/libs/result_formatter",
     "//ydb/core/grpc_services",
     # "//ydb/core/grpc_services/local_rpc",  # peerdir only
-    "//ydb/core/grpc_services:request_proxy",
     # "//ydb/core/http_proxy",
     "//ydb/core/viewer:json",
     "//ydb/library/actors/http",

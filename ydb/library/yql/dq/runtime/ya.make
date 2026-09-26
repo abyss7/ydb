@@ -10,6 +10,7 @@ PEERDIR(
     ydb/library/yql/dq/common
     ydb/library/yql/dq/expr_nodes
     ydb/library/yql/dq/type_ann
+    ydb/library/yql/public/ydb_issue
     ydb/library/yverify_stream
     yql/essentials/minikql
     yql/essentials/minikql/arrow

@@ -1,6 +1,6 @@
 library("sqs_topic") {
   public_deps = [
-    # "//ydb/core/client/server",
+    # "//ydb/core/client:server",
     "//ydb/core/grpc_services",
     # "//ydb/library/actors/core",
     # "//ydb/library/grpc/server",
@@ -14,7 +14,6 @@ library("sqs_topic") {
     "//library/cpp/string_utils/base64",
     # "//ydb/core/base",
     # "//ydb/core/grpc_services/base",
-    "//ydb/core/grpc_services:request_proxy",
     # "//ydb/core/http_proxy",
     # "//ydb/core/mind",  # peerdir only
     # "//ydb/core/persqueue/events",
@@ -22,6 +21,7 @@ library("sqs_topic") {
     # "//ydb/core/persqueue/public:describer",
     "//ydb/core/persqueue/public:list_topics",
     "//ydb/core/persqueue/public:mlp",
+    "//ydb/core/persqueue/writer",  # peerdir only
     "//ydb/core/protos",
     "//ydb/core/ymq/attributes",
     # "//ydb/core/ymq/base",

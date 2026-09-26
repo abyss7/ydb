@@ -7,7 +7,6 @@ library("replication") {
 
   deps = [
     "//ydb/core/grpc_services",
-    "//ydb/core/grpc_services:request_proxy",
     # "//ydb/library/actors/core",  # peerdir only
     # "//ydb/public/api/grpc",  # peerdir only
   ]

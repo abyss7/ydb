@@ -41,9 +41,10 @@ library("codec") {
   ]
 }
 
-group("codegen") {
-  public_deps = [
-    "//yt/yql/providers/yt/codec/codegen/llvm16",
-    # "//yt/yql/providers/yt/codec/codegen/no_llvm",
-  ]
+slot_interface_group("codegen") {
+  link_slot_interface = "yt_codegen"
+
+  link_slot_headers = [ "codegen/yt_codec_cg.h" ]
+
+  link_slot_flags_from = [ "codegen/yt_codec_cg.cpp" ]
 }

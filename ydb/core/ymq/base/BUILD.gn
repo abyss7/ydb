@@ -21,7 +21,6 @@ library("base") {
     # "//contrib/libs/protobuf",
     # "//library/cpp/cgiparam",  # peerdir only
     # "//library/cpp/ipmath",  # peerdir only
-    # "//library/cpp/json:writer",
     "//library/cpp/logger:global",
     "//library/cpp/string_utils/base64",
     "//library/cpp/unified_agent_client",

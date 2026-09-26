@@ -11,8 +11,8 @@ library("shard") {
     # "//ydb/core/base",
     # "//ydb/core/cms/console",
     "//ydb/core/engine:minikql",
-    # "//ydb/core/graph/api",
-    # "//ydb/core/tablet",  # peerdir only
+    "//ydb/core/graph/api",
+    # "//ydb/core/tablet",
     "//ydb/core/tablet_flat",
     "//ydb/core/tx",
     "//ydb/library/actors/core",

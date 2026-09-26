@@ -56,11 +56,13 @@ library("sasl") {
     "//library/cpp/json",
     "//library/cpp/string_utils/base64",
     "//ydb/core/protos",
+    "//ydb/core/tablet",
     "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/schemeshard",
     "//ydb/library/login:hashes_checker",
     "//ydb/library/login:sasl",
     "//ydb/library/services",
+    "//ydb/library/ydb_issue",  # peerdir only
     "//ydb/library/ydb_issue:proto",  # peerdir only
   ]
 
@@ -116,7 +118,6 @@ library("token_manager") {
 
   deps = [
     "//library/cpp/json",
-    "//library/cpp/json:writer",
     # "//ydb/core/util",  # peerdir only
     "//ydb/library/actors/http",
   ]

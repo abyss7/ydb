@@ -8,13 +8,12 @@ library("count_min_sketch") {
   deps = [
     # "//contrib/libs/apache/arrow",
     # "//library/cpp/deprecated/atomic",
-    # "//ydb/core/formats/arrow:hash",
-    "//ydb/core/formats/arrow/accessor:abstract",
-    "//ydb/core/tx/columnshard/engines/scheme",
-    "//ydb/core/tx/columnshard/engines/scheme/indexes/abstract",
-    "//ydb/core/tx/columnshard/engines/storage/chunks",
+    # "//ydb/core/formats/arrow",
+    # "//ydb/core/protos",  # peerdir only
+    "//ydb/core/tx/columnshard/engines/portions",
+    "//ydb/core/tx/columnshard/engines/scheme/indexes:abstract",
     # "//ydb/core/tx/program",
-    # "//ydb/core/tx/schemeshard/olap/schema",
+    "//ydb/core/tx/schemeshard/olap/schema",
     # "//ydb/library/formats/arrow:hash",
     "//yql/essentials/core/minsketch",
   ]

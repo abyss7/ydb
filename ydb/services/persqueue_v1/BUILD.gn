@@ -3,9 +3,8 @@ library("actors") {
     # "//contrib/libs/protobuf",
     # "//library/cpp/containers/disjoint_interval_tree",
     # "//ydb/core/base",
-    "//ydb/core/client/server",
+    "//ydb/core/client:server",
     "//ydb/core/grpc_services",
-    "//ydb/core/grpc_services:request_proxy",
     # "//ydb/core/jaeger_tracing",
     # "//ydb/core/kqp/common",
     # "//ydb/core/kqp/common:events",
@@ -18,6 +17,7 @@ library("actors") {
     "//ydb/core/persqueue/writer:partition_chooser",
     # "//ydb/core/protos",
     # "//ydb/core/scheme",
+    # "//ydb/core/tablet",
     # "//ydb/core/tx/scheme_board",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/util",
@@ -77,9 +77,10 @@ library("persqueue_v1") {
   public_deps = [
     ":actors",
     # "//library/cpp/monlib/dynamic_counters",
-    # "//ydb/core/client/server",
+    # "//ydb/core/client:server",
     # "//ydb/core/grpc_services",
     # "//ydb/core/grpc_services/base",
+    # "//ydb/core/grpc_services:topic_rpc",
     # "//ydb/core/mind:address_classification",
     # "//ydb/core/persqueue/public:cluster_tracker",
     # "//ydb/library/actors/core",
@@ -118,4 +119,6 @@ library("persqueue_v1") {
     "services_initializer.cpp",
     "topic.cpp",
   ]
+
+  link_slot_provides = [ "topic_rpc" ]
 }

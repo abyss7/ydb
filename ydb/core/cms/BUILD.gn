@@ -29,11 +29,11 @@ library("cms") {
     "//ydb/core/erasure",
     # "//ydb/core/mind:bscontroller",  # peerdir only
     "//ydb/core/mon",
-    # "//ydb/core/protos:out",  # peerdir only
     "//ydb/core/scheme",
     "//ydb/core/tablet",
     "//ydb/core/tx/datashard",
     # "//ydb/library/aclib",  # peerdir only
+    "//ydb/library/pretty_types_print/protobuf",  # peerdir only
     "//ydb/library/services",
     "//ydb/library/yverify_stream",
     "//ydb/public/api/protos",

@@ -1,7 +1,22 @@
 #pragma once
 
-#include "defs.h"
 #include "mood.h"
+
+#include <ydb/core/base/blobstorage_common.h>
+#include <ydb/core/base/defs.h>
+#include <ydb/core/base/blobstorage_pdisk_category.h>
+#include <ydb/core/erasure/erasure.h>
+#include <ydb/core/protos/blobstorage_base.pb.h>
+#include <ydb/core/protos/blobstorage_base3.pb.h>
+#include <ydb/core/protos/blobstorage_config.pb.h>
+#include <ydb/core/protos/blobstorage_disk.pb.h>
+#include <ydb/core/protos/blobstorage_disk_color.pb.h>
+#include <ydb/core/protos/blobstorage_vdisk_config.pb.h>
+#include <ydb/core/protos/bridge.pb.h>
+#include <ydb/core/scheme/scheme_type_id.h>
+#include <ydb/core/tablet_flat/flat_cxx_database.h>
+
+#include <util/datetime/base.h>
 
 namespace NKikimr {
 

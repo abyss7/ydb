@@ -1,31 +1,28 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
-import("//build/gn/ragel.gni")
-
 library("common") {
   sources = [ "common/defs.cpp" ]
 }
 
 library("easy_parse") {
-  deps = [ "//library/cpp/json" ]
+  deps = [ ":json" ]
 
   sources = [ "easy_parse/json_easy_parser.cpp" ]
 }
 
-ragel6_source_set("fast_sax_parser") {
-  sources = [ "fast_sax/parser.rl6" ]
-}
-
 library("fast_sax") {
-  deps = [ ":fast_sax_parser" ]
-  sources = [ "fast_sax/unescape.cpp" ]
+  public_deps = [
+    # ":common",
+  ]
+
+  sources = [
+    "fast_sax/parser.rl6",
+    "fast_sax/unescape.cpp",
+  ]
 }
 
 library("json") {
   public_deps = [
     ":common",
     ":fast_sax",
-    ":writer",
   ]
 
   deps = [
@@ -38,13 +35,6 @@ library("json") {
     "json_reader.cpp",
     "json_writer.cpp",
     "rapidjson_helpers.cpp",
-  ]
-}
-
-library("writer") {
-  public_deps = [ ":common" ]
-
-  sources = [
     "writer/json.cpp",
     "writer/json_value.cpp",
   ]
@@ -54,7 +44,7 @@ library("writer") {
 
 library("yson") {
   public_deps = [
-    "//library/cpp/json",
+    ":json",
     "//library/cpp/yson",
   ]
 

@@ -36,7 +36,7 @@ SRCS(
     intrusive_heap.h
     intrusive_stack.h
     log_priority_mute_checker.h
-    memory_tracker.cpp  # gn: memory_tracker
+    memory_tracker.cpp  # gn: into ydb/core/driver_lib/run
     memory_tracker.h
     numerical_maybe.h
     operation_queue.h
@@ -63,7 +63,6 @@ SRCS(
     wildcard.h
     wilson.h
 )
-# gn: memory_tracker headers memory_tracker.h
 
 PEERDIR(
     ydb/library/actors/core

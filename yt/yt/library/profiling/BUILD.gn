@@ -1,6 +1,4 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
-config("public_config") {
+config("profiling_public_config") {
   cflags = [ "-mcx16" ]
 }
 
@@ -11,13 +9,13 @@ library("profiling") {
     "//library/cpp/yt/memory",
     # "//library/cpp/yt/misc",
     "//library/cpp/yt/string",
+    "//library/cpp/yt/threading",
+    # "//yt/yt/core",
   ]
 
   deps = [
     "//library/cpp/yt/assert",
-    "//library/cpp/yt/error",
-    "//library/cpp/yt/threading",
-    # "//yt/yt/core",
+    "//library/cpp/yt/error",  # peerdir only
   ]
 
   sources = [
@@ -30,5 +28,21 @@ library("profiling") {
     "testing.cpp",
   ]
 
-  public_configs = [ ":public_config" ]
+  public_configs = [ ":profiling_public_config" ]
+}
+
+library("resource_tracker") {
+  deps = [
+    # ":profiling",
+    # "//library/cpp/yt/memory",
+    # "//library/cpp/yt/misc",
+    # "//yt/yt/core",
+    # "//yt/yt_proto/yt/core",  # peerdir only
+  ]
+
+  sources = [
+    "resource_tracker/config.cpp",
+    "resource_tracker/configure_resource_tracker.cpp",
+    "resource_tracker/resource_tracker.cpp",
+  ]
 }

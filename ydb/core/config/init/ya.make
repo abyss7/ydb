@@ -9,6 +9,7 @@ SRCS(
 )
 
 PEERDIR(
+    library/cpp/svnversion
     ydb/core/base
     ydb/core/driver_lib/cli_base
     ydb/core/driver_lib/cli_config_base

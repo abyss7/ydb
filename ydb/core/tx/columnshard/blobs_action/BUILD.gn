@@ -1,16 +1,12 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("abstract") {
   public_deps = [
     ":blobs_action",
     ":common",
     ":counters",
     ":events",
-    ":protos",
     # "//ydb/core/base",
     # "//ydb/core/protos",
     # "//ydb/core/tx/columnshard",
-    # "//ydb/core/tx/columnshard/blobs_action",
     # "//ydb/core/tx/columnshard/common",
     "//ydb/core/tx/columnshard/data_sharing/manager:shared_blobs",
     "//ydb/core/tx/tiering:abstract",
@@ -22,6 +18,10 @@ library("abstract") {
   ]
 
   deps = [
+    ":protos",
+    # "//contrib/libs/apache/arrow",  # peerdir only
+    # "//ydb/core/tablet_flat",  # peerdir only
+    # "//ydb/core/tx/columnshard/data_sharing/protos",  # peerdir only
     "//ydb/core/tx/columnshard/hooks/abstract",
     # "//ydb/core/tx/tiering",
   ]
@@ -43,13 +43,20 @@ library("abstract") {
 library("blobs_action") {
   public_deps = [
     # ":abstract",
-    ":protos",
     "//ydb/core/tablet_flat",
     # "//ydb/core/tx/columnshard",
     "//ydb/core/tx/columnshard/common",
+    "//ydb/core/util",
   ]
 
-  deps = [ "//ydb/core/util" ]
+  deps = [
+    # ":counters",  # peerdir only
+    # ":events",  # peerdir only
+    ":protos",  # peerdir only
+    # "//contrib/libs/apache/arrow",  # peerdir only
+    # "//ydb/core/protos",  # peerdir only
+    # "//ydb/core/tx/tiering",  # peerdir only
+  ]
 
   sources = [ "blob_manager_db.cpp" ]
 }
@@ -58,18 +65,23 @@ library("bs") {
   public_deps = [
     ":abstract",
     ":blobs_action",
-    ":counters",
-    "//ydb/core/base",
     "//ydb/core/protos",
     "//ydb/core/tablet_flat",
+    # "//ydb/core/tx/columnshard",
     "//ydb/core/tx/columnshard/counters",
-    "//ydb/core/tx/columnshard/data_sharing/manager:shared_blobs",  # cycle
+    "//ydb/core/tx/columnshard/data_sharing/manager:shared_blobs",
     "//ydb/core/util",
     "//ydb/library/accessor",
   ]
 
   deps = [
+    ":counters",
+    # ":events",
+    # "//contrib/libs/apache/arrow",  # peerdir only
+    "//ydb/core/base",
+    # "//ydb/core/tx/columnshard/data_sharing/protos",  # peerdir only
     "//ydb/core/tx/columnshard/hooks/abstract",
+    # "//ydb/core/tx/tiering",  # peerdir only
     "//ydb/library/actors/core",
   ]
 
@@ -103,7 +115,11 @@ library("counters") {
     "//ydb/library/signals",
   ]
 
-  deps = [ "//ydb/library/actors/core" ]
+  deps = [
+    # "//ydb/core/protos",  # peerdir only
+    # "//ydb/core/tablet_flat",  # peerdir only
+    "//ydb/library/actors/core",
+  ]
 
   sources = [
     "counters/read.cpp",
@@ -118,10 +134,15 @@ library("counters") {
 
 library("events") {
   public_deps = [
-    # ":protos",
+    ":protos",
     # "//ydb/core/tx/columnshard",
     "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard:ev_ids",
     "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//ydb/core/tx/datashard",  # peerdir only
   ]
 
   sources = [ "events/delete_blobs.cpp" ]
@@ -145,14 +166,15 @@ protobuf_library("protos") {
 library("storages_manager") {
   public_deps = [
     ":abstract",
-    "//ydb/core/tx/columnshard/data_sharing/manager:shared_blobs",  # cycle
+    "//ydb/core/tx/columnshard/common",
+    "//ydb/core/tx/columnshard/data_sharing/manager:shared_blobs",
   ]
 
   deps = [
     ":bs",
     ":local",
     ":tier",
-    "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard",
     "//ydb/core/wrappers",
   ]
 
@@ -162,21 +184,26 @@ library("storages_manager") {
 library("tier") {
   public_deps = [
     ":abstract",
-    ":counters",
+    # "//ydb/core/tx/columnshard",
     "//ydb/core/tx/columnshard/counters",
     "//ydb/core/tx/tiering",
     "//ydb/core/wrappers",
-    "//ydb/core/wrappers:events",
     "//ydb/library/accessor",
     "//ydb/library/actors/core",
   ]
 
   deps = [
     ":blobs_action",
+    ":counters",
+    # "//contrib/libs/apache/arrow",  # peerdir only
     "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-s3",
     "//library/cpp/retry",
     "//ydb/core/base",
+    # "//ydb/core/protos",  # peerdir only
+    # "//ydb/core/tablet_flat",  # peerdir only
+    # "//ydb/core/tx/columnshard/data_sharing/protos",  # peerdir only
     "//ydb/core/tx/columnshard/hooks/abstract",
+    "//ydb/core/wrappers:events",
   ]
 
   sources = [
@@ -190,8 +217,4 @@ library("tier") {
     "tier/storage.cpp",
     "tier/write.cpp",
   ]
-}
-
-group("transaction") {
-  public_deps = [ "//ydb/core/tx/columnshard" ]
 }

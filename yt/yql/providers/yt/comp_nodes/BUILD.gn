@@ -1,21 +1,34 @@
-group("comp_nodes") {
+slot_interface_group("comp_nodes") {
   public_deps = [
-    # ":dq",
     # "//yql/essentials/minikql",
     # "//yql/essentials/minikql/computation",
     # "//yql/essentials/providers/common/codec",
     # "//yql/essentials/public/udf",
     # "//yt/cpp/mapreduce/interface",
     # "//yt/yql/providers/yt/codec",
-    "//yt/yql/providers/yt/comp_nodes/llvm16",
-    # "//yt/yql/providers/yt/comp_nodes/no_llvm",
   ]
+
+  link_slot_interface = "yt_codegen"
+
+  link_slot_headers = [
+    "yql_mkql_block_table_content.h",
+    "yql_mkql_input.h",
+    "yql_mkql_output.h",
+    "yql_mkql_table_content.h",
+  ]
+
+  link_slot_flags_from = [ "yql_mkql_block_table_content.cpp" ]
 }
 
-group("dq") {
+slot_interface_group("dq") {
   public_deps = [
     # "//yql/essentials/minikql",
     # "//yql/essentials/minikql/computation",
-    "//yt/yql/providers/yt/comp_nodes/dq/llvm16",
   ]
+
+  link_slot_interface = "yt_codegen"
+
+  link_slot_headers = [ "dq/dq_yt_factory.h" ]
+
+  link_slot_flags_from = [ "dq/dq_yt_factory.cpp" ]
 }

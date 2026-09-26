@@ -15,11 +15,10 @@ library("ai") {
 
 library("models") {
   public_deps = [
-    # "//library/cpp/json:writer",
+    # "//library/cpp/json",
   ]
 
   deps = [
-    # "//library/cpp/json",
     # "//library/cpp/string_utils/url",
     # "//library/cpp/threading/future",
     # "//ydb/library/yql/providers/common/http_gateway",  # peerdir only
@@ -37,7 +36,7 @@ library("models") {
 
 library("tools") {
   public_deps = [
-    # "//library/cpp/json:writer",
+    # "//library/cpp/json",
     # "//ydb/public/lib/ydb_cli/common",
     # "//ydb/public/sdk/cpp/src/client/driver",
   ]

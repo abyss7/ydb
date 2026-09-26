@@ -73,7 +73,6 @@ library("tablet_flat") {
     "//library/cpp/html/pcdata",
     "//library/cpp/http/io",
     "//library/cpp/json",
-    # "//library/cpp/json:writer",
     "//library/cpp/lwtrace/mon",
     # "//library/cpp/monlib/service/pages",
     "//library/cpp/protobuf/json",

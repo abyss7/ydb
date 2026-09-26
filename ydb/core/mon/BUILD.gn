@@ -1,5 +1,3 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("audit") {
   public_deps = [
     "//ydb/core/protos",
@@ -9,6 +7,8 @@ library("audit") {
 
   deps = [
     # "//library/cpp/cgiparam",
+    # "//library/cpp/json",  # peerdir only
+    # "//library/cpp/protobuf/json",  # peerdir only
     "//ydb/core/audit",
     "//ydb/core/audit:audit_config",
     "//ydb/core/base",
@@ -25,10 +25,13 @@ library("audit") {
 library("mon") {
   public_deps = [
     # "//library/cpp/cgiparam",
+    "//library/cpp/monlib/dynamic_counters",
     "//library/cpp/monlib/service",
     # "//library/cpp/monlib/service/pages",
     # "//library/cpp/monlib/service/pages:resources",
     # "//library/cpp/monlib/service/pages:tablesorter",
+    "//ydb/core/base",
+    # "//ydb/library/actors/core",
     "//ydb/library/actors/http",
     "//ydb/public/sdk/cpp/src/client/types/status",
     "//yql/essentials/public/issue",
@@ -39,18 +42,17 @@ library("mon") {
     "//library/cpp/json",
     # "//library/cpp/lwtrace",
     "//library/cpp/lwtrace/mon",
-    "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/monlib/metrics",
     "//library/cpp/protobuf/json",
-    "//ydb/core/base",
+    # "//library/cpp/string_utils/url",  # peerdir only
     "//ydb/core/grpc_services/base",
     # "//ydb/core/node_whiteboard",
     # "//ydb/core/protos",
     # "//ydb/core/util",
-    # "//ydb/library/actors/core",
+    # "//ydb/library/aclib",  # peerdir only
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/services",
-    "//ydb/library/yql/public/ydb_issue",
+    "//ydb/library/yql/public/ydb_issue",  # peerdir only
     "//ydb/public/sdk/cpp/adapters/issue",
   ]
 

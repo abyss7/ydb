@@ -17,4 +17,21 @@ library("interface") {
   ]
 
   sources = [ "interface.cpp" ]
+
+  link_slot_interface = "yql_pg_runtime"
+
+  link_slot_headers = [
+    "arrow.h",
+    "codec.h",
+    "comp_factory.h",
+    "compare.h",
+    "config.h",
+    "context.h",
+    "optimizer.h",
+    "pack.h",
+    "parser.h",
+    "raw_parser.h",
+    "type_desc.h",
+    "utils.h",
+  ]
 }

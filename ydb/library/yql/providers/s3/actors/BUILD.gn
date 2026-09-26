@@ -40,7 +40,7 @@ library("actors") {
     # "//ydb/library/yql/providers/s3/credentials",
     "//ydb/library/yql/providers/s3/events",
     "//ydb/library/yql/providers/s3/serializations",
-    # "//ydb/library/yql/udfs/common/clickhouse/client",
+    "//ydb/library/yql/udfs/common/clickhouse/client",
     # "//yql/essentials/core",
     # "//yql/essentials/minikql",
     # "//yql/essentials/minikql/comp_nodes",

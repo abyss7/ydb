@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb/library/actors/core/actorsystem.h>
-#include <ydb/library/actors/core/events/event.h>
+#include <ydb/library/actors/core/event.h>
 
 #include <util/system/context.h>
 #include <util/system/event.h>

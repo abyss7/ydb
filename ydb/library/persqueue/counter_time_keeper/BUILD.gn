@@ -4,7 +4,7 @@ library("counter_time_keeper") {
   ]
 
   deps = [
-    # "//library/cpp/lwtrace:protos",  # peerdir only
+    # "//library/cpp/lwtrace/protos",  # peerdir only
     # "//ydb/core/protos",  # peerdir only
     # "//ydb/library/actors/protos",  # peerdir only
   ]

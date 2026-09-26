@@ -1,5 +1,7 @@
 #include "aggregator_impl.h"
 
+#include <ydb/library/yql/public/ydb_issue/ydb_issue_message.h>
+
 #include <ydb/core/tx/datashard/datashard.h>
 
 namespace NKikimr::NStat {

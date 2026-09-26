@@ -18,7 +18,7 @@
 #include "ydb/core/base/appdata_fwd.h"
 #include "ydb/core/protos/flat_tx_scheme.pb.h"
 #include "yql/essentials/public/issue/yql_issue.h"
-#include "ydb/library/actors/core/events/events.h"
+#include "ydb/library/actors/core/events.h"
 #include "library/cpp/string_utils/quote/quote.h"
 #include "ydb/core/base/path.h"
 #include "ydb/core/protos/netclassifier.pb.h"

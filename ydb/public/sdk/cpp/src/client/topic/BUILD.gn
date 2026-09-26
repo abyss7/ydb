@@ -1,7 +1,39 @@
+library("_self") {
+  public_deps = [
+    # "//library/cpp/logger",
+    "//library/cpp/monlib/dynamic_counters",
+    # "//library/cpp/retry",
+    # "//ydb/public/api/protos",
+    # "//ydb/public/sdk/cpp/src/client/common_client",
+    "//ydb/public/sdk/cpp/src/client/scheme",
+    # "//ydb/public/sdk/cpp/src/client/types",
+    # "//ydb/public/sdk/cpp/src/client/types/exceptions",
+    "//ydb/public/sdk/cpp/src/client/types/executor",
+    # "//ydb/public/sdk/cpp/src/client/types/status",
+  ]
+
+  deps = [
+    # "//library/cpp/streams/zstd",  # peerdir only
+    # "//ydb/public/api/grpc",  # peerdir only
+    # "//ydb/public/api/grpc:draft",  # peerdir only
+    # "//ydb/public/sdk/cpp/src/client/driver",  # peerdir only
+    # "//ydb/public/sdk/cpp/src/client/table",  # peerdir only
+  ]
+
+  sources = [ "out.cpp" ]
+
+  serialize_enum_headers = [
+    "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic/codecs.h",
+    "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic/control_plane.h",
+    "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic/read_events.h",
+    "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic/write_events.h",
+  ]
+}
+
 library("codecs") {
   deps = [
-    # ":topic",
-    # "//library/cpp/streams/zstd",
+    # ":_self",
+    "//library/cpp/streams/zstd",
   ]
 
   sources = [ "codecs/codecs.cpp" ]
@@ -9,7 +41,7 @@ library("codecs") {
 
 library("common") {
   public_deps = [
-    # ":topic",
+    ":_self",
     # "//library/cpp/threading/future",
     # "//ydb/public/sdk/cpp/src/client/common_client:impl",
   ]
@@ -28,28 +60,29 @@ library("common") {
 
 library("impl") {
   public_deps = [
-    # ":common",
-    # ":topic",
-    # "//library/cpp/threading/future",
+    ":_self",
+    ":common",
+    # "//contrib/libs/protobuf",
+    # "//library/cpp/containers/disjoint_interval_tree",
+    "//library/cpp/threading/future",
     # "//ydb/public/api/grpc",
-    # "//ydb/public/sdk/cpp/src/client/common_client:impl",
-    # "//ydb/public/sdk/cpp/src/client/impl/internal/make_request",
+    # "//ydb/public/api/grpc:draft",
+    "//ydb/public/sdk/cpp/src/client/common_client:impl",
+    "//ydb/public/sdk/cpp/src/client/impl/internal/logger",
+    "//ydb/public/sdk/cpp/src/client/impl/internal/make_request",
+    # "//ydb/public/sdk/cpp/src/client/persqueue_public:include",
     # "//ydb/public/sdk/cpp/src/client/proto",
+    # "//ydb/public/sdk/cpp/src/client/table",
     # "//ydb/public/sdk/cpp/src/client/types",
   ]
 
   deps = [
     # ":codecs",  # peerdir only
-    # "//contrib/libs/protobuf",
-    # "//library/cpp/containers/disjoint_interval_tree",
     # "//library/cpp/monlib/dynamic_counters",  # peerdir only
     # "//library/cpp/monlib/metrics",  # peerdir only
     # "//library/cpp/string_utils/url",
-    # "//library/cpp/threading/future:subscription",
-    # "//ydb/public/api/grpc:draft",  # peerdir only
+    "//library/cpp/threading/future:subscription",
     # "//ydb/public/sdk/cpp/src/client/driver",  # peerdir only
-    # "//ydb/public/sdk/cpp/src/client/impl/internal/logger",
-    # "//ydb/public/sdk/cpp/src/client/table",
     # "//ydb/public/sdk/cpp/src/library/decimal",
     # "//ydb/public/sdk/cpp/src/library/grpc/client",  # peerdir only
     # "//ydb/public/sdk/cpp/src/library/persqueue/obfuscate",  # peerdir only
@@ -72,38 +105,17 @@ library("impl") {
   ]
 }
 
-library("topic") {
+group("topic") {
   public_deps = [
-    # "//library/cpp/logger",
-    # "//library/cpp/monlib/dynamic_counters",
-    # "//library/cpp/retry",
-    # "//ydb/public/api/protos",
-    # "//ydb/public/sdk/cpp/src/client/common_client",
-    "//ydb/public/sdk/cpp/src/client/scheme",
-    # "//ydb/public/sdk/cpp/src/client/types",
-    # "//ydb/public/sdk/cpp/src/client/types/exceptions",
-    "//ydb/public/sdk/cpp/src/client/types/executor",
-    # "//ydb/public/sdk/cpp/src/client/types/status",
-  ]
-
-  deps = [
-    # ":codecs",  # peerdir only
+    ":_self",
+    ":codecs",  # peerdir only
     # ":common",  # peerdir only
-    # ":impl",  # peerdir only
+    ":impl",  # peerdir only
     # "//library/cpp/streams/zstd",  # peerdir only
     # "//ydb/public/api/grpc",  # peerdir only
     # "//ydb/public/api/grpc:draft",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/driver",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/proto",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/table",  # peerdir only
-  ]
-
-  sources = [ "out.cpp" ]
-
-  serialize_enum_headers = [
-    "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic/codecs.h",
-    "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic/control_plane.h",
-    "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic/read_events.h",
-    "//ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic/write_events.h",
   ]
 }

@@ -1,3 +1,5 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 import("//yql/essentials/core/expr_nodes_gen/gen.gni")
 
 generate_expr_nodes("dq_expr_nodes") {

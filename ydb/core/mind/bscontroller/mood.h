@@ -1,5 +1,10 @@
 #pragma once
-#include "defs.h"
+
+#include <util/generic/string.h>
+#include <util/string/printf.h>
+#include <util/system/types.h>
+
+#include <cinttypes>
 
 namespace NKikimr {
 namespace NBsController {

@@ -4,7 +4,7 @@
 #include <ydb/core/fq/libs/config/protos/fq_config.pb.h>
 
 #include <ydb/library/actors/core/actor_bootstrapped.h>
-#include <ydb/library/actors/core/events/events.h>
+#include <ydb/library/actors/core/events.h>
 #include <ydb/library/actors/core/hfunc.h>
 #include <ydb/library/actors/core/process_stats.h>
 #include <ydb/library/actors/interconnect/events_local.h>

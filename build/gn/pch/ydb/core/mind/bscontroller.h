@@ -29,7 +29,7 @@
 #include "ydb/library/actors/interconnect/interconnect.h"
 #include "ydb/core/blobstorage/groupinfo/blobstorage_groupinfo_sets.h"
 #include "ydb/core/base/group_stat.h"
-#include "ydb/library/actors/core/events/events.h"
+#include "ydb/library/actors/core/events.h"
 #include "ydb/core/blobstorage/base/blobstorage_console_events.h"
 #include "ydb/core/util/stlog.h"
 #include "ydb/core/util/pb.h"

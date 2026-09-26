@@ -3,7 +3,7 @@ library("client") {
     "//yt/cpp/mapreduce/common",
     "//yt/cpp/mapreduce/http",
     "//yt/cpp/mapreduce/interface",
-    # "//yt/cpp/mapreduce/skiff",
+    "//yt/cpp/mapreduce/skiff",
   ]
 
   deps = [

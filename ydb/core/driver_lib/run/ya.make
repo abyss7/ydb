@@ -1,5 +1,7 @@
 LIBRARY(run)
 
+# gn: anti-cycle facade
+
 ADDINCL(
     ydb/public/sdk/cpp
 )
@@ -67,7 +69,7 @@ PEERDIR(
     ydb/core/fq/libs/logs
     ydb/core/graph/service
     ydb/core/graph/shard
-    ydb/core/grpc_services  # gn: :request_proxy
+    ydb/core/grpc_services
     ydb/core/grpc_services/base
     ydb/core/health_check
     ydb/core/http_proxy
@@ -85,7 +87,7 @@ PEERDIR(
     ydb/core/log_backend
     ydb/core/memory_controller
     ydb/core/metering
-    ydb/core/mind  # gn: :configured_tablet_bootstrapper
+    ydb/core/mind
     ydb/core/mind/address_classification
     ydb/core/mind/bscontroller
     ydb/core/mind/hive
@@ -132,7 +134,7 @@ PEERDIR(
     ydb/core/tx/time_cast
     ydb/core/tx/tx_allocator
     ydb/core/tx/tx_proxy
-    ydb/core/util  # gn: :memory_tracker
+    ydb/core/util
     ydb/core/viewer
     ydb/core/ymq/actor
     ydb/core/ymq/http
@@ -189,6 +191,11 @@ PEERDIR(
     yt/yql/providers/yt/codec/codegen
     yt/yql/providers/yt/comp_nodes/dq/llvm16
     yt/yql/providers/yt/comp_nodes/llvm16
+    ydb/library/actors/scheduler
+    ydb/core/persqueue/pqrb
+    ydb/core/persqueue/pqtablet/cache
+    ydb/core/persqueue/public/cluster_tracker
+    ydb/core/tx/priorities/service
 )
 
 IF (OS_LINUX)

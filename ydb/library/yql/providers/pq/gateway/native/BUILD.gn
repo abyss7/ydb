@@ -15,7 +15,7 @@ library("native") {
     "//ydb/public/sdk/cpp/src/client/datastreams",
     # "//ydb/public/sdk/cpp/src/client/driver",
     "//yql/essentials/providers/common/proto",
-    # "//yql/essentials/utils",
+    "//yql/essentials/utils",
     "//yql/essentials/utils/log",
   ]
 

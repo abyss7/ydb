@@ -75,7 +75,6 @@ SRCS(
     tablet.cpp
     tablet.h
     tablet_killer.cpp
-    tablet_pipe.h
     tablet_pipecache.cpp
     tablet_pipecache.h
     tablet_resolver.h

@@ -2,7 +2,7 @@
 
 #include "actor_runnable_item.h"
 #include "defs.h"
-#include "events/event.h"
+#include "event.h"
 #include "monotonic.h"
 
 #include <ydb/library/actors/actor_type/indexes.h>

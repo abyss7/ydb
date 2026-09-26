@@ -1,4 +1,4 @@
-#include "control_plane_config.h"
+#include "service_id.h"
 
 namespace NFq {
 

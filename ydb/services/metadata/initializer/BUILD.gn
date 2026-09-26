@@ -1,23 +1,22 @@
-# yamake2gn: keep  -- hand-written, do not regenerate
-
 library("initializer") {
   public_deps = [
     # "//library/cpp/threading/future",
+    # "//library/cpp/time_provider",
     "//ydb/core/base",
     # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
-    # "//ydb/services/metadata/abstract",
+    # "//ydb/public/api/protos",
+    "//ydb/services/metadata/abstract",
     # "//ydb/services/metadata/ds_table",
-    # "//ydb/services/metadata/manager",
+    "//ydb/services/metadata/manager",
     "//ydb/services/metadata/request",
+    "//ydb/services/metadata/request:config",
   ]
 
   deps = [
-    # "//library/cpp/time_provider",
-    "//ydb/core/grpc_services",
+    "//ydb/core/grpc_services",  # peerdir only
+    # "//ydb/core/grpc_services/base",  # peerdir only
     "//ydb/core/grpc_services/local_rpc",
-    "//ydb/library/aclib",
-    "//ydb/library/yql/public/ydb_issue",
     # "//ydb/services/metadata",
   ]
 

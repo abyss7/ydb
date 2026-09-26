@@ -40,7 +40,7 @@ library("yaml_config") {
     ":public",
     # "//contrib/libs/openssl",
     # "//contrib/libs/protobuf",
-    # "//library/cpp/json:writer",
+    "//library/cpp/json",
     "//library/cpp/protobuf/json",
     "//library/cpp/streams/zstd",
     "//library/cpp/yaml/as",
@@ -55,10 +55,8 @@ library("yaml_config") {
 
   deps = [
     # "//contrib/libs/xxhash",
-    "//library/cpp/json",
     "//ydb/core/cms/console:util",
     "//ydb/core/config/validation",
-    # "//ydb/core/protos:out",  # peerdir only
     # "//ydb/core/viewer:json",
     # "//ydb/library/pdisk_io:device_type",
     "//ydb/library/yaml_json",

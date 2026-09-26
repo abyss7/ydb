@@ -10,6 +10,7 @@ library("proxy") {
   deps = [
     # "//ydb/core/erasure",  # peerdir only
     # "//ydb/core/kesus/tablet",
+    "//ydb/core/tablet",
     "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/schemeshard",
     # "//ydb/library/services",

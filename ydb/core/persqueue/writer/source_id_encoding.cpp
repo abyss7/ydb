@@ -4,8 +4,6 @@
 #include <library/cpp/digest/md5/md5.h>
 #include <library/cpp/string_utils/base64/base64.h>
 
-#include <ydb/public/lib/deprecated/kicli/kicli.h>
-
 #include <util/digest/city.h>
 #include <util/digest/murmur.h>
 #include <util/generic/yexception.h>
@@ -240,18 +238,6 @@ TEncodedSourceId EncodeSrcId(const TString& topic, const TString& userSourceId, 
     }
     res.Generation = generation;
     return res;
-}
-
-void SetHashToTxParams(NClient::TParameters& parameters, const TEncodedSourceId& encodedSrcId) {
-    switch (encodedSrcId.Generation) {
-        case ESourceIdTableGeneration::PartitionMapping:
-            parameters["$Hash"] = encodedSrcId.KeysHash;
-            return;
-        case ESourceIdTableGeneration::SrcIdMeta2:
-            parameters["$Hash"] = encodedSrcId.Hash;
-            return;
-
-    }
 }
 
 void SetHashToTParamsBuilder(NYdb::TParamsBuilder& builder, const TEncodedSourceId& encodedSrcId) {

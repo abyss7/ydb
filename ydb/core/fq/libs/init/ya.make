@@ -15,6 +15,7 @@ PEERDIR(
     ydb/core/fq/libs/compute/ydb/control_plane
     ydb/core/fq/libs/control_plane_config
     ydb/core/fq/libs/control_plane_proxy
+    ydb/core/fq/libs/control_plane_proxy/events
     ydb/core/fq/libs/control_plane_storage
     ydb/core/fq/libs/db_id_async_resolver_impl
     ydb/core/fq/libs/events
@@ -34,6 +35,7 @@ PEERDIR(
     ydb/library/security
     ydb/library/yql/dq/actors/compute
     ydb/library/yql/dq/actors/input_transforms
+    ydb/library/yql/dq/actors/task_runner
     ydb/library/yql/dq/transform
     ydb/library/yql/providers/dq/actors
     ydb/library/yql/providers/dq/api/protos

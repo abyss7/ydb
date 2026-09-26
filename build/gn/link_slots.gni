@@ -2,100 +2,46 @@
 # picks -- the gn side of ya.make's PROVIDES(): a PROGRAM PEERDIRs exactly one
 # module per PROVIDES name, and libraries below only call its symbols.
 #
-# * The interface headers declare the slot's functions inside
-#     #if defined(YQL_GN_LINK_SLOTS) && !defined(GN_SLOT_PROVIDER_<slot>)
-#     #pragma clang attribute push (__attribute__((weak)), apply_to = function)
-#   (YQL_GN_LINK_SLOTS: //build/gn/config:link_slots, a default config; ya make
-#   never defines it). Every caller gets weak references, so libraries link
-#   with --no-undefined without depending on a provider (which would be a
-#   cycle: providers are built on top of their consumers).
-# * A provider (PROVIDES(<slot>) in ya.make, or ALLOCATOR_IMPL() for the
-#   "allocator" slot -> `link_slot_provides`) gets
-#   GN_SLOT_PROVIDER_<slot> defined, so its definitions stay strong.
+# * Every caller gets weak references to the slot's functions, so libraries
+#   link with --no-undefined without depending on a provider (which would be
+#   a cycle: providers are built on top of their consumers). The interface
+#   target names the slot and its headers, `link_slot_interface = "<slot>"`
+#   and `link_slot_headers = [ ... ]` (`<header>  # gn: slot <slot>` in the
+#   SRCS of its ya.make; a header-only one is a slot_interface_group()): the
+#   functions declared there are made weak in its dependents, the sources
+#   untouched (see link_slot_weak_refs below).
+# * A provider declares `link_slot_provides = [ "<slot>" ]` (the value is the
+#   target's name) or "<slot>=<value>"; the generator writes it for
+#   PROVIDES(<slot>) in ya.make and for ALLOCATOR_IMPL() ("allocator"). It
+#   gets GN_SLOT_PROVIDER_<slot> defined, so its definitions stay strong.
+#   Every target declaring the same <slot>=<value> is a part of that provider.
+# * There is no list of slots: build/gn/scripts/link_slot_index.py gathers
+#   the declarations from the BUILD.gn files of the tree at `gn gen`.
 # * An executable declared with linked_executable() selects a provider per
-#   slot with `link_select = [ "<slot>=<provider>" ]`, or "<slot>" for the
-#   slot's default. It links the provider plus //build/gn/slots:<slot>_guard,
-#   which references the slot's symbols listed in build/gn/slots/<slot>.h
-#   strongly: forgetting a provider fails the executable's link, not a call
-#   at run time.
+#   slot with `link_select = [ "<slot>=<value>" ]`, and links every part of
+#   it. The interfaces in its dependencies (metadata link_slot_interfaces)
+#   are checked against the selection before its link
+#   (build/gn/scripts/link_slot_check.py): forgetting a provider fails the
+#   build, not a call at run time.
 # * `link_slot_overrides` in args.gn replaces a selection for one executable:
-#   "<executable label>|<slot>=<provider>".
+#   "<executable label>|<slot>=<value>".
 #
 # Every provider is built once, as a regular library; `ninja all` links each
 # executable with its own selection.
 
-link_slots = [
-  {
-    name = "yql_pg_runtime"
-    default = "pg_dummy"
-    providers = [
-      [
-        "pg_wrapper",
-        "//yql/essentials/parser/pg_wrapper",
-      ],
-      [
-        "pg_dummy",
-        "//yql/essentials/sql/pg_dummy",
-      ],
-    ]
-  },
-  {
-    name = "YqlServicePolicy"
-    default = "exception_policy"
-    providers = [
-      [
-        "exception_policy",
-        "//yql/essentials/public/udf/service/exception_policy",
-      ],
-      [
-        "terminate_policy",
-        "//yql/essentials/public/udf/service/terminate_policy",
-      ],
-      [
-        "stub",
-        "//yql/essentials/public/udf/service/stub",
-      ],
-    ]
-  },
-  {
-    # NMalloc::MallocInfo() of library/cpp/malloc/api; the providers are the
-    # ALLOCATOR_IMPL() modules, ya.make's ALLOCATOR() of a PROGRAM picks one
-    name = "allocator"
-    default = "tcmalloc"
-    providers = [
-      [
-        "tcmalloc",
-        "//library/cpp/malloc/tcmalloc",
-      ],
-      [
-        "jemalloc",
-        "//library/cpp/malloc/jemalloc",
-      ],
-      [
-        "mimalloc",
-        "//library/cpp/malloc/mimalloc",
-      ],
-      [
-        "system",
-        "//library/cpp/malloc/system",
-      ],
-    ]
-  },
-]
-
 declare_args() {
   link_slot_overrides = []
+
+  # The gn that link_slot_index.py parses the BUILD.gn files with
+  link_slot_gn = "gn"
 }
 
-# The guard of one slot; instantiated in //build/gn/slots.
-template("link_slot") {
-  not_needed([ "invoker" ])
-
-  source_set("${target_name}_guard") {
-    sources = [ "//build/gn/slots/slot_guard.cpp" ]
-    defines = [ "GN_SLOT=$target_name" ]
-  }
-}
+link_slot_index = exec_script("//build/gn/scripts/link_slot_index.py",
+                              [
+                                rebase_path("//"),
+                                link_slot_gn,
+                              ],
+                              "scope")
 
 template("linked_executable") {
   _select = []
@@ -103,46 +49,72 @@ template("linked_executable") {
     _select = invoker.link_select
   }
 
+  _exe = target_name
+  _label = get_label_info(":$_exe", "label_no_toolchain")
   _slot_deps = []
+  _selected = []
   foreach(_entry, _select) {
-    _label = get_label_info(":$target_name", "label_no_toolchain")
     _kv = []
     _kv = string_split(_entry, "=")
+    assert(_kv != [ _kv[0] ],
+           "$_label: link_select \"$_entry\" is not \"<slot>=<value>\"")
     _name = _kv[0]
-    _slot_found = false
-    foreach(_slot, link_slots) {
-      if (_slot.name == _name) {
-        _slot_found = true
-        _choice = _slot.default
-        if (_kv != [ _name ]) {
-          _choice = _kv[1]
+    _choice = _kv[1]
+    _selected += [ _name ]
+    foreach(_override, link_slot_overrides) {
+      _ov = []
+      _ov = string_split(_override, "|")
+      if (_ov[0] == _label) {
+        _ov_kv = []
+        _ov_kv = string_split(_ov[1], "=")
+        if (_ov_kv[0] == _name) {
+          _choice = _ov_kv[1]
         }
-        foreach(_override, link_slot_overrides) {
-          _ov = []
-          _ov = string_split(_override, "|")
-          if (_ov[0] == _label) {
-            _ov_kv = []
-            _ov_kv = string_split(_ov[1], "=")
-            if (_ov_kv[0] == _name) {
-              _choice = _ov_kv[1]
-            }
-          }
-        }
-        _provider_found = false
-        foreach(_provider, _slot.providers) {
-          if (_provider[0] == _choice) {
-            _provider_found = true
-            _slot_deps += [
-              "//build/gn/slots:${_name}_guard",
-              _provider[1],
-            ]
-          }
-        }
-        assert(_provider_found,
-               "$_label: no provider \"$_choice\" for link slot \"$_name\"")
       }
     }
-    assert(_slot_found, "$_label: unknown link slot \"$_name\"")
+
+    _values = []
+    _provider_found = false
+    foreach(_provider, link_slot_index.providers) {
+      if (_provider.slot == _name) {
+        _values += [ _provider.value ]
+        if (_provider.value == _choice) {
+          _provider_found = true
+          _slot_deps += _provider.labels
+        }
+      }
+    }
+    assert(_values != [], "$_label: unknown link slot \"$_name\"")
+    assert(_provider_found,
+           "$_label: no provider \"$_choice\" for link slot \"$_name\", " +
+               "there are: $_values")
+  }
+
+  # every link slot interface among the dependencies has a provider selected
+  _interfaces = "$target_gen_dir/${_exe}.link_slot_interfaces.json"
+  generated_file("${_exe}_link_slot_interfaces") {
+    outputs = [ _interfaces ]
+    data_keys = [ "link_slot_interfaces" ]
+    output_conversion = "json"
+    deps = _slot_deps
+    if (defined(invoker.deps)) {
+      deps += invoker.deps
+    }
+  }
+  action("${_exe}_link_slot_check") {
+    script = "//build/gn/scripts/link_slot_check.py"
+    inputs = [ _interfaces ]
+    outputs = [ "$target_gen_dir/${_exe}.link_slot_check.stamp" ]
+    args = [
+             "--executable",
+             _label,
+             "--interfaces",
+             rebase_path(_interfaces, root_build_dir),
+             "--stamp",
+             rebase_path(outputs[0], root_build_dir),
+             "--selected",
+           ] + _selected
+    deps = [ ":${_exe}_link_slot_interfaces" ]
   }
 
   executable(target_name) {
@@ -160,7 +132,7 @@ template("linked_executable") {
       configs += invoker.configs
     }
 
-    deps += _slot_deps
+    deps += _slot_deps + [ ":${_exe}_link_slot_check" ]
     if (defined(invoker.deps)) {
       deps += invoker.deps
     }
@@ -175,6 +147,140 @@ template("linked_executable") {
         "UDF_ABI_VERSION_MINOR=${_abi[1]}",
         "UDF_ABI_VERSION_PATCH=${_abi[2]}",
       ]
+    }
+  }
+}
+
+# The config of a link slot provider (`link_slot_provides` of a library() or
+# contrib_library(), see above; a hand-written source_set() compiled into a
+# provider adds it to its configs itself), named
+# `<target_name>_slot_provider_config`:
+# GN_SLOT_PROVIDER_<slot> keeps the definitions of the slots' functions
+# strong, the weak references (see link_slot_weak_refs) are for the callers.
+#   provides: [ "<slot>" or "<slot>=<value>", ... ]
+template("link_slot_provider_config") {
+  config("${target_name}_slot_provider_config") {
+    defines = []
+    foreach(_entry, invoker.provides) {
+      _kv = []
+      _kv = string_split(_entry, "=")
+      defines += [ "GN_SLOT_PROVIDER_${_kv[0]}" ]
+    }
+  }
+}
+
+# The weak references to the link slot whose interface is target
+# `target_name` (see above): the functions its headers
+# declare are implemented by the slot's providers.
+#   slot: the slot, `link_slot_interface` of the target
+#   headers: its headers, `link_slot_headers` -- both written by yamake2gn
+#     for `<header>  # gn: slot <slot>` in the SRCS of the interface's ya.make
+#   flags_from: the interface's sources; the first C/C++ one lends its
+#     compiler flags (include dirs) to parsing the headers
+# An action lists the functions from the headers' AST
+# (build/gn/scripts/link_slot_weak.py); it reruns only when the headers or
+# what they include change (depfile), and leaves the list untouched when it
+# comes out the same. Defines:
+#   :<target_name>_slot_weak         the action, a public dep of the
+#                                    interface: its dependents' compiles wait
+#                                    for the list
+#   :<target_name>_slot_weak_config  force-includes the list: a public config
+#                                    of the interface; gn applies it to the
+#                                    interface too, which defines some of the
+#                                    functions itself and so defines
+#                                    GN_SLOT_INTERFACE_<slot>, off the list
+template("link_slot_weak_refs") {
+  _flags_from = []
+  if (defined(invoker.flags_from)) {
+    _flags_from = filter_include(invoker.flags_from,
+                                 [
+                                   "*.cpp",
+                                   "*.cc",
+                                   "*.c",
+                                 ])
+  }
+  _compile_commands = "$root_build_dir/compile_commands.json"
+  _weak_header = "$target_gen_dir/${target_name}_slot_weak.h"
+
+  action("${target_name}_slot_weak") {
+    script = "//build/gn/scripts/link_slot_weak.py"
+
+    # TODO: rerun when the flags in compile_commands.json change; gn rejects
+    # it in inputs (a file of the build dir no target generates)
+    inputs = invoker.headers
+    outputs = [ _weak_header ]
+    depfile = "$target_gen_dir/${target_name}.d"
+    args = [
+      "--slot",
+      invoker.slot,
+      "--compile-commands",
+      rebase_path(_compile_commands, root_build_dir),
+      "--root",
+      rebase_path("//", root_build_dir),
+      "--output",
+      rebase_path(_weak_header, root_build_dir),
+      "--depfile",
+      rebase_path(depfile, root_build_dir),
+    ]
+    foreach(_h, invoker.headers) {
+      args += [
+        "--header",
+        rebase_path(_h, "//"),
+      ]
+    }
+    if (_flags_from != []) {
+      args += [
+        "--flags-from",
+        rebase_path(_flags_from[0], "//"),
+      ]
+    }
+  }
+
+  config("${target_name}_slot_weak_config") {
+    # -Xclang: past the driver, which would ignore a precompiled header
+    # -include'd after it (-Werror)
+    cflags = [
+      "-Xclang",
+      "-include",
+      "-Xclang",
+      rebase_path(_weak_header, root_build_dir),
+    ]
+  }
+}
+
+# A header-only interface of a link slot: a group() with link_slot_interface,
+# link_slot_headers and link_slot_flags_from (a source that is compiled with
+# the headers' include dirs, e.g. by the slot's providers), see
+# link_slot_weak_refs.
+template("slot_interface_group") {
+  link_slot_weak_refs(target_name) {
+    slot = invoker.link_slot_interface
+    headers = invoker.link_slot_headers
+    if (defined(invoker.link_slot_flags_from)) {
+      flags_from = invoker.link_slot_flags_from
+    }
+  }
+
+  group(target_name) {
+    forward_variables_from(invoker,
+                           "*",
+                           [
+                             "link_slot_interface",
+                             "link_slot_headers",
+                             "link_slot_flags_from",
+                           ])
+    if (!defined(public_deps)) {
+      public_deps = []
+    }
+    public_deps += [ ":${target_name}_slot_weak" ]
+    if (!defined(public_configs)) {
+      public_configs = []
+    }
+    public_configs += [ ":${target_name}_slot_weak_config" ]
+    metadata = {
+      link_slot_interfaces =
+          [ invoker.link_slot_interface + "|" +
+            get_label_info(":$target_name", "label_no_toolchain") ]
     }
   }
 }

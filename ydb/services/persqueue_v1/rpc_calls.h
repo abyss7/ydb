@@ -25,11 +25,6 @@ IActor* TEvRpcCreateTopicRequest::CreateRpcActor(NKikimr::NGRpcService::IRequest
 }
 
 template<>
-IActor* TEvCommitOffsetRequest::CreateRpcActor(NKikimr::NGRpcService::IRequestOpCtx* msg) {
-    return new NGRpcProxy::V1::TCommitOffsetActor(msg);
-}
-
-template<>
 IActor* TEvRpcAlterTopicRequest::CreateRpcActor(NKikimr::NGRpcService::IRequestOpCtx* msg) {
     return new NGRpcProxy::V1::TAlterTopicActor(msg);
 }

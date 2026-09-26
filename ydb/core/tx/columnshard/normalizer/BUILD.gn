@@ -1,0 +1,118 @@
+library("abstract") {
+  public_deps = [
+    "//ydb/core/tablet_flat",
+    # "//ydb/core/tx/columnshard/blobs_action:abstract",
+    # "//ydb/core/tx/columnshard/data_accessor",
+    "//ydb/core/tx/columnshard/resource_subscriber",
+    # "//ydb/library/accessor",
+    # "//ydb/library/conclusion",
+  ]
+
+  deps = [
+    # "//ydb/core/protos",
+    # "//ydb/core/tx/columnshard",
+  ]
+
+  sources = [ "abstract/abstract.cpp" ]
+
+  serialize_enum_headers = [ "abstract/abstract.h" ]
+}
+
+library("granule") {
+  deps = [
+    # ":abstract",
+    # "//ydb/core/tx/columnshard",
+  ]
+
+  sources = [
+    "granule/clean_granule.cpp",
+    "granule/normalizer.cpp",
+  ]
+}
+
+group("normalizer") {
+  public_deps = [
+    # ":abstract",  # peerdir only
+    # ":granule",  # peerdir only
+    # ":portion",  # peerdir only
+    # ":schema_version",  # peerdir only
+    # ":tables",  # peerdir only
+    # ":tablet",  # peerdir only
+    # "//ydb/core/tx/columnshard/normalizer/insert_table",
+  ]
+}
+
+library("portion") {
+  deps = [
+    # ":abstract",
+    # "//ydb/core/formats/arrow",
+    # "//ydb/core/keyvalue",
+    # "//ydb/core/protos",
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/columnshard/blobs_action:counters",
+    # "//ydb/core/tx/columnshard/blobs_reader",
+    # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/counters",
+    # "//ydb/core/tx/columnshard/data_accessor",
+    # "//ydb/core/tx/columnshard/engines",
+    # "//ydb/core/tx/columnshard/engines/portions",
+    # "//ydb/core/tx/columnshard/engines/scheme",
+    # "//ydb/core/tx/conveyor/usage",
+    # "//ydb/core/tx/conveyor_composite/usage",
+    # "//ydb/library/actors/core",
+  ]
+
+  sources = [
+    "portion/broken_blobs.cpp",
+    "portion/chunks.cpp",
+    "portion/chunks_actualization.cpp",
+    "portion/chunks_v0_meta.cpp",
+    "portion/clean.cpp",
+    "portion/clean_deprecated_snapshot.cpp",
+    "portion/clean_empty.cpp",
+    "portion/clean_index_columns.cpp",
+    "portion/clean_inserted_portions.cpp",
+    "portion/clean_sub_columns_portions.cpp",
+    "portion/clean_ttl_preset_setting_info.cpp",
+    "portion/clean_ttl_preset_setting_version_info.cpp",
+    "portion/clean_unused_tables_template.cpp",
+    "portion/copy_blob_ids_to_v2.cpp",
+    "portion/leaked_blobs.cpp",
+    "portion/normalizer.cpp",
+    "portion/portion.cpp",
+    "portion/restore_appearance_snapshot.cpp",
+    "portion/restore_v1_chunks.cpp",
+    "portion/restore_v2_chunks.cpp",
+    "portion/special_cleaner.cpp",
+  ]
+}
+
+library("schema_version") {
+  deps = [
+    # ":abstract",
+    # "//ydb/core/tx/columnshard",
+  ]
+
+  sources = [ "schema_version/version.cpp" ]
+}
+
+library("tables") {
+  deps = [
+    # ":abstract",
+    # "//ydb/core/tx/columnshard",
+  ]
+
+  sources = [ "tables/normalizer.cpp" ]
+}
+
+library("tablet") {
+  deps = [
+    # ":abstract",
+    # "//ydb/core/tx/columnshard",
+  ]
+
+  sources = [
+    "tablet/broken_txs.cpp",
+    "tablet/gc_counters.cpp",
+  ]
+}

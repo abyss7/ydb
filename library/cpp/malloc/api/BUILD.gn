@@ -1,3 +1,7 @@
 library("api") {
   sources = [ "malloc.cpp" ]
+
+  link_slot_interface = "allocator"
+
+  link_slot_headers = [ "malloc.h" ]
 }

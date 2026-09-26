@@ -8,7 +8,9 @@ library("local_proxy") {
   deps = [
     # "//ydb/core/base",  # peerdir only
     "//ydb/core/grpc_services",
+    "//ydb/core/grpc_services:topic_rpc",
     # "//ydb/core/persqueue/events",
+    "//ydb/core/persqueue/public:utils",  # peerdir only
     # "//ydb/core/persqueue/writer",
     # "//ydb/core/protos",
     "//ydb/core/tx/scheme_cache",

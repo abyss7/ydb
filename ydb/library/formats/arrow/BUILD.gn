@@ -3,7 +3,7 @@ library("arrow") {
     # ":switch",
     "//contrib/libs/apache/arrow",
     # "//library/cpp/cache",
-    "//library/cpp/json:writer",
+    "//library/cpp/json",
     # "//library/cpp/string_utils/base64",
     "//ydb/library/accessor",
     "//ydb/library/actors/core",

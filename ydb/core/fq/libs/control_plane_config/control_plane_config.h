@@ -1,5 +1,7 @@
 #pragma once
 
+#include "service_id.h"
+
 #include <ydb/core/fq/libs/actors/logging/log.h>
 #include <ydb/core/fq/libs/config/protos/control_plane_storage.pb.h>
 #include <ydb/core/fq/libs/shared_resources/shared_resources.h>
@@ -20,8 +22,6 @@
     LOG_FQ_CONTROL_PLANE_CONFIG_TRACE(s)
 
 namespace NFq {
-
-NActors::TActorId ControlPlaneConfigActorId();
 
 NActors::IActor* CreateControlPlaneConfigActor(const ::NFq::TYqSharedResources::TPtr& yqSharedResources,
                                                const NKikimr::TYdbCredentialsProviderFactory& credProviderFactory,

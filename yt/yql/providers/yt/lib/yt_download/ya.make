@@ -6,6 +6,7 @@ SRCS(
 
 PEERDIR(
     yt/yql/providers/yt/lib/init_yt_api
+    yt/cpp/mapreduce/client
     yql/essentials/core/file_storage
     yql/essentials/utils/log
     yql/essentials/utils

@@ -41,6 +41,8 @@ PEERDIR(
     ydb/services/persqueue_v1/actors
 )
 
+PROVIDES(topic_rpc)
+
 END()
 
 RECURSE(

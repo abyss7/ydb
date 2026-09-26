@@ -1,5 +1,8 @@
+# yamake2gn: keep  -- hand-written, do not regenerate
+
 library("core") {
     public_deps = [
+        "//contrib/libs/openssl",
         "//yt/yt_proto/yt/core",
         "//library/cpp/yt/error",
         "//library/cpp/yt/logging",
@@ -15,14 +18,13 @@ library("core") {
         "//contrib/libs/c-ares",
         "//contrib/libs/lz4",
         "//contrib/libs/lzmasdk",
-        "//contrib/libs/openssl",
         "//contrib/libs/snappy",
         "//contrib/libs/zlib",
         "//contrib/libs/zstd",
         "//library/cpp/openssl/io",
         "//library/cpp/streams/brotli",
         "//library/cpp/yt/backtrace",
-        "//library/cpp/yt/backtrace/cursors:libunwind",
+        "//library/cpp/yt/backtrace/cursors/libunwind",
         "//library/cpp/yt/global",
         "//library/cpp/yt/logging:plain_text_formatter",
         "//library/cpp/yt/malloc",

@@ -30,7 +30,7 @@ library("common") {
 
 library("composite") {
   public_deps = [
-    # "//ydb/core/formats/arrow",
+    "//ydb/core/formats/arrow",
     "//ydb/library/accessor",
   ]
 
@@ -46,11 +46,11 @@ library("composite") {
 library("composite_serial") {
   public_deps = [
     ":composite",
-    # "//ydb/core/formats/arrow",
+    "//ydb/core/formats/arrow",
   ]
 
   deps = [
-    # ":sparsed",
+    ":sparsed",
     # "//contrib/libs/apache/arrow",  # peerdir only
     "//ydb/library/actors/core",
     "//ydb/library/actors/prof",
@@ -62,7 +62,7 @@ library("composite_serial") {
 library("dictionary") {
   public_deps = [
     # ":common",
-    # "//ydb/core/formats/arrow",
+    "//ydb/core/formats/arrow",
     # "//ydb/library/formats/arrow",
     # "//ydb/library/formats/arrow:switch",
     # "//ydb/library/formats/arrow:validation",
@@ -84,7 +84,7 @@ library("sparsed") {
   public_deps = [
     ":common",
     "//contrib/libs/apache/arrow",
-    # "//ydb/core/formats/arrow",
+    "//ydb/core/formats/arrow",
     "//ydb/library/accessor",
     "//ydb/library/formats/arrow",
     "//ydb/library/formats/arrow:switch",
@@ -104,9 +104,9 @@ library("sparsed") {
 library("sub_columns") {
   public_deps = [
     ":common",
-    # ":sparsed",
+    ":sparsed",
     "//contrib/libs/apache/arrow",
-    # "//ydb/core/formats/arrow",
+    "//ydb/core/formats/arrow",
     "//ydb/library/accessor",
     "//ydb/library/actors/core",
     "//ydb/library/conclusion",
@@ -117,7 +117,7 @@ library("sub_columns") {
   ]
 
   deps = [
-    # ":composite_serial",
+    ":composite_serial",
     "//contrib/libs/simdjson",
     "//contrib/libs/xxhash",
     "//library/cpp/json",  # peerdir only

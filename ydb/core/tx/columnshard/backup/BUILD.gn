@@ -1,0 +1,7 @@
+group("backup") {
+  public_deps = [
+    # "//ydb/core/tx/columnshard/backup/async_jobs",  # peerdir only
+    # "//ydb/core/tx/columnshard/backup/import",  # peerdir only
+    # "//ydb/core/tx/columnshard/backup/iscan",  # peerdir only
+  ]
+}

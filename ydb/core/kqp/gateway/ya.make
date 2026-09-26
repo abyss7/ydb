@@ -29,6 +29,7 @@ PEERDIR(
     ydb/core/sys_view/common
     ydb/library/actors/core
     yql/essentials/providers/result/expr_nodes
+    ydb/core/grpc_services
 )
 
 YQL_LAST_ABI_VERSION()

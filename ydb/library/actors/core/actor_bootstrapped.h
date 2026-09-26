@@ -1,7 +1,7 @@
 #pragma once
 
 #include "actor.h"
-#include "events/events.h"
+#include "events.h"
 
 #include <util/generic/noncopyable.h>
 

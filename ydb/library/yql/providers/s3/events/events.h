@@ -2,7 +2,7 @@
 
 #include <ydb/core/base/events.h>
 
-#include <ydb/library/actors/core/events/event_pb.h>
+#include <ydb/library/actors/core/event_pb.h>
 #include <ydb/library/yql/dq/actors/protos/dq_events.pb.h>
 #include <ydb/library/yql/providers/s3/proto/file_queue.pb.h>
 
