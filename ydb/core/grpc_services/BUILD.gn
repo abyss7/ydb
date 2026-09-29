@@ -241,6 +241,8 @@ library("grpc_services") {
     "ydb_over_fq/keep_alive.cpp",
     "ydb_over_fq/list_directory.cpp",
   ]
+
+  link_slot_module_interfaces = [ "topic_rpc" ]
 }
 
 slot_interface_group("topic_rpc") {

@@ -13,6 +13,8 @@ library("alloc") {
     "mkql_alloc.cpp",
     "mkql_mem_info.cpp",
   ]
+
+  link_slot_module_interfaces = [ "minikql_codegen" ]
 }
 
 library("minikql") {
@@ -93,4 +95,6 @@ library("terminator") {
   ]
 
   sources = [ "mkql_terminator.cpp" ]
+
+  link_slot_module_interfaces = [ "minikql_codegen" ]
 }

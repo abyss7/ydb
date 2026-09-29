@@ -886,9 +886,19 @@ def _check_gn_parts(mod):
     for part, _, _ in mod.gn_peerdirs:
         if part is not None and part not in mod.parts():
             mod.macros.append("GN<peerdir of unknown part %r>" % part)
-    if len(mod.slot_headers) > 1:
-        # like PROVIDES: a module is (the interface of) one slot
-        mod.macros.append("GN<headers of several slots: %s>" % ", ".join(sorted(mod.slot_headers)))
+    # like PROVIDES: a target is (the interface of) one slot -- the module's
+    # own or one of its parts (`# gn: <part> headers ...`)
+    header_part = {h: p for p, hs in mod.part_headers.items() for h in hs}
+    owners = defaultdict(set)
+    for slot, hs in mod.slot_headers.items():
+        slot_owners = {header_part.get(h) for h in hs}
+        if len(slot_owners) == 1:
+            owners[slot_owners.pop()].add(slot)
+        else:
+            owners[None].add(slot)
+    for slots in owners.values():
+        if len(slots) > 1:
+            mod.macros.append("GN<headers of several slots: %s>" % ", ".join(sorted(slots)))
 
 
 # --- resources ---------------------------------------------------------------
@@ -1575,6 +1585,7 @@ class TargetSpec:
         self.slot_interface = None              # the link slot the module is the interface of, `# gn: slot ...`
         self.slot_headers = []                  # its headers, repo-relative
         self.slot_flags_from = None             # a source lending its flags to parsing them
+        self.slot_module_interfaces = []        # slots whose interface is another target of the module
         self.proto_plugins = list(mod.proto_plugins)   # CPP_PROTO_PLUGIN0
         self.yql_abi = mod.yql_abi              # YQL_LAST_ABI_VERSION / YQL_ABI_VERSION
 
@@ -1900,7 +1911,7 @@ def gen_spec(mod, resolver, graph, report, external):
         part.resources = []
         parts[name] = part
     spec.parts = [parts[n] for n in sorted(parts)]
-    for slot, hs in mod.slot_headers.items():   # one at most, see _check_gn_parts
+    for slot, hs in mod.slot_headers.items():   # one per target, see _check_gn_parts
         paths = sorted(module_path(mod, resolver.root, h) for h in hs)
         # the headers of a part (`# gn: <part> headers ...`): the part is the
         # interface, the rest of the module is not
@@ -1908,6 +1919,12 @@ def gen_spec(mod, resolver, graph, report, external):
         slot_spec = parts[owners.pop()] if len(owners) == 1 and None not in owners else spec
         slot_spec.slot_interface = slot
         slot_spec.slot_headers = paths
+    # the module's code defines some functions its slot headers declare: every
+    # target of it is the interface of the module's slots, not only the one
+    # holding the headers
+    for s in [spec] + spec.parts:
+        s.slot_module_interfaces = sorted(t.slot_interface for t in [spec] + spec.parts
+                                          if t is not s and t.slot_interface)
     for slot_spec in [spec] + spec.parts:
         if not slot_spec.slot_headers:
             continue
@@ -2499,7 +2516,7 @@ def _render_target(tmpl, name, public_deps, deps, sources,
                    serialize_enum_headers=(), commented=frozenset(),
                    resources=(), resource_files=(), notes=None, link_slot_provides=(),
                    link_slot_interface=None, link_slot_headers=(), link_slot_flags_from=(),
-                   yql_abi_version=None, configs=(), public_configs=(), extra_plugins=()):
+                   link_slot_module_interfaces=(), yql_abi_version=None, configs=(), public_configs=(), extra_plugins=()):
     """`notes` maps a dep label to a trailing comment ("peerdir only")."""
     lines = ['%s("%s") {' % (tmpl, name)]
     notes = notes or {}
@@ -2534,6 +2551,8 @@ def _render_target(tmpl, name, public_deps, deps, sources,
         lines.append("")
         block("link_slot_headers", link_slot_headers)
         block("link_slot_flags_from", link_slot_flags_from)
+    if tmpl == "library":
+        block("link_slot_module_interfaces", link_slot_module_interfaces)
     if tmpl in ("library", "linked_executable") and yql_abi_version is not None:
         lines.append('    yql_abi_version = "%s"' % yql_abi_version)
         lines.append("")
@@ -2735,6 +2754,7 @@ def render_spec(spec, host, remap, uncommented, main_name=None, private_configs=
                               link_slot_interface=spec.slot_interface,
                               link_slot_headers=[_slot_header(h, host) for h in spec.slot_headers],
                               link_slot_flags_from=slot_flags_from,
+                              link_slot_module_interfaces=spec.slot_module_interfaces,
                               yql_abi_version=spec.yql_abi if tmpl != "protobuf_library" else None))
     return "\n\n".join(out)
 

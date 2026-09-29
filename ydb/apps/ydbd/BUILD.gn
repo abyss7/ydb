@@ -17,6 +17,7 @@ linked_executable("ydbd") {
         "minikql_codegen=llvm16",
         "topic_rpc=persqueue_v1",
         "yql_pg_runtime=pg_wrapper",
+        "yql_pg_sql_translator=pg",
         "yt_codegen=llvm16",
     ]
 

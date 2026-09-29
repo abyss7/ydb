@@ -145,7 +145,7 @@ template("library") {
     }
 
     target(library_type, target_name) {
-        forward_variables_from(invoker, "*", [ "configs", "deps", "resources", "resource_files", "resource_deps", "link_slot_provides", "link_slot_interface", "link_slot_headers", "link_slot_flags_from", "yql_abi_version" ])
+        forward_variables_from(invoker, "*", [ "configs", "deps", "resources", "resource_files", "resource_deps", "link_slot_provides", "link_slot_interface", "link_slot_headers", "link_slot_flags_from", "link_slot_module_interfaces", "yql_abi_version" ])
 
         output_dir = "$root_out_dir/" + rebase_path(".", "//") # TODO: doesn't work for some reason
         output_name = "${_unique_name}_${target_name}"
@@ -221,6 +221,17 @@ template("library") {
             }
             metadata.link_slot_interfaces = [ invoker.link_slot_interface + "|" +
                                               get_label_info(":$target_name", "label_no_toolchain") ]
+        }
+
+        # the slots whose interface is another target of the same module: its
+        # code defines some of their functions too
+        if (defined(invoker.link_slot_module_interfaces)) {
+            if (!defined(defines)) {
+                defines = []
+            }
+            foreach(_slot, invoker.link_slot_module_interfaces) {
+                defines += [ "GN_SLOT_INTERFACE_" + _slot ]
+            }
         }
 
         # UDF ABI: the current one by default (//build/gn/config:yql_abi_current in

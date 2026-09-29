@@ -9,13 +9,14 @@ SRCS(
     context.h  # gn: slot yql_pg_runtime
     interface.h
     interface.cpp
-    optimizer.h  # gn: slot yql_pg_runtime
+    optimizer.h  # gn: slot yql_pg_sql_translator
     pack.h  # gn: slot yql_pg_runtime
-    parser.h  # gn: slot yql_pg_runtime
+    parser.h  # gn: slot yql_pg_sql_translator
     raw_parser.h  # gn: slot yql_pg_runtime
     type_desc.h  # gn: slot yql_pg_runtime
     utils.h  # gn: slot yql_pg_runtime
 )
+# gn: yql_pg_sql_translator headers optimizer.h parser.h
 
 PEERDIR(
     util
