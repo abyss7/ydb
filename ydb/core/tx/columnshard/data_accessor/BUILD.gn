@@ -45,7 +45,7 @@ library("cache_policy") {
 
 library("data_accessor") {
   public_deps = [
-    # ":abstract",
+    ":abstract",
     # ":cache_policy",
     # "//ydb/core/tx/columnshard/common",
     "//ydb/core/tx/columnshard/engines/portions",
@@ -69,14 +69,12 @@ library("data_accessor") {
 
 library("in_mem") {
   public_deps = [
-    # ":abstract",
+    ":abstract",
     # "//ydb/core/tx/columnshard/common",
-    # "//ydb/core/tx/columnshard/tx_reader",
+    "//ydb/core/tx/columnshard/tx_reader",
   ]
 
-  deps = [
-    # "//ydb/core/tx/columnshard/engines",
-  ]
+  deps = [ "//ydb/core/tx/columnshard/engines" ]
 
   sources = [
     "in_mem/constructor.cpp",

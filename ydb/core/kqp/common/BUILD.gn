@@ -82,7 +82,7 @@ library("common") {
     # "//yql/essentials/core",
     "//yql/essentials/core/dq_integration",
     # "//yql/essentials/core/expr_nodes",
-    # "//yql/essentials/core/issue",  # peerdir only
+    "//yql/essentials/core/issue",  # peerdir only
     "//yql/essentials/core/services",  # peerdir only
     "//yql/essentials/core/services:pipeline",
     # "//yql/essentials/parser/pg_wrapper/interface",

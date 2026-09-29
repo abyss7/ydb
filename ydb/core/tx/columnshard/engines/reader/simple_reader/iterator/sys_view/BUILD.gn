@@ -157,10 +157,10 @@ library("schemas") {
 group("sys_view") {
   public_deps = [
     # ":abstract",  # peerdir only
-    # ":chunks",  # peerdir only
-    # ":granules",  # peerdir only
-    # ":optimizer",  # peerdir only
-    # ":portions",  # peerdir only
-    # ":schemas",  # peerdir only
+    ":chunks",  # peerdir only
+    ":granules",  # peerdir only
+    ":optimizer",  # peerdir only
+    ":portions",  # peerdir only
+    ":schemas",  # peerdir only
   ]
 }

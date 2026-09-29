@@ -80,6 +80,7 @@ library("columnshard") {
     # "//contrib/libs/apache/arrow",  # peerdir only
     "//contrib/libs/fmt",
     # "//contrib/libs/opentelemetry-proto",  # peerdir only
+    # "//contrib/libs/protobuf",
     # "//library/cpp/cache",
     # "//library/cpp/json",
     "//library/cpp/lwtrace/mon",
@@ -90,12 +91,19 @@ library("columnshard") {
     # "//ydb/core/control/lib/generated",  # peerdir only
     # "//ydb/core/engine:minikql",
     # "//ydb/core/formats",  # peerdir only
-    # "//ydb/core/kqp",  # peerdir only
+    # "//ydb/core/grpc_services/cancelation:protos",  # peerdir only
+    "//ydb/core/kqp",  # peerdir only
     # "//ydb/core/kqp/compute_actor",  # peerdir only
     # "//ydb/core/kqp/compute_actor:events",
     # "//ydb/core/mon",
     # "//ydb/core/scheme",
+    # "//ydb/core/scheme_types",
     # "//ydb/core/tx/columnshard/backup",  # peerdir only
+    "//ydb/core/tx/columnshard/backup/import/protos",
+    "//ydb/core/tx/columnshard/backup:async_jobs",
+    "//ydb/core/tx/columnshard/backup:iscan",
+    # "//ydb/core/tx/columnshard/bg_tasks",  # peerdir only
+    # "//ydb/core/tx/columnshard/bg_tasks:abstract",
     # "//ydb/core/tx/columnshard/bg_tasks:adapter",
     "//ydb/core/tx/columnshard/bg_tasks:manager",
     # "//ydb/core/tx/columnshard/blobs_action",
@@ -105,7 +113,7 @@ library("columnshard") {
     "//ydb/core/tx/columnshard/blobs_action:storages_manager",
     "//ydb/core/tx/columnshard/blobs_reader",
     "//ydb/core/tx/columnshard/data_accessor:cache_policy",
-    # "//ydb/core/tx/columnshard/data_accessor:in_mem",  # peerdir only
+    "//ydb/core/tx/columnshard/data_accessor:in_mem",  # peerdir only
     # "//ydb/core/tx/columnshard/data_locks",  # peerdir only
     # "//ydb/core/tx/columnshard/data_locks:locks",
     "//ydb/core/tx/columnshard/data_reader",
@@ -118,18 +126,21 @@ library("columnshard") {
     # "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator/sys_view:abstract",
     "//ydb/core/tx/columnshard/engines/reader/tracing",
     "//ydb/core/tx/columnshard/engines/storage/indexes/count_min_sketch",
+    "//ydb/core/tx/columnshard/engines/storage/optimizer",  # peerdir only
     "//ydb/core/tx/columnshard/engines/writer:buffer",
     # "//ydb/core/tx/columnshard/export",  # peerdir only
+    "//ydb/core/tx/columnshard/export:common",
+    "//ydb/core/tx/columnshard/export:protos",
     # "//ydb/core/tx/columnshard/normalizer",  # peerdir only
     "//ydb/core/tx/columnshard/operations:batch_builder",
     "//ydb/core/tx/columnshard/operations:slice_builder",  # peerdir only
     # "//ydb/core/tx/columnshard/splitter",  # peerdir only
     # "//ydb/core/tx/columnshard/subscriber",  # peerdir only
+    # "//ydb/core/tx/columnshard/subscriber/abstract:subscriber",
+    # "//ydb/core/tx/columnshard/subscriber/events:tables_erased",
     "//ydb/core/tx/columnshard/subscriber/events:tx_completed",
     "//ydb/core/tx/columnshard/tracing",
     "//ydb/core/tx/columnshard/transactions/locks",
-    # "//ydb/core/tx/columnshard/transactions/operators",  # peerdir only
-    # "//ydb/core/tx/columnshard/transactions/operators:ev_write",
     "//ydb/core/tx/columnshard/tx_reader",
     # "//ydb/core/tx/conveyor/usage",
     # "//ydb/core/tx/conveyor_composite/service",  # peerdir only
@@ -144,11 +155,17 @@ library("columnshard") {
     # "//ydb/library/slide_limiter/usage",
     # "//ydb/library/yql/dq/actors",
     # "//ydb/library/yql/dq/actors:compute",
+    # "//ydb/services/bg_tasks:abstract",
+    # "//yql/essentials/core/expr_nodes",  # peerdir only
     # "//yql/essentials/core/issue:protos",  # peerdir only
     "//yql/essentials/core/minsketch",
   ]
 
   sources = [
+    "backup/import/control.cpp",
+    "backup/import/import_actor.cpp",
+    "backup/import/session.cpp",
+    "backup/import/task.cpp",
     "blob.cpp",
     "blob_cache.cpp",
     "blobs_action/transaction/tx_blobs_written.cpp",
@@ -206,6 +223,11 @@ library("columnshard") {
     "engines/reader/transaction/tx_scan.cpp",
     "engines/table_accessors.cpp",
     "engines/writer/buffer/actor2.cpp",
+    "export/actor/export_actor.cpp",
+    "export/session/control.cpp",
+    "export/session/cursor.cpp",
+    "export/session/session.cpp",
+    "export/session/task.cpp",
     "inflight_request_tracker.cpp",
     "loading/stages.cpp",
     "operations/manager_owner.cpp",
@@ -214,14 +236,26 @@ library("columnshard") {
     "tablet/ext_tx_base.cpp",
     "tablet/write_queue.cpp",
     "transactions/locks_db.cpp",
+    "transactions/operators/backup.cpp",
+    "transactions/operators/ev_write/abstract.cpp",
+    "transactions/operators/ev_write/primary.cpp",
+    "transactions/operators/ev_write/secondary.cpp",
+    "transactions/operators/ev_write/simple.cpp",
+    "transactions/operators/ev_write/sync.cpp",
+    "transactions/operators/propose_tx.cpp",
+    "transactions/operators/restore.cpp",
+    "transactions/operators/schema.cpp",
+    "transactions/operators/sharing.cpp",
     "transactions/transactions/tx_add_sharding_info.cpp",
     "transactions/transactions/tx_finish_async.cpp",
     "transactions/tx_controller.cpp",
   ]
 
   serialize_enum_headers = [
+    "backup/import/session.h",
     "columnshard.h",
     "columnshard_impl.h",
+    "export/session/session.h",
     "transactions/tx_controller.h",
   ]
 

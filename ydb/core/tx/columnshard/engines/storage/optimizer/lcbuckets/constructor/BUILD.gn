@@ -1,16 +1,13 @@
 library("constructor") {
-  public_deps = [
+  deps = [
     ":level",
     ":selector",
-    # "//ydb/core/tx/columnshard/engines/storage/optimizer/abstract",
-  ]
-
-  deps = [
     # "//contrib/libs/apache/arrow",  # peerdir only
     # "//ydb/core/formats/arrow",  # peerdir only
     # "//ydb/core/protos",  # peerdir only
     # "//ydb/core/tx/columnshard/engines/changes/abstract",  # peerdir only
-    # "//ydb/core/tx/columnshard/engines/storage/optimizer/lcbuckets/planner",
+    # "//ydb/core/tx/columnshard/engines/storage/optimizer/abstract",
+    "//ydb/core/tx/columnshard/engines/storage/optimizer/lcbuckets/planner",
     # "//ydb/core/tx/columnshard/engines/storage/optimizer/lcbuckets/planner:level",
     # "//ydb/core/tx/columnshard/engines/storage/optimizer/lcbuckets/planner:selector",
   ]
@@ -21,8 +18,8 @@ library("constructor") {
 library("level") {
   public_deps = [
     # "//library/cpp/json",
-    # "//ydb/core/protos",
-    # "//ydb/core/tx/columnshard/engines/storage/optimizer/lcbuckets/planner:level",
+    "//ydb/core/protos",
+    "//ydb/core/tx/columnshard/engines/storage/optimizer/lcbuckets/planner:level",
     # "//ydb/services/bg_tasks:abstract",
   ]
 
@@ -42,8 +39,8 @@ library("level") {
 library("selector") {
   public_deps = [
     # "//library/cpp/json",
-    # "//ydb/core/protos",
-    # "//ydb/core/tx/columnshard/engines/storage/optimizer/lcbuckets/planner:selector",
+    "//ydb/core/protos",
+    "//ydb/core/tx/columnshard/engines/storage/optimizer/lcbuckets/planner:selector",
     # "//ydb/services/bg_tasks:abstract",
   ]
 

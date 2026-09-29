@@ -296,7 +296,7 @@ library("show_create") {
     # "//library/cpp/protobuf/util",
     # "//ydb/core/base",
     # "//ydb/core/engine",
-    # "//ydb/core/formats/arrow",
+    "//ydb/core/formats/arrow",
     # "//ydb/core/scheme",
     # "//ydb/core/tablet",
     # "//ydb/core/tx/columnshard/engines/scheme/defaults:protos",

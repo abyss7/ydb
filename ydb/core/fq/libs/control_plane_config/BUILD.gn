@@ -10,7 +10,7 @@ library("control_plane_config") {
 
   deps = [
     # ":events",  # peerdir only
-    # "//library/cpp/lwtrace/mon",  # peerdir only
+    "//library/cpp/lwtrace/mon",  # peerdir only
     # "//library/cpp/monlib/service/pages",  # peerdir only
     # "//ydb/core/base",  # peerdir only
     # "//ydb/core/fq/libs/common",

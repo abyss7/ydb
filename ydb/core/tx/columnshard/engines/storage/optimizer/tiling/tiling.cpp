@@ -14,6 +14,8 @@
 
 #include <ydb/library/accessor/accessor.h>
 
+#include <library/cpp/json/json_writer.h>
+
 #include <util/generic/hash.h>
 #include <util/generic/hash_set.h>
 #include <util/system/types.h>

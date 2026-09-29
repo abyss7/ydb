@@ -59,6 +59,7 @@ PEERDIR(
     ydb/core/tx/columnshard/diagnostics
     ydb/core/tx/columnshard/engines
     ydb/core/tx/columnshard/engines/reader/abstract
+    ydb/core/tx/columnshard/engines/storage/optimizer
     ydb/core/tx/columnshard/engines/writer
     ydb/core/tx/columnshard/export
     ydb/core/tx/columnshard/loading

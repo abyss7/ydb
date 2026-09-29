@@ -8,6 +8,7 @@ config("public_config") {
 config("private_config") {
     cflags = [
         "-Wno-extra-tokens",
+        "-Wno-implicit-function-declaration",
         "-Wno-invalid-noreturn",
         "-Wno-missing-template-arg-list-after-template-kw",
         "-Wno-sign-compare",

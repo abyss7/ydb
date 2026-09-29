@@ -1,6 +1,5 @@
 config("private_config") {
     cflags = [
-        "-msse4.1",
         "-Wno-invalid-offsetof",
     ]
     defines = [

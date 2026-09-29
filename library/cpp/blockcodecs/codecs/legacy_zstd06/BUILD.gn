@@ -1,7 +1,7 @@
 library("legacy_zstd06") {
   deps = [
-    # "//contrib/libs/zstd06",
-    # "//library/cpp/blockcodecs:core",
+    "//contrib/libs/zstd06",
+    "//library/cpp/blockcodecs:core",
   ]
 
   sources = [ "legacy_zstd06.cpp" ]

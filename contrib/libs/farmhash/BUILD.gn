@@ -7,17 +7,16 @@ config("private_config") {
 }
 
 contrib_library("farmhash") {
-    deps = [
-        ":sse41",
-        ":sse42",
-        ":sse42_aesni",
-    ]
+    deps = [ ":sse42_aesni" ]
 
     sources = [
         "farmhash_iface.cc",
         "farmhashcc.cc",
         "farmhashmk.cc",
         "farmhashna.cc",
+        "farmhashnt.cc",
+        "farmhashsa.cc",
+        "farmhashte.cc",
         "farmhashuo.cc",
         "farmhashxo.cc",
     ]
@@ -26,21 +25,14 @@ contrib_library("farmhash") {
     configs = [ ":private_config" ]
 }
 
-sse41_source_set("sse41") {
-    sources = [ "farmhashnt.cc" ]
-    configs = [ ":private_config" ]
+config("aes_config") {
+    cflags = [ "-maes" ]
 }
 
-sse42_source_set("sse42") {
-    sources = [
-        "farmhashsa.cc",
-        "farmhashte.cc",
-    ]
-
-    configs = [ ":private_config" ]
-}
-
-sse42_source_set("sse42_aesni") {
+source_set("sse42_aesni") {
     sources = [ "farmhashsu.cc" ]
-    configs = [ ":private_config" ]
+    configs += [
+        ":aes_config",
+        ":private_config",
+    ]
 }

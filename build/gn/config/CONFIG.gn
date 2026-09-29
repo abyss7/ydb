@@ -66,6 +66,9 @@ _default_configs = [
   "//build/gn/config:no_undefined",
   "//build/gn/config:yql_abi_current",
 ]
+if (host_cpu == "x64") {
+  _default_configs += [ "//build/gn/config:cpu_baseline" ]
+}
 if (time_trace) {
   _default_configs += [ "//build/gn/config:time_trace" ]
 }

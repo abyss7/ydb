@@ -10,11 +10,11 @@ library("actorlib_impl") {
     # "//library/cpp/digest/crc32c",  # peerdir only
     # "//library/cpp/html/pcdata",  # peerdir only
     # "//library/cpp/lwtrace",  # peerdir only
-    # "//library/cpp/lwtrace/mon",  # peerdir only
+    "//library/cpp/lwtrace/mon",  # peerdir only
     # "//library/cpp/messagebus:monitoring",  # peerdir only
     # "//library/cpp/monlib/dynamic_counters",  # peerdir only
-    # "//library/cpp/monlib/service/pages:resources",  # peerdir only
-    # "//library/cpp/monlib/service/pages:tablesorter",  # peerdir only
+    "//library/cpp/monlib/service/pages:resources",  # peerdir only
+    "//library/cpp/monlib/service/pages:tablesorter",  # peerdir only
     # "//library/cpp/packedtypes",  # peerdir only
     # "//library/cpp/sliding_window",  # peerdir only
     "//ydb/core/base",

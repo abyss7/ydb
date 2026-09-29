@@ -7,7 +7,7 @@ library("common") {
   deps = [
     "//ydb/core/base",  # peerdir only
     # "//ydb/library/aclib",  # peerdir only
-    # "//ydb/library/ydb_issue",  # peerdir only
+    "//ydb/library/ydb_issue",  # peerdir only
   ]
 
   sources = [ "common.cpp" ]

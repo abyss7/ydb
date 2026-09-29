@@ -15,7 +15,7 @@ library("parser") {
     "//yql/essentials/ast",
     # "//yql/essentials/core/issue:protos",
     # "//yql/essentials/minikql/jsonpath/rewrapper:proto",
-    # "//yql/essentials/minikql/jsonpath/rewrapper:re2",  # peerdir only
+    "//yql/essentials/minikql/jsonpath/rewrapper:re2",  # peerdir only
     # "//yql/essentials/parser/proto_ast/antlr3",
     "//yql/essentials/parser/proto_ast/gen/jsonpath",  # peerdir only
     "//yql/essentials/utils",

@@ -101,8 +101,7 @@ SOURCE_EXTS = (".cpp", ".cc", ".cxx", ".c")
 TRANSLATED_EXTS = (".rl6", ".y", ".ypp")
 COMPILED_EXTS = SOURCE_EXTS + TRANSLATED_EXTS
 PROTO_EXTS = (".proto",)
-ARCH_SUFFIXES = ("_sse2", "_sse3", "_ssse3", "_sse41", "_sse42", "_avx", "_avx2",
-                 "_avx512", "_pclmul")
+ARCH_SUFFIXES = ("_avx", "_avx2", "_avx512", "_pclmul")
 
 INCLUDE_RE = re.compile(r'^\s*#\s*include\s*([<"])([^>"]+)[>"]')
 IMPORT_RE = re.compile(r'^\s*import\s+(?:public\s+|weak\s+)?"([^"]+)"')
@@ -307,6 +306,7 @@ class Module:
         self.no_util = False
         self.use_common_google_apis = False
         self.resource_macros = []    # (macro, raw args) of RESOURCE* in file order
+        self.global_srcs = False     # SRCS(GLOBAL ...): linked whenever PEERDIRed, see gen_spec
         self.resources = []          # converted, see convert_resources
         self.resources_missing = []  # input paths found nowhere in the source tree
         self.src_parts = {}          # SRCS entry (as written) -> part name, `# gn: <part>`
@@ -748,6 +748,7 @@ def parse_yamake(path, directory, root):
             mod.name = args[0] if args else os.path.basename(directory)
         elif name == "SRCS":
             mod.srcs.extend(a for a in args if a != "GLOBAL")
+            mod.global_srcs |= "GLOBAL" in args
         elif name == "SRC":
             if args:
                 mod.srcs.append(args[0])  # per-file flags (remaining args) are ignored
@@ -1980,6 +1981,15 @@ def gen_spec(mod, resolver, graph, report, external):
     # PEERDIRs no #include leads to are still real deps (link-only: static
     # registration, an implementation of someone else's header, ...): add them,
     # remembering which ones came from PEERDIR alone (rendered "# peerdir only").
+    # One on a module of SRCS(GLOBAL ...) or RESOURCE() is never optional: ya
+    # links such a module whenever it is PEERDIRed, nothing references its
+    # code (static registration, NResource)
+    # (when there is a target to link: a module not generated has none)
+    def linked_always(d):
+        m = resolver.mods.get(d)
+        return (m is not None and (m.global_srcs or bool(m.resource_macros))
+                and (is_trivial(m) or external.is_external(d)))
+
     # A PEERDIR on an include-side module aliased to a part means that part.
     via_alias, direct = defaultdict(set), set()
     for p in mod.peerdirs:
@@ -2009,6 +2019,8 @@ def gen_spec(mod, resolver, graph, report, external):
                 continue
             spec.deps.add(label)
             spec.peerdir_only.add(label)
+            if linked_always(owner):
+                spec.explicit.add(label)
 
     # PEERDIRs of an include-side module made a part of this one (merge_aliases)
     for name, dirs in sorted(mod.part_peerdirs.items()):
@@ -2019,6 +2031,8 @@ def gen_spec(mod, resolver, graph, report, external):
             if label not in t.deps:
                 t.deps.add(label)
                 t.peerdir_only.add(label)
+                if linked_always(owner):
+                    t.explicit.add(label)
 
     # PEERDIRs of a module absorbed here (`# gn: into` of all its sources):
     # its code is compiled here, and so are its link deps
@@ -2031,6 +2045,8 @@ def gen_spec(mod, resolver, graph, report, external):
             if label not in spec.deps and label not in spec.proto_public:
                 spec.deps.add(label)
                 spec.peerdir_only.add(label)
+                if linked_always(owner):
+                    spec.explicit.add(label)
 
     # `# gn: [<part>] peerdir <dir>[:<part>]`: link-only deps ya.make can't say
     for own, d, sub in mod.gn_peerdirs:

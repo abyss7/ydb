@@ -373,7 +373,7 @@ library("tpcds") {
     # "//library/cpp/resource",
     # "//ydb/library/accessor",  # peerdir only
     # "//ydb/library/benchmarks/gen/tpcds-dbgen",
-    # "//ydb/library/benchmarks/queries/tpcds",  # peerdir only
+    "//ydb/library/benchmarks/queries/tpcds",  # peerdir only
     # "//ydb/public/api/protos",
   ]
 
@@ -726,14 +726,14 @@ group("workload") {
   public_deps = [
     # ":abstract",  # peerdir only
     # ":benchmark_base",
-    # ":clickbench",  # peerdir only
-    # ":kv",  # peerdir only
-    # ":log",  # peerdir only
-    # ":mixed",  # peerdir only
-    # ":query",  # peerdir only
-    # ":stock",  # peerdir only
+    ":clickbench",  # peerdir only
+    ":kv",  # peerdir only
+    ":log",  # peerdir only
+    ":mixed",  # peerdir only
+    ":query",  # peerdir only
+    ":stock",  # peerdir only
     # ":tpc_base",
-    # ":tpcds",  # peerdir only
+    ":tpcds",  # peerdir only
     # "//ydb/library/workload/tpch",  # peerdir only
     # "//ydb/public/lib/ydb_cli/commands",  # peerdir only
   ]

@@ -1,5 +1,9 @@
 # yamake2gn: keep  -- hand-written, do not regenerate
 
+config("core_private_config") {
+    cflags = [ "-mpclmul" ]
+}
+
 library("core") {
     public_deps = [
         "//contrib/libs/openssl",
@@ -325,6 +329,8 @@ library("core") {
         "ytree/yson_struct_update.cpp",
         "ytree/yson_struct.cpp",
     ]
+
+    configs = [ ":core_private_config" ]
 
     libs = [ "util" ]
 }

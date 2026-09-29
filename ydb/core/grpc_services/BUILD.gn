@@ -103,7 +103,7 @@ library("grpc_services") {
     "//ydb/core/tx/datashard:read_events",  # peerdir only
     # "//ydb/core/tx/replication/controller",
     "//ydb/core/tx/schemeshard/olap/bg_tasks:events",
-    # "//ydb/core/tx/sharding",  # peerdir only
+    "//ydb/core/tx/sharding",  # peerdir only
     # "//ydb/core/tx/tx_proxy",
     "//ydb/core/tx/tx_proxy:read_table",  # peerdir only
     "//ydb/core/tx/tx_proxy:upload_rows",

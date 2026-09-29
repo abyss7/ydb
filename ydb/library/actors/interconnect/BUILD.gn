@@ -32,9 +32,9 @@ library("interconnect") {
     "//contrib/restricted/abseil-cpp-tstring",
     "//library/cpp/json",
     # "//library/cpp/monlib/service/pages",
-    # "//library/cpp/monlib/service/pages:resources",  # peerdir only
-    # "//library/cpp/monlib/service/pages:tablesorter",  # peerdir only
-    # "//library/cpp/openssl/init",  # peerdir only
+    "//library/cpp/monlib/service/pages:resources",  # peerdir only
+    "//library/cpp/monlib/service/pages:tablesorter",  # peerdir only
+    "//library/cpp/openssl/init",  # peerdir only
     # "//library/cpp/packedtypes",  # peerdir only
     # "//ydb/library/actors/dnscachelib",  # peerdir only
     # "//ydb/library/actors/dnsresolver",

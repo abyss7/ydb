@@ -1,7 +1,7 @@
 library("bzip") {
   deps = [
-    # "//contrib/libs/libbz2",
-    # "//library/cpp/blockcodecs:core",
+    "//contrib/libs/libbz2",
+    "//library/cpp/blockcodecs:core",
   ]
 
   sources = [ "bzip.cpp" ]

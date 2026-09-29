@@ -19,34 +19,6 @@ template("avx512_source_set") {
     }
 }
 
-template("sse2_source_set") {
-    source_set(target_name) {
-        forward_variables_from(invoker, "*")
-        configs += [ "//build/gn/config:_sse2_config" ]
-    }
-}
-
-template("sse41_source_set") {
-    source_set(target_name) {
-        forward_variables_from(invoker, "*")
-        configs += [ "//build/gn/config:_sse41_config" ]
-    }
-}
-
-template("sse42_source_set") {
-    source_set(target_name) {
-        forward_variables_from(invoker, "*")
-        configs += [ "//build/gn/config:_sse42_config" ]
-    }
-}
-
-template("ssse3_source_set") {
-    source_set(target_name) {
-        forward_variables_from(invoker, "*")
-        configs += [ "//build/gn/config:_ssse3_config" ]
-    }
-}
-
 # Expands @VAR@ placeholders (and #cmakedefine lines) in the given .in files.
 #
 # `substitutions` is a list of "KEY=VALUE" strings. They are passed on the

@@ -15,7 +15,7 @@ library("abstract") {
   deps = [
     # "//contrib/libs/protobuf",
     # "//library/cpp/protobuf/json",
-    # "//ydb/public/sdk/cpp/src/client/resources",  # peerdir only
+    "//ydb/public/sdk/cpp/src/client/resources",  # peerdir only
     # "//ydb/services/metadata",
   ]
 

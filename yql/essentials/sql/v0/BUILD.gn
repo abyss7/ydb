@@ -22,7 +22,7 @@ library("v0") {
     # "//library/cpp/containers/stack_vector",
     # "//library/cpp/enumbitset",
     # "//yql/essentials/ast",
-    # "//yql/essentials/core/issue",  # peerdir only
+    "//yql/essentials/core/issue",  # peerdir only
     # "//yql/essentials/core/issue:protos",
     "//yql/essentials/core/sql_types",
     "//yql/essentials/minikql",

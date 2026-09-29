@@ -25,27 +25,15 @@ config("_avx512_config") {
     ]
 }
 
-config("_sse2_config") {
+config("cpu_baseline") {
     cflags = [
         "-msse2",
-    ]
-}
-
-config("_sse41_config") {
-    cflags = [
-        "-msse4.1",
-    ]
-}
-
-config("_sse42_config") {
-    cflags = [
-        "-msse4.2",
-    ]
-}
-
-config("_ssse3_config") {
-    cflags = [
+        "-msse3",
         "-mssse3",
+        "-msse4.1",
+        "-msse4.2",
+        "-mpopcnt",
+        "-mcx16",
     ]
 }
 

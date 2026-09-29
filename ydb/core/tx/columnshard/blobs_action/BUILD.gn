@@ -142,7 +142,7 @@ library("events") {
   ]
 
   deps = [
-    # "//ydb/core/tx/datashard",  # peerdir only
+    "//ydb/core/tx/datashard",  # peerdir only
   ]
 
   sources = [ "events/delete_blobs.cpp" ]

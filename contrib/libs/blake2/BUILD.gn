@@ -35,7 +35,6 @@ source_set("ref") {
 }
 
 config("sse2_config") {
-    cflags = [ "-msse2" ]
     defines = [ "SUFFIX=_sse2" ]
 }
 
@@ -45,7 +44,6 @@ source_set("sse2") {
 }
 
 config("sse41_config") {
-    cflags = [ "-msse4.1" ]
     defines = [ "SUFFIX=_sse41" ]
 }
 
@@ -55,7 +53,6 @@ source_set("sse41") {
 }
 
 config("ssse3_config") {
-    cflags = [ "-mssse3" ]
     defines = [ "SUFFIX=_ssse3" ]
 }
 

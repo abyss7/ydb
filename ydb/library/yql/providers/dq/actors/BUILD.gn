@@ -48,7 +48,7 @@ library("actors") {
     # "//yql/essentials/core/issue",
     # "//yql/essentials/core/issue:protos",
     # "//yql/essentials/core/services",  # peerdir only
-    # "//yql/essentials/core/services:mounts",  # peerdir only
+    "//yql/essentials/core/services:mounts",  # peerdir only
     # "//yql/essentials/core/user_data",  # peerdir only
     "//yql/essentials/providers/common/codec",
     # "//yql/essentials/providers/common/provider",

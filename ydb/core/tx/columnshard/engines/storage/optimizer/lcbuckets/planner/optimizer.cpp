@@ -5,8 +5,6 @@
 #include "selector/snapshot.h"
 #include "selector/transparent.h"
 
-#include <ydb/core/tx/columnshard/engines/storage/optimizer/lcbuckets/constructor/constructor.h>
-
 #include <util/string/join.h>
 
 namespace NKikimr::NOlap::NStorageOptimizer::NLCBuckets {

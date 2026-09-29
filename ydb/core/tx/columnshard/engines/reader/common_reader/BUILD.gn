@@ -1,6 +1,6 @@
 group("common_reader") {
   public_deps = [
-    # ":iterator",  # peerdir only
+    ":iterator",  # peerdir only
     # "//ydb/core/tx/columnshard/engines/reader/common_reader/constructor",  # peerdir only
   ]
 }

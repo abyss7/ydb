@@ -41,7 +41,7 @@ library("serialize") {
   public_deps = [ ":ast" ]
 
   deps = [
-    # "//yql/essentials/core/issue",  # peerdir only
+    "//yql/essentials/core/issue",  # peerdir only
     "//yql/essentials/minikql",
   ]
 

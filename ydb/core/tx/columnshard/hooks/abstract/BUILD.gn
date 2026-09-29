@@ -14,7 +14,7 @@ library("abstract") {
     # "//ydb/core/tx/columnshard/blobs_action:protos",  # peerdir only
     # "//ydb/core/tx/columnshard/data_sharing/protos",  # peerdir only
     # "//ydb/core/tx/columnshard/engines/portions",
-    # "//ydb/public/sdk/cpp/src/client/resources",  # peerdir only
+    "//ydb/public/sdk/cpp/src/client/resources",  # peerdir only
     # "//yql/essentials/core/expr_nodes",  # peerdir only
   ]
 

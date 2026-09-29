@@ -68,7 +68,7 @@ library("syntax") {
     # ":core",  # peerdir only
     # ":text",  # peerdir only
     "//contrib/libs/re2",
-    # "//yql/essentials/core/issue",  # peerdir only
+    "//yql/essentials/core/issue",  # peerdir only
     # "//yql/essentials/parser/antlr_ast/gen/v1_ansi_antlr4",  # peerdir only
     "//yql/essentials/parser/antlr_ast/gen/v1_antlr4",  # peerdir only
     # "//yql/essentials/parser/lexer_common",  # peerdir only

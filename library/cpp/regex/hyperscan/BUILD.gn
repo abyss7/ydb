@@ -1,12 +1,10 @@
 library("hyperscan") {
-  public_deps = [
-    # "//contrib/libs/hyperscan",
-  ]
+  public_deps = [ "//contrib/libs/hyperscan" ]
 
   deps = [
-    # "//contrib/libs/hyperscan/runtime_avx2",
-    # "//contrib/libs/hyperscan/runtime_core2",
-    # "//contrib/libs/hyperscan/runtime_corei7",
+    "//contrib/libs/hyperscan/runtime_avx2",
+    "//contrib/libs/hyperscan/runtime_core2",
+    "//contrib/libs/hyperscan/runtime_corei7",
   ]
 
   sources = [ "hyperscan.cpp" ]

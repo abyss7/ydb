@@ -11,7 +11,7 @@ library("engines") {
     "//ydb/core/tx/columnshard/data_accessor",
     # "//ydb/core/tx/columnshard/data_accessor:abstract",
     # "//ydb/core/tx/columnshard/data_locks:locks",
-    # "//ydb/core/tx/columnshard/engines/changes/abstract",
+    "//ydb/core/tx/columnshard/engines/changes/abstract",
     "//ydb/core/tx/columnshard/engines/changes/actualization:controller",
     "//ydb/core/tx/columnshard/engines/portions",
     "//ydb/core/tx/columnshard/engines/predicate",
@@ -22,7 +22,7 @@ library("engines") {
     "//ydb/core/tx/columnshard/engines/storage/actualizer:common",
     # "//ydb/core/tx/columnshard/engines/storage/actualizer:counters",
     "//ydb/core/tx/columnshard/engines/storage/optimizer/abstract",
-    # "//ydb/core/tx/columnshard/hooks/abstract",
+    "//ydb/core/tx/columnshard/hooks/abstract",
     # "//ydb/core/tx/columnshard/resource_subscriber",
     "//ydb/core/tx/columnshard/tx_reader",
     # "//ydb/core/tx/priorities/usage",
@@ -48,8 +48,6 @@ library("engines") {
     # "//ydb/core/tx/columnshard/engines/reader",  # peerdir only
     # "//ydb/core/tx/columnshard/engines/storage",  # peerdir only
     "//ydb/core/tx/columnshard/engines/storage/indexes/max",
-    # "//ydb/core/tx/columnshard/engines/storage/optimizer/lbuckets:planner",  # peerdir only
-    # "//ydb/core/tx/columnshard/engines/storage/optimizer/lcbuckets/planner",  # peerdir only
     # "//ydb/core/tx/columnshard/splitter",
     # "//ydb/core/tx/columnshard/splitter:settings",
     "//ydb/core/tx/columnshard/subscriber/events:tables_erased",
@@ -61,7 +59,7 @@ library("engines") {
     # "//ydb/core/tx/tiering",
     # "//ydb/library/conclusion",
     # "//ydb/library/formats/arrow",
-    # "//yql/essentials/public/udf/service/exception_policy",  # peerdir only
+    "//yql/essentials/public/udf/service/exception_policy",  # peerdir only
   ]
 
   sources = [

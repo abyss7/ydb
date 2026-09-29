@@ -3,5 +3,10 @@ config("public_config") {
 }
 
 contrib_library("variant") {
+    public_deps = [
+        "//contrib/restricted/boost/integer",
+        "//contrib/restricted/boost/type_index",
+    ]
+
     public_configs = [ ":public_config" ]
 }

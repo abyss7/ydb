@@ -32,7 +32,7 @@ library("datastreams") {
     # "//ydb/library/cloud_permissions",
     # "//ydb/public/api/grpc",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/datastreams",  # peerdir only
-    # "//ydb/public/sdk/cpp/src/client/resources",  # peerdir only
+    "//ydb/public/sdk/cpp/src/client/resources",  # peerdir only
     # "//ydb/public/sdk/cpp/src/library/operation_id",  # peerdir only
     "//ydb/services/lib/actors",
     "//ydb/services/lib/sharding",

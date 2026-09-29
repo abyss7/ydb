@@ -1,8 +1,8 @@
 library("io") {
   deps = [
-    # "//certs",  # peerdir only
+    "//certs",  # peerdir only
     "//contrib/libs/openssl",
-    # "//library/cpp/openssl/init",  # peerdir only
+    "//library/cpp/openssl/init",  # peerdir only
     "//library/cpp/openssl/method",
     "//library/cpp/resource",
   ]

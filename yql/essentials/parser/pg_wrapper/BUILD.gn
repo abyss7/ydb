@@ -158,9 +158,6 @@ config("private_config") {
 }
 
 config("sse42_config") {
-    cflags = [
-        "-msse4.2",
-    ]
     defines = [
         "HAVE__GET_CPUID=1",
         "USE_SSE42_CRC32C_WITH_RUNTIME_CHECK=1",

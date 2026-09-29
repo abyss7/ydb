@@ -33,11 +33,11 @@ library("granule") {
 group("normalizer") {
   public_deps = [
     # ":abstract",  # peerdir only
-    # ":granule",  # peerdir only
-    # ":portion",  # peerdir only
-    # ":schema_version",  # peerdir only
-    # ":tables",  # peerdir only
-    # ":tablet",  # peerdir only
+    ":granule",  # peerdir only
+    ":portion",  # peerdir only
+    ":schema_version",  # peerdir only
+    ":tables",  # peerdir only
+    ":tablet",  # peerdir only
     # "//ydb/core/tx/columnshard/normalizer/insert_table",
   ]
 }

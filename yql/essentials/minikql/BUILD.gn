@@ -41,7 +41,7 @@ library("minikql") {
     # "//library/cpp/packedtypes",
     # "//library/cpp/resource",
     "//library/cpp/yson",
-    # "//yql/essentials/core/issue",  # peerdir only
+    "//yql/essentials/core/issue",  # peerdir only
     # "//yql/essentials/core/pg_settings",  # peerdir only
     # "//yql/essentials/minikql/computation",
     # "//yql/essentials/minikql/dom",

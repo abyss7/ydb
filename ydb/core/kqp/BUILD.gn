@@ -37,7 +37,7 @@ library("kqp") {
     # "//ydb/public/api/protos",  # peerdir only
     # "//ydb/public/lib/base",  # peerdir only
     # "//ydb/public/sdk/cpp/src/library/operation_id",  # peerdir only
-    # "//yql/essentials/core/services:mounts",  # peerdir only
+    "//yql/essentials/core/services:mounts",  # peerdir only
     # "//yql/essentials/public/issue",  # peerdir only
     # "//yql/essentials/utils/log",  # peerdir only
   ]

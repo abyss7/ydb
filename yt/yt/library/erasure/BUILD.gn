@@ -4,7 +4,7 @@ library("erasure") {
   ]
 
   deps = [
-    # "//yt/yt/core",  # peerdir only
+    "//yt/yt/core",  # peerdir only
   ]
 
   sources = [ "public.cpp" ]

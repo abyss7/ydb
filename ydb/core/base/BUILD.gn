@@ -44,8 +44,8 @@ library("base") {
     "//library/cpp/dwarf_backtrace",
     # "//library/cpp/l1_distance",
     "//library/cpp/l2_distance",
-    # "//library/cpp/logger",  # peerdir only
-    # "//library/cpp/lwtrace/mon",  # peerdir only
+    "//library/cpp/logger",  # peerdir only
+    "//library/cpp/lwtrace/mon",  # peerdir only
     # "//library/cpp/monlib/service/pages",
     "//ydb/core/audit:audit_config",
     # "//ydb/core/blobstorage/base",

@@ -9,7 +9,7 @@ library("purecalc_no_pg_wrapper") {
     # "//yql/essentials/core/langver",
     # "//yql/essentials/core/peephole_opt",
     # "//yql/essentials/core/services",  # peerdir only
-    # "//yql/essentials/core/services:mounts",  # peerdir only
+    "//yql/essentials/core/services:mounts",  # peerdir only
     # "//yql/essentials/core/services:pipeline",
     # "//yql/essentials/core/type_ann",
     # "//yql/essentials/core/user_data",  # peerdir only

@@ -1,7 +1,7 @@
 library("lzma") {
   deps = [
-    # "//contrib/libs/lzmasdk",
-    # "//library/cpp/blockcodecs:core",
+    "//contrib/libs/lzmasdk",
+    "//library/cpp/blockcodecs:core",
   ]
 
   sources = [ "lzma.cpp" ]

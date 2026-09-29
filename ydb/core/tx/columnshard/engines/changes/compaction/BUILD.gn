@@ -36,10 +36,10 @@ library("compaction") {
   deps = [
     ":abstract",
     # ":common",  # peerdir only
-    # ":dictionary",  # peerdir only
+    ":dictionary",  # peerdir only
     ":plain",
     ":sparsed",
-    # ":sub_columns",  # peerdir only
+    ":sub_columns",  # peerdir only
     # "//ydb/core/tx/columnshard/splitter",
     # "//ydb/core/tx/tiering",  # peerdir only
     # "//ydb/library/formats/arrow:simple_builder",
@@ -50,15 +50,15 @@ library("compaction") {
 
 library("dictionary") {
   deps = [
-    # ":abstract",
+    ":abstract",
     # ":common",  # peerdir only
-    # "//ydb/core/formats/arrow",
+    "//ydb/core/formats/arrow",
     # "//ydb/core/formats/arrow/accessor:common",
-    # "//ydb/core/formats/arrow/accessor:composite",
-    # "//ydb/core/formats/arrow/accessor:dictionary",
+    "//ydb/core/formats/arrow/accessor:composite",
+    "//ydb/core/formats/arrow/accessor:dictionary",
     # "//ydb/core/formats/arrow/accessor:sparsed",
     # "//ydb/core/formats/arrow/switch",
-    # "//ydb/core/tx/columnshard/engines/portions",
+    "//ydb/core/tx/columnshard/engines/portions",
   ]
 
   sources = [ "dictionary/logic.cpp" ]
@@ -110,13 +110,13 @@ library("sparsed") {
 
 library("sub_columns") {
   deps = [
-    # ":abstract",
+    ":abstract",
     # ":common",  # peerdir only
-    # "//ydb/core/formats/arrow",
+    "//ydb/core/formats/arrow",
     # "//ydb/core/formats/arrow/accessor:common",
-    # "//ydb/core/formats/arrow/accessor:sparsed",
-    # "//ydb/core/formats/arrow/accessor:sub_columns",
-    # "//ydb/core/tx/columnshard/engines/portions",
+    "//ydb/core/formats/arrow/accessor:sparsed",
+    "//ydb/core/formats/arrow/accessor:sub_columns",
+    "//ydb/core/tx/columnshard/engines/portions",
   ]
 
   sources = [

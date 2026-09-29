@@ -18,7 +18,7 @@ library("counters") {
     # "//ydb/core/util",
     "//ydb/library/accessor",
     # "//ydb/library/actors/core",
-    # "//ydb/library/signals",
+    "//ydb/library/signals",
   ]
 
   deps = [

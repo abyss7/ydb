@@ -28,7 +28,6 @@ shared_library("util") {
     deps += [
         ":datetime_parser",
         ":system_context",
-        "charset",
         "//contrib/libs/double-conversion",
         "//contrib/libs/libc_compat",
         "//contrib/libs/zlib",
@@ -43,6 +42,7 @@ shared_library("util") {
         "charset/unidata.cpp",
         "charset/utf8.cpp",
         "charset/wide.cpp",
+        "charset/wide_sse41.cpp",
         "datetime/base.cpp",
         "datetime/constants.cpp",
         "datetime/cputimer.cpp",

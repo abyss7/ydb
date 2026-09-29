@@ -1,6 +1,5 @@
 config("private_config") {
     cflags_c = [
-        "-mssse3",
         "-std=c11",
     ]
 }

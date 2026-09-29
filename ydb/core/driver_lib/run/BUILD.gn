@@ -90,7 +90,7 @@ library("_self") {
     "//ydb/core/kesus/proxy",
     "//ydb/core/kesus/tablet",
     "//ydb/core/keyvalue",
-    # "//ydb/core/kqp",  # peerdir only
+    "//ydb/core/kqp",  # peerdir only
     "//ydb/core/kqp/federated_query:actors",
     "//ydb/core/kqp/finalize_script_service",
     "//ydb/core/kqp/proxy_service",
@@ -189,7 +189,7 @@ library("_self") {
     "//ydb/services/discovery",
     "//ydb/services/dynamic_config",
     "//ydb/services/ext_index/common",
-    # "//ydb/services/ext_index/metadata",  # peerdir only
+    "//ydb/services/ext_index/metadata",  # peerdir only
     "//ydb/services/ext_index/service",
     "//ydb/services/fq",
     "//ydb/services/kesus",
@@ -212,7 +212,7 @@ library("_self") {
     # "//yql/essentials/minikql/comp_nodes/llvm16",  # peerdir only
     "//yql/essentials/minikql/invoke_builtins",
     # "//yql/essentials/parser/pg_wrapper/interface",
-    # "//yql/essentials/public/udf/service/exception_policy",  # peerdir only
+    "//yql/essentials/public/udf/service/exception_policy",  # peerdir only
     # "//yt/yql/providers/yt/codec:codegen",  # peerdir only
     # "//yt/yql/providers/yt/comp_nodes/dq/llvm16",  # peerdir only
     # "//yt/yql/providers/yt/comp_nodes/llvm16",  # peerdir only
@@ -275,7 +275,7 @@ group("run") {
     "//ydb/core/graph/shard",  # peerdir only
     # "//ydb/core/grpc_services/base",  # peerdir only
     # "//ydb/core/jaeger_tracing",  # peerdir only
-    # "//ydb/core/kqp",  # peerdir only
+    "//ydb/core/kqp",  # peerdir only
     "//ydb/core/mind:hive",  # peerdir only
     # "//ydb/core/nbs/cloud/blockstore/bootstrap",  # peerdir only
     # "//ydb/core/persqueue/pqrb",  # peerdir only
@@ -290,10 +290,10 @@ group("run") {
     # "//ydb/library/actors/memory_log",  # peerdir only
     # "//ydb/library/global_plugins",  # peerdir only
     # "//ydb/public/sdk/cpp/src/library/grpc/client",  # peerdir only
-    # "//ydb/services/ext_index/metadata",  # peerdir only
+    "//ydb/services/ext_index/metadata",  # peerdir only
     # "//ydb/services/nbs",  # peerdir only
     # "//yql/essentials/minikql/comp_nodes/llvm16",  # peerdir only
-    # "//yql/essentials/public/udf/service/exception_policy",  # peerdir only
+    "//yql/essentials/public/udf/service/exception_policy",  # peerdir only
     # "//yt/yql/providers/yt/codec:codegen",  # peerdir only
     # "//yt/yql/providers/yt/comp_nodes/dq/llvm16",  # peerdir only
     # "//yt/yql/providers/yt/comp_nodes/llvm16",  # peerdir only

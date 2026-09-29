@@ -11,8 +11,8 @@ group("node_whiteboard") {
 
   deps = [
     # "//library/cpp/deprecated/enum_codegen",  # peerdir only
-    # "//library/cpp/logger",  # peerdir only
-    # "//library/cpp/lwtrace/mon",  # peerdir only
+    "//library/cpp/logger",  # peerdir only
+    "//library/cpp/lwtrace/mon",  # peerdir only
     # "//library/cpp/random_provider",  # peerdir only
     # "//library/cpp/time_provider",  # peerdir only
     # "//ydb/core/base:services",  # peerdir only

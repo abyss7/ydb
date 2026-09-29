@@ -14,7 +14,7 @@ library("controller") {
 
 group("initiator") {
   public_deps = [
-    # ":controller",  # peerdir only
+    ":controller",  # peerdir only
     # ":status",  # peerdir only
   ]
 }

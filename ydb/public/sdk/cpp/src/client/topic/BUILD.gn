@@ -77,7 +77,7 @@ library("impl") {
   ]
 
   deps = [
-    # ":codecs",  # peerdir only
+    ":codecs",  # peerdir only
     # "//library/cpp/monlib/dynamic_counters",  # peerdir only
     # "//library/cpp/monlib/metrics",  # peerdir only
     # "//library/cpp/string_utils/url",

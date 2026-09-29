@@ -21,7 +21,7 @@ library("v1") {
     # "//library/cpp/json",  # peerdir only
     # "//library/cpp/protobuf/util",
     # "//library/cpp/yson:node",
-    # "//yql/essentials/core/issue",  # peerdir only
+    "//yql/essentials/core/issue",  # peerdir only
     # "//yql/essentials/core/issue:protos",
     "//yql/essentials/core/sql_types",
     "//yql/essentials/minikql",

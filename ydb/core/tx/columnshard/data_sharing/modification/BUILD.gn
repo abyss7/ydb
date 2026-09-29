@@ -9,7 +9,7 @@ library("events") {
   deps = [
     ":tasks",
     # "//ydb/core/tx/columnshard/blobs_action:protos",  # peerdir only
-    # "//ydb/core/tx/datashard",  # peerdir only
+    "//ydb/core/tx/datashard",  # peerdir only
   ]
 
   sources = [ "events/change_owning.cpp" ]

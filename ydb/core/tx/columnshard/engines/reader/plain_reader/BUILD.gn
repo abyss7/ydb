@@ -47,6 +47,6 @@ library("iterator") {
 group("plain_reader") {
   public_deps = [
     # ":iterator",  # peerdir only
-    # "//ydb/core/tx/columnshard",  # peerdir only
+    "//ydb/core/tx/columnshard",  # peerdir only
   ]
 }

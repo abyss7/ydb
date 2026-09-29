@@ -22,7 +22,7 @@ library("ds_table") {
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/ydb_convert",
     # "//ydb/library/services",
-    # "//ydb/services/metadata/secret",  # peerdir only
+    "//ydb/services/metadata/secret",  # peerdir only
   ]
 
   sources = [

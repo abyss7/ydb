@@ -3,10 +3,10 @@ group("accessor") {
     # ":common",
     # ":composite",  # peerdir only
     # ":composite_serial",  # peerdir only
-    # ":dictionary",  # peerdir only
-    # ":sparsed",  # peerdir only
-    # ":sub_columns",  # peerdir only
-    # "//ydb/core/formats/arrow",  # peerdir only
+    ":dictionary",  # peerdir only
+    ":sparsed",  # peerdir only
+    ":sub_columns",  # peerdir only
+    "//ydb/core/formats/arrow",  # peerdir only
   ]
 }
 

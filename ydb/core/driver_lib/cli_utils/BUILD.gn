@@ -13,7 +13,6 @@ library("cli_utils") {
   ]
 
   deps = [
-    "//ydb/library/keys",  # peerdir only
     # "//library/cpp/protobuf/json",
     # "//library/cpp/yson",  # peerdir only
     # "//ydb/core/actorlib_impl",  # peerdir only
@@ -38,6 +37,7 @@ library("cli_utils") {
     "//ydb/library/actors/core",
     # "//ydb/library/actors/protos",
     # "//ydb/library/folder_service:proto",  # peerdir only
+    "//ydb/library/keys",  # peerdir only
     "//ydb/library/yaml_config",
     # "//ydb/public/api/grpc",
     "//ydb/public/api/grpc:draft",
