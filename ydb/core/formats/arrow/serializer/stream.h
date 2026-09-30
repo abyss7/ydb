@@ -16,11 +16,23 @@ namespace NKikimr::NArrow::NSerialization {
 class TBufferOverString: public arrow::Buffer {
     TString Str;
 public:
+#if defined(TSTRING_IS_STD_STRING)
+    // std::string doesn't share its data on copy (nor on move, when short):
+    // point the buffer at the member only once it holds the data
+    explicit TBufferOverString(TString str)
+        : arrow::Buffer(nullptr, 0)
+        , Str(std::move(str)) {
+        data_ = (const unsigned char*)Str.data();
+        size_ = Str.size();
+        capacity_ = size_;
+    }
+#else
     explicit TBufferOverString(TString str)
         : arrow::Buffer((const unsigned char*)str.data(), str.size())
         , Str(str) {
         Y_ABORT_UNLESS(data() == (const unsigned char*)Str.data());
     }
+#endif
 };
 
 class TFixedStringOutputStream final: public arrow::io::OutputStream {
