@@ -1,9 +1,9 @@
 library("abstract") {
   public_deps = [
-    # "//ydb/core/formats/arrow",
+    "//ydb/core/formats/arrow",
     # "//ydb/core/tablet_flat",
     # "//ydb/core/tx/columnshard/common",
-    # "//ydb/core/tx/columnshard/engines",
+    "//ydb/core/tx/columnshard/engines",
     # "//ydb/core/tx/columnshard/engines/reader/common_reader/constructor",
     # "//ydb/core/tx/columnshard/engines/reader/common_reader:iterator",
     # "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator",
@@ -25,14 +25,14 @@ library("abstract") {
 
 library("chunks") {
   deps = [
-    # ":abstract",
-    # "//ydb/core/formats/arrow",
+    ":abstract",
+    "//ydb/core/formats/arrow",
     # "//ydb/core/sys_view:common",
-    # "//ydb/core/tx/columnshard/blobs_reader",
+    "//ydb/core/tx/columnshard/blobs_reader",
     # "//ydb/core/tx/columnshard/engines",
     # "//ydb/core/tx/columnshard/engines/reader/common_reader/constructor",
-    # "//ydb/core/tx/columnshard/engines/reader/common_reader:iterator",
-    # "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator",
+    "//ydb/core/tx/columnshard/engines/reader/common_reader:iterator",
+    "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator",
     # "//ydb/core/tx/conveyor_composite/usage",
     # "//ydb/library/formats/arrow",
   ]
@@ -47,16 +47,16 @@ library("chunks") {
 
 library("granules") {
   deps = [
-    # ":abstract",
-    # "//ydb/core/formats/arrow",
+    ":abstract",
+    "//ydb/core/formats/arrow",
     # "//ydb/core/sys_view:common",
     # "//ydb/core/tx/columnshard/blobs_action:abstract",
     # "//ydb/core/tx/columnshard/common",
-    # "//ydb/core/tx/columnshard/engines",
-    # "//ydb/core/tx/columnshard/engines/reader/common",
+    "//ydb/core/tx/columnshard/engines",
+    "//ydb/core/tx/columnshard/engines/reader/common",
     # "//ydb/core/tx/columnshard/engines/reader/common_reader/constructor",
-    # "//ydb/core/tx/columnshard/engines/reader/common_reader:iterator",
-    # "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator",
+    "//ydb/core/tx/columnshard/engines/reader/common_reader:iterator",
+    "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator",
     # "//ydb/core/tx/columnshard/engines/scheme",
     # "//ydb/core/tx/conveyor_composite/usage",
     # "//ydb/library/formats/arrow",
@@ -73,17 +73,18 @@ library("granules") {
 
 library("optimizer") {
   deps = [
-    # ":abstract",
+    ":abstract",
     # "//ydb/core/formats/arrow",
     # "//ydb/core/sys_view:common",
     # "//ydb/core/tx/columnshard/blobs_action:abstract",
     # "//ydb/core/tx/columnshard/common",
-    # "//ydb/core/tx/columnshard/engines",
-    # "//ydb/core/tx/columnshard/engines/reader/common",
+    "//ydb/core/tx/columnshard/engines",
+    "//ydb/core/tx/columnshard/engines/reader/common",
     # "//ydb/core/tx/columnshard/engines/reader/common_reader/constructor",
-    # "//ydb/core/tx/columnshard/engines/reader/common_reader:iterator",
-    # "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator",
+    "//ydb/core/tx/columnshard/engines/reader/common_reader:iterator",
+    "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator",
     # "//ydb/core/tx/columnshard/engines/scheme",
+    # "//ydb/core/tx/columnshard/engines/storage/optimizer/abstract",
     # "//ydb/core/tx/conveyor_composite/usage",
     # "//ydb/library/formats/arrow",
     # "//ydb/library/formats/arrow:switch",
@@ -99,7 +100,7 @@ library("optimizer") {
 
 library("portions") {
   public_deps = [
-    # ":abstract",
+    ":abstract",
     # "//ydb/core/tablet_flat",
     # "//ydb/core/tx/columnshard/blobs_action:abstract",
     # "//ydb/core/tx/columnshard/common",
@@ -107,14 +108,14 @@ library("portions") {
   ]
 
   deps = [
-    # "//ydb/core/formats/arrow",
+    "//ydb/core/formats/arrow",
     # "//ydb/core/sys_view:common",
-    # "//ydb/core/tx/columnshard/engines",
+    "//ydb/core/tx/columnshard/engines",
     # "//ydb/core/tx/columnshard/engines/portions",
-    # "//ydb/core/tx/columnshard/engines/reader/common",
+    "//ydb/core/tx/columnshard/engines/reader/common",
     # "//ydb/core/tx/columnshard/engines/reader/common_reader/constructor",
-    # "//ydb/core/tx/columnshard/engines/reader/common_reader:iterator",
-    # "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator",
+    "//ydb/core/tx/columnshard/engines/reader/common_reader:iterator",
+    "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator",
     # "//ydb/core/tx/conveyor_composite/usage",
     # "//ydb/library/formats/arrow",
     # "//ydb/library/formats/arrow:switch",
@@ -130,16 +131,16 @@ library("portions") {
 
 library("schemas") {
   deps = [
-    # ":abstract",
-    # "//ydb/core/formats/arrow",
+    ":abstract",
+    "//ydb/core/formats/arrow",
     # "//ydb/core/sys_view:common",
     # "//ydb/core/tx/columnshard/blobs_action:abstract",
     # "//ydb/core/tx/columnshard/common",
-    # "//ydb/core/tx/columnshard/engines",
-    # "//ydb/core/tx/columnshard/engines/reader/common",
+    "//ydb/core/tx/columnshard/engines",
+    "//ydb/core/tx/columnshard/engines/reader/common",
     # "//ydb/core/tx/columnshard/engines/reader/common_reader/constructor",
-    # "//ydb/core/tx/columnshard/engines/reader/common_reader:iterator",
-    # "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator",
+    "//ydb/core/tx/columnshard/engines/reader/common_reader:iterator",
+    "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator",
     # "//ydb/core/tx/columnshard/engines/scheme",
     # "//ydb/core/tx/conveyor_composite/usage",
     # "//ydb/library/formats/arrow",

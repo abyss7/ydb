@@ -31,8 +31,8 @@ PEERDIR(
     ydb/core/tx/columnshard/engines/portions
     ydb/core/tx/columnshard/engines/predicate
     ydb/core/tx/columnshard/engines/protos
-    ydb/core/tx/columnshard/engines/reader
-    ydb/core/tx/columnshard/engines/storage
+    ydb/core/tx/columnshard/engines/reader  # gn: plugin
+    ydb/core/tx/columnshard/engines/storage  # gn: plugin
     ydb/core/tx/columnshard/tracing
     ydb/core/tx/program
 

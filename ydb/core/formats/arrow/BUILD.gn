@@ -28,7 +28,6 @@ library("arrow") {
 
   deps = [
     # "//library/cpp/containers/stack_vector",
-    # "//ydb/core/formats/arrow/accessor",  # peerdir only
     # "//ydb/core/formats/arrow/printer",  # peerdir only
     # "//ydb/core/kqp/common",
     "//ydb/core/kqp/common:arrow",
@@ -90,4 +89,6 @@ library("arrow") {
   ]
 
   serialize_enum_headers = [ "accessor/abstract/accessor.h" ]
+
+  plugins = [ "//ydb/core/formats/arrow/accessor" ]
 }

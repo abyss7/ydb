@@ -49,7 +49,7 @@ library("benchmark_base") {
 library("clickbench") {
   deps = [
     # ":abstract",
-    # ":benchmark_base",
+    ":benchmark_base",
     # "//contrib/libs/yaml-cpp",
     # "//library/cpp/http/io",  # peerdir only
     # "//library/cpp/resource",
@@ -273,7 +273,7 @@ library("kv") {
 
 library("log") {
   deps = [
-    # ":abstract",
+    ":abstract",
     # "//library/cpp/json",
     # "//library/cpp/resource",
     # "//ydb/public/api/protos",
@@ -295,9 +295,7 @@ library("log") {
 }
 
 library("mixed") {
-  deps = [
-    # ":abstract",
-  ]
+  deps = [ ":abstract" ]
 
   sources = [
     "mixed/mixed.cpp",
@@ -310,7 +308,7 @@ library("mixed") {
 library("query") {
   deps = [
     # ":abstract",
-    # ":benchmark_base",
+    ":benchmark_base",
     # "//contrib/libs/yaml-cpp",
     # "//library/cpp/json",  # peerdir only
     # "//ydb/library/yaml_json",
@@ -335,9 +333,7 @@ library("stock") {
 }
 
 library("tpc_base") {
-  public_deps = [
-    # ":benchmark_base",
-  ]
+  public_deps = [ ":benchmark_base" ]
 
   deps = [
     # ":abstract",
@@ -367,7 +363,7 @@ library("tpc_base") {
 library("tpcds") {
   deps = [
     # ":abstract",
-    # ":tpc_base",
+    ":tpc_base",
     # "//library/cpp/charset",
     # "//library/cpp/charset:lite",  # peerdir only
     # "//library/cpp/resource",

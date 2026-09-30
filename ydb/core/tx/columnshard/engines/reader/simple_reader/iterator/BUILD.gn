@@ -24,7 +24,6 @@ library("iterator") {
     # "//ydb/core/formats/arrow/accessor:sub_columns",
     # "//ydb/core/tx/columnshard/blobs_action",  # peerdir only
     # "//ydb/core/tx/columnshard/blobs_reader",
-    # "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator/sys_view",  # peerdir only
     # "//ydb/core/tx/columnshard/engines/scheme/indexes:abstract",
     # "//ydb/core/tx/columnshard/engines/storage/indexes/portions",
     "//ydb/core/tx/columnshard/engines:filter",
@@ -55,4 +54,8 @@ library("iterator") {
   ]
 
   serialize_enum_headers = [ "source.h" ]
+
+  plugins = [
+    "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator/sys_view",
+  ]
 }

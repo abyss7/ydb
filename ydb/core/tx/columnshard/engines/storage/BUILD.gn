@@ -3,8 +3,8 @@ group("storage") {
     # "//ydb/core/tx/columnshard/engines",  # peerdir only
     # "//ydb/core/tx/columnshard/engines/portions",  # peerdir only
     # "//ydb/core/tx/columnshard/engines/storage/actualizer",  # peerdir only
-    # "//ydb/core/tx/columnshard/engines/storage/indexes",  # peerdir only
-    # "//ydb/core/tx/columnshard/engines/storage/optimizer",  # peerdir only
+    "//ydb/core/tx/columnshard/engines/storage/indexes",
+    "//ydb/core/tx/columnshard/engines/storage/optimizer",
   ]
 
   deps = [

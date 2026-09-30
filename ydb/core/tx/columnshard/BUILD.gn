@@ -98,7 +98,6 @@ library("columnshard") {
     # "//ydb/core/mon",
     # "//ydb/core/scheme",
     # "//ydb/core/scheme_types",
-    # "//ydb/core/tx/columnshard/backup",  # peerdir only
     "//ydb/core/tx/columnshard/backup/import/protos",
     "//ydb/core/tx/columnshard/backup:async_jobs",
     "//ydb/core/tx/columnshard/backup:iscan",
@@ -117,7 +116,6 @@ library("columnshard") {
     # "//ydb/core/tx/columnshard/data_locks",  # peerdir only
     # "//ydb/core/tx/columnshard/data_locks:locks",
     "//ydb/core/tx/columnshard/data_reader",
-    # "//ydb/core/tx/columnshard/data_sharing",  # peerdir only
     # "//ydb/core/tx/columnshard/engines/predicate",
     "//ydb/core/tx/columnshard/engines/reader/actor",
     "//ydb/core/tx/columnshard/engines/reader/common",
@@ -126,12 +124,9 @@ library("columnshard") {
     # "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator/sys_view:abstract",
     "//ydb/core/tx/columnshard/engines/reader/tracing",
     "//ydb/core/tx/columnshard/engines/storage/indexes/count_min_sketch",
-    "//ydb/core/tx/columnshard/engines/storage/optimizer",  # peerdir only
     "//ydb/core/tx/columnshard/engines/writer:buffer",
-    # "//ydb/core/tx/columnshard/export",  # peerdir only
     "//ydb/core/tx/columnshard/export:common",
     "//ydb/core/tx/columnshard/export:protos",
-    # "//ydb/core/tx/columnshard/normalizer",  # peerdir only
     "//ydb/core/tx/columnshard/operations:batch_builder",
     "//ydb/core/tx/columnshard/operations:slice_builder",  # peerdir only
     # "//ydb/core/tx/columnshard/splitter",  # peerdir only
@@ -257,6 +252,13 @@ library("columnshard") {
     "columnshard_impl.h",
     "export/session/session.h",
     "transactions/tx_controller.h",
+  ]
+
+  plugins = [
+    "//ydb/core/tx/columnshard/backup",
+    "//ydb/core/tx/columnshard/data_sharing",
+    "//ydb/core/tx/columnshard/export",
+    "//ydb/core/tx/columnshard/normalizer",
   ]
 
   resources = [

@@ -24,7 +24,7 @@ PEERDIR(
     ydb/core/tx/columnshard/engines/scheme/column
     ydb/core/tx/columnshard/engines/scheme/common
     ydb/core/tx/columnshard/engines/scheme/defaults
-    ydb/core/formats/arrow/accessor
+    ydb/core/formats/arrow/accessor  # gn: plugin
     ydb/core/tx/columnshard/blobs_action/abstract
 )
 

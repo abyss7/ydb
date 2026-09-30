@@ -7,7 +7,7 @@ LIBRARY()
 PEERDIR(
     contrib/libs/apache/arrow
     ydb/core/scheme
-    ydb/core/formats/arrow/accessor
+    ydb/core/formats/arrow/accessor  # gn: plugin
     ydb/core/formats/arrow/dictionary
     ydb/core/formats/arrow/hash
     ydb/core/formats/arrow/printer

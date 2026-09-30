@@ -1,5 +1,6 @@
 #include "clean_deprecated_snapshot.h"
 
+#include <ydb/core/base/appdata_fwd.h>
 #include <ydb/core/protos/config.pb.h>
 #include <ydb/core/tx/columnshard/columnshard_schema.h>
 
@@ -73,7 +74,7 @@ TConclusion<std::vector<INormalizerTask::TPtr>> TCleanDeprecatedSnapshotNormaliz
     if (!AppDataVerified().ColumnShardConfig.GetColumnChunksV0Usage()) {
         return std::vector<INormalizerTask::TPtr>();
     }
-    
+
     auto batchesToDelete = GetChunksToRewrite(txc, DsGroupSelector);
     if (!batchesToDelete) {
         return TConclusionStatus::Fail("Not ready");

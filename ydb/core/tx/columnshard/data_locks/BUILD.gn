@@ -13,16 +13,14 @@ library("locks") {
     # "//ydb/library/accessor",
   ]
 
-  deps = [
-    # "//ydb/core/tx/columnshard/engines/storage",  # peerdir only
-  ]
-
   sources = [
     "locks/abstract.cpp",
     "locks/composite.cpp",
     "locks/list.cpp",
     "locks/snapshot.cpp",
   ]
+
+  plugins = [ "//ydb/core/tx/columnshard/engines/storage" ]
 }
 
 library("manager") {

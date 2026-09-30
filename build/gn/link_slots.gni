@@ -28,6 +28,13 @@
 #
 # Every provider is built once, as a regular library; `ninja all` links each
 # executable with its own selection.
+#
+# Plugins: the targets a library needs in the process, built on top of it
+# (implementations it finds in a registry, SRCS(GLOBAL ...) of ya.make):
+# `plugins = [ ... ]` of a library() or contrib_library(), which does not
+# depend on them -- that would be a cycle. A linked_executable() depends on
+# the plugins of every target it reaches instead, the plugins' own plugins
+# included: build/gn/scripts/link_plugin_index.py finds them at `gn gen`.
 
 declare_args() {
   link_slot_overrides = []
@@ -42,6 +49,13 @@ link_slot_index = exec_script("//build/gn/scripts/link_slot_index.py",
                                 link_slot_gn,
                               ],
                               "scope")
+
+link_plugin_index = exec_script("//build/gn/scripts/link_plugin_index.py",
+                                [
+                                  rebase_path("//"),
+                                  link_slot_gn,
+                                ],
+                                "scope")
 
 template("linked_executable") {
   _select = []
@@ -88,6 +102,13 @@ template("linked_executable") {
     assert(_provider_found,
            "$_label: no provider \"$_choice\" for link slot \"$_name\", " +
                "there are: $_values")
+  }
+
+  # the plugins of what it links (see above)
+  foreach(_exe_plugins, link_plugin_index.executables) {
+    if (_exe_plugins.label == _label) {
+      _slot_deps += _exe_plugins.plugins
+    }
   }
 
   # every link slot interface among the dependencies has a provider selected

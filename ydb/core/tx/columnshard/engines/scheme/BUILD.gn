@@ -27,7 +27,6 @@ library("scheme") {
 
   deps = [
     "//ydb/core/base",
-    # "//ydb/core/formats/arrow/accessor",  # peerdir only
     # "//ydb/core/tx/columnshard/data_sharing/protos",  # peerdir only
     # "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator/sys_view:abstract",
@@ -54,4 +53,6 @@ library("scheme") {
     "versions/snapshot_scheme.cpp",
     "versions/versioned_index.cpp",
   ]
+
+  plugins = [ "//ydb/core/formats/arrow/accessor" ]
 }

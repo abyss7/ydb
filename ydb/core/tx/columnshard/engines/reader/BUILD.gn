@@ -4,9 +4,9 @@ group("reader") {
     # "//ydb/core/tx/columnshard/engines/reader/abstract",  # peerdir only
     # "//ydb/core/tx/columnshard/engines/reader/actor",  # peerdir only
     # "//ydb/core/tx/columnshard/engines/reader/common",  # peerdir only
-    # "//ydb/core/tx/columnshard/engines/reader/common_reader",  # peerdir only
-    # "//ydb/core/tx/columnshard/engines/reader/plain_reader",  # peerdir only
-    # "//ydb/core/tx/columnshard/engines/reader/simple_reader",  # peerdir only
+    "//ydb/core/tx/columnshard/engines/reader/common_reader",
+    "//ydb/core/tx/columnshard/engines/reader/plain_reader",
+    "//ydb/core/tx/columnshard/engines/reader/simple_reader",
     # "//ydb/core/tx/columnshard/engines/reader/tracing",  # peerdir only
   ]
 

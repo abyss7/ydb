@@ -56,8 +56,12 @@ template("contrib_library") {
         _type = "source_set"
     }
 
+    # plugins: linked by the executables, see linked_executable() in
+    # //build/gn/link_slots.gni
+    not_needed(invoker, [ "plugins" ])
+
     target(_type, target_name) {
-        forward_variables_from(invoker, "*", [ "configs", "deps", "link_slot_provides", "static" ])
+        forward_variables_from(invoker, "*", [ "configs", "deps", "link_slot_provides", "plugins", "static" ])
 
         if (!_static) {
             _unique_name = exec_script("//build/gn/scripts/unique_name.py", [ rebase_path(".", "//") ], "trim string")

@@ -316,6 +316,7 @@ class Module:
         self.provides = []           # PROVIDES() names
         self.slot_headers = defaultdict(list)  # slot -> its interface headers (as written), `# gn: slot ...`
         self.anti_cycle_facade = False  # `# gn: anti-cycle facade`, see ANTI_CYCLE_FACADE
+        self.plugins = []            # PEERDIR dirs marked `# gn: plugin`
         self.yql_abi = None          # "current" (YQL_LAST_ABI_VERSION) or "M.m.p" (YQL_ABI_VERSION)
         self.generated = []          # repo-relative files the module generates (RUN_PROGRAM ... OUT, ...)
         self.proto_plugins = []      # (name, dir) of CPP_PROTO_PLUGIN0(<name> <dir>)
@@ -581,6 +582,16 @@ def strip_yamake_comments(text):
 #     //build/gn/link_slots.gni. Like PROVIDES, a module is the interface of one
 #     slot at most.
 #
+#   PEERDIR(
+#       ydb/core/tx/columnshard/normalizer  # gn: plugin
+#   )
+#
+#     A plugin of the module: built on top of it (it depends on this one) and
+#     needed in the process at run time -- implementations the module finds
+#     in a registry (SRCS(GLOBAL ...)). Not a dep, that would be a cycle: it
+#     goes to `plugins` of the module's target, and every linked_executable()
+#     that reaches the target links it (see //build/gn/link_slots.gni).
+#
 #   SRCS(
 #       column.cpp              # gn: into ydb/core/tx/columnshard/engines/portions
 #   )
@@ -609,6 +620,10 @@ def _gn_directive_tokens(code, comment):
     token = None
     if " ".join(words) == ANTI_CYCLE_FACADE and not code.strip():
         return "GN_DIRECTIVES(@gn-anti-cycle-facade)"
+    if words == ["plugin"]:
+        if not code.strip():
+            return ""   # a trailing directive needs an entry on its line
+        return " @gn-plugin"
     if len(words) == 2 and words[0] == "slot":
         if not code.strip():
             return ""   # a trailing directive needs an entry on its line
@@ -846,6 +861,11 @@ def _take_gn_directives(mod, macro, args):
                 mod.macros.append("GN<slot %r not on a header in SRCS>" % slot)
             else:
                 mod.slot_headers[slot].append(last)
+        elif a == "@gn-plugin":
+            if last is None or macro != "PEERDIR":
+                mod.macros.append("GN<plugin not on a PEERDIR entry>")
+            else:
+                mod.plugins.append(os.path.normpath(last.rstrip("/")))
         elif a == "@gn-anti-cycle-facade":
             mod.anti_cycle_facade = True
         elif a.startswith("@gn-into:"):
@@ -1587,6 +1607,7 @@ class TargetSpec:
         self.slot_flags_from = None             # a source lending its flags to parsing them
         self.slot_module_interfaces = []        # slots whose interface is another target of the module
         self.proto_plugins = list(mod.proto_plugins)   # CPP_PROTO_PLUGIN0
+        self.link_plugins = set()               # `# gn: plugin` PEERDIRs: `plugins`, not deps
         self.yql_abi = mod.yql_abi              # YQL_LAST_ABI_VERSION / YQL_ABI_VERSION
 
 
@@ -2015,9 +2036,15 @@ def gen_spec(mod, resolver, graph, report, external):
             via_alias[resolver.alias(p)].add(resolver.alias_parts[p])
         else:
             direct.add(resolver.alias(p))
+    # `# gn: plugin`: linked by the executables, see Module.plugins
+    plugins_of = lambda m: {resolver.alias(p) for p in m.plugins}
+    plugins = plugins_of(mod)
     for owner in peerdir_owners(mod, resolver):
         if owner in mod.absorbs:
             continue    # its code is compiled here
+        if owner in plugins:
+            spec.link_plugins.add(module_label(owner))
+            continue
         if mod.peerdir_parts.get(owner):
             labels = [module_part_label(owner, p) for p in mod.peerdir_parts[owner]]
         elif owner.startswith("contrib/"):
@@ -2054,8 +2081,12 @@ def gen_spec(mod, resolver, graph, report, external):
     # PEERDIRs of a module absorbed here (`# gn: into` of all its sources):
     # its code is compiled here, and so are its link deps
     for a in sorted(mod.absorbs):
+        a_plugins = plugins_of(resolver.mods[a])
         for owner in peerdir_owners(resolver.mods[a], resolver):
             if owner == target_dir or owner in mod.absorbs:
+                continue
+            if owner in a_plugins:
+                spec.link_plugins.add(module_label(owner))
                 continue
             label = (external.label(owner) or module_label(owner)
                      if owner.startswith("contrib/") else module_label(owner))
@@ -2150,6 +2181,7 @@ def split_self(spec, included, resolver):
     spec.proto_public = set()
     spec.sources, spec.proto_sources, spec.enum_headers, spec.resources = [], [], [], []
     spec.slot_provides, spec.proto_plugins, spec.yql_abi = [], [], None
+    spec.link_plugins = set()   # the code's (a group has none): :_self keeps them
     spec.parts = spec.parts + [self_spec]
 
 
@@ -2516,7 +2548,7 @@ def _render_target(tmpl, name, public_deps, deps, sources,
                    serialize_enum_headers=(), commented=frozenset(),
                    resources=(), resource_files=(), notes=None, link_slot_provides=(),
                    link_slot_interface=None, link_slot_headers=(), link_slot_flags_from=(),
-                   link_slot_module_interfaces=(), yql_abi_version=None, configs=(), public_configs=(), extra_plugins=()):
+                   link_slot_module_interfaces=(), link_plugins=(), yql_abi_version=None, configs=(), public_configs=(), extra_plugins=()):
     """`notes` maps a dep label to a trailing comment ("peerdir only")."""
     lines = ['%s("%s") {' % (tmpl, name)]
     notes = notes or {}
@@ -2546,6 +2578,11 @@ def _render_target(tmpl, name, public_deps, deps, sources,
         yql_abi_version = None
     if tmpl in ("library", "contrib_library"):
         block("link_slot_provides", link_slot_provides)
+        if link_plugins:   # never commented: not a dep, nothing to inherit
+            lines.append("    plugins = [")
+            lines.extend('        "%s",' % it for it in link_plugins)
+            lines.append("    ]")
+            lines.append("")
     if tmpl in ("library", SLOT_INTERFACE_GROUP) and link_slot_interface:
         lines.append('    link_slot_interface = "%s"' % link_slot_interface)
         lines.append("")
@@ -2602,6 +2639,15 @@ def render_spec(spec, host, remap, uncommented, main_name=None, private_configs=
         # mirrors that (platform_deps + libcxx instead of //util).
         tmpl = "contrib_library"
 
+    # `# gn: plugin` (see Module.plugins): only a library has `plugins`; for
+    # anything else -- a group, an executable -- a plugin is a plain dep
+    link_plugins = sorted({shorten(remap.get(l, l), host) for l in spec.link_plugins},
+                          key=dep_sort_key)
+    if tmpl not in ("library", "contrib_library"):
+        spec.deps |= spec.link_plugins
+        spec.explicit |= spec.link_plugins
+        link_plugins = []
+
     # A non-PROTO_LIBRARY module with .proto sources (e.g. LIBRARY() with a
     # mix of .cpp and .proto in SRCS) can't list them directly: GN binary
     # targets only accept source/header/object files. Split the .proto
@@ -2619,8 +2665,8 @@ def render_spec(spec, host, remap, uncommented, main_name=None, private_configs=
     resources_target = "%s_resources" % spec.name
     split_resources = tmpl == "linked_executable" and bool(spec.resources)
 
-    pub = {shorten(remap.get(l, l), host) for l in spec.public_deps}
-    dep = {shorten(remap.get(l, l), host) for l in spec.deps} - pub
+    pub = {shorten(remap.get(l, l), host) for l in spec.public_deps} - set(link_plugins)
+    dep = {shorten(remap.get(l, l), host) for l in spec.deps} - pub - set(link_plugins)
 
     # deps vs public_deps is always the freshly computed classification
     # (finalize_publicity); only the comment state comes from the existing file.
@@ -2755,6 +2801,7 @@ def render_spec(spec, host, remap, uncommented, main_name=None, private_configs=
                               link_slot_headers=[_slot_header(h, host) for h in spec.slot_headers],
                               link_slot_flags_from=slot_flags_from,
                               link_slot_module_interfaces=spec.slot_module_interfaces,
+                              link_plugins=link_plugins,
                               yql_abi_version=spec.yql_abi if tmpl != "protobuf_library" else None))
     return "\n\n".join(out)
 
@@ -3151,7 +3198,7 @@ def main():
                             if not dep.startswith("contrib/"):
                                 queue.append(dep)
                 continue
-            for label in set().union(*[t.deps | t.public_deps for t in [s] + s.parts]):
+            for label in set().union(*[t.deps | t.public_deps | t.link_plugins for t in [s] + s.parts]):
                 dep = label[2:].split(":")[0]   # //dir or //dir:name -> dir
                 if dep.startswith("contrib/"):
                     continue                    # external: keeps its own BUILD.gn

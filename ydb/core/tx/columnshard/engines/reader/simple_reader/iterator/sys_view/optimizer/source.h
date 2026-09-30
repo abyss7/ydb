@@ -1,7 +1,9 @@
 #pragma once
+
 #include <ydb/core/tx/columnshard/engines/reader/common_reader/iterator/constructor.h>
 #include <ydb/core/tx/columnshard/engines/reader/simple_reader/iterator/source.h>
 #include <ydb/core/tx/columnshard/engines/reader/simple_reader/iterator/sys_view/abstract/source.h>
+#include <ydb/core/tx/columnshard/engines/storage/optimizer/abstract/optimizer.h>
 
 #include <ydb/library/formats/arrow/simple_arrays_cache.h>
 

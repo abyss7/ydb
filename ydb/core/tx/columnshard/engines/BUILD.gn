@@ -45,8 +45,6 @@ library("engines") {
     # "//ydb/core/tx/columnshard/engines/changes/actualization",  # peerdir only
     "//ydb/core/tx/columnshard/engines/changes/compaction",
     # "//ydb/core/tx/columnshard/engines/changes/counters",
-    # "//ydb/core/tx/columnshard/engines/reader",  # peerdir only
-    # "//ydb/core/tx/columnshard/engines/storage",  # peerdir only
     "//ydb/core/tx/columnshard/engines/storage/indexes/max",
     # "//ydb/core/tx/columnshard/splitter",
     # "//ydb/core/tx/columnshard/splitter:settings",
@@ -94,6 +92,11 @@ library("engines") {
   serialize_enum_headers = [
     "column_engine_logs.h",
     "storage/granule/granule.h",
+  ]
+
+  plugins = [
+    "//ydb/core/tx/columnshard/engines/reader",
+    "//ydb/core/tx/columnshard/engines/storage",
   ]
 }
 

@@ -1,5 +1,6 @@
 #include "clean_empty.h"
 
+#include <ydb/core/base/appdata_fwd.h>
 #include <ydb/core/protos/config.pb.h>
 #include <ydb/core/tx/columnshard/columnshard_schema.h>
 #include <util/string/join.h>
