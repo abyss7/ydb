@@ -114,6 +114,7 @@ template("linked_executable") {
   # every link slot interface among the dependencies has a provider selected
   _interfaces = "$target_gen_dir/${_exe}.link_slot_interfaces.json"
   generated_file("${_exe}_link_slot_interfaces") {
+    forward_variables_from(invoker, [ "testonly" ])
     outputs = [ _interfaces ]
     data_keys = [ "link_slot_interfaces" ]
     output_conversion = "json"
@@ -123,6 +124,7 @@ template("linked_executable") {
     }
   }
   action("${_exe}_link_slot_check") {
+    forward_variables_from(invoker, [ "testonly" ])
     script = "//build/gn/scripts/link_slot_check.py"
     inputs = [ _interfaces ]
     outputs = [ "$target_gen_dir/${_exe}.link_slot_check.stamp" ]

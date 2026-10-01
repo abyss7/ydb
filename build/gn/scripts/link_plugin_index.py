@@ -33,7 +33,7 @@ import sys
 import link_slot_index as lsi
 
 KEY = "plugins"
-EXECUTABLE = "linked_executable"
+EXECUTABLES = ("linked_executable", "ya_test")   # ya_test: //build/gn/testing.gni
 DEP_KEYS = ("deps", "public_deps")
 
 
@@ -128,7 +128,7 @@ def index(root, gn):
             p = [resolve(file, l) for l in _strings(block, KEY)]
             if p:
                 plugins[me] = p
-            if func == EXECUTABLE:
+            if func in EXECUTABLES:
                 selects[me] = _strings(block, "link_select")
     providers = lsi.index(root, gn)[0]
 

@@ -6,5 +6,5 @@ library("ydb_discovery") {
     "//ydb/public/sdk/cpp/src/client/discovery",  # peerdir only
   ]
 
-  sources = [ "../ydb_service_discovery.cpp" ]
+  sources = [ "//ydb/public/lib/ydb_cli/commands/ydb_service_discovery.cpp" ]
 }

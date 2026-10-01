@@ -58,6 +58,7 @@ library("provider") {
     "//yql/essentials/providers/common/gateway",
     # "//yql/essentials/providers/common/metrics",
     # "//yql/essentials/providers/common/proto",
+    "//yql/essentials/providers/common/transform",
   ]
 
   deps = [
@@ -87,7 +88,6 @@ library("provider") {
     # "//yql/essentials/providers/common/config",
     "//yql/essentials/providers/common/provider",
     # "//yql/essentials/providers/common/schema:expr",  # peerdir only
-    "//yql/essentials/providers/common/transform",
     # "//yql/essentials/providers/result/expr_nodes",
     # "//yql/essentials/public/issue",
     "//yql/essentials/utils/backtrace",

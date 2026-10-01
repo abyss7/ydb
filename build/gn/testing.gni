@@ -1,0 +1,69 @@
+# Tests: ya.make's UNITTEST() / UNITTEST_FOR() (kind = "unittest") and
+# GTEST() (kind = "gtest"). A test is a linked_executable() (see
+# //build/gn/link_slots.gni: link slots and plugins as for any program) with
+# the main of its framework, testonly.
+#
+# The binary is named after the test's dir as ya names it
+# (library/cpp/foo/ut -> library-cpp-foo-ut): the dirs of tests are mostly
+# called ut. The metadata `ya_tests` of the executable describes the test for
+# a runner (walk the tests with generated_file(data_keys = [ "ya_tests" ])).
+#   kind: "unittest" or "gtest"
+#   test_for: the module of UNITTEST_FOR(), whose dir is an include dir
+#   test_sbr: DATA(sbr://...), resources the runner fetches (the metadata)
+#   test_depends_unbuilt: DEPENDS with no GN target (python, go...: the metadata)
+#   data_deps, data: DEPENDS that are built, DATA(arcadia/...) -- as usual
+#   everything else: as for linked_executable()
+template("ya_test") {
+  assert(defined(invoker.kind), "ya_test($target_name): no `kind`")
+  if (invoker.kind == "unittest") {
+    _main = "//library/cpp/testing/unittest_main"
+  } else if (invoker.kind == "gtest") {
+    _main = "//library/cpp/testing/gtest_main"
+  } else {
+    assert(false, "ya_test($target_name): unknown kind \"${invoker.kind}\"")
+  }
+  _binary = string_replace(rebase_path(".", "//"), "/", "-")
+
+  linked_executable(target_name) {
+    forward_variables_from(invoker,
+                           "*",
+                           [
+                             "deps",
+                             "kind",
+                             "test_depends_unbuilt",
+                             "test_for",
+                             "test_sbr",
+                           ])
+    testonly = true
+    output_name = _binary
+
+    deps = [ _main ]
+    if (defined(invoker.deps)) {
+      deps += invoker.deps
+    }
+    if (defined(invoker.test_for)) {
+      if (!defined(include_dirs)) {
+        include_dirs = []
+      }
+      include_dirs += [ invoker.test_for ]
+    }
+
+    metadata = {
+      ya_tests = [
+        {
+          label = get_label_info(":$target_name", "label_no_toolchain")
+          kind = invoker.kind
+          binary = rebase_path("$root_out_dir/$_binary", root_build_dir)
+          sbr = []
+          if (defined(invoker.test_sbr)) {
+            sbr = invoker.test_sbr
+          }
+          depends_unbuilt = []
+          if (defined(invoker.test_depends_unbuilt)) {
+            depends_unbuilt = invoker.test_depends_unbuilt
+          }
+        },
+      ]
+    }
+  }
+}

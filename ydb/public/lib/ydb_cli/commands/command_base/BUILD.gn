@@ -6,5 +6,5 @@ library("command_base") {
     "//ydb/public/sdk/cpp/src/client/driver",  # peerdir only
   ]
 
-  sources = [ "../ydb_command.cpp" ]
+  sources = [ "//ydb/public/lib/ydb_cli/commands/ydb_command.cpp" ]
 }

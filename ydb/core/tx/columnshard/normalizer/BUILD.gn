@@ -45,6 +45,7 @@ group("normalizer") {
 library("portion") {
   deps = [
     # ":abstract",
+    # "//ydb/core/base",
     # "//ydb/core/formats/arrow",
     # "//ydb/core/keyvalue",
     # "//ydb/core/protos",

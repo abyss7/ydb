@@ -6,5 +6,5 @@ library("sdk_core_access") {
     "//ydb/public/sdk/cpp/src/client/types",  # peerdir only
   ]
 
-  sources = [ "../ydb_sdk_core_access.cpp" ]
+  sources = [ "//ydb/public/lib/ydb_cli/commands/ydb_sdk_core_access.cpp" ]
 }

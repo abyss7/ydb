@@ -4,7 +4,7 @@ library("interface") {
     # "//contrib/libs/apache/arrow",
     # "//yql/essentials/core/pg_settings",
     # "//yql/essentials/minikql",
-    # "//yql/essentials/parser/pg_catalog",
+    "//yql/essentials/parser/pg_catalog",
     "//yql/essentials/providers/common/codec:yt_arrow_converter_interface",
     # "//yql/essentials/public/issue",
     # "//yql/essentials/public/udf",
@@ -40,7 +40,7 @@ library("interface") {
 slot_interface_group("yql_pg_sql_translator") {
   public_deps = [
     # ":interface",
-    # "//yql/essentials/ast",
+    "//yql/essentials/ast",
     # "//yql/essentials/core/cbo",
     # "//yql/essentials/parser/pg_catalog",
   ]

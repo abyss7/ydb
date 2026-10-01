@@ -1,10 +1,11 @@
-config("_includes") {
+config("no_llvm_private_config") {
   include_dirs = [ "//yql/essentials/minikql/codegen" ]
 }
 
 library("no_llvm") {
   sources = [ "codegen_dummy.cpp" ]
-  configs = [ ":_includes" ]
 
   link_slot_provides = [ "minikql_codegen" ]
+
+  configs = [ ":no_llvm_private_config" ]
 }
