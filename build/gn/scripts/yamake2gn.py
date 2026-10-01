@@ -47,6 +47,7 @@ _IGNORED_SET_VARS = {
 }
 TRIVIAL_MACROS = MODULE_MACROS | {
     "SRCS", "SRC", "PEERDIR", "RECURSE", "RECURSE_FOR_TESTS", "RECURSE_ROOT_RELATIVE", "END", "SUBSCRIBER",
+    "NO_BUILD_IF",   # of a condition that holds: GN<not built>, see parse_yamake
     "GENERATE_ENUM_SERIALIZATION",   # -> serialize_enum_headers
     "SRCDIR", "ADDINCL", "NO_WSHADOW", "ENABLE", "NO_COMPILER_WARNINGS", "SUPPRESSIONS", "NEED_CHECK", "ENV",
     "YQL_LAST_ABI_VERSION",   # the default UDF ABI, see //build/gn/config:yql_abi_current
@@ -114,11 +115,11 @@ PROVIDES_CHECK_ONLY = {
     "YDB_DQ_COMP_NODES",   # llvm16 by a plain dep in GN
 }
 
-# Tests generated as ya_test() (//build/gn/testing.gni): module macro -> kind
-GEN_TEST_KINDS = {"UNITTEST": "unittest", "UNITTEST_FOR": "unittest", "GTEST": "gtest"}
-# the framework's main a test of the kind links (added by ya_test() itself)
-GEN_TEST_MAINS = {"unittest": "library/cpp/testing/unittest_main",
-                  "gtest": "library/cpp/testing/gtest_main"}
+# Tests (//build/gn/testing.gni): module macro -> template; the main of the
+# framework a template adds is read from the file, see test_mains()
+GEN_TEST_TEMPLATES = {"UNITTEST": "unittest_executable", "UNITTEST_FOR": "unittest_executable",
+                      "GTEST": "gtest_executable"}
+TEST_TEMPLATES = set(GEN_TEST_TEMPLATES.values())
 # what runs a test, not what builds it: ignored for now (TODO: metadata for a
 # runner) -- but DEPENDS (programs it runs: data_deps) and DATA (files it
 # reads: data, sbr:// resources to the metadata), see Module.test_depends
@@ -354,6 +355,8 @@ class Module:
         self.test_for = None         # the module of UNITTEST_FOR(<dir>)
         self.test_depends = []       # DEPENDS(<dir> ...) of a test: modules it runs
         self.test_data = []          # DATA(arcadia/<path> | sbr://<id> ...) of a test
+        self.recurses = []           # RECURSE / RECURSE_FOR_TESTS / RECURSE_ROOT_RELATIVE dirs
+        self.set_vars = {}           # SET(<var> <value>) of the module, for NO_BUILD_IF
         self.yql_abi = None          # "current" (YQL_LAST_ABI_VERSION) or "M.m.p" (YQL_ABI_VERSION)
         self.generated = []          # repo-relative files the module generates (RUN_PROGRAM ... OUT, ...)
         self.proto_plugins = []      # (name, dir) of CPP_PROTO_PLUGIN0(<name> <dir>)
@@ -795,10 +798,19 @@ def parse_yamake(path, directory, root):
                 mod.transitive_headers_no = True
             continue
         mod.macros.append(name)
+        if name == "SET" and args:
+            mod.set_vars[args[0]] = " ".join(args[1:]) or "yes"
         if name in KIND_MACROS:
             mod.kind = name
             mod.name = args[0] if args else os.path.basename(directory)
-        elif name in GEN_TEST_KINDS:
+        elif name == "NO_BUILD_IF":
+            # ya builds nothing of the module if any of the variables holds
+            # (STRICT: and fails a build that asks for it)
+            hold = [v for v in args if v != "STRICT"
+                    and _cond_as_bool(mod.set_vars.get(v, CONDITION_VARS.get(v, "")))]
+            if hold:
+                mod.macros.append("GN<NO_BUILD_IF %s: not built>" % " ".join(hold))
+        elif name in GEN_TEST_TEMPLATES:
             mod.kind = name
             mod.name = os.path.basename(directory)
             if name == "UNITTEST_FOR" and args:
@@ -841,6 +853,10 @@ def parse_yamake(path, directory, root):
                 mod.yql_abi = ".".join(args)
             else:
                 mod.macros.append("GN<bad YQL_ABI_VERSION %s>" % " ".join(args))
+        elif name in ("RECURSE", "RECURSE_FOR_TESTS"):
+            mod.recurses.extend(os.path.normpath(os.path.join(directory, a)) for a in args)
+        elif name == "RECURSE_ROOT_RELATIVE":
+            mod.recurses.extend(os.path.normpath(a) for a in args)
         elif name == "DEPENDS":
             mod.test_depends.extend(os.path.normpath(a.rstrip("/")) for a in args)
         elif name in ("DATA", "DATA_FILES"):
@@ -1174,15 +1190,15 @@ def _src_prefix(mod):
 
 
 def is_gen_test(mod):
-    """A test generated as ya_test(), see GEN_TEST_KINDS."""
-    return mod.kind in GEN_TEST_KINDS
+    """A test generated with a template of GEN_TEST_TEMPLATES."""
+    return mod.kind in GEN_TEST_TEMPLATES
 
 
 def nontrivial_macros(mod):
     if mod.kind == "PROTO_LIBRARY":
         allowed = PROTO_TRIVIAL_MACROS
     elif is_gen_test(mod):
-        allowed = TRIVIAL_MACROS | set(GEN_TEST_KINDS) | TEST_RUN_MACROS
+        allowed = TRIVIAL_MACROS | set(GEN_TEST_TEMPLATES) | TEST_RUN_MACROS
     else:
         allowed = TRIVIAL_MACROS
     return [m for m in mod.macros if m not in allowed]
@@ -1295,6 +1311,11 @@ class Resolver:
         self.alias_parts = {}   # include-side module dir -> part of its alias target
         self.absorbed = {}      # module dir -> module that compiles all of it (link_foreign_sources)
         self.self_split = {}    # module dir -> the modules it PEERDIRs that include it (plan_self_split)
+        # util and the modules under it util PEERDIRs (util/charset): //util,
+        # every target's default dep; util/draft and the like are modules
+        util = mods.get("util")
+        self.util_parts = {"util"} | {os.path.normpath(p.rstrip("/")) for p in (util.peerdirs if util else ())
+                                      if p.startswith("util/")}
         self.cycles = None      # CycleGraph
         buildable = lambda t: t is not None and t.kind in KIND_MACROS and not is_test(t)
         for d, m in mods.items():
@@ -1611,7 +1632,7 @@ class IncludeGraph:
                     out.add(owner)
         out.discard(d)
         return {o for o in out
-                if o != "util" and not o.startswith(("util/", "contrib/"))}
+                if o not in self.resolver.util_parts and not o.startswith("contrib/")}
 
     def _add(self, d, f, queue):
         if f not in self._file_set[d]:
@@ -1745,7 +1766,7 @@ def _record(spec, rel, owner, target_dir, header_file, report, external, resolve
         # all of owner's code is compiled here (`# gn: into`): its headers
         # are this module's own, a dep on it would only close a cycle
         return
-    if owner == "util" or owner.startswith("util/"):
+    if owner in resolver.util_parts:
         return
     # A target we generate keeps the plain //owner here; if Pass 2 folds it into
     # a keep parent, the remap rewrites it then. Contrib is never generated, so
@@ -1769,7 +1790,7 @@ def peerdir_owners(mod, resolver, peerdirs=None):
     out = []
     for p in (mod.peerdirs if peerdirs is None else peerdirs):
         p = resolver.alias(os.path.normpath(p.rstrip("/")))
-        if p == mod.dir or p == "util" or p.startswith("util/") or p in out:
+        if p == mod.dir or p in resolver.util_parts or p in out:
             continue
         if p.startswith("contrib/"):
             if os.path.exists(os.path.join(resolver.root, p, "ya.make")):
@@ -1797,7 +1818,7 @@ class CycleGraph:
                     continue
                 for _, rel in graph.includes(f):
                     owner = rel and resolver.nearest_module(rel)
-                    if not owner or owner == c or owner.startswith(("contrib/", "util")):
+                    if not owner or owner == c or owner.startswith("contrib/") or owner in resolver.util_parts:
                         continue
                     om = mods.get(owner)
                     if om is not None and om.part_of(rel) is None:
@@ -1819,7 +1840,7 @@ class CycleGraph:
                 # (merge_aliases) is on its headers and their PEERDIRs only
                 via = q if q in resolver.aliases and q not in resolver.alias_parts else None
                 q = resolver.absorbed.get(resolver.alias(q), resolver.alias(q))
-                if q == p or q.startswith(("contrib/", "util")) or not resolver.is_module(q):
+                if q == p or q.startswith("contrib/") or q in resolver.util_parts or not resolver.is_module(q):
                     continue
                 out.add(q)
                 nxt = via or q
@@ -2108,7 +2129,7 @@ def gen_spec(mod, resolver, graph, report, external):
     peer = {module_part_label(resolver.alias(os.path.normpath(p.rstrip("/"))),
                               resolver.alias_parts.get(os.path.normpath(p.rstrip("/"))))
             for p in mod.peerdirs}
-    peer.discard("//util")
+    peer -= {module_label(u) for u in resolver.util_parts}
     report.peer_diff[target_dir] = (sorted(peer - spec.deps), sorted(spec.deps - peer))
 
     # PEERDIRs no #include leads to are still real deps (link-only: static
@@ -2346,7 +2367,7 @@ def plan_merge(specs, report):
     are computed from the generated set, not the filesystem. Modules not reached
     (skipped or outside the closure) are simply invisible here."""
     # a test keeps its own file and is nobody's child (TargetSpec.kind)
-    by_dir = {s.dir: s for s in specs if s.kind not in GEN_TEST_KINDS}
+    by_dir = {s.dir: s for s in specs if s.kind not in GEN_TEST_TEMPLATES}
     gen = set(by_dir)
     children = defaultdict(list)
     for d in gen:
@@ -2356,6 +2377,9 @@ def plan_merge(specs, report):
         pref = d + "/"
         return not any(e.startswith(pref) for e in gen)
 
+    # an empty parent is dropped only if nothing names it (its headers'
+    # consumers do: it stays, a group of its children then)
+    named = set().union(*[t.deps | t.public_deps for s in specs for t in [s] + s.parts])
     remap, absorbed, dropped, unmerged = {}, set(), set(), []
     for P, spec in by_dir.items():
         kids = children.get(P, [])
@@ -2384,7 +2408,8 @@ def plan_merge(specs, report):
                 remap[module_part_label(c, t.part)] = "//%s:%s" % (P, t.name)
         if (not spec.sources and not spec.proto_sources
                 and not spec.deps and not spec.public_deps
-                and not spec.enum_headers and not spec.resources):
+                and not spec.enum_headers and not spec.resources
+                and module_label(P) not in named):
             dropped.add(P)
         report.merged.append((P, sorted(by_dir[c].name for c in kids)))
     report.unmerged = sorted(unmerged)
@@ -2408,7 +2433,7 @@ def plan_external_collapse(specs, external, report):
     BUILD.gn. A non-leaf child, or one the parent does not declare, is left
     exactly as the normal flow produced it -- we don't even look at the parent
     file in that case."""
-    by_dir = {s.dir: s for s in specs if s.kind not in GEN_TEST_KINDS}   # see plan_merge
+    by_dir = {s.dir: s for s in specs if s.kind not in GEN_TEST_TEMPLATES}   # see plan_merge
     gen = set(by_dir)
     children = defaultdict(list)
     for d in gen:
@@ -2464,16 +2489,17 @@ def parse_existing_buildgn(path):
     return out
 
 
-def _list_uncommented(body, key):
+def _list_uncommented(body, key, commented=False):
     """Labels in body's `key = [ ... ]` list that are NOT commented out. A label
     counts as commented when a `#` precedes it on its line (GN comments run to
-    end of line), so we keep only quoted strings sitting before any `#`."""
+    end of line), so we keep only quoted strings sitting before any `#`.
+    commented: the commented ones too (every edge the generator derived)."""
     m = re.search(r'(?<![\w])' + key + r'\s*=\s*\[(.*?)\]', body, re.S)
     if not m:
         return set()
     out = set()
     for line in m.group(1).splitlines():
-        code = line.split("#", 1)[0]
+        code = line if commented else line.split("#", 1)[0]
         out.update(re.findall(r'"([^"]+)"', code))
     return out
 
@@ -2490,6 +2516,12 @@ def parse_existing_buildgn_uncommented(path):
             text = f.read()
     except OSError:
         return {}
+    return uncommented_deps_of_text(text)
+
+
+def uncommented_deps_of_text(text, commented=False):
+    """parse_existing_buildgn_uncommented of a BUILD.gn's text (commented: all
+    the edges, see _list_uncommented)."""
     out = {}
     for m in _TARGET_RE.finditer(text):
         depth, j, n = 1, m.end(), len(text)
@@ -2497,8 +2529,65 @@ def parse_existing_buildgn_uncommented(path):
             depth += {"{": 1, "}": -1}.get(text[j], 0)
             j += 1
         body = text[m.end():j - 1]
-        out[m.group(1)] = (_list_uncommented(body, "deps")
-                           | _list_uncommented(body, "public_deps"))
+        out[m.group(1)] = (_list_uncommented(body, "deps", commented)
+                           | _list_uncommented(body, "public_deps", commented))
+    return out
+
+
+# A template of //build/gn/testing.gni and the main of the framework it adds:
+# `template("<name>") { ya_test(target_name) { ... main = "<label>"`
+_TEST_MAIN_RE = re.compile(r'^template\("([^"]+)"\)\s*\{\s*ya_test\(target_name\)\s*\{[^}]*?\bmain\s*=\s*"([^"]+)"',
+                           re.M)
+
+
+def test_mains(root):
+    """{template of a test: the label of its framework's main}."""
+    try:
+        with open(os.path.join(root, "build/gn/testing.gni"), encoding="utf-8") as f:
+            return dict(_TEST_MAIN_RE.findall(f.read()))
+    except OSError:
+        return {}
+
+
+def test_implied_deps(root, rendered):
+    """{template of a test: labels a test of it depends on without listing
+    them}: the template's main and what it depends on in the BUILD.gn files, transitively
+    (`rendered` {dir: text} of this run, else the file on disk). Every edge
+    counts, the commented ones too: as for the PEERDIR, the closure ya gives a
+    test with the implicit PEERDIR of UNITTEST()/GTEST()."""
+    mains = test_mains(root)
+    files = {}
+
+    def targets(d):
+        if d not in files:
+            text = rendered.get(d)
+            if text is None:
+                try:
+                    with open(os.path.join(root, d, "BUILD.gn"), encoding="utf-8") as f:
+                        text = f.read()
+                except OSError:
+                    text = ""
+            files[d] = uncommented_deps_of_text(text, commented=True)
+        return files[d]
+
+    def full(label, host):
+        if label.startswith(":"):
+            label = "//%s%s" % (host, label)
+        elif not label.startswith("//"):
+            label = "//" + os.path.normpath(os.path.join(host, label))
+        d, _, name = label[2:].partition(":")
+        return d, name or os.path.basename(d)
+
+    out = {}
+    for tmpl, main in mains.items():
+        seen, stack = set(), [full(main, "")]
+        while stack:
+            d, name = stack.pop()
+            if (d, name) in seen:
+                continue
+            seen.add((d, name))
+            stack += [full(l, d) for l in targets(d).get(name, ())]
+        out[tmpl] = {_short_label("//%s:%s" % t) for t in seen}
     return out
 
 
@@ -2680,15 +2769,10 @@ def _render_target(tmpl, name, public_deps, deps, sources,
                    resources=(), resource_files=(), notes=None, link_slot_provides=(),
                    link_slot_interface=None, link_slot_headers=(), link_slot_flags_from=(),
                    link_slot_module_interfaces=(), link_plugins=(), yql_abi_version=None, configs=(), public_configs=(), extra_plugins=(),
-                   test_kind=None, test_for=None, data_deps=(), data=(), test_sbr=(),
+                   include_dirs=(), data_deps=(), data=(), test_sbr=(),
                    test_depends_unbuilt=()):
     """`notes` maps a dep label to a trailing comment ("peerdir only")."""
     lines = ['%s("%s") {' % (tmpl, name)]
-    if test_kind is not None:
-        lines.append('    kind = "%s"' % test_kind)
-        if test_for is not None:
-            lines.append('    test_for = "//%s"' % test_for)
-        lines.append("")
     notes = notes or {}
 
     def block(key, items):
@@ -2706,6 +2790,7 @@ def _render_target(tmpl, name, public_deps, deps, sources,
     block("deps", deps)
     block("data_deps", data_deps)
     block("sources", sources)
+    block("include_dirs", include_dirs)
     block("data", data)
     block("test_sbr", test_sbr)
     block("test_depends_unbuilt", test_depends_unbuilt)
@@ -2732,7 +2817,7 @@ def _render_target(tmpl, name, public_deps, deps, sources,
         block("link_slot_flags_from", link_slot_flags_from)
     if tmpl == "library":
         block("link_slot_module_interfaces", link_slot_module_interfaces)
-    if tmpl in ("library", "linked_executable", "ya_test") and yql_abi_version is not None:
+    if (tmpl in ("library", "linked_executable") or tmpl in TEST_TEMPLATES) and yql_abi_version is not None:
         lines.append('    yql_abi_version = "%s"' % yql_abi_version)
         lines.append("")
     def scopes(key, items):
@@ -2776,8 +2861,8 @@ def render_spec(spec, host, remap, uncommented, main_name=None, private_configs=
     main target."""
     tmpl = {"PROGRAM": "linked_executable", "GROUP": "group",
             "PROTO_LIBRARY": "protobuf_library"}.get(spec.kind, "library")
-    if spec.kind in GEN_TEST_KINDS:
-        tmpl = "ya_test"
+    if spec.kind in GEN_TEST_TEMPLATES:
+        tmpl = GEN_TEST_TEMPLATES[spec.kind]
     if tmpl == "library" and spec.no_util:
         # NO_UTIL(): build without the default //util dep -- contrib_library
         # mirrors that (platform_deps + libcxx instead of //util).
@@ -2807,7 +2892,7 @@ def render_spec(spec, host, remap, uncommented, main_name=None, private_configs=
                 else "%s:%s" % (module_label(d), name))
                for name, d in spec.proto_plugins]
     resources_target = "%s_resources" % spec.name
-    split_resources = tmpl in ("linked_executable", "ya_test") and bool(spec.resources)
+    split_resources = (tmpl == "linked_executable" or tmpl in TEST_TEMPLATES) and bool(spec.resources)
 
     pub = {shorten(remap.get(l, l), host) for l in spec.public_deps} - set(link_plugins)
     dep = {shorten(remap.get(l, l), host) for l in spec.deps} - pub - set(link_plugins)
@@ -2949,8 +3034,7 @@ def render_spec(spec, host, remap, uncommented, main_name=None, private_configs=
                               link_slot_module_interfaces=spec.slot_module_interfaces,
                               link_plugins=link_plugins,
                               yql_abi_version=spec.yql_abi if tmpl != "protobuf_library" else None,
-                              test_kind=GEN_TEST_KINDS.get(spec.kind),
-                              test_for=spec.test_for,
+                              include_dirs=["//" + spec.test_for] if spec.test_for else [],
                               data_deps=sorted({shorten(remap.get(module_label(d), module_label(d)), host)
                                                 for d in spec.test_depends}, key=dep_sort_key),
                               data=sorted(_data_path(p, host) for p in spec.test_data),
@@ -3023,6 +3107,7 @@ class Report:
         self.unmerged = []             # (dir, parent): split modules kept out of the parent's file
         self.resources_missing = defaultdict(set)
         self.generated = []
+        self.earlier = []              # modules generated only as earlier runs' (--as-target)
         self.deleted = []
         self.preserved = []
         self.yql_abi_explicit = []     # (dir, "M.m.p")
@@ -3031,37 +3116,44 @@ class Report:
         self.provides_unknown = []     # (dir, PROVIDES name): no link slot, not a known check: an error
         self.unknown_srcs = []         # (dir, SRCS of no kind the generator builds: dropped)
 
-    def dump(self):
+    def dump(self, problems_only=False):
+        """problems_only: only what needs a fix (in ya.make, a directive, the
+        generator) -- not how the generator laid the targets out, nor the
+        differences from ya it makes on purpose."""
         o = sys.stderr
+        info = not problems_only
         print("\n==================== yamake2gn report ====================", file=o)
         print("generated : %d   deleted(BUILD.gn): %d"
               % (len(self.generated), len(self.deleted)), file=o)
-        if self.merged:
+        if info and self.earlier:
+            print("of earlier runs only (modules): %d" % len(self.earlier), file=o)
+        if info and self.merged:
             print("\nmerged (parent <- children):", file=o)
             for p, kids in sorted(self.merged):
                 print("  //%s <- %s" % (p, ", ".join(kids)), file=o)
-        if self.merge_blocked:
+        if info and self.merge_blocked:
             print("\nmerge blocked:", file=o)
             for p, reasons in sorted(self.merge_blocked):
                 print("  //%s : %s" % (p, ", ".join(reasons)), file=o)
-        if self.merged_groups:
+        if info and self.merged_groups:
             print("\nmerged groups (in-directory cycles; the modules are compiled by the first):", file=o)
             for d, members in self.merged_groups:
                 print("  //%s <- %s" % (d, ", ".join(members)), file=o)
-        if self.self_split:
+        self_split = [(d, cs) for d, cs in self.self_split if info or not cs]
+        if self_split:
             print("\nanti-cycle facades (`# gn: %s`; <- the modules it PEERDIRs that include it):"
                   % ANTI_CYCLE_FACADE, file=o)
-            for d, cs in self.self_split:
+            for d, cs in self_split:
                 print("  //%s <- %s" % (d, ", ".join(sorted(cs)) or "NONE: the directive is stale"), file=o)
-        if self.unmerged:
+        if info and self.unmerged:
             print("\nnot merged into the parent (split into a facade + :%s):" % SELF_PART, file=o)
             for c, p in self.unmerged:
                 print("  //%s (parent //%s)" % (c, p), file=o)
-        if self.aliased:
+        if info and self.aliased:
             print("\ninclude-side modules folded into their src module (INCLUDE_ROOT_REMAP):", file=o)
             for d, t in sorted(set(self.aliased)):
                 print("  //%s -> %s" % (d, t if t.startswith("//") else "//" + t), file=o)
-        if self.keep_collapsed:
+        if info and self.keep_collapsed:
             print("\nfolded into external parent (child not generated, dep -> folded label):", file=o)
             for c, label in sorted(self.keep_collapsed):
                 print("  //%s -> %s" % (c, label), file=o)
@@ -3069,7 +3161,7 @@ class Report:
             print("\nskipped (non-trivial):", file=o)
             for d, reasons in sorted(self.skipped):
                 print("  %-58s %s" % (d, ",".join(sorted(set(reasons)))), file=o)
-        if self.yql_abi_explicit:
+        if info and self.yql_abi_explicit:
             print("\nyql abi explicit (YQL_ABI_VERSION):", file=o)
             for d, v in sorted(set(self.yql_abi_explicit)):
                 print("  %-58s %s" % (d, v), file=o)
@@ -3082,7 +3174,7 @@ class Report:
                   " PROVIDES_SLOTS nor PROVIDES_CHECK_ONLY; no link_slot_provides written):", file=o)
             for d, name in sorted(set(self.provides_unknown)):
                 print("  %-58s %s" % (d, name), file=o)
-        if self.provides_no_slot:
+        if info and self.provides_no_slot:
             print("\nPROVIDES of no link slot (no `# gn: slot` interface anywhere; ya's check only):", file=o)
             for d, name in sorted(set(self.provides_no_slot)):
                 print("  %-58s %s" % (d, name), file=o)
@@ -3090,7 +3182,7 @@ class Report:
             print("\nSRCS of no known kind (neither C++, a header, .proto nor TRANSLATED_EXTS; not built):", file=o)
             for d, srcs in sorted(self.unknown_srcs):
                 print("  %-58s %s" % (d, " ".join(srcs)), file=o)
-        if self.test_depends_unbuilt:
+        if info and self.test_depends_unbuilt:
             print("\nDEPENDS of tests with no GN target (in the metadata only):", file=o)
             for d, deps in sorted(self.test_depends_unbuilt.items()):
                 print("  %-58s %s" % (d, " ".join(sorted(deps))), file=o)
@@ -3098,7 +3190,7 @@ class Report:
             print("\nDATA of tests not found (not in `data`):", file=o)
             for d, items in sorted(self.test_data_missing.items()):
                 print("  %-58s %s" % (d, " ".join(sorted(items))), file=o)
-        if self.preserved:
+        if info and self.preserved:
             print("\npreserved (yamake2gn: keep -- not regenerated):", file=o)
             for d in sorted(set(self.preserved)):
                 print("  %s" % d, file=o)
@@ -3106,7 +3198,7 @@ class Report:
             print("\nper-file arch sources (need -m<arch>, NOT emitted):", file=o)
             for f in sorted(set(self.arch_files)):
                 print("  %s" % f, file=o)
-        if self.transitive_headers_no:
+        if info and self.transitive_headers_no:
             print("\nSET(PROTOC_TRANSITIVE_HEADERS \"no\") ignored (no GN equivalent;"
                   " generated .pb.h will pull in full transitive deps; any"
                   " #include of the ya.make-only \"*.deps.pb.h\" will be unresolved):",
@@ -3118,6 +3210,8 @@ class Report:
             for d in sorted(self.resources_missing):
                 for p in sorted(self.resources_missing[d]):
                     print("  [%s] %s" % (d, p), file=o)
+        if not info:
+            return
         total = sum(len(v) for v in self.unresolved.values())
         print("\nunresolved/generated includes: %d (in %d modules)"
               % (total, len(self.unresolved)), file=o)
@@ -3255,6 +3349,50 @@ def render_root_groups(text, labels):
     return text
 
 
+def recurse_closure(mods, roots):
+    """The dirs `ya make <root> -t` builds: the roots and what their RECURSE,
+    RECURSE_FOR_TESTS and RECURSE_ROOT_RELATIVE reach."""
+    seen, stack = set(), list(roots)
+    while stack:
+        d = stack.pop()
+        if d in seen or d not in mods:
+            continue
+        seen.add(d)
+        stack += mods[d].recurses
+    return seen
+
+
+def top_targets(mods, dirs):
+    """Those of `dirs` no other of them reaches by PEERDIR (and a test's
+    DEPENDS): what the rest is built for. Of modules reaching each other
+    the first one stays."""
+    memo = {}
+
+    def reach(d):
+        if d not in memo:
+            seen, stack = set(), [d]
+            while stack:
+                x = stack.pop()
+                m = mods.get(x)
+                if m is None:
+                    continue
+                for q in [os.path.normpath(p.rstrip("/")) for p in m.peerdirs] + m.test_depends:
+                    if q not in seen:
+                        seen.add(q)
+                        stack.append(q)
+            memo[d] = seen
+        return memo[d]
+
+    dirs = sorted(dirs)
+    out = []
+    for d in dirs:
+        by = [o for o in dirs if o != d and d in reach(o)]
+        # reached only by modules it reaches back (a cycle): the first one stays
+        if all(o in reach(d) for o in by) and all(d < o for o in by):
+            out.append(d)
+    return out
+
+
 def find_module_dir(root, rel):
     """Nearest dir at or above `rel` that owns a ya.make."""
     d = os.path.normpath(rel)
@@ -3265,6 +3403,26 @@ def find_module_dir(root, rel):
     return None
 
 
+def generated_earlier(root, mods, external):
+    """The modules whose targets the generated BUILD.gn files hold: in its own
+    dir's file, or in its parent's for a child folded there (plan_merge, as
+    <child> or <parent>_<child>)."""
+    out = {d for d in mods
+           if d and not d.startswith("contrib/") and not external.is_external(d)
+           and os.path.exists(os.path.join(root, d, "BUILD.gn"))}
+    names = {}
+    for d in sorted(set(mods) - out):
+        P = os.path.dirname(d)
+        if P not in out:
+            continue
+        if P not in names:
+            names[P] = set(parse_existing_buildgn_uncommented(os.path.join(root, P, "BUILD.gn")))
+        b = os.path.basename(d)
+        if {b, "%s_%s" % (os.path.basename(P), b)} & names[P]:
+            out.add(d)
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("paths", nargs="*",
@@ -3272,14 +3430,26 @@ def main():
     ap.add_argument("--as-target", action="store_true",
                     help="treat paths as targets: generate only the transitive "
                          "dependency closure reached from them (via #include graph "
-                         "and PEERDIR)")
+                         "and PEERDIR) -- together with what earlier runs generated "
+                         "(the modules of the BUILD.gn files there are), so a run "
+                         "only adds to them")
+    ap.add_argument("--recurse", action="store_true",
+                    help="with --as-target: a path stands for what `ya make <path> -t` builds "
+                         "(RECURSE, RECURSE_FOR_TESTS); only the modules none of the others "
+                         "reaches by PEERDIR join the groups of the root BUILD.gn")
     ap.add_argument("--root", default=os.getcwd())
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--no-format", action="store_true")
+    ap.add_argument("--problems-only", action="store_true",
+                    help="report only what needs a fix: skipped modules, unknown "
+                         "PROVIDES and SRCS, missing inputs... -- not the merges, "
+                         "the unresolved includes nor the PEERDIR vs derived diff")
     args = ap.parse_args()
     root = os.path.abspath(args.root)
     if args.as_target and not args.paths:
         ap.error("--as-target requires at least one path")
+    if args.recurse and not args.as_target:
+        ap.error("--recurse requires --as-target")
 
     # ---- collect: parse every non-contrib ya.make (need full module graph) ---
     mods = {}
@@ -3361,15 +3531,31 @@ def main():
             if md is None:
                 ap.error("no ya.make at or above %s" % p)
             queue.append(md)
-        as_target_roots = list(queue)
+        if args.recurse:
+            reached = recurse_closure(mods, queue)
+            queue = sorted(d for d in reached
+                           if is_real(mods[d]) or is_gen_test(mods[d]))
+            # a library a test PEERDIRs is built for the test (nothing reaches a test)
+            as_target_roots = top_targets(mods, queue)
+        else:
+            as_target_roots = list(queue)
+        mains = test_mains(root)
         seen = set()
-        while queue:
+        # what earlier runs generated is generated again after the closure:
+        # the files rewritten here keep their targets, the merge is planned
+        # over all of them (as a run over the whole tree would)
+        earlier = sorted(generated_earlier(root, mods, external))
+        closure = None
+        while queue or earlier:
+            if not queue:
+                closure = set(specs_by_dir)
+                queue, earlier = earlier, []
             d = resolver.alias(queue.pop())
             if d in seen or d not in mods or not (is_real(mods[d]) or is_gen_test(mods[d])):
                 seen.add(d)
                 continue
             if is_gen_test(mods[d]):
-                queue.append(GEN_TEST_MAINS[GEN_TEST_KINDS[mods[d].kind]])
+                queue.append(mains[GEN_TEST_TEMPLATES[mods[d].kind]][2:].partition(":")[0])
             seen.add(d)
             s = gen_one(d)
             if s is None and mods[d].absorbed_into is not None:
@@ -3414,6 +3600,8 @@ def main():
                 queue.append(dep)
             queue.extend(pd for _, pd in s.proto_plugins)   # extra_plugins
             queue.extend(s.test_depends)                    # data_deps of a test
+        if closure is not None:
+            report.earlier = sorted(set(specs_by_dir) - closure)
     else:
         # ---- Pass 1: whole tree or selected subtrees --------------------------
         if args.paths:
@@ -3542,8 +3730,10 @@ def main():
         host_specs[s.host].extend(s.parts)
 
     # ---- emit ----------------------------------------------------------------
+    rendered = {}
     for host, slist in sorted(host_specs.items()):
         text = render_file(root, host, slist, remap, inherit)
+        rendered[host] = text
         out = os.path.join(root, host, "BUILD.gn")
         report.generated.append(host)
         if args.dry_run:
@@ -3572,6 +3762,9 @@ def main():
             m = mods.get(d)
             if m is None or not (is_real(m) or is_gen_test(m)):
                 continue
+            if (d not in specs_by_dir and module_label(d) not in remap
+                    and not external.declares(d, os.path.basename(d))):
+                continue    # no target: skipped (see the report)
             label = remap.get(module_label(d), module_label(d))
             if d in specs_by_dir and not is_gen_test(m) and specs_by_dir[d].name != os.path.basename(d):
                 label = "//%s:%s" % (d, specs_by_dir[d].name)
@@ -3634,7 +3827,16 @@ def main():
             with open(out, "w", encoding="utf-8") as f:
                 f.write(text)
 
-    report.dump()
+    # a test's derived deps that its template itself brings are no difference
+    implied = test_implied_deps(root, rendered)
+    for d, (only_peer, only_derived) in list(report.peer_diff.items()):
+        m = mods.get(d)
+        if m is not None and is_gen_test(m):
+            given = implied.get(GEN_TEST_TEMPLATES[m.kind], set())
+            report.peer_diff[d] = (only_peer, [l for l in only_derived
+                                               if _short_label(l) not in given])
+
+    report.dump(args.problems_only)
 
 
 if __name__ == "__main__":

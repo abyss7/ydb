@@ -1,3 +1,14 @@
+group("cluster") {
+  public_deps = [
+    # ":static",
+    # "//library/cpp/threading/future",
+  ]
+}
+
 library("static") {
+  public_deps = [
+    # ":cluster",
+  ]
+
   sources = [ "static/discovery.cpp" ]
 }

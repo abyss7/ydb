@@ -1,3 +1,0 @@
-library("dummy") {
-    sources = [ "dummy_secret_masker.cpp" ]
-}

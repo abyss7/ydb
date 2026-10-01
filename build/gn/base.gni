@@ -61,31 +61,42 @@ template("expand_template") {
     }
 }
 
+# GENERATE_ENUM_SERIALIZATION: <header>_serialized.cpp and .h of each of
+# `headers` by the action `<target_name>_enum`. The target compiling them
+# takes its outputs to `sources`, it and //tools/enum_parser:runtime to `deps`
+# (library(), linked_executable(): `serialize_enum_headers`).
+template("serialize_enums") {
+    _output = "{{source_gen_dir}}/{{source_file_part}}_serialized.cpp"
+    _header = "{{source_gen_dir}}/{{source_file_part}}_serialized.h"
+
+    action_foreach("${target_name}_enum") {
+        forward_variables_from(invoker, [ "testonly" ])
+        script = "//build/gn/scripts/run.py"
+        sources = invoker.headers
+        outputs = [ "$_output", "$_header" ]
+
+        _enum_parser_bin = rebase_path("$root_out_dir/enum_parser", root_build_dir)
+
+        args = [
+            "./$_enum_parser_bin",
+            "{{source}}",
+            "--include-path", "{{source_root_relative_dir}}/{{source_file_part}}",
+            "--output", "$_output",
+            "--header", "$_header",
+        ]
+
+        deps = [ "//tools/enum_parser:enum_parser" ]
+    }
+}
+
 template("library") {
     _path = rebase_path(".", "//")
     _unique_name = exec_script("//build/gn/scripts/unique_name.py", [ _path ], "trim string")
 
     if (defined(invoker.serialize_enum_headers)) {
         _enum_target = "${target_name}_enum"
-        _output = "{{source_gen_dir}}/{{source_file_part}}_serialized.cpp"
-        _header = "{{source_gen_dir}}/{{source_file_part}}_serialized.h"
-
-        action_foreach(_enum_target) {
-            script = "//build/gn/scripts/run.py"
-            sources = invoker.serialize_enum_headers
-            outputs = [ "$_output", "$_header" ]
-
-            _enum_parser_bin = rebase_path("$root_out_dir/enum_parser", root_build_dir)
-
-            args = [
-                "./$_enum_parser_bin",
-                "{{source}}",
-                "--include-path", "{{source_root_relative_dir}}/{{source_file_part}}",
-                "--output", "$_output",
-                "--header", "$_header",
-            ]
-
-            deps = [ "//tools/enum_parser:enum_parser" ]
+        serialize_enums(target_name) {
+            headers = invoker.serialize_enum_headers
         }
     }
 

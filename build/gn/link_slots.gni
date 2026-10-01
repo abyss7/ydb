@@ -55,7 +55,8 @@ link_plugin_index = exec_script("//build/gn/scripts/link_plugin_index.py",
                                   rebase_path("//"),
                                   link_slot_gn,
                                 ],
-                                "scope")
+                                "scope",
+                                [ "//build/gn/testing.gni" ])
 
 template("linked_executable") {
   _select = []
@@ -140,6 +141,13 @@ template("linked_executable") {
     deps = [ ":${_exe}_link_slot_interfaces" ]
   }
 
+  if (defined(invoker.serialize_enum_headers)) {
+    serialize_enums(_exe) {
+      forward_variables_from(invoker, [ "testonly" ])
+      headers = invoker.serialize_enum_headers
+    }
+  }
+
   executable(target_name) {
     forward_variables_from(invoker,
                            "*",
@@ -147,6 +155,7 @@ template("linked_executable") {
                              "configs",
                              "deps",
                              "link_select",
+                             "serialize_enum_headers",
                              "yql_abi_version",
                            ])
 
@@ -158,6 +167,16 @@ template("linked_executable") {
     deps += _slot_deps + [ ":${_exe}_link_slot_check" ]
     if (defined(invoker.deps)) {
       deps += invoker.deps
+    }
+    if (defined(invoker.serialize_enum_headers)) {
+      if (!defined(sources)) {
+        sources = []
+      }
+      sources += get_target_outputs(":${_exe}_enum")
+      deps += [
+        ":${_exe}_enum",
+        "//tools/enum_parser:runtime",
+      ]
     }
     if (defined(invoker.yql_abi_version)) {
       _abi = string_split(invoker.yql_abi_version, ".")

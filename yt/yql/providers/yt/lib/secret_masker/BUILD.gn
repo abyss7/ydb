@@ -1,3 +1,11 @@
+library("dummy") {
+  public_deps = [
+    # ":secret_masker",
+  ]
+
+  sources = [ "dummy/dummy_secret_masker.cpp" ]
+}
+
 group("secret_masker") {
-  public_deps = [ "//yt/yql/providers/yt/lib/secret_masker/dummy" ]
+  public_deps = [ ":dummy" ]
 }

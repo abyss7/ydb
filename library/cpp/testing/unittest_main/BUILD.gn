@@ -1,0 +1,8 @@
+library("unittest_main") {
+  deps = [
+    "//library/cpp/terminate_handler",  # peerdir only
+    "//library/cpp/testing/unittest",
+  ]
+
+  sources = [ "main.cpp" ]
+}

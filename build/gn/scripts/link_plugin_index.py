@@ -11,9 +11,10 @@ round:
     }
 
 A dependency on them would be a cycle. An executable declared with
-linked_executable() depends on the plugins of every target it reaches instead:
-through deps and public_deps, the providers of its link_select and the
-plugins themselves, until nothing new comes up.
+linked_executable() or a template of //build/gn/testing.gni depends on the
+plugins of every target it reaches instead: through deps and public_deps, the
+providers of its link_select and the plugins themselves, until nothing new
+comes up.
 
 The files are parsed by gn itself, as in link_slot_index.py: a list must be
 written literally in the target's block; a label with $-expansions, a target
@@ -33,7 +34,8 @@ import sys
 import link_slot_index as lsi
 
 KEY = "plugins"
-EXECUTABLES = ("linked_executable", "ya_test")   # ya_test: //build/gn/testing.gni
+EXECUTABLE = "linked_executable"
+TESTING = "build/gn/testing.gni"   # the templates of tests, executables too
 DEP_KEYS = ("deps", "public_deps")
 
 
@@ -44,6 +46,11 @@ def all_build_files(root):
         if lsi.BUILD_FILE in files:
             out.append(os.path.relpath(os.path.join(d, lsi.BUILD_FILE), root))
     return out
+
+
+def executables(root):
+    with open(os.path.join(root, TESTING), encoding="utf-8") as f:
+        return {EXECUTABLE} | set(re.findall(r'^template\("([^"]+)"\)', f.read(), re.M))
 
 
 def mentions_plugins(root, files):
@@ -120,6 +127,7 @@ def index(root, gn):
     files = all_build_files(root)
     if not mentions_plugins(root, files):
         return {}
+    exes = executables(root)
     deps, plugins, selects = {}, {}, {}
     for file, tree in lsi.dump_trees(root, gn, files):
         for func, name, block in _calls(tree):
@@ -128,7 +136,7 @@ def index(root, gn):
             p = [resolve(file, l) for l in _strings(block, KEY)]
             if p:
                 plugins[me] = p
-            if func in EXECUTABLES:
+            if func in exes:
                 selects[me] = _strings(block, "link_select")
     providers = lsi.index(root, gn)[0]
 
