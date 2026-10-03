@@ -1,4 +1,6 @@
 library("unittest") {
+  testonly = true
+
   public_deps = [
     "//library/cpp/dbg_output",
     "//library/cpp/testing/common",

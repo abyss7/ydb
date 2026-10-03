@@ -10,4 +10,6 @@ unittest_executable("ut") {
     "//util/draft/holder_vector_ut.cpp",
     "//util/draft/memory_ut.cpp",
   ]
+
+  link_select = [ "allocator=tcmalloc" ]
 }

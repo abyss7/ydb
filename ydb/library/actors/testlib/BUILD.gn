@@ -1,0 +1,30 @@
+library("common") {
+  deps = [
+    # "//ydb/library/actors/core",  # peerdir only
+  ]
+
+  sources = [ "common/events_scheduling.cpp" ]
+}
+
+library("testlib") {
+  testonly = true
+
+  public_deps = [
+    "//library/cpp/random_provider",
+    # "//library/cpp/testing/unittest",
+    # "//library/cpp/threading/future",
+    # "//library/cpp/time_provider",
+    "//ydb/library/actors/core",
+    "//ydb/library/actors/interconnect",
+    "//ydb/library/actors/interconnect:mock",
+    # "//ydb/library/actors/util",
+  ]
+
+  deps = [
+    # ":common",  # peerdir only
+    # "//ydb/library/actors/interconnect:rdma",
+    # "//ydb/library/actors/protos",
+  ]
+
+  sources = [ "test_runtime.cpp" ]
+}

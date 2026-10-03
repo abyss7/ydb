@@ -57,6 +57,7 @@ TRIVIAL_MACROS = MODULE_MACROS | {
     "YQL_ABI_VERSION",   # -> yql_abi_version
     "CHECK_DEPENDENT_DIRS", # TODO: temporary ignore
     "PROVIDES",  # -> link_slot_provides
+    "ALLOCATOR",  # of a program or a test: its link_select, see link_selects
     "NO_UTIL",   # LIBRARY -> contrib_library (no default //util dep)
     "GN_DIRECTIVES",   # carrier of standalone `# gn:` lines, see GN_DIRECTIVES
 }
@@ -358,6 +359,7 @@ class Module:
         self.recurses = []           # RECURSE / RECURSE_FOR_TESTS / RECURSE_ROOT_RELATIVE dirs
         self.set_vars = {}           # SET(<var> <value>) of the module, for NO_BUILD_IF
         self.yql_abi = None          # "current" (YQL_LAST_ABI_VERSION) or "M.m.p" (YQL_ABI_VERSION)
+        self.allocator = None        # ALLOCATOR(<name>) of a program or a test
         self.generated = []          # repo-relative files the module generates (RUN_PROGRAM ... OUT, ...)
         self.proto_plugins = []      # (name, dir) of CPP_PROTO_PLUGIN0(<name> <dir>)
         self.src_into = {}           # SRCS entry (as written) -> (module dir, part or None), `# gn: into ...`
@@ -844,6 +846,8 @@ def parse_yamake(path, directory, root):
                                 if p not in mod.provides)
         elif name == "ALLOCATOR_IMPL":
             mod.provides.append(ALLOCATOR_SLOT)
+        elif name == "ALLOCATOR" and args:
+            mod.allocator = args[0]
         elif name in GENERATOR_MACROS:
             mod.generated.extend(_generated_outputs(name, args, directory))
         elif name == "YQL_LAST_ABI_VERSION":
@@ -1718,6 +1722,7 @@ class TargetSpec:
         self.test_data = []                     # DATA(arcadia/...): data, repo-relative ("dir/" for a dir)
         self.test_sbr = []                      # DATA(sbr://...): the metadata
         self.yql_abi = mod.yql_abi              # YQL_LAST_ABI_VERSION / YQL_ABI_VERSION
+        self.link_select = []                   # "<slot>=<value>" of a program or a test, see link_selects
 
 
 def module_part_label(d, part):
@@ -2001,6 +2006,108 @@ def drop_slotless_provides(root, mods, report):
             else:
                 report.provides_unknown.append((d, name))
         m.provides = [p for p in m.provides if p in slots]
+
+
+# ya's allocator of a linux x86_64 program built by clang, no sanitizer, no musl
+# (DEFAULT_ALLOCATOR in build/ymake.core.conf)
+DEFAULT_ALLOCATOR = "TCMALLOC_TC"
+
+
+def _brace_block(text, start):
+    """The text of the {...} block opening at text[start] and the end."""
+    depth, j = 0, start
+    while j < len(text):
+        depth += {"{": 1, "}": -1}.get(text[j], 0)
+        j += 1
+        if depth == 0:
+            break
+    return text[start + 1:j - 1], j
+
+
+def allocator_peerdirs(root):
+    """{ALLOCATOR() name: the PEERDIRs ya adds for it} from build/ymake.core.conf
+    (`"<NAME>" ? { PEERDIR+=... }` of `select ($ALLOCATOR)`, SYSTEM aside).
+    A `when` inside a choice is for another platform; its `otherwise` is ours."""
+    try:
+        with open(os.path.join(root, "build", "ymake.core.conf"), encoding="utf-8") as f:
+            text = f.read()
+    except OSError:
+        return {}
+    out = {}
+    for m in re.finditer(r'"(\w+)"\s*\?\s*\{', text):
+        body, _ = _brace_block(text, m.end() - 1)
+        kept, k = [], 0
+        for w in re.finditer(r'\bwhen\s*\([^)]*\)\s*\{', body):
+            if w.start() < k:
+                continue
+            kept.append(body[k:w.start()])
+            _, k = _brace_block(body, w.end() - 1)
+        kept.append(body[k:])
+        body = "".join(kept)
+        other = re.search(r'\botherwise\s*\{', body)
+        if other:
+            body = body[:other.start()] + _brace_block(body, other.end() - 1)[0]
+        dirs = re.findall(r'PEERDIR\s*\+=\s*(\S+)', body)
+        if dirs:
+            out.setdefault(m.group(1), dirs)
+    m = re.search(r'when\s*\(\$ALLOCATOR\s*==\s*"SYSTEM"\)\s*\{', text)
+    if m:
+        out["SYSTEM"] = re.findall(r'PEERDIR\s*\+=\s*(\S+)', _brace_block(text, m.end() - 1)[0])
+    return out
+
+
+def peerdir_reverse(mods, resolver):
+    """{module: modules PEERDIRing it} (include-side halves and `# gn: into`
+    resolved to the module building them)."""
+    rev = defaultdict(set)
+    for d, m in mods.items():
+        for p in m.peerdirs:
+            p = resolver.alias(os.path.normpath(p.rstrip("/")))
+            rev[resolver.absorbed.get(p, p)].add(d)
+    return rev
+
+
+def link_selects(mods, resolver, slots, rev, allocators, dirs, mains, report):
+    """{program or test dir: ["<slot>=<value>", ...]}: the providers of the link
+    slots its PEERDIR closure has -- as ya picks them: PROVIDES() only checks
+    one is there. The closure has the test framework's main of a test and the
+    PEERDIRs of its ALLOCATOR() (or DEFAULT_ALLOCATOR). Two providers of a slot
+    are an error (report.link_select_conflicts), as in ya."""
+    reach = {}
+    for key, provs in slots.items():
+        seen, queue = set(provs), list(provs)
+        while queue:
+            for d in rev.get(queue.pop(), ()):
+                if d not in seen:
+                    seen.add(d)
+                    queue.append(d)
+        reach[key] = seen
+    out = {}
+    for d in dirs:
+        m = mods[d]
+        roots = {d} | set(implicit_peerdirs(m, allocators, mains))
+        found = defaultdict(set)
+        for (slot, value), who in reach.items():
+            if roots & who:
+                found[slot].add(value)
+        sel = []
+        for slot, values in sorted(found.items()):
+            if len(values) == 1:
+                sel.append("%s=%s" % (slot, next(iter(values))))
+            else:
+                report.link_select_conflicts.append((d, slot, sorted(values)))
+        out[d] = sel
+    return out
+
+
+def implicit_peerdirs(mod, allocators, mains):
+    """The PEERDIRs ya adds to a program or a test: its framework's main, the
+    allocator's."""
+    out = []
+    if is_gen_test(mod):
+        out.append(mains[GEN_TEST_TEMPLATES[mod.kind]][2:].partition(":")[0])
+    out += [os.path.normpath(p) for p in allocators.get(mod.allocator or DEFAULT_ALLOCATOR, ())]
+    return out
 
 
 def link_slot_providers(root, mods):
@@ -2459,9 +2566,20 @@ def plan_external_collapse(specs, external, report):
 
 # --- rendering -------------------------------------------------------------
 
-_TARGET_RE = re.compile(
-    r'(?:library|source_set|executable|linked_executable|protobuf_library|group)'
-    r'\(\s*"([^"]+)"\s*\)\s*\{')
+# a call of a target type or a template with a block; not template(), config(), ...
+_NOT_TARGETS = r'(?!(?:template|config|toolchain|pool|set_defaults|declare_args)\b)'
+_TARGET_RE = re.compile(r'(?<![\w.])' + _NOT_TARGETS + r'(?:\w+)\(\s*"([^"]+)"\s*\)\s*\{')
+_BLOCK_RE = re.compile(r'(?<![\w.])' + _NOT_TARGETS + r'(\w+)\(\s*"([^"]+)"\s*\)\s*\{')
+
+
+def target_blocks(text):
+    """(template, name, body, offset after the opening brace) of every target of a BUILD.gn."""
+    for m in _BLOCK_RE.finditer(text):
+        depth, j, n = 1, m.end(), len(text)
+        while j < n and depth:
+            depth += {"{": 1, "}": -1}.get(text[j], 0)
+            j += 1
+        yield m.group(1), m.group(2), text[m.end():j - 1], m.end()
 
 
 def _extract_list(body, key):
@@ -2538,6 +2656,106 @@ def uncommented_deps_of_text(text, commented=False):
 # `template("<name>") { ya_test(target_name) { ... main = "<label>"`
 _TEST_MAIN_RE = re.compile(r'^template\("([^"]+)"\)\s*\{\s*ya_test\(target_name\)\s*\{[^}]*?\bmain\s*=\s*"([^"]+)"',
                            re.M)
+
+
+# PROVIDES() of a test framework (library/cpp/testing/unittest, .../gtest):
+# a module whose PEERDIRs reach one is test-only
+TEST_FRAMEWORK = "test_framework"
+
+
+def test_only_modules(mods, resolver, frameworks):
+    """{module: the PEERDIR it is test-only through} -- the test frameworks
+    and the modules whose PEERDIR closure has one (a test of GEN_TEST_TEMPLATES
+    is test-only by its template)."""
+    rev = defaultdict(set)
+    for d, m in mods.items():
+        for p in m.peerdirs:
+            p = resolver.alias(os.path.normpath(p.rstrip("/")))
+            rev[resolver.absorbed.get(p, p)].add(d)
+    via = {d: None for d in frameworks}
+    queue = sorted(frameworks)
+    while queue:
+        p = queue.pop()
+        for d in sorted(rev.get(p, ())):
+            if d not in via:
+                via[d] = p
+                queue.append(d)
+    return via
+
+
+def _label_node(label, host):
+    """A label as written in host's BUILD.gn -> (dir, name)."""
+    label = label.split("(")[0]
+    if label.startswith(":"):
+        return host, label[1:]
+    d, _, name = (label[2:] if label.startswith("//") else
+                  os.path.normpath(os.path.join(host, label))).partition(":")
+    return d, name or os.path.basename(d)
+
+
+def mark_test_only(root, rendered, node_module, test_mods):
+    """testonly = true for the rendered targets of test-only modules and for
+    those depending on a test-only target by an edge left on (it links one).
+    Returns ({host: text}, {(dir, name)} of test-only targets, [(module, dep)]
+    test-only by an edge only, [(target, dep)] hand-written non-test-only
+    targets depending on a test-only one)."""
+    nodes = {}
+    for host, text in rendered.items():
+        for tmpl, name, body, pos in target_blocks(text):
+            labels = _list_uncommented(body, "deps") | _list_uncommented(body, "public_deps")
+            nodes[(host, name)] = (tmpl, {_label_node(l, host) for l in labels}, pos,
+                                   re.search(r"^\s*testonly\s*=\s*true", body, re.M) is not None)
+    others = {}
+
+    def other(node):
+        """A target of a file not rendered here: whether it is test-only."""
+        d = node[0]
+        if d not in others:
+            others[d] = {}
+            try:
+                with open(os.path.join(root, d, "BUILD.gn"), encoding="utf-8") as f:
+                    text = f.read()
+            except OSError:
+                text = ""
+            for tmpl, name, body, _ in target_blocks(text):
+                labels = _list_uncommented(body, "deps") | _list_uncommented(body, "public_deps")
+                others[d][name] = (re.search(r"^\s*testonly\s*=\s*true", body, re.M) is not None
+                                   or tmpl in TEST_TEMPLATES,
+                                   {_label_node(l, d) for l in labels})
+        return others[d].get(node[1])
+
+    test = {n for n, (tmpl, _, _, flag) in nodes.items()
+            if flag or tmpl in TEST_TEMPLATES or node_module.get(n) in test_mods}
+    by_edge = {}
+    changed = True
+    while changed:
+        changed = False
+        for n, (_, deps, _, _) in nodes.items():
+            if n in test:
+                continue
+            for dep in sorted(deps):
+                o = other(dep) if dep not in nodes else None
+                if dep in test or (o is not None and o[0]):
+                    test.add(n)
+                    by_edge[n] = dep
+                    changed = True
+                    break
+    conflicts = []
+    for d, targets in others.items():
+        for name, (flag, deps) in targets.items():
+            if not flag:
+                conflicts += [("//%s:%s" % (d, name), "//%s:%s" % x) for x in sorted(deps & test)]
+    out = {}
+    for host, text in rendered.items():
+        inserts = sorted((nodes[(host, name)][2] for tmpl, name, body, _ in target_blocks(text)
+                          if (host, name) in test and tmpl not in TEST_TEMPLATES
+                          and not nodes[(host, name)][3]), reverse=True)
+        for pos in inserts:
+            text = text[:pos] + "\n    testonly = true\n" + text[pos:].lstrip(" ")
+        out[host] = text
+    edge_only = sorted({(node_module[n], "//%s:%s" % by_edge[n]) for n in by_edge
+                        if n in node_module and node_module[n] not in test_mods})
+    return out, test, edge_only, conflicts
 
 
 def test_mains(root):
@@ -2770,7 +2988,7 @@ def _render_target(tmpl, name, public_deps, deps, sources,
                    link_slot_interface=None, link_slot_headers=(), link_slot_flags_from=(),
                    link_slot_module_interfaces=(), link_plugins=(), yql_abi_version=None, configs=(), public_configs=(), extra_plugins=(),
                    include_dirs=(), data_deps=(), data=(), test_sbr=(),
-                   test_depends_unbuilt=()):
+                   test_depends_unbuilt=(), link_select=()):
     """`notes` maps a dep label to a trailing comment ("peerdir only")."""
     lines = ['%s("%s") {' % (tmpl, name)]
     notes = notes or {}
@@ -2803,6 +3021,8 @@ def _render_target(tmpl, name, public_deps, deps, sources,
     # spelled out.
     if yql_abi_version == "current":
         yql_abi_version = None
+    if tmpl == "linked_executable" or tmpl in TEST_TEMPLATES:
+        block("link_select", link_select)
     if tmpl in ("library", "contrib_library"):
         block("link_slot_provides", link_slot_provides)
         if link_plugins:   # never commented: not a dep, nothing to inherit
@@ -3028,6 +3248,7 @@ def render_spec(spec, host, remap, uncommented, main_name=None, private_configs=
                               resources=resources, resource_files=resource_files,
                               notes=notes, extra_plugins=plugins if tmpl == "protobuf_library" else (),
                               link_slot_provides=spec.slot_provides,
+                              link_select=spec.link_select,
                               link_slot_interface=spec.slot_interface,
                               link_slot_headers=[_slot_header(h, host) for h in spec.slot_headers],
                               link_slot_flags_from=slot_flags_from,
@@ -3115,6 +3336,10 @@ class Report:
         self.provides_no_slot = []     # (dir, PROVIDES name): ya's check only (PROVIDES_CHECK_ONLY)
         self.provides_unknown = []     # (dir, PROVIDES name): no link slot, not a known check: an error
         self.unknown_srcs = []         # (dir, SRCS of no kind the generator builds: dropped)
+        self.test_only_by_edge = []    # (module, dep): test-only by an edge left on, not by PEERDIR
+        self.test_only_conflicts = []  # (hand-written target, test-only dep): gn gen fails
+        self.test_only_programs = []   # (PROGRAM, PEERDIR path to a test framework)
+        self.link_select_conflicts = []  # (program or test, slot, [providers in its closure])
 
     def dump(self, problems_only=False):
         """problems_only: only what needs a fix (in ya.make, a directive, the
@@ -3178,6 +3403,22 @@ class Report:
             print("\nPROVIDES of no link slot (no `# gn: slot` interface anywhere; ya's check only):", file=o)
             for d, name in sorted(set(self.provides_no_slot)):
                 print("  %-58s %s" % (d, name), file=o)
+        if self.link_select_conflicts:
+            print("\nERROR: several providers of a link slot in the PEERDIR closure (ya fails too; none selected):", file=o)
+            for d, slot, values in self.link_select_conflicts:
+                print("  %-58s %s: %s" % (d, slot, ", ".join(values)), file=o)
+        if self.test_only_conflicts:
+            print("\nERROR: hand-written targets depending on test-only ones (add testonly = true or drop the dep):", file=o)
+            for t, dep in self.test_only_conflicts:
+                print("  %-58s %s" % (t, dep), file=o)
+        if self.test_only_by_edge:
+            print("\ntest-only by an edge left on, not by PEERDIR (add the PEERDIR to ya.make):", file=o)
+            for d, dep in self.test_only_by_edge:
+                print("  %-58s %s" % (d, dep), file=o)
+        if info and self.test_only_programs:
+            print("\nprograms (not tests) reaching a test framework by PEERDIR: testonly:", file=o)
+            for d, path in self.test_only_programs:
+                print("  %-58s %s" % (d, " -> ".join(path[1:])), file=o)
         if self.unknown_srcs:
             print("\nSRCS of no known kind (neither C++, a header, .proto nor TRANSLATED_EXTS; not built):", file=o)
             for d, srcs in sorted(self.unknown_srcs):
@@ -3323,19 +3564,38 @@ def _short_label(label):
     return "//" + d if not name or name == os.path.basename(d) else label
 
 
-def render_root_groups(text, labels):
+def render_root_groups(text, labels, test_only=frozenset()):
     """`text` of the root BUILD.gn with `labels` ({group: [label]}) added to
-    the groups of ROOT_GROUPS; the rest of the file is left as it is."""
-    for name, testonly in ROOT_GROUPS:
+    the groups of ROOT_GROUPS; the rest of the file is left as it is. A
+    test-only label (`test_only`, short form) goes to the test-only group."""
+    olds = {}
+    for name, _ in ROOT_GROUPS:
         m = re.search(r'^group\("%s"\)\s*\{' % name, text, re.M)
-        old, start, end = [], len(text), len(text)
         if m:
             start, depth, end = m.start(), 1, m.end()
             while depth and end < len(text):
                 depth += {"{": 1, "}": -1}.get(text[end], 0)
                 end += 1
-            old = re.findall(r'"(//[^"]+)"', text[m.end():end])
-        new = sorted({_short_label(l) for l in old + labels.get(name, [])})
+            olds[name] = re.findall(r'"(//[^"]+)"', text[m.end():end])
+    wanted = {name: {_short_label(l) for l in olds.get(name, []) + labels.get(name, [])}
+              for name, _ in ROOT_GROUPS}
+    for name, testonly in ROOT_GROUPS:
+        if not testonly:
+            moved = wanted[name] & test_only
+            wanted[name] -= moved
+            for other_name, other_testonly in ROOT_GROUPS:
+                if other_testonly:
+                    wanted[other_name] |= moved
+                    break
+    for name, testonly in ROOT_GROUPS:
+        m = re.search(r'^group\("%s"\)\s*\{' % name, text, re.M)
+        start, end = len(text), len(text)
+        if m:
+            start, depth, end = m.start(), 1, m.end()
+            while depth and end < len(text):
+                depth += {"{": 1, "}": -1}.get(text[end], 0)
+                end += 1
+        new = sorted(wanted[name])
         if not new and not m:
             continue
         block = ['group("%s") {' % name]
@@ -3463,6 +3723,7 @@ def main():
     merge_aliases(mods, resolver)
     link_foreign_sources(mods, resolver)
     report = Report()
+    frameworks = {d for d, m in mods.items() if TEST_FRAMEWORK in m.provides}
     drop_slotless_provides(root, mods, report)
     specs_by_dir = {}
 
@@ -3522,9 +3783,11 @@ def main():
             report.yql_abi_missing.append(d)
         return s
 
+    slots = link_slot_providers(root, mods)
+    mains = test_mains(root)
+    allocators = allocator_peerdirs(root)
     if args.as_target:
         # ---- Pass 1: transitive closure over the derived #include graph -------
-        slots = link_slot_providers(root, mods)
         queue = []
         for p in args.paths:
             md = find_module_dir(root, os.path.relpath(os.path.abspath(p), root))
@@ -3539,7 +3802,6 @@ def main():
             as_target_roots = top_targets(mods, queue)
         else:
             as_target_roots = list(queue)
-        mains = test_mains(root)
         seen = set()
         # what earlier runs generated is generated again after the closure:
         # the files rewritten here keep their targets, the merge is planned
@@ -3554,8 +3816,10 @@ def main():
             if d in seen or d not in mods or not (is_real(mods[d]) or is_gen_test(mods[d])):
                 seen.add(d)
                 continue
-            if is_gen_test(mods[d]):
-                queue.append(mains[GEN_TEST_TEMPLATES[mods[d].kind]][2:].partition(":")[0])
+            if is_gen_test(mods[d]) or mods[d].kind == "PROGRAM":
+                # the framework's main, the allocator: implicit PEERDIRs
+                queue.extend(p for p in implicit_peerdirs(mods[d], allocators, mains)
+                             if not p.startswith("contrib/"))
             seen.add(d)
             s = gen_one(d)
             if s is None and mods[d].absorbed_into is not None:
@@ -3612,6 +3876,12 @@ def main():
             sel = list(real_dirs | test_dirs)
         for d in sorted(sel):
             gen_one(d)
+
+    # the providers of the link slots a program or a test links (ya's PEERDIR closure)
+    exes = sorted(d for d, s in specs_by_dir.items() if s.kind == "PROGRAM" or s.kind in GEN_TEST_TEMPLATES)
+    for d, sel in link_selects(mods, resolver, slots, peerdir_reverse(mods, resolver), allocators,
+                               exes, mains, report).items():
+        specs_by_dir[d].link_select = sel
 
     specs = list(specs_by_dir.values())
     all_specs = specs + [part for s in specs for part in s.parts]
@@ -3732,8 +4002,19 @@ def main():
     # ---- emit ----------------------------------------------------------------
     rendered = {}
     for host, slist in sorted(host_specs.items()):
-        text = render_file(root, host, slist, remap, inherit)
-        rendered[host] = text
+        rendered[host] = render_file(root, host, slist, remap, inherit)
+    test_mods = test_only_modules(mods, resolver, frameworks)
+    node_module = {(host, t.name): t.dir for host, slist in host_specs.items() for t in slist}
+    rendered, test_targets, report.test_only_by_edge, report.test_only_conflicts = mark_test_only(
+        root, rendered, node_module, test_mods)
+    for d in sorted(set(specs_by_dir) & set(test_mods)):
+        if mods[d].kind == "PROGRAM":
+            path, x = [d], d
+            while test_mods.get(x) is not None and len(path) < 12:
+                x = test_mods[x]
+                path.append(x)
+            report.test_only_programs.append((d, path))
+    for host, text in sorted(rendered.items()):
         out = os.path.join(root, host, "BUILD.gn")
         report.generated.append(host)
         if args.dry_run:
@@ -3775,7 +4056,8 @@ def main():
                 old_text = f.read()
         except OSError:
             old_text = ""
-        text = render_root_groups(old_text, groups)
+        text = render_root_groups(old_text, groups,
+                                  {_short_label("//%s:%s" % n) for n in test_targets})
         if text != old_text:
             if args.dry_run:
                 print("# ----- BUILD.gn -----\n%s" % text)

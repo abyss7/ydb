@@ -7,4 +7,6 @@ linked_executable("codegen") {
   ]
 
   sources = [ "main.cpp" ]
+
+  link_select = [ "allocator=tcmalloc" ]
 }

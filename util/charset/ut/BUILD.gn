@@ -9,4 +9,6 @@ unittest_executable("ut") {
   include_dirs = [ "//util/charset" ]
 
   data = [ "utf8/" ]
+
+  link_select = [ "allocator=tcmalloc" ]
 }

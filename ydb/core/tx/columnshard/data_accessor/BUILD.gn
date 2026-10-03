@@ -31,7 +31,7 @@ library("cache_policy") {
     "//ydb/core/base",
     "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/core/tx/general_cache:source",
-    # "//ydb/core/tx/general_cache:usage",
+    "//ydb/core/tx/general_cache:usage",
     # "//ydb/library/actors/core",
   ]
 

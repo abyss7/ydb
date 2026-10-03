@@ -25,6 +25,16 @@ config("_avx512_config") {
     ]
 }
 
+_src_root = string_replace(string_replace(rebase_path("//.", root_build_dir) + "/", "/./", "/"), "//", "/")
+_gen_root = string_replace(rebase_path(root_gen_dir, root_build_dir) + "/", "//", "/")
+
+config("macro_prefix_map") {
+    cflags = [
+        "-fmacro-prefix-map=${_src_root}=",
+        "-fmacro-prefix-map=${_gen_root}=",
+    ]
+}
+
 config("cpu_baseline") {
     cflags = [
         "-msse2",
@@ -93,6 +103,9 @@ config("debug_info") {
         "-gsplit-dwarf",
         # no template arguments in DW_AT_name - debugger rebuilds them
         "-gsimple-template-names",
+        # with -gsplit-dwarf clang writes the whole command line into .dwo, so any
+        # flag that doesn't affect codegen (-ftime-trace, -W*, ...) changes it
+        "-gno-record-command-line",
     ]
 
     if (debug_compression != "none") {

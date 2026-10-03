@@ -1,8 +1,13 @@
 toolchain("clang") {
-  cc = "clang-18"
-  cxx = "clang++-18"
+  _launcher = ""
+  if (cc_wrapper != "") {
+    _launcher = cc_wrapper + " "
+  }
+
+  cc = _launcher + "clang-18"
+  cxx = _launcher + "clang++-18"
   ar = "ar"
-  ld = cxx + " -fuse-ld=/usr/bin/ld.lld-18"
+  ld = "clang++-18 -fuse-ld=/usr/bin/ld.lld-18"
 
   sysroot = "--sysroot=/home/ilezhankin/.ya/tools/v4/243881345"
 
@@ -85,7 +90,7 @@ toolchain("clang") {
 
   tool("link") {
     outfile = "{{root_out_dir}}/{{target_output_name}}{{output_extension}}"
-    command = "$ld {{ldflags}} -o $outfile -Wl,--whole-archive -Wl,--start-group {{inputs}} {{solibs}} -Wl,--end-group -Wl,--no-whole-archive {{libs}}"
+    command = "$ld -rdynamic {{ldflags}} -o $outfile -Wl,--whole-archive -Wl,--start-group {{inputs}} {{solibs}} -Wl,--end-group -Wl,--no-whole-archive {{libs}}"
     description = "LINK $outfile"
     outputs = [
       outfile,

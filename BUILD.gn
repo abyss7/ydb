@@ -22,5 +22,6 @@ group("tests") {
         "//util/system/ut",
         "//util/thread/ut",
         "//util/ut",
+        "//ydb/core/kqp/runtime/ut",
     ]
 }

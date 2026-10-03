@@ -9,7 +9,7 @@ library("buffer") {
     # "//ydb/core/tx/columnshard:ev_ids",
     # "//ydb/core/tx/data_events",
     # "//ydb/library/actors/core",
-    "//ydb/library/actors/testlib/common",
+    "//ydb/library/actors/testlib:common",
   ]
 
   deps = [

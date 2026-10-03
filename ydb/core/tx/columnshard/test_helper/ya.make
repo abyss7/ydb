@@ -1,6 +1,8 @@
 LIBRARY()
 
 PEERDIR(
+    library/cpp/testing/unittest
+    ydb/core/testlib
     ydb/core/protos
     ydb/core/formats/arrow
     contrib/libs/apache/arrow

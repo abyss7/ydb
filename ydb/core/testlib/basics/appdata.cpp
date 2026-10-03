@@ -1,5 +1,7 @@
 #include "appdata.h"
 
+#include <ydb/library/pdisk_io/aio.h>
+
 #include <yql/essentials/minikql/invoke_builtins/mkql_builtins.h>
 #include <yql/essentials/minikql/mkql_function_registry.h>
 

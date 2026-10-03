@@ -63,4 +63,6 @@ unittest_executable("ut") {
   include_dirs = [ "//util" ]
 
   serialize_enum_headers = [ "//util/generic/enum_cast_ut.h" ]
+
+  link_select = [ "allocator=tcmalloc" ]
 }

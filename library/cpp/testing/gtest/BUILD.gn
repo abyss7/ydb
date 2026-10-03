@@ -1,4 +1,6 @@
 library("gtest") {
+  testonly = true
+
   public_deps = [
     # "//contrib/restricted/googletest/googlemock",
     # "//contrib/restricted/googletest/googletest",

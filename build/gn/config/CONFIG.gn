@@ -38,6 +38,9 @@ declare_args() {
 
   # precompiled headers for targets from //build/gn/pch/targets.gni
   enable_pch = true
+
+  # launcher for C/C++ compilations, e.g. "/path/to/dist-clang" - links are run as is
+  cc_wrapper = ""
 }
 
 assert(build_type == "debug" || build_type == "relwithdebinfo" || build_type == "release",
@@ -66,6 +69,7 @@ _default_configs = [
   "//build/gn/config:std_string",
   "//build/gn/config:no_undefined",
   "//build/gn/config:yql_abi_current",
+  "//build/gn/config:macro_prefix_map",
 ]
 if (host_cpu == "x64") {
   _default_configs += [ "//build/gn/config:cpu_baseline" ]

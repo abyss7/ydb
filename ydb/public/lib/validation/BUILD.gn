@@ -8,4 +8,6 @@ linked_executable("validation") {
   ]
 
   sources = [ "main.cpp" ]
+
+  link_select = [ "allocator=tcmalloc" ]
 }

@@ -9,4 +9,6 @@ linked_executable("config_proto_plugin") {
   ]
 
   sources = [ "main.cpp" ]
+
+  link_select = [ "allocator=tcmalloc" ]
 }

@@ -107,3 +107,6 @@ path.bash.inc
 
 # Harness local cluster working directory
 .ydbd_working_dir/
+
+# build/gn/scripts/build_stats.py
+/.gn_build_stats/

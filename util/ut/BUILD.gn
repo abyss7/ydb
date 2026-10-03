@@ -7,4 +7,6 @@ unittest_executable("ut") {
   ]
 
   include_dirs = [ "//util" ]
+
+  link_select = [ "allocator=tcmalloc" ]
 }

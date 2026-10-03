@@ -1,4 +1,6 @@
 library("unittest_main") {
+  testonly = true
+
   deps = [
     "//library/cpp/terminate_handler",  # peerdir only
     "//library/cpp/testing/unittest",

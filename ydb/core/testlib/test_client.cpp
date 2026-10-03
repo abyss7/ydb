@@ -136,6 +136,7 @@
 #include <ydb/core/tx/columnshard/overload_manager/overload_manager_service.h>
 #include <ydb/core/tx/general_cache/usage/service.h>
 #include <ydb/library/folder_service/mock/mock_folder_service_adapter.h>
+#include <ydb/core/grpc_services/local_rpc/local_rpc.h>
 
 #include <ydb/core/client/server/ic_nodes_cache_service.h>
 

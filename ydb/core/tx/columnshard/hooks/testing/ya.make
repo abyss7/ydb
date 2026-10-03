@@ -6,6 +6,7 @@ SRCS(
 )
 
 PEERDIR(
+    ydb/core/testlib/basics
     ydb/core/tx/columnshard/hooks/abstract
     ydb/core/tx/columnshard/engines/changes
 )

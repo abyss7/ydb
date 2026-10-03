@@ -43,7 +43,12 @@
 #endif
 
 #if defined(_unix_)
+    #include <fcntl.h>
     #include <unistd.h>
+#endif
+
+#if defined(_linux_)
+    #include <sys/syscall.h>
 #endif
 
 #ifdef WITH_VALGRIND
@@ -55,6 +60,71 @@
 const size_t MAX_COMMENT_MESSAGE_LENGTH = 1024 * 1024; // 1 MB
 
 using namespace NUnitTest;
+
+#if defined(_unix_)
+namespace {
+    // What TShellCommandOptions::SetCloseAllFdsOnExec does -- FD_CLOEXEC on
+    // every fd above stderr -- without a fcntl for each number up to
+    // RLIMIT_NOFILE. Runs in the child between fork and exec: syscalls only.
+    #if defined(_linux_)
+        #if defined(SYS_close_range)
+    constexpr long CloseRangeSyscall = SYS_close_range;
+        #elif defined(__x86_64__) || defined(__aarch64__)
+    constexpr long CloseRangeSyscall = 436; // headers older than Linux 5.9
+        #else
+    constexpr long CloseRangeSyscall = -1;
+        #endif
+
+    bool CloexecByCloseRange() noexcept {
+        constexpr unsigned CloseRangeCloexec = 4; // CLOSE_RANGE_CLOEXEC, Linux 5.11
+        return CloseRangeSyscall >= 0 && syscall(CloseRangeSyscall, STDERR_FILENO + 1, ~0U, CloseRangeCloexec) == 0;
+    }
+
+    bool CloexecByProcFd() noexcept {
+        const int dir = open("/proc/self/fd", O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+        if (dir < 0) {
+            return false;
+        }
+        struct TDirent64 {
+            ui64 Ino;
+            i64 Off;
+            unsigned short Reclen;
+            unsigned char Type;
+            char Name[1];
+        };
+        alignas(8) char buf[4096];
+        long n;
+        while ((n = syscall(SYS_getdents64, dir, buf, sizeof(buf))) > 0) {
+            for (long off = 0; off < n;) {
+                const auto* entry = reinterpret_cast<const TDirent64*>(buf + off);
+                off += entry->Reclen;
+                const char* p = entry->Name;
+                int fd = 0;
+                for (; *p >= '0' && *p <= '9'; ++p) {
+                    fd = fd * 10 + (*p - '0');
+                }
+                if (*p == '\0' && p != entry->Name && fd > STDERR_FILENO && fd != dir) {
+                    fcntl(fd, F_SETFD, FD_CLOEXEC);
+                }
+            }
+        }
+        close(dir);
+        return n == 0;
+    }
+    #endif
+
+    void MarkFdsCloexec() {
+    #if defined(_linux_)
+        if (CloexecByCloseRange() || CloexecByProcFd()) {
+            return;
+        }
+    #endif
+        for (int fd = getdtablesize(); fd > STDERR_FILENO; --fd) {
+            fcntl(fd, F_SETFD, FD_CLOEXEC);
+        }
+    }
+}
+#endif
 
 class TNullTraceWriterProcessor: public ITestSuiteProcessor {
 };
@@ -534,7 +604,11 @@ private:
         TShellCommandOptions options;
         options
             .SetUseShell(false)
+#if defined(_unix_)
+            .SetFuncAfterFork(MarkFdsCloexec)
+#else
             .SetCloseAllFdsOnExec(true)
+#endif
             .SetAsync(false)
             .SetLatency(1);
 
