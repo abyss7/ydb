@@ -1,16 +1,6 @@
-library("common") {
-  sources = [ "common/defs.cpp" ]
-}
-
-library("easy_parse") {
-  deps = [ ":json" ]
-
-  sources = [ "easy_parse/json_easy_parser.cpp" ]
-}
-
 library("fast_sax") {
   public_deps = [
-    # ":common",
+    # "//library/cpp/json/common",
   ]
 
   sources = [
@@ -21,8 +11,8 @@ library("fast_sax") {
 
 library("json") {
   public_deps = [
-    ":common",
     ":fast_sax",
+    "//library/cpp/json/common",
   ]
 
   deps = [
@@ -40,15 +30,4 @@ library("json") {
   ]
 
   serialize_enum_headers = [ "writer/json_value.h" ]
-}
-
-library("yson") {
-  public_deps = [
-    ":json",
-    "//library/cpp/yson",
-  ]
-
-  deps = [ "//library/cpp/yson:json" ]
-
-  sources = [ "yson/json2yson.cpp" ]
 }

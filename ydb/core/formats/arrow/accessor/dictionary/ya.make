@@ -1,5 +1,7 @@
 LIBRARY()
 
+# gn: move into parent
+
 PEERDIR(
     ydb/core/formats/arrow/accessor/abstract
     ydb/library/formats/arrow

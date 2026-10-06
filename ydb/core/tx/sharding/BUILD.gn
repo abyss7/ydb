@@ -9,15 +9,15 @@ library("sharding") {
     # "//ydb/core/scheme_types",
     "//ydb/core/tx/columnshard/common",
     # "//ydb/library/accessor",
-    "//ydb/library/formats/arrow:hash",
-    # "//ydb/library/formats/arrow:validation",
-    # "//ydb/services/bg_tasks:abstract",
+    "//ydb/library/formats/arrow/hash",
+    # "//ydb/library/formats/arrow/validation",
+    # "//ydb/services/bg_tasks/abstract",
     "//yql/essentials/public/udf",
   ]
 
   deps = [
     # "//ydb/core/formats",  # peerdir only
-    # "//ydb/core/tx/columnshard/common:protos",
+    # "//ydb/core/tx/columnshard/common/protos",
     "//yql/essentials/minikql",
     # "//yql/essentials/utils",
   ]

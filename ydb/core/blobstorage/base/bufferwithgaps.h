@@ -4,6 +4,8 @@
 
 #include <ydb/core/debug/valgrind_check.h>
 
+#include <ydb/library/actors/util/rc_buf.h>
+
 #include <util/generic/string.h>
 #include <util/generic/set.h>
 #include <util/generic/map.h>

@@ -1,25 +1,5 @@
-library("hyperscan") {
-  deps = [
-    ":proto",
-    ":rewrapper",
-    "//library/cpp/regex/hyperscan",
-  ]
-
-  sources = [ "hyperscan/hyperscan.cpp" ]
-}
-
 protobuf_library("proto") {
   sources = [ "proto/serialization.proto" ]
-}
-
-library("re2") {
-  deps = [
-    ":proto",
-    ":rewrapper",
-    "//contrib/libs/re2",
-  ]
-
-  sources = [ "re2/re2.cpp" ]
 }
 
 library("rewrapper") {

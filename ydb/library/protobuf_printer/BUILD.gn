@@ -1,7 +1,7 @@
 library("protobuf_printer") {
   public_deps = [
     "//contrib/libs/protobuf",
-    # "//ydb/public/api/protos:annotations",
+    # "//ydb/public/api/protos/annotations",
   ]
 
   deps = [ "//ydb/library/security" ]

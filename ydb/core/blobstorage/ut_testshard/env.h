@@ -1,6 +1,7 @@
 #pragma once
 
 #include "defs.h"
+#include <ydb/core/mind/hive/create_hive.h>
 
 #include <ydb/core/protos/blob_depot_config.pb.h>
 

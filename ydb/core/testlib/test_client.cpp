@@ -5,6 +5,7 @@
 #include <ydb/core/base/path.h>
 #include <ydb/core/base/appdata.h>
 #include <ydb/core/base/hive.h>
+#include <ydb/core/mind/hive/create_hive.h>
 #include <ydb/core/base/feature_flags_service.h>
 #include <ydb/core/driver_lib/run/auto_config_initializer.h>
 #include <ydb/core/driver_lib/run/config_helpers.h>

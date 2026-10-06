@@ -1,15 +1,3 @@
-library("antlr4") {
-  public_deps = [
-    ":common",
-    "//contrib/libs/antlr4_cpp_runtime",
-    # "//yql/essentials/parser/lexer_common",
-  ]
-
-  deps = [ "//yql/essentials/core/issue" ]
-
-  sources = [ "antlr4/error_listener.cpp" ]
-}
-
 library("common") {
   public_deps = [ "//yql/essentials/public/issue" ]
 

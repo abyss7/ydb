@@ -3,7 +3,7 @@ library("balance") {
     # "//ydb/core/blobstorage/base",
     "//ydb/core/blobstorage/vdisk/common",
     # "//ydb/core/blobstorage/vdisk/hulldb",
-    "//ydb/core/blobstorage/vdisk/hulldb:generic",
+    "//ydb/core/blobstorage/vdisk/hulldb/generic",
   ]
 
   deps = [

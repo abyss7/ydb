@@ -1,16 +1,3 @@
-library("holder") {
-  public_deps = [
-    # ":queue_url",
-  ]
-
-  deps = [
-    # "//library/cpp/string_utils/url",  # peerdir only
-    "//ydb/core/base",
-  ]
-
-  sources = [ "holder/queue_url_holder.cpp" ]
-}
-
 library("queue_url") {
   deps = [ "//library/cpp/string_utils/url" ]
 

@@ -1,5 +1,7 @@
 LIBRARY()
 
+# gn: move into parent
+
 SRCS(
     dqrun_lib.cpp
 )

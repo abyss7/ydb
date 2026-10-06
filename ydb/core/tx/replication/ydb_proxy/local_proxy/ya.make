@@ -2,6 +2,7 @@ LIBRARY()
 
 PEERDIR(
     ydb/core/base
+    ydb/core/grpc_services
     ydb/core/grpc_services/base
     ydb/core/persqueue/events
     ydb/core/persqueue/public  # gn: :utils

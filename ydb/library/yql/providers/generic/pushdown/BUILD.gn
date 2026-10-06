@@ -1,6 +1,6 @@
 library("pushdown") {
   public_deps = [
-    "//ydb/library/yql/providers/generic/connector/api/service:protos",
+    "//ydb/library/yql/providers/generic/connector/api/service/protos",
     "//ydb/public/api/protos",
   ]
 

@@ -4,11 +4,11 @@ library("tiering") {
     # "//ydb/core/base",
     "//ydb/core/formats/arrow",
     # "//ydb/core/tx/columnshard/common",
-    # "//ydb/core/tx/tiering:tier",
-    # "//ydb/library/formats/arrow:validation",
+    # "//ydb/core/tx/tiering/tier",
+    # "//ydb/library/formats/arrow/validation",
   ]
 
-  deps = [ "//ydb/core/tx/columnshard/blobs_action:abstract" ]
+  deps = [ "//ydb/core/tx/columnshard/blobs_action/abstract" ]
 
   sources = [
     "common.cpp",

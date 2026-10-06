@@ -1,29 +1,9 @@
-library("inference") {
-  public_deps = [
-    "//contrib/libs/apache/arrow",
-    "//ydb/library/actors/core",
-  ]
-
-  deps = [
-    ":object_storage",
-    "//ydb/library/yql/providers/s3/compressors",
-    "//ydb/library/yql/udfs/common/clickhouse/client",
-    "//ydb/public/api/protos",
-  ]
-
-  sources = [
-    "inference/arrow_fetcher.cpp",
-    "inference/arrow_inferencinator.cpp",
-    "inference/infer_config.cpp",
-  ]
-}
-
 library("object_storage") {
   public_deps = [
-    # ":inference",
     "//contrib/libs/apache/arrow",
     # "//contrib/libs/curl",
-    # "//ydb/core/fq/libs/config:protos",
+    # "//ydb/core/external_sources/object_storage/inference",
+    # "//ydb/core/fq/libs/config/protos",
     "//ydb/library/actors/core",
     "//ydb/library/yql/providers/common/http_gateway",
     "//ydb/library/yql/providers/s3/credentials",

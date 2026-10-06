@@ -13,7 +13,7 @@
 
 #include <ydb/library/actors/core/executor_pool_basic.h>
 #include <ydb/library/actors/core/scheduler_basic.h>
-#include <ydb/library/actors/core/scheduler_actor.h>
+#include <ydb/library/actors/scheduler/scheduler_actor.h>
 #include <ydb/library/actors/dnsresolver/dnsresolver.h>
 #include <ydb/library/actors/interconnect/interconnect.h>
 #include <ydb/library/actors/interconnect/interconnect_common.h>

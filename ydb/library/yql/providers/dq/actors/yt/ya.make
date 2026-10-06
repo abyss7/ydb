@@ -20,8 +20,7 @@ IF (NOT OS_WINDOWS)
     )
 ENDIF()
 
-SET(
-    SOURCE
+SRCS(
     nodeid_assigner.cpp
     nodeid_assigner.h
     resource_manager.cpp
@@ -29,9 +28,7 @@ SET(
 )
 
 IF (NOT OS_WINDOWS)
-    SET(
-        SOURCE
-        ${SOURCE}
+    SRCS(
         nodeid_cleaner.cpp
         nodeid_cleaner.h
         worker_registrator.cpp
@@ -46,10 +43,6 @@ IF (NOT OS_WINDOWS)
         yt_resource_manager.cpp
     )
 ENDIF()
-
-SRCS(
-    ${SOURCE}
-)
 
 YQL_LAST_ABI_VERSION()
 

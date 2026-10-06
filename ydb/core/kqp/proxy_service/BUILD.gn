@@ -1,23 +1,22 @@
-protobuf_library("proto") {
-  public_deps = [ "//ydb/public/api/protos" ]
-
-  sources = [ "proto/result_set_meta.proto" ]
-}
-
 library("proxy_service") {
   public_deps = [
     "//ydb/core/base",
     "//ydb/core/kqp/common",
-    # "//ydb/core/kqp/common:events",
+    # "//ydb/core/kqp/common/events",
+    # "//ydb/core/kqp/counters",
     "//ydb/core/kqp/federated_query",
+    "//ydb/core/kqp/gateway/behaviour/resource_pool_classifier",
+    # "//ydb/core/kqp/rm_service",
+    # "//ydb/core/kqp/runtime",
+    # "//ydb/core/protos",
     # "//ydb/library/actors/core",
     "//ydb/library/yql/providers/s3/actors_factory",
+    # "//ydb/public/api/protos",
+    # "//ydb/services/metadata",
     # "//yql/essentials/public/issue",
   ]
 
   deps = [
-    ":proto",
-    ":script_executions_utils",
     "//contrib/libs/fmt",
     # "//contrib/libs/protobuf",
     "//library/cpp/lwtrace/mon",
@@ -29,32 +28,29 @@ library("proxy_service") {
     "//ydb/core/actorlib_impl",
     # "//ydb/core/cms/console",
     "//ydb/core/fq/libs/checkpoint_storage",
-    "//ydb/core/fq/libs/checkpointing:events",
+    "//ydb/core/fq/libs/checkpointing/events",
     # "//ydb/core/fq/libs/common",
     "//ydb/core/fq/libs/row_dispatcher",
     "//ydb/core/fq/libs/row_dispatcher/events",
     "//ydb/core/grpc_services",
     # "//ydb/core/grpc_services/base",
-    # "//ydb/core/kqp/common:simple",
+    # "//ydb/core/kqp/common/simple",
     "//ydb/core/kqp/compile_service",
     "//ydb/core/kqp/compute_actor",
-    # "//ydb/core/kqp/counters",
     "//ydb/core/kqp/executer_actor",
-    "//ydb/core/kqp/gateway/behaviour/resource_pool_classifier",
     "//ydb/core/kqp/gateway/behaviour/streaming_query",
     "//ydb/core/kqp/node_service",
-    # "//ydb/core/kqp/rm_service",
-    # "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/proxy_service/proto",
+    "//ydb/core/kqp/proxy_service/script_executions_utils",
     "//ydb/core/kqp/session_actor",
     "//ydb/core/kqp/session_actor:worker_common",
     "//ydb/core/kqp/workload_service",
-    "//ydb/core/kqp/workload_service:actors",
+    "//ydb/core/kqp/workload_service/actors",
     # "//ydb/core/mind",  # peerdir only
     # "//ydb/core/mon",
     # "//ydb/core/node_whiteboard",
-    # "//ydb/core/protos",
     # "//ydb/core/resource_pools",
-    # "//ydb/core/sys_view:common",
+    # "//ydb/core/sys_view/common",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/schemeshard",
     # "//ydb/core/tx/tx_proxy",  # peerdir only
@@ -66,21 +62,19 @@ library("proxy_service") {
     # "//ydb/library/services",
     "//ydb/library/table_creator",
     "//ydb/library/ydb_issue",
-    "//ydb/library/ydb_issue:proto",
-    # "//ydb/library/yql/dq/actors:compute",
-    # "//ydb/library/yql/dq/actors:spilling",
+    "//ydb/library/ydb_issue/proto",
+    # "//ydb/library/yql/dq/actors/compute",
+    # "//ydb/library/yql/dq/actors/spilling",
     # "//ydb/library/yql/dq/runtime",
     # "//ydb/library/yql/providers/common/http_gateway",
     "//ydb/library/yql/providers/pq/proto",
     "//ydb/library/yql/utils/actor_log",
-    # "//ydb/public/api/protos",
     # "//ydb/public/lib/scheme_types",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/params",
     # "//ydb/public/sdk/cpp/src/client/result",
     # "//ydb/public/sdk/cpp/src/library/operation_id",
-    "//ydb/public/sdk/cpp/src/library/operation_id:protos",
-    # "//ydb/services/metadata",
-    "//yql/essentials/core/services:mounts",
+    "//ydb/public/sdk/cpp/src/library/operation_id/protos",
+    "//yql/essentials/core/services/mounts",
     # "//yql/essentials/providers/common/proto",  # peerdir only
   ]
 
@@ -93,26 +87,5 @@ library("proxy_service") {
     "kqp_query_text_cache_service.cpp",
     "kqp_script_executions.cpp",
     "kqp_session_info.cpp",
-  ]
-}
-
-library("script_executions_utils") {
-  public_deps = [
-    "//ydb/core/protos",
-    # "//ydb/public/api/protos",
-    "//yql/essentials/public/issue",
-  ]
-
-  deps = [
-    # "//contrib/libs/protobuf",
-    "//library/cpp/blockcodecs",
-    "//library/cpp/protobuf/interop",
-    # "//ydb/core/tx/datashard",
-    # "//ydb/library/yverify_stream",
-  ]
-
-  sources = [
-    "script_executions_utils/kqp_script_execution_compression.cpp",
-    "script_executions_utils/kqp_script_execution_retries.cpp",
   ]
 }

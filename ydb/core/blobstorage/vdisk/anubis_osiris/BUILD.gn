@@ -5,7 +5,7 @@ library("anubis_osiris") {
     # "//ydb/core/blobstorage/groupinfo",
     # "//ydb/core/blobstorage/vdisk/common",
     # "//ydb/core/blobstorage/vdisk/hulldb",
-    # "//ydb/core/blobstorage/vdisk/hulldb:base",
+    # "//ydb/core/blobstorage/vdisk/hulldb/base",
     # "//ydb/core/util",
     # "//ydb/library/actors/core",
     # "//ydb/library/services",
@@ -15,8 +15,8 @@ library("anubis_osiris") {
     # "//library/cpp/monlib/service/pages",
     # "//library/cpp/random_provider",
     "//ydb/core/blobstorage/backpressure",
-    "//ydb/core/blobstorage/vdisk/hulldb:barriers",  # peerdir only
-    "//ydb/core/blobstorage/vdisk/hulldb:generic",
+    "//ydb/core/blobstorage/vdisk/hulldb/barriers",  # peerdir only
+    "//ydb/core/blobstorage/vdisk/hulldb/generic",
     # "//ydb/core/protos",
   ]
 

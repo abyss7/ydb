@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ydb/core/base/hive.h>
+#include <ydb/core/mind/hive/create_hive.h>
 #include <ydb/core/blob_depot/blob_depot.h>
 #include <ydb/core/cms/console/configs_dispatcher.h>
 #include <ydb/core/cms/console/console.h>

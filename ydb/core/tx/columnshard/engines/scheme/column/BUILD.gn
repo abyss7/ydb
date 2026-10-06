@@ -3,14 +3,14 @@ library("column") {
     # "//contrib/libs/apache/arrow",
     "//ydb/core/formats/arrow",
     # "//ydb/core/tx/columnshard/engines/scheme/abstract",
-    "//ydb/core/tx/columnshard/engines/scheme/defaults:common",
+    "//ydb/core/tx/columnshard/engines/scheme/defaults/common",
     # "//ydb/library/accessor",
-    # "//ydb/library/formats/arrow:transformer",
-    # "//ydb/library/formats/arrow:validation",
+    # "//ydb/library/formats/arrow/transformer",
+    # "//ydb/library/formats/arrow/validation",
   ]
 
   deps = [
-    # "//ydb/core/tx/columnshard/splitter:abstract",
+    # "//ydb/core/tx/columnshard/splitter/abstract",
   ]
 
   sources = [ "info.cpp" ]

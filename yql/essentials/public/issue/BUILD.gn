@@ -1,8 +1,8 @@
 library("issue") {
   public_deps = [
-    ":protos",
     "//contrib/libs/protobuf",
     "//library/cpp/resource",
+    "//yql/essentials/public/issue/protos",
   ]
 
   deps = [
@@ -19,11 +19,4 @@ library("issue") {
   ]
 
   serialize_enum_headers = [ "yql_warning.h" ]
-}
-
-protobuf_library("protos") {
-  sources = [
-    "protos/issue_message.proto",
-    "protos/issue_severity.proto",
-  ]
 }

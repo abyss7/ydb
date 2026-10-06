@@ -1,5 +1,7 @@
 LIBRARY(ydb_device_test)
 
+# gn: move into parent
+
 
 PEERDIR(
     contrib/libs/protobuf
@@ -12,8 +14,10 @@ PEERDIR(
 )
 
 SRCS(
+    ../defs.h
     ../device_test_tool.h
     ../device_test_tool_aio_test.h
+    ../device_test_tool_ddisk_test.h
     ../device_test_tool_driveestimator.h
     ../device_test_tool_trim_test.cpp
     ../device_test_tool_trim_test.h

@@ -1,19 +1,16 @@
-protobuf_library("protos") {
-  public_deps = [ "//ydb/core/protos" ]
-
-  sources = [ "protos/counters_shard.proto" ]
-}
-
 library("shard") {
+  public_deps = [
+    "//ydb/core/graph/api",
+    "//ydb/core/tablet_flat",
+  ]
+
   deps = [
-    # ":protos",
     # "//library/cpp/json",
     # "//ydb/core/base",
     # "//ydb/core/cms/console",
-    "//ydb/core/engine:minikql",
-    "//ydb/core/graph/api",
+    "//ydb/core/engine/minikql",
+    # "//ydb/core/graph/shard/protos",
     # "//ydb/core/tablet",
-    "//ydb/core/tablet_flat",
     "//ydb/core/tx",
     "//ydb/library/actors/core",
   ]

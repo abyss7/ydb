@@ -1,11 +1,6 @@
 toolchain("clang") {
-  _launcher = ""
-  if (cc_wrapper != "") {
-    _launcher = cc_wrapper + " "
-  }
-
-  cc = _launcher + "clang-18"
-  cxx = _launcher + "clang++-18"
+  cc = "clang-18"
+  cxx = "clang++-18"
   ar = "ar"
   ld = "clang++-18 -fuse-ld=/usr/bin/ld.lld-18"
 
@@ -22,6 +17,7 @@ toolchain("clang") {
   }
 
   tool("asm") {
+    command_launcher = cc_wrapper
     depfile = "{{output}}.d"
     command = "$cc {{include_dirs}} {{asmflags}} -c {{source}} -o {{output}}"
     depsformat = "gcc"
@@ -32,21 +28,25 @@ toolchain("clang") {
   }
 
   tool("cc") {
+    command_launcher = cc_wrapper
     depfile = "{{output}}.d"
     command = "$cc $sysroot -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}"
     depsformat = "gcc"
     description = "CC {{output}}"
+    restat = true
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_file_part}}.o",
     ]
   }
 
   tool("cxx") {
+    command_launcher = cc_wrapper
     precompiled_header_type = "gcc"
     depfile = "{{output}}.d"
     command = "$cxx $sysroot -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
     depsformat = "gcc"
     description = "CXX {{output}}"
+    restat = true
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_file_part}}.o",
     ]

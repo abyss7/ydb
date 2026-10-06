@@ -7,6 +7,7 @@
 #include <ydb/core/config/init/init.h>
 #include <ydb/core/cms/console/feature_flags_configurator.h>
 #include <ydb/core/mind/bscontroller/bsc.h>
+#include <ydb/core/mind/hive/create_hive.h>
 #include <ydb/core/mind/labels_maintainer.h>
 #include <ydb/core/mind/tenant_pool.h>
 #include <ydb/core/mind/tenant_slot_broker.h>

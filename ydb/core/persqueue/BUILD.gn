@@ -14,12 +14,13 @@ library("persqueue") {
     # "//ydb/core/persqueue/pqtablet/cache",
     "//ydb/core/persqueue/pqtablet/quota",
     "//ydb/core/persqueue/public",
-    # "//ydb/core/persqueue/public:cluster_tracker",
-    "//ydb/core/persqueue/public:counters",
-    "//ydb/core/persqueue/public:partition_key_range",
+    # "//ydb/core/persqueue/public/cluster_tracker",
+    "//ydb/core/persqueue/public/counters",
+    "//ydb/core/persqueue/public/partition_key_range",
     "//ydb/core/persqueue/public:utils",
     "//ydb/core/protos",
     # "//ydb/core/tablet",
+    # "//ydb/core/tx",
     "//ydb/library/actors/core",
     # "//ydb/library/persqueue/counter_time_keeper",
     "//ydb/library/persqueue/topic_parser",
@@ -35,19 +36,18 @@ library("persqueue") {
     # "//library/cpp/monlib/service/pages",
     "//ydb/core/backup/impl",
     # "//ydb/core/metering",
-    # "//ydb/core/persqueue/common:proxy",  # peerdir only
+    # "//ydb/core/persqueue/common/proxy",  # peerdir only
     "//ydb/core/persqueue/pqtablet/common",
     "//ydb/core/persqueue/pqtablet/partition/mirrorer",
     "//ydb/core/persqueue/pqtablet/partition/mlp",
-    # "//ydb/core/persqueue/public:fetcher",  # peerdir only
-    # "//ydb/core/persqueue/public:list_topics",  # peerdir only
-    "//ydb/core/persqueue/public:write_meta",
+    # "//ydb/core/persqueue/public/fetcher",  # peerdir only
+    # "//ydb/core/persqueue/public/list_topics",  # peerdir only
+    "//ydb/core/persqueue/public/write_meta",
     "//ydb/core/persqueue/writer",
-    # "//ydb/core/quoter:public",
+    # "//ydb/core/quoter/public",
     # "//ydb/core/scheme",
-    # "//ydb/core/sys_view:service",
-    # "//ydb/core/tx",
-    # "//ydb/core/tx/long_tx_service:public",
+    # "//ydb/core/sys_view/service",
+    # "//ydb/core/tx/long_tx_service/public",
     "//ydb/core/tx/replication/service",
     # "//ydb/core/tx/replication/ydb_proxy",
     # "//ydb/core/tx/scheme_cache",
@@ -59,7 +59,7 @@ library("persqueue") {
     # "//ydb/library/yverify_stream",
     # "//ydb/public/api/protos",
     # "//ydb/public/lib/base",
-    "//ydb/services/persqueue_v1:actors",
+    "//ydb/services/persqueue_v1/actors",
   ]
 
   sources = [

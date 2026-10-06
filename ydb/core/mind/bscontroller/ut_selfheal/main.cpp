@@ -22,7 +22,7 @@ Y_UNIT_TEST_SUITE(BsControllerTest) {
             , NumGroups(numGroups)
             , Erasure(erasure)
             , GroupType(groupType)
-            , Env(NumNodes, [=](ui32 nodeId) {
+            , Env(NumNodes, [=, this](ui32 nodeId) {
                 NActorsInterconnect::TNodeLocation proto;
                 proto.SetDataCenter(ToString((nodeId - 1) / (NumUnitsPerRack * NumRacksPerDC)));
                 proto.SetRack(ToString((nodeId - 1) / NumUnitsPerRack));

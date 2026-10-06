@@ -1,11 +1,11 @@
 library("ymq") {
   public_deps = [
-    # "//ydb/core/client:server",
+    # "//ydb/core/client/server",
     "//ydb/core/grpc_services",
     # "//ydb/core/grpc_services/base",
     # "//ydb/library/actors/core",
     # "//ydb/library/grpc/server",
-    "//ydb/public/api/grpc:draft",
+    "//ydb/public/api/grpc/draft",
   ]
 
   deps = [
@@ -13,7 +13,7 @@ library("ymq") {
     # "//ydb/core/mind",  # peerdir only
     # "//ydb/core/persqueue",
     # "//ydb/core/persqueue/public",
-    # "//ydb/core/persqueue/public:write_meta",
+    # "//ydb/core/persqueue/public/write_meta",
     # "//ydb/core/protos",
     # "//ydb/core/tx/scheme_board",
     "//ydb/core/ymq/actor",
@@ -25,8 +25,8 @@ library("ymq") {
     # "//ydb/public/sdk/cpp/src/library/operation_id",  # peerdir only
     # "//ydb/services/lib/actors",
     # "//ydb/services/lib/sharding",
-    # "//ydb/services/persqueue_v1",  # peerdir only
-    # "//ydb/services/persqueue_v1:actors",
+    # "//ydb/services/persqueue_v1",  # link slot
+    # "//ydb/services/persqueue_v1/actors",
     # "//ydb/services/ydb",  # peerdir only
   ]
 

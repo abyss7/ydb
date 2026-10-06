@@ -1,50 +1,3 @@
-library("mounts") {
-  public_deps = [
-    "//yql/essentials/core",
-    "//yql/essentials/core/user_data",
-  ]
-
-  deps = [
-    # "//library/cpp/resource",
-    # "//yql/essentials/sql",
-    "//yql/essentials/sql/v1",
-    "//yql/essentials/sql/v1/lexer:antlr4",
-    "//yql/essentials/sql/v1/lexer:antlr4_ansi",
-    "//yql/essentials/sql/v1/proto_parser:antlr4",
-    "//yql/essentials/sql/v1/proto_parser:antlr4_ansi",
-    "//yql/essentials/utils/log",
-  ]
-
-  sources = [ "mounts/yql_mounts.cpp" ]
-
-  resources = [
-    {
-      path = "//yql/essentials/mount/lib/yql/aggregate.yqls"
-      key = "/lib/yql/aggregate.yqls"
-    },
-    {
-      path = "//yql/essentials/mount/lib/yql/window.yqls"
-      key = "/lib/yql/window.yqls"
-    },
-    {
-      path = "//yql/essentials/mount/lib/yql/id.yqls"
-      key = "/lib/yql/id.yqls"
-    },
-    {
-      path = "//yql/essentials/mount/lib/yql/sqr.yqls"
-      key = "/lib/yql/sqr.yqls"
-    },
-    {
-      path = "//yql/essentials/mount/lib/yql/core.yqls"
-      key = "/lib/yql/core.yqls"
-    },
-    {
-      path = "//yql/essentials/mount/lib/yql/walk_folders.yqls"
-      key = "/lib/yql/walk_folders.yqls"
-    },
-  ]
-}
-
 library("pipeline") {
   public_deps = [
     # ":services",
@@ -78,8 +31,8 @@ library("services") {
 
   deps = [
     "//library/cpp/string_utils/base64",
-    # "//library/cpp/yson:node",
-    "//yql/essentials/ast:serialize",
+    # "//library/cpp/yson/node",
+    "//yql/essentials/ast/serialize",
     "//yql/essentials/core/common_opt",  # peerdir only
     "//yql/essentials/core/peephole_opt",
     # "//yql/essentials/core/sql_types",
@@ -88,7 +41,7 @@ library("services") {
     "//yql/essentials/providers/common/codec",
     "//yql/essentials/providers/common/mkql",
     # "//yql/essentials/providers/common/provider",
-    "//yql/essentials/providers/common/schema:expr",
+    "//yql/essentials/providers/common/schema/expr",
     # "//yql/essentials/providers/result/expr_nodes",
     # "//yql/essentials/sql",  # peerdir only
     # "//yql/essentials/utils",

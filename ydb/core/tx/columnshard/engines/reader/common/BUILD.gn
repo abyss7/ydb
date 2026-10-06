@@ -14,7 +14,7 @@ library("common") {
     # "//ydb/library/accessor",
     # "//ydb/library/conclusion",
     # "//ydb/library/formats/arrow",
-    # "//ydb/library/yql/dq/actors:protos",
+    # "//ydb/library/yql/dq/actors/protos",
   ]
 
   deps = [

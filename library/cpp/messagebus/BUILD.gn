@@ -1,13 +1,3 @@
-library("actor") {
-  public_deps = [ "//library/cpp/deprecated/atomic" ]
-
-  sources = [
-    "actor/executor.cpp",
-    "actor/thread_extra.cpp",
-    "actor/what_thread_does.cpp",
-  ]
-}
-
 library("config") {
   public_deps = [
     # "//library/cpp/deprecated/enum_codegen",
@@ -22,21 +12,21 @@ library("config") {
 
 library("messagebus") {
   public_deps = [
-    ":actor",
     ":config",
-    ":monitoring",
-    ":scheduler",
     "//contrib/libs/sparsehash",
     "//library/cpp/codecs",
     # "//library/cpp/deprecated/atomic",
     # "//library/cpp/deprecated/enum_codegen",
     "//library/cpp/getopt",
+    "//library/cpp/messagebus/actor",
+    "//library/cpp/messagebus/monitoring",
+    "//library/cpp/messagebus/scheduler",
     "//library/cpp/string_utils/indent_text",
     "//library/cpp/threading/future",
   ]
 
   deps = [
-    # "//library/cpp/getopt:small",  # peerdir only
+    # "//library/cpp/getopt/small",  # peerdir only
     "//library/cpp/lwtrace",
   ]
 
@@ -77,76 +67,5 @@ library("messagebus") {
     "synchandler.cpp",
     "use_after_free_checker.cpp",
     "use_count_checker.cpp",
-  ]
-}
-
-protobuf_library("monitoring") {
-  public_deps = [ "//library/cpp/monlib/encode/legacy_protobuf/protos" ]
-
-  sources = [ "monitoring/mon_proto.proto" ]
-}
-
-library("oldmodule") {
-  public_deps = [ ":messagebus" ]
-
-  deps = [ ":actor" ]
-
-  sources = [
-    "oldmodule/module.cpp",
-    "oldmodule/startsession.cpp",
-  ]
-}
-
-library("protobuf") {
-  public_deps = [
-    ":messagebus",
-    # "//contrib/libs/protobuf",
-  ]
-
-  deps = [ ":actor" ]
-
-  sources = [ "protobuf/ybusbuf.cpp" ]
-}
-
-library("scheduler") {
-  public_deps = [
-    "//library/cpp/deprecated/atomic",
-    "//library/cpp/threading/future",
-  ]
-
-  sources = [ "scheduler/scheduler.cpp" ]
-}
-
-library("www") {
-  public_deps = [
-    ":messagebus",
-    ":oldmodule",
-    "//library/cpp/cgiparam",
-  ]
-
-  deps = [
-    "//library/cpp/html/pcdata",
-    "//library/cpp/http/fetch",
-    "//library/cpp/http/server",
-    # "//library/cpp/json",
-    "//library/cpp/monlib/deprecated/json",
-    "//library/cpp/resource",
-    "//library/cpp/uri",
-  ]
-
-  sources = [
-    "www/html_output.cpp",
-    "www/www.cpp",
-  ]
-
-  resources = [
-    {
-      path = "www/messagebus.js"
-      key = "/messagebus.js"
-    },
-    {
-      path = "www/bus-ico.png"
-      key = "/bus-ico.png"
-    },
   ]
 }

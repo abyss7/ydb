@@ -3,7 +3,7 @@ library("log") {
     "//library/cpp/malloc/api",
     "//yql/essentials/utils/backtrace",
     "//yql/essentials/utils/log",
-    "//yt/cpp/mapreduce/interface:logging",
+    "//yt/cpp/mapreduce/interface/logging",
     "//yt/yql/providers/yt/lib/init_yt_api",
   ]
 

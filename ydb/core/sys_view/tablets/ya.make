@@ -1,5 +1,7 @@
 LIBRARY()
 
+# gn: move into parent
+
 SRCS(
     tablets.h
     tablets.cpp

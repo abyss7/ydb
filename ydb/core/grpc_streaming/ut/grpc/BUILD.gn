@@ -1,0 +1,3 @@
+protobuf_library("grpc") {
+  sources = [ "streaming_service.proto" ]
+}

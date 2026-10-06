@@ -1,7 +1,7 @@
 library("cloud_audit") {
   public_deps = [
     "//library/cpp/monlib/dynamic_counters",
-    "//ydb/core/fq/libs/config:protos",
+    "//ydb/core/fq/libs/config/protos",
     "//ydb/library/actors/core",
   ]
 
@@ -11,8 +11,8 @@ library("cloud_audit") {
     # "//library/cpp/retry",
     "//library/cpp/unified_agent_client",
     # "//ydb/core/fq/libs/actors",  # peerdir only
-    # "//ydb/core/fq/libs/actors:logging",
-    "//ydb/core/fq/libs/audit:events",
+    # "//ydb/core/fq/libs/actors/logging",
+    "//ydb/core/fq/libs/audit/events",
     "//ydb/library/actors/log_backend",
     "//ydb/library/folder_service",
     "//ydb/library/security",

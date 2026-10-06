@@ -11,9 +11,9 @@ library("io") {
     # "//contrib/libs/protobuf",
     # "//library/cpp/protobuf/runtime",  # peerdir only
     "//library/cpp/skiff",
-    # "//library/cpp/yson:node",
+    # "//library/cpp/yson/node",
     "//library/cpp/yt/logging",
-    "//yt/cpp/mapreduce/interface:logging",
+    "//yt/cpp/mapreduce/interface/logging",
     "//yt/yt/core",
     # "//yt/yt_proto/yt/formats",
   ]

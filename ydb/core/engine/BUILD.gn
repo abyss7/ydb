@@ -8,7 +8,7 @@ library("engine") {
     # "//ydb/core/scheme_types",
     "//ydb/core/tablet_flat",
     "//ydb/library/mkql_proto",
-    # "//ydb/library/mkql_proto:protos",
+    # "//ydb/library/mkql_proto/protos",
     # "//ydb/public/api/protos",
     "//yql/essentials/minikql",
     "//yql/essentials/minikql/computation",
@@ -32,34 +32,5 @@ library("engine") {
     "mkql_engine_flat_host.cpp",
     "mkql_keys.cpp",
     "mkql_proto.cpp",
-  ]
-}
-
-library("minikql") {
-  public_deps = [
-    # ":engine",
-    "//ydb/core/scheme",
-    # "//ydb/core/tablet",
-    "//ydb/core/tablet_flat",
-    # "//yql/essentials/minikql",
-  ]
-
-  deps = [
-    # "//library/cpp/containers/stack_vector",
-    "//ydb/core/base",
-    "//ydb/core/client:minikql_compile",
-    # "//ydb/core/formats",
-    # "//ydb/core/protos",
-    # "//ydb/core/tx/locks",
-    # "//ydb/library/ydb_issue:proto",
-    "//ydb/library/yql/public/ydb_issue",
-    # "//ydb/public/api/protos",
-    "//yql/essentials/minikql/computation",
-    # "//yql/essentials/parser/pg_wrapper/interface",
-  ]
-
-  sources = [
-    "minikql/flat_local_tx_factory.cpp",
-    "minikql/minikql_engine_host.cpp",
   ]
 }

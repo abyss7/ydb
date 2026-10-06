@@ -1,7 +1,7 @@
 protobuf_library("proto") {
   public_deps = [
-    "//ydb/library/yql/dq/actors:protos",
-    "//ydb/library/yql/providers/generic/connector/api/service:protos",
+    "//ydb/library/yql/dq/actors/protos",
+    "//ydb/library/yql/providers/generic/connector/api/service/protos",
     "//ydb/public/api/protos",
   ]
 

@@ -98,7 +98,7 @@ Y_UNIT_TEST_SUITE(TTxDataShardBuildFulltextIndexScan) {
         auto index = ReadShardedTable(server, kIndexTable);
         Cerr << "Index:" << Endl;
         Cerr << index << Endl;
-        return std::move(index);
+        return index;
     }
 
     void CreateMainTable(Tests::TServer::TPtr server, TActorId sender) {

@@ -126,8 +126,8 @@ void RunTestLastTpch()
     }
 
     NUdf::TUnboxedValue* items = nullptr;
-    graph->GetEntryPoint(0, true)->SetValue(graph->GetContext(), graph->GetHolderFactory().CreateDirectArrayHolder(TpchSamples.size(), items));
-    for (const auto& sample : TpchSamples) {
+    graph->GetEntryPoint(0, true)->SetValue(graph->GetContext(), graph->GetHolderFactory().CreateDirectArrayHolder(tpchSamples.size(), items));
+    for (const auto& sample : tpchSamples) {
         NUdf::TUnboxedValue* elements = nullptr;
         *items++ = graph->GetHolderFactory().CreateDirectArrayHolder(7U, elements);
         elements[0] = NUdf::TUnboxedValuePod(std::get<0U>(sample));

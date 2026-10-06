@@ -9,10 +9,10 @@ library("http") {
     "//library/cpp/string_utils/base64",
     # "//library/cpp/string_utils/quote",  # peerdir only
     # "//library/cpp/threading/cron",  # peerdir only
-    # "//library/cpp/yson:node",
+    # "//library/cpp/yson/node",
     # "//yt/cpp/mapreduce/client",
     "//yt/cpp/mapreduce/common",
-    "//yt/cpp/mapreduce/interface:logging",
+    "//yt/cpp/mapreduce/interface/logging",
     # "//yt/yt/core",
     "//yt/yt/core/http",
     "//yt/yt/core/https",

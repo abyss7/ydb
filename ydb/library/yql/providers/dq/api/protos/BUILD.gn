@@ -1,13 +1,13 @@
 protobuf_library("protos") {
   public_deps = [
     "//ydb/library/actors/protos",
-    "//ydb/library/yql/dq/actors:protos",
+    "//ydb/library/yql/dq/actors/protos",
     "//ydb/library/yql/dq/proto",
     "//ydb/public/api/protos",
   ]
 
   deps = [
-    # "//yql/essentials/providers/common/metrics:protos",  # peerdir only
+    # "//yql/essentials/providers/common/metrics/protos",  # peerdir only
   ]
 
   sources = [

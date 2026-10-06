@@ -211,7 +211,7 @@ public:
     explicit TMockPqWriteSession(TDuration operationTimeout)
         : OperationTimeout(operationTimeout)
     {
-        Events.emplace(NYdb::NTopic::TWriteSessionEvent::TReadyToAcceptEvent(std::move(IssueContinuationToken())));
+        Events.emplace(NYdb::NTopic::TWriteSessionEvent::TReadyToAcceptEvent(IssueContinuationToken()));
         FillPromise();
     }
 

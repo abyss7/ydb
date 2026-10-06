@@ -1,40 +1,19 @@
-library("interface") {
-  public_deps = [
-    "//library/cpp/monlib/dynamic_counters",
-    "//ydb/library/actors/core",
-    # "//ydb/library/actors/interconnect",
-    # "//ydb/library/yql/dq/common",
-    # "//ydb/library/yql/providers/dq/api/grpc",
-    "//ydb/library/yql/providers/dq/api/protos",
-    # "//yql/essentials/providers/common/metrics",
-    "//yql/essentials/utils/log",
-  ]
-
-  deps = [ "//ydb/library/yql/providers/dq/common:attrs" ]
-
-  sources = [
-    "interface/counters.cpp",
-    "interface/events.cpp",
-    "interface/worker_info.cpp",
-  ]
-}
-
 library("worker_manager") {
   public_deps = [
-    ":interface",
     # "//ydb/library/actors/core",
-    "//ydb/library/yql/dq/actors:compute",
+    # "//ydb/library/actors/helpers",
+    "//ydb/library/yql/dq/actors/compute",
+    "//ydb/library/yql/providers/dq/actors",
     # "//ydb/library/yql/providers/dq/task_runner",
-    # "//ydb/library/yql/providers/dq/task_runner_actor",
+    "//ydb/library/yql/providers/dq/task_runner_actor",
+    "//ydb/library/yql/providers/dq/worker_manager/interface",
     # "//yql/essentials/minikql",
   ]
 
   deps = [
-    # "//ydb/library/actors/helpers",
     "//ydb/library/actors/interconnect",
     "//ydb/library/ydb_issue",  # peerdir only
     # "//ydb/library/yql/dq/common",
-    "//ydb/library/yql/providers/dq/actors",
     # "//ydb/library/yql/providers/dq/api/grpc",  # peerdir only
     # "//ydb/library/yql/providers/dq/api/protos",  # peerdir only
     "//ydb/library/yql/providers/dq/runtime",

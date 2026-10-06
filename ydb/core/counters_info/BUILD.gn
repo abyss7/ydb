@@ -16,7 +16,7 @@ library("counters_info") {
     # "//ydb/library/services",
     # "//ydb/public/api/grpc",  # peerdir only
     # "//ydb/public/api/protos",  # peerdir only
-    # "//yql/essentials/public/issue:protos",  # peerdir only
+    # "//yql/essentials/public/issue/protos",  # peerdir only
   ]
 
   sources = [ "counters_info.cpp" ]

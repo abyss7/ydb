@@ -1,7 +1,7 @@
 library("ai") {
   public_deps = [
     ":models",
-    ":tools",
+    "//ydb/public/lib/ydb_cli/commands/interactive/ai/tools",
     "//ydb/public/lib/ydb_cli/commands/interactive/common",
     # "//ydb/public/lib/ydb_cli/common",
   ]
@@ -31,34 +31,5 @@ library("models") {
     "models/model_anthropic.cpp",
     "models/model_base.cpp",
     "models/model_openai.cpp",
-  ]
-}
-
-library("tools") {
-  public_deps = [
-    # "//library/cpp/json",
-    # "//ydb/public/lib/ydb_cli/common",
-    # "//ydb/public/sdk/cpp/src/client/driver",
-  ]
-
-  deps = [
-    # "//library/cpp/colorizer",  # peerdir only
-    # "//ydb/library/yverify_stream",
-    # "//ydb/public/lib/json_value",
-    "//ydb/public/lib/ydb_cli/commands/interactive/common",
-    "//ydb/public/lib/ydb_cli/commands/interactive/highlight",
-    # "//ydb/public/lib/ydb_cli/dump",  # peerdir only
-    # "//ydb/public/sdk/cpp/src/client/query",
-    # "//ydb/public/sdk/cpp/src/client/scheme",
-  ]
-
-  sources = [
-    "tools/describe_tool.cpp",
-    "tools/exec_query_tool.cpp",
-    "tools/exec_shell_tool.cpp",
-    "tools/list_directory_tool.cpp",
-    "tools/tool_base.cpp",
-    "tools/tool_interface.cpp",
-    "tools/ydb_help_tool.cpp",
   ]
 }

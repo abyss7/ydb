@@ -1,45 +1,7 @@
-library("impl") {
-  public_deps = [
-    ":include",
-    "//ydb/public/api/grpc:draft",
-    "//ydb/public/sdk/cpp/src/client/impl/internal/make_request",
-    "//ydb/public/sdk/cpp/src/client/topic",
-    "//ydb/public/sdk/cpp/src/client/topic:common",
-    "//ydb/public/sdk/cpp/src/client/topic:impl",
-  ]
-
-  deps = [
-    # "//library/cpp/containers/disjoint_interval_tree",  # peerdir only
-    "//library/cpp/monlib/dynamic_counters",  # peerdir only
-    # "//library/cpp/monlib/metrics",  # peerdir only
-    # "//library/cpp/retry",
-    "//library/cpp/string_utils/url",
-    # "//ydb/public/sdk/cpp/src/client/common_client:impl",  # peerdir only
-    # "//ydb/public/sdk/cpp/src/client/driver",  # peerdir only
-    "//ydb/public/sdk/cpp/src/client/impl/internal/logger",
-    # "//ydb/public/sdk/cpp/src/client/scheme",  # peerdir only
-    "//ydb/public/sdk/cpp/src/client/topic:codecs",  # peerdir only
-    # "//ydb/public/sdk/cpp/src/client/types",
-    # "//ydb/public/sdk/cpp/src/library/grpc/client",  # peerdir only
-    "//ydb/public/sdk/cpp/src/library/persqueue/obfuscate",
-    "//ydb/public/sdk/cpp/src/library/string_utils/helpers",
-  ]
-
-  sources = [
-    "impl/common.cpp",
-    "impl/persqueue.cpp",
-    "impl/persqueue_impl.cpp",
-    "impl/read_session.cpp",
-    "impl/read_session_messages.cpp",
-    "impl/write_session.cpp",
-    "impl/write_session_impl.cpp",
-  ]
-}
-
 library("include") {
   public_deps = [
     # "//library/cpp/logger",
-    # "//ydb/public/api/grpc:draft",
+    # "//ydb/public/api/grpc/draft",
     # "//ydb/public/sdk/cpp/src/client/common_client",
     # "//ydb/public/sdk/cpp/src/client/driver",
     "//ydb/public/sdk/cpp/src/client/topic",
@@ -63,14 +25,14 @@ group("persqueue_public") {
   public_deps = [ ":include" ]
 
   deps = [
-    ":impl",  # peerdir only
     # "//ydb/public/api/grpc",  # peerdir only
-    # "//ydb/public/api/grpc:draft",  # peerdir only
+    # "//ydb/public/api/grpc/draft",  # peerdir only
     # "//ydb/public/api/protos",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/driver",  # peerdir only
+    "//ydb/public/sdk/cpp/src/client/persqueue_public/impl",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/proto",  # peerdir only
     "//ydb/public/sdk/cpp/src/client/topic",  # peerdir only
-    # "//ydb/public/sdk/cpp/src/client/topic:common",  # peerdir only
-    # "//ydb/public/sdk/cpp/src/client/topic:impl",  # peerdir only
+    # "//ydb/public/sdk/cpp/src/client/topic/common",  # peerdir only
+    # "//ydb/public/sdk/cpp/src/client/topic/impl",  # peerdir only
   ]
 }

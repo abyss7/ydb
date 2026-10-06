@@ -1,7 +1,6 @@
 LIBRARY()
 
 SRCS(
-    service.cpp
 )
 
 PEERDIR(

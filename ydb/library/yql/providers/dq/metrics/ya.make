@@ -1,12 +1,7 @@
 LIBRARY()
 
-SET(
-    SOURCE
-    metrics_printer.cpp
-)
-
 SRCS(
-    ${SOURCE}
+    metrics_printer.cpp
 )
 
 PEERDIR(

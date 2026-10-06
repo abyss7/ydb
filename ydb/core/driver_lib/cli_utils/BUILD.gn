@@ -19,16 +19,16 @@ library("cli_utils") {
     # "//ydb/core/base",
     "//ydb/core/blobstorage/nodewarden",
     # "//ydb/core/blobstorage/pdisk",
-    "//ydb/core/blobstorage/pdisk:metadata",
-    # "//ydb/core/client:minikql_compile",  # peerdir only
-    # "//ydb/core/client:scheme_cache_lib",  # peerdir only
+    "//ydb/core/blobstorage/pdisk/metadata",
+    # "//ydb/core/client/minikql_compile",  # peerdir only
+    # "//ydb/core/client/scheme_cache_lib",  # peerdir only
     # "//ydb/core/config/init",
     "//ydb/core/config/validation",
     # "//ydb/core/driver_lib/cli_config_base",
     # "//ydb/core/engine",  # peerdir only
     # "//ydb/core/erasure",  # peerdir only
-    "//ydb/core/mind:bscontroller",  # peerdir only
-    "//ydb/core/mind:group_mapper",
+    "//ydb/core/mind/bscontroller",  # peerdir only
+    "//ydb/core/mind/bscontroller:group_mapper",
     # "//ydb/core/protos",
     # "//ydb/core/scheme",
     # "//ydb/core/tx/tx_proxy:public",
@@ -36,11 +36,11 @@ library("cli_utils") {
     # "//ydb/library/aclib",
     "//ydb/library/actors/core",
     # "//ydb/library/actors/protos",
-    # "//ydb/library/folder_service:proto",  # peerdir only
+    # "//ydb/library/folder_service/proto",  # peerdir only
     "//ydb/library/keys",  # peerdir only
     "//ydb/library/yaml_config",
     # "//ydb/public/api/grpc",
-    "//ydb/public/api/grpc:draft",
+    "//ydb/public/api/grpc/draft",
     # "//ydb/public/api/protos",
     "//ydb/public/lib/ydb_cli/commands",
     "//ydb/public/lib/ydb_cli/commands/ydb_discovery",  # peerdir only

@@ -1,5 +1,5 @@
 protobuf_library("proto") {
-  public_deps = [ "//ydb/library/yql/dq/actors:protos" ]
+  public_deps = [ "//ydb/library/yql/dq/actors/protos" ]
 
   sources = [
     "dq_solomon_shard.proto",

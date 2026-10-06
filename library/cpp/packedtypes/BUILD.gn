@@ -1,5 +1,5 @@
 library("packedtypes") {
-  deps = [
+  public_deps = [
     # "//library/cpp/streams/zc_memory_input",
   ]
 

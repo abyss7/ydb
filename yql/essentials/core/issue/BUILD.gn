@@ -1,6 +1,6 @@
 library("issue") {
   public_deps = [
-    ":protos",
+    "//yql/essentials/core/issue/protos",
     "//yql/essentials/public/issue",
   ]
 
@@ -17,10 +17,4 @@ library("issue") {
       key = "yql_issue.txt"
     },
   ]
-}
-
-protobuf_library("protos") {
-  public_deps = [ "//yql/essentials/public/issue:protos" ]
-
-  sources = [ "protos/issue_id.proto" ]
 }

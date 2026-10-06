@@ -1,21 +1,13 @@
-library("evlog") {
-  public_deps = [
-    "//ydb/library/accessor",
-    "//ydb/library/actors/core",
-  ]
-
-  sources = [ "evlog/log.cpp" ]
-}
-
 library("util") {
   public_deps = [
-    # "//contrib/libs/lz4",
+    "//contrib/libs/lz4",
     # "//contrib/libs/protobuf",
     # "//library/cpp/containers/stack_vector",
     # "//library/cpp/deprecated/atomic",
     "//library/cpp/ipmath",
     "//library/cpp/json",
     # "//library/cpp/monlib/dynamic_counters",
+    # "//library/cpp/random_provider",
     "//ydb/core/base",
     "//ydb/core/protos",
     # "//ydb/core/tablet_flat",
@@ -34,9 +26,8 @@ library("util") {
     # "//library/cpp/html/escape",  # peerdir only
     # "//library/cpp/lwtrace",
     # "//library/cpp/monlib/service/pages",
-    # "//library/cpp/random_provider",
     # "//ydb/core/mon",  # peerdir only
-    # "//ydb/library/actors/interconnect:mock",  # peerdir only
+    # "//ydb/library/actors/interconnect/mock",  # peerdir only
   ]
 
   sources = [

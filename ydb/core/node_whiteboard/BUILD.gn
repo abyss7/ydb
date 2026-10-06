@@ -15,7 +15,7 @@ group("node_whiteboard") {
     "//library/cpp/lwtrace/mon",  # peerdir only
     # "//library/cpp/random_provider",  # peerdir only
     # "//library/cpp/time_provider",  # peerdir only
-    # "//ydb/core/base:services",  # peerdir only
+    # "//ydb/core/base/services",  # peerdir only
     # "//ydb/core/blobstorage/base",  # peerdir only
     # "//ydb/core/erasure",  # peerdir only
     # "//ydb/library/actors/helpers",  # peerdir only

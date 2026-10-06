@@ -1,10 +1,17 @@
-template("protobuf_library") {
+# protoc over .proto sources: the generated .pb.{h,cc} and .grpc.pb.{h,cc}
+# (get_target_outputs of the target, an action_foreach). Shared by
+# protobuf_library() and the .proto among the sources of library() and
+# linked_executable(), which compile the .cc themselves.
+#
+#   sources                    .proto files
+#   proto_includes_target      name of the generated_file with the -I paths the
+#   proto_includes_file          deps advertise (metadata proto_include_dirs)
+#   metadata_deps              walked for that metadata
+#   deps                       of the action itself
+#   extra_plugins, proto_public_include_dirs, generated_sources: as of
+#   protobuf_library()
+template("protobuf_sources") {
     _source_dir = rebase_path("//", root_build_dir)
-    _path = rebase_path(".", "//")
-    _unique_name = exec_script("//build/gn/scripts/unique_name.py", [ _path ], "trim string")
-    _gen_target = "${_unique_name}_${target_name}_gen"
-    _proto_includes_target = "${_unique_name}_${target_name}_proto_includes"
-    _proto_includes_file = "$target_gen_dir/${target_name}.proto_includes"
 
     _proto_paths = [
         "-I", rebase_path("//", root_build_dir),
@@ -37,36 +44,20 @@ template("protobuf_library") {
         }
     }
 
-    # C++ side of the same story: when a foreign proto resolves an `import` via
-    # a non-default `-I`, the corresponding `.pb.h` ends up at the long path
-    # ($root_gen_dir/<full source path>/foo.pb.h), but the generated `#include`
-    # uses the short form (foo.pb.h relative to that `-I`). Mirror each
-    # protoc `-I` with a matching $root_gen_dir/<rel> on the C++ include path.
-    _public_config_target = ""
-    if (defined(invoker.proto_public_include_dirs)) {
-        _public_config_target = "${target_name}_proto_public_config"
-        config(_public_config_target) {
-            include_dirs = []
-            foreach(_dir, invoker.proto_public_include_dirs) {
-                include_dirs += [ "$root_gen_dir/" + rebase_path(_dir, "//") ]
-            }
-        }
-    }
+    _proto_includes_file = invoker.proto_includes_file
 
     # Collect transitive `proto_include_dirs` metadata from all deps. Each
     # protobuf_library may declare `proto_public_include_dirs` to advertise
     # additional `-I` paths to its consumers (analogue of ya make's
     # PROTO_NAMESPACE(GLOBAL ...)).
-    generated_file(_proto_includes_target) {
+    generated_file(invoker.proto_includes_target) {
+        forward_variables_from(invoker, [ "testonly" ])
         outputs = [ _proto_includes_file ]
         data_keys = [ "proto_include_dirs" ]
         output_conversion = "list lines"
         deps = []
-        if (defined(invoker.deps)) {
-            deps += invoker.deps
-        }
-        if (defined(invoker.public_deps)) {
-            deps += invoker.public_deps
+        if (defined(invoker.metadata_deps)) {
+            deps += invoker.metadata_deps
         }
     }
 
@@ -78,13 +69,10 @@ template("protobuf_library") {
     # cannot see here (they are resolved from `_proto_includes_file` at runtime).
     _cpp_out = "$root_gen_dir"
 
-    # C++ sources among `sources` are compiled by the library itself, the
-    # rest go to protoc
-    _cpp_sources = filter_include(invoker.sources, [ "*.cpp", "*.cc", "*.c" ])
-
-    action_foreach(_gen_target) {
+    action_foreach(target_name) {
+        forward_variables_from(invoker, [ "testonly", "visibility" ])
         script = "//build/gn/scripts/protoc.py"
-        sources = invoker.sources - _cpp_sources
+        sources = invoker.sources
         inputs = [ _proto_includes_file ]
         outputs = [
             "$_out_base/{{source_name_part}}.grpc.pb.cc",
@@ -105,7 +93,7 @@ template("protobuf_library") {
         ]
 
         deps = [
-            ":$_proto_includes_target",
+            ":${invoker.proto_includes_target}",
             "//contrib/tools/protoc:protoc",
             "//contrib/tools/protoc/plugins/cpp_styleguide",
             "//contrib/tools/protoc/plugins/grpc_cpp",
@@ -124,6 +112,48 @@ template("protobuf_library") {
         }
 
         args += [ "{{source}}" ]
+    }
+}
+
+template("protobuf_library") {
+    _name = target_name
+    _path = rebase_path(".", "//")
+    _unique_name = exec_script("//build/gn/scripts/unique_name.py", [ _path ], "trim string")
+    _gen_target = "${_unique_name}_${target_name}_gen"
+
+    # C++ side of the same story: when a foreign proto resolves an `import` via
+    # a non-default `-I`, the corresponding `.pb.h` ends up at the long path
+    # ($root_gen_dir/<full source path>/foo.pb.h), but the generated `#include`
+    # uses the short form (foo.pb.h relative to that `-I`). Mirror each
+    # protoc `-I` with a matching $root_gen_dir/<rel> on the C++ include path.
+    _public_config_target = ""
+    if (defined(invoker.proto_public_include_dirs)) {
+        _public_config_target = "${target_name}_proto_public_config"
+        config(_public_config_target) {
+            include_dirs = []
+            foreach(_dir, invoker.proto_public_include_dirs) {
+                include_dirs += [ "$root_gen_dir/" + rebase_path(_dir, "//") ]
+            }
+        }
+    }
+
+    # C++ sources among `sources` are compiled by the library itself, the
+    # rest go to protoc
+    _cpp_sources = filter_include(invoker.sources, [ "*.cpp", "*.cc", "*.c" ])
+
+    protobuf_sources(_gen_target) {
+        forward_variables_from(invoker, [ "deps", "extra_plugins", "proto_public_include_dirs",
+                                          "generated_sources", "testonly" ])
+        sources = invoker.sources - _cpp_sources
+        proto_includes_target = "${_unique_name}_${_name}_proto_includes"
+        proto_includes_file = "$target_gen_dir/${_name}.proto_includes"
+        metadata_deps = []
+        if (defined(invoker.deps)) {
+            metadata_deps += invoker.deps
+        }
+        if (defined(invoker.public_deps)) {
+            metadata_deps += invoker.public_deps
+        }
     }
 
     # Opt-in enum serialization for proto enums, analogous to the `library`

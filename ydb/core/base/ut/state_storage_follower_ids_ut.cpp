@@ -5,6 +5,7 @@
 #include <ydb/core/blobstorage/events/blobstorage_events.h>
 #include <ydb/core/blobstorage/pdisk/blobstorage_pdisk_tools.h>
 #include <ydb/core/mind/bscontroller/bsc.h>
+#include <ydb/core/mind/hive/create_hive.h>
 #include <ydb/core/mind/tenant_pool.h>
 #include <ydb/core/protos/follower_group.pb.h>
 #include <ydb/core/testlib/basics/appdata.h>

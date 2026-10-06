@@ -8,14 +8,3 @@ library("common_client") {
 
   sources = [ "settings.cpp" ]
 }
-
-library("impl") {
-  public_deps = [
-    # ":common_client",
-    "//ydb/public/sdk/cpp/src/client/impl/internal/grpc_connections",
-    # "//ydb/public/sdk/cpp/src/client/types/exceptions",
-    # "//ydb/public/sdk/cpp/src/library/time",
-  ]
-
-  sources = [ "impl/client.cpp" ]
-}

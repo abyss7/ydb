@@ -65,6 +65,7 @@ PEERDIR(
     ydb/core/blobstorage/vdisk/skeleton
     ydb/core/blobstorage/vdisk/synclog
     ydb/core/erasure
+    ydb/library/keys  # gn: public dep
     ydb/library/pdisk_io
 )
 

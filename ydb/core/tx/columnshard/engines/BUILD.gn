@@ -5,12 +5,12 @@ library("engines") {
     # "//ydb/core/formats/arrow",
     # "//ydb/core/tx",
     # "//ydb/core/tx/columnshard",
-    # "//ydb/core/tx/columnshard/blobs_action:abstract",
+    # "//ydb/core/tx/columnshard/blobs_action/abstract",
     # "//ydb/core/tx/columnshard/common",
     "//ydb/core/tx/columnshard/counters",
     "//ydb/core/tx/columnshard/data_accessor",
-    # "//ydb/core/tx/columnshard/data_accessor:abstract",
-    # "//ydb/core/tx/columnshard/data_locks:locks",
+    # "//ydb/core/tx/columnshard/data_accessor/abstract",
+    # "//ydb/core/tx/columnshard/data_locks/locks",
     "//ydb/core/tx/columnshard/engines/changes/abstract",
     "//ydb/core/tx/columnshard/engines/changes/actualization:controller",
     "//ydb/core/tx/columnshard/engines/portions",
@@ -40,7 +40,7 @@ library("engines") {
     # "//ydb/core/tablet",  # peerdir only
     # "//ydb/core/tablet_flat",
     # "//ydb/core/tx/columnshard/blobs_action",
-    # "//ydb/core/tx/columnshard/data_accessor:in_mem",
+    # "//ydb/core/tx/columnshard/data_accessor/in_mem",
     # "//ydb/core/tx/columnshard/data_locks:manager",
     # "//ydb/core/tx/columnshard/engines/changes/actualization",  # peerdir only
     "//ydb/core/tx/columnshard/engines/changes/compaction",
@@ -57,7 +57,7 @@ library("engines") {
     # "//ydb/core/tx/tiering",
     # "//ydb/library/conclusion",
     # "//ydb/library/formats/arrow",
-    "//yql/essentials/public/udf/service/exception_policy",  # peerdir only
+    # "//yql/essentials/public/udf/service/exception_policy",  # link slot
   ]
 
   sources = [

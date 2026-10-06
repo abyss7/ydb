@@ -2,17 +2,17 @@ library("ddisk") {
   public_deps = [
     "//ydb/core/base",
     # "//ydb/core/blobstorage",
+    "//ydb/core/blobstorage/pdisk",
     "//ydb/core/blobstorage/vdisk/common",
     # "//ydb/core/protos",
+    "//ydb/library/actors/wilson",
+    # "//ydb/library/wilson_ids",
   ]
 
   deps = [
     # "//contrib/libs/xxhash",
-    "//ydb/core/blobstorage/pdisk",
     # "//ydb/core/node_whiteboard",
     "//ydb/core/util",
-    "//ydb/library/actors/wilson",
-    # "//ydb/library/wilson_ids",
   ]
 
   sources = [

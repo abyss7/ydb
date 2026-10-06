@@ -1,8 +1,13 @@
 library("console") {
   public_deps = [
+    "//library/cpp/monlib/dynamic_counters",
+    "//ydb/core/actorlib_impl",
     "//ydb/core/base",
+    # "//ydb/core/blobstorage/base",
+    # "//ydb/core/blobstorage/events",
+    "//ydb/core/cms/console/util",
     "//ydb/core/control/lib",
-    "//ydb/core/engine:minikql",
+    "//ydb/core/engine/minikql",
     "//ydb/core/jaeger_tracing",
     # "//ydb/core/mind",
     "//ydb/core/protos",
@@ -13,40 +18,35 @@ library("console") {
     "//ydb/core/tx/tx_proxy:public",
     "//ydb/library/aclib",
     # "//ydb/library/actors/core",
+    # "//ydb/library/actors/interconnect",
     # "//ydb/library/grpc/server",
     # "//ydb/library/yverify_stream",
     # "//ydb/public/api/protos",
     "//ydb/public/sdk/cpp/src/library/operation_id",
-    "//ydb/public/sdk/cpp/src/library/operation_id:protos",
-    # "//yql/essentials/public/issue:protos",
+    "//ydb/public/sdk/cpp/src/library/operation_id/protos",
+    # "//yql/essentials/public/issue/protos",
   ]
 
   deps = [
-    ":util",
-    ":validators",
     # "//contrib/libs/protobuf",
     "//library/cpp/json",
-    "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/monlib/service/pages",
-    "//ydb/core/actorlib_impl",
     "//ydb/core/audit",
     # "//ydb/core/blobstorage",  # peerdir only
-    # "//ydb/core/blobstorage/base",
-    # "//ydb/core/blobstorage/events",
     # "//ydb/core/blobstorage/groupinfo",  # peerdir only
+    "//ydb/core/cms/console/validators",
     "//ydb/core/config/init",
     "//ydb/core/config/validation",
     "//ydb/core/mon",
     # "//ydb/core/node_whiteboard",
-    # "//ydb/core/protos:schemeshard",
+    # "//ydb/core/protos/schemeshard",
     # "//ydb/core/util",
     "//ydb/library/actors/http",
-    # "//ydb/library/actors/interconnect",
     # "//ydb/library/actors/protos",
     "//ydb/library/protobuf_printer",
     # "//ydb/library/wilson_ids",
     "//ydb/library/yaml_config",
-    # "//ydb/public/api/grpc:draft",
+    # "//ydb/public/api/grpc/draft",
   ]
 
   sources = [
@@ -103,38 +103,5 @@ library("console") {
     "net_classifier_updater.cpp",
     "tx_processor.cpp",
     "util.cpp",
-  ]
-}
-
-library("util") {
-  public_deps = [
-    "//ydb/core/base",
-    # "//ydb/core/protos",
-    # "//ydb/library/yverify_stream",
-  ]
-
-  sources = [ "util/config_index.cpp" ]
-}
-
-library("validators") {
-  public_deps = [
-    # "//library/cpp/deprecated/atomic",
-    "//ydb/core/protos",
-    # "//ydb/public/api/protos",
-    # "//yql/essentials/public/issue:protos",
-  ]
-
-  deps = [
-    # "//ydb/core/base",
-    "//ydb/core/tablet",
-    # "//ydb/library/actors/interconnect",
-  ]
-
-  sources = [
-    "validators/core_validators.cpp",
-    "validators/registry.cpp",
-    "validators/validator.cpp",
-    "validators/validator_bootstrap.cpp",
-    "validators/validator_nameservice.cpp",
   ]
 }

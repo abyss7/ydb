@@ -9,7 +9,7 @@ library("abstract") {
     # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
     # "//ydb/library/conclusion",
-    # "//ydb/services/bg_tasks:abstract",
+    # "//ydb/services/bg_tasks/abstract",
   ]
 
   deps = [

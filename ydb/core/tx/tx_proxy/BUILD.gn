@@ -36,7 +36,7 @@ library("read_table") {
     "//ydb/core/ydb_convert",
     # "//ydb/library/actors/core",
     "//yql/essentials/core/issue",
-    # "//yql/essentials/core/issue:protos",
+    # "//yql/essentials/core/issue/protos",
     "//yql/essentials/public/issue",
   ]
 
@@ -66,16 +66,16 @@ library("tx_proxy") {
     # "//ydb/core/io_formats/arrow/scheme",  # peerdir only
     "//ydb/core/kqp/common",
     # "//ydb/core/kqp/executer_actor",
-    # "//ydb/core/protos:schemeshard",
+    # "//ydb/core/protos/schemeshard",
     # "//ydb/core/scheme",
-    "//ydb/core/security:sasl",
-    "//ydb/core/sys_view:common",
+    "//ydb/core/security/sasl",
+    "//ydb/core/sys_view/common",
     "//ydb/core/tablet",
     # "//ydb/core/tablet_flat",
     "//ydb/core/tx",
     "//ydb/core/tx/balance_coverage",
     # "//ydb/core/tx/datashard",
-    # "//ydb/core/tx/long_tx_service:public",
+    # "//ydb/core/tx/long_tx_service/public",
     "//ydb/core/tx/scheme_board",
     # "//ydb/core/tx/scheme_cache",
     "//ydb/core/tx/schemeshard",
@@ -88,9 +88,9 @@ library("tx_proxy") {
     # "//ydb/library/actors/interconnect",  # peerdir only
     # "//ydb/library/actors/protos",
     # "//ydb/library/login",
-    "//ydb/library/login:hashes_checker",
-    # "//ydb/library/login:protos",
-    # "//ydb/library/mkql_proto:protos",
+    "//ydb/library/login/hashes_checker",
+    # "//ydb/library/login/protos",
+    # "//ydb/library/mkql_proto/protos",
     "//ydb/library/protobuf_printer",
     # "//ydb/library/ydb_issue",
     # "//ydb/public/lib/base",  # peerdir only
@@ -124,7 +124,7 @@ library("upload_rows") {
     "//ydb/core/protos",
     "//ydb/core/scheme",
     # "//ydb/core/tx/datashard",
-    "//ydb/core/tx/long_tx_service:public",
+    "//ydb/core/tx/long_tx_service/public",
     "//ydb/core/tx/scheme_cache",
     "//ydb/core/util",
     # "//ydb/library/actors/core",
@@ -142,7 +142,7 @@ library("upload_rows") {
     "//ydb/core/tx/data_events",
     "//ydb/library/actors/prof",
     "//ydb/library/actors/wilson",
-    # "//ydb/library/ydb_issue:proto",
+    # "//ydb/library/ydb_issue/proto",
     "//ydb/services/ext_index/common",
   ]
 

@@ -952,5 +952,4 @@ namespace NKikimr {
         struct TEvSetDownReply : TEventPB<TEvSetDownReply, NKikimrHive::TEvSetDownReply, EvSetDownReply> {};
     };
 
-    IActor* CreateDefaultHive(const TActorId &tablet, TTabletStorageInfo *info);
 }

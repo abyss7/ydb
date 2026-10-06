@@ -6,9 +6,9 @@ library("udf_resolver") {
 
   deps = [
     "//contrib/libs/openssl",
-    # "//library/cpp/yson:node",
+    # "//library/cpp/yson/node",
     # "//yql/essentials/ast",
-    "//yql/essentials/providers/common/schema:expr",
+    "//yql/essentials/providers/common/schema/expr",
   ]
 
   sources = [ "yql_qplayer_udf_resolver.cpp" ]

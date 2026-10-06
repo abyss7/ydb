@@ -4,7 +4,6 @@ config("base_public_config") {
 
 library("base") {
   public_deps = [
-    # ":services",
     "//contrib/libs/protobuf",
     # "//library/cpp/containers/stack_vector",
     # "//library/cpp/deprecated/enum_codegen",
@@ -14,6 +13,7 @@ library("base") {
     # "//library/cpp/threading/light_rw_lock",
     # "//library/cpp/time_provider",
     "//ydb/core/base/generated",
+    # "//ydb/core/base/services",
     # "//ydb/core/blobstorage",
     "//ydb/core/control/lib",
     "//ydb/core/erasure",
@@ -47,7 +47,7 @@ library("base") {
     "//library/cpp/logger",  # peerdir only
     "//library/cpp/lwtrace/mon",  # peerdir only
     # "//library/cpp/monlib/service/pages",
-    "//ydb/core/audit:audit_config",
+    "//ydb/core/audit/audit_config",
     # "//ydb/core/blobstorage/base",
     # "//ydb/core/blobstorage/nodewarden",
     # "//ydb/core/debug",  # peerdir only
@@ -57,7 +57,7 @@ library("base") {
     # "//ydb/core/tablet_flat",
     "//ydb/library/actors/helpers",
     "//ydb/library/actors/protos",
-    # "//ydb/library/login:protos",
+    # "//ydb/library/login/protos",
     "//ydb/library/pretty_types_print/protobuf",  # peerdir only
     # "//ydb/library/services",
     # "//ydb/library/wilson_ids",
@@ -117,17 +117,4 @@ library("base") {
   ]
 
   public_configs = [ ":base_public_config" ]
-}
-
-group("services") {
-  public_deps = [
-    # ":base",
-    # "//ydb/library/actors/core",
-  ]
-
-  deps = [
-    # "//ydb/library/actors/helpers",  # peerdir only
-    # "//ydb/library/actors/interconnect",  # peerdir only
-    # "//ydb/library/actors/protos",  # peerdir only
-  ]
 }

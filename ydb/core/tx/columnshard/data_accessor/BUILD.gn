@@ -1,58 +1,13 @@
-library("abstract") {
-  public_deps = [
-    # ":data_accessor",
-    # "//library/cpp/cache",
-    "//library/cpp/json",
-    "//ydb/core/protos",
-    # "//ydb/core/tx/columnshard/blobs_action:counters",
-    # "//ydb/core/tx/columnshard/common",
-    # "//ydb/core/tx/columnshard/engines/portions",
-    # "//ydb/core/tx/columnshard/tx_reader",
-    # "//ydb/library/accessor",
-    # "//ydb/library/conclusion",
-    "//ydb/services/bg_tasks:abstract",
-  ]
-
-  deps = [
-    # "//ydb/core/tx/columnshard/engines",
-  ]
-
-  sources = [
-    "abstract/collector.cpp",
-    "abstract/constructor.cpp",
-    "abstract/manager.cpp",
-    "local_db/constructor.cpp",
-    "local_db/manager.cpp",
-  ]
-}
-
-library("cache_policy") {
-  public_deps = [
-    "//ydb/core/base",
-    "//ydb/core/tx/columnshard/engines/portions",
-    # "//ydb/core/tx/general_cache:source",
-    "//ydb/core/tx/general_cache:usage",
-    # "//ydb/library/actors/core",
-  ]
-
-  deps = [
-    # ":abstract",
-    # "//ydb/core/tx/columnshard",
-  ]
-
-  sources = [ "cache_policy/policy.cpp" ]
-}
-
 library("data_accessor") {
   public_deps = [
-    ":abstract",
-    # ":cache_policy",
     # "//ydb/core/tx/columnshard/common",
+    "//ydb/core/tx/columnshard/data_accessor/abstract",
+    # "//ydb/core/tx/columnshard/data_accessor/cache_policy",
     "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/core/tx/columnshard/resource_subscriber",
-    # "//ydb/core/tx/general_cache:usage",
+    # "//ydb/core/tx/general_cache/usage",
     # "//ydb/library/signals",
-    # "//ydb/services/bg_tasks:abstract",
+    # "//ydb/services/bg_tasks/abstract",
   ]
 
   deps = [
@@ -64,20 +19,5 @@ library("data_accessor") {
   sources = [
     "manager.cpp",
     "request.cpp",
-  ]
-}
-
-library("in_mem") {
-  public_deps = [
-    ":abstract",
-    # "//ydb/core/tx/columnshard/common",
-    "//ydb/core/tx/columnshard/tx_reader",
-  ]
-
-  deps = [ "//ydb/core/tx/columnshard/engines" ]
-
-  sources = [
-    "in_mem/constructor.cpp",
-    "in_mem/manager.cpp",
   ]
 }

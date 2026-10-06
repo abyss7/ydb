@@ -1,86 +1,65 @@
-library("json") {
-  public_deps = [ "//contrib/libs/protobuf" ]
-
-  deps = [
-    # ":protos",  # peerdir only
-    "//library/cpp/string_utils/base64",
-  ]
-
-  sources = [ "json/json.cpp" ]
-}
-
-protobuf_library("protos") {
-  public_deps = [
-    "//ydb/core/graph/protos",
-    "//ydb/core/protos",
-    "//ydb/public/api/protos",
-  ]
-
-  sources = [ "protos/viewer.proto" ]
-}
-
 library("viewer") {
   public_deps = [
-    ":json",
-    ":protos",
+    ":yaml",
+    # "//library/cpp/protobuf/json",
+    # "//library/cpp/string_utils/base64",
+    # "//ydb/core/base",
+    "//ydb/core/blobstorage/events",
+    # "//ydb/core/cms/console",
     "//ydb/core/driver_lib/run:config",
-    # "//ydb/core/sys_view:common",
+    # "//ydb/core/grpc_services",
+    # "//ydb/core/kqp/common/events",
+    "//ydb/core/node_whiteboard",
+    # "//ydb/core/scheme",
+    # "//ydb/core/sys_view/common",
     "//ydb/core/tablet",
+    # "//ydb/core/tx/scheme_cache",
+    # "//ydb/core/tx/schemeshard",
+    "//ydb/core/tx/tx_proxy:public",
+    # "//ydb/core/util",
+    "//ydb/core/viewer/json",
+    "//ydb/core/viewer/protos",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/http",
+    # "//ydb/library/actors/interconnect",
+    "//ydb/library/actors/wilson",
+    # "//ydb/library/services",
+    # "//ydb/library/wilson_ids",
     # "//ydb/public/sdk/cpp/src/client/types/status",
   ]
 
   deps = [
-    ":yaml",
     # "//contrib/libs/yaml-cpp",
     # "//library/cpp/archive",  # peerdir only
     # "//library/cpp/digest/md5",
     # "//library/cpp/json",
     # "//library/cpp/mime/types",
-    "//library/cpp/monlib/encode:prometheus",
+    "//library/cpp/monlib/encode/prometheus",
     # "//library/cpp/monlib/service/pages",
-    # "//library/cpp/protobuf/json",
-    # "//library/cpp/string_utils/base64",
     # "//library/cpp/yaml/as",
-    # "//ydb/core/base",
     # "//ydb/core/blobstorage/base",  # peerdir only
-    "//ydb/core/blobstorage/events",
     "//ydb/core/blobstorage/vdisk/common",
-    "//ydb/core/client:server",
-    # "//ydb/core/cms/console",
+    "//ydb/core/client/server",
     "//ydb/core/external_sources",
     # "//ydb/core/graph/api",
-    # "//ydb/core/grpc_services",
     # "//ydb/core/grpc_services/local_rpc",
     # "//ydb/core/health_check",  # peerdir only
     # "//ydb/core/kqp/common",
-    # "//ydb/core/kqp/common:events",
     # "//ydb/core/kqp/executer_actor",
     "//ydb/core/kqp/proxy_service",
     # "//ydb/core/mon",
-    "//ydb/core/node_whiteboard",
     # "//ydb/core/persqueue/events",
     "//ydb/core/persqueue/public",
-    # "//ydb/core/persqueue/public:partition_key_range",
-    "//ydb/core/persqueue/public:write_meta",
+    # "//ydb/core/persqueue/public/partition_key_range",
+    "//ydb/core/persqueue/public/write_meta",
     "//ydb/core/persqueue/writer",
     # "//ydb/core/protos",
-    # "//ydb/core/protos:schemeshard",
-    # "//ydb/core/scheme",
+    # "//ydb/core/protos/schemeshard",
     # "//ydb/core/tx/datashard",
-    # "//ydb/core/tx/scheme_cache",
-    # "//ydb/core/tx/schemeshard",
-    "//ydb/core/tx/tx_proxy:public",
-    # "//ydb/core/util",
     # "//ydb/core/ydb_convert",
     "//ydb/library/aclib",
     # "//ydb/library/actors/helpers",  # peerdir only
-    # "//ydb/library/actors/interconnect",
-    "//ydb/library/actors/wilson",
     # "//ydb/library/persqueue/topic_parser",
-    # "//ydb/library/services",
-    # "//ydb/library/wilson_ids",
     # "//ydb/library/yaml_config",
     # "//ydb/public/api/grpc",
     # "//ydb/public/api/protos",
@@ -91,11 +70,11 @@ library("viewer") {
     "//ydb/public/sdk/cpp/src/client/result",
     # "//ydb/public/sdk/cpp/src/client/topic",
     # "//ydb/public/sdk/cpp/src/client/types",  # peerdir only
-    "//ydb/public/sdk/cpp/src/library/operation_id:protos",
+    "//ydb/public/sdk/cpp/src/library/operation_id/protos",
     # "//ydb/public/sdk/cpp/src/library/persqueue/topic_parser_public",
     "//ydb/services/lib/auth",
     # "//ydb/services/lib/sharding",
-    "//ydb/services/persqueue_v1",  # peerdir only
+    "//ydb/services/persqueue_v1",  # link slot
     # "//ydb/services/replication",
     # "//yql/essentials/public/issue",
   ]
@@ -3023,7 +3002,7 @@ library("yaml") {
   ]
 
   deps = [
-    # ":protos",  # peerdir only
+    # "//ydb/core/viewer/protos",  # peerdir only
   ]
 
   sources = [ "yaml/yaml.cpp" ]

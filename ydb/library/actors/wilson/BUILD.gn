@@ -1,6 +1,9 @@
-group("protos") {
-  deps = [
-    # "//contrib/libs/opentelemetry-proto",  # peerdir only
+group("test_util") {
+  testonly = true
+
+  public_deps = [
+    # ":wilson",
+    # "//ydb/library/actors/core",
   ]
 }
 
@@ -15,10 +18,10 @@ library("wilson") {
   ]
 
   deps = [
-    # ":protos",  # peerdir only
     # "//contrib/libs/protobuf",
     "//library/cpp/string_utils/url",
     # "//ydb/library/actors/protos",
+    # "//ydb/library/actors/wilson/protos",  # peerdir only
   ]
 
   sources = [

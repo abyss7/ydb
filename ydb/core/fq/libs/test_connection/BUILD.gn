@@ -1,7 +1,7 @@
 library("events") {
   public_deps = [
     "//ydb/core/fq/libs/control_plane_config:events",
-    # "//ydb/core/fq/libs/control_plane_storage:events",
+    # "//ydb/core/fq/libs/control_plane_storage/events",
     # "//ydb/core/fq/libs/events",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
@@ -10,7 +10,7 @@ library("events") {
   ]
 
   deps = [
-    # "//yql/essentials/public/issue:protos",  # peerdir only
+    # "//yql/essentials/public/issue/protos",  # peerdir only
   ]
 
   sources = [ "events/events.cpp" ]
@@ -19,8 +19,8 @@ library("events") {
 library("test_connection") {
   public_deps = [
     # "//library/cpp/monlib/dynamic_counters",
-    # "//ydb/core/fq/libs/actors:logging",
-    # "//ydb/core/fq/libs/config:protos",
+    # "//ydb/core/fq/libs/actors/logging",
+    # "//ydb/core/fq/libs/config/protos",
     "//ydb/core/fq/libs/db_id_async_resolver_impl",
     # "//ydb/core/fq/libs/shared_resources",
     # "//ydb/core/fq/libs/signer",

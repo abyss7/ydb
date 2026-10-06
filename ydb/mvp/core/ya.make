@@ -22,8 +22,6 @@ SRCS(
     mvp_security_printer.cpp
     mvp_startup_options.cpp
     mvp_swagger.h
-    mvp_test_runtime.cpp
-    mvp_test_runtime.h
     mvp_tokens.cpp
     mvp_tokens.h
     parser.cpp

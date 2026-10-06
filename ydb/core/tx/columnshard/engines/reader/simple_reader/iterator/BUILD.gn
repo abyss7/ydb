@@ -2,7 +2,7 @@ library("iterator") {
   public_deps = [
     # "//ydb/core/formats/arrow",
     # "//ydb/core/tx/columnshard",
-    "//ydb/core/tx/columnshard/blobs_action:abstract",
+    "//ydb/core/tx/columnshard/blobs_action/abstract",
     # "//ydb/core/tx/columnshard/common",
     # "//ydb/core/tx/columnshard/counters",
     # "//ydb/core/tx/columnshard/engines/portions",
@@ -10,7 +10,7 @@ library("iterator") {
     # "//ydb/core/tx/columnshard/engines/reader/abstract",
     # "//ydb/core/tx/columnshard/engines/reader/common",
     # "//ydb/core/tx/columnshard/engines/reader/common_reader/constructor",
-    # "//ydb/core/tx/columnshard/engines/reader/common_reader:iterator",
+    # "//ydb/core/tx/columnshard/engines/reader/common_reader/iterator",
     "//ydb/core/tx/columnshard/engines/reader/simple_reader/duplicates",
     # "//ydb/core/tx/columnshard/engines/scheme",
     "//ydb/core/tx/columnshard/engines/storage/indexes/skip_index",
@@ -21,10 +21,10 @@ library("iterator") {
   ]
 
   deps = [
-    # "//ydb/core/formats/arrow/accessor:sub_columns",
+    # "//ydb/core/formats/arrow/accessor/sub_columns",
     # "//ydb/core/tx/columnshard/blobs_action",  # peerdir only
     # "//ydb/core/tx/columnshard/blobs_reader",
-    # "//ydb/core/tx/columnshard/engines/scheme/indexes:abstract",
+    # "//ydb/core/tx/columnshard/engines/scheme/indexes/abstract",
     # "//ydb/core/tx/columnshard/engines/storage/indexes/portions",
     "//ydb/core/tx/columnshard/engines:filter",
     # "//ydb/core/tx/conveyor/usage",  # peerdir only

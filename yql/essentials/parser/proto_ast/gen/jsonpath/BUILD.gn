@@ -28,7 +28,7 @@ protobuf_library("proto") {
   sources = get_target_outputs(":antlr3_proto")
   generated_sources = true
   deps = [ ":antlr3_proto" ]
-  public_deps = [ "//yql/essentials/public/issue:protos" ]
+  public_deps = [ "//yql/essentials/public/issue/protos" ]
 }
 
 antlr3_run("antlr3_cpp") {

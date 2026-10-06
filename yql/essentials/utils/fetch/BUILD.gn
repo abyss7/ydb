@@ -10,18 +10,14 @@ library("fetch") {
   ]
 
   deps = [
-    # ":proto",  # peerdir only
-    "//library/cpp/charset:lite",
+    "//library/cpp/charset/lite",
     # "//library/cpp/http/misc",
     "//library/cpp/openssl/io",
+    # "//yql/essentials/utils/fetch/proto",  # peerdir only
     "//yql/essentials/utils/log",
   ]
 
   sources = [ "fetch.cpp" ]
 
   configs = [ ":fetch_private_config" ]
-}
-
-protobuf_library("proto") {
-  sources = [ "proto/fetch_config.proto" ]
 }

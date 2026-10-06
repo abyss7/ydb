@@ -8,9 +8,9 @@ library("dynamic_counters") {
   ]
 
   deps = [
-    "//library/cpp/monlib/encode:json",
-    "//library/cpp/monlib/encode:prometheus",
-    "//library/cpp/monlib/encode:spack",
+    "//library/cpp/monlib/encode/json",
+    "//library/cpp/monlib/encode/prometheus",
+    "//library/cpp/monlib/encode/spack",
     "//library/cpp/string_utils/quote",
   ]
 
@@ -19,13 +19,5 @@ library("dynamic_counters") {
     "encode.cpp",
     "golovan_page.cpp",
     "page.cpp",
-  ]
-}
-
-group("percentile") {
-  public_deps = [ ":dynamic_counters" ]
-
-  deps = [
-    # "//library/cpp/containers/stack_vector",  # peerdir only
   ]
 }

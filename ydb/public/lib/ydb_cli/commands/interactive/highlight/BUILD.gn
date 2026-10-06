@@ -1,14 +1,8 @@
-library("color") {
-  public_deps = [ "//contrib/restricted/patched/replxx" ]
-
-  sources = [ "color/schema.cpp" ]
-}
-
 library("highlight") {
   public_deps = [
-    ":color",
     "//contrib/libs/ftxui",
     "//contrib/restricted/patched/replxx",
+    "//ydb/public/lib/ydb_cli/commands/interactive/highlight/color",
   ]
 
   deps = [ "//yql/essentials/sql/v1/highlight" ]

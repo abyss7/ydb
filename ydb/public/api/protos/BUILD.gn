@@ -1,12 +1,5 @@
-protobuf_library("annotations") {
-  sources = [
-    "annotations/sensitive.proto",
-    "annotations/validation.proto",
-  ]
-}
-
 protobuf_library("protos") {
-  public_deps = [ ":annotations" ]
+  public_deps = [ "//ydb/public/api/protos/annotations" ]
 
   sources = [
     "draft/datastreams.proto",

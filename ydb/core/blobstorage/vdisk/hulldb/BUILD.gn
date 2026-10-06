@@ -1,223 +1,41 @@
 group("_self") {
   public_deps = [
-    ":barriers",
-    ":base",
-    ":generic",
     # "//ydb/core/base",
+    "//ydb/core/blobstorage/vdisk/hulldb/barriers",
+    "//ydb/core/blobstorage/vdisk/hulldb/base",
+    "//ydb/core/blobstorage/vdisk/hulldb/generic",
     # "//ydb/core/blobstorage/vdisk:defs",
-  ]
-
-  deps = [
-    # ":fresh",  # peerdir only
-    # "//ydb/core/blobstorage/base",  # peerdir only
-    # "//ydb/core/blobstorage/vdisk/common",  # peerdir only
-    # "//ydb/core/protos",  # peerdir only
-  ]
-}
-
-library("barriers") {
-  public_deps = [
-    # ":_self",
-    # ":base",
-    # ":base_types",
-    # ":fresh",
-    ":generic",
-    # "//ydb/core/blobstorage/vdisk/ingress",
-    "//ydb/core/blobstorage/vdisk:defs",
-    # "//ydb/library/actors/util",
   ]
 
   deps = [
     # "//ydb/core/blobstorage/base",  # peerdir only
-    # "//ydb/core/protos",  # peerdir only
-  ]
-
-  sources = [
-    "barriers/barriers_chain.cpp",
-    "barriers/barriers_essence.cpp",
-    "barriers/barriers_public.cpp",
-    "barriers/barriers_tree.cpp",
-  ]
-}
-
-library("base") {
-  public_deps = [
-    ":base_types",
-    # ":fresh",
-    # ":generic",
-    # "//ydb/core/blobstorage/base",
-    # "//ydb/core/blobstorage/pdisk",
-    "//ydb/core/blobstorage/vdisk/common",
-    "//ydb/core/blobstorage/vdisk/ingress",
-    # "//ydb/core/blobstorage/vdisk/protos",
-    # "//ydb/core/blobstorage/vdisk:defs",
-    # "//ydb/core/protos",
-    # "//ydb/library/actors/util",
-  ]
-
-  deps = [
-    # "//library/cpp/monlib/service/pages",
-    "//ydb/core/base",
-  ]
-
-  sources = [
-    "base/blobstorage_hulldefs.cpp",
-    "base/blobstorage_hullsatisfactionrank.cpp",
-  ]
-}
-
-library("base_types") {
-  public_deps = [
-    # ":base",
-    "//ydb/core/base",
-    # "//ydb/core/blobstorage/groupinfo",
-    # "//ydb/core/blobstorage/vdisk/common",
-    "//ydb/core/blobstorage/vdisk/ingress",
-    # "//ydb/core/protos",
-    # "//ydb/library/actors/util",
-  ]
-
-  deps = [
-    # "//contrib/libs/xxhash",
-  ]
-
-  sources = [
-    "base/blobstorage_blob.cpp",
-    "base/hullbase_barrier.cpp",
-  ]
-}
-
-library("bulksst_add") {
-  public_deps = [
-    ":_self",
-    # ":generic",
-  ]
-
-  deps = [
     # "//ydb/core/blobstorage/vdisk/common",  # peerdir only
+    # "//ydb/core/blobstorage/vdisk/hulldb/fresh",  # peerdir only
     # "//ydb/core/protos",  # peerdir only
-  ]
-
-  sources = [ "bulksst_add/hulldb_bulksst_add.cpp" ]
-}
-
-library("cache_block") {
-  public_deps = [ ":hulldb" ]
-
-  deps = [
-    # ":base",
-    # "//ydb/core/blobstorage/vdisk/protos",  # peerdir only
-    # "//ydb/core/protos",  # peerdir only
-  ]
-
-  sources = [ "cache_block/cache_block.cpp" ]
-}
-
-library("compstrat") {
-  public_deps = [
-    ":_self",
-    ":generic",
-    # "//ydb/core/blobstorage/vdisk:defs",
-  ]
-
-  deps = [
-    # ":base",  # peerdir only
-    "//ydb/core/blobstorage/vdisk/common",
-    # "//ydb/core/protos",  # peerdir only
-  ]
-
-  sources = [
-    "compstrat/hulldb_compstrat_defs.cpp",
-    "compstrat/hulldb_compstrat_selector.cpp",
-  ]
-}
-
-library("fresh") {
-  public_deps = [
-    ":base",
-    ":base_types",
-    # ":generic",
-    # "//library/cpp/monlib/service/pages",
-    # "//library/cpp/threading/skip_list",
-    # "//ydb/core/base",
-    # "//ydb/core/blobstorage/base",
-    # "//ydb/core/blobstorage/vdisk/protos",
-    "//ydb/core/blobstorage/vdisk:defs",
-  ]
-
-  deps = [
-    # "//ydb/core/protos",  # peerdir only
-  ]
-
-  sources = [
-    "fresh/fresh_appendix.cpp",
-    "fresh/fresh_data.cpp",
-    "fresh/fresh_datasnap.cpp",
-    "fresh/fresh_segment.cpp",
-  ]
-}
-
-library("generic") {
-  public_deps = [
-    # ":base",
-    ":base_types",
-    # ":bulksst_add",
-    ":fresh",
-    # "//ydb/core/blobstorage/base",
-    # "//ydb/core/blobstorage/pdisk",
-    # "//ydb/core/blobstorage/vdisk/common",
-    # "//ydb/core/blobstorage/vdisk/huge",
-    # "//ydb/core/blobstorage/vdisk/hullop:hullcompdelete",
-    # "//ydb/core/blobstorage/vdisk/protos",
-    "//ydb/core/blobstorage/vdisk:defs",
-    # "//ydb/core/util",
-  ]
-
-  deps = [
-    # "//library/cpp/monlib/service/pages",
-    # "//ydb/core/blobstorage/vdisk/hullop",
-    # "//ydb/core/protos",  # peerdir only
-  ]
-
-  sources = [
-    "generic/blobstorage_hulloptlsn.cpp",
-    "generic/hulldb_bulksstmngr.cpp",
-    "generic/hullds_idx.cpp",
-    "generic/hullds_idxsnap.cpp",
-    "generic/hullds_sst.cpp",
-    "generic/hullds_sstslice.cpp",
-    "generic/hullds_sstvec.cpp",
   ]
 }
 
 group("hulldb") {
   public_deps = [
     ":_self",
-    # ":bulksst_add",  # peerdir only
-    # ":compstrat",  # peerdir only
-    # ":fresh",  # peerdir only
-    # ":recovery",  # peerdir only
     # "//ydb/core/blobstorage/base",  # peerdir only
     # "//ydb/core/blobstorage/vdisk/common",  # peerdir only
+    # "//ydb/core/blobstorage/vdisk/hulldb/bulksst_add",  # peerdir only
+    # "//ydb/core/blobstorage/vdisk/hulldb/compstrat",  # peerdir only
+    # "//ydb/core/blobstorage/vdisk/hulldb/fresh",  # peerdir only
+    # "//ydb/core/blobstorage/vdisk/hulldb/recovery",  # peerdir only
     # "//ydb/core/protos",  # peerdir only
   ]
 }
 
-library("recovery") {
-  public_deps = [
-    # ":_self",
-    ":barriers",
-    ":bulksst_add",
-    ":cache_block",
-    # "//ydb/core/blobstorage/vdisk/protos",
-  ]
+library("test") {
+  public_deps = [ ":hulldb" ]
 
   deps = [
-    # "//contrib/libs/protobuf",
-    # "//ydb/core/blobstorage/base",  # peerdir only
-    # "//ydb/core/blobstorage/vdisk/common",  # peerdir only
+    # "//ydb/core/blobstorage/vdisk/hulldb/base",
+    # "//ydb/core/blobstorage/vdisk/hulldb/generic",  # peerdir only
     # "//ydb/core/protos",  # peerdir only
   ]
 
-  sources = [ "recovery/hulldb_recovery.cpp" ]
+  sources = [ "test/testhull_index.cpp" ]
 }

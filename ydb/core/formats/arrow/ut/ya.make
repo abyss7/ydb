@@ -36,6 +36,7 @@ SRCS(
     ut_program_step.cpp
     ut_reader.cpp
     ut_slicer.cpp
+    ${ARCADIA_ROOT}/ydb/library/arrow_kernels/ut_common.cpp
 )
 
 END()

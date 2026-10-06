@@ -5,7 +5,7 @@ library("transfer") {
   ]
 
   deps = [
-    "//library/cpp/yson:node",
+    "//library/cpp/yson/node",
     # "//ydb/core/fq/libs/row_dispatcher/events",
     # "//ydb/core/fq/libs/row_dispatcher/purecalc_compilation",
     # "//ydb/core/fq/libs/row_dispatcher/purecalc_no_pg_wrapper",  # peerdir only

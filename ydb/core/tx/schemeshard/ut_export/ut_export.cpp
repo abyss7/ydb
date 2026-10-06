@@ -330,7 +330,7 @@ namespace {
 
         void Cancel(const TVector<TString>& tables, const TString& request, TDelayFunc delayFunc) {
             std::vector<std::string> auditLines;
-            Runtime().AuditLogBackends = std::move(CreateTestAuditLogBackends(auditLines));
+            Runtime().AuditLogBackends = CreateTestAuditLogBackends(auditLines);
 
             Env(); // Init test env
             ui64 txId = 100;
@@ -2307,7 +2307,7 @@ partitioning_settings {
     // Based on CompletedExportEndTime
     Y_UNIT_TEST(AuditCompletedExport) {
         std::vector<std::string> auditLines;
-        Runtime().AuditLogBackends = std::move(CreateTestAuditLogBackends(auditLines));
+        Runtime().AuditLogBackends = CreateTestAuditLogBackends(auditLines);
         Env(); // Init test env
         Runtime().UpdateCurrentTime(TInstant::Now());
         ui64 txId = 100;
@@ -2392,7 +2392,7 @@ partitioning_settings {
 
     Y_UNIT_TEST(AuditCancelledExport) {
         std::vector<std::string> auditLines;
-        Runtime().AuditLogBackends = std::move(CreateTestAuditLogBackends(auditLines));
+        Runtime().AuditLogBackends = CreateTestAuditLogBackends(auditLines);
         Env(); // Init test env
         Runtime().UpdateCurrentTime(TInstant::Now());
         ui64 txId = 100;

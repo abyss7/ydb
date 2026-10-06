@@ -249,7 +249,7 @@ Y_UNIT_TEST_SUITE(TActorTest) {
                 auto actorSystem = TActivationContext::ActorSystem();
                 TMutex *syncMutex = SyncMutex;
 
-                SystemThreadFactory()->Run([=](){
+                SystemThreadFactory()->Run([=, this](){
                     with_lock(*syncMutex) {
                         Sleep(TDuration::MilliSeconds(100));
                         CurrentTime = actorSystem->Timestamp();

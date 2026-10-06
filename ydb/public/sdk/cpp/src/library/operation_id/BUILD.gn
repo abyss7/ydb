@@ -4,16 +4,12 @@ config("operation_id_private_config") {
 
 library("operation_id") {
   deps = [
-    ":protos",
     "//library/cpp/cgiparam",
     "//library/cpp/uri",
+    "//ydb/public/sdk/cpp/src/library/operation_id/protos",
   ]
 
   sources = [ "operation_id.cpp" ]
 
   configs = [ ":operation_id_private_config" ]
-}
-
-protobuf_library("protos") {
-  sources = [ "protos/operation_id.proto" ]
 }

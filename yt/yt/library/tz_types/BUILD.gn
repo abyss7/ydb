@@ -1,6 +1,6 @@
 library("tz_types") {
   public_deps = [
-    "//library/cpp/type_info:tz",
+    "//library/cpp/type_info/tz",
     "//library/cpp/yt/error",
   ]
 

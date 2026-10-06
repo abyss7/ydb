@@ -1,20 +1,3 @@
-library("arrow") {
-  public_deps = [
-    ":codec",
-    # "//contrib/libs/apache/arrow",
-  ]
-
-  deps = [
-    "//yql/essentials/minikql/arrow",
-    "//yql/essentials/public/udf:arrow",
-  ]
-
-  sources = [
-    "arrow/yql_codec_buf_input_stream.cpp",
-    "arrow/yql_codec_buf_output_stream.cpp",
-  ]
-}
-
 library("codec") {
   public_deps = [
     "//library/cpp/enumbitset",
@@ -29,7 +12,7 @@ library("codec") {
 
   deps = [
     "//library/cpp/string_utils/base64",
-    "//library/cpp/yson:node",
+    "//library/cpp/yson/node",
     "//yql/essentials/core",
     # "//yql/essentials/providers/common/mkql",  # peerdir only
     "//yql/essentials/public/decimal",
@@ -44,17 +27,4 @@ library("codec") {
   ]
 
   serialize_enum_headers = [ "yql_codec_type_flags.h" ]
-}
-
-group("yt_arrow_converter_interface") {
-  public_deps = [
-    "//contrib/libs/apache/arrow",
-    # "//library/cpp/yson",
-    "//yql/essentials/public/udf:arrow",
-    # "//yql/essentials/utils",
-  ]
-
-  deps = [
-    # "//yql/essentials/public/udf",  # peerdir only
-  ]
 }

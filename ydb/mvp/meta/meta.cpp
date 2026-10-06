@@ -70,7 +70,7 @@ void MarkIdAsSeen(const TString& id) {
 
 bool GetCacheOwnership(const TString& id, NMeta::TGetCacheOwnershipCallback cb) {
     MetaLocation.GetTableClient(NYdb::NTable::TClientSettings().Database(MetaLocation.RootDomain).AuthToken(MVPAppData()->Tokenator->GetToken("meta-token")))
-                .CreateSession().Subscribe([id, cb = move(cb)](const NYdb::NTable::TAsyncCreateSessionResult& result) {
+                .CreateSession().Subscribe([id, cb = std::move(cb)](const NYdb::NTable::TAsyncCreateSessionResult& result) {
                     auto resultCopy = result;
                     auto res = resultCopy.ExtractValue();
                     if (res.IsSuccess()) {
@@ -90,7 +90,7 @@ bool GetCacheOwnership(const TString& id, NMeta::TGetCacheOwnershipCallback cb) 
                         session.ExecuteDataQuery(
                             query,
                             NYdb::NTable::TTxControl::BeginTx(NYdb::NTable::TTxSettings::SerializableRW()).CommitTx(),
-                            params.Build()).Subscribe([id, cb = move(cb), session](const NYdb::NTable::TAsyncDataQueryResult& result) mutable {
+                            params.Build()).Subscribe([id, cb = std::move(cb), session](const NYdb::NTable::TAsyncDataQueryResult& result) mutable {
                                 NYdb::NTable::TAsyncDataQueryResult resultCopy = result;
                                 auto res = resultCopy.ExtractValue();
                                 if (res.IsSuccess()) {

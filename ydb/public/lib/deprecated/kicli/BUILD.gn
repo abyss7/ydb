@@ -14,11 +14,11 @@ library("kicli") {
 
   deps = [
     # "//contrib/libs/grpc",  # peerdir only
-    # "//ydb/core/protos:schemeshard",
+    # "//ydb/core/protos/schemeshard",
     # "//ydb/library/aclib",  # peerdir only
     "//ydb/library/yql/public/ydb_issue",  # peerdir only
     # "//ydb/public/api/grpc",  # peerdir only
-    # "//ydb/public/api/grpc:draft",  # peerdir only
+    # "//ydb/public/api/grpc/draft",  # peerdir only
     "//yql/essentials/public/decimal",
     "//yql/essentials/public/issue",
   ]

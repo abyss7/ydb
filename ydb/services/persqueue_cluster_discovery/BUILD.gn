@@ -4,24 +4,24 @@ library("cluster_ordering") {
 
 library("persqueue_cluster_discovery") {
   public_deps = [
+    # "//library/cpp/monlib/dynamic_counters",
+    "//ydb/core/grpc_services",
     "//ydb/core/grpc_services/base",
+    "//ydb/core/persqueue/public/cluster_tracker",
+    "//ydb/core/util",
     # "//ydb/library/actors/core",
     "//ydb/library/grpc/server",
-    "//ydb/public/api/grpc:draft",
+    "//ydb/public/api/grpc/draft",
   ]
 
   deps = [
     # ":cluster_ordering",
-    # "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/base",
-    # "//ydb/core/client:server",  # peerdir only
-    "//ydb/core/grpc_services",
-    # "//ydb/core/mind:address_classification",
+    # "//ydb/core/client/server",  # peerdir only
+    # "//ydb/core/mind/address_classification",
     # "//ydb/core/mon",
     # "//ydb/core/persqueue/public",  # peerdir only
-    "//ydb/core/persqueue/public:cluster_tracker",
     # "//ydb/core/protos",
-    "//ydb/core/util",
     # "//ydb/public/api/grpc",  # peerdir only
     # "//ydb/public/api/protos",  # peerdir only
   ]

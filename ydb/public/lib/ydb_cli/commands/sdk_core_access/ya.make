@@ -2,6 +2,7 @@ LIBRARY(ydb_sdk_core_access)
 
 SRCS(
     ../ydb_sdk_core_access.cpp
+    ../ydb_sdk_core_access.h
 )
 
 ADDINCL(

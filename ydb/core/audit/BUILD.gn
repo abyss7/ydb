@@ -18,23 +18,3 @@ library("audit") {
     "login_op.cpp",
   ]
 }
-
-library("audit_config") {
-  public_deps = [
-    "//ydb/core/protos",
-    "//ydb/library/aclib:protos",
-  ]
-
-  sources = [ "audit_config/audit_config.cpp" ]
-}
-
-library("heartbeat_actor") {
-  deps = [
-    ":audit",
-    ":audit_config",
-    "//ydb/library/actors/core",
-    "//ydb/library/yverify_stream",
-  ]
-
-  sources = [ "heartbeat_actor/heartbeat_actor.cpp" ]
-}

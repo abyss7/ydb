@@ -1,7 +1,7 @@
 library("common") {
   public_deps = [
     # "//library/cpp/string_utils/parse_size",
-    "//library/cpp/yson:node",
+    "//library/cpp/yson/node",
     # "//yql/essentials/ast",
     "//yql/essentials/providers/common/config",
     # "//yql/essentials/public/udf",

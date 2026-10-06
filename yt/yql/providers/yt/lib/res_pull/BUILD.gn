@@ -1,7 +1,7 @@
 library("res_pull") {
   public_deps = [
     # "//library/cpp/yson",
-    "//library/cpp/yson:node",
+    "//library/cpp/yson/node",
     "//yql/essentials/minikql",
     # "//yql/essentials/public/udf",
     "//yt/yql/providers/yt/codec",

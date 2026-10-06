@@ -6,7 +6,7 @@ library("url_lister") {
 
   deps = [
     "//contrib/libs/openssl",
-    "//library/cpp/yson:node",
+    "//library/cpp/yson/node",
     # "//yql/essentials/core",  # peerdir only
   ]
 

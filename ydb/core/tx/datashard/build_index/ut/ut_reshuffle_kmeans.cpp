@@ -144,7 +144,7 @@ Y_UNIT_TEST_SUITE (TTxDataShardReshuffleKMeansScan) {
         auto posting = ReadShardedTable(server, kPostingTable);
         Cerr << "Posting:" << Endl;
         Cerr << posting << Endl;
-        return std::move(posting);
+        return posting;
     }
 
     static void DropTable(Tests::TServer::TPtr server, TActorId sender, const char* name)

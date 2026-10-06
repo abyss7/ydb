@@ -8,7 +8,7 @@ library("common_opt") {
   deps = [
     # "//library/cpp/disjoint_sets",
     # "//library/cpp/iterator",
-    # "//library/cpp/yson:node",
+    # "//library/cpp/yson/node",
     # "//yql/essentials/core/sql_types",
     "//yql/essentials/core/type_ann",
     # "//yql/essentials/parser/pg_catalog",

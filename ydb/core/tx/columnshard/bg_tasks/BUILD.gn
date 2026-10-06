@@ -1,33 +1,7 @@
-library("abstract") {
-  public_deps = [
-    # "//ydb/core/tablet_flat",
-    "//ydb/core/tx/columnshard/common",
-    # "//ydb/library/accessor",
-    # "//ydb/library/actors/core",
-    # "//ydb/library/conclusion",
-    # "//ydb/library/services",
-    "//ydb/services/bg_tasks:abstract",
-  ]
-
-  deps = [
-    ":protos",
-    # "//ydb/public/api/protos",
-    # "//ydb/public/sdk/cpp/src/library/operation_id",
-  ]
-
-  sources = [
-    "abstract/adapter.cpp",
-    "abstract/control.cpp",
-    "abstract/session.cpp",
-    "abstract/status_channel.cpp",
-    "abstract/task.cpp",
-  ]
-}
-
 library("adapter") {
   public_deps = [
-    # ":templates",
     # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/columnshard/bg_tasks/templates",
   ]
 
   sources = [ "adapter/adapter.cpp" ]
@@ -35,107 +9,13 @@ library("adapter") {
 
 group("bg_tasks") {
   public_deps = [
-    # ":abstract",  # peerdir only
     # ":adapter",
-    # ":events",  # peerdir only
-    # ":manager",  # peerdir only
-    # ":protos",  # peerdir only
-    # ":session",  # peerdir only
-    # ":templates",
-    # ":transactions",  # peerdir only
-  ]
-}
-
-library("events") {
-  public_deps = [
-    # ":abstract",
-    # ":protos",
-    "//ydb/core/base",
-    # "//ydb/core/tablet_flat",
-    # "//ydb/library/accessor",
-  ]
-
-  sources = [
-    "events/common.cpp",
-    "events/events.cpp",
-    "events/global.cpp",
-    "events/local.cpp",
-  ]
-}
-
-library("manager") {
-  public_deps = [
-    # ":abstract",
-    # ":events",
-    ":session",
-    # "//ydb/core/tablet_flat",
-    # "//ydb/library/accessor",
-    # "//ydb/library/actors/core",
-  ]
-
-  deps = [
-    ":protos",
-    ":transactions",
-  ]
-
-  sources = [
-    "manager/actor.cpp",
-    "manager/manager.cpp",
-  ]
-}
-
-protobuf_library("protos") {
-  deps = [
-    # "//ydb/core/tx/columnshard/common:protos",  # peerdir only
-    # "//ydb/services/bg_tasks:protos",  # peerdir only
-  ]
-
-  sources = [ "protos/data.proto" ]
-}
-
-library("session") {
-  public_deps = [
-    ":abstract",
-    # "//ydb/library/accessor",
-  ]
-
-  deps = [
-    # ":protos",  # peerdir only
-  ]
-
-  sources = [
-    "session/session.cpp",
-    "session/storage.cpp",
-  ]
-}
-
-library("templates") {
-  public_deps = [
-    ":abstract",
-    # "//ydb/core/tablet_flat",
-  ]
-
-  sources = [ "templates/adapter.cpp" ]
-}
-
-library("transactions") {
-  public_deps = [
-    ":abstract",
-    # ":session",
-    # "//ydb/core/protos",
-    "//ydb/core/tablet_flat",
-  ]
-
-  deps = [
-    # ":events",
-    # ":manager",
-  ]
-
-  sources = [
-    "transactions/tx_add.cpp",
-    "transactions/tx_general.cpp",
-    "transactions/tx_remove.cpp",
-    "transactions/tx_save_progress.cpp",
-    "transactions/tx_save_state.cpp",
+    # "//ydb/core/tx/columnshard/bg_tasks/abstract",  # peerdir only
+    # "//ydb/core/tx/columnshard/bg_tasks/events",  # peerdir only
+    # "//ydb/core/tx/columnshard/bg_tasks/manager",  # peerdir only
+    # "//ydb/core/tx/columnshard/bg_tasks/protos",  # peerdir only
+    # "//ydb/core/tx/columnshard/bg_tasks/session",  # peerdir only
+    # "//ydb/core/tx/columnshard/bg_tasks/templates",
+    # "//ydb/core/tx/columnshard/bg_tasks/transactions",  # peerdir only
   ]
 }

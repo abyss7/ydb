@@ -5,7 +5,6 @@ group("comp_nodes") {
     # "//yql/essentials/minikql",
     # "//yql/essentials/minikql/comp_nodes",
     # "//yql/essentials/minikql/computation",
-    # "//yql/essentials/utils",
   ]
 
   deps = [

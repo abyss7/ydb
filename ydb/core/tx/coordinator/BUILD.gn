@@ -1,23 +1,23 @@
 library("coordinator") {
   public_deps = [
     # "//ydb/core/base",
-    "//ydb/core/tx",
-  ]
-
-  deps = [
-    ":public",
-    # "//library/cpp/containers/absl_flat_hash",
-    # "//library/cpp/time_provider",
-    # "//ydb/core/actorlib_impl",  # peerdir only
     # "//ydb/core/control/lib",
-    "//ydb/core/engine:minikql",
     "//ydb/core/protos",
     # "//ydb/core/scheme",
     "//ydb/core/tablet",
     "//ydb/core/tablet_flat",
+    "//ydb/core/tx",
+    "//ydb/core/tx/coordinator/public",
+    # "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//library/cpp/containers/absl_flat_hash",
+    # "//library/cpp/time_provider",
+    # "//ydb/core/actorlib_impl",  # peerdir only
+    "//ydb/core/engine/minikql",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/util",
-    # "//ydb/library/actors/core",
     # "//ydb/library/actors/helpers",  # peerdir only
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/services",
@@ -44,18 +44,4 @@ library("coordinator") {
     "coordinator_state.cpp",
     "mediator_queue.cpp",
   ]
-}
-
-protobuf_library("protos") {
-  sources = [ "protos/events.proto" ]
-}
-
-library("public") {
-  public_deps = [
-    ":protos",
-    "//ydb/core/base",
-    # "//ydb/core/protos",
-  ]
-
-  sources = [ "public/events.cpp" ]
 }

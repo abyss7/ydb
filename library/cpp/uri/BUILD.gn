@@ -4,7 +4,7 @@ config("uri_private_config") {
 
 library("uri") {
   public_deps = [
-    # "//library/cpp/charset:lite",
+    # "//library/cpp/charset/lite",
   ]
 
   deps = [

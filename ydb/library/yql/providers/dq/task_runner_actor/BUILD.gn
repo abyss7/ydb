@@ -1,7 +1,7 @@
 library("task_runner_actor") {
   public_deps = [
     "//ydb/library/actors/core",
-    # "//ydb/library/yql/dq/actors:task_runner",
+    "//ydb/library/yql/dq/actors/task_runner",
     # "//ydb/library/yql/dq/common",
     # "//ydb/library/yql/dq/proto",
     "//ydb/library/yql/dq/runtime",

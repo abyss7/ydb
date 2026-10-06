@@ -5,10 +5,10 @@ library("interface") {
     # "//yql/essentials/core/pg_settings",
     # "//yql/essentials/minikql",
     "//yql/essentials/parser/pg_catalog",
-    "//yql/essentials/providers/common/codec:yt_arrow_converter_interface",
+    "//yql/essentials/providers/common/codec/yt_arrow_converter_interface",
     # "//yql/essentials/public/issue",
     # "//yql/essentials/public/udf",
-    "//yql/essentials/public/udf:arrow",
+    "//yql/essentials/public/udf/arrow",
   ]
 
   deps = [

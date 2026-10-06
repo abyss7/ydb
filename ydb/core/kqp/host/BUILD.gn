@@ -3,7 +3,7 @@ library("host") {
     ":transform",
     "//ydb/core/kqp/federated_query",
     # "//ydb/core/kqp/gateway:interface",
-    "//ydb/core/kqp/opt:logical",
+    "//ydb/core/kqp/opt/logical",
     "//ydb/core/kqp/provider",
     # "//ydb/library/aclib",
     # "//ydb/library/yql/providers/common/http_gateway",
@@ -19,15 +19,15 @@ library("host") {
     "//ydb/core/formats/arrow",
     "//ydb/core/grpc_services",
     # "//ydb/core/kqp/common",
-    # "//ydb/core/kqp/gateway:utils",
+    # "//ydb/core/kqp/gateway/utils",
     "//ydb/core/kqp/opt",
+    "//ydb/core/kqp/opt/peephole",
+    "//ydb/core/kqp/opt/physical",
     "//ydb/core/kqp/opt:helpers",
-    "//ydb/core/kqp/opt:peephole",
-    "//ydb/core/kqp/opt:physical",
     "//ydb/core/kqp/query_compiler",
     "//ydb/core/kqp/query_data",  # peerdir only
     # "//ydb/core/protos",
-    "//ydb/core/tx/long_tx_service:public",  # peerdir only
+    "//ydb/core/tx/long_tx_service/public",  # peerdir only
     "//ydb/core/ydb_convert",
     "//ydb/library/yql/dq/opt",
     # "//ydb/library/yql/providers/dq/common",
@@ -63,10 +63,10 @@ library("host") {
     # "//yql/essentials/sql",  # peerdir only
     # "//yql/essentials/sql/v0",  # peerdir only
     # "//yql/essentials/sql/v1",  # peerdir only
-    # "//yql/essentials/sql/v1/lexer:antlr4",  # peerdir only
-    # "//yql/essentials/sql/v1/lexer:antlr4_ansi",  # peerdir only
-    # "//yql/essentials/sql/v1/proto_parser:antlr4",  # peerdir only
-    # "//yql/essentials/sql/v1/proto_parser:antlr4_ansi",  # peerdir only
+    # "//yql/essentials/sql/v1/lexer/antlr4",  # peerdir only
+    # "//yql/essentials/sql/v1/lexer/antlr4_ansi",  # peerdir only
+    # "//yql/essentials/sql/v1/proto_parser/antlr4",  # peerdir only
+    # "//yql/essentials/sql/v1/proto_parser/antlr4_ansi",  # peerdir only
     # "//yql/essentials/utils/log",
     # "//yt/yql/providers/yt/expr_nodes",
     # "//yt/yql/providers/yt/provider",

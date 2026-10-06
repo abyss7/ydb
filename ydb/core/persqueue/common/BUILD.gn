@@ -4,7 +4,7 @@ library("common") {
     # "//ydb/core/base",
     # "//ydb/core/kafka_proxy",
     "//ydb/core/persqueue/public",
-    # "//ydb/core/persqueue/public:partition_key_range",
+    # "//ydb/core/persqueue/public/partition_key_range",
     # "//ydb/core/protos",
     "//ydb/core/tablet",
     # "//ydb/library/actors/core",
@@ -25,21 +25,4 @@ library("common") {
   ]
 
   serialize_enum_headers = [ "sourceid_info.h" ]
-}
-
-library("proxy") {
-  public_deps = [
-    # "//library/cpp/logger",
-    "//ydb/core/protos",
-    # "//ydb/library/actors/core",
-    "//ydb/library/logger",
-    # "//ydb/public/sdk/cpp/src/client/driver",
-    # "//ydb/public/sdk/cpp/src/client/topic",
-  ]
-
-  deps = [
-    # "//ydb/core/persqueue/public",  # peerdir only
-  ]
-
-  sources = [ "proxy/actor_persqueue_client_iface.cpp" ]
 }

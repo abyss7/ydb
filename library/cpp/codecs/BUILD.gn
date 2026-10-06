@@ -1,15 +1,15 @@
 library("codecs") {
   public_deps = [
+    ":greedy_dict",
     "//library/cpp/bit_io",
+    "//library/cpp/containers/comptrie",
     "//library/cpp/deprecated/accessors",
   ]
 
   deps = [
-    ":greedy_dict",
     "//contrib/libs/zstd",
     "//library/cpp/blockcodecs",
     "//library/cpp/comptable",
-    "//library/cpp/containers/comptrie",
     "//library/cpp/packers",
     "//library/cpp/string_utils/relaxed_escaper",
   ]

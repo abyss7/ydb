@@ -1,11 +1,3 @@
-library("common") {
-  deps = [
-    # "//ydb/library/actors/core",  # peerdir only
-  ]
-
-  sources = [ "common/events_scheduling.cpp" ]
-}
-
 library("testlib") {
   testonly = true
 
@@ -16,14 +8,14 @@ library("testlib") {
     # "//library/cpp/time_provider",
     "//ydb/library/actors/core",
     "//ydb/library/actors/interconnect",
-    "//ydb/library/actors/interconnect:mock",
+    "//ydb/library/actors/interconnect/mock",
     # "//ydb/library/actors/util",
   ]
 
   deps = [
-    # ":common",  # peerdir only
-    # "//ydb/library/actors/interconnect:rdma",
+    # "//ydb/library/actors/interconnect/rdma",
     # "//ydb/library/actors/protos",
+    # "//ydb/library/actors/testlib/common",  # peerdir only
   ]
 
   sources = [ "test_runtime.cpp" ]

@@ -1,5 +1,7 @@
 LIBRARY(library-formats-arrow-accessor-composite)
 
+# gn: move into parent
+
 PEERDIR(
     contrib/libs/apache/arrow
     ydb/library/formats/arrow/common

@@ -1,5 +1,7 @@
 LIBRARY()
 
+# gn: move into parent
+
 SRCS(
     resource_pools.h
     resource_pools.cpp

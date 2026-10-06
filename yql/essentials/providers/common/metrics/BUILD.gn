@@ -2,8 +2,8 @@ library("metrics") {
   public_deps = [ "//library/cpp/monlib/dynamic_counters" ]
 
   deps = [
-    ":protos",
-    # "//library/cpp/logger:global",  # peerdir only
+    # "//library/cpp/logger/global",  # peerdir only
+    "//yql/essentials/providers/common/metrics/protos",
   ]
 
   sources = [
@@ -11,8 +11,4 @@ library("metrics") {
     "sensors_group.cpp",
     "service_counters.cpp",
   ]
-}
-
-protobuf_library("protos") {
-  sources = [ "protos/metrics_registry.proto" ]
 }

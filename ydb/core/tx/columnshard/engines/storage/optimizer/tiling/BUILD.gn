@@ -4,7 +4,7 @@ library("tiling") {
     # "//library/cpp/json",
     # "//ydb/core/formats/arrow",
     # "//ydb/core/protos",  # peerdir only
-    # "//ydb/core/tx/columnshard/blobs_action:abstract",
+    # "//ydb/core/tx/columnshard/blobs_action/abstract",
     # "//ydb/core/tx/columnshard/common",
     "//ydb/core/tx/columnshard/counters",
     "//ydb/core/tx/columnshard/data_locks:manager",

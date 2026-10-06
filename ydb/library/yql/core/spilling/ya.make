@@ -8,9 +8,6 @@ SRCS(
     namespace_cache.h
     namespace_cache.cpp
     interface/spilling.h
-    storage/file_storage/file_storage.cpp
-    storage/storage.h
-    storage/storage.cpp
 )
 
 PEERDIR(

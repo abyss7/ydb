@@ -16,6 +16,7 @@ SRCS(
  )
 
 PEERDIR(
+    yql/essentials/minikql
     yql/essentials/utils/log
 )
 

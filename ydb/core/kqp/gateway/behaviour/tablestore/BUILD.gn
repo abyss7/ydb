@@ -1,36 +1,6 @@
-library("operations") {
-  public_deps = [
-    # "//ydb/core/protos",
-    "//ydb/services/metadata/manager",
-  ]
-
-  deps = [
-    # "//library/cpp/json",
-    "//ydb/core/formats/arrow",
-    # "//ydb/core/kqp/gateway:utils",
-    "//ydb/core/kqp/provider",
-    # "//ydb/core/protos:schemeshard",
-    # "//ydb/core/tx/columnshard/data_accessor:abstract",
-    "//ydb/core/tx/columnshard/engines/scheme/indexes:abstract",
-    # "//ydb/core/tx/columnshard/engines/storage/optimizer/abstract",
-    # "//ydb/library/actors/core",
-  ]
-
-  sources = [
-    "operations/abstract.cpp",
-    "operations/add_column.cpp",
-    "operations/alter_column.cpp",
-    "operations/alter_sharding.cpp",
-    "operations/drop_column.cpp",
-    "operations/drop_index.cpp",
-    "operations/upsert_index.cpp",
-    "operations/upsert_opt.cpp",
-  ]
-}
-
 library("tablestore") {
   public_deps = [
-    ":operations",
+    "//ydb/core/kqp/gateway/behaviour/tablestore/operations",
     "//ydb/core/tx/tx_proxy:public",
     "//ydb/services/metadata/abstract",
     # "//ydb/services/metadata/manager",
@@ -38,7 +8,7 @@ library("tablestore") {
 
   deps = [
     # "//ydb/core/base",
-    "//ydb/core/kqp/gateway:actors",
+    "//ydb/core/kqp/gateway/actors",
     # "//ydb/core/kqp/provider",
     # "//ydb/services/metadata/initializer",  # peerdir only
   ]

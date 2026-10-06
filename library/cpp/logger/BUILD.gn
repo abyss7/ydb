@@ -1,13 +1,3 @@
-library("global") {
-  public_deps = [ ":logger" ]
-
-  sources = [
-    "global/common.cpp",
-    "global/global.cpp",
-    "global/rty_formater.cpp",
-  ]
-}
-
 library("logger") {
   public_deps = [ "//library/cpp/json" ]
 

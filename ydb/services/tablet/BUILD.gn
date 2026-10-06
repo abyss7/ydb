@@ -3,7 +3,7 @@ library("tablet") {
     "//ydb/core/grpc_services/base",
     # "//ydb/library/actors/core",
     "//ydb/library/grpc/server",
-    "//ydb/public/api/grpc:draft",
+    "//ydb/public/api/grpc/draft",
   ]
 
   deps = [

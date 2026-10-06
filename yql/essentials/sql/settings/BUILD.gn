@@ -11,7 +11,7 @@ library("settings") {
     "//library/cpp/deprecated/split",
     "//library/cpp/json",
     "//yql/essentials/core/issue",
-    # "//yql/essentials/core/issue:protos",  # peerdir only
+    # "//yql/essentials/core/issue/protos",  # peerdir only
     # "//yql/essentials/providers/common/provider",
     "//yql/essentials/utils",
   ]

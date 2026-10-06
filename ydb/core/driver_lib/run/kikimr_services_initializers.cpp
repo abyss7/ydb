@@ -17,6 +17,7 @@
 #include <ydb/core/base/feature_flags.h>
 #include <ydb/core/base/feature_flags_service.h>
 #include <ydb/core/base/hive.h>
+#include <ydb/core/mind/hive/create_hive.h>
 #include <ydb/core/base/location.h>
 #include <ydb/core/base/pool_stats_collector.h>
 #include <ydb/core/base/statestorage_impl.h>

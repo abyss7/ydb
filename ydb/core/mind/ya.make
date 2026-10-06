@@ -2,7 +2,7 @@ LIBRARY()
 
 SRCS(
     configured_tablet_bootstrapper.cpp  # gn: into ydb/core/driver_lib/run
-    configured_tablet_bootstrapper.h
+    configured_tablet_bootstrapper.h  # gn: into ydb/core/driver_lib/run
     defs.h
     dynamic_nameserver.cpp
     dynamic_nameserver.h

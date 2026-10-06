@@ -1,11 +1,14 @@
 LIBRARY()
 
+# gn: move into parent
+
 SRCS(
     ut_common.cpp
     ut_common.h
 )
 
 PEERDIR(
+    ydb/core/grpc_services
     ydb/core/tx/columnshard/hooks/testing
     ydb/core/testlib
 )

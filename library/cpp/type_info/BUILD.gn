@@ -15,7 +15,3 @@ library("type_info") {
 
   serialize_enum_headers = [ "type_list.h" ]
 }
-
-library("tz") {
-  sources = [ "tz/tz.cpp" ]
-}

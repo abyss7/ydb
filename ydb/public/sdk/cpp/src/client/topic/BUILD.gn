@@ -15,7 +15,7 @@ library("_self") {
   deps = [
     # "//library/cpp/streams/zstd",  # peerdir only
     # "//ydb/public/api/grpc",  # peerdir only
-    # "//ydb/public/api/grpc:draft",  # peerdir only
+    # "//ydb/public/api/grpc/draft",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/driver",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/table",  # peerdir only
   ]
@@ -30,92 +30,17 @@ library("_self") {
   ]
 }
 
-library("codecs") {
-  deps = [
-    # ":_self",
-    "//library/cpp/streams/zstd",
-  ]
-
-  sources = [ "codecs/codecs.cpp" ]
-}
-
-library("common") {
-  public_deps = [
-    ":_self",
-    # "//library/cpp/threading/future",
-    # "//ydb/public/sdk/cpp/src/client/common_client:impl",
-  ]
-
-  deps = [
-    # "//library/cpp/monlib/dynamic_counters",  # peerdir only
-    # "//ydb/public/sdk/cpp/src/client/impl/internal/thread_pool",
-    # "//ydb/public/sdk/cpp/src/client/types",  # peerdir only
-  ]
-
-  sources = [
-    "common/executor_impl.cpp",
-    "common/retry_policy.cpp",
-  ]
-}
-
-library("impl") {
-  public_deps = [
-    ":_self",
-    ":common",
-    # "//contrib/libs/protobuf",
-    # "//library/cpp/containers/disjoint_interval_tree",
-    "//library/cpp/threading/future",
-    # "//ydb/public/api/grpc",
-    # "//ydb/public/api/grpc:draft",
-    "//ydb/public/sdk/cpp/src/client/common_client:impl",
-    "//ydb/public/sdk/cpp/src/client/impl/internal/logger",
-    "//ydb/public/sdk/cpp/src/client/impl/internal/make_request",
-    # "//ydb/public/sdk/cpp/src/client/persqueue_public:include",
-    # "//ydb/public/sdk/cpp/src/client/proto",
-    # "//ydb/public/sdk/cpp/src/client/table",
-    # "//ydb/public/sdk/cpp/src/client/types",
-  ]
-
-  deps = [
-    ":codecs",  # peerdir only
-    # "//library/cpp/monlib/dynamic_counters",  # peerdir only
-    # "//library/cpp/monlib/metrics",  # peerdir only
-    # "//library/cpp/string_utils/url",
-    "//library/cpp/threading/future:subscription",
-    # "//ydb/public/sdk/cpp/src/client/driver",  # peerdir only
-    # "//ydb/public/sdk/cpp/src/library/decimal",
-    # "//ydb/public/sdk/cpp/src/library/grpc/client",  # peerdir only
-    # "//ydb/public/sdk/cpp/src/library/persqueue/obfuscate",  # peerdir only
-  ]
-
-  sources = [
-    "impl/common.cpp",
-    "impl/deferred_commit.cpp",
-    "impl/direct_reader.cpp",
-    "impl/event_handlers.cpp",
-    "impl/offsets_collector.cpp",
-    "impl/proto_accessor.cpp",
-    "impl/read_session.cpp",
-    "impl/read_session_event.cpp",
-    "impl/topic.cpp",
-    "impl/topic_impl.cpp",
-    "impl/transaction.cpp",
-    "impl/write_session.cpp",
-    "impl/write_session_impl.cpp",
-  ]
-}
-
 group("topic") {
   public_deps = [
     ":_self",
-    ":codecs",  # peerdir only
-    # ":common",  # peerdir only
-    ":impl",  # peerdir only
     # "//library/cpp/streams/zstd",  # peerdir only
     # "//ydb/public/api/grpc",  # peerdir only
-    # "//ydb/public/api/grpc:draft",  # peerdir only
+    # "//ydb/public/api/grpc/draft",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/driver",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/proto",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/table",  # peerdir only
+    "//ydb/public/sdk/cpp/src/client/topic/codecs",  # peerdir only
+    # "//ydb/public/sdk/cpp/src/client/topic/common",  # peerdir only
+    "//ydb/public/sdk/cpp/src/client/topic/impl",  # peerdir only
   ]
 }

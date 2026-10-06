@@ -7,7 +7,7 @@ library("duplicates") {
     # "//ydb/core/tx/columnshard/common",
     # "//ydb/core/tx/columnshard/counters",
     # "//ydb/core/tx/columnshard/engines/portions",
-    "//ydb/core/tx/columnshard/engines/reader/common_reader:iterator",
+    "//ydb/core/tx/columnshard/engines/reader/common_reader/iterator",
     # "//ydb/core/tx/columnshard/engines/reader/simple_reader/iterator",
     # "//ydb/core/tx/conveyor_composite/usage",
     # "//ydb/core/tx/limiter/grouped_memory/service",

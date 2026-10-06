@@ -1,26 +1,11 @@
 library("abstract") {
   public_deps = [
-    ":common",
+    "//ydb/core/tx/columnshard/engines/changes/compaction/common",
     # "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/library/accessor",
   ]
 
   sources = [ "abstract/merger.cpp" ]
-}
-
-library("common") {
-  public_deps = [
-    # "//contrib/libs/apache/arrow",
-    # "//ydb/core/tx/columnshard/counters",
-    "//ydb/core/tx/columnshard/engines/scheme",
-    "//ydb/core/tx/columnshard/splitter:abstract",
-    # "//ydb/library/formats/arrow:splitter",
-  ]
-
-  sources = [
-    "common/context.cpp",
-    "common/result.cpp",
-  ]
 }
 
 library("compaction") {
@@ -30,19 +15,19 @@ library("compaction") {
     "//ydb/core/tx/columnshard/engines/changes/abstract",
     # "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/core/tx/columnshard/engines/scheme",
-    # "//ydb/library/formats/arrow:splitter",
+    # "//ydb/library/formats/arrow/splitter",
   ]
 
   deps = [
     ":abstract",
-    # ":common",  # peerdir only
     ":dictionary",  # peerdir only
-    ":plain",
     ":sparsed",
-    ":sub_columns",  # peerdir only
+    # "//ydb/core/tx/columnshard/engines/changes/compaction/common",  # peerdir only
+    "//ydb/core/tx/columnshard/engines/changes/compaction/plain",
+    "//ydb/core/tx/columnshard/engines/changes/compaction/sub_columns",  # peerdir only
     # "//ydb/core/tx/columnshard/splitter",
     # "//ydb/core/tx/tiering",  # peerdir only
-    # "//ydb/library/formats/arrow:simple_builder",
+    # "//ydb/library/formats/arrow/simple_builder",
   ]
 
   sources = [ "merger.cpp" ]
@@ -51,78 +36,32 @@ library("compaction") {
 library("dictionary") {
   deps = [
     ":abstract",
-    # ":common",  # peerdir only
     "//ydb/core/formats/arrow",
-    # "//ydb/core/formats/arrow/accessor:common",
+    # "//ydb/core/formats/arrow/accessor/common",
+    # "//ydb/core/formats/arrow/accessor/sparsed",
     "//ydb/core/formats/arrow/accessor:composite",
     "//ydb/core/formats/arrow/accessor:dictionary",
-    # "//ydb/core/formats/arrow/accessor:sparsed",
     # "//ydb/core/formats/arrow/switch",
+    # "//ydb/core/tx/columnshard/engines/changes/compaction/common",  # peerdir only
     "//ydb/core/tx/columnshard/engines/portions",
   ]
 
   sources = [ "dictionary/logic.cpp" ]
 }
 
-library("plain") {
-  public_deps = [
-    # ":abstract",
-    # ":common",
-    # "//contrib/libs/apache/arrow",
-    # "//ydb/core/formats/arrow",
-    # "//ydb/core/formats/arrow/accessor:common",
-    # "//ydb/core/tx/columnshard/counters",
-    "//ydb/core/tx/columnshard/engines/portions",
-    "//ydb/core/tx/columnshard/engines/scheme",
-    # "//ydb/core/tx/columnshard/splitter",
-    "//ydb/library/formats/arrow",
-  ]
-
-  deps = [
-    # "//ydb/core/tx/columnshard/engines/changes/counters",
-    "//ydb/library/formats/arrow:validation",
-  ]
-
-  sources = [
-    "plain/column_cursor.cpp",
-    "plain/column_portion_chunk.cpp",
-    "plain/logic.cpp",
-    "plain/merged_column.cpp",
-  ]
-}
-
 library("sparsed") {
   public_deps = [
     # ":abstract",
     # "//ydb/core/formats/arrow",
-    # "//ydb/core/formats/arrow/accessor:common",
-    "//ydb/core/formats/arrow/accessor:sparsed",
+    # "//ydb/core/formats/arrow/accessor/common",
+    "//ydb/core/formats/arrow/accessor/sparsed",
   ]
 
   deps = [
-    # ":common",  # peerdir only
     # "//ydb/core/formats/arrow/switch",
+    # "//ydb/core/tx/columnshard/engines/changes/compaction/common",  # peerdir only
     "//ydb/core/tx/columnshard/engines/portions",
   ]
 
   sources = [ "sparsed/logic.cpp" ]
-}
-
-library("sub_columns") {
-  deps = [
-    ":abstract",
-    # ":common",  # peerdir only
-    "//ydb/core/formats/arrow",
-    # "//ydb/core/formats/arrow/accessor:common",
-    "//ydb/core/formats/arrow/accessor:sparsed",
-    "//ydb/core/formats/arrow/accessor:sub_columns",
-    "//ydb/core/tx/columnshard/engines/portions",
-  ]
-
-  sources = [
-    "sub_columns/builder.cpp",
-    "sub_columns/iterator.cpp",
-    "sub_columns/logic.cpp",
-    "sub_columns/remap.cpp",
-  ]
 }

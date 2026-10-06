@@ -1,4 +1,6 @@
 library("compressors") {
+  public_deps = [ "//yql/essentials/utils" ]
+
   deps = [
     # "//contrib/libs/brotli:common",
     "//contrib/libs/brotli:dec",  # peerdir only
@@ -11,9 +13,8 @@ library("compressors") {
     "//contrib/libs/zlib",
     "//contrib/libs/zstd",
     "//ydb/core/util",
-    "//ydb/library/yql/dq/actors:protos",
+    "//ydb/library/yql/dq/actors/protos",
     "//ydb/library/yql/udfs/common/clickhouse/client",
-    "//yql/essentials/utils",
   ]
 
   sources = [

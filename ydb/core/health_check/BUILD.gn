@@ -14,7 +14,7 @@ library("health_check") {
     # "//ydb/core/mind",
     "//ydb/core/mon",
     # "//ydb/core/protos",
-    # "//ydb/core/sys_view:common",
+    # "//ydb/core/sys_view/common",
     "//ydb/core/tablet",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/schemeshard",
@@ -27,7 +27,7 @@ library("health_check") {
     "//ydb/public/api/grpc",
     "//ydb/public/sdk/cpp/src/library/grpc/client",
     # "//yql/essentials/public/issue",
-    # "//yql/essentials/public/issue:protos",  # peerdir only
+    # "//yql/essentials/public/issue/protos",  # peerdir only
   ]
 
   sources = [ "health_check.cpp" ]

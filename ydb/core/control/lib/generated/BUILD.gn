@@ -51,7 +51,7 @@ codegen("generated") {
 
     deps = [
         "//library/cpp/threading/hot_swap",
-        "//ydb/core/control/lib:base",
+        "//ydb/core/control/lib/base",
     ]
 
     sources = [

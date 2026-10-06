@@ -1,9 +1,9 @@
 protobuf_library("protos") {
   public_deps = [
-    "//ydb/core/fq/libs/config:protos",
-    "//ydb/library/yql/dq/actors:protos",
+    "//ydb/core/fq/libs/config/protos",
+    "//ydb/library/yql/dq/actors/protos",
     "//ydb/public/api/protos",
-    "//ydb/public/api/protos:annotations",
+    "//ydb/public/api/protos/annotations",
   ]
 
   sources = [

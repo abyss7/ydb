@@ -256,7 +256,7 @@ public:
             Y_ASSERT((intptr_t)Buffers[i] % 512 == 0);
             ReqPool.emplace_back();
             ReqPool.back().Op = IoContext->CreateAsyncIoOperation(&ReqPool.back(), NPDisk::TReqId(), nullptr);
-            if (double(randGen.GenRand()) / Max<ui64>() < ReadProportion) {
+            if (double(randGen.GenRand()) / static_cast<double>(Max<ui64>()) < ReadProportion) {
                 IoContext->PreparePRead(ReqPool.back().Op, Buffers[i], BuffSize, offset);
                 file->Pwrite(Buffers[i], BuffSize, offset);
             } else {

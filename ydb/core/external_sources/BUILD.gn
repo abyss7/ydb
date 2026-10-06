@@ -16,8 +16,8 @@ library("external_sources") {
     "//library/cpp/scheme",
     "//ydb/core/base",  # peerdir only
     "//ydb/core/external_sources/object_storage",
-    "//ydb/core/external_sources/object_storage:inference",
-    # "//ydb/core/kqp/gateway:actors",
+    "//ydb/core/external_sources/object_storage/inference",
+    # "//ydb/core/kqp/gateway/actors",
     "//ydb/library/actors/http",
     # "//ydb/library/yql/providers/common/http_gateway",
     # "//ydb/library/yql/providers/s3/common",  # peerdir only

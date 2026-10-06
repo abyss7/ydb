@@ -1,5 +1,5 @@
 library("procfs") {
-  deps = [
+  public_deps = [
     # "//library/cpp/yt/error",
   ]
 

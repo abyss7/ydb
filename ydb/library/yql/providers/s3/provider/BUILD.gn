@@ -1,8 +1,10 @@
 library("provider") {
   public_deps = [
+    # "//library/cpp/threading/future",
     # "//ydb/library/yql/providers/common/http_gateway",
     # "//ydb/library/yql/providers/common/token_accessor/client",
     "//ydb/library/yql/providers/s3/actors_factory",
+    "//ydb/library/yql/providers/s3/object_listers",
     # "//yql/essentials/core",
     "//yql/essentials/providers/common/config",
     "//yql/essentials/providers/common/transform",
@@ -14,22 +16,20 @@ library("provider") {
     # "//library/cpp/protobuf/util",  # peerdir only
     # "//library/cpp/random_provider",  # peerdir only
     # "//library/cpp/retry",  # peerdir only
-    # "//library/cpp/threading/future",
     # "//library/cpp/time_provider",  # peerdir only
     "//library/cpp/xml/document",
-    # "//library/cpp/yson:node",
+    # "//library/cpp/yson/node",
     # "//ydb/library/yql/dq/expr_nodes",
     "//ydb/library/yql/dq/opt",
     "//ydb/library/yql/providers/common/pushdown",
     # "//ydb/library/yql/providers/dq/common",
     # "//ydb/library/yql/providers/dq/expr_nodes",
     "//ydb/library/yql/providers/dq/mkql",
-    # "//ydb/library/yql/providers/generic/connector/api/service:protos",
+    # "//ydb/library/yql/providers/generic/connector/api/service/protos",
     "//ydb/library/yql/providers/generic/provider",
     "//ydb/library/yql/providers/s3/actors",
     "//ydb/library/yql/providers/s3/common",
     # "//ydb/library/yql/providers/s3/expr_nodes",
-    "//ydb/library/yql/providers/s3/object_listers",
     "//ydb/library/yql/providers/s3/path_generator",
     # "//ydb/library/yql/providers/s3/proto",
     # "//ydb/library/yql/providers/s3/range_helpers",
@@ -38,14 +38,14 @@ library("provider") {
     # "//yql/essentials/ast",  # peerdir only
     # "//yql/essentials/core/dq_integration",
     # "//yql/essentials/core/expr_nodes",
-    # "//yql/essentials/core/issue:protos",
+    # "//yql/essentials/core/issue/protos",
     # "//yql/essentials/core/type_ann",  # peerdir only
     # "//yql/essentials/minikql/comp_nodes",  # peerdir only
     "//yql/essentials/providers/common/dq",
     "//yql/essentials/providers/common/mkql",
     # "//yql/essentials/providers/common/proto",
     "//yql/essentials/providers/common/provider",
-    "//yql/essentials/providers/common/schema:expr",
+    "//yql/essentials/providers/common/schema/expr",
     "//yql/essentials/providers/common/structured_token",
     # "//yql/essentials/providers/result/expr_nodes",
     # "//yql/essentials/public/udf",

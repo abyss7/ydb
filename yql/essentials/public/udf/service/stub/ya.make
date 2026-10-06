@@ -1,6 +1,7 @@
 LIBRARY()
 
 PROVIDES(YqlServicePolicy)
+# gn: default provider
 
 SRCS(
     GLOBAL udf_service.cpp

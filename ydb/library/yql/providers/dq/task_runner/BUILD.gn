@@ -3,7 +3,7 @@ library("task_runner") {
     # "//ydb/library/yql/dq/common",
     "//ydb/library/yql/dq/runtime",
     "//ydb/library/yql/providers/dq/api/protos",
-    # "//yql/essentials/core/dq_integration:transform",
+    # "//yql/essentials/core/dq_integration/transform",
     # "//yql/essentials/minikql",
     # "//yql/essentials/minikql/computation",
   ]
@@ -11,7 +11,7 @@ library("task_runner") {
   deps = [
     "//library/cpp/svnversion",
     "//library/cpp/threading/task_scheduler",
-    # "//library/cpp/yson:node",
+    # "//library/cpp/yson/node",
     # "//ydb/library/yql/dq/proto",  # peerdir only
     "//ydb/library/yql/providers/dq/common",
     # "//ydb/library/yql/providers/dq/counters",

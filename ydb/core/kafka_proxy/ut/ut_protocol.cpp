@@ -1867,7 +1867,7 @@ Y_UNIT_TEST_SUITE(KafkaProtocol) {
                 } else {
                     // check that in case an error has occurred (because committed offset exceeded endoffset)
                     // committed metadata is not saved
-                    UNIT_ASSERT_VALUES_EQUAL(it->Metadata, std::nullopt);
+                    UNIT_ASSERT_C(!it->Metadata.has_value(), "committed metadata must not be saved");
                 }
                 i += 1;
             }

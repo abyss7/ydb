@@ -1,36 +1,21 @@
-library("common") {
-  public_deps = [
-    # "//library/cpp/monlib/dynamic_counters",
-    "//ydb/library/conclusion",
-    # "//ydb/library/conclusion:generic",
-    "//ydb/library/yql/dq/actors:protos",
-  ]
-
-  deps = [
-    # "//yql/essentials/public/issue",  # peerdir only
-  ]
-
-  sources = [ "common/common.cpp" ]
-}
-
 library("filters") {
   public_deps = [
-    # ":common",
     # "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/fq/libs/row_dispatcher/events",
+    # "//ydb/core/fq/libs/row_dispatcher/format_handler/common",
     # "//yql/essentials/public/udf",
   ]
 
   deps = [
     "//contrib/libs/fmt",
-    # "//ydb/core/fq/libs/actors:logging",
+    # "//ydb/core/fq/libs/actors/logging",
     # "//ydb/core/fq/libs/row_dispatcher/purecalc_no_pg_wrapper",  # peerdir only
     # "//ydb/library/actors/core",  # peerdir only
     # "//yql/essentials/minikql",  # peerdir only
     # "//yql/essentials/minikql/comp_nodes",  # peerdir only
     "//yql/essentials/minikql/computation",
     # "//yql/essentials/minikql/invoke_builtins",  # peerdir only
-    "//yql/essentials/providers/common/schema:parser",
+    "//yql/essentials/providers/common/schema/parser",
     # "//yql/essentials/public/purecalc/common",
   ]
 
@@ -43,46 +28,19 @@ library("filters") {
 library("format_handler") {
   public_deps = [
     ":filters",
-    ":parsers",
     "//ydb/core/fq/libs/row_dispatcher/common",
     # "//ydb/core/fq/libs/row_dispatcher/events",
+    "//ydb/core/fq/libs/row_dispatcher/format_handler/parsers",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/util",
   ]
 
   deps = [
-    ":common",  # peerdir only
-    # "//ydb/core/fq/libs/actors:logging",
+    # "//ydb/core/fq/libs/actors/logging",
+    "//ydb/core/fq/libs/row_dispatcher/format_handler/common",  # peerdir only
     # "//ydb/library/yql/dq/common",
     "//yql/essentials/minikql/computation",
   ]
 
   sources = [ "format_handler.cpp" ]
-}
-
-library("parsers") {
-  public_deps = [
-    ":common",
-    "//ydb/core/fq/libs/row_dispatcher/common",
-    # "//ydb/core/fq/libs/row_dispatcher/events",
-    "//ydb/public/sdk/cpp/src/client/topic",
-    "//yql/essentials/minikql",
-    "//yql/essentials/public/udf",
-  ]
-
-  deps = [
-    "//contrib/libs/simdjson",
-    # "//library/cpp/containers/absl_flat_hash",
-    "//ydb/core/fq/libs/actors:logging",
-    "//yql/essentials/minikql/dom",
-    # "//yql/essentials/providers/common/schema",  # peerdir only
-    "//yql/essentials/providers/common/schema:mkql",
-  ]
-
-  sources = [
-    "parsers/json_parser.cpp",
-    "parsers/parser_abstract.cpp",
-    "parsers/parser_base.cpp",
-    "parsers/raw_parser.cpp",
-  ]
 }

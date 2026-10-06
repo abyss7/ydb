@@ -4,7 +4,9 @@ library("http_gateway") {
     # "//library/cpp/containers/stack_vector",
     "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/retry",
+    "//yql/essentials/providers/common/proto",
     "//yql/essentials/public/issue",
+    "//yql/essentials/utils/log",
   ]
 
   deps = [
@@ -12,9 +14,7 @@ library("http_gateway") {
     "//ydb/library/actors/http",
     # "//ydb/library/actors/prof",
     # "//ydb/library/actors/protos",  # peerdir only
-    "//yql/essentials/providers/common/proto",
     # "//yql/essentials/utils",  # peerdir only
-    "//yql/essentials/utils/log",
   ]
 
   sources = [
@@ -22,4 +22,12 @@ library("http_gateway") {
     "yql_http_default_retry_policy.cpp",
     "yql_http_gateway.cpp",
   ]
+}
+
+library("mock") {
+  public_deps = [ ":http_gateway" ]
+
+  deps = [ "//yql/essentials/utils" ]
+
+  sources = [ "mock/yql_http_mock_gateway.cpp" ]
 }

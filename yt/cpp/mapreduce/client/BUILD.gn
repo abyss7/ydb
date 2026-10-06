@@ -15,11 +15,11 @@ library("client") {
     # "//library/cpp/threading/future",
     # "//library/cpp/type_info",
     # "//library/cpp/yson",
-    # "//library/cpp/yson:node",
+    # "//library/cpp/yson/node",
     # "//library/cpp/yt/assert",
     "//library/cpp/yt/threading",
     "//yt/cpp/mapreduce/http_client",
-    "//yt/cpp/mapreduce/interface:logging",
+    "//yt/cpp/mapreduce/interface/logging",
     "//yt/cpp/mapreduce/io",
     # "//yt/cpp/mapreduce/rpc_client",  # peerdir only
     "//yt/yt/core",

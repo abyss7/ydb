@@ -9,13 +9,3 @@ library("cache") {
     "cached.cpp",
   ]
 }
-
-library("local") {
-  public_deps = [
-    ":cache",
-    "//library/cpp/cache",
-    "//library/cpp/time_provider",
-  ]
-
-  sources = [ "local/cache.cpp" ]
-}

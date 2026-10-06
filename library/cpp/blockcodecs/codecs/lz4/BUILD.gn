@@ -1,7 +1,7 @@
 library("lz4") {
   deps = [
     "//contrib/libs/lz4",
-    "//library/cpp/blockcodecs:core",
+    "//library/cpp/blockcodecs/core",
   ]
 
   sources = [ "lz4.cpp" ]

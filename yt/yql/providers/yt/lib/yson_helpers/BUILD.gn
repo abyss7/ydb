@@ -1,7 +1,7 @@
 library("yson_helpers") {
   public_deps = [
     "//library/cpp/yson",
-    "//library/cpp/yson:node",
+    "//library/cpp/yson/node",
   ]
 
   deps = [

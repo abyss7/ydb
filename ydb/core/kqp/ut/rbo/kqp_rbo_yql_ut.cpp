@@ -18,54 +18,6 @@
 #include <regex>
 #include <fstream>
 
-namespace {
-
-using namespace NKikimr;
-using namespace NKikimr::NKqp;
-using namespace NYdb;
-using namespace NYdb::NTable;
-using namespace NStat;
-
-double TimeQuery(NKikimr::NKqp::TKikimrRunner& kikimr, TString query, int nIterations) {
-    auto db = kikimr.GetTableClient();
-    auto session = db.CreateSession().GetValueSync().GetSession();
-
-    clock_t the_time;
-    double elapsed_time;
-    the_time = clock();
-
-    for (int i=0; i<nIterations; i++) {
-        //session.ExecuteDataQuery(query, TTxControl::BeginTx().CommitTx()).GetValueSync();
-        session.ExplainDataQuery(query).GetValueSync();
-    }
-
-    elapsed_time = double(clock() - the_time) / CLOCKS_PER_SEC;
-    return elapsed_time / nIterations;
-}
-
-double TimeQuery(TString schema, TString query, int nIterations) {
-    NKikimrConfig::TAppConfig appConfig;
-    appConfig.MutableTableServiceConfig()->SetEnableNewRBO(true);
-    TKikimrRunner kikimr(NKqp::TKikimrSettings(appConfig).SetWithSampleTables(false));
-    auto db = kikimr.GetTableClient();
-    auto session = db.CreateSession().GetValueSync().GetSession();
-    session.ExecuteSchemeQuery(schema).GetValueSync();
-
-    clock_t the_time;
-    double elapsed_time;
-    the_time = clock();
-
-    for (int i=0; i<nIterations; i++) {
-        //session.ExecuteDataQuery(query, TTxControl::BeginTx().CommitTx()).GetValueSync();
-        session.ExplainDataQuery(query).GetValueSync();
-    }
-
-    elapsed_time = double(clock() - the_time) / CLOCKS_PER_SEC;
-    return elapsed_time / nIterations;
-}
-
-}
-
 namespace NKikimr {
 namespace NKqp {
 
@@ -1368,8 +1320,8 @@ Y_UNIT_TEST_SUITE(KqpRboYql) {
             settings.AppConfig->MutableTableServiceConfig()->SetDefaultLangVer(NYql::GetMaxLangVersion());
         };
 
-        TTestEnv env(1, 1, true, enableNewRbo);
-        CreateDatabase(env, "Database");
+        NStat::TTestEnv env(1, 1, true, enableNewRbo);
+        NStat::CreateDatabase(env, "Database");
         TTableClient client(env.GetDriver());
         auto session = client.CreateSession().GetValueSync().GetSession();
 

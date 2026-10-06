@@ -2,15 +2,15 @@ library("log") {
   public_deps = [
     "//library/cpp/deprecated/atomic",
     "//library/cpp/logger",
-    "//library/cpp/logger:global",
+    "//library/cpp/logger/global",
   ]
 
   deps = [
-    ":proto",
     # "//contrib/libs/protobuf",  # peerdir only
     "//library/cpp/json",
     "//yql/essentials/utils",
     "//yql/essentials/utils/backtrace",
+    "//yql/essentials/utils/log/proto",
   ]
 
   sources = [
@@ -21,8 +21,4 @@ library("log") {
     "profile.cpp",
     "tls_backend.cpp",
   ]
-}
-
-protobuf_library("proto") {
-  sources = [ "proto/logger_config.proto" ]
 }

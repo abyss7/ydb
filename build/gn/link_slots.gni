@@ -141,6 +141,28 @@ template("linked_executable") {
     deps = [ ":${_exe}_link_slot_interfaces" ]
   }
 
+  # .proto among `sources`: as library() does (//build/gn/base.gni)
+  _proto = []
+  if (defined(invoker.sources)) {
+    _proto = filter_include(invoker.sources, [ "*.proto" ])
+  }
+  if (_proto != []) {
+    protobuf_sources("${_exe}_proto") {
+      forward_variables_from(invoker, [ "extra_plugins", "testonly" ])
+      sources = _proto
+      proto_includes_target = "${target_name}_includes"
+      proto_includes_file = "$target_gen_dir/${target_name}.proto_includes"
+      metadata_deps = []
+      if (defined(invoker.deps)) {
+        metadata_deps += invoker.deps
+      }
+      if (defined(invoker.public_deps)) {
+        metadata_deps += invoker.public_deps
+      }
+      visibility = [ ":*" ]
+    }
+  }
+
   if (defined(invoker.serialize_enum_headers)) {
     serialize_enums(_exe) {
       forward_variables_from(invoker, [ "testonly" ])
@@ -154,6 +176,7 @@ template("linked_executable") {
                            [
                              "configs",
                              "deps",
+                             "extra_plugins",
                              "link_select",
                              "serialize_enum_headers",
                              "yql_abi_version",
@@ -167,6 +190,15 @@ template("linked_executable") {
     deps += _slot_deps + [ ":${_exe}_link_slot_check" ]
     if (defined(invoker.deps)) {
       deps += invoker.deps
+    }
+    if (_proto != []) {
+      sources -= _proto
+      sources += filter_include(get_target_outputs(":${_exe}_proto"), [ "*.cc" ])
+      deps += [
+        ":${_exe}_proto",
+        "//contrib/libs/grpc",
+        "//contrib/libs/protobuf",
+      ]
     }
     if (defined(invoker.serialize_enum_headers)) {
       if (!defined(sources)) {

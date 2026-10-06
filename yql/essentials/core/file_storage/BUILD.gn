@@ -1,42 +1,20 @@
-library("defs") {
-  public_deps = [ "//library/cpp/uri" ]
-
-  sources = [
-    "defs/downloader.cpp",
-    "defs/provider.cpp",
-  ]
-}
-
-library("download") {
-  deps = [
-    ":proto",
-    # "//contrib/libs/protobuf",
-    "//library/cpp/protobuf/util",
-  ]
-
-  sources = [
-    "download/download_config.cpp",
-    "download/download_stream.cpp",
-  ]
-}
-
 library("file_storage") {
   public_deps = [
-    # ":defs",
+    # "//library/cpp/cache",
     # "//library/cpp/threading/future",
     "//library/cpp/uri",
+    # "//yql/essentials/core/file_storage/defs",
   ]
 
   deps = [
-    # ":download",
-    ":http_download",
-    ":proto",
-    # "//library/cpp/cache",
     "//library/cpp/digest/md5",
     "//library/cpp/http/io",
-    # "//library/cpp/logger:global",  # peerdir only
+    # "//library/cpp/logger/global",  # peerdir only
     "//library/cpp/protobuf/util",
     "//library/cpp/resource",
+    # "//yql/essentials/core/file_storage/download",
+    "//yql/essentials/core/file_storage/http_download",
+    "//yql/essentials/core/file_storage/proto",
     # "//yql/essentials/public/issue",
     "//yql/essentials/utils",
     "//yql/essentials/utils/fetch",
@@ -50,25 +28,4 @@ library("file_storage") {
     "storage.cpp",
     "url_meta.cpp",
   ]
-}
-
-library("http_download") {
-  public_deps = [ ":defs" ]
-
-  deps = [
-    ":download",
-    ":proto",
-    "//library/cpp/digest/md5",
-    "//library/cpp/http/misc",
-    "//yql/essentials/utils",
-    "//yql/essentials/utils/fetch",
-    "//yql/essentials/utils/fetch:proto",
-    "//yql/essentials/utils/log",
-  ]
-
-  sources = [ "http_download/http_download.cpp" ]
-}
-
-protobuf_library("proto") {
-  sources = [ "proto/file_storage.proto" ]
 }

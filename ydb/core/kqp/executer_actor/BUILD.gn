@@ -2,18 +2,24 @@ library("executer_actor") {
   public_deps = [
     ":shards_resolver",
     # "//library/cpp/lwtrace",
+    # "//ydb/core/base",
     "//ydb/core/kqp/common",
+    "//ydb/core/kqp/compute_actor",
     # "//ydb/core/kqp/counters",
     # "//ydb/core/kqp/federated_query",
     "//ydb/core/kqp/gateway:interface",
+    # "//ydb/core/kqp/node_service",
     "//ydb/core/kqp/query_data",
+    # "//ydb/core/kqp/rm_service",
     "//ydb/core/protos",
     # "//ydb/core/scheme",
-    "//ydb/core/tx/long_tx_service:public",
+    "//ydb/core/tx/long_tx_service/public",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/library/aclib",
-    # "//ydb/library/yql/dq/actors:compute",
-    # "//ydb/library/yql/dq/actors:protos",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/actors/wilson",
+    # "//ydb/library/yql/dq/actors/compute",
+    # "//ydb/library/yql/dq/actors/protos",
     # "//ydb/library/yql/dq/common",
     # "//ydb/library/yql/dq/runtime",
     # "//ydb/library/yql/dq/tasks",
@@ -24,34 +30,30 @@ library("executer_actor") {
   deps = [
     # "//library/cpp/containers/absl_flat_hash",  # peerdir only
     # "//ydb/core/actorlib_impl",
-    # "//ydb/core/base",
-    # "//ydb/core/client:db_key_resolver",
-    # "//ydb/core/client:minikql_compile",  # peerdir only
-    # "//ydb/core/engine:minikql",
+    # "//ydb/core/client/minikql_compile",  # peerdir only
+    # "//ydb/core/client/minikql_compile:db_key_resolver",
+    # "//ydb/core/engine/minikql",
     # "//ydb/core/formats",  # peerdir only
     "//ydb/core/fq/libs/checkpointing",
-    # "//ydb/core/fq/libs/checkpointing:events",
+    # "//ydb/core/fq/libs/checkpointing/events",
     "//ydb/core/grpc_services",
-    # "//ydb/core/kqp/common:buffer",
-    # "//ydb/core/kqp/common:events",
-    # "//ydb/core/kqp/common:simple",
-    "//ydb/core/kqp/compute_actor",
-    "//ydb/core/kqp/federated_query:actors",
-    "//ydb/core/kqp/gateway:actors",
-    # "//ydb/core/kqp/gateway:local_rpc",
-    # "//ydb/core/kqp/gateway:utils",
-    # "//ydb/core/kqp/node_service",
+    # "//ydb/core/kqp/common/buffer",
+    # "//ydb/core/kqp/common/events",
+    # "//ydb/core/kqp/common/simple",
+    "//ydb/core/kqp/federated_query/actors",
+    "//ydb/core/kqp/gateway/actors",
+    # "//ydb/core/kqp/gateway/local_rpc",
+    # "//ydb/core/kqp/gateway/utils",
     "//ydb/core/kqp/opt",
     # "//ydb/core/kqp/query_compiler",  # peerdir only
-    # "//ydb/core/kqp/rm_service",
     "//ydb/core/kqp/runtime",
     "//ydb/core/kqp/session_actor:worker_common",
     "//ydb/core/kqp/topics",  # peerdir only
     # "//ydb/core/persqueue/events",
-    # "//ydb/core/protos:schemeshard",
-    # "//ydb/core/sys_view:common",  # peerdir only
+    # "//ydb/core/protos/schemeshard",
+    # "//ydb/core/sys_view/common",  # peerdir only
     # "//ydb/core/tx/columnshard",
-    "//ydb/core/tx/data_events:common",
+    "//ydb/core/tx/data_events/common",
     # "//ydb/core/tx/datashard",
     "//ydb/core/tx/datashard:range_ops",
     # "//ydb/core/tx/program",
@@ -61,10 +63,8 @@ library("executer_actor") {
     # "//ydb/core/util",
     "//ydb/core/ydb_convert",
     "//ydb/library/actors/async",
-    # "//ydb/library/actors/core",
-    # "//ydb/library/actors/wilson",
     # "//ydb/library/mkql_proto",
-    # "//ydb/library/mkql_proto:protos",  # peerdir only
+    # "//ydb/library/mkql_proto/protos",  # peerdir only
     "//ydb/library/plan2svg",
     # "//ydb/library/wilson_ids",
     # "//ydb/library/ydb_issue",
@@ -106,7 +106,7 @@ library("executer_actor") {
 
 library("shards_resolver") {
   public_deps = [
-    # "//ydb/core/kqp/common:simple",
+    # "//ydb/core/kqp/common/simple",
     "//ydb/library/actors/core",
     # "//ydb/public/api/protos",
     "//yql/essentials/public/issue",

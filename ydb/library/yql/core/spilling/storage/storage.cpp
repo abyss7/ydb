@@ -40,6 +40,12 @@ ui32 TSpillMetaRecord::Size() {
         case EOperationType::StreamBufAdd:
             res += 2 * sizeof(ui32);
             break;
+        case EOperationType::Add:
+        case EOperationType::Delete:
+        case EOperationType::StreamAdd:
+        case EOperationType::StreamDelete:
+        case EOperationType::SessionDelete:
+            break;
     }
 
     return res;
@@ -124,11 +130,11 @@ void TSpillMetaRecord::ScanForValidSpillRecords(TBuffer& buf, ui32& lastValidOff
 }
 
 TSpillMetaRecord::TSpillMetaRecord(EOperationType opType, TString& name, ui32 offset, ui32 recordNum, ui32 dataSize, ui32 dataHash  ) : 
-    Name_(name), 
     Offset_(offset), 
     RecordNumber_(recordNum),
     DataSize_(dataSize),
-    DataHash_(dataHash) 
+    DataHash_(dataHash),
+    Name_(name)
 {
     SetOpType(opType);
     SetNameSize();

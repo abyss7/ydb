@@ -13,6 +13,8 @@ library("public_http") {
     "//ydb/core/base",
     # "//ydb/core/protos",
     # "//ydb/library/actors/core",
+    "//ydb/library/actors/http",
+    "//ydb/public/api/protos",
   ]
 
   deps = [
@@ -23,12 +25,10 @@ library("public_http") {
     "//ydb/core/grpc_services",
     # "//ydb/core/grpc_services/local_rpc",  # peerdir only
     # "//ydb/core/http_proxy",
-    "//ydb/core/viewer:json",
-    "//ydb/library/actors/http",
+    "//ydb/core/viewer/json",
     # "//ydb/library/grpc/server",
     # "//ydb/library/http_proxy/error",
     # "//ydb/library/services",
-    "//ydb/public/api/protos",
     # "//ydb/public/sdk/cpp/src/client/types",
     # "//yql/essentials/public/issue",  # peerdir only
   ]

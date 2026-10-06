@@ -6,7 +6,7 @@ library("dsproxy") {
   public_deps = [
     # "//library/cpp/containers/stack_vector",
     # "//library/cpp/digest/crc32c",
-    # "//library/cpp/monlib/dynamic_counters:percentile",
+    # "//library/cpp/monlib/dynamic_counters/percentile",
     # "//library/cpp/monlib/metrics",
     # "//library/cpp/monlib/service/pages",
     # "//library/cpp/random_provider",
@@ -76,19 +76,4 @@ library("dsproxy") {
   ]
 
   configs = [ ":dsproxy_private_config" ]
-}
-
-library("mock") {
-  public_deps = [
-    "//ydb/core/base",
-    # "//ydb/core/blobstorage",
-    # "//ydb/core/blobstorage/pdisk",
-  ]
-
-  deps = [
-    # "//ydb/core/blobstorage/vdisk/common",
-    "//ydb/core/util",
-  ]
-
-  sources = [ "mock/dsproxy_mock.cpp" ]
 }

@@ -4,7 +4,7 @@ config("pire_public_config") {
 
 library("pire") {
   public_deps = [
-    # "//library/cpp/charset:lite",
+    # "//library/cpp/charset/lite",
   ]
 
   deps = [

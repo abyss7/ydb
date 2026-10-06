@@ -1,21 +1,10 @@
-library("query_stats") {
-  public_deps = [ "//ydb/public/sdk/cpp/src/client/query" ]
-
-  deps = [
-    # "//contrib/libs/protobuf",  # peerdir only
-    # "//ydb/public/api/protos",  # peerdir only
-  ]
-
-  sources = [ "query_stats/stats.cpp" ]
-}
-
 library("table") {
   public_deps = [
-    ":query_stats",
     "//ydb/public/sdk/cpp/src/client/driver",
     "//ydb/public/sdk/cpp/src/client/params",
     "//ydb/public/sdk/cpp/src/client/result",
     "//ydb/public/sdk/cpp/src/client/scheme",
+    "//ydb/public/sdk/cpp/src/client/table/query_stats",
     # "//ydb/public/sdk/cpp/src/client/types",
     "//ydb/public/sdk/cpp/src/client/types/operation",
   ]
@@ -27,7 +16,7 @@ library("table") {
     # "//library/cpp/threading/future",
     # "//ydb/public/api/grpc",
     # "//ydb/public/api/protos",
-    "//ydb/public/sdk/cpp/src/client/common_client:impl",
+    "//ydb/public/sdk/cpp/src/client/common_client/impl",
     # "//ydb/public/sdk/cpp/src/client/impl/endpoints",
     "//ydb/public/sdk/cpp/src/client/impl/internal/make_request",
     "//ydb/public/sdk/cpp/src/client/impl/internal/retry",

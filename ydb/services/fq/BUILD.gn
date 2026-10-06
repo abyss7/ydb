@@ -4,7 +4,7 @@ library("fq") {
     # "//ydb/library/actors/core",
     "//ydb/library/grpc/server",
     "//ydb/public/api/grpc",
-    "//ydb/public/api/grpc:draft",
+    "//ydb/public/api/grpc/draft",
   ]
 
   deps = [

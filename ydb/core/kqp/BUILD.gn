@@ -5,7 +5,7 @@ library("kqp") {
     # "//library/cpp/string_utils/base64",  # peerdir only
     # "//ydb/core/actorlib_impl",  # peerdir only
     # "//ydb/core/base",  # peerdir only
-    # "//ydb/core/client:minikql_compile",  # peerdir only
+    # "//ydb/core/client/minikql_compile",  # peerdir only
     # "//ydb/core/engine",  # peerdir only
     # "//ydb/core/formats",  # peerdir only
     # "//ydb/core/grpc_services/local_rpc",  # peerdir only
@@ -26,7 +26,7 @@ library("kqp") {
     # "//ydb/core/kqp/runtime",  # peerdir only
     # "//ydb/core/kqp/session_actor",  # peerdir only
     # "//ydb/core/protos",  # peerdir only
-    # "//ydb/core/sys_view:service",  # peerdir only
+    # "//ydb/core/sys_view/service",  # peerdir only
     # "//ydb/core/util",  # peerdir only
     # "//ydb/core/ydb_convert",  # peerdir only
     # "//ydb/library/aclib",  # peerdir only
@@ -37,7 +37,7 @@ library("kqp") {
     # "//ydb/public/api/protos",  # peerdir only
     # "//ydb/public/lib/base",  # peerdir only
     # "//ydb/public/sdk/cpp/src/library/operation_id",  # peerdir only
-    "//yql/essentials/core/services:mounts",  # peerdir only
+    "//yql/essentials/core/services/mounts",  # peerdir only
     # "//yql/essentials/public/issue",  # peerdir only
     # "//yql/essentials/utils/log",  # peerdir only
   ]

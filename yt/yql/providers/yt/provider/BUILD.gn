@@ -4,7 +4,7 @@
 
 library("provider") {
     public_deps = [
-        "//yql/essentials/providers/common/schema:expr",
+        "//yql/essentials/providers/common/schema/expr",
         "//yt/yql/providers/yt/lib/row_spec",
         "//yt/yql/providers/yt/lib/temp_files",
     ]
@@ -13,7 +13,7 @@ library("provider") {
         "//contrib/libs/openssl",
         "//contrib/libs/re2",
         "//library/cpp/time_provider",
-        "//library/cpp/type_info:tz",
+        "//library/cpp/type_info/tz",
         "//yql/essentials/ast",
         "//yql/essentials/core",
         "//yql/essentials/core/cbo",
@@ -31,10 +31,10 @@ library("provider") {
         "//yql/essentials/providers/common/structured_token",
         "//yql/essentials/providers/common/transform",
         "//yql/essentials/sql/v1",
-        "//yql/essentials/sql/v1/lexer:antlr4",
-        "//yql/essentials/sql/v1/lexer:antlr4_ansi",
-        "//yql/essentials/sql/v1/proto_parser:antlr4",
-        "//yql/essentials/sql/v1/proto_parser:antlr4_ansi",
+        "//yql/essentials/sql/v1/lexer/antlr4",
+        "//yql/essentials/sql/v1/lexer/antlr4_ansi",
+        "//yql/essentials/sql/v1/proto_parser/antlr4",
+        "//yql/essentials/sql/v1/proto_parser/antlr4_ansi",
         "//yql/essentials/utils/log",
         "//yql/providers/stat/expr_nodes",
         "//yt/cpp/mapreduce/common",

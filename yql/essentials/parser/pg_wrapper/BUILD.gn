@@ -1,5 +1,9 @@
 # yamake2gn: keep  -- hand-written, do not regenerate
 
+config("public_config") {
+    include_dirs = [ "postgresql/src/include" ]
+}
+
 config("private_config") {
     cflags = [
         "-Wno-deprecated-declarations",
@@ -195,7 +199,7 @@ library("pg_wrapper") {
         "//yql/essentials/providers/common/codec",
         "//yql/essentials/public/decimal",
         "//yql/essentials/public/result_format",
-        "//yql/essentials/public/udf:arrow",
+        "//yql/essentials/public/udf/arrow",
         "//yql/essentials/types/binary_json",
         "//yql/essentials/types/dynumber",
         "//yql/essentials/types/uuid",
@@ -1052,5 +1056,6 @@ library("pg_wrapper") {
         "utils.cpp",
     ]
 
+    public_configs = [ ":public_config" ]
     configs = [ ":private_config" ]
 }

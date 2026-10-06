@@ -58,7 +58,7 @@ public:
     static CType GetRandomNumberNotEqDef(CType defaultValue) {
         CType result;
         do {
-            result = RandomNumber<double>() * std::numeric_limits<CType>::max();
+            result = RandomNumber<double>() * static_cast<double>(std::numeric_limits<CType>::max());
         } while (result == defaultValue);
         return result;
     }

@@ -5,18 +5,18 @@ library("type_ann") {
   ]
 
   deps = [
-    # "//library/cpp/yson:node",
+    # "//library/cpp/yson/node",
     # "//yql/essentials/core/expr_nodes",
     # "//yql/essentials/core/expr_nodes_gen",
     # "//yql/essentials/core/issue",
-    # "//yql/essentials/core/issue:protos",
+    # "//yql/essentials/core/issue/protos",
     # "//yql/essentials/core/sql_types",
     # "//yql/essentials/minikql",
     "//yql/essentials/minikql/dom",
     # "//yql/essentials/parser/pg_catalog",
     # "//yql/essentials/parser/pg_wrapper/interface",
     # "//yql/essentials/providers/common/provider",
-    "//yql/essentials/providers/common/schema:expr",
+    "//yql/essentials/providers/common/schema/expr",
     "//yql/essentials/public/decimal",
     "//yql/essentials/public/langver",
     # "//yql/essentials/public/udf",

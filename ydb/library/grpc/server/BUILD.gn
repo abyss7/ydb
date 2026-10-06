@@ -1,20 +1,11 @@
-library("actors") {
-  public_deps = [
-    ":server",
-    "//ydb/library/actors/core",
-  ]
-
-  sources = [ "actors/logger.cpp" ]
-}
-
 library("server") {
   public_deps = [
     "//contrib/libs/grpc",
     "//contrib/libs/protobuf",
     # "//library/cpp/logger",
     "//library/cpp/monlib/dynamic_counters",
-    # "//library/cpp/monlib/dynamic_counters:percentile",
-    # "//library/cpp/string_utils/quote",
+    # "//library/cpp/monlib/dynamic_counters/percentile",
+    "//library/cpp/string_utils/quote",
     # "//library/cpp/threading/future",
     # "//ydb/core/grpc_services",
     # "//ydb/core/grpc_services/base",

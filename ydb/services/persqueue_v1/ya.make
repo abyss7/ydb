@@ -42,6 +42,7 @@ PEERDIR(
 )
 
 PROVIDES(topic_rpc)
+# gn: default provider
 
 END()
 

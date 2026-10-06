@@ -1,3 +1,4 @@
+#include "actor_bootstrapped.h"
 #include "actor_coroutine.h"
 #include "actorsystem.h"
 #include "executor_pool_basic.h"

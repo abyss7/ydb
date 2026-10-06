@@ -10,6 +10,7 @@ library("base") {
     # "//ydb/core/protos",
     # "//ydb/core/util",
     # "//ydb/library/actors/core",
+    # "//ydb/library/actors/util",
     # "//ydb/library/yverify_stream",
   ]
 

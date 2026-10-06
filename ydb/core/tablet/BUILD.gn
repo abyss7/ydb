@@ -5,9 +5,11 @@ library("tablet") {
     "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/monlib/service/pages",
     "//ydb/core/base",
+    "//ydb/core/mon",
     "//ydb/core/node_whiteboard",
     # "//ydb/core/protos",
-    # "//ydb/core/sys_view:common",
+    # "//ydb/core/sys_view/common",
+    "//ydb/core/sys_view/service",
     # "//ydb/core/tablet_flat",
     "//ydb/core/util",
     # "//ydb/library/actors/core",
@@ -21,12 +23,10 @@ library("tablet") {
     # "//library/cpp/time_provider",
     # "//library/cpp/yson",  # peerdir only
     "//ydb/core/blobstorage/events",
-    "//ydb/core/graph/shard:protos",
+    "//ydb/core/graph/shard/protos",
     # "//ydb/core/mind",
-    "//ydb/core/mon",
     # "//ydb/core/mon_alloc",  # peerdir only
     # "//ydb/core/scheme",  # peerdir only
-    "//ydb/core/sys_view:service",
     "//ydb/core/tracing",
     # "//ydb/core/tx",
     # "//ydb/core/tx/columnshard/common",

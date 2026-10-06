@@ -1,6 +1,6 @@
 library("fast_path_service") {
   public_deps = [
-    # "//ydb/core/mind:group_mapper",
+    # "//ydb/core/mind/bscontroller:group_mapper",
     # "//ydb/core/mon",
     "//ydb/core/nbs/cloud/blockstore/config",
     "//ydb/core/nbs/cloud/blockstore/libs/diagnostics",
@@ -11,25 +11,9 @@ library("fast_path_service") {
   deps = [
     # "//ydb/core/base",
     # "//ydb/core/blobstorage/ddisk",  # peerdir only
-    # "//ydb/core/mind:bscontroller",  # peerdir only
+    # "//ydb/core/mind/bscontroller",  # peerdir only
     # "//ydb/core/nbs/cloud/storage/core/protos",
   ]
 
   sources = [ "fast_path_service.cpp" ]
-}
-
-library("storage_transport") {
-  public_deps = [
-    "//ydb/core/blobstorage/ddisk",
-    "//ydb/core/mind:group_mapper",
-    "//ydb/core/nbs/cloud/blockstore/libs/kikimr",
-    "//ydb/core/nbs/cloud/storage/core/libs/common",
-    # "//ydb/core/protos",
-  ]
-
-  deps = [
-    "//ydb/core/mind:bscontroller",  # peerdir only
-  ]
-
-  sources = [ "storage_transport/ic_storage_transport.cpp" ]
 }

@@ -13,9 +13,3 @@ library("dq_integration") {
     "yql_dq_optimization.cpp",
   ]
 }
-
-library("transform") {
-  public_deps = [ "//yql/essentials/minikql" ]
-
-  sources = [ "transform/yql_dq_task_transform.cpp" ]
-}

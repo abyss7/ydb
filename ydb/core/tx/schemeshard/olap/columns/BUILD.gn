@@ -3,7 +3,7 @@ library("columns") {
     "//ydb/core/formats/arrow",
     # "//ydb/core/protos",
     "//ydb/core/scheme_types",
-    "//ydb/core/tx/columnshard/engines/scheme/defaults:common",
+    "//ydb/core/tx/columnshard/engines/scheme/defaults/common",
     "//ydb/core/tx/schemeshard/olap/common",
     # "//ydb/library/accessor",
   ]

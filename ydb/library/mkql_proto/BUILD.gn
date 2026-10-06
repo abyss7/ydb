@@ -1,7 +1,7 @@
 library("mkql_proto") {
   public_deps = [
-    ":protos",
     "//ydb/core/scheme_types",
+    "//ydb/library/mkql_proto/protos",
     "//ydb/public/api/protos",
     "//yql/essentials/minikql",
     # "//yql/essentials/types/uuid",
@@ -24,8 +24,4 @@ library("mkql_proto") {
     "mkql_proto.cpp",
     "mkql_type_ops.cpp",
   ]
-}
-
-protobuf_library("protos") {
-  sources = [ "protos/minikql.proto" ]
 }

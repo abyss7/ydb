@@ -1,21 +1,22 @@
 library("actors") {
   public_deps = [
+    # "//contrib/libs/apache/arrow",
     "//ydb/core/fq/libs/protos",
     "//ydb/library/actors/core",
-    "//ydb/library/yql/dq/actors:compute",
+    "//ydb/library/yql/dq/actors/compute",
     # "//ydb/library/yql/dq/common",
     "//ydb/library/yql/providers/common/http_gateway",
     # "//ydb/library/yql/providers/common/token_accessor/client",
+    # "//ydb/library/yql/providers/generic/connector/api/service/protos",
     # "//ydb/library/yql/providers/s3/actors_factory",
     "//ydb/library/yql/providers/s3/object_listers",
     "//ydb/library/yql/providers/s3/proto",
     "//ydb/library/yql/providers/s3/range_helpers",
     "//yql/essentials/parser/pg_wrapper/interface",
-    "//yql/essentials/providers/common/schema:mkql",
+    "//yql/essentials/providers/common/schema/mkql",
   ]
 
   deps = [
-    # "//contrib/libs/apache/arrow",
     # "//contrib/libs/fmt",  # peerdir only
     # "//contrib/libs/poco/Util",  # peerdir only
     # "//contrib/libs/protobuf",
@@ -29,11 +30,10 @@ library("actors") {
     "//ydb/library/actors/http",
     # "//ydb/library/actors/util",
     # "//ydb/library/services",
-    "//ydb/library/yql/dq/actors:common",
-    # "//ydb/library/yql/dq/actors:protos",
+    "//ydb/library/yql/dq/actors/common",
+    # "//ydb/library/yql/dq/actors/protos",
     # "//ydb/library/yql/providers/common/arrow",  # peerdir only
-    # "//ydb/library/yql/providers/common/arrow:interface",  # peerdir only
-    # "//ydb/library/yql/providers/generic/connector/api/service:protos",
+    # "//ydb/library/yql/providers/common/arrow/interface",  # peerdir only
     "//ydb/library/yql/providers/generic/pushdown",
     "//ydb/library/yql/providers/s3/common",
     "//ydb/library/yql/providers/s3/compressors",
@@ -52,7 +52,7 @@ library("actors") {
     # "//yql/essentials/public/issue",
     # "//yql/essentials/public/types",  # peerdir only
     # "//yql/essentials/public/udf",
-    # "//yql/essentials/public/udf:arrow",
+    # "//yql/essentials/public/udf/arrow",
     # "//yql/essentials/utils",
   ]
 

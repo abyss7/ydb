@@ -2,7 +2,7 @@ library("lib") {
   public_deps = [
     "//library/cpp/streams/brotli",
     # "//library/cpp/threading/future",
-    # "//library/cpp/yson:node",
+    # "//library/cpp/yson/node",
     # "//yql/essentials/core",
     "//yql/essentials/core/file_storage",
     # "//yql/essentials/core/type_ann",

@@ -1,9 +1,13 @@
 #include <library/cpp/testing/unittest/registar.h>
 
+#include <ydb/core/persqueue/events/global.h>
+#include <ydb/core/persqueue/events/internal.h>
+#include <ydb/core/persqueue/public/partition_key_range/partition_key_range.h>
 #include <ydb/core/persqueue/writer/metadata_initializers.h>
 #include <ydb/core/persqueue/writer/partition_chooser_impl.h>
 #include <ydb/core/persqueue/writer/source_id_encoding.h>
 #include <ydb/public/sdk/cpp/src/client/persqueue_public/ut/ut_utils/test_server.h>
+#include <ydb/services/metadata/events.h>
 
 #include <ydb/core/persqueue/writer/pipe_utils.h>
 

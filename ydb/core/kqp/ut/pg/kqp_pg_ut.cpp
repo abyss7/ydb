@@ -186,7 +186,7 @@ void ValidateTypeCoercionResult(
         }
         auto resultSet = part.ExtractPart();
         TResultSetParser parser(resultSet);
-        for (size_t i = 0; parser.TryNextRow(); ++i) {
+        while (parser.TryNextRow()) {
             auto expected = spec.TextOut();
             auto& c = parser.ColumnParser("value");
             UNIT_ASSERT_VALUES_EQUAL(expected, c.GetPg().Content_);
@@ -874,7 +874,7 @@ Y_UNIT_TEST_SUITE(KqpPg) {
                 auto resultSet = part.ExtractPart();
                 TResultSetParser parser(resultSet);
                 for (size_t i = 0; parser.TryNextRow(); ++i) {
-                    auto check = [&parser, &spec, &i] (const TString& column, const TString& expected) {
+                    auto check = [&parser] (const TString& column, const TString& expected) {
                         auto& c = parser.ColumnParser(column);
                         UNIT_ASSERT_VALUES_EQUAL(expected, c.GetPg().Content_);
                         Cerr << expected << Endl;
@@ -1381,7 +1381,7 @@ Y_UNIT_TEST_SUITE(KqpPg) {
                 auto result = ExecutePgSelect(kikimr, tableName);
                 TResultSetParser parser(result.GetResultSetParser(0));
                 for (size_t i = 0; parser.TryNextRow(); ++i) {
-                    auto check = [&parser, &spec] (const TString& column, const TString& expected) {
+                    auto check = [&parser] (const TString& column, const TString& expected) {
                         auto& c = parser.ColumnParser(column);
                         UNIT_ASSERT_VALUES_EQUAL(expected, c.GetPg().Content_);
                     };
@@ -1442,7 +1442,7 @@ Y_UNIT_TEST_SUITE(KqpPg) {
                 auto result = ExecutePgSelect(kikimr, tableName);
                 TResultSetParser parser(result.GetResultSetParser(0));
                 for (size_t i = 0; parser.TryNextRow(); ++i) {
-                    auto check = [&parser, &spec] (const TString& column, const TString& expected) {
+                    auto check = [&parser] (const TString& column, const TString& expected) {
                         auto& c = parser.ColumnParser(column);
                         UNIT_ASSERT_VALUES_EQUAL(expected, c.GetPg().Content_);
                     };
@@ -1686,7 +1686,7 @@ Y_UNIT_TEST_SUITE(KqpPg) {
 
             TResultSetParser parser(result.GetResultSetParser(0));
             ui32 rows = 0;
-            for (size_t i = 0; parser.TryNextRow(); ++i) {
+            while (parser.TryNextRow()) {
                 auto& c = parser.ColumnParser("key");
                 Cerr << c.GetPg().Content_ << Endl;
                 rows++;
@@ -1706,7 +1706,7 @@ Y_UNIT_TEST_SUITE(KqpPg) {
 
             TResultSetParser parser(result.GetResultSetParser(0));
             ui32 rows = 0;
-            for (size_t i = 0; parser.TryNextRow(); ++i) {
+            while (parser.TryNextRow()) {
                 auto& c = parser.ColumnParser("key");
                 Cerr << c.GetPg().Content_ << Endl;
                 rows++;
@@ -1726,7 +1726,7 @@ Y_UNIT_TEST_SUITE(KqpPg) {
 
             TResultSetParser parser(result.GetResultSetParser(0));
             ui32 rows = 0;
-            for (size_t i = 0; parser.TryNextRow(); ++i) {
+            while (parser.TryNextRow()) {
                 auto& c = parser.ColumnParser("key");
                 Cerr << c.GetPg().Content_ << Endl;
                 rows++;

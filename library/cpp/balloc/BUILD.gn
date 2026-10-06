@@ -17,17 +17,10 @@ contrib_library("balloc") {
 
 contrib_library("lib") {
   public_deps = [
-    # ":setup",
     # "//contrib/libs/linuxvdso",
+    # "//library/cpp/balloc/setup",
     # "//library/cpp/malloc/api",
   ]
 
   sources = [ "lib/alloc_stats.cpp" ]
-}
-
-contrib_library("setup") {
-  sources = [
-    "setup/alloc.cpp",
-    "setup/enable.cpp",
-  ]
 }

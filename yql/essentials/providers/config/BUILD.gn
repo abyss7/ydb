@@ -3,7 +3,7 @@ library("config") {
 
   deps = [
     # "//library/cpp/json",
-    # "//library/cpp/yson:node",
+    # "//library/cpp/yson/node",
     # "//yql/essentials/ast",
     # "//yql/essentials/core/expr_nodes",
     # "//yql/essentials/core/type_ann",

@@ -1,31 +1,26 @@
-library("events") {
+library("ut_helpers") {
+  testonly = true
+
   public_deps = [
-    "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-s3",
-    "//ydb/core/base",
-    # "//ydb/library/actors/core",
+    "//library/cpp/cgiparam",
+    "//library/cpp/http/server",
   ]
 
   deps = [
-    # "//contrib/libs/curl",  # peerdir only
-    # "//ydb/core/protos",  # peerdir only
+    "//library/cpp/digest/md5",
+    "//library/cpp/xml/document",
   ]
 
-  sources = [
-    "events/abstract.cpp",
-    "events/common.cpp",
-    "events/get_object.cpp",
-    "events/object_exists.cpp",
-    "events/s3_out.cpp",
-  ]
+  sources = [ "ut_helpers/s3_mock.cpp" ]
 }
 
 library("wrappers") {
   public_deps = [
-    ":events",
     # "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-core",
     "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-s3",
     "//ydb/core/base",
     "//ydb/core/util",
+    "//ydb/core/wrappers/events",
     # "//ydb/library/accessor",
     "//ydb/library/actors/core",
     # "//ydb/public/api/protos",

@@ -1,22 +1,3 @@
-library("metadata") {
-  public_deps = [
-    ":pdisk",
-    # "//ydb/core/protos",
-  ]
-
-  deps = [
-    "//library/cpp/openssl/crypto",
-    # "//ydb/core/base",  # peerdir only
-    # "//ydb/core/blobstorage/base",  # peerdir only
-    # "//ydb/core/blobstorage/crypto",  # peerdir only
-    # "//ydb/core/blobstorage/nodewarden",  # peerdir only
-    # "//ydb/library/actors/core",
-    "//ydb/library/keys",  # peerdir only
-  ]
-
-  sources = [ "metadata/blobstorage_pdisk_metadata.cpp" ]
-}
-
 library("pdisk") {
   public_deps = [
     # "//library/cpp/bucket_quoter",
@@ -24,7 +5,8 @@ library("pdisk") {
     # "//library/cpp/deprecated/atomic",
     # "//library/cpp/lwtrace",
     "//library/cpp/monlib/dynamic_counters",
-    # "//library/cpp/monlib/dynamic_counters:percentile",
+    # "//library/cpp/monlib/dynamic_counters/percentile",
+    # "//library/cpp/threading/queue",
     "//ydb/core/base",
     "//ydb/core/blobstorage/base",
     "//ydb/core/blobstorage/crypto",
@@ -32,32 +14,31 @@ library("pdisk") {
     "//ydb/core/control/lib",
     # "//ydb/core/debug",
     # "//ydb/core/debug_tools",
+    "//ydb/core/driver_lib/version",
     # "//ydb/core/grpc_services",
     "//ydb/core/mon",
     # "//ydb/core/node_whiteboard",
     "//ydb/core/protos",
     "//ydb/core/util",
     "//ydb/library/actors/core",
+    "//ydb/library/actors/util",
     "//ydb/library/actors/wilson",
     "//ydb/library/pdisk_io",
+    "//ydb/library/schlab/schine",
     # "//ydb/library/services",
+    # "//ydb/library/wilson_ids",
     # "//ydb/library/yverify_stream",
   ]
 
   deps = [
     # "//contrib/libs/lz4",  # peerdir only
     # "//library/cpp/monlib/service/pages",
-    # "//library/cpp/threading/queue",
-    "//ydb/core/base:services",  # peerdir only
+    "//ydb/core/base/services",  # peerdir only
     # "//ydb/core/blobstorage/events",
     # "//ydb/core/blobstorage/groupinfo",  # peerdir only
-    "//ydb/core/driver_lib/version",
     # "//ydb/library/actors/protos",  # peerdir only
-    "//ydb/library/actors/util",
     # "//ydb/library/schlab",  # peerdir only
-    # "//ydb/library/schlab:mon",
-    "//ydb/library/schlab:schine",
-    # "//ydb/library/wilson_ids",
+    # "//ydb/library/schlab/mon",
   ]
 
   sources = [

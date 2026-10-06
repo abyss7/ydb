@@ -14,7 +14,7 @@ template("yt_codec_codegen_variant") {
   library(target_name) {
     forward_variables_from(invoker, [ "link_slot_provides" ])
 
-    public_deps = [ "//yt/yql/providers/yt/codec:codegen" ]
+    public_deps = [ "//yt/yql/providers/yt/codec/codegen" ]
 
     if (invoker.codegen) {
       sources = variant_sources

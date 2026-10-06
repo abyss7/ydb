@@ -10,7 +10,7 @@ library("partition_chooser") {
   ]
 
   deps = [
-    "//ydb/core/persqueue/public:partition_key_range",
+    "//ydb/core/persqueue/public/partition_key_range",
     "//ydb/services/lib/sharding",
   ]
 
@@ -38,9 +38,9 @@ library("writer") {
     # "//library/cpp/digest/md5",
     # "//library/cpp/retry",
     "//library/cpp/string_utils/base64",
-    # "//ydb/core/grpc_services/cancelation:protos",  # peerdir only
-    # "//ydb/core/kqp/common:events",
-    # "//ydb/core/kqp/common:simple",
+    # "//ydb/core/grpc_services/cancelation/protos",  # peerdir only
+    # "//ydb/core/kqp/common/events",
+    # "//ydb/core/kqp/common/simple",
     # "//ydb/core/kqp/topics",  # peerdir only
     # "//ydb/core/persqueue/events",
     "//ydb/core/persqueue/public:utils",

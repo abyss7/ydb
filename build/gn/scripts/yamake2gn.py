@@ -1,29 +1,38 @@
 #!/usr/bin/env python3
-"""Convert trivial ya.make modules to BUILD.gn (v1 + merge pass).
+"""Convert ya.make modules to BUILD.gn.
 
 Scope:
-  * Only modules OUTSIDE contrib/ are *generated* (contrib may still be a dep).
-  * Only "trivial" modules are converted: ya.make using nothing beyond
-    LIBRARY / PROGRAM / SRCS / PEERDIR / RECURSE / RECURSE_FOR_TESTS / END.
-    Anything else (CFLAGS, YQL_LAST_ABI_VERSION, GENERATE_ENUM_SERIALIZATION,
-    PROTO_LIBRARY, IF/ELSE, ADDINCL, tests, ...) -> SKIPPED and reported.
-  * Headers dropped from `sources`.
-  * deps derived from the real #include graph of the module's own files; a
-    PEERDIR no #include leads to is added too, marked "# peerdir only".
-  * Classification: every include -> `deps`; if it appears in one of THIS
-    module's *headers*, the module re-exports it -> promote to `public_deps`.
-  * `util` (and util/**) is always-available and never emitted as a dependency.
-  * `# gn:` comments in ya.make split a module into several GN targets (to
-    break GN dep cycles ya.make doesn't have); see GN_DIRECTIVES below.
+  * Modules OUTSIDE contrib/ are generated (contrib's own BUILD.gn files are
+    hand-written; contrib is a dep like any other). So are tests: UNITTEST,
+    UNITTEST_FOR, GTEST (GEN_TEST_TEMPLATES, //build/gn/testing.gni).
+  * Only "trivial" modules: ya.make using nothing beyond TRIVIAL_MACROS
+    (PROTO_TRIVIAL_MACROS of a PROTO_LIBRARY; TEST_RUN_MACROS of a test), with
+    IF/ELSEIF/ELSE and INCLUDE resolved for the configuration GN builds
+    (CONDITION_VARS); any other module is SKIPPED and reported. A BUILD.gn
+    marked `yamake2gn: keep` is hand-written: never regenerated.
+  * deps are derived from the real #include graph of the module's files (and
+    the imports of its .proto); a PEERDIR no #include leads to is added too,
+    marked "# peerdir only". A dep is public iff a header of the module some
+    other module includes reaches it (finalize_publicity).
+  * A new dep of a library starts commented (an edge GN does not need would
+    close a dep cycle); the ones the user left uncommented stay so. A program
+    or a test is a sink: all its deps are on.
+  * `util` is every target's default dep and never emitted.
+  * `# gn:` comments in ya.make shape the GN targets of a module (parts,
+    `into`, plugins, link slots and their default providers, anti-cycle
+    facades, `move into parent`): see GN_DIRECTIVES.
+  * Link slots (build/gn/link_slots.gni): PROVIDES / ALLOCATOR_IMPL give
+    link_slot_provides; a program or a test gets the link_select of the
+    providers in its PEERDIR closure (link_selects).
   * RESOURCE / RESOURCE_FILES / ALL_RESOURCE_FILES[_FROM_DIRS] -> `resources`
     and `resource_files` of library() (see build/gn/resources.gni); a PROGRAM
     gets them through a sibling library("<name>_resources").
 
-Pass 2 (BUILD.gn merge), all-or-nothing + drop aggregator:
-  A parent dir P absorbs its direct children into P/BUILD.gn iff EVERY direct
-  real-module child of P is a leaf (no real modules nested below, tests ignored)
-  AND was successfully generated. Child //P/C -> //P:C (label remap applied
-  everywhere). A pure aggregator P (no own sources) loses its own target.
+Modes: the whole tree or subtrees of it, or --as-target: the closure of the
+given modules (with --recurse: what `ya make <path> -t` builds), together with
+what earlier runs generated, the roots joining the groups of the root BUILD.gn.
+The report (stderr) says what was skipped and why; --problems-only keeps what
+needs a fix.
 """
 
 import argparse
@@ -53,9 +62,10 @@ TRIVIAL_MACROS = MODULE_MACROS | {
     "YQL_LAST_ABI_VERSION",   # the default UDF ABI, see //build/gn/config:yql_abi_current
     "GENERATE_ENUM_SERIALIZATION_WITH_HEADER", # TODO: temporary ignore
     "RESOURCE", "RESOURCE_FILES", "ALL_RESOURCE_FILES", "ALL_RESOURCE_FILES_FROM_DIRS",  # -> resources
-    "CFLAGS", "CXXFLAGS", "ALLOCATOR_IMPL", "GRPC", # TODO: temporary ignore
+    "CFLAGS", "CXXFLAGS", "CONLYFLAGS", "ALLOCATOR_IMPL", "GRPC", # TODO: temporary ignore
     "YQL_ABI_VERSION",   # -> yql_abi_version
     "CHECK_DEPENDENT_DIRS", # TODO: temporary ignore
+    "STYLE_CPP",   # a clang-format check run as a test: nothing to build
     "PROVIDES",  # -> link_slot_provides
     "ALLOCATOR",  # of a program or a test: its link_select, see link_selects
     "NO_UTIL",   # LIBRARY -> contrib_library (no default //util dep)
@@ -352,11 +362,15 @@ class Module:
         self.provides = []           # PROVIDES() names
         self.slot_headers = defaultdict(list)  # slot -> its interface headers (as written), `# gn: slot ...`
         self.anti_cycle_facade = False  # `# gn: anti-cycle facade`, see ANTI_CYCLE_FACADE
+        self.move_into_parent = False   # `# gn: move into parent`, see MOVE_INTO_PARENT
+        self.default_provider = False   # `# gn: default provider`, see DEFAULT_PROVIDER
         self.plugins = []            # PEERDIR dirs marked `# gn: plugin`
+        self.public_peerdirs = []    # PEERDIR dirs marked `# gn: public dep`
         self.test_for = None         # the module of UNITTEST_FOR(<dir>)
         self.test_depends = []       # DEPENDS(<dir> ...) of a test: modules it runs
         self.test_data = []          # DATA(arcadia/<path> | sbr://<id> ...) of a test
-        self.recurses = []           # RECURSE / RECURSE_FOR_TESTS / RECURSE_ROOT_RELATIVE dirs
+        self.recurses = []           # RECURSE / RECURSE_ROOT_RELATIVE dirs
+        self.test_recurses = []      # RECURSE_FOR_TESTS dirs
         self.set_vars = {}           # SET(<var> <value>) of the module, for NO_BUILD_IF
         self.yql_abi = None          # "current" (YQL_LAST_ABI_VERSION) or "M.m.p" (YQL_ABI_VERSION)
         self.allocator = None        # ALLOCATOR(<name>) of a program or a test
@@ -633,13 +647,23 @@ def strip_yamake_comments(text):
 #     goes to `plugins` of the module's target, and every linked_executable()
 #     that reaches the target links it (see //build/gn/link_slots.gni).
 #
+#   PEERDIR(
+#       ydb/library/keys        # gn: public dep
+#   )
+#
+#     A dep the module's consumers link too, though no header of the module
+#     includes it: what its headers declare is defined there (a constant of
+#     ydb/core/blobstorage/crypto/default.h defined by ydb/library/keys) --
+#     ya links the whole PEERDIR closure. Never commented, always public.
+#
 #   SRCS(
 #       column.cpp              # gn: into ydb/core/tx/columnshard/engines/portions
 #   )
 #
 #     The source is compiled by the target of another module (its main one,
 #     or ":<part>"), not by this one: the other module needs the code while
-#     this one depends on it. Its includes count as the other module's; if
+#     this one depends on it. A header so marked is the other module's: its
+#     includers depend on that one. Its includes count as the other module's; if
 #     all of this module's sources go there, the module is absorbed: it has
 #     no target (nor BUILD.gn) of its own, its enum serialization and
 #     resources move along,
@@ -661,10 +685,18 @@ def _gn_directive_tokens(code, comment):
     token = None
     if " ".join(words) == ANTI_CYCLE_FACADE and not code.strip():
         return "GN_DIRECTIVES(@gn-anti-cycle-facade)"
+    if " ".join(words) == MOVE_INTO_PARENT and not code.strip():
+        return "GN_DIRECTIVES(@gn-move-into-parent)"
+    if " ".join(words) == DEFAULT_PROVIDER and not code.strip():
+        return "GN_DIRECTIVES(@gn-default-provider)"
     if words == ["plugin"]:
         if not code.strip():
             return ""   # a trailing directive needs an entry on its line
         return " @gn-plugin"
+    if " ".join(words) == PUBLIC_DEP:
+        if not code.strip():
+            return ""   # a trailing directive needs an entry on its line
+        return " @gn-public-dep"
     if len(words) == 2 and words[0] == "slot":
         if not code.strip():
             return ""   # a trailing directive needs an entry on its line
@@ -817,7 +849,7 @@ def parse_yamake(path, directory, root):
             mod.name = os.path.basename(directory)
             if name == "UNITTEST_FOR" and args:
                 # SRCDIR, ADDINCL and PEERDIR of the module under test
-                mod.test_for = os.path.normpath(args[0].rstrip("/"))
+                mod.test_for = _norm_dir(args[0])
                 mod.srcdirs.insert(0, mod.test_for)
                 mod.peerdirs.append(mod.test_for)
         elif name == "SRCS":
@@ -857,12 +889,14 @@ def parse_yamake(path, directory, root):
                 mod.yql_abi = ".".join(args)
             else:
                 mod.macros.append("GN<bad YQL_ABI_VERSION %s>" % " ".join(args))
-        elif name in ("RECURSE", "RECURSE_FOR_TESTS"):
+        elif name == "RECURSE":
             mod.recurses.extend(os.path.normpath(os.path.join(directory, a)) for a in args)
+        elif name == "RECURSE_FOR_TESTS":
+            mod.test_recurses.extend(os.path.normpath(os.path.join(directory, a)) for a in args)
         elif name == "RECURSE_ROOT_RELATIVE":
             mod.recurses.extend(os.path.normpath(a) for a in args)
         elif name == "DEPENDS":
-            mod.test_depends.extend(os.path.normpath(a.rstrip("/")) for a in args)
+            mod.test_depends.extend(_norm_dir(a) for a in args)
         elif name in ("DATA", "DATA_FILES"):
             mod.test_data.extend(args)
         elif name in RESOURCE_MACROS:
@@ -924,7 +958,7 @@ def _take_gn_directives(mod, macro, args):
             part, _, targets = a[len("@gn-peerdir:"):].partition(":")
             for t in filter(None, targets.split(",")):
                 d, _, sub = t.partition(":")
-                mod.gn_peerdirs.append((part or None, os.path.normpath(d.rstrip("/")), sub or None))
+                mod.gn_peerdirs.append((part or None, _norm_dir(d), sub or None))
         elif a.startswith("@gn-slot:"):
             slot = a[len("@gn-slot:"):]
             if last is None or macro not in ("SRCS", "SRC") or not last.endswith(HEADER_EXTS):
@@ -935,16 +969,25 @@ def _take_gn_directives(mod, macro, args):
             if last is None or macro != "PEERDIR":
                 mod.macros.append("GN<plugin not on a PEERDIR entry>")
             else:
-                mod.plugins.append(os.path.normpath(last.rstrip("/")))
+                mod.plugins.append(_norm_dir(last))
+        elif a == "@gn-public-dep":
+            if last is None or macro != "PEERDIR":
+                mod.macros.append("GN<%s not on a PEERDIR entry>" % PUBLIC_DEP)
+            else:
+                mod.public_peerdirs.append(_norm_dir(last))
         elif a == "@gn-anti-cycle-facade":
             mod.anti_cycle_facade = True
+        elif a == "@gn-move-into-parent":
+            mod.move_into_parent = True
+        elif a == "@gn-default-provider":
+            mod.default_provider = True
         elif a.startswith("@gn-into:"):
             value = a[len("@gn-into:"):]
             d, _, sub = value.partition(":")
             if last is None or macro not in ("SRCS", "SRC") or not d or "," in value:
                 mod.macros.append("GN<bad into %r in %s>" % (value, macro))
             else:
-                mod.src_into[last] = (os.path.normpath(d.rstrip("/")), sub or None)
+                mod.src_into[last] = (_norm_dir(d), sub or None)
         elif a.startswith("@gn:"):
             value = a[len("@gn:"):]
             if last is None:
@@ -952,7 +995,7 @@ def _take_gn_directives(mod, macro, args):
             elif macro in ("SRCS", "SRC"):
                 mod.src_parts[last] = value.lstrip(":")
             elif macro == "PEERDIR":
-                mod.peerdir_parts[os.path.normpath(last.rstrip("/"))].append(value.lstrip(":"))
+                mod.peerdir_parts[_norm_dir(last)].append(value.lstrip(":"))
             else:
                 mod.macros.append("GN<directive in %s>" % macro)
         else:
@@ -1221,9 +1264,9 @@ def src_path(mod, src):
     return module_path(mod, mod.root, src)
 
 
-def test_src_path(mod, root, src):
-    """A source of a test: in its SRCDIR (UNITTEST_FOR's module) or its own dir."""
-    return src_path(mod, src)
+def _norm_dir(p):
+    """A dir as ya.make writes it (a PEERDIR, a DEPENDS ...), normalized."""
+    return os.path.normpath(p.rstrip("/"))
 
 
 def module_label(d):
@@ -1315,12 +1358,12 @@ class Resolver:
         self.alias_parts = {}   # include-side module dir -> part of its alias target
         self.absorbed = {}      # module dir -> module that compiles all of it (link_foreign_sources)
         self.self_split = {}    # module dir -> the modules it PEERDIRs that include it (plan_self_split)
+        self.slot_providers = set()   # dirs of the link slot providers, see link_slot_providers
         # util and the modules under it util PEERDIRs (util/charset): //util,
         # every target's default dep; util/draft and the like are modules
         util = mods.get("util")
-        self.util_parts = {"util"} | {os.path.normpath(p.rstrip("/")) for p in (util.peerdirs if util else ())
+        self.util_parts = {"util"} | {_norm_dir(p) for p in (util.peerdirs if util else ())
                                       if p.startswith("util/")}
-        self.cycles = None      # CycleGraph
         buildable = lambda t: t is not None and t.kind in KIND_MACROS and not is_test(t)
         for d, m in mods.items():
             if not buildable(m):
@@ -1415,11 +1458,12 @@ class Resolver:
                     return self.owner(owner)
         return None
 
-    def resolve(self, inc, is_quote, file_dir):
+    def resolve(self, inc, is_quote, file_dir, include_dirs=()):
         cands = []
         if is_quote:
             cands.append(os.path.normpath(os.path.join(file_dir, inc)))
         cands.append(os.path.normpath(inc))
+        cands += [os.path.normpath(os.path.join(d, inc)) for d in include_dirs]
         for rel in cands:
             if rel.startswith(".."):
                 continue
@@ -1444,16 +1488,21 @@ class Resolver:
 def module_path(mod, root, path):
     """Repo-relative path of a file a ya.make macro names: "//x" and
     "${ARCADIA_ROOT}/x" are source-root-relative; otherwise the first existing of
-    SRCDIR-, module-, and source-root-relative (ymake's lookup order)."""
+    module-, SRCDIR- (each in turn: UNITTEST_FOR's, then those of SRCDIR()), and
+    source-root-relative (ymake's lookup order); none: the first SRCDIR's."""
     if path.startswith("//"):
         return os.path.normpath(path[2:])
     if path.startswith("${ARCADIA_ROOT}/"):
         return os.path.normpath(path[len("${ARCADIA_ROOT}/"):])
-    cands = [os.path.normpath(os.path.join(base, path)) for base in (_src_prefix(mod), mod.dir, "")]
+    srcdirs = [os.path.normpath(d) for d in mod.srcdirs]
+    srcdirs = [d for d in srcdirs if d and d != "." and d != os.path.normpath(mod.dir)]
+    fallback = os.path.normpath(os.path.join(_src_prefix(mod), path))
+    cands = [os.path.normpath(os.path.join(base, path))
+             for base in [mod.dir, _src_prefix(mod)] + srcdirs[1:] + [""]]
     for c in cands:
         if not c.startswith("..") and os.path.exists(os.path.join(root, c)):
             return c
-    return cands[0]
+    return fallback
 
 
 def merge_aliases(mods, resolver):
@@ -1474,7 +1523,7 @@ def merge_aliases(mods, resolver):
                 elif rel.endswith(COMPILED_EXTS):
                     sm.foreign_srcs[rel] = part
             for p in im.peerdirs:
-                p = os.path.normpath(p.rstrip("/"))
+                p = _norm_dir(p)
                 if resolver.alias(p) != src and p not in sm.part_peerdirs[part]:
                     sm.part_peerdirs[part].append(p)
             sm.enum_headers += ["//" + module_path(im, resolver.root, h) for h in im.enum_headers]
@@ -1484,9 +1533,9 @@ def merge_aliases(mods, resolver):
             h = "//" + module_path(im, resolver.root, h)
             if h not in sm.enum_headers:
                 sm.enum_headers.append(h)
-        known = {os.path.normpath(p.rstrip("/")) for p in sm.peerdirs}
+        known = {_norm_dir(p) for p in sm.peerdirs}
         for p in im.peerdirs:
-            p = os.path.normpath(p.rstrip("/"))
+            p = _norm_dir(p)
             if resolver.alias(p) != src and p not in known:
                 sm.peerdirs.append(p)
                 known.add(p)
@@ -1516,6 +1565,9 @@ def link_foreign_sources(mods, resolver):
                 continue
             other.foreign_srcs[src_path(mod, src)] = part
             other._part_of = None
+            if src.endswith(HEADER_EXTS):
+                # its includers depend on the module compiling its code
+                resolver.claims[src_path(mod, src)] = into
             targets.add(into)
             intos.add((into, part))
         # nothing of its own left to build: absorbed, the module has no target
@@ -1553,21 +1605,30 @@ class IncludeGraph:
         that is reachable via #include from the files of ANY real module --
         d's own sources, or a consumer's. A header that only other modules
         include (e.g. a header-only helper no .cpp of d touches) is still d's
-        public face, so its includes must count. Test helpers (d/ut/...,
-        which nearest_module attributes to d because tests are not real
-        modules, or *_ut*.h) join d only from d's own files: a test-support
+        public face, so its includes must count. Test helpers (inside the dir
+        of a test module, which nearest_module attributes to d because tests
+        are not real modules) join d only from d's own files: a test-support
         library that includes them must not drag test deps into d.
       * consumed -- headers included from a file of a module other than their
-        owner; their owner may have to re-export what they pull
-        (finalize_publicity).
+        owner, a test's included; their owner may have to re-export what
+        they pull (finalize_publicity).
+
+    A header of a module that is not test-only (test_only_modules), reached
+    from tests and test-only modules alone -- test support placed next to
+    the code (the sources of UNITTEST_FOR live there) -- is not its owner's
+    unless the owner's own graph reaches it: it belongs to each test or
+    test-only module that includes it.
     """
 
-    def __init__(self, resolver):
+    def __init__(self, resolver, test_only=frozenset()):
         self.resolver = resolver
+        self.test_only = test_only
         self.files = defaultdict(list)
         self.consumed = set()
         self._file_set = defaultdict(set)
+        self.include_dirs = {}   # file -> extra include dirs (a test's UNITTEST_FOR dir)
         self._includes = {}
+        self._imports = {}
 
     def includes(self, f):
         """[(include as written, resolved repo-relative path or None)] of the
@@ -1587,27 +1648,34 @@ class IncludeGraph:
             if not m:
                 continue
             inc = m.group(2)
-            rel = self.resolver.resolve(inc, m.group(1) == '"', fdir)
+            rel = self.resolver.resolve(inc, m.group(1) == '"', fdir, self.include_dirs.get(f, ()))
             if rel is None and PB_RE.search(inc):
                 rel = self.resolver.resolve(PB_RE.sub(".proto", inc), False, fdir)
             out.append((inc, rel))
         self._includes[f] = out
         return out
 
-    _TEST_DIR_RE = re.compile(r"^(ut|ut_.*|.*_ut|test|tests|testing|benchmark)$")
-    _TEST_FILE_RE = re.compile(r"(^|_)ut(_|\.|$)")
+    def imports(self, f):
+        """[(import as written, resolved repo-relative path or None)] of a .proto."""
+        if f not in self._imports:
+            try:
+                with open(os.path.join(self.resolver.root, f), encoding="utf-8",
+                          errors="ignore") as fh:
+                    lines = fh.readlines()
+            except OSError:
+                lines = []
+            self._imports[f] = [(m.group(1), self.resolver.resolve(m.group(1), False, os.path.dirname(f)))
+                                for m in map(IMPORT_RE.match, lines) if m]
+        return self._imports[f]
+
 
     def _is_test_header(self, rel, owner):
         """True if `rel` is test support rather than part of `owner`: a test
-        module's ya.make sits between them, or (the Arcadia convention for
-        test helpers without a ya.make of their own) a ut/ test/ ... dir lies
-        between them or the file name says _ut (flat_ut_client.h)."""
-        if self._TEST_FILE_RE.search(os.path.basename(rel)):
-            return True
+        module's ya.make sits between them."""
         d = os.path.dirname(rel)
         while d and d != owner:
             mod = self.resolver.mods.get(d)
-            if (mod is not None and is_test(mod)) or self._TEST_DIR_RE.match(os.path.basename(d)):
+            if mod is not None and is_test(mod):
                 return True
             d = os.path.dirname(d)
         return False
@@ -1618,14 +1686,7 @@ class IncludeGraph:
         out = set()
         for f in self.files[d]:
             if f.endswith(PROTO_EXTS):
-                try:
-                    with open(os.path.join(self.resolver.root, f), encoding="utf-8",
-                              errors="ignore") as fh:
-                        lines = fh.readlines()
-                except OSError:
-                    continue
-                rels = [self.resolver.resolve(m.group(1), False, os.path.dirname(f))
-                        for m in map(IMPORT_RE.match, lines) if m]
+                rels = [rel for _, rel in self.imports(f)]
             else:
                 rels = [rel for _, rel in self.includes(f)]
             for rel in rels:
@@ -1640,6 +1701,9 @@ class IncludeGraph:
 
     def _add(self, d, f, queue):
         if f not in self._file_set[d]:
+            mod = self.resolver.mods.get(d)
+            if mod is not None and mod.test_for and is_gen_test(mod) and f not in self._includes:
+                self.include_dirs[f] = (mod.test_for,)
             self._file_set[d].add(f)
             self.files[d].append(f)
             queue.append((d, f))
@@ -1660,27 +1724,41 @@ class IncludeGraph:
             for headers in mod.part_headers.values():   # GN_DIRECTIVES
                 for h in headers:
                     self._add(owner, src_path(mod, h), queue)
+        # (includer, header, owner): a header of a module not test-only that
+        # a test or a test-only module includes -- its owner's only if the
+        # rest of the graph reaches it
+        pending = []
         while queue:
-            d, f = queue.pop()
-            if not f.endswith(COMPILED_EXTS + HEADER_EXTS):
-                continue
-            test = d in mods and is_gen_test(mods[d])
-            for _, rel in self.includes(f):
-                if rel is None or not rel.endswith(HEADER_EXTS):
+            while queue:
+                d, f = queue.pop()
+                if not f.endswith(COMPILED_EXTS + HEADER_EXTS):
                     continue
-                if test:
-                    # a test owns the headers of its dir; what it includes of
-                    # the others' is theirs to say nothing about
-                    if rel.startswith(d + "/"):
+                test = d in mods and is_gen_test(mods[d])
+                for _, rel in self.includes(f):
+                    if rel is None or not rel.endswith(HEADER_EXTS):
+                        continue
+                    owner = self.resolver.nearest_module(rel)
+                    if test and rel.startswith(d + "/"):
+                        # a test owns the headers of its dir
                         self._add(d, rel, queue)
-                    continue
-                owner = self.resolver.nearest_module(rel)
-                if owner is None:
-                    continue
-                if owner != d:
-                    self.consumed.add(rel)
-                if owner in dirs and (owner == d or not self._is_test_header(rel, owner)):
-                    self._add(owner, rel, queue)
+                        continue
+                    if owner is None:
+                        continue
+                    if owner != d:
+                        self.consumed.add(rel)
+                    if (owner != d and (test or d in self.test_only)
+                            and owner in dirs and owner not in self.test_only):
+                        pending.append((d, rel, owner))
+                        continue
+                    if test:
+                        continue
+                    if owner in dirs and (owner == d or not self._is_test_header(rel, owner)):
+                        self._add(owner, rel, queue)
+            for d, rel, owner in pending:
+                if rel not in self._file_set[owner]:
+                    self.consumed.discard(rel)
+                    self._add(d, rel, queue)
+            pending = []
         return self
 
 
@@ -1691,6 +1769,7 @@ class TargetSpec:
         self.dir = mod.dir
         self.name = os.path.basename(mod.dir)   # GN name = basename(dir)
         self.kind = mod.kind
+        self.move_into_parent = mod.move_into_parent   # `# gn: move into parent`
         self.no_util = mod.no_util
         self.public_deps = set()
         self.deps = set()                       # all owners (filled in pass 1)
@@ -1703,6 +1782,9 @@ class TargetSpec:
         self.resources = list(mod.resources)    # see convert_resources
         self.has_srcs = bool(mod.srcs or mod.foreign_srcs)  # any SRCS at all (even headers only)
         self.peerdir_only = set()               # deps from PEERDIR with no #include behind
+        self.slot_peerdirs = set()              # ... on a link slot provider: the executables link it
+        self.slot_reset = set()                 # ... of them left on by linked_always() so far
+        self.no_target = set()                  # deps on modules of no GN target (a sink's: commented)
         self.host = mod.dir                      # set during merge planning
         self.parts = []                         # TargetSpecs of GN_DIRECTIVES parts
         self.part = None                        # this spec's part name, if it is one
@@ -1781,8 +1863,6 @@ def _record(spec, rel, owner, target_dir, header_file, report, external, resolve
         label = module_part_label(owner, SELF_PART)   # see plan_self_split
     if label in PROTO_PROVIDED_LABELS and (from_proto or spec.kind == "PROTO_LIBRARY"):
         return  # protobuf_library template injects protobuf/grpc itself
-    if owner.startswith("contrib/"):
-        report.contrib_deps[target_dir].add(label)
     spec.deps.add(label)
     if header_file is not None:
         spec.header_owners[header_file].add(label)
@@ -1794,7 +1874,7 @@ def peerdir_owners(mod, resolver, peerdirs=None):
     module; util and mod itself excluded."""
     out = []
     for p in (mod.peerdirs if peerdirs is None else peerdirs):
-        p = resolver.alias(os.path.normpath(p.rstrip("/")))
+        p = resolver.alias(_norm_dir(p))
         if p == mod.dir or p in resolver.util_parts or p in out:
             continue
         if p.startswith("contrib/"):
@@ -1840,7 +1920,7 @@ class CycleGraph:
             if m is None:
                 continue
             for q in m.peerdirs:
-                q = os.path.normpath(q.rstrip("/"))
+                q = _norm_dir(q)
                 # a PEERDIR on an include-side module folded into its src one
                 # (merge_aliases) is on its headers and their PEERDIRs only
                 via = q if q in resolver.aliases and q not in resolver.alias_parts else None
@@ -1868,11 +1948,7 @@ class CycleGraph:
 def _is_variant(root, d):
     """A module built from a shared ya.make.inc (llvm16 / no_llvm): its sources
     are another configuration of the same code, never merged into anything."""
-    try:
-        with open(os.path.join(root, d, "ya.make"), encoding="utf-8", errors="ignore") as f:
-            return bool(re.search(r"INCLUDE\([^)]*ya\.make\.inc\s*\)", f.read()))
-    except OSError:
-        return False
+    return variant_inc(root, d) is not None
 
 
 def plan_merge_groups(mods, resolver, cg, external):
@@ -1973,6 +2049,22 @@ def absorb(mods, resolver, d, into):
 # every other consumer depends on.
 ANTI_CYCLE_FACADE = "anti-cycle facade"
 
+# `# gn: move into parent`, a standalone line of a module's ya.make: its
+# targets are written to the BUILD.gn of the parent dir (named //<parent>:<name>,
+# prefixed with the parent's name when it is taken there), see plan_merge. Only
+# a leaf can move, and not a test; nothing moves otherwise.
+MOVE_INTO_PARENT = "move into parent"
+
+# `# gn: public dep` on a PEERDIR entry, see GN_DIRECTIVES
+PUBLIC_DEP = "public dep"
+
+# `# gn: default provider`, a standalone line of a module's ya.make: what it
+# PROVIDES() is selected for a program or a test whose closure has the
+# interface of the link slot and no provider of it (see link_selects). ya links
+# none there: the static link drops the code calling it; a GN library is linked
+# whole. For the stubs whose functions abort.
+DEFAULT_PROVIDER = "default provider"
+
 
 def plan_self_split(mods, cg):
     """{P: the modules P PEERDIRs that include it} for every ANTI_CYCLE_FACADE
@@ -1984,13 +2076,45 @@ def plan_self_split(mods, cg):
 # NMalloc::MallocInfo(), which ya.make's ALLOCATOR() of a PROGRAM picks.
 ALLOCATOR_SLOT = "allocator"
 
+_slot_index = {}
+
+
+def _link_slot_index(root):
+    """({(slot, value): [provider label, ...]}, {slot: [interface label, ...]})
+    of the BUILD.gn files of the tree, as `gn gen` reads them
+    (build/gn/scripts/link_slot_index.py); scanned once."""
+    if root not in _slot_index:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import link_slot_index
+        _slot_index[root] = link_slot_index.index(root, "gn")
+    return _slot_index[root]
+
+
 def link_slot_interfaces(root, mods):
-    """The link slots with an interface: `# gn: slot` in a ya.make, or
-    link_slot_interface in a hand-written BUILD.gn."""
-    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    import link_slot_index
-    return ({slot for m in mods.values() for slot in m.slot_headers}
-            | set(link_slot_index.index(root, "gn")[1]))
+    """{slot: {module dir, ...}}: the interfaces of the link slots -- `# gn: slot`
+    in a ya.make, or link_slot_interface in a hand-written BUILD.gn."""
+    out = defaultdict(set)
+    for d, m in mods.items():
+        for slot in m.slot_headers:
+            out[slot].add(d)
+    for slot, labels in _link_slot_index(root)[1].items():
+        out[slot].update(l[2:].split(":")[0] for l in labels)
+    return out
+
+
+def link_slot_defaults(mods, report):
+    """{slot: value}: the DEFAULT_PROVIDER of the link slots that have one."""
+    out = defaultdict(set)
+    for d, m in sorted(mods.items()):
+        if m.default_provider:
+            if not m.provides:
+                report.slot_defaults_bad.append((d, "no PROVIDES() of a link slot"))
+            for slot in m.provides:
+                out[slot].add(os.path.basename(d))
+    for slot, values in sorted(out.items()):
+        if len(values) > 1:
+            report.slot_defaults_bad.append((slot, "several: " + ", ".join(sorted(values))))
+    return {slot: next(iter(v)) for slot, v in out.items() if len(v) == 1}
 
 
 def drop_slotless_provides(root, mods, report):
@@ -1998,7 +2122,7 @@ def drop_slotless_provides(root, mods, report):
     a program links one such module at most, not a link slot: nothing refers
     to it weakly, so it gets no link_slot_provides (link_slot_index.py fails
     `gn gen` on a slot with providers and no interface)."""
-    slots = link_slot_interfaces(root, mods)
+    slots = set(link_slot_interfaces(root, mods))
     for d, m in mods.items():
         for name in [p for p in m.provides if p not in slots]:
             if name in PROVIDES_CHECK_ONLY:
@@ -2056,47 +2180,70 @@ def allocator_peerdirs(root):
     return out
 
 
-def peerdir_reverse(mods, resolver):
-    """{module: modules PEERDIRing it} (include-side halves and `# gn: into`
-    resolved to the module building them)."""
+def peerdir_reverse(mods, resolver, absorbed=True):
+    """{module: modules PEERDIRing it} (include-side halves resolved to their
+    src module; absorbed: `# gn: into` and merged groups to the module
+    building them -- what a GN target links rather than what ya does)."""
     rev = defaultdict(set)
     for d, m in mods.items():
         for p in m.peerdirs:
-            p = resolver.alias(os.path.normpath(p.rstrip("/")))
-            rev[resolver.absorbed.get(p, p)].add(d)
+            p = resolver.alias(_norm_dir(p))
+            rev[resolver.absorbed.get(p, p) if absorbed else p].add(d)
     return rev
 
 
-def link_selects(mods, resolver, slots, rev, allocators, dirs, mains, report):
+def link_selects(mods, resolver, slots, interfaces, defaults, allocators, dirs, mains, report):
     """{program or test dir: ["<slot>=<value>", ...]}: the providers of the link
     slots its PEERDIR closure has -- as ya picks them: PROVIDES() only checks
     one is there. The closure has the test framework's main of a test and the
     PEERDIRs of its ALLOCATOR() (or DEFAULT_ALLOCATOR). Two providers of a slot
-    are an error (report.link_select_conflicts), as in ya."""
-    reach = {}
-    for key, provs in slots.items():
-        seen, queue = set(provs), list(provs)
-        while queue:
-            for d in rev.get(queue.pop(), ()):
-                if d not in seen:
-                    seen.add(d)
-                    queue.append(d)
-        reach[key] = seen
+    are an error (report.link_select_conflicts), as in ya.
+    The closure is ya's; a slot it has no provider of is looked up in what the
+    GN targets link (a module absorbed into another one brings all of that one:
+    its slot interfaces too). A slot whose interface is there and no provider
+    gets its DEFAULT_PROVIDER (report.link_select_defaulted), or none
+    (report.link_select_missing: link_slot_check fails if the GN deps link
+    the interface)."""
+    def reach(rev, keys):
+        out = {}
+        for key, provs in keys.items():
+            seen, queue = set(provs), list(provs)
+            while queue:
+                for d in rev.get(queue.pop(), ()):
+                    if d not in seen:
+                        seen.add(d)
+                        queue.append(d)
+            out[key] = seen
+        return out
+    ya_rev, gn_rev = peerdir_reverse(mods, resolver, absorbed=False), peerdir_reverse(mods, resolver)
+    ya_reach, gn_reach = reach(ya_rev, slots), reach(gn_rev, slots)
+    ya_ifaces, gn_ifaces = reach(ya_rev, interfaces), reach(gn_rev, interfaces)
     out = {}
     for d in dirs:
-        m = mods[d]
-        roots = {d} | set(implicit_peerdirs(m, allocators, mains))
-        found = defaultdict(set)
-        for (slot, value), who in reach.items():
-            if roots & who:
-                found[slot].add(value)
+        roots = {d} | set(implicit_peerdirs(mods[d], allocators, mains))
+
+        def found(reached):
+            res = defaultdict(set)
+            for (slot, value), who in reached.items():
+                if roots & who:
+                    res[slot].add(value)
+            return res
+        ya_found, gn_found = found(ya_reach), found(gn_reach)
         sel = []
-        for slot, values in sorted(found.items()):
+        for slot in sorted(set(ya_found) | set(gn_found)):
+            values = ya_found.get(slot) or gn_found[slot]
             if len(values) == 1:
                 sel.append("%s=%s" % (slot, next(iter(values))))
             else:
                 report.link_select_conflicts.append((d, slot, sorted(values)))
-        out[d] = sel
+        for slot in sorted(set(interfaces) - set(ya_found) - set(gn_found)):
+            if roots & (ya_ifaces[slot] | gn_ifaces[slot]):
+                if slot in defaults:
+                    sel.append("%s=%s" % (slot, defaults[slot]))
+                    report.link_select_defaulted.append((d, slot, defaults[slot]))
+                else:
+                    report.link_select_missing.append((d, slot))
+        out[d] = sorted(sel)
     return out
 
 
@@ -2122,9 +2269,7 @@ def link_slot_providers(root, mods):
         if m.kind in KIND_MACROS and not is_test(m):
             for slot in m.provides:
                 out[(slot, os.path.basename(d))].add(d)
-    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    import link_slot_index
-    for key, labels in link_slot_index.scan(root, "gn").items():
+    for key, labels in _link_slot_index(root)[0].items():
         out[key].update(l[2:].split(":")[0] for l in labels)
     return out
 
@@ -2180,33 +2325,23 @@ def gen_spec(mod, resolver, graph, report, external):
         own.sort(key=lambda f: os.path.splitext(f)[0] not in stems)
         slot_spec.slot_flags_from = os.path.join(target_dir, own[0]) if own else None
 
-    # a test owns the headers of its dir (no module does: tests are none)
-    nearest = resolver.nearest_module
-    if is_gen_test(mod):
-        nearest = lambda rel: (target_dir if rel.startswith(target_dir + "/")
-                               else resolver.nearest_module(rel))
+    # the headers among the module's files are its own: a test's of its dir
+    # (no module owns them: tests are none) and the test support it took
+    # (IncludeGraph)
+    own_files = graph._file_set[target_dir]
+    nearest = lambda rel: (target_dir if rel in own_files and rel.endswith(HEADER_EXTS)
+                           else resolver.nearest_module(rel))
     for f in graph.files[target_dir]:
-        fdir = os.path.dirname(f)
         owner_spec = parts.get(mod.part_of(f), spec)
         if any(s in os.path.basename(f) for s in ARCH_SUFFIXES):
             report.arch_files.append(f)
         if f.endswith(PROTO_EXTS):
-            try:
-                with open(os.path.join(resolver.root, f), encoding="utf-8",
-                          errors="ignore") as fh:
-                    lines = fh.readlines()
-            except OSError:
-                continue
             # proto import: the generated .pb.h is the proto lib's public face,
             # so a proto->proto dependency is always public.
-            for line in lines:
-                m = IMPORT_RE.match(line)
-                if not m:
-                    continue
-                rel = resolver.resolve(m.group(1), False, fdir)
+            for imp, rel in graph.imports(f):
                 if rel is None:
-                    if "/" in m.group(1):
-                        report.unresolved[target_dir].add(m.group(1))
+                    if "/" in imp:
+                        report.unresolved[target_dir].add(imp)
                     continue
                 owner = resolver.nearest_module(rel)
                 _record(spec, rel, owner, target_dir, None, report, external, resolver,
@@ -2233,8 +2368,8 @@ def gen_spec(mod, resolver, graph, report, external):
     if mod.use_common_google_apis:
         spec.proto_public.add(GOOGLEAPIS_COMMON_PROTOS_LABEL)
 
-    peer = {module_part_label(resolver.alias(os.path.normpath(p.rstrip("/"))),
-                              resolver.alias_parts.get(os.path.normpath(p.rstrip("/"))))
+    peer = {module_part_label(resolver.alias(_norm_dir(p)),
+                              resolver.alias_parts.get(_norm_dir(p)))
             for p in mod.peerdirs}
     peer -= {module_label(u) for u in resolver.util_parts}
     report.peer_diff[target_dir] = (sorted(peer - spec.deps), sorted(spec.deps - peer))
@@ -2251,10 +2386,30 @@ def gen_spec(mod, resolver, graph, report, external):
         return (m is not None and (m.global_srcs or bool(m.resource_macros))
                 and (is_trivial(m) or external.is_external(d)))
 
+    # A PEERDIR of a library on a link slot provider is ya's choice of the
+    # provider for the programs on top: in GN their link_select (see
+    # link_selects, which follows the same PEERDIRs) -- linked by the library
+    # it would be one more provider in a process the program selects another
+    # one for. Starts commented ("# link slot") and is no linked_always() one;
+    # left on, it is the user's: the library calls the provider's own code
+    # (not the slot's functions, weak).
+    slot_choice = (lambda d: d in resolver.slot_providers) if not (
+        mod.kind == "PROGRAM" or is_gen_test(mod)) else (lambda d: False)
+
+    def add_peerdir(t, label, owner):
+        t.deps.add(label)
+        t.peerdir_only.add(label)
+        if slot_choice(owner):
+            t.slot_peerdirs.add(label)
+            if linked_always(owner):
+                t.slot_reset.add(label)
+        elif linked_always(owner):
+            t.explicit.add(label)
+
     # A PEERDIR on an include-side module aliased to a part means that part.
     via_alias, direct = defaultdict(set), set()
     for p in mod.peerdirs:
-        p = os.path.normpath(p.rstrip("/"))
+        p = _norm_dir(p)
         if p in resolver.alias_parts:
             via_alias[resolver.alias(p)].add(resolver.alias_parts[p])
         else:
@@ -2262,6 +2417,7 @@ def gen_spec(mod, resolver, graph, report, external):
     # `# gn: plugin`: linked by the executables, see Module.plugins
     plugins_of = lambda m: {resolver.alias(p) for p in m.plugins}
     plugins = plugins_of(mod)
+    public_owners = {resolver.alias(p) for p in mod.public_peerdirs}   # PUBLIC_DEP
     for owner in peerdir_owners(mod, resolver):
         if owner in mod.absorbs:
             continue    # its code is compiled here
@@ -2279,15 +2435,14 @@ def gen_spec(mod, resolver, graph, report, external):
             labels = [module_label(owner)] if owner in direct else []
         labels += [module_part_label(owner, p) for p in sorted(via_alias.get(owner, ()))]
         for label in labels:
-            if mod.peerdir_parts.get(owner):
+            if mod.peerdir_parts.get(owner) or owner in public_owners:
                 spec.explicit.add(label)
+            if owner in public_owners:
+                spec.always_public.add(label)
             if ((label in PROTO_PROVIDED_LABELS and mod.kind == "PROTO_LIBRARY")
                     or label in spec.deps or label in spec.proto_public):
                 continue
-            spec.deps.add(label)
-            spec.peerdir_only.add(label)
-            if linked_always(owner):
-                spec.explicit.add(label)
+            add_peerdir(spec, label, owner)
 
     # PEERDIRs of an include-side module made a part of this one (merge_aliases)
     for name, dirs in sorted(mod.part_peerdirs.items()):
@@ -2296,10 +2451,7 @@ def gen_spec(mod, resolver, graph, report, external):
             label = (external.label(owner) or module_label(owner)
                      if owner.startswith("contrib/") else module_label(owner))
             if label not in t.deps:
-                t.deps.add(label)
-                t.peerdir_only.add(label)
-                if linked_always(owner):
-                    t.explicit.add(label)
+                add_peerdir(t, label, owner)
 
     # PEERDIRs of a module absorbed here (`# gn: into` of all its sources):
     # its code is compiled here, and so are its link deps
@@ -2314,10 +2466,7 @@ def gen_spec(mod, resolver, graph, report, external):
             label = (external.label(owner) or module_label(owner)
                      if owner.startswith("contrib/") else module_label(owner))
             if label not in spec.deps and label not in spec.proto_public:
-                spec.deps.add(label)
-                spec.peerdir_only.add(label)
-                if linked_always(owner):
-                    spec.explicit.add(label)
+                add_peerdir(spec, label, owner)
 
     # `# gn: [<part>] peerdir <dir>[:<part>]`: link-only deps ya.make can't say
     for own, d, sub in mod.gn_peerdirs:
@@ -2344,7 +2493,7 @@ def gen_spec(mod, resolver, graph, report, external):
     srcdir = _src_prefix(mod)
     own = [s for s in mod.compiled_srcs() if s.endswith(COMPILED_EXTS)]
     if is_gen_test(mod):
-        spec.sources = [test_src_path(mod, resolver.root, s) for s in own]
+        spec.sources = [src_path(mod, s) for s in own]
         for d in mod.test_depends:
             if d in (".", target_dir):
                 continue
@@ -2373,10 +2522,21 @@ def gen_spec(mod, resolver, graph, report, external):
                 report.test_data_missing[target_dir].add(item)
     else:
         spec.sources = [src_path(mod, s) for s in own if s not in mod.src_parts]
-    spec.sources += sorted(f for f, p in mod.foreign_srcs.items() if p is None)
+    # a source found nowhere (not in the tree, generated by no module): ninja
+    # would fail on it -- reported, left out
+    missing = [f for f in spec.sources if not os.path.exists(os.path.join(resolver.root, f))
+               and f not in resolver.generated]
+    if missing:
+        report.srcs_missing.append((target_dir, missing))
+        spec.sources = [f for f in spec.sources if f not in missing]
+    # what other modules compile here (`# gn: into`, merged groups): unless
+    # the module's own SRCS list the file too (ya builds it in both)
+    spec.sources += sorted(f for f, p in mod.foreign_srcs.items()
+                           if p is None and f not in spec.sources)
     for part in spec.parts:
         part.sources = [src_path(mod, s) for s in own if mod.src_parts.get(s) == part.part]
-        part.sources += sorted(f for f, p in mod.foreign_srcs.items() if p == part.part)
+        part.sources += sorted(f for f, p in mod.foreign_srcs.items()
+                               if p == part.part and f not in part.sources)
     spec.proto_sources = [src_path(mod, s) for s in mod.srcs if s.endswith(PROTO_EXTS)]
     # an enum's serialization goes with its header: to the part it belongs to
     enums = [module_path(mod, resolver.root, h) for h in mod.enum_headers]
@@ -2442,15 +2602,10 @@ def finalize_publicity(specs, consumed):
     the whole tree -- see IncludeGraph). The walk follows the target's own
     headers transitively: a consumed foo.h that includes its private
     foo-inl.h / defs.h exposes what those include too. Proto imports are
-    always public.
-
-    If the module itself has .proto sources and isn't a PROTO_LIBRARY, those
-    sources are split out into a sibling protobuf_library("private_proto")
-    (see render_spec) -- proto-import deps belong to that sub-target, not
-    here."""
+    always public (the generated .pb.h includes theirs), whatever target
+    compiles the .proto."""
     for spec in specs:
-        split_proto = spec.kind != "PROTO_LIBRARY" and spec.proto_sources
-        pub = set() if split_proto else set(spec.proto_public)
+        pub = set(spec.proto_public)
         exposed = [h for h in spec.header_owners if h in consumed]
         seen = set(exposed)
         while exposed:
@@ -2463,22 +2618,28 @@ def finalize_publicity(specs, consumed):
         pub |= spec.always_public
         spec.public_deps = pub
         spec.deps -= pub
-        if split_proto:
-            spec.deps -= spec.proto_public
 
 
 # --- merge planning (Pass 2) -----------------------------------------------
 
 def plan_merge(specs, report):
-    """Pass 2 runs strictly over what Pass 1 generated: children and leaf-ness
-    are computed from the generated set, not the filesystem. Modules not reached
-    (skipped or outside the closure) are simply invisible here."""
+    """The modules marked MOVE_INTO_PARENT whose parent is generated too go to
+    the parent's file. Pass 2 runs strictly over what Pass 1 generated: children
+    and leaf-ness are computed from the generated set, not the filesystem.
+    Modules not reached (skipped or outside the closure) are simply invisible
+    here."""
     # a test keeps its own file and is nobody's child (TargetSpec.kind)
     by_dir = {s.dir: s for s in specs if s.kind not in GEN_TEST_TEMPLATES}
     gen = set(by_dir)
     children = defaultdict(list)
     for d in gen:
-        children[os.path.dirname(d)].append(d)
+        if by_dir[d].move_into_parent:
+            children[os.path.dirname(d)].append(d)
+    # a test moves nowhere; nor what has no generated parent
+    for s in specs:
+        if s.move_into_parent and (s.kind in GEN_TEST_TEMPLATES or os.path.dirname(s.dir) not in by_dir):
+            report.move_blocked.append((s.dir, "a test" if s.kind in GEN_TEST_TEMPLATES
+                                        else "no generated parent"))
 
     def leaf(d):
         pref = d + "/"
@@ -2492,9 +2653,9 @@ def plan_merge(specs, report):
         kids = children.get(P, [])
         if not kids:
             continue
-        nonleaf = [os.path.basename(c) + ":non-leaf" for c in kids if not leaf(c)]
-        if nonleaf:
-            report.merge_blocked.append((P, nonleaf))
+        report.move_blocked += [(c, "not a leaf") for c in kids if not leaf(c)]
+        kids = [c for c in kids if leaf(c)]
+        if not kids:
             continue
         # a module split into a facade + SELF_PART keeps its own file: folded,
         # its part would be //P:<child>__self
@@ -2520,7 +2681,7 @@ def plan_merge(specs, report):
             dropped.add(P)
         report.merged.append((P, sorted(by_dir[c].name for c in kids)))
     report.unmerged = sorted(unmerged)
-    return remap, absorbed, dropped, unmerged
+    return remap, absorbed, dropped
 
 
 def plan_external_collapse(specs, external, report):
@@ -2566,45 +2727,48 @@ def plan_external_collapse(specs, external, report):
 
 # --- rendering -------------------------------------------------------------
 
+def read_text(path):
+    """The text of a file, or None if there is none."""
+    try:
+        with open(path, encoding="utf-8") as f:
+            return f.read()
+    except OSError:
+        return None
+
+
+def buildgn_text(root, rendered, d):
+    """The BUILD.gn of dir d: as this run renders it, else as on disk ("" if none)."""
+    text = rendered.get(d)
+    if text is None:
+        text = read_text(os.path.join(root, d, "BUILD.gn")) or ""
+    return text
+
+
+def _block_end(text, start):
+    """The offset right after the "}" closing the block whose "{" is at text[start - 1]."""
+    depth, j, n = 1, start, len(text)
+    while j < n and depth:
+        depth += {"{": 1, "}": -1}.get(text[j], 0)
+        j += 1
+    return j
+
+
 # a call of a target type or a template with a block; not template(), config(), ...
 _NOT_TARGETS = r'(?!(?:template|config|toolchain|pool|set_defaults|declare_args)\b)'
-_TARGET_RE = re.compile(r'(?<![\w.])' + _NOT_TARGETS + r'(?:\w+)\(\s*"([^"]+)"\s*\)\s*\{')
 _BLOCK_RE = re.compile(r'(?<![\w.])' + _NOT_TARGETS + r'(\w+)\(\s*"([^"]+)"\s*\)\s*\{')
 
 
 def target_blocks(text):
     """(template, name, body, offset after the opening brace) of every target of a BUILD.gn."""
     for m in _BLOCK_RE.finditer(text):
-        depth, j, n = 1, m.end(), len(text)
-        while j < n and depth:
-            depth += {"{": 1, "}": -1}.get(text[j], 0)
-            j += 1
-        yield m.group(1), m.group(2), text[m.end():j - 1], m.end()
-
-
-def _extract_list(body, key):
-    m = re.search(r'(?<![\w])' + key + r'\s*=\s*\[(.*?)\]', body, re.S)
-    return set(re.findall(r'"([^"]+)"', m.group(1))) if m else set()
+        yield m.group(1), m.group(2), text[m.end():_block_end(text, m.end()) - 1], m.end()
 
 
 def parse_existing_buildgn(path):
     """The target names an existing BUILD.gn declares, with the labels of their
     deps/public_deps (commented or not). Return {target_name: (deps, public_deps)}."""
-    try:
-        with open(path, encoding="utf-8") as f:
-            text = f.read()
-    except OSError:
-        return {}
-    out = {}
-    for m in _TARGET_RE.finditer(text):
-        depth, j, n = 1, m.end(), len(text)
-        while j < n and depth:
-            depth += {"{": 1, "}": -1}.get(text[j], 0)
-            j += 1
-        body = text[m.end():j - 1]
-        out[m.group(1)] = (_extract_list(body, "deps"),
-                           _extract_list(body, "public_deps"))
-    return out
+    return {name: (_list_uncommented(body, "deps", True), _list_uncommented(body, "public_deps", True))
+            for _, name, body, _ in target_blocks(read_text(path) or "")}
 
 
 def _list_uncommented(body, key, commented=False):
@@ -2629,27 +2793,14 @@ def parse_existing_buildgn_uncommented(path):
     Comment state is the only thing taken from the existing file: whether a
     label lands in deps or public_deps is always recomputed
     (finalize_publicity), regardless of comments."""
-    try:
-        with open(path, encoding="utf-8") as f:
-            text = f.read()
-    except OSError:
-        return {}
-    return uncommented_deps_of_text(text)
+    return uncommented_deps_of_text(read_text(path) or "")
 
 
 def uncommented_deps_of_text(text, commented=False):
     """parse_existing_buildgn_uncommented of a BUILD.gn's text (commented: all
     the edges, see _list_uncommented)."""
-    out = {}
-    for m in _TARGET_RE.finditer(text):
-        depth, j, n = 1, m.end(), len(text)
-        while j < n and depth:
-            depth += {"{": 1, "}": -1}.get(text[j], 0)
-            j += 1
-        body = text[m.end():j - 1]
-        out[m.group(1)] = (_list_uncommented(body, "deps", commented)
-                           | _list_uncommented(body, "public_deps", commented))
-    return out
+    return {name: _list_uncommented(body, "deps", commented) | _list_uncommented(body, "public_deps", commented)
+            for _, name, body, _ in target_blocks(text)}
 
 
 # A template of //build/gn/testing.gni and the main of the framework it adds:
@@ -2663,23 +2814,40 @@ _TEST_MAIN_RE = re.compile(r'^template\("([^"]+)"\)\s*\{\s*ya_test\(target_name\
 TEST_FRAMEWORK = "test_framework"
 
 
+def test_scope(mods):
+    """The modules ya builds for tests only: the roots of the tree (the dirs
+    no ya.make RECURSEs) reach them by RECURSE through a RECURSE_FOR_TESTS
+    only."""
+    def closure(roots, edges):
+        seen, stack = set(), list(roots)
+        while stack:
+            d = stack.pop()
+            if d in seen or d not in mods:
+                continue
+            seen.add(d)
+            stack += edges(mods[d])
+        return seen
+    roots = set(mods) - {r for m in mods.values() for r in m.recurses + m.test_recurses}
+    return (closure(roots, lambda m: m.recurses + m.test_recurses)
+            - closure(roots, lambda m: m.recurses))
+
+
 def test_only_modules(mods, resolver, frameworks):
-    """{module: the PEERDIR it is test-only through} -- the test frameworks
-    and the modules whose PEERDIR closure has one (a test of GEN_TEST_TEMPLATES
-    is test-only by its template)."""
-    rev = defaultdict(set)
-    for d, m in mods.items():
-        for p in m.peerdirs:
-            p = resolver.alias(os.path.normpath(p.rstrip("/")))
-            rev[resolver.absorbed.get(p, p)].add(d)
-    via = {d: None for d in frameworks}
-    queue = sorted(frameworks)
-    while queue:
-        p = queue.pop()
-        for d in sorted(rev.get(p, ())):
-            if d not in via:
-                via[d] = p
-                queue.append(d)
+    """{module: the PEERDIR it is test-only through} -- the test frameworks,
+    the modules of test_scope() and the modules whose PEERDIR closure has
+    one of them (a test of GEN_TEST_TEMPLATES is test-only by its template).
+    The frameworks go first: a module reaching one is test-only through that."""
+    rev = peerdir_reverse(mods, resolver)
+    via = {}
+    for seeds in (frameworks, test_scope(mods)):
+        queue = sorted(set(seeds) - set(via))
+        via.update((d, None) for d in queue)
+        while queue:
+            p = queue.pop()
+            for d in sorted(rev.get(p, ())):
+                if d not in via:
+                    via[d] = p
+                    queue.append(d)
     return via
 
 
@@ -2712,12 +2880,7 @@ def mark_test_only(root, rendered, node_module, test_mods):
         d = node[0]
         if d not in others:
             others[d] = {}
-            try:
-                with open(os.path.join(root, d, "BUILD.gn"), encoding="utf-8") as f:
-                    text = f.read()
-            except OSError:
-                text = ""
-            for tmpl, name, body, _ in target_blocks(text):
+            for tmpl, name, body, _ in target_blocks(buildgn_text(root, {}, d)):
                 labels = _list_uncommented(body, "deps") | _list_uncommented(body, "public_deps")
                 others[d][name] = (re.search(r"^\s*testonly\s*=\s*true", body, re.M) is not None
                                    or tmpl in TEST_TEMPLATES,
@@ -2758,13 +2921,39 @@ def mark_test_only(root, rendered, node_module, test_mods):
     return out, test, edge_only, conflicts
 
 
+PCH_TARGETS = "build/gn/pch/targets.gni"   # pch_targets; the PCH of //<dir>:<name> is build/gn/pch/<dir>/<name>.h
+
+
+def stale_pch(root, rendered):
+    """[(label or header, why)] of build/gn/pch: a target of pch_targets there
+    is no more (folded into another one, renamed), with no header, or a header
+    of no target -- the PCH would silently not apply."""
+    text = read_text(os.path.join(root, PCH_TARGETS))
+    if text is None:
+        return []
+    labels = re.findall(r'"(//[^"]+)"', text)
+    out, wanted = [], set()
+    files = {}
+    for label in labels:
+        d, name = _label_node(label, "")
+        wanted.add(os.path.join("build/gn/pch", d, name + ".h"))
+        if d not in files:
+            files[d] = {n for _, n, _, _ in target_blocks(buildgn_text(root, rendered, d))}
+        if name not in files[d]:
+            out.append((label, "no such target"))
+        if not os.path.exists(os.path.join(root, "build/gn/pch", d, name + ".h")):
+            out.append((label, "no header build/gn/pch/%s/%s.h" % (d, name)))
+    for d, _, fs in os.walk(os.path.join(root, "build/gn/pch")):
+        for f in fs:
+            rel = os.path.relpath(os.path.join(d, f), root)
+            if f.endswith(".h") and rel not in wanted:
+                out.append((rel, "not in pch_targets"))
+    return out
+
+
 def test_mains(root):
     """{template of a test: the label of its framework's main}."""
-    try:
-        with open(os.path.join(root, "build/gn/testing.gni"), encoding="utf-8") as f:
-            return dict(_TEST_MAIN_RE.findall(f.read()))
-    except OSError:
-        return {}
+    return dict(_TEST_MAIN_RE.findall(read_text(os.path.join(root, "build/gn/testing.gni")) or ""))
 
 
 def test_implied_deps(root, rendered):
@@ -2778,33 +2967,18 @@ def test_implied_deps(root, rendered):
 
     def targets(d):
         if d not in files:
-            text = rendered.get(d)
-            if text is None:
-                try:
-                    with open(os.path.join(root, d, "BUILD.gn"), encoding="utf-8") as f:
-                        text = f.read()
-                except OSError:
-                    text = ""
-            files[d] = uncommented_deps_of_text(text, commented=True)
+            files[d] = uncommented_deps_of_text(buildgn_text(root, rendered, d), commented=True)
         return files[d]
-
-    def full(label, host):
-        if label.startswith(":"):
-            label = "//%s%s" % (host, label)
-        elif not label.startswith("//"):
-            label = "//" + os.path.normpath(os.path.join(host, label))
-        d, _, name = label[2:].partition(":")
-        return d, name or os.path.basename(d)
 
     out = {}
     for tmpl, main in mains.items():
-        seen, stack = set(), [full(main, "")]
+        seen, stack = set(), [_label_node(main, "")]
         while stack:
             d, name = stack.pop()
             if (d, name) in seen:
                 continue
             seen.add((d, name))
-            stack += [full(l, d) for l in targets(d).get(name, ())]
+            stack += [_label_node(l, d) for l in targets(d).get(name, ())]
         out[tmpl] = {_short_label("//%s:%s" % t) for t in seen}
     return out
 
@@ -2821,19 +2995,9 @@ _CONFIG_RE = re.compile(r'^[ \t]*config\(\s*"([^"]+)"\s*\)\s*\{', re.M)
 
 def parse_existing_configs(path):
     """{name: the config("name") {...} block, verbatim} of an existing file."""
-    try:
-        with open(path, encoding="utf-8") as f:
-            text = f.read()
-    except OSError:
-        return {}
-    out = {}
-    for m in _CONFIG_RE.finditer(text):
-        depth, j, n = 1, m.end(), len(text)
-        while j < n and depth:
-            depth += {"{": 1, "}": -1}.get(text[j], 0)
-            j += 1
-        out[m.group(1)] = text[m.start():j].strip()
-    return out
+    text = read_text(path) or ""
+    return {m.group(1): text[m.start():_block_end(text, m.end())].strip()
+            for m in _CONFIG_RE.finditer(text)}
 
 
 def dep_sort_key(label):
@@ -3076,9 +3240,7 @@ def _render_target(tmpl, name, public_deps, deps, sources,
     return "\n".join(lines)
 
 
-def render_spec(spec, host, remap, uncommented, main_name=None, private_configs=None):
-    """`main_name`: for a GN_DIRECTIVES part, the rendered name of its module's
-    main target."""
+def render_spec(spec, host, remap, uncommented, private_configs=None):
     tmpl = {"PROGRAM": "linked_executable", "GROUP": "group",
             "PROTO_LIBRARY": "protobuf_library"}.get(spec.kind, "library")
     if spec.kind in GEN_TEST_TEMPLATES:
@@ -3097,12 +3259,9 @@ def render_spec(spec, host, remap, uncommented, main_name=None, private_configs=
         spec.explicit |= spec.link_plugins
         link_plugins = []
 
-    # A non-PROTO_LIBRARY module with .proto sources (e.g. LIBRARY() with a
-    # mix of .cpp and .proto in SRCS) can't list them directly: GN binary
-    # targets only accept source/header/object files. Split the .proto
-    # sources into a sibling protobuf_library("private_proto") and depend on
-    # it -- strictly via deps, never public_deps.
-    split_proto = tmpl != "protobuf_library" and bool(spec.proto_sources)
+    # .proto in the SRCS of a LIBRARY() or a PROGRAM()/test go to its sources
+    # as they are: library() and linked_executable() run protoc under the
+    # hood (//build/gn/protobuf.gni), its CPP_PROTO_PLUGIN()s as extra_plugins
 
     # an executable has no `resources`: a PROGRAM's RESOURCE()s go to a sibling
     # library("<name>_resources") the executable depends on (its registration
@@ -3120,14 +3279,12 @@ def render_spec(spec, host, remap, uncommented, main_name=None, private_configs=
     # deps vs public_deps is always the freshly computed classification
     # (finalize_publicity); only the comment state comes from the existing file.
 
-    if split_proto:
-        dep.add(":private_proto")
     if split_resources:
         dep.add(":" + resources_target)
 
     pub = sorted(pub, key=dep_sort_key)
     dep = sorted(dep, key=dep_sort_key)
-    main_sources = spec.sources + spec.proto_sources if tmpl == "protobuf_library" else spec.sources
+    main_sources = spec.sources + spec.proto_sources
     srcs = sorted(os.path.relpath(s, host) if s.startswith(host + "/") else "//" + s
                   for s in main_sources)
     enums = sorted(os.path.relpath(h, host) if h == host or h.startswith(host + "/")
@@ -3138,7 +3295,7 @@ def render_spec(spec, host, remap, uncommented, main_name=None, private_configs=
     # PEERDIRs. GN has no empty static library and protobuf_library requires
     # sources; emit a group() that forwards the deps instead.
     if (tmpl in ("library", "contrib_library", "protobuf_library") and not srcs
-            and not split_proto and not enums and not spec.resources):
+            and not enums and not spec.resources):
         tmpl = "group"
 
     # New deps default to commented-out: a freshly derived dependency is emitted
@@ -3149,52 +3306,39 @@ def render_spec(spec, host, remap, uncommented, main_name=None, private_configs=
     # group() plays by the same rules as library(), whether it is a sourceless
     # facade or a pure aggregator: nothing about forwarding deps instead of
     # linking them makes a freshly derived edge more trustworthy. Left intact:
-    # the protobuf_library sub-target (its deps are proto imports the generated
-    # .pb.h genuinely needs) and a library's own :private_proto edge (an
-    # internal artifact, never a cycle).
+    # proto imports, which the generated .pb.h genuinely needs.
     # an existing file may spell a local label long ("//host"): compare in
     # the short form the labels are rendered in
     # a PROGRAM(<name>) target may still carry its directory's name in the file
     existing_name = spec.name if spec.name in uncommented else os.path.basename(spec.dir)
+    # A target new to the file -- moved here or out of here by `# gn: move into
+    # parent`, a part split off by `# gn: <part>`, a facade split or joined
+    # again -- is a new target: none of its edges is the user's choice yet.
     keep = {shorten(remap.get(l, l), host) for l in uncommented.get(existing_name, set())}
     render = lambda labels: {shorten(remap.get(l, l), host) for l in labels}
-    if spec.part is not None and spec.name not in uncommented:
-        # a part new to this file: its sources lived in the module's main
-        # target so far, and so did the user's choices about their deps
-        keep |= {shorten(remap.get(l, l), host) for l in uncommented.get(main_name, set())}
-    # a dep on a module left enabled carries over to a dep on its GN_DIRECTIVES
-    # part: the narrower edge of the same kind (the module's headers moved there)
-    for l in spec.deps | spec.public_deps:
-        d, _, p = l[2:].partition(":")
-        if l.startswith("//") and p and not d.startswith("contrib/"):
-            if render([module_label(d)]) <= keep:
-                keep |= render([l])
-    # likewise to a child folded into that module's BUILD.gn, when the edge to
-    # the module itself is gone: the headers it was derived from now belong to
-    # the child (see Resolver.claims) -- so not an edge no header is behind
-    derived = render(spec.deps | spec.public_deps)
-    for l in (spec.deps | spec.public_deps) - spec.peerdir_only:
-        d, _, p = remap.get(l, l)[2:].partition(":")
-        if p and l != remap.get(l, l) and not d.startswith("contrib/"):
-            parent = render([module_label(d)])
-            if parent <= keep and not parent <= derived:
-                keep |= render([l])
     peerdir_only = (render(spec.peerdir_only)
                     - render((spec.deps | spec.public_deps) - spec.peerdir_only))
     notes = {l: "peerdir only" for l in peerdir_only}
+    slot_only = render(spec.slot_peerdirs) & peerdir_only
+    notes.update((l, "link slot") for l in slot_only)
+    slot_reset = render(spec.slot_reset) & slot_only
 
     # GN_DIRECTIVES deps are written by hand in ya.make (including the main
     # target's edges to its own parts, which in ya are the module itself):
     # never optional, never commented
     own_parts = render(spec.explicit)
 
-    # a test is a sink (nothing depends on it, no edge of it closes a
-    # cycle): all of its deps are on
-    commented = frozenset()
-    if tmpl in ("library", "contrib_library", "linked_executable", "group"):
+    # a program or a test is a sink (nothing depends on it, no edge of it
+    # closes a cycle): all of its deps are on -- but one on a module of no
+    # GN target (skipped, see the report), which would fail `gn gen`
+    no_target = render(spec.no_target)
+    notes.update((l, "no target") for l in no_target)
+    commented = frozenset(no_target)
+    if tmpl in ("library", "contrib_library", "group"):
+        proto_imports = render(spec.proto_public) - peerdir_only
         commented = frozenset(l for l in pub + dep
-                              if l not in keep and l not in own_parts
-                              and l not in (":private_proto", ":" + resources_target))
+                              if (l not in keep or l in slot_reset) and l not in own_parts
+                              and l not in proto_imports and l != ":" + resources_target)
     elif tmpl == "protobuf_library":
         # proto imports are genuinely needed and stay enabled; a PEERDIR with
         # no import behind is new to this target and starts disabled as usual
@@ -3225,12 +3369,6 @@ def render_spec(spec, host, remap, uncommented, main_name=None, private_configs=
         out.append(config_text)
     if public_config_text is not None:
         out.append(public_config_text)
-    if split_proto:
-        proto_pub = sorted({shorten(remap.get(l, l), host) for l in spec.proto_public},
-                           key=dep_sort_key)
-        proto_srcs = sorted(os.path.relpath(s, host) for s in spec.proto_sources)
-        out.append(_render_target("protobuf_library", "private_proto", proto_pub, [], proto_srcs,
-                                  extra_plugins=plugins))
     if split_resources:
         out.append(_render_target("library", resources_target, [], [], [],
                                   resources=resources, resource_files=resource_files))
@@ -3246,7 +3384,7 @@ def render_spec(spec, host, remap, uncommented, main_name=None, private_configs=
     out.append(_render_target(tmpl, spec.name, pub, dep, srcs, enums, commented=commented,
                               configs=configs, public_configs=public_configs,
                               resources=resources, resource_files=resource_files,
-                              notes=notes, extra_plugins=plugins if tmpl == "protobuf_library" else (),
+                              notes=notes, extra_plugins=plugins if spec.proto_sources else (),
                               link_slot_provides=spec.slot_provides,
                               link_select=spec.link_select,
                               link_slot_interface=spec.slot_interface,
@@ -3277,22 +3415,12 @@ def _absolute_labels(labels, host):
     return {"//%s%s" % (host, l) if l.startswith(":") else l for l in labels}
 
 
-def render_file(root, host, specs, remap, inherit=None):
-    """`inherit`: {module dir: {part or None: labels}} -- a module whose targets
-    move out of its parent's file (see plan_merge): the deps left uncommented
-    in its old targets there."""
+def render_file(root, host, specs, remap):
+    """The BUILD.gn of `host`: its targets `specs`; the deps the user left
+    uncommented in the existing file stay so (see render_spec)."""
     path = os.path.join(root, host, "BUILD.gn")
     uncommented = {n: _absolute_labels(ls, host)
                    for n, ls in parse_existing_buildgn_uncommented(path).items()}
-    for s in specs:
-        labels = (inherit or {}).get(s.dir, {}).get(s.part)
-        if s.name not in uncommented and labels is not None:
-            uncommented[s.name] = labels
-        # the SELF_PART of a module split by an earlier run and not now: its
-        # deps are the module's own target's again
-        if (s.part is None and s.dir == host and SELF_PART in uncommented
-                and s.name != SELF_PART and not any(t.part == SELF_PART for t in s.parts)):
-            uncommented[s.name] = uncommented.get(s.name, set()) | uncommented[SELF_PART]
     # hand-written private configs: from this file, and from the file a target
     # is moving here from (Pass 2 merge), where it was written
     private_configs = {}
@@ -3300,10 +3428,8 @@ def render_file(root, host, specs, remap, inherit=None):
         if s.dir != host:
             private_configs.update(parse_existing_configs(os.path.join(root, s.dir, "BUILD.gn")))
     private_configs.update(parse_existing_configs(path))
-    main_names = {id(part): s.name for s in specs for part in s.parts}
     return normalize_dep_lists(
-        "\n\n".join(render_spec(s, host, remap, uncommented, main_names.get(id(s)),
-                                private_configs)
+        "\n\n".join(render_spec(s, host, remap, uncommented, private_configs)
                     for s in sorted(specs, key=lambda s: s.name)) + "\n")
 
 
@@ -3315,12 +3441,11 @@ class Report:
         self.test_depends_unbuilt = defaultdict(set)   # test -> DEPENDS without a GN target
         self.test_data_missing = defaultdict(set)      # test -> DATA(arcadia/...) not in the tree
         self.unresolved = defaultdict(set)
-        self.contrib_deps = defaultdict(set)
         self.arch_files = []
         self.transitive_headers_no = []
         self.peer_diff = {}
         self.merged = []
-        self.merge_blocked = []
+        self.move_blocked = []         # (module, why): `# gn: move into parent` that can't be
         self.keep_collapsed = []
         self.aliased = []
         self.self_split = []           # (dir, {modules it PEERDIRs that include it})
@@ -3336,10 +3461,17 @@ class Report:
         self.provides_no_slot = []     # (dir, PROVIDES name): ya's check only (PROVIDES_CHECK_ONLY)
         self.provides_unknown = []     # (dir, PROVIDES name): no link slot, not a known check: an error
         self.unknown_srcs = []         # (dir, SRCS of no kind the generator builds: dropped)
+        self.srcs_missing = []         # (dir, SRCS found nowhere: dropped)
         self.test_only_by_edge = []    # (module, dep): test-only by an edge left on, not by PEERDIR
         self.test_only_conflicts = []  # (hand-written target, test-only dep): gn gen fails
-        self.test_only_programs = []   # (PROGRAM, PEERDIR path to a test framework)
+        self.test_only_programs = []   # (PROGRAM, PEERDIR path to a test framework or a test_scope() module)
         self.link_select_conflicts = []  # (program or test, slot, [providers in its closure])
+        self.link_select_defaulted = []  # (program or test, slot, value): DEFAULT_PROVIDER selected
+        self.link_select_missing = []    # (program or test, slot): its interface, no provider, no default
+        self.slot_defaults_bad = []      # (dir or slot, why): a broken `# gn: default provider`
+        self.pch_stale = []            # (label or header, why), see stale_pch
+        self.pruned = []               # labels --prune-root-groups dropped from the root BUILD.gn
+        self.sink_no_target = []       # (program or test, dep on a module of no GN target: commented)
 
     def dump(self, problems_only=False):
         """problems_only: only what needs a fix (in ya.make, a directive, the
@@ -3356,10 +3488,10 @@ class Report:
             print("\nmerged (parent <- children):", file=o)
             for p, kids in sorted(self.merged):
                 print("  //%s <- %s" % (p, ", ".join(kids)), file=o)
-        if info and self.merge_blocked:
-            print("\nmerge blocked:", file=o)
-            for p, reasons in sorted(self.merge_blocked):
-                print("  //%s : %s" % (p, ", ".join(reasons)), file=o)
+        if self.move_blocked:
+            print("\n`# gn: %s` not applied:" % MOVE_INTO_PARENT, file=o)
+            for d, why in sorted(self.move_blocked):
+                print("  %-58s %s" % (d, why), file=o)
         if info and self.merged_groups:
             print("\nmerged groups (in-directory cycles; the modules are compiled by the first):", file=o)
             for d, members in self.merged_groups:
@@ -3403,10 +3535,35 @@ class Report:
             print("\nPROVIDES of no link slot (no `# gn: slot` interface anywhere; ya's check only):", file=o)
             for d, name in sorted(set(self.provides_no_slot)):
                 print("  %-58s %s" % (d, name), file=o)
+        if self.sink_no_target:
+            print("\nERROR: programs and tests depending on a module of no GN target (the dep is commented, the link fails):", file=o)
+            for d, l in self.sink_no_target:
+                print("  %-58s %s" % (d, l), file=o)
+        if self.pruned:
+            print("\ndropped from the groups of the root BUILD.gn (--prune-root-groups):", file=o)
+            for l in self.pruned:
+                print("  %s" % l, file=o)
+        if self.pch_stale:
+            print("\nERROR: PCH of build/gn/pch that applies to nothing (%s):" % PCH_TARGETS, file=o)
+            for x, why in self.pch_stale:
+                print("  %-58s %s" % (x, why), file=o)
         if self.link_select_conflicts:
             print("\nERROR: several providers of a link slot in the PEERDIR closure (ya fails too; none selected):", file=o)
             for d, slot, values in self.link_select_conflicts:
                 print("  %-58s %s: %s" % (d, slot, ", ".join(values)), file=o)
+        if self.slot_defaults_bad:
+            print("\nERROR: broken `# gn: %s`:" % DEFAULT_PROVIDER, file=o)
+            for x, why in self.slot_defaults_bad:
+                print("  %-58s %s" % (x, why), file=o)
+        if info and self.link_select_missing:
+            print("\nlink slot interface in the PEERDIR closure, no provider nor `# gn: %s` "
+                  "(link_slot_check fails if the GN deps link it):" % DEFAULT_PROVIDER, file=o)
+            for d, slot in self.link_select_missing:
+                print("  %-58s %s" % (d, slot), file=o)
+        if info and self.link_select_defaulted:
+            print("\nlink slot interface in the closure, no provider: `# gn: %s` selected:" % DEFAULT_PROVIDER, file=o)
+            for d, slot, value in self.link_select_defaulted:
+                print("  %-58s %s=%s" % (d, slot, value), file=o)
         if self.test_only_conflicts:
             print("\nERROR: hand-written targets depending on test-only ones (add testonly = true or drop the dep):", file=o)
             for t, dep in self.test_only_conflicts:
@@ -3416,9 +3573,13 @@ class Report:
             for d, dep in self.test_only_by_edge:
                 print("  %-58s %s" % (d, dep), file=o)
         if info and self.test_only_programs:
-            print("\nprograms (not tests) reaching a test framework by PEERDIR: testonly:", file=o)
+            print("\nprograms (not tests) testonly: by PEERDIR to a test framework, or RECURSE_FOR_TESTS only:", file=o)
             for d, path in self.test_only_programs:
-                print("  %-58s %s" % (d, " -> ".join(path[1:])), file=o)
+                print("  %-58s %s" % (d, " -> ".join(path[1:]) or "RECURSE_FOR_TESTS"), file=o)
+        if self.srcs_missing:
+            print("\nERROR: SRCS not found (neither in the tree nor generated by a module; not built):", file=o)
+            for d, srcs in sorted(self.srcs_missing):
+                print("  %-58s %s" % (d, " ".join(srcs)), file=o)
         if self.unknown_srcs:
             print("\nSRCS of no known kind (neither C++, a header, .proto nor TRANSLATED_EXTS; not built):", file=o)
             for d, srcs in sorted(self.unknown_srcs):
@@ -3564,20 +3725,21 @@ def _short_label(label):
     return "//" + d if not name or name == os.path.basename(d) else label
 
 
-def render_root_groups(text, labels, test_only=frozenset()):
+def render_root_groups(text, labels, test_only=frozenset(), drop=frozenset()):
     """`text` of the root BUILD.gn with `labels` ({group: [label]}) added to
     the groups of ROOT_GROUPS; the rest of the file is left as it is. A
-    test-only label (`test_only`, short form) goes to the test-only group."""
+    test-only label (`test_only`, short form) goes to the test-only group;
+    those of `drop` (short form) leave the groups."""
+    def find(name):
+        m = re.search(r'^group\("%s"\)\s*\{' % name, text, re.M)
+        return m, (_block_end(text, m.end()) if m else len(text))
+
     olds = {}
     for name, _ in ROOT_GROUPS:
-        m = re.search(r'^group\("%s"\)\s*\{' % name, text, re.M)
+        m, end = find(name)
         if m:
-            start, depth, end = m.start(), 1, m.end()
-            while depth and end < len(text):
-                depth += {"{": 1, "}": -1}.get(text[end], 0)
-                end += 1
             olds[name] = re.findall(r'"(//[^"]+)"', text[m.end():end])
-    wanted = {name: {_short_label(l) for l in olds.get(name, []) + labels.get(name, [])}
+    wanted = {name: {_short_label(l) for l in olds.get(name, []) + labels.get(name, [])} - drop
               for name, _ in ROOT_GROUPS}
     for name, testonly in ROOT_GROUPS:
         if not testonly:
@@ -3588,13 +3750,8 @@ def render_root_groups(text, labels, test_only=frozenset()):
                     wanted[other_name] |= moved
                     break
     for name, testonly in ROOT_GROUPS:
-        m = re.search(r'^group\("%s"\)\s*\{' % name, text, re.M)
-        start, end = len(text), len(text)
-        if m:
-            start, depth, end = m.start(), 1, m.end()
-            while depth and end < len(text):
-                depth += {"{": 1, "}": -1}.get(text[end], 0)
-                end += 1
+        m, end = find(name)
+        start = m.start() if m else len(text)
         new = sorted(wanted[name])
         if not new and not m:
             continue
@@ -3618,14 +3775,22 @@ def recurse_closure(mods, roots):
         if d in seen or d not in mods:
             continue
         seen.add(d)
-        stack += mods[d].recurses
+        stack += mods[d].recurses + mods[d].test_recurses
     return seen
+
+
+def is_aggregator(mod):
+    """A LIBRARY compiling nothing of its own: its PEERDIRs are what it is
+    (a group() in GN)."""
+    return (mod.kind == "LIBRARY" and not mod.enum_headers and not mod.resource_macros
+            and not any(x.endswith(COMPILED_EXTS + PROTO_EXTS) for x in mod.compiled_srcs()))
 
 
 def top_targets(mods, dirs):
     """Those of `dirs` no other of them reaches by PEERDIR (and a test's
     DEPENDS): what the rest is built for. Of modules reaching each other
-    the first one stays."""
+    the first one stays. An aggregator (is_aggregator) is neither: what it
+    PEERDIRs stands for it, unless something else reaches that."""
     memo = {}
 
     def reach(d):
@@ -3636,7 +3801,7 @@ def top_targets(mods, dirs):
                 m = mods.get(x)
                 if m is None:
                     continue
-                for q in [os.path.normpath(p.rstrip("/")) for p in m.peerdirs] + m.test_depends:
+                for q in [_norm_dir(p) for p in m.peerdirs] + m.test_depends:
                     if q not in seen:
                         seen.add(q)
                         stack.append(q)
@@ -3644,9 +3809,10 @@ def top_targets(mods, dirs):
         return memo[d]
 
     dirs = sorted(dirs)
+    real = [d for d in dirs if not is_aggregator(mods[d])]
     out = []
-    for d in dirs:
-        by = [o for o in dirs if o != d and d in reach(o)]
+    for d in real:
+        by = [o for o in real if o != d and d in reach(o)]
         # reached only by modules it reaches back (a cycle): the first one stays
         if all(o in reach(d) for o in by) and all(d < o for o in by):
             out.append(d)
@@ -3677,10 +3843,187 @@ def generated_earlier(root, mods, external):
             continue
         if P not in names:
             names[P] = set(parse_existing_buildgn_uncommented(os.path.join(root, P, "BUILD.gn")))
-        b = os.path.basename(d)
-        if {b, "%s_%s" % (os.path.basename(P), b)} & names[P]:
+        # named after the dir, or a PROGRAM(<name>) after its name; prefixed
+        # with the parent's when the name is taken there (plan_merge)
+        own = {os.path.basename(d)} | ({mods[d].name} if mods[d].name else set())
+        if (own | {"%s_%s" % (os.path.basename(P), n) for n in own}) & names[P]:
             out.add(d)
     return out
+
+
+def walk_as_target(ap, args, root, mods, resolver, graph, external, gen_one, specs_by_dir,
+                   slots, allocators, mains, report):
+    """Pass 1 of --as-target: generate (gen_one) the transitive closure of the
+    paths over the derived #include graph and PEERDIR, then what earlier runs
+    generated. Returns (the roots for the groups of the root BUILD.gn, the
+    modules visited)."""
+    queue = []
+    for p in args.paths:
+        md = find_module_dir(root, os.path.relpath(os.path.abspath(p), root))
+        if md is None:
+            ap.error("no ya.make at or above %s" % p)
+        queue.append(md)
+    if args.recurse:
+        reached = recurse_closure(mods, queue)
+        queue = sorted(d for d in reached
+                       if is_real(mods[d]) or is_gen_test(mods[d]))
+        # a library a test PEERDIRs is built for the test (nothing reaches a test)
+        as_target_roots = top_targets(mods, queue)
+    else:
+        as_target_roots = list(queue)
+    seen = set()
+    # what earlier runs generated is generated again after the closure:
+    # the files rewritten here keep their targets, the merge is planned
+    # over all of them (as a run over the whole tree would)
+    earlier = sorted(generated_earlier(root, mods, external))
+    closure = None
+    while queue or earlier:
+        if not queue:
+            closure = set(specs_by_dir)
+            queue, earlier = earlier, []
+        d = resolver.alias(queue.pop())
+        if d in seen or d not in mods or not (is_real(mods[d]) or is_gen_test(mods[d])):
+            seen.add(d)
+            continue
+        if is_gen_test(mods[d]) or mods[d].kind == "PROGRAM":
+            # the framework's main, the allocator: implicit PEERDIRs
+            queue.extend(p for p in implicit_peerdirs(mods[d], allocators, mains)
+                         if not p.startswith("contrib/"))
+        seen.add(d)
+        s = gen_one(d)
+        if s is None and mods[d].absorbed_into is not None:
+            continue
+        if s is None:
+            # Module not generated here (keep-marked or non-trivial): follow
+            # the owners of what its files include, exactly as for a
+            # generated module -- the #include graph covers every real
+            # module. Its BUILD.gn may spell a dep as a folded //P:name, or
+            # not list it at all; the includes don't depend on that.
+            queue.extend(sorted(graph.owners(d)))
+            # ... and its PEERDIRs, like a generated module's peerdir deps
+            queue.extend(p for p in peerdir_owners(mods[d], resolver)
+                         if not p.startswith("contrib/"))
+            # ... and its protoc plugins (CPP_PROTO_PLUGIN0): extra_plugins,
+            # not deps, yet built for it all the same
+            queue.extend(pd for _, pd in mods[d].proto_plugins)
+            # Plus the deps of its hand-written BUILD.gn: link-only deps
+            # added by hand (e.g. //ydb/core/graph/service behind an
+            # include of ydb/core/graph/api/service.h) have no include.
+            existing_gn = os.path.join(root, d, "BUILD.gn")
+            if os.path.exists(existing_gn):
+                # ... and the providers a linked_executable() selects
+                with open(existing_gn, encoding="utf-8") as f:
+                    selects = re.findall(r'link_select\s*=\s*\[(.*?)\]', f.read(), re.S)
+                for entry in re.findall(r'"([^"]+)"', "".join(selects)):
+                    slot, _, choice = entry.partition("=")
+                    queue.extend(sorted(slots.get((slot, choice), ())))
+                existing = parse_existing_buildgn(existing_gn)
+                for _deps, _pub in existing.values():
+                    for label in _deps | _pub:
+                        if not label.startswith("//"):
+                            continue    # ":local" -- a target of this same file
+                        dep = label[2:].split(":")[0]
+                        if not dep.startswith("contrib/"):
+                            queue.append(dep)
+            continue
+        for label in set().union(*[t.deps | t.public_deps | t.link_plugins for t in [s] + s.parts]):
+            dep = label[2:].split(":")[0]   # //dir or //dir:name -> dir
+            if dep.startswith("contrib/"):
+                continue                    # external: keeps its own BUILD.gn
+            queue.append(dep)
+        queue.extend(pd for _, pd in s.proto_plugins)   # extra_plugins
+        queue.extend(s.test_depends)                    # data_deps of a test
+    if closure is not None:
+        report.earlier = sorted(set(specs_by_dir) - closure)
+    return as_target_roots, seen
+
+
+def moved_labels(root, specs, specs_by_dir, all_specs, external, remap):
+    """The old labels of the targets that left a parent's file (merged into it by
+    an earlier run, not now): //<parent>:<old name> -> their label now, so that an
+    edge of another target to the same code keeps its state. The targets
+    themselves start anew (see render_spec)."""
+    for s in specs:
+        c, P = s.dir, os.path.dirname(s.dir)
+        parent_gn = os.path.join(root, P, "BUILD.gn")
+        if s.host != c or not P or external.is_external(P) or not os.path.exists(parent_gn):
+            continue
+        existing = parse_existing_buildgn_uncommented(parent_gn)
+        own = ({t.name for t in [specs_by_dir[P]] + specs_by_dir[P].parts}
+               if P in specs_by_dir else set())
+        own |= {t.name for t in all_specs if t.host == P}
+        pb = os.path.basename(P)
+        for t in [s] + s.parts:
+            names = {t.name} | ({os.path.basename(c)} if t.part is None else set())
+            for n in sorted(names | {"%s_%s" % (pb, n) for n in names}):
+                if n in existing and n not in own:
+                    remap.setdefault("//%s:%s" % (P, n), module_part_label(c, t.part))
+
+
+def write_buildgn(root, out, text, no_format):
+    """Write a rendered BUILD.gn: as `gn format` lays it out, unless no_format."""
+    with open(out, "w", encoding="utf-8") as f:
+        f.write(text)
+    if no_format:
+        return
+    subprocess.run(["gn", "format", out], cwd=root, check=False,
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    # `gn format` reflows the dep lists around the commented-out entries
+    # (blank line before each comment block, comment blocks dragged along when
+    # sorting) -- put them back in shape. This runs last on purpose, so the
+    # file on disk is the final word.
+    formatted = read_text(out)
+    normalized = normalize_dep_lists(formatted)
+    if normalized != formatted:
+        with open(out, "w", encoding="utf-8") as f:
+            f.write(normalized)
+
+
+def update_root_groups(args, root, mods, resolver, external, specs_by_dir, remap, rendered,
+                       test_targets, as_target_roots, report):
+    """--as-target: the roots join the groups of the root BUILD.gn (see ROOT_GROUPS)."""
+    groups = defaultdict(list)
+    for d in as_target_roots:
+        d = resolver.alias(d)
+        m = mods.get(d)
+        if m is None or not (is_real(m) or is_gen_test(m)):
+            continue
+        if (d not in specs_by_dir and module_label(d) not in remap
+                and not external.declares(d, os.path.basename(d))):
+            continue    # no target: skipped (see the report)
+        # where its target is: remapped (merged into the parent's file,
+        # folded into a hand-written parent, a PROGRAM(<name>)), else its own
+        label = remap.get(module_label(d))
+        if label is None:
+            label = ("//%s:%s" % (specs_by_dir[d].host, specs_by_dir[d].name)
+                     if d in specs_by_dir else module_label(d))
+        groups["tests" if is_gen_test(m) else "all"].append(label)
+    root_gn = os.path.join(root, "BUILD.gn")
+    old_text = read_text(root_gn) or ""
+    # the groups only grow; --prune-root-groups drops what is no root:
+    # an aggregator (what it PEERDIRs stands for it, see top_targets) and a
+    # label of no target (moved to another file, renamed, gone)
+    drop = set()
+    if args.prune_root_groups:
+        drop = {_short_label(module_label(d)) for d, m in mods.items()
+                if is_aggregator(m) and d in specs_by_dir}
+        names = {}
+        for label in re.findall(r'"(//[^"]+)"', old_text):
+            d, name = _label_node(label, "")
+            if d not in names:
+                names[d] = {n for _, n, _, _ in target_blocks(buildgn_text(root, rendered, d))}
+            if name not in names[d]:
+                drop.add(_short_label(label))
+        report.pruned = sorted(drop & {_short_label(l) for l in re.findall(r'"(//[^"]+)"', old_text)})
+    text = render_root_groups(old_text, groups,
+                              {_short_label("//%s:%s" % n) for n in test_targets},
+                              drop)
+    if text != old_text:
+        if args.dry_run:
+            print("# ----- BUILD.gn -----\n%s" % text)
+        else:
+            with open(root_gn, "w", encoding="utf-8") as f:
+                f.write(text)
 
 
 def main():
@@ -3697,6 +4040,10 @@ def main():
                     help="with --as-target: a path stands for what `ya make <path> -t` builds "
                          "(RECURSE, RECURSE_FOR_TESTS); only the modules none of the others "
                          "reaches by PEERDIR join the groups of the root BUILD.gn")
+    ap.add_argument("--prune-root-groups", action="store_true",
+                    help="with --as-target: also drop from the groups of the root BUILD.gn "
+                         "what is no root (aggregators, see top_targets) and labels of no "
+                         "target; without it the groups only grow")
     ap.add_argument("--root", default=os.getcwd())
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--no-format", action="store_true")
@@ -3710,6 +4057,8 @@ def main():
         ap.error("--as-target requires at least one path")
     if args.recurse and not args.as_target:
         ap.error("--recurse requires --as-target")
+    if args.prune_root_groups and not args.as_target:
+        ap.error("--prune-root-groups requires --as-target")
 
     # ---- collect: parse every non-contrib ya.make (need full module graph) ---
     mods = {}
@@ -3730,7 +4079,8 @@ def main():
     # The whole tree's #include graph: which files belong to each module and
     # which headers are included across module boundaries. Built over every
     # real module, not only the ones this run generates.
-    graph = IncludeGraph(resolver).build(mods, real_dirs | test_dirs)
+    graph = IncludeGraph(resolver, set(test_only_modules(mods, resolver, frameworks))).build(
+        mods, real_dirs | test_dirs)
     cycles = CycleGraph(mods, resolver, graph, real_dirs)
     groups = plan_merge_groups(mods, resolver, cycles, external)
     for p, members in sorted(groups.items()):
@@ -3740,11 +4090,10 @@ def main():
     if groups:
         # the absorbed modules' files are the absorbing ones' now (what the
         # files include does not change)
-        regraph = IncludeGraph(resolver)
-        regraph._includes = graph._includes
+        regraph = IncludeGraph(resolver, set(test_only_modules(mods, resolver, frameworks)))
+        regraph._includes, regraph._imports = graph._includes, graph._imports
         graph = regraph.build(mods, real_dirs | test_dirs)
         cycles = CycleGraph(mods, resolver, graph, real_dirs)
-    resolver.cycles = cycles
     resolver.self_split = plan_self_split(mods, cycles)
     report.self_split = sorted(resolver.self_split.items())
 
@@ -3784,88 +4133,14 @@ def main():
         return s
 
     slots = link_slot_providers(root, mods)
+    resolver.slot_providers = set().union(*slots.values()) if slots else set()
     mains = test_mains(root)
     allocators = allocator_peerdirs(root)
     if args.as_target:
         # ---- Pass 1: transitive closure over the derived #include graph -------
-        queue = []
-        for p in args.paths:
-            md = find_module_dir(root, os.path.relpath(os.path.abspath(p), root))
-            if md is None:
-                ap.error("no ya.make at or above %s" % p)
-            queue.append(md)
-        if args.recurse:
-            reached = recurse_closure(mods, queue)
-            queue = sorted(d for d in reached
-                           if is_real(mods[d]) or is_gen_test(mods[d]))
-            # a library a test PEERDIRs is built for the test (nothing reaches a test)
-            as_target_roots = top_targets(mods, queue)
-        else:
-            as_target_roots = list(queue)
-        seen = set()
-        # what earlier runs generated is generated again after the closure:
-        # the files rewritten here keep their targets, the merge is planned
-        # over all of them (as a run over the whole tree would)
-        earlier = sorted(generated_earlier(root, mods, external))
-        closure = None
-        while queue or earlier:
-            if not queue:
-                closure = set(specs_by_dir)
-                queue, earlier = earlier, []
-            d = resolver.alias(queue.pop())
-            if d in seen or d not in mods or not (is_real(mods[d]) or is_gen_test(mods[d])):
-                seen.add(d)
-                continue
-            if is_gen_test(mods[d]) or mods[d].kind == "PROGRAM":
-                # the framework's main, the allocator: implicit PEERDIRs
-                queue.extend(p for p in implicit_peerdirs(mods[d], allocators, mains)
-                             if not p.startswith("contrib/"))
-            seen.add(d)
-            s = gen_one(d)
-            if s is None and mods[d].absorbed_into is not None:
-                continue
-            if s is None:
-                # Module not generated here (keep-marked or non-trivial): follow
-                # the owners of what its files include, exactly as for a
-                # generated module -- the #include graph covers every real
-                # module. Its BUILD.gn may spell a dep as a folded //P:name, or
-                # not list it at all; the includes don't depend on that.
-                queue.extend(sorted(graph.owners(d)))
-                # ... and its PEERDIRs, like a generated module's peerdir deps
-                queue.extend(p for p in peerdir_owners(mods[d], resolver)
-                             if not p.startswith("contrib/"))
-                # ... and its protoc plugins (CPP_PROTO_PLUGIN0): extra_plugins,
-                # not deps, yet built for it all the same
-                queue.extend(pd for _, pd in mods[d].proto_plugins)
-                # Plus the deps of its hand-written BUILD.gn: link-only deps
-                # added by hand (e.g. //ydb/core/graph/service behind an
-                # include of ydb/core/graph/api/service.h) have no include.
-                existing_gn = os.path.join(root, d, "BUILD.gn")
-                if os.path.exists(existing_gn):
-                    # ... and the providers a linked_executable() selects
-                    with open(existing_gn, encoding="utf-8") as f:
-                        selects = re.findall(r'link_select\s*=\s*\[(.*?)\]', f.read(), re.S)
-                    for entry in re.findall(r'"([^"]+)"', "".join(selects)):
-                        slot, _, choice = entry.partition("=")
-                        queue.extend(sorted(slots.get((slot, choice), ())))
-                    existing = parse_existing_buildgn(existing_gn)
-                    for _deps, _pub in existing.values():
-                        for label in _deps | _pub:
-                            if not label.startswith("//"):
-                                continue    # ":local" -- a target of this same file
-                            dep = label[2:].split(":")[0]
-                            if not dep.startswith("contrib/"):
-                                queue.append(dep)
-                continue
-            for label in set().union(*[t.deps | t.public_deps | t.link_plugins for t in [s] + s.parts]):
-                dep = label[2:].split(":")[0]   # //dir or //dir:name -> dir
-                if dep.startswith("contrib/"):
-                    continue                    # external: keeps its own BUILD.gn
-                queue.append(dep)
-            queue.extend(pd for _, pd in s.proto_plugins)   # extra_plugins
-            queue.extend(s.test_depends)                    # data_deps of a test
-        if closure is not None:
-            report.earlier = sorted(set(specs_by_dir) - closure)
+        as_target_roots, seen = walk_as_target(ap, args, root, mods, resolver, graph, external,
+                                               gen_one, specs_by_dir, slots, allocators, mains,
+                                               report)
     else:
         # ---- Pass 1: whole tree or selected subtrees --------------------------
         if args.paths:
@@ -3879,8 +4154,9 @@ def main():
 
     # the providers of the link slots a program or a test links (ya's PEERDIR closure)
     exes = sorted(d for d, s in specs_by_dir.items() if s.kind == "PROGRAM" or s.kind in GEN_TEST_TEMPLATES)
-    for d, sel in link_selects(mods, resolver, slots, peerdir_reverse(mods, resolver), allocators,
-                               exes, mains, report).items():
+    interfaces, defaults = link_slot_interfaces(root, mods), link_slot_defaults(mods, report)
+    for d, sel in link_selects(mods, resolver, slots, interfaces, defaults, allocators, exes,
+                               mains, report).items():
         specs_by_dir[d].link_select = sel
 
     specs = list(specs_by_dir.values())
@@ -3892,48 +4168,8 @@ def main():
     finalize_publicity(all_specs, graph.consumed | local_consumed)
 
     # ---- Pass 2: merge, strictly over what Pass 1 generated ------------------
-    remap, absorbed, dropped, unmerged = plan_merge(specs, report)
-    # a child folded into its parent's file by an earlier run and not now (a
-    # split module, see plan_merge, or a merge blocked since): its old
-    # //P:<name> is its //P/<child> now, and the user's choices about its deps
-    # are read from the parent's file
-    inherit = {}
-    for s in specs:
-        c, P = s.dir, os.path.dirname(s.dir)
-        parent_gn = os.path.join(root, P, "BUILD.gn")
-        if s.host != c or not P or external.is_external(P) or not os.path.exists(parent_gn):
-            continue
-        existing = parse_existing_buildgn_uncommented(parent_gn)
-        own = ({t.name for t in [specs_by_dir[P]] + specs_by_dir[P].parts}
-               if P in specs_by_dir else set())
-        own |= {t.name for t in all_specs if t.host == P}
-        b = os.path.basename(c)
-        names = {}
-        for part, old in ((None, [b, "%s_%s" % (os.path.basename(P), b)]),
-                          (SELF_PART, ["%s_%s" % (b, SELF_PART)])):
-            old = [n for n in old if n in existing and n not in own]
-            for n in old:
-                remap.setdefault("//%s:%s" % (P, n), module_part_label(c, part))
-            if old:
-                # read now: the parent's file is rewritten before the child's
-                names[part] = set().union(*[_absolute_labels(existing[n], P) for n in old])
-        if names:
-            inherit[c] = names
-    # ... and the other way round: a child folded into its parent's file now
-    # and not by an earlier run: read from its own file (removed then)
-    for s in specs:
-        own_gn = os.path.join(root, s.dir, "BUILD.gn")
-        if s.host == s.dir or not os.path.exists(own_gn):
-            continue
-        existing = parse_existing_buildgn_uncommented(own_gn)
-        for t in [s] + s.parts:
-            old = [n for n in ([os.path.basename(s.dir), SELF_PART] if t.part is None else [t.part])
-                   if n in existing]
-            if old:
-                # (the facade's own edge to its SELF_PART is no choice)
-                inherit.setdefault(s.dir, {})[t.part] = (
-                    set().union(*[_absolute_labels(existing[n], s.dir) for n in old])
-                    - {module_part_label(s.dir, SELF_PART)})
+    remap, absorbed, dropped = plan_merge(specs, report)
+    moved_labels(root, specs, specs_by_dir, all_specs, external, remap)
     # PROGRAM(<name>) not named after its directory: //<dir> is //<dir>:<name>
     # (a merged one was remapped to //<parent>:<name> by plan_merge already)
     for s in specs:
@@ -3990,6 +4226,18 @@ def main():
             s.kind = "GROUP"
             s.public_deps |= {module_label(c) for c in children_map[s.dir]}
 
+    # the deps of a program or a test on a module of no GN target
+    no_target_dirs = {d for d, m in mods.items()
+                      if (is_real(m) or is_gen_test(m)) and d not in specs_by_dir
+                      and not external.is_external(d) and module_label(d) not in remap
+                      and m.absorbed_into is None}
+    for s in specs:
+        if s.kind == "PROGRAM" or s.kind in GEN_TEST_TEMPLATES:
+            for t in [s] + s.parts:
+                t.no_target = {l for l in t.deps | t.public_deps
+                               if l.startswith("//") and l[2:].partition(":")[0] in no_target_dirs}
+                report.sink_no_target += [(t.dir, l) for l in sorted(t.no_target)]
+
     host_specs = defaultdict(list)
     for s in specs:
         if s.dir in dropped and s.host == s.dir:
@@ -4002,7 +4250,7 @@ def main():
     # ---- emit ----------------------------------------------------------------
     rendered = {}
     for host, slist in sorted(host_specs.items()):
-        rendered[host] = render_file(root, host, slist, remap, inherit)
+        rendered[host] = render_file(root, host, slist, remap)
     test_mods = test_only_modules(mods, resolver, frameworks)
     node_module = {(host, t.name): t.dir for host, slist in host_specs.items() for t in slist}
     rendered, test_targets, report.test_only_by_edge, report.test_only_conflicts = mark_test_only(
@@ -4014,56 +4262,18 @@ def main():
                 x = test_mods[x]
                 path.append(x)
             report.test_only_programs.append((d, path))
+    report.pch_stale = stale_pch(root, rendered)
     for host, text in sorted(rendered.items()):
         out = os.path.join(root, host, "BUILD.gn")
         report.generated.append(host)
         if args.dry_run:
             print("# ----- %s/BUILD.gn -----\n%s" % (host, text))
         else:
-            with open(out, "w", encoding="utf-8") as f:
-                f.write(text)
-            if not args.no_format:
-                subprocess.run(["gn", "format", out], cwd=root, check=False,
-                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                # `gn format` reflows the dep lists around the commented-out
-                # entries (blank line before each comment block, comment blocks
-                # dragged along when sorting) -- put them back in shape. This
-                # runs last on purpose, so the file on disk is the final word.
-                with open(out, encoding="utf-8") as f:
-                    formatted = f.read()
-                normalized = normalize_dep_lists(formatted)
-                if normalized != formatted:
-                    with open(out, "w", encoding="utf-8") as f:
-                        f.write(normalized)
+            write_buildgn(root, out, text, args.no_format)
 
     if args.as_target:
-        groups = defaultdict(list)
-        for d in as_target_roots:
-            d = resolver.alias(d)
-            m = mods.get(d)
-            if m is None or not (is_real(m) or is_gen_test(m)):
-                continue
-            if (d not in specs_by_dir and module_label(d) not in remap
-                    and not external.declares(d, os.path.basename(d))):
-                continue    # no target: skipped (see the report)
-            label = remap.get(module_label(d), module_label(d))
-            if d in specs_by_dir and not is_gen_test(m) and specs_by_dir[d].name != os.path.basename(d):
-                label = "//%s:%s" % (d, specs_by_dir[d].name)
-            groups["tests" if is_gen_test(m) else "all"].append(label)
-        root_gn = os.path.join(root, "BUILD.gn")
-        try:
-            with open(root_gn, encoding="utf-8") as f:
-                old_text = f.read()
-        except OSError:
-            old_text = ""
-        text = render_root_groups(old_text, groups,
-                                  {_short_label("//%s:%s" % n) for n in test_targets})
-        if text != old_text:
-            if args.dry_run:
-                print("# ----- BUILD.gn -----\n%s" % text)
-            else:
-                with open(root_gn, "w", encoding="utf-8") as f:
-                    f.write(text)
+        update_root_groups(args, root, mods, resolver, external, specs_by_dir, remap, rendered,
+                           test_targets, as_target_roots, report)
 
     # the include-side half's own BUILD.gn is stale once its src module is written
     stale_aliases = {d for d, t in resolver.aliases.items()

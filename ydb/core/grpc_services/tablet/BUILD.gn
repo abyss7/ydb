@@ -1,13 +1,16 @@
 library("tablet") {
+  public_deps = [
+    "//ydb/core/grpc_services/base",
+    # "//ydb/public/api/protos",
+  ]
+
   deps = [
     "//library/cpp/protobuf/json",
     # "//ydb/core/base",
     "//ydb/core/grpc_services",
-    "//ydb/core/grpc_services/base",
     # "//ydb/core/protos",
     # "//ydb/core/tablet",
     # "//ydb/library/mkql_proto",
-    # "//ydb/public/api/protos",
     # "//yql/essentials/minikql",
     # "//yql/essentials/minikql/computation",
     # "//yql/essentials/minikql:alloc",

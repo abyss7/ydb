@@ -1,20 +1,14 @@
-protobuf_library("private_proto") {
-  sources = [ "proto/quantile_digest.proto" ]
-}
-
 library("quantile_digest") {
   public_deps = [
     "//library/cpp/yt/memory",
     "//yt/yt/core",
   ]
 
-  deps = [
-    ":private_proto",
-    "//library/cpp/tdigest",
-  ]
+  deps = [ "//library/cpp/tdigest" ]
 
   sources = [
     "config.cpp",
+    "proto/quantile_digest.proto",
     "quantile_digest.cpp",
   ]
 }

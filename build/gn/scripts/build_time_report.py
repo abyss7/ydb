@@ -655,7 +655,8 @@ def write_csv(report_dir, name, header, rows):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("build_dir")
-    parser.add_argument("-o", "--report-dir", help="default: <build_dir>/build_time_report")
+    parser.add_argument("-o", "--report-dir",
+                        help="default: build_time_report next to the build dir (out of reach of `gn clean`)")
     parser.add_argument("-j", "--jobs", type=int, default=multiprocessing.cpu_count())
     parser.add_argument("--source-root", help="default: from build.ninja")
     parser.add_argument("--traces-root", help="directory mirroring obj/ with traces, default: build_dir")
@@ -672,7 +673,7 @@ def main():
     args = parser.parse_args()
 
     build_dir = os.path.realpath(args.build_dir)
-    report_dir = args.report_dir or os.path.join(build_dir, "build_time_report")
+    report_dir = args.report_dir or os.path.join(os.path.dirname(os.path.realpath(build_dir)), "build_time_report")
     traces_root = args.traces_root or build_dir
     if not os.path.isdir(report_dir):
         os.makedirs(report_dir)

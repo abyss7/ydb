@@ -1,26 +1,57 @@
+linked_executable("quoter_performance_test") {
+  testonly = true
+
+  deps = [
+    ":tablet",
+    "//library/cpp/getopt",
+    "//library/cpp/testing/unittest",
+    "//ydb/core/erasure",
+    "//ydb/core/metering",
+    "//ydb/core/testlib",
+    "//ydb/core/testlib/basics",
+    "//ydb/core/testlib/default",  # peerdir only
+    "//ydb/library/actors/core",
+  ]
+
+  sources = [
+    "quoter_performance_test/main.cpp",
+    "ut_helpers.cpp",
+  ]
+
+  link_select = [
+    "YqlServicePolicy=exception_policy",
+    "allocator=tcmalloc",
+    "minikql_codegen=llvm16",
+    "topic_rpc=persqueue_v1",
+    "yql_pg_runtime=pg_dummy",
+    "yql_pg_sql_translator=pg_dummy",
+    "yt_codegen=llvm16",
+  ]
+}
+
 library("tablet") {
   public_deps = [
+    "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/base",
     # "//ydb/core/protos",
+    "//ydb/library/actors/core",
+    # "//ydb/library/time_series_vec",
     "//ydb/public/api/protos",
   ]
 
   deps = [
     "//library/cpp/lwtrace",
     "//library/cpp/lwtrace/mon",
-    "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/monlib/service/pages",
     "//library/cpp/protobuf/util",
     "//ydb/core/actorlib_impl",
-    "//ydb/core/engine:minikql",
+    "//ydb/core/engine/minikql",
     # "//ydb/core/erasure",  # peerdir only
     "//ydb/core/metering",
     "//ydb/core/tablet",
     "//ydb/core/tablet_flat",
     # "//ydb/core/util",
-    "//ydb/library/actors/core",
     # "//ydb/library/services",
-    # "//ydb/library/time_series_vec",
   ]
 
   sources = [

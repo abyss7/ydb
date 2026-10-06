@@ -1,48 +1,5 @@
-protobuf_library("protos") {
-  public_deps = [
-    "//ydb/core/protos",
-    "//ydb/core/scheme:protos",
-  ]
-
-  sources = [
-    "protos/flat_table_part.proto",
-    "protos/flat_table_shard.proto",
-  ]
-}
-
-library("recovery") {
-  public_deps = [
-    ":tablet_flat",
-    # "//ydb/core/base",
-  ]
-
-  deps = [
-    "//library/cpp/protobuf/json",
-    "//library/cpp/string_utils/base64",
-    "//ydb/core/engine:minikql",
-    "//ydb/core/io_formats/cell_maker",
-    # "//ydb/core/protos",
-    "//ydb/library/actors/core",
-    "//yql/essentials/types/binary_json",
-  ]
-
-  sources = [ "recovery/flat_executor_recovery.cpp" ]
-
-  serialize_enum_headers = [ "recovery/flat_executor_recovery.h" ]
-}
-
-protobuf_library("private_proto") {
-  public_deps = [
-    "//ydb/core/protos",
-    "//ydb/library/actors/protos",
-  ]
-
-  sources = [ "flat_executor.proto" ]
-}
-
 library("tablet_flat") {
   public_deps = [
-    ":protos",
     "//library/cpp/blockcodecs",
     "//library/cpp/containers/absl_flat_hash",
     # "//library/cpp/containers/stack_vector",
@@ -53,12 +10,14 @@ library("tablet_flat") {
     # "//util/draft",
     "//ydb/core/base",
     "//ydb/core/control/lib",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/scheme",
     "//ydb/core/scheme_types",
     "//ydb/core/tablet",
+    "//ydb/core/tablet_flat/protos",
     "//ydb/core/util",
     # "//ydb/library/actors/core",
+    "//ydb/library/actors/protos",
     "//ydb/library/actors/util",
     "//ydb/library/actors/wilson",
     # "//ydb/library/services",
@@ -67,7 +26,6 @@ library("tablet_flat") {
   ]
 
   deps = [
-    ":private_proto",
     # "//contrib/libs/protobuf",  # peerdir only
     # "//library/cpp/containers/intrusive_rb_tree",  # peerdir only
     "//library/cpp/digest/crc32c",
@@ -79,9 +37,9 @@ library("tablet_flat") {
     "//library/cpp/protobuf/json",
     "//library/cpp/string_utils/base64",
     # "//ydb/core/cms/console",
-    # "//ydb/core/scheme:protos",
+    # "//ydb/core/scheme/protos",
     # "//ydb/library/actors/interconnect",
-    # "//ydb/library/mkql_proto:protos",  # peerdir only
+    # "//ydb/library/mkql_proto/protos",  # peerdir only
     "//yql/essentials/types/binary_json",
     "//yql/essentials/types/dynumber",
   ]
@@ -103,6 +61,7 @@ library("tablet_flat") {
     "flat_exec_commit_mgr.cpp",
     "flat_exec_seat.cpp",
     "flat_executor.cpp",
+    "flat_executor.proto",
     "flat_executor_backup.cpp",
     "flat_executor_bootlogic.cpp",
     "flat_executor_borrowlogic.cpp",

@@ -16,7 +16,9 @@ library("load_actor_adapter") {
 
 library("partition_direct") {
   public_deps = [
-    # "//ydb/core/nbs/cloud/blockstore/config",
+    # "//ydb/core/blobstorage/events",
+    "//ydb/core/nbs/cloud/blockstore/config",
+    # "//ydb/core/nbs/cloud/blockstore/libs/storage/api",
     # "//ydb/core/protos",
     "//ydb/library/actors/core",
   ]
@@ -24,11 +26,9 @@ library("partition_direct") {
   deps = [
     ":load_actor_adapter",
     # "//ydb/core/base",
-    # "//ydb/core/blobstorage/events",
-    # "//ydb/core/mind:group_mapper",
+    # "//ydb/core/mind/bscontroller:group_mapper",
     "//ydb/core/nbs/cloud/blockstore/bootstrap",
     "//ydb/core/nbs/cloud/blockstore/libs/service/fast_path_service",
-    # "//ydb/core/nbs/cloud/blockstore/libs/storage/api",
     # "//ydb/core/nbs/cloud/blockstore/libs/vhost",
     "//ydb/core/tablet",
     # "//ydb/library/services",  # peerdir only

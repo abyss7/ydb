@@ -26,7 +26,7 @@ library("core") {
     # "//library/cpp/balloc",
     "//library/cpp/cgiparam",
     # "//library/cpp/execprofile",  # peerdir only
-    "//ydb/library/actors/interconnect:rdma",
+    "//ydb/library/actors/interconnect/rdma",
     # "//ydb/library/actors/prof",
     # "//ydb/library/actors/scheduler",
   ]

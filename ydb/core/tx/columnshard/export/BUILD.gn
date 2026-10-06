@@ -6,7 +6,7 @@ library("common") {
     "//ydb/library/conclusion",
   ]
 
-  deps = [ ":protos" ]
+  deps = [ "//ydb/core/tx/columnshard/export/protos" ]
 
   sources = [ "common/identifier.cpp" ]
 }
@@ -14,14 +14,7 @@ library("common") {
 group("export") {
   public_deps = [
     # ":common",  # peerdir only
-    # ":protos",  # peerdir only
     "//ydb/core/tx/columnshard",  # peerdir only
-  ]
-}
-
-protobuf_library("protos") {
-  sources = [
-    "protos/cursor.proto",
-    "protos/task.proto",
+    # "//ydb/core/tx/columnshard/export/protos",  # peerdir only
   ]
 }

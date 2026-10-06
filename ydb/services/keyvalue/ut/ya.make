@@ -8,6 +8,7 @@ SRCS(
 
 PEERDIR(
     library/cpp/logger
+    library/cpp/unified_agent_client
     ydb/core/protos
     ydb/core/testlib/default
     ydb/services/keyvalue

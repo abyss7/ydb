@@ -7,6 +7,9 @@ config("pg_private_config") {
 }
 
 library("pg") {
+  public_deps =
+      [ "//yql/essentials/parser/pg_wrapper/interface:yql_pg_sql_translator" ]
+
   deps = [
     "//yql/essentials/ast",
     "//yql/essentials/core/cbo",  # peerdir only
@@ -16,7 +19,6 @@ library("pg") {
     "//yql/essentials/parser/pg_catalog",
     "//yql/essentials/parser/pg_wrapper",
     "//yql/essentials/parser/pg_wrapper/interface",
-    "//yql/essentials/parser/pg_wrapper/interface:yql_pg_sql_translator",
     # "//yql/essentials/providers/common/provider",
     "//yql/essentials/sql/settings",
     # "//yql/essentials/utils",

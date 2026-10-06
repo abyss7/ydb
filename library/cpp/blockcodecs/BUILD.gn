@@ -1,5 +1,5 @@
 library("blockcodecs") {
-  public_deps = [ ":core" ]
+  public_deps = [ "//library/cpp/blockcodecs/core" ]
 
   deps = [
     "//library/cpp/blockcodecs/codecs/brotli",  # peerdir only
@@ -16,12 +16,5 @@ library("blockcodecs") {
   sources = [
     "codecs.cpp",
     "stream.cpp",
-  ]
-}
-
-library("core") {
-  sources = [
-    "core/codecs.cpp",
-    "core/stream.cpp",
   ]
 }

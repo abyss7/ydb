@@ -12,6 +12,7 @@
 
 #include <library/cpp/json/json_reader.h>
 #include <library/cpp/digest/md5/md5.h>
+#include <library/cpp/string_utils/base64/base64.h>
 
 #include <util/system/tempfile.h>
 

@@ -1,3 +1,5 @@
+#include "common.h"
+
 #include <ydb/core/cms/console/configs_dispatcher.h>
 #include <ydb/core/testlib/cs_helper.h>
 #include <ydb/core/tx/schemeshard/schemeshard.h>

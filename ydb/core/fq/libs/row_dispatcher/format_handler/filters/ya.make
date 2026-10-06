@@ -1,5 +1,7 @@
 LIBRARY()
 
+# gn: move into parent
+
 SRCS(
     purecalc_filter.cpp
     filters_set.cpp

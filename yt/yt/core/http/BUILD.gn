@@ -1,17 +1,17 @@
 library("http") {
   public_deps = [
+    "//contrib/deprecated/http-parser",
     "//library/cpp/yt/memory",
     # "//library/cpp/yt/misc",
+    "//library/cpp/yt/threading",
     "//yt/yt/core",
     "//yt/yt/library/profiling",
   ]
 
   deps = [
-    "//contrib/deprecated/http-parser",
     "//library/cpp/blockcodecs",
-    # "//library/cpp/blockcodecs:core",  # peerdir only
+    # "//library/cpp/blockcodecs/core",  # peerdir only
     "//library/cpp/streams/brotli",
-    "//library/cpp/yt/threading",
   ]
 
   sources = [

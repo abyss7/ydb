@@ -1,7 +1,8 @@
+#include "actor_bootstrapped.h"
 #include "actor_coroutine.h"
 #include "actorsystem.h"
 #include "executor_pool_basic.h"
-#include "scheduler_actor.h"
+#include <ydb/library/actors/scheduler/scheduler_actor.h>
 #include "scheduler_basic.h"
 #include "events.h"
 #include "event_local.h"

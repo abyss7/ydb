@@ -1,34 +1,3 @@
-library("json") {
-  public_deps = [
-    ":yson",
-    "//library/cpp/json",
-  ]
-
-  sources = [
-    "json/json_writer.cpp",
-    "json/yson2json_adapter.cpp",
-  ]
-}
-
-library("node") {
-  public_deps = [
-    ":yson",
-    "//library/cpp/json",
-  ]
-
-  deps = [ ":json" ]
-
-  sources = [
-    "node/node.cpp",
-    "node/node_builder.cpp",
-    "node/node_io.cpp",
-    "node/node_visitor.cpp",
-    "node/serialize.cpp",
-  ]
-
-  serialize_enum_headers = [ "node/node.h" ]
-}
-
 library("yson") {
   public_deps = [
     # "//library/cpp/yt/misc",

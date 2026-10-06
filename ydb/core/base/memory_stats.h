@@ -1,6 +1,7 @@
 #pragma once
 
 #include "defs.h"
+#include <util/generic/map.h>
 #include <ydb/core/protos/memory_stats.pb.h>
 
 namespace NKikimr::NMemory {

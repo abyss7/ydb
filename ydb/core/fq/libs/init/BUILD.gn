@@ -2,11 +2,11 @@ library("init") {
   public_deps = [
     "//ydb/core/base",
     "//ydb/core/fq/libs/actors",
-    # "//ydb/core/fq/libs/config:protos",
+    # "//ydb/core/fq/libs/config/protos",
     # "//ydb/core/fq/libs/events",
-    # "//ydb/core/fq/libs/shared_resources:interface",
+    # "//ydb/core/fq/libs/shared_resources/interface",
     # "//ydb/library/actors/core",
-    # "//ydb/library/folder_service:proto",
+    # "//ydb/library/folder_service/proto",
     # "//ydb/library/yql/providers/pq/cm_client",
     # "//ydb/library/yql/providers/pq/gateway/abstract",
   ]
@@ -18,10 +18,10 @@ library("init") {
     # "//ydb/core/fq/libs/checkpointing",  # peerdir only
     "//ydb/core/fq/libs/cloud_audit",
     # "//ydb/core/fq/libs/common",  # peerdir only
-    "//ydb/core/fq/libs/compute/ydb:control_plane",
+    "//ydb/core/fq/libs/compute/ydb/control_plane",
     "//ydb/core/fq/libs/control_plane_config",
     "//ydb/core/fq/libs/control_plane_proxy",
-    "//ydb/core/fq/libs/control_plane_proxy:events",  # peerdir only
+    "//ydb/core/fq/libs/control_plane_proxy/events",  # peerdir only
     "//ydb/core/fq/libs/control_plane_storage",  # peerdir only
     "//ydb/core/fq/libs/control_plane_storage:service_id",
     "//ydb/core/fq/libs/db_id_async_resolver_impl",
@@ -41,9 +41,9 @@ library("init") {
     "//ydb/library/actors/http",
     "//ydb/library/folder_service",
     "//ydb/library/security",
-    # "//ydb/library/yql/dq/actors:compute",
-    "//ydb/library/yql/dq/actors:input_transforms",
-    "//ydb/library/yql/dq/actors:task_runner",  # peerdir only
+    # "//ydb/library/yql/dq/actors/compute",
+    "//ydb/library/yql/dq/actors/input_transforms",
+    "//ydb/library/yql/dq/actors/task_runner",  # peerdir only
     "//ydb/library/yql/dq/comp_nodes",
     "//ydb/library/yql/dq/transform",
     # "//ydb/library/yql/providers/common/http_gateway",
@@ -52,7 +52,7 @@ library("init") {
     # "//ydb/library/yql/providers/dq/provider",  # peerdir only
     "//ydb/library/yql/providers/dq/task_runner",
     "//ydb/library/yql/providers/dq/worker_manager",
-    # "//ydb/library/yql/providers/dq/worker_manager:interface",  # peerdir only
+    # "//ydb/library/yql/providers/dq/worker_manager/interface",  # peerdir only
     "//ydb/library/yql/providers/generic/actors",
     "//ydb/library/yql/providers/pq/async_io",
     "//ydb/library/yql/providers/pq/gateway/native",

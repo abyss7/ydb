@@ -9,4 +9,8 @@ SRCS(
     ut_aggregator.cpp
 )
 
+PEERDIR(
+    ydb/library/yql/udfs/common/clickhouse/client
+)
+
 END()

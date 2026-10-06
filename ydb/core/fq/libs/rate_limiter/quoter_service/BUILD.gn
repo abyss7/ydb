@@ -1,6 +1,6 @@
 library("quoter_service") {
   public_deps = [
-    "//ydb/core/fq/libs/config:protos",
+    "//ydb/core/fq/libs/config/protos",
     "//ydb/core/fq/libs/shared_resources",
     # "//ydb/library/actors/core",
     # "//ydb/library/security",
@@ -12,7 +12,7 @@ library("quoter_service") {
     # "//ydb/core/fq/libs/rate_limiter/events",  # peerdir only
     "//ydb/core/fq/libs/ydb",
     # "//ydb/core/protos",  # peerdir only
-    # "//ydb/core/quoter:public",
+    # "//ydb/core/quoter/public",
     # "//ydb/library/services",
   ]
 

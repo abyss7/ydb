@@ -14,9 +14,9 @@ library("localrecovery") {
     "//ydb/core/blobstorage/vdisk/anubis_osiris",
     "//ydb/core/blobstorage/vdisk/huge",
     # "//ydb/core/blobstorage/vdisk/hulldb",  # peerdir only
-    # "//ydb/core/blobstorage/vdisk/hulldb:bulksst_add",
-    # "//ydb/core/blobstorage/vdisk/hulldb:generic",
-    "//ydb/core/blobstorage/vdisk/hulldb:recovery",
+    # "//ydb/core/blobstorage/vdisk/hulldb/bulksst_add",
+    # "//ydb/core/blobstorage/vdisk/hulldb/generic",
+    "//ydb/core/blobstorage/vdisk/hulldb/recovery",
     "//ydb/core/blobstorage/vdisk/hullop",
     "//ydb/core/blobstorage/vdisk/syncer",
     "//ydb/core/blobstorage/vdisk/synclog",

@@ -8,9 +8,9 @@ library("http_client") {
   ]
 
   deps = [
-    # "//library/cpp/yson:node",
+    # "//library/cpp/yson/node",
     # "//library/cpp/yt/yson_string",
-    "//yt/cpp/mapreduce/interface:logging",
+    "//yt/cpp/mapreduce/interface/logging",
     # "//yt/cpp/mapreduce/io",
   ]
 

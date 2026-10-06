@@ -1,5 +1,7 @@
 LIBRARY()
 
+# gn: move into parent
+
 ENABLE(SKIP_YQL_STYLE_CPP)
 
 PEERDIR(

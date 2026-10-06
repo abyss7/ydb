@@ -61,6 +61,7 @@ PEERDIR(
     ydb/public/sdk/cpp/src/client/operation
     ydb/public/sdk/cpp/src/client/scheme
     ydb/public/sdk/cpp/src/client/monitoring
+    ydb/public/sdk/cpp/src/client/types/credentials/login
     ydb/services/ydb
 )
 

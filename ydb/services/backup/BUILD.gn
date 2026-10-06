@@ -1,7 +1,7 @@
 library("backup") {
   public_deps = [
     "//ydb/core/grpc_services/base",
-    "//ydb/public/api/grpc:draft",
+    "//ydb/public/api/grpc/draft",
   ]
 
   deps = [

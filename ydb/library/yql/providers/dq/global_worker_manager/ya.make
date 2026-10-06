@@ -19,8 +19,7 @@ PEERDIR(
 
 YQL_LAST_ABI_VERSION()
 
-SET(
-    SOURCE
+SRCS(
     benchmark.cpp
     global_worker_manager.cpp
     service_node_pinger.cpp
@@ -29,23 +28,15 @@ SET(
 )
 
 IF (NOT OS_WINDOWS)
-    SET(
-        SOURCE
-        ${SOURCE}
+    SRCS(
         service_node_resolver.cpp
         coordination_helper.cpp
     )
 ELSE()
-    SET(
-        SOURCE
-        ${SOURCE}
+    SRCS(
         coordination_helper_win.cpp
     )
 ENDIF()
-
-SRCS(
-    ${SOURCE}
-)
 
 END()
 

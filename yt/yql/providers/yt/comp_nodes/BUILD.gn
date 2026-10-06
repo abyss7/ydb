@@ -12,23 +12,15 @@ slot_interface_group("comp_nodes") {
 
   link_slot_headers = [
     "yql_mkql_block_table_content.h",
+    "yql_mkql_file_input_state.h",
+    "yql_mkql_file_list.h",
     "yql_mkql_input.h",
+    "yql_mkql_input_stream.h",
     "yql_mkql_output.h",
+    "yql_mkql_table.h",
     "yql_mkql_table_content.h",
+    "yql_mkql_ungrouping_list.h",
   ]
 
   link_slot_flags_from = [ "yql_mkql_block_table_content.cpp" ]
-}
-
-slot_interface_group("dq") {
-  public_deps = [
-    # "//yql/essentials/minikql",
-    # "//yql/essentials/minikql/computation",
-  ]
-
-  link_slot_interface = "yt_codegen"
-
-  link_slot_headers = [ "dq/dq_yt_factory.h" ]
-
-  link_slot_flags_from = [ "dq/dq_yt_factory.cpp" ]
 }

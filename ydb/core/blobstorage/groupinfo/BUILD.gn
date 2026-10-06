@@ -10,7 +10,7 @@ library("groupinfo") {
 
   deps = [
     "//library/cpp/digest/crc32c",
-    # "//ydb/core/base:services",
+    # "//ydb/core/base/services",
     # "//ydb/library/actors/core",
   ]
 

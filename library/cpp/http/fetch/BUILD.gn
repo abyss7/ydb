@@ -11,7 +11,7 @@ library("fetch") {
   deps = [
     "//contrib/libs/zlib",
     "//library/cpp/charset",  # peerdir only
-    # "//library/cpp/charset:lite",
+    # "//library/cpp/charset/lite",
     "//library/cpp/digest/md5",
     "//library/cpp/logger",
     "//library/cpp/uri",

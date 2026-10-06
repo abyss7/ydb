@@ -1,16 +1,9 @@
-library("api") {
+library("ytprof") {
   public_deps = [
-    # "//library/cpp/yt/cpu_clock",
-    "//library/cpp/yt/memory",
-    # "//library/cpp/yt/misc",
+    # "//library/cpp/yt/memory",
   ]
 
-  sources = [ "api/api.cpp" ]
-}
-
-library("ytprof") {
   deps = [
-    # ":api",
     # "//contrib/libs/libunwind",  # peerdir only
     # "//contrib/libs/tcmalloc",
     # "//contrib/libs/tcmalloc:malloc_extension",  # peerdir only
@@ -22,10 +15,10 @@ library("ytprof") {
     # "//library/cpp/yt/backtrace/cursors/interop",
     # "//library/cpp/yt/backtrace/cursors/libunwind",  # peerdir only
     # "//library/cpp/yt/cpu_clock",
-    # "//library/cpp/yt/memory",
     # "//library/cpp/yt/misc",
     # "//library/cpp/yt/threading",
     # "//yt/yt/core",
+    # "//yt/yt/library/ytprof/api",
     # "//yt/yt/library/ytprof/proto",
   ]
 

@@ -8,6 +8,7 @@
 #include <ydb/library/actors/dnsresolver/dnsresolver.h>
 
 #include <ydb/library/actors/interconnect/handshake_broker.h>
+#include <ydb/library/actors/interconnect/interconnect.h>
 #include <ydb/library/actors/interconnect/interconnect_tcp_server.h>
 #include <ydb/library/actors/interconnect/interconnect_tcp_proxy.h>
 #include <ydb/library/actors/interconnect/interconnect_proxy_wrapper.h>

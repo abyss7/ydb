@@ -1,15 +1,3 @@
-library("buffered") {
-  public_deps = [
-    ":encode",
-    "//library/cpp/monlib/metrics",
-  ]
-
-  sources = [
-    "buffered/buffered_encoder_base.cpp",
-    "buffered/string_pool.cpp",
-  ]
-}
-
 library("encode") {
   public_deps = [ "//library/cpp/monlib/metrics" ]
 
@@ -20,67 +8,4 @@ library("encode") {
   ]
 
   serialize_enum_headers = [ "encoder_state_enum.h" ]
-}
-
-library("json") {
-  public_deps = [ ":encode" ]
-
-  deps = [
-    ":buffered",
-    "//library/cpp/json",
-    "//library/cpp/monlib/exception",
-    "//library/cpp/monlib/metrics",
-  ]
-
-  sources = [
-    "json/json_decoder.cpp",
-    "json/json_encoder.cpp",
-  ]
-}
-
-library("prometheus") {
-  public_deps = [ ":encode" ]
-
-  deps = [
-    ":buffered",
-    "//library/cpp/monlib/metrics",
-  ]
-
-  sources = [
-    "prometheus/prometheus_decoder.cpp",
-    "prometheus/prometheus_encoder.cpp",
-  ]
-
-  serialize_enum_headers = [ "prometheus/prometheus.h" ]
-}
-
-library("spack") {
-  public_deps = [
-    ":encode",
-    "//library/cpp/monlib/metrics",
-  ]
-
-  deps = [
-    ":buffered",
-    "//contrib/libs/lz4",
-    "//contrib/libs/xxhash",
-    "//contrib/libs/zlib",
-    "//contrib/libs/zstd",
-    "//library/cpp/monlib/exception",
-  ]
-
-  sources = [
-    "spack/compression.cpp",
-    "spack/spack_v1_decoder.cpp",
-    "spack/spack_v1_encoder.cpp",
-    "spack/varint.cpp",
-  ]
-}
-
-library("text") {
-  public_deps = [ ":encode" ]
-
-  deps = [ "//library/cpp/monlib/metrics" ]
-
-  sources = [ "text/text_encoder.cpp" ]
 }

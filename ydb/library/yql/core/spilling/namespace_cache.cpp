@@ -18,7 +18,7 @@ namespace NSpilling {
 inline bool FindPos(ui32 start, ui32 end, ui32 val, ui32 nElements, ui32 & pos) {
     if (!nElements)
         return false;
-    
+
     if (start == end) {
         if ( val == start ) {
             pos = 0;
@@ -75,7 +75,7 @@ NThreading::TFuture<TOperationResults> TNamespaceCache::Save(const TString & obj
     bt.Name = objName;
     bt.SessionId = sessionId;
     bt.Buf = MakeAtomicShared<TBuffer>(std::move(buf));
-   
+
     bt.Promise = NThreading::NewPromise<TOperationResults>();
 
 
@@ -110,7 +110,7 @@ NThreading::TFuture<TOperationResults> TNamespaceCache::Save(const TString & obj
         SessionDataProvided_[sessionId] += bt.Buf->Size();
         res = bt.Promise.GetFuture();
         ToSave_.emplace_back(std::move(bt));
-    } 
+    }
     return res;
 }
 
@@ -120,7 +120,7 @@ NThreading::TFuture<TLoadOperationResults> TNamespaceCache::Load(const TString& 
     TLoadTask lt;
     TLoadOperationResults lr;
     lt.Name = name;
-    lt.Promise = NThreading::NewPromise<TLoadOperationResults>(); 
+    lt.Promise = NThreading::NewPromise<TLoadOperationResults>();
     lt.Name = name;
     lt.SessionId = sessionId;
     lt.StreamBufId = streamId;
@@ -149,28 +149,28 @@ NThreading::TFuture<TLoadOperationResults> TNamespaceCache::Load(const TString& 
                 if ( st.ProcessingStatus != EProcessingStatus::Deleted ) {
                     lr.Status = EOperationStatus::Success;
                     if ( st.ProcessingStatus == EProcessingStatus::Processing ) {
-                       lr.Buf = st.Buf; 
+                       lr.Buf = st.Buf;
                     } else {
                         if (objLifetime == EObjectsLifetime::DeleteAfterLoad ) {
                             lr.Buf = st.Buf;
                             st.Buf = nullptr;
-                            SessionDataSpilled_[st.SessionId] += lr.Buf->Size(); 
+                            SessionDataSpilled_[st.SessionId] += lr.Buf->Size();
                             st.ProcessingStatus = EProcessingStatus::Deleted;
                         } else {
-                            lr.Buf = st.Buf; 
+                            lr.Buf = st.Buf;
                         }
-                        
+
                     }
                     SessionDataLoadedFromMemory_[st.SessionId] += lr.Buf->Size();
                     lt.Promise.SetValue(std::move(lr));
                 } else {
                     lr.Status = EOperationStatus::NoObjectName;
-                    lt.Promise.SetValue(std::move(lr));                     
+                    lt.Promise.SetValue(std::move(lr));
                 }
             }
         } else {
            lr.Status = EOperationStatus::NoObjectName;
-           lt.Promise.SetValue(std::move(lr)); 
+           lt.Promise.SetValue(std::move(lr));
         }
     }
 
@@ -294,8 +294,8 @@ void TNamespaceCache::GarbageCollection(){
         for (auto it = SpillMetaFiles_.begin(); it != SpillMetaFiles_.lower_bound(minFileId); it++ ) {
             SpillFilesIdToDelete_.insert(it->first);
         }
-    } 
-    
+    }
+
 
 
     with_lock(FilesLock_) {
@@ -341,7 +341,7 @@ ui64 TNamespaceCache::StreamSize(const TString& name){
         }
     }
 
-} 
+}
 
 
 void TNamespaceCache::NextNamespaceFile(bool openExisting) {
@@ -417,7 +417,7 @@ inline bool TNamespaceCache::FindObjInSaveQueue(ui32 objId, ui32& pos){
     bool found = FindPos(firstId, lastId, objId, size, approximatePos );
     if (!found)
         return false;
-        
+
     pos = approximatePos;
     auto it = ToSave_.begin() + pos;
     ui32 toSaveId = it->ObjId;
@@ -493,7 +493,7 @@ bool TNamespaceCache::FindNextTaskInSaveQueue(ui32& taskPos) {
                 break;
 
             }
-    
+
         }
 
     }
@@ -535,7 +535,7 @@ bool TNamespaceCache::FindNextTaskInDeleteQueue(ui32& taskPos) {
             deleteTask.ProcessingStatus = EProcessingStatus::Processing;
             res = true;
             break;
-        } 
+        }
     }
     return res;
 }
@@ -554,29 +554,28 @@ void TNamespaceCache::ProcessSaveQueue() {
 
     ui32 taskPos = 0;
     bool saveTaskFound = false;
-    bool enoughSpaceToWrite = false;
 
     try {
         ToSaveLock_.lock();
 
         RemoveCompletedFromSaveQueue();
-        
+
         saveTaskFound = FindNextTaskInSaveQueue(taskPos);
 
         if ( saveTaskFound ) {
 
             TAtomicSharedPtr<ISpillFile> currSpillMetaFile = CurrSpillMetaFile_;
-            TAtomicSharedPtr<ISpillFile> currSpillDataFile = CurrSpillDataFile_; 
+            TAtomicSharedPtr<ISpillFile> currSpillDataFile = CurrSpillDataFile_;
 
             TSaveTask& saveTask = ToSave_[taskPos];
             ui32 size = saveTask.Buf->Size();
             ui64 offset = currSpillDataFile->Reserve(size);
             ui64 total = offset + size;
-            TAtomicSharedPtr<TBuffer> bufToSave = saveTask.Buf; 
+            TAtomicSharedPtr<TBuffer> bufToSave = saveTask.Buf;
             char * data = bufToSave->Data();
             ui32 taskObjId = saveTask.ObjId;
             ui32 prevObjId = taskObjId;
-            TSpillMetaRecord mr{EOperationType::Add, saveTask.Name, offset, taskObjId, size, 0 };
+            TSpillMetaRecord mr{EOperationType::Add, saveTask.Name, static_cast<ui32>(offset), taskObjId, size, 0 };
             ui32 metaSize = mr.Size();
             ui64 metaOffset = currSpillMetaFile->Reserve(metaSize);
 
@@ -585,7 +584,6 @@ void TNamespaceCache::ProcessSaveQueue() {
                 NextNamespaceFile(false);
                 ToSaveLock_.unlock();
             } else {
-                enoughSpaceToWrite = true;
                 saveTask.ProcessingStatus = EProcessingStatus::Processing;
                 bool changeObjId = ( !(taskObjId > CurrSpillFileId_ * (1<<16) && (taskObjId < (CurrSpillFileId_ + 1) * (1<<16)) ));
                 if (changeObjId) {
@@ -676,7 +674,7 @@ void TNamespaceCache::ProcessLoadQueue() {
     }
 
 
-    loadTask.Promise.SetValue(std::move(lr)); 
+    loadTask.Promise.SetValue(std::move(lr));
 
 
 }
@@ -691,11 +689,11 @@ void TNamespaceCache::ProcessDeleteQueue() {
         deleteTaskFound = FindNextTaskInDeleteQueue(taskPos);
     }
 
-    if (!deleteTaskFound) 
+    if (!deleteTaskFound)
         return;
 
     TBaseTask& deleteTask = ToDelete_[taskPos];
-    ui32 sessionId = deleteTask.SessionId; 
+    ui32 sessionId = deleteTask.SessionId;
 
     if (deleteTask.OpType == EOperationType::SessionDelete ) {
         with_lock(ToSaveLock_) {
@@ -727,7 +725,6 @@ void TNamespaceCache::RemoveCompletedFromSaveQueue() {
 
     for (auto it = ToSave_.begin(); it != ToSave_.end(); ) {
         if (it->ProcessingStatus == EProcessingStatus::Deleted) {
-            ui64 sessionId = it->SessionId;
             it = ToSave_.erase(it);
         } else {
             break;
@@ -740,7 +737,6 @@ void TNamespaceCache::RemoveCompletedFromLoadQueue() {
 
     for (auto it = ToLoad_.begin(); it != ToLoad_.end(); ) {
         if (it->ProcessingStatus == EProcessingStatus::Deleted) {
-            ui64 sessionId = it->SessionId;
             it = ToLoad_.erase(it);
         } else {
             break;
@@ -754,7 +750,6 @@ void TNamespaceCache::RemoveCompletedFromDeleteQueue() {
 
     for (auto it = ToDelete_.begin(); it != ToDelete_.end(); ) {
         if (it->ProcessingStatus == EProcessingStatus::Deleted) {
-            ui64 sessionId = it->SessionId;
             it = ToDelete_.erase(it);
         } else {
             break;
@@ -772,7 +767,7 @@ bool TNamespaceCache::FindMetaRecordInFile(ui32 fileId, ui32 objId, TSpillMetaRe
         res = true;
         mr = it->second;
         fileMet = met;
-    }   
+    }
 
     return res;
 }
@@ -781,10 +776,10 @@ TAtomicSharedPtr< std::vector<TSpillMetaRecord> > ReadAllRecordsFromMetaFile( TA
     TAtomicSharedPtr< std::vector<TSpillMetaRecord> > res = MakeAtomicShared<std::vector<TSpillMetaRecord>>();
     file->Seek(0);
     TBuffer readbuf(ReadBufSize);
-    i32 readRes = file->Read(0, readbuf.Data(), ReadBufSize);
+    file->Read(0, readbuf.Data(), ReadBufSize);
     TSpillMetaRecord mr;
     mr.Unpack(readbuf);
-    return res; 
+    return res;
 }
 
 
@@ -814,8 +809,8 @@ TAtomicSharedPtr<ISpillFile> FindSpillFile(ui32 objId, EFileType fileType = EFil
     return res;
 }
 
-TNamespaceCache::TNamespaceCache(const TString& name, ui32 id, TAtomicSharedPtr<ISpillStorage> storageI) : 
-    Name_(name), 
+TNamespaceCache::TNamespaceCache(const TString& name, ui32 id, TAtomicSharedPtr<ISpillStorage> storageI) :
+    Name_(name),
     Id_(id),
     StorageI_(storageI)  {
 

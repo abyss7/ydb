@@ -100,7 +100,6 @@ struct TEvArgs {
 };
 
 struct TEvGetArgs : public TEvArgs {
-    TEvGetArgs() = default;
     TEvGetArgs(bool mustRestoreFirst, bool indexOnly)
         : TEvArgs(EEventType::GET)
         , MustRestoreFirst(mustRestoreFirst)
@@ -113,7 +112,6 @@ struct TEvGetArgs : public TEvArgs {
 };
 
 struct MultiTEvGetArgs : public TEvArgs {
-    MultiTEvGetArgs() = default;
     MultiTEvGetArgs(bool mustRestoreFirst, bool indexOnly)
         : TEvArgs(EEventType::MULTIGET)
         , MustRestoreFirst(mustRestoreFirst)
@@ -126,7 +124,6 @@ struct MultiTEvGetArgs : public TEvArgs {
 };
 
 struct TEvDiscoverArgs : public TEvArgs {
-    TEvDiscoverArgs() = default;
     TEvDiscoverArgs(ui32 minGeneration, bool readBody, bool discoverBlockedGeneration, ui32 forceBlockedGeneration, bool fromLeader)
         : TEvArgs(EEventType::DISCOVER)
         , MinGeneration(minGeneration)
@@ -145,7 +142,6 @@ struct TEvDiscoverArgs : public TEvArgs {
 };
 
 struct TEvRangeArgs : public TEvArgs {
-    TEvRangeArgs() = default;
     TEvRangeArgs(bool mustRestoreFirst, bool indexOnly)
         : TEvArgs(EEventType::RANGE)
         , MustRestoreFirst(mustRestoreFirst)

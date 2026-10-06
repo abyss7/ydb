@@ -11,7 +11,7 @@ library("composite") {
     # "//library/cpp/threading/future",
     # "//ydb/library/accessor",
     # "//ydb/library/services",
-    "//ydb/library/yql/dq/actors:compute",
+    "//ydb/library/yql/dq/actors/compute",
     # "//ydb/library/yverify_stream",
   ]
 

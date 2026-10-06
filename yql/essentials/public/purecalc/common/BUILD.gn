@@ -1,10 +1,10 @@
 library("common") {
   public_deps = [
     # "//library/cpp/logger",
-    # "//library/cpp/yson:node",
+    # "//library/cpp/yson/node",
     # "//yql/essentials/ast",
     # "//yql/essentials/core",
-    "//yql/essentials/core/services:mounts",
+    "//yql/essentials/core/services/mounts",
     "//yql/essentials/core/user_data",
     # "//yql/essentials/minikql",
     # "//yql/essentials/minikql/computation",
@@ -27,28 +27,28 @@ library("common") {
     "//yql/essentials/core/services:pipeline",
     "//yql/essentials/core/type_ann",
     "//yql/essentials/minikql/comp_nodes",
-    # "//yql/essentials/minikql/comp_nodes/llvm16",  # peerdir only
-    # "//yql/essentials/minikql/computation/llvm16",  # peerdir only
-    # "//yql/essentials/minikql/invoke_builtins/llvm16",  # peerdir only
-    # "//yql/essentials/parser/pg_wrapper",  # peerdir only
+    # "//yql/essentials/minikql/comp_nodes/llvm16",  # link slot
+    # "//yql/essentials/minikql/computation/llvm16",  # link slot
+    # "//yql/essentials/minikql/invoke_builtins/llvm16",  # link slot
+    # "//yql/essentials/parser/pg_wrapper",  # link slot
     # "//yql/essentials/parser/pg_wrapper/interface",
     # "//yql/essentials/parser/pg_wrapper/interface:yql_pg_sql_translator",
     "//yql/essentials/providers/common/arrow_resolve",
     "//yql/essentials/providers/common/codec",
     "//yql/essentials/providers/common/comp_nodes",
     "//yql/essentials/providers/common/provider",
-    "//yql/essentials/providers/common/schema:expr",
+    "//yql/essentials/providers/common/schema/expr",
     "//yql/essentials/providers/common/udf_resolve",
     "//yql/essentials/providers/config",
     # "//yql/essentials/sql",
-    # "//yql/essentials/sql/pg",  # peerdir only
+    # "//yql/essentials/sql/pg",  # link slot
     "//yql/essentials/sql/v1",
-    "//yql/essentials/sql/v1/lexer:antlr4",
-    "//yql/essentials/sql/v1/lexer:antlr4_ansi",
-    "//yql/essentials/sql/v1/proto_parser:antlr4",
-    "//yql/essentials/sql/v1/proto_parser:antlr4_ansi",
+    "//yql/essentials/sql/v1/lexer/antlr4",
+    "//yql/essentials/sql/v1/lexer/antlr4_ansi",
+    "//yql/essentials/sql/v1/proto_parser/antlr4",
+    "//yql/essentials/sql/v1/proto_parser/antlr4_ansi",
     "//yql/essentials/utils/log",
-    # "//yt/yql/providers/yt/codec:codegen",  # peerdir only
+    # "//yt/yql/providers/yt/codec/codegen",  # peerdir only
   ]
 
   sources = [

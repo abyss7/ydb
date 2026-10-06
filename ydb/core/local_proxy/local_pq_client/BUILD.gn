@@ -21,8 +21,8 @@ library("local_pq_client") {
     # "//ydb/public/sdk/cpp/src/client/common_client",
     "//ydb/public/sdk/cpp/src/client/topic",
     # "//ydb/public/sdk/cpp/src/client/types",
-    "//ydb/services/persqueue_v1",  # peerdir only
-    # "//ydb/services/persqueue_v1:actors",
+    "//ydb/services/persqueue_v1",  # link slot
+    # "//ydb/services/persqueue_v1/actors",
     # "//yql/essentials/public/issue",
   ]
 

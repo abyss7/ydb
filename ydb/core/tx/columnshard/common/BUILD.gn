@@ -5,20 +5,20 @@ library("common") {
     "//ydb/core/formats/arrow",
     "//ydb/library/accessor",
     "//ydb/library/conclusion",
-    "//ydb/library/formats/arrow:protos",
+    "//ydb/library/formats/arrow/protos",
   ]
 
   deps = [
-    # ":protos",
     # "//library/cpp/json",
     # "//ydb/core/protos",
-    # "//ydb/core/scheme:protos",
-    # "//ydb/core/sys_view:common",
+    # "//ydb/core/scheme/protos",
+    # "//ydb/core/sys_view/common",
+    # "//ydb/core/tx/columnshard/common/protos",
     "//ydb/core/tx/columnshard/data_sharing/protos",
-    "//ydb/core/tx/columnshard/export:protos",
+    "//ydb/core/tx/columnshard/export/protos",
     "//ydb/core/tx/columnshard/transactions/protos",
     # "//ydb/library/actors/core",
-    # "//ydb/library/formats/arrow:switch",
+    # "//ydb/library/formats/arrow/switch",
     # "//ydb/library/yverify_stream",
   ]
 
@@ -36,11 +36,4 @@ library("common") {
   ]
 
   serialize_enum_headers = [ "portion.h" ]
-}
-
-protobuf_library("protos") {
-  sources = [
-    "protos/blob_range.proto",
-    "protos/snapshot.proto",
-  ]
 }

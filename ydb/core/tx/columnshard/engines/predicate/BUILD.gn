@@ -15,7 +15,7 @@ library("predicate") {
   deps = [
     # "//ydb/core/formats/arrow/program",
     # "//ydb/library/actors/core",
-    # "//ydb/library/formats/arrow:switch",
+    # "//ydb/library/formats/arrow/switch",
   ]
 
   sources = [

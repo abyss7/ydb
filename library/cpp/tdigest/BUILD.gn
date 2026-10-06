@@ -1,12 +1,10 @@
-protobuf_library("private_proto") {
-  sources = [ "tdigest.proto" ]
-}
-
 library("tdigest") {
   deps = [
-    ":private_proto",
     # "//library/cpp/protobuf/runtime",  # peerdir only
   ]
 
-  sources = [ "tdigest.cpp" ]
+  sources = [
+    "tdigest.cpp",
+    "tdigest.proto",
+  ]
 }

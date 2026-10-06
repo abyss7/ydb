@@ -7,7 +7,7 @@ library("common") {
     # "//contrib/libs/yaml-cpp",
     # "//library/cpp/json",
     "//ydb/library/yql/providers/common/http_gateway",
-    # "//ydb/public/lib/ydb_cli/commands/interactive/highlight:color",
+    # "//ydb/public/lib/ydb_cli/commands/interactive/highlight/color",
     "//ydb/public/lib/ydb_cli/common",
     # "//ydb/public/sdk/cpp/src/client/driver",
   ]
@@ -21,7 +21,7 @@ library("common") {
     "//ydb/public/lib/ydb_cli/commands/interactive/complete",
     "//ydb/public/lib/ydb_cli/commands/interactive/highlight",
     # "//yql/essentials/sql/v1/complete",
-    # "//yql/essentials/sql/v1/complete:text",
+    # "//yql/essentials/sql/v1/complete/text",
   ]
 
   sources = [

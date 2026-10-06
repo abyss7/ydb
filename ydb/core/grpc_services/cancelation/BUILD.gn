@@ -1,7 +1,7 @@
 library("cancelation") {
   public_deps = [
-    ":protos",
     "//ydb/core/base",
+    "//ydb/core/grpc_services/cancelation/protos",
     "//ydb/library/actors/core",
   ]
 
@@ -11,10 +11,4 @@ library("cancelation") {
   ]
 
   sources = [ "cancelation.cpp" ]
-}
-
-protobuf_library("protos") {
-  public_deps = [ "//ydb/library/actors/protos" ]
-
-  sources = [ "protos/event.proto" ]
 }

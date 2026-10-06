@@ -12,7 +12,7 @@ struct TTempObjectDesc;  // Represents description of particular objects in temp
 class ITempStorageProxy;  // Proxy class to provide unified interface for all types of temporary storage
 struct TOperationResults; // Contains information about particular operation results
 
-// Factory method to create TempStorageProxy for usage.  Error reasons are returned in TOperatonResults 
+// Factory method to create TempStorageProxy for usage.  Error reasons are returned in TOperatonResults
 std::pair<THolder<ITempStorageProxy>, TOperationResults> CreateFileStorageProxy(const TFileStorageConfig& config, const TTempStorageExecutionPolicy& policy );
 
 struct TLoadOperationResults; // Contains information about load operation together with loaded data
@@ -26,7 +26,7 @@ class IStream;  // Class to save and load temp objects to storage in stream mode
 // Iterator over temp storage objects
 class IObjectsIterator {
 public:
- 
+
     virtual bool Next(TTempObjectDesc& object) = 0; // Fills next temporary object description. Returns true if there are more objects
     virtual ~IObjectsIterator() = default;
 };
@@ -46,7 +46,7 @@ struct TSessionDataStat {
 enum class EObjectsLifetime {
     DeleteAfterLoad = 0,    // Object is deleted automatically from spilling storage after load operation. Object ownership is on the caller side after load call.
     SharedForSession = 1,   // Object can be loaded many times during session and object memory is managed by shared pointer. Pointer is shared between spilling Session and all callers for the object.
-    Persistent = 2,         // Object is persistent and stored in spilling storage until deleted 
+    Persistent = 2,         // Object is persistent and stored in spilling storage until deleted
  };
 
 
@@ -83,7 +83,7 @@ public:
     // Loads data from stream with provided buffer id
     virtual NThreading::TFuture<TLoadOperationResults> Load(ui64 bufferId = 0, EObjectsLifetime objLifetime = EObjectsLifetime::DeleteAfterLoad) = 0;
 
-    // Closes stream to ensure consistensy of all stream data buffers during subsequent load operations.  
+    // Closes stream to ensure consistensy of all stream data buffers during subsequent load operations.
     virtual NThreading::TFuture<TOperationResults> Close() = 0;
 
     virtual ~IStream() = default;
@@ -98,21 +98,21 @@ public:
 
     // Creates new session to store and load temporary objects;  Session manages lifecycle of all resources associated with the session.
     // When session is deleted, all pending load operations are canceled, all resources associated with the session are freed
-    virtual THolder<ISession> CreateSession() = 0;  
+    virtual THolder<ISession> CreateSession() = 0;
 
     // Creates iterator to enumerate stored objects of interest. It works both for namespaces and  objects enumeration.
     // Objects are identified by namespace and name.  If onlyValid = true, only valid objects are returned
     virtual THolder<IObjectsIterator> CreateIterator(   const TMaybe<TString>& objNamespace = TMaybe<TString>(),
-                                                        const TMaybe<TString>& objName = TMaybe<TString>(), 
-                                                        bool onlyValid = true) = 0;    
-                                                                            
+                                                        const TMaybe<TString>& objName = TMaybe<TString>(),
+                                                        bool onlyValid = true) = 0;
+
 
     virtual TTempStorageExecutionPolicy ExecutionPolicy() = 0; // Returns current execution policy of ITempStorageProxy
-    virtual TOperationResults SetExecutionPolicy(const TTempStorageExecutionPolicy& policy) = 0;  // Changes execution policy of ITempStorageProxy
+    virtual void SetExecutionPolicy(const TTempStorageExecutionPolicy& policy) = 0;  // Changes execution policy of ITempStorageProxy
 
-    // Deletes object with particular namespace and name.  If name is empty, all objects from particular namespace are deleted.  
+    // Deletes object with particular namespace and name.  If name is empty, all objects from particular namespace are deleted.
     virtual NThreading::TFuture<TOperationResults> Delete(const TString& objNamespace, const TMaybe<TString>& name) = 0;
-    
+
     virtual ~ITempStorageProxy() = default;
 
 };
@@ -131,24 +131,24 @@ struct TTempStorageExecutionPolicy {
     bool DoubleRetryPeriod = true;  // Doubles retry period util it reaches MaxRetryPeriod;
     ui64 MaxRetryPeriod = 60; // Maximim retry period in seconds
     ui64 MaxNumberOfRetries = 10; // Maximim number of retries to complete operation.
-    ui64 MaxBuffersSize = 2000; // Total size of all process internals buffers in MB waiting either to load or store.  
+    ui64 MaxBuffersSize = 2000; // Total size of all process internals buffers in MB waiting either to load or store.
                                 // When this limit exceeded, Save and Load operations starts returning BuffersAreFull error
 };
 
 struct TSessionExecutionPolicy {
     ui64 DeleteOnClose = true; // When true, all temporary objects are deleted automatically when Session object is closed
-    ui64 MaxBuffersSize = 100; // Total size of session internals buffers in MB waiting either to load or store.  
+    ui64 MaxBuffersSize = 100; // Total size of session internals buffers in MB waiting either to load or store.
                                 // When this limit exceeded, Save and Load operations starts returning  BuffersAreFull error
 };
 
 // Possible reasons why object is considered invalid
 enum class EBadObjectReason {
     NoBadReason = 0,
-    ChecksumInvalid = 1, 
-    SizeInvalid = 2, 
-    NoNamespace = 3, 
-    NoObjectName = 4, 
-    ReadError = 5 
+    ChecksumInvalid = 1,
+    SizeInvalid = 2,
+    NoNamespace = 3,
+    NoObjectName = 4,
+    ReadError = 5
  };
 
 struct TTempObjectDesc {
@@ -170,9 +170,9 @@ enum class EOperationStatus {
     WrongBufferId = 3,
     ProxyTerminated = 4,
     BuffersAreFull = 5,
-    NoObjectName = 6, 
+    NoObjectName = 6,
     NewVersionDefined = 7,
-    ChecksumInvalid = 8 
+    ChecksumInvalid = 8
 };
 
 // Results of operation

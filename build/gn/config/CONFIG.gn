@@ -39,7 +39,7 @@ declare_args() {
   # precompiled headers for targets from //build/gn/pch/targets.gni
   enable_pch = true
 
-  # launcher for C/C++ compilations, e.g. "/path/to/dist-clang" - links are run as is
+  # write "$" for the shell as "\$\$"
   cc_wrapper = ""
 }
 

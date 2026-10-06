@@ -1,5 +1,3 @@
-#pragma once
-
 #include <library/cpp/threading/future/async.h>
 #include <util/folder/path.h>
 #include <filesystem>
@@ -37,7 +35,6 @@ namespace NSpilling {
 // Class to implement ISpillStorage interface based on file system storage
 class FileSpillStorage: public ISpillStorage {
 public:
-
     ui64 GetCurrSize() {return 0;} // Returns current size of spill storage
     // Returns full list of namespaces for current spill storage. Number of namespaces should be reasonable (no more than 1000)
     TVector<TString> GetNamespaces();
@@ -55,7 +52,6 @@ private:
     TOperationResults OperationResults_; // Last operation results
 
     bool RootPathExists(); // Returns true if root path exists for spill storage
-
 };
 
 
@@ -77,17 +73,15 @@ private:
     bool Locked_ = false;
     std::atomic<ui64> TotalSpace_ = 0;
     std::atomic<ui64> ReservedSpace_ = 0;
-    ui32 ReserveStep_ = 10000000; // File is incremented by 10 MB chunks 
+    ui32 ReserveStep_ = 10000000; // File is incremented by 10 MB chunks
 };
 
 
 TVector<TString> FileSpillStorage::GetNamespaces() {
     TVector<TString> res;
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
     if (!RootPathExists()) {
         OperationResults_.Status = EOperationStatus::CannotOpenStorageProxy;
-        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         OperationResults_.ErrorString =  "Root directory for temp storage path: " + TString(RootPath_) + " does not exist";
         return res;
     }
@@ -105,7 +99,6 @@ TVector<TString> FileSpillStorage::GetNamespaces() {
     OperationResults_.ErrorString.clear();
 
     return res;
-        
 }
 
 TVector<TString> FileSpillStorage::GetNamespaceFiles(const TString& ns) {
@@ -139,7 +132,6 @@ TVector<TString> FileSpillStorage::GetNamespaceFiles(const TString& ns) {
     OperationResults_.ErrorString.clear();
 
     return res;
-        
 }
 
 THolder<ISpillFile> FileSpillStorage::CreateSpillFile(const TString& ns, const TString& fn, ui32 reserveStep) {
@@ -148,7 +140,7 @@ THolder<ISpillFile> FileSpillStorage::CreateSpillFile(const TString& ns, const T
         nsdir.MkDir();
     }
     TFsPath filePath = nsdir.Child(fn);
-    return MakeHolder<FsSpillFile>(filePath.GetPath(), 
+    return MakeHolder<FsSpillFile>(filePath.GetPath(),
         EOpenModeFlag::OpenAlways | EOpenModeFlag::RdWr , reserveStep);
 }
 
@@ -166,9 +158,6 @@ TOperationResults FileSpillStorage::LastOperationResults() {
 }
 
 FileSpillStorage::FileSpillStorage (const TFileStorageConfig& config) {
-
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-
     RootPath_ = TFsPath(config.Path);
 
     if (!RootPathExists()) {
@@ -191,11 +180,7 @@ FileSpillStorage::FileSpillStorage (const TFileStorageConfig& config) {
     }
 
     OperationResults_.Status = EOperationStatus::Success;
-    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     OperationResults_.ErrorString.clear();
-
-
-
 }
 
 

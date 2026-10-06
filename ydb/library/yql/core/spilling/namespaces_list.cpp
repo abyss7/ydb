@@ -19,7 +19,7 @@ TAtomicSharedPtr<TNamespaceCache> TNamespacesList::GetNamespaceCache(const TStri
             CurrNamespaceId_++;
             res = MakeAtomicShared<TNamespaceCache>(name, CurrNamespaceId_, StorageI_);
             NamespacesMap_.emplace(name, res);
-        } 
+        }
     }
     return res;
 }
@@ -36,7 +36,7 @@ void TNamespacesList::PushNamespaceToProcess(const TString& name, ui32 sessionId
         SessionNamespaces_[sessionId].emplace(name);
     }
 }
-    
+
 bool TNamespacesList::PopNamespaceToProcess(TString& name) {
     bool res = false;
     with_lock(QueueLock_) {
@@ -47,12 +47,11 @@ bool TNamespacesList::PopNamespaceToProcess(TString& name) {
         } else {
             res = false;
         }
-    } 
+    }
     return res;
 }
 
 bool TNamespacesList::WaitForTask() {
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     auto diff = std::chrono::milliseconds(1000);
     ActiveWorkerThreads_--;
     bool task = WorkingSemaphore_.try_acquire_for(diff);
@@ -69,7 +68,7 @@ void TNamespacesList::PerformGarbageCollection() {
     }
 
     bool needGarbageCollection = true;
-    
+
     if (GarbageCollectionThreads_ <= MaxGarbageCollectionThreads ) {
         GarbageCollectionThreads_++;
     } else {
@@ -95,7 +94,7 @@ void TNamespacesList::PerformGarbageCollection() {
     }
 
     GarbageCollectionThreads_--;
-        
+
 
 }
 
@@ -117,7 +116,7 @@ void TNamespacesList::Stop() {
     with_lock(NamespacesMapLock_) {
         StopFlag_ = true;
         for (ui32 i = 0; i < MaxThreadPoolSize; i++ ) {
-            WorkingSemaphore_.release();        
+            WorkingSemaphore_.release();
         }
     }
 }
@@ -138,7 +137,7 @@ TSessionDataStat TNamespacesList::GetSessionDataStat(ui32 sessionId) {
                 res.LoadedFromMemory += ns_res.LoadedFromMemory;
              }
         }
-    } 
+    }
     return res;
 }
 
@@ -147,17 +146,16 @@ void TNamespacesList::CloseSession(ui32 sessionId) {
         auto found = SessionNamespaces_.find(sessionId);
         if (found != SessionNamespaces_.end()) {
             for (auto& it: found->second) {
-                TSessionDataStat ns_res;
                 auto nsc = GetNamespaceCache(it);
                 nsc->CloseSession(sessionId);
              }
         }
-    } 
+    }
 
 
 }
 
-TNamespacesList::TNamespacesList(ui32 threadPoolSize, TAtomicSharedPtr<ISpillStorage> storageI) : 
+TNamespacesList::TNamespacesList(ui32 threadPoolSize, TAtomicSharedPtr<ISpillStorage> storageI) :
     ActiveWorkerThreads_(threadPoolSize),
     StorageI_(storageI) {
         LastGarbageCollection_ = std::chrono::steady_clock::now();

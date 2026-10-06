@@ -1,12 +1,12 @@
 library("log_backend") {
   public_deps = [
+    # "//library/cpp/json",
     # "//library/cpp/logger",
     "//ydb/core/driver_lib/run:config",
   ]
 
   deps = [
-    # "//library/cpp/json",
-    # "//library/cpp/messagebus:monitoring",  # peerdir only
+    # "//library/cpp/messagebus/monitoring",  # peerdir only
     "//library/cpp/unified_agent_client",
     # "//ydb/core/base",
     "//ydb/core/protos",

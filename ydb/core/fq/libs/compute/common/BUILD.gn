@@ -4,16 +4,16 @@ library("common") {
     # "//library/cpp/random_provider",
     # "//library/cpp/retry",
     # "//library/cpp/time_provider",
-    "//ydb/core/fq/libs/config:protos",
+    "//ydb/core/fq/libs/config/protos",
     "//ydb/core/fq/libs/events",
     # "//ydb/core/fq/libs/protos",
     # "//ydb/core/fq/libs/shared_resources",
     # "//ydb/core/fq/libs/ydb",
-    "//ydb/core/kqp/proxy_service:script_executions_utils",
+    "//ydb/core/kqp/proxy_service/script_executions_utils",
     "//ydb/library/actors/core",
     # "//ydb/library/yql/providers/common/token_accessor/client",
     # "//ydb/library/yql/providers/dq/provider",
-    # "//ydb/library/yql/providers/dq/worker_manager:interface",
+    # "//ydb/library/yql/providers/dq/worker_manager/interface",
     # "//ydb/library/yql/providers/generic/connector/libcpp",
     # "//ydb/library/yql/providers/pq/cm_client",
     # "//ydb/library/yql/providers/pq/gateway/abstract",
@@ -29,19 +29,19 @@ library("common") {
 
   deps = [
     # "//library/cpp/json",
-    "//library/cpp/json:yson",
+    "//library/cpp/json/yson",
     "//library/cpp/protobuf/interop",
-    # "//ydb/core/fq/libs/control_plane_storage:events",
+    # "//ydb/core/fq/libs/control_plane_storage/events",
     # "//ydb/core/fq/libs/control_plane_storage:service_id",
     "//ydb/core/fq/libs/db_id_async_resolver_impl",
     # "//ydb/core/fq/libs/grpc",  # peerdir only
     "//ydb/core/fq/libs/private_client",
     "//ydb/library/plan2svg",
     # "//ydb/library/yql/providers/common/http_gateway",  # peerdir only
-    # "//ydb/library/yql/providers/generic/connector/api/service:protos",  # peerdir only
+    # "//ydb/library/yql/providers/generic/connector/api/service/protos",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/proto",
     # "//yql/essentials/public/issue",
-    # "//yql/essentials/public/issue:protos",
+    # "//yql/essentials/public/issue/protos",
   ]
 
   sources = [

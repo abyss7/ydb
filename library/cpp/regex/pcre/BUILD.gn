@@ -1,10 +1,12 @@
 library("pcre") {
-  public_deps = [ "//contrib/libs/pcre" ]
+  public_deps = [
+    "//contrib/libs/pcre",
+    # "//library/cpp/containers/stack_array",
+  ]
 
   deps = [
     # "//contrib/libs/pcre/pcre16",  # peerdir only
     # "//contrib/libs/pcre/pcre32",  # peerdir only
-    # "//library/cpp/containers/stack_array",
   ]
 
   sources = [

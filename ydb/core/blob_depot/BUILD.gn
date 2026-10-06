@@ -1,45 +1,3 @@
-library("agent") {
-  public_deps = [
-    ":blob_depot",
-    "//ydb/core/base",
-    # "//ydb/core/blobstorage/vdisk/common",
-    # "//ydb/core/util",
-  ]
-
-  deps = [
-    # "//ydb/core/blobstorage/pdisk",
-    # "//ydb/core/protos",
-    "//ydb/core/wrappers",
-  ]
-
-  sources = [
-    "agent/agent.cpp",
-    "agent/blob_mapping_cache.cpp",
-    "agent/blocks.cpp",
-    "agent/channel_kind.cpp",
-    "agent/comm.cpp",
-    "agent/garbage.cpp",
-    "agent/metrics.cpp",
-    "agent/proxy.cpp",
-    "agent/query.cpp",
-    "agent/read.cpp",
-    "agent/request.cpp",
-    "agent/resolved_value.cpp",
-    "agent/s3.cpp",
-    "agent/status.cpp",
-    "agent/storage_block.cpp",
-    "agent/storage_check_integrity.cpp",
-    "agent/storage_collect_garbage.cpp",
-    "agent/storage_discover.cpp",
-    "agent/storage_get.cpp",
-    "agent/storage_get_block.cpp",
-    "agent/storage_patch.cpp",
-    "agent/storage_put.cpp",
-    "agent/storage_range.cpp",
-    "agent/storage_status.cpp",
-  ]
-}
-
 library("blob_depot") {
   public_deps = [
     # "//library/cpp/json",
@@ -49,7 +7,7 @@ library("blob_depot") {
     # "//ydb/core/blobstorage/groupinfo",
     "//ydb/core/blobstorage/testing/group_overseer",
     # "//ydb/core/blobstorage/vdisk/common",
-    "//ydb/core/engine:minikql",
+    "//ydb/core/engine/minikql",
     # "//ydb/core/mind",
     # "//ydb/core/node_whiteboard",
     # "//ydb/core/protos",

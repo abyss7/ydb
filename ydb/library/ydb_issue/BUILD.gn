@@ -1,12 +1,6 @@
-protobuf_library("proto") {
-  public_deps = [ "//yql/essentials/public/issue:protos" ]
-
-  sources = [ "proto/issue_id.proto" ]
-}
-
 library("ydb_issue") {
   public_deps = [
-    ":proto",
+    "//ydb/library/ydb_issue/proto",
     "//ydb/library/yql/public/ydb_issue",
     "//yql/essentials/public/issue",
   ]

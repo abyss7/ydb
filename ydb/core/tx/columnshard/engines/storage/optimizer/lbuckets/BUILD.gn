@@ -21,7 +21,7 @@ group("lbuckets") {
 library("planner") {
   public_deps = [
     # "//ydb/core/formats/arrow",
-    # "//ydb/core/tx/columnshard/blobs_action:abstract",
+    # "//ydb/core/tx/columnshard/blobs_action/abstract",
     # "//ydb/core/tx/columnshard/common",
     "//ydb/core/tx/columnshard/counters",
     "//ydb/core/tx/columnshard/data_locks:manager",

@@ -13,6 +13,7 @@ SRCS(
     drain.h
     fill.cpp
     hive.cpp
+    create_hive.h
     hive.h
     hive_domains.cpp
     hive_domains.h

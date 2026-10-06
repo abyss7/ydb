@@ -975,15 +975,22 @@ def pch_candidates(args):
         tu.h_dur = a[2::3]
         return tu
 
+    write = set(args.write or ())
+    unknown = write - set(tus_of)
+    if unknown:
+        sys.exit("no C++ TUs of %s in the manifest" % ", ".join(sorted(unknown)))
     rows = []
     for target, outs in tus_of.items():
-        if target in has_pch or len(outs) < args.min_tus:
+        if target not in write and (target in has_pch or len(outs) < args.min_tus):
             continue
-        if not any(o in rebuilt for o in outs):
+        if target not in write and not any(o in rebuilt for o in outs):
             continue
         traces = dict((o, latest_trace(o)) for o in outs)
         traces = dict((o, t) for o, t in traces.items() if t is not None)
         if len(traces) < args.min_tus:
+            if target in write:
+                sys.exit("%s: time traces of %d of its %d TUs (compiled without PCH, recorded)"
+                         % (target, len(traces), len(outs)))
             continue
         presence = collections.Counter()
         for t in traces.values():
@@ -992,7 +999,8 @@ def pch_candidates(args):
         if not args.include_own:
             own = target[2:].split(":")[0] + "/"
             names = db.names(selected)
-            selected = set(h for h in selected if not names[h].startswith(own))
+            selected = set(h for h in selected
+                           if not names[h].startswith((own, "<out>/gen/" + own)))
         if not selected:
             continue
         parse = {}
@@ -1016,6 +1024,9 @@ def pch_candidates(args):
                             d = [ms for r, ms in rebuilt.get(o, ())]
                             lost += max(0.0, (d[-1] if d else 0) - parse.get(o, 0))
         net = saved - lost
+        if target in write:
+            path = write_pch_header(db, source_root, target, traces, selected)
+            print("%s: %s (%+.1fs over the runs)" % (target, os.path.relpath(path, source_root), net / 1000.0))
         if net > 0:
             roots = collections.Counter()
             for t in traces.values():
@@ -1037,6 +1048,50 @@ def pch_candidates(args):
                         % ",".join(map(str, runs))).fetchall()
     if rows:
         print("existing PCH over the same runs: %+.1fs in %d runs" % (sum(ms for _, ms in rows) / 1000.0, len(rows)))
+
+
+PCH_DIR = "build/gn/pch"   # <dir>/<name>.h of target //<dir>:<name>, see library() in //build/gn/base.gni
+LIBCXX_INCLUDE = "contrib/libs/cxxsupp/libcxx/include/"
+
+
+def pch_include(name):
+    """A header as the PCH includes it, or None (not includable on its own)."""
+    if name.startswith("<sysroot>/") or os.path.isabs(name):
+        return None
+    if name.startswith("<out>/gen/"):
+        name = name[len("<out>/gen/"):]
+    elif name.startswith("<out>/"):
+        return None
+    if name.startswith(LIBCXX_INCLUDE):
+        name = name[len(LIBCXX_INCLUDE):]
+        if name.startswith("__") or "/__" in name:
+            return None     # libc++ internals: a public header includes them
+        return "<%s>" % name
+    if not name.endswith((".h", ".hh", ".hpp", ".hxx")):
+        return None
+    return '"%s"' % name
+
+
+def write_pch_header(db, source_root, target, traces, selected):
+    """The PCH of `target`: the chosen headers not nested in other chosen ones,
+    in the order the TUs include them."""
+    order = collections.defaultdict(list)
+    for t in traces.values():
+        for rank, i in enumerate(btr.outermost_events(t, selected)):
+            order[t.h_ids[i]].append(rank)
+    names = db.names(order)
+    lines, seen = [], set()
+    for h in sorted(order, key=lambda h: (sum(order[h]) / len(order[h]), names[h])):
+        inc = pch_include(names[h])
+        if inc is not None and inc not in seen:
+            seen.add(inc)
+            lines.append("#include %s" % inc)
+    d, _, name = target[2:].partition(":")
+    path = os.path.join(source_root, PCH_DIR, d, name + ".h")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as f:
+        f.write("#pragma once\n\n" + "\n".join(lines) + "\n")
+    return path
 
 
 # =============================================================================
@@ -1209,6 +1264,8 @@ def main():
     p.add_argument("--load-cost", type=float, default=0.15)
     p.add_argument("--include-own", action="store_true", help="the target's own headers too")
     p.add_argument("--roots", type=int, default=8, help="headers shown per target")
+    p.add_argument("--write", nargs="+", metavar="TARGET",
+                   help="write the PCH of these targets to %s/<dir>/<name>.h" % PCH_DIR)
     p.add_argument("--top", type=int, default=20)
     p.set_defaults(func=pch_candidates)
 

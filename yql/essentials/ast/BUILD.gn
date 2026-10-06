@@ -7,7 +7,7 @@ library("ast") {
     "//library/cpp/json",
     # "//library/cpp/string_utils/levenshtein_diff",
     # "//library/cpp/yson",
-    "//library/cpp/yson:node",
+    "//library/cpp/yson/node",
     # "//yql/essentials/core/sql_types",
     # "//yql/essentials/core/url_lister/interface",
     "//yql/essentials/public/issue",
@@ -35,15 +35,4 @@ library("ast") {
     "yql_gc_nodes.cpp",
     "yql_type_string.cpp",
   ]
-}
-
-library("serialize") {
-  public_deps = [ ":ast" ]
-
-  deps = [
-    "//yql/essentials/core/issue",  # peerdir only
-    "//yql/essentials/minikql",
-  ]
-
-  sources = [ "serialize/yql_expr_serialize.cpp" ]
 }

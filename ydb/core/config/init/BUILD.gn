@@ -1,7 +1,7 @@
 library("init") {
   public_deps = [
     # "//contrib/libs/protobuf",
-    "//library/cpp/getopt:small",
+    "//library/cpp/getopt/small",
     "//library/cpp/svnversion",
     "//ydb/core/base",
     # "//ydb/core/config/validation",

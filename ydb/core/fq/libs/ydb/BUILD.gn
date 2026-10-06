@@ -2,7 +2,7 @@ library("ydb") {
   public_deps = [
     # "//library/cpp/retry",
     # "//library/cpp/threading/future",
-    "//ydb/core/fq/libs/config:protos",
+    "//ydb/core/fq/libs/config/protos",
     # "//ydb/library/accessor",
     "//ydb/library/aclib",
     "//ydb/library/actors/core",
@@ -19,11 +19,11 @@ library("ydb") {
   deps = [
     # "//ydb/core/base",
     # "//ydb/core/base/generated",  # peerdir only
-    # "//ydb/core/fq/libs/actors:logging",
+    # "//ydb/core/fq/libs/actors/logging",
     # "//ydb/core/fq/libs/config",  # peerdir only
     "//ydb/core/fq/libs/events",
     # "//ydb/core/protos",
-    # "//ydb/library/aclib:protos",  # peerdir only
+    # "//ydb/library/aclib/protos",  # peerdir only
     "//ydb/library/query_actor",
     "//ydb/library/table_creator",
     # "//ydb/public/api/protos",

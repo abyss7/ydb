@@ -17,16 +17,3 @@ library("future") {
     "wait/wait_policy.cpp",
   ]
 }
-
-library("subscription") {
-  public_deps = [
-    # ":future",
-  ]
-
-  sources = [
-    "subscription/subscription.cpp",
-    "subscription/wait_all.cpp",
-    "subscription/wait_all_or_exception.cpp",
-    "subscription/wait_any.cpp",
-  ]
-}

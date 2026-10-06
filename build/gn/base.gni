@@ -121,6 +121,28 @@ template("library") {
             visibility = [ ":*" ]
         }
     }
+    # .proto among `sources`: protoc runs under the hood, the library compiles
+    # the generated code (//build/gn/protobuf.gni)
+    _proto = []
+    if (defined(invoker.sources)) {
+        _proto = filter_include(invoker.sources, [ "*.proto" ])
+    }
+    if (_proto != []) {
+        protobuf_sources("${target_name}_proto") {
+            forward_variables_from(invoker, [ "extra_plugins", "testonly" ])
+            sources = _proto
+            proto_includes_target = "${target_name}_includes"
+            proto_includes_file = "$target_gen_dir/${target_name}.proto_includes"
+            metadata_deps = []
+            if (defined(invoker.deps)) {
+                metadata_deps += invoker.deps
+            }
+            if (defined(invoker.public_deps)) {
+                metadata_deps += invoker.public_deps
+            }
+            visibility = [ ":*" ]
+        }
+    }
 
     _has_resources = defined(invoker.resources) || defined(invoker.resource_files)
     if (_has_resources) {
@@ -160,7 +182,7 @@ template("library") {
     not_needed(invoker, [ "plugins" ])
 
     target(library_type, target_name) {
-        forward_variables_from(invoker, "*", [ "configs", "deps", "resources", "resource_files", "resource_deps", "link_slot_provides", "link_slot_interface", "link_slot_headers", "link_slot_flags_from", "link_slot_module_interfaces", "plugins", "yql_abi_version" ])
+        forward_variables_from(invoker, "*", [ "configs", "deps", "extra_plugins", "resources", "resource_files", "resource_deps", "link_slot_provides", "link_slot_interface", "link_slot_headers", "link_slot_flags_from", "link_slot_module_interfaces", "plugins", "yql_abi_version" ])
 
         output_dir = "$root_out_dir/" + rebase_path(".", "//") # TODO: doesn't work for some reason
         output_name = "${_unique_name}_${target_name}"
@@ -186,6 +208,19 @@ template("library") {
             sources += filter_include(get_target_outputs(":${target_name}_y"), [ "*.cpp" ])
             deps += [ ":${target_name}_y" ]
             configs += [ ":${target_name}_y_config" ]
+        }
+
+        if (_proto != []) {
+            sources -= _proto
+            sources += filter_include(get_target_outputs(":${target_name}_proto"), [ "*.cc" ])
+            deps += [ ":${target_name}_proto" ]
+            if (!defined(public_deps)) {
+                public_deps = []
+            }
+            public_deps += [
+                "//contrib/libs/grpc",
+                "//contrib/libs/protobuf",
+            ]
         }
 
         if (defined(invoker.serialize_enum_headers)) {

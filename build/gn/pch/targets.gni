@@ -1,8 +1,9 @@
 pch_targets = [
+  "//ydb/core/cms/console:console",
   "//ydb/core/grpc_services:grpc_services",
-  "//ydb/core/kqp/opt/rbo:rbo",
-  "//ydb/core/mind:bscontroller",
-  "//ydb/core/mind:hive",
+  "//ydb/core/kqp/opt:opt",
+  "//ydb/core/mind/bscontroller:bscontroller",
+  "//ydb/core/mind/hive:hive",
   "//ydb/core/tx/columnshard:columnshard",
   "//ydb/core/tx/datashard:datashard",
   "//ydb/core/tx/schemeshard:schemeshard",

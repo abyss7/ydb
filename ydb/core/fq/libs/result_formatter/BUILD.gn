@@ -9,13 +9,13 @@ library("result_formatter") {
   ]
 
   deps = [
-    "//library/cpp/json:yson",
+    "//library/cpp/json/yson",
     "//ydb/library/mkql_proto",
     "//ydb/public/sdk/cpp/src/client/proto",
     "//yql/essentials/minikql/computation",
     "//yql/essentials/providers/common/codec",
-    "//yql/essentials/providers/common/schema:expr",
-    # "//yql/essentials/providers/common/schema:mkql",
+    "//yql/essentials/providers/common/schema/expr",
+    # "//yql/essentials/providers/common/schema/mkql",
     # "//yql/essentials/public/udf",
   ]
 

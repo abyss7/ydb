@@ -24,19 +24,3 @@ library("profiling") {
     "testing.cpp",
   ]
 }
-
-library("resource_tracker") {
-  deps = [
-    # ":profiling",
-    # "//library/cpp/yt/memory",
-    # "//library/cpp/yt/misc",
-    # "//yt/yt/core",
-    # "//yt/yt_proto/yt/core",  # peerdir only
-  ]
-
-  sources = [
-    "resource_tracker/config.cpp",
-    "resource_tracker/configure_resource_tracker.cpp",
-    "resource_tracker/resource_tracker.cpp",
-  ]
-}

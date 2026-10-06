@@ -1,31 +1,31 @@
 library("scheme_board") {
   public_deps = [
+    "//library/cpp/json",
     "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/base",
     # "//ydb/core/protos",
     # "//ydb/core/scheme",
     "//ydb/core/tx/scheme_cache",
+    # "//ydb/library/actors/core",
+    # "//ydb/library/services",
   ]
 
   deps = [
     # "//contrib/libs/protobuf",
-    "//library/cpp/json",
     # "//library/cpp/monlib/service/pages",
     "//ydb/core/mon",
     # "//ydb/core/node_whiteboard",
-    "//ydb/core/persqueue/public:partition_key_range",
+    "//ydb/core/persqueue/public/partition_key_range",
     "//ydb/core/persqueue/public:utils",
     "//ydb/core/persqueue/writer:partition_chooser",  # peerdir only
-    "//ydb/core/sys_view:common",
+    "//ydb/core/sys_view/common",
     # "//ydb/core/tx",
     # "//ydb/core/tx/locks",
     # "//ydb/core/tx/schemeshard",
     "//ydb/core/tx/sharding",
     # "//ydb/core/util",
     "//ydb/library/aclib",  # peerdir only
-    # "//ydb/library/actors/core",
     # "//ydb/library/actors/util",
-    # "//ydb/library/services",
     # "//ydb/library/yverify_stream",
   ]
 

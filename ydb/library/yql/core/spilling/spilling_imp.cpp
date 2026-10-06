@@ -42,9 +42,9 @@ THolder<ISession>  TTempStorageProxyImp::CreateSession() {
 
 }
 
-THolder<IObjectsIterator> TTempStorageProxyImp::CreateIterator( 
+THolder<IObjectsIterator> TTempStorageProxyImp::CreateIterator(
                                                                 const TMaybe<TString>& objNamespace,
-                                                                const TMaybe<TString>& objName, 
+                                                                const TMaybe<TString>& objName,
                                                                 bool onlyValid) {
 
     return MakeHolder<TStorageIteratorImp>(objNamespace, objName, onlyValid);
@@ -54,7 +54,7 @@ TTempStorageExecutionPolicy TTempStorageProxyImp::ExecutionPolicy() {
     return Policy_;
 }
 
-TOperationResults TTempStorageProxyImp::SetExecutionPolicy(const TTempStorageExecutionPolicy & policy) {
+void TTempStorageProxyImp::SetExecutionPolicy(const TTempStorageExecutionPolicy & policy) {
     Policy_ = policy;
 }
 
@@ -79,15 +79,15 @@ void ProcessThreadPoolTasks(TAtomicSharedPtr<TNamespacesList> nsl, TAtomicShared
     bool stopFlag = false;
     bool haveNamespaceToProcess = false;
     TString namespaceToProcess;
-    ui32 periodShift = Ui32Rand(0, GarbageCollectionPeriodMs / 8); 
+    ui32 periodShift = Ui32Rand(0, GarbageCollectionPeriodMs / 8);
 
     std::chrono::steady_clock::time_point lastGarbageCollection = std::chrono::steady_clock::now();
 
     TThread::TId this_id = TThread::CurrentThreadNumericId();
-    
+
     while( !stopFlag ) {
         try {
-            bool task = nsl->WaitForTask();
+            nsl->WaitForTask();
 
             std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
             ui64 period = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastGarbageCollection).count();
@@ -101,7 +101,7 @@ void ProcessThreadPoolTasks(TAtomicSharedPtr<TNamespacesList> nsl, TAtomicShared
                     YQL_LOG(INFO) << "Thread " << this_id << " garbage collection (microseconds): " << execTime << Endl;
                 }
             }
-       
+
             haveNamespaceToProcess = nsl->PopNamespaceToProcess(namespaceToProcess);
             if (haveNamespaceToProcess) {
                 TAtomicSharedPtr<TNamespaceCache> nsc = nsl->GetNamespaceCache(namespaceToProcess);
@@ -159,9 +159,9 @@ TSessionDataStat TSessionImp::GetSessionDataStat(){
     return NsList_->GetSessionDataStat(SessionId_);
 }
 
-TSessionExecutionPolicy TSessionImp::ExecutionPolicy(){ 
+TSessionExecutionPolicy TSessionImp::ExecutionPolicy(){
     return Policy_;
-} 
+}
 
 
 TOperationResults TSessionImp::SetExecutionPolicy(const TSessionExecutionPolicy& policy){
@@ -173,19 +173,19 @@ TOperationResults TSessionImp::SetExecutionPolicy(const TSessionExecutionPolicy&
 std::pair<THolder<IStream>, TOperationResults> TSessionImp::OpenStream(const TString& objNamespace, const TString& streamName ) {
     THolder<TStreamImp> sti = MakeHolder<TStreamImp>(objNamespace, streamName, NsList_, SessionId_);
     TOperationResults res;
-    return std::make_pair<THolder<IStream>, TOperationResults> (std::move(sti), std::move(res)); 
+    return std::make_pair<THolder<IStream>, TOperationResults> (std::move(sti), std::move(res));
 }
 
 
-TSessionImp::TSessionImp(ui32 sessionId, TAtomicSharedPtr<TNamespacesList> nsList, TAtomicSharedPtr<ISpillStorage> storage) : 
+TSessionImp::TSessionImp(ui32 sessionId, TAtomicSharedPtr<TNamespacesList> nsList, TAtomicSharedPtr<ISpillStorage> storage) :
     SessionId_(sessionId),
     NsList_(nsList),
     StorageI_(storage) {
 
 }
 
-TStreamImp::TStreamImp(const TString& objNamespace, const TString& streamName, TAtomicSharedPtr<TNamespacesList> nsList, ui32 sessionId ) : 
-    Namespace_(objNamespace), 
+TStreamImp::TStreamImp(const TString& objNamespace, const TString& streamName, TAtomicSharedPtr<TNamespacesList> nsList, ui32 sessionId ) :
+    Namespace_(objNamespace),
     Name_(streamName),
     NsList_(nsList),
     SessionId_(sessionId) {};
@@ -237,7 +237,7 @@ std::pair< THolder<ITempStorageProxy>, TOperationResults >  CreateFileStoragePro
     std::pair< THolder<ISpillStorage>, TOperationResults > sps = OpenFileStorageForSpilling(config);
     THolder<TTempStorageProxyImp> sp = MakeHolder<TTempStorageProxyImp>(config, policy, std::move(sps.first));
     TOperationResults res = sps.second;
-    return std::make_pair< THolder<ITempStorageProxy>, TOperationResults >( std::move(sp), std::move(res) );    
+    return std::make_pair< THolder<ITempStorageProxy>, TOperationResults >( std::move(sp), std::move(res) );
 }
 
 

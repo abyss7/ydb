@@ -1,43 +1,32 @@
-protobuf_library("nbs") {
-  sources = [ "nbs/blockstore.proto" ]
-
-  extra_plugins = [
-    {
-      name = "config_proto_plugin"
-      target = "//ydb/core/config/tools/protobuf_plugin:config_proto_plugin"
-    },
-  ]
-}
-
 protobuf_library("protos") {
   public_deps = [
-    ":nbs",
-    ":schemeshard",
     "//ydb/core/config/protos",
-    "//ydb/core/fq/libs/config:protos",
-    "//ydb/core/nbs/cloud/blockstore/tools/testing/loadtest/lib:protos",
-    "//ydb/core/scheme:protos",
-    "//ydb/core/tx/columnshard/common:protos",
-    "//ydb/core/tx/columnshard/engines/scheme/defaults:protos",
+    "//ydb/core/fq/libs/config/protos",
+    "//ydb/core/nbs/cloud/blockstore/tools/testing/loadtest/lib/protos",
+    "//ydb/core/protos/nbs",
+    "//ydb/core/protos/schemeshard",
+    "//ydb/core/scheme/protos",
+    "//ydb/core/tx/columnshard/common/protos",
+    "//ydb/core/tx/columnshard/engines/scheme/defaults/protos",
     "//ydb/library/actors/protos",
-    "//ydb/library/formats/arrow:protos",
-    "//ydb/library/login:protos",
-    "//ydb/library/mkql_proto:protos",
+    "//ydb/library/formats/arrow/protos",
+    "//ydb/library/login/protos",
+    "//ydb/library/mkql_proto/protos",
     "//ydb/library/services",
-    "//ydb/library/ydb_issue:proto",
-    "//ydb/library/yql/dq/actors:protos",
+    "//ydb/library/ydb_issue/proto",
+    "//ydb/library/yql/dq/actors/protos",
     "//ydb/library/yql/dq/proto",
     "//ydb/public/api/protos",
-    "//ydb/public/api/protos:annotations",
-    "//yql/essentials/core/file_storage:proto",
+    "//ydb/public/api/protos/annotations",
+    "//yql/essentials/core/file_storage/proto",
     "//yql/essentials/providers/common/proto",
     "//yql/essentials/public/types",
   ]
 
   deps = [
     # "//ydb/core/tx/columnshard/engines/protos",  # peerdir only
-    # "//yql/essentials/core/issue:protos",  # peerdir only
-    # "//yql/essentials/public/issue:protos",  # peerdir only
+    # "//yql/essentials/core/issue/protos",  # peerdir only
+    # "//yql/essentials/public/issue/protos",  # peerdir only
   ]
 
   sources = [
@@ -218,8 +207,4 @@ protobuf_library("protos") {
       target = "//ydb/core/config/tools/protobuf_plugin:config_proto_plugin"
     },
   ]
-}
-
-protobuf_library("schemeshard") {
-  sources = [ "schemeshard/operations.proto" ]
 }

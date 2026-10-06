@@ -1,6 +1,6 @@
 linked_executable("config_proto_plugin") {
   deps = [
-    # "//contrib/libs/protobuf",
+    "//contrib/libs/protobuf",
     "//contrib/libs/protoc",
     "//library/cpp/protobuf/json",
     "//ydb/core/config/protos",

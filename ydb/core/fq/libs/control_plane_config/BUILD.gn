@@ -2,8 +2,8 @@ library("control_plane_config") {
   public_deps = [
     ":service_id",
     # "//library/cpp/monlib/dynamic_counters",
-    "//ydb/core/fq/libs/actors:logging",
-    # "//ydb/core/fq/libs/config:protos",
+    "//ydb/core/fq/libs/actors/logging",
+    # "//ydb/core/fq/libs/config/protos",
     "//ydb/core/fq/libs/shared_resources",
     # "//ydb/library/actors/core",
   ]
@@ -16,12 +16,12 @@ library("control_plane_config") {
     # "//ydb/core/fq/libs/common",
     # "//ydb/core/fq/libs/config",  # peerdir only
     "//ydb/core/fq/libs/control_plane_storage",
-    # "//ydb/core/fq/libs/control_plane_storage:events",
+    # "//ydb/core/fq/libs/control_plane_storage/events",
     "//ydb/core/fq/libs/control_plane_storage:service_id",
     "//ydb/core/fq/libs/control_plane_storage:util",
     # "//ydb/core/fq/libs/db_schema",
     # "//ydb/core/fq/libs/quota_manager",
-    # "//ydb/core/fq/libs/quota_manager:events",  # peerdir only
+    # "//ydb/core/fq/libs/quota_manager/events",  # peerdir only
     # "//ydb/core/fq/libs/rate_limiter/events",  # peerdir only
     "//ydb/core/fq/libs/ydb",
     # "//ydb/core/mon",  # peerdir only
@@ -40,7 +40,7 @@ library("events") {
   public_deps = [
     # "//ydb/core/fq/libs/compute/common",
     "//ydb/core/fq/libs/events",
-    "//ydb/core/fq/libs/quota_manager:events",
+    "//ydb/core/fq/libs/quota_manager/events",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
     # "//ydb/public/api/protos",
@@ -48,7 +48,7 @@ library("events") {
   ]
 
   deps = [
-    # "//ydb/core/fq/libs/control_plane_storage:proto",  # peerdir only
+    # "//ydb/core/fq/libs/control_plane_storage/proto",  # peerdir only
   ]
 
   sources = [ "events/events.cpp" ]

@@ -1,65 +1,7 @@
 group("general_cache") {
   public_deps = [
-    # ":service",  # peerdir only
-    # ":source",  # peerdir only
-    # ":usage",  # peerdir only
-  ]
-}
-
-library("service") {
-  public_deps = [
-    # ":source",
-    # ":usage",
-    # "//library/cpp/cache",
-    # "//ydb/core/base",
-    # "//ydb/library/accessor",
-    # "//ydb/library/actors/core",
-    # "//ydb/library/signals",
-  ]
-
-  deps = [
-    # "//ydb/core/protos",  # peerdir only
-  ]
-
-  sources = [
-    "service/counters.cpp",
-    "service/manager.cpp",
-    "service/service.cpp",
-  ]
-}
-
-library("source") {
-  public_deps = [
-    # ":usage",
-    # "//ydb/core/base",
-    # "//ydb/library/actors/core",
-  ]
-
-  deps = [
-    # "//ydb/core/protos",  # peerdir only
-  ]
-
-  sources = [
-    "source/abstract.cpp",
-    "source/events.cpp",
-  ]
-}
-
-library("usage") {
-  public_deps = [
-    # ":service",
-    # ":source",
-    "//ydb/core/base",
-    "//ydb/core/protos",
-    # "//ydb/library/accessor",
-    # "//ydb/library/actors/core",
-    # "//ydb/library/conclusion",
-  ]
-
-  sources = [
-    "usage/abstract.cpp",
-    "usage/config.cpp",
-    "usage/events.cpp",
-    "usage/service.cpp",
+    # "//ydb/core/tx/general_cache/service",  # peerdir only
+    # "//ydb/core/tx/general_cache/source",  # peerdir only
+    # "//ydb/core/tx/general_cache/usage",  # peerdir only
   ]
 }

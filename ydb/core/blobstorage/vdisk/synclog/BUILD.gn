@@ -1,14 +1,16 @@
 library("synclog") {
   public_deps = [
     "//library/cpp/blockcodecs",
+    "//library/cpp/codecs",
     # "//library/cpp/containers/intrusive_avl_tree",
+    # "//library/cpp/packedtypes",
     "//ydb/core/base",
     # "//ydb/core/blobstorage/base",
     # "//ydb/core/blobstorage/groupinfo",
     "//ydb/core/blobstorage/vdisk/common",
     "//ydb/core/blobstorage/vdisk/common:guids",
-    # "//ydb/core/blobstorage/vdisk/hulldb:base",
-    "//ydb/core/blobstorage/vdisk/hulldb:generic",
+    # "//ydb/core/blobstorage/vdisk/hulldb/base",
+    "//ydb/core/blobstorage/vdisk/hulldb/generic",
     "//ydb/core/blobstorage/vdisk/ingress",
     # "//ydb/core/protos",
     "//ydb/core/util",
@@ -17,9 +19,7 @@ library("synclog") {
   ]
 
   deps = [
-    "//library/cpp/codecs",
     # "//library/cpp/monlib/service/pages",
-    # "//library/cpp/packedtypes",
     # "//ydb/core/blobstorage/pdisk",
     # "//ydb/core/blobstorage/vdisk/hulldb",
     # "//ydb/core/blobstorage/vdisk/syncer",

@@ -40,7 +40,7 @@ class TCheckQueue {
 public:
     TCheckQueue(TBlobStorageGroupType gtype) {
         for (int n = std::thread::hardware_concurrency(); n; --n) {
-            Threads.emplace_back([=] {
+            Threads.emplace_back([=, this] {
                 for (;;) {
                     TSubgroupPartLayout layout;
                     {

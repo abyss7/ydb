@@ -1,8 +1,8 @@
 protobuf_library("protos") {
-  public_deps = [ "//ydb/core/tx/columnshard/common:protos" ]
+  public_deps = [ "//ydb/core/tx/columnshard/common/protos" ]
 
   deps = [
-    # "//ydb/library/formats/arrow:protos",  # peerdir only
+    # "//ydb/library/formats/arrow/protos",  # peerdir only
   ]
 
   sources = [

@@ -4,7 +4,7 @@ library("arrow") {
     # "//library/cpp/json",
     # "//ydb/core/base",
     # "//ydb/core/formats",
-    "//ydb/core/formats/arrow/accessor:common",
+    "//ydb/core/formats/arrow/accessor/common",
     # "//ydb/core/formats/arrow/switch",
     "//ydb/core/protos",
     "//ydb/core/scheme",
@@ -13,16 +13,16 @@ library("arrow") {
     "//ydb/library/actors/core",
     # "//ydb/library/conclusion",
     "//ydb/library/formats/arrow",
-    "//ydb/library/formats/arrow:hash",
+    "//ydb/library/formats/arrow/hash",
+    # "//ydb/library/formats/arrow/protos",
+    "//ydb/library/formats/arrow/splitter",
+    # "//ydb/library/formats/arrow/switch",
+    # "//ydb/library/formats/arrow/transformer",
+    "//ydb/library/formats/arrow/validation",
     "//ydb/library/formats/arrow:modifier",
-    # "//ydb/library/formats/arrow:protos",
-    "//ydb/library/formats/arrow:splitter",
-    # "//ydb/library/formats/arrow:switch",
-    # "//ydb/library/formats/arrow:transformer",
-    "//ydb/library/formats/arrow:validation",
     # "//ydb/library/services",
     # "//ydb/library/yverify_stream",
-    "//ydb/services/bg_tasks:abstract",
+    "//ydb/services/bg_tasks/abstract",
     "//ydb/services/metadata/abstract:request_features",
   ]
 
@@ -30,16 +30,16 @@ library("arrow") {
     # "//library/cpp/containers/stack_vector",
     # "//ydb/core/formats/arrow/printer",  # peerdir only
     # "//ydb/core/kqp/common",
-    "//ydb/core/kqp/common:arrow",
-    # "//ydb/core/kqp/common:result_set_format",  # peerdir only
+    # "//ydb/core/kqp/common/result_set_format",  # peerdir only
+    "//ydb/core/kqp/common/result_set_format:arrow",
     # "//ydb/library/actors/protos",  # peerdir only
     # "//ydb/library/arrow_kernels",  # peerdir only
-    # "//ydb/library/formats/arrow:common",
-    # "//ydb/library/formats/arrow:simple_builder",
+    # "//ydb/library/formats/arrow/common",
+    # "//ydb/library/formats/arrow/simple_builder",
     # "//ydb/services/metadata/abstract",  # peerdir only
     # "//yql/essentials/core/arrow_kernels/request",  # peerdir only
     # "//yql/essentials/minikql",
-    "//yql/essentials/public/issue:protos",  # peerdir only
+    "//yql/essentials/public/issue/protos",  # peerdir only
     "//yql/essentials/types/binary_json",
     "//yql/essentials/types/dynumber",
   ]

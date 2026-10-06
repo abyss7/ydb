@@ -1,5 +1,5 @@
 library("yt_download") {
-  public_deps = [ "//yql/essentials/core/file_storage:defs" ]
+  public_deps = [ "//yql/essentials/core/file_storage/defs" ]
 
   deps = [
     "//library/cpp/cgiparam",

@@ -228,8 +228,8 @@ library("no_llvm") {
     "//yql/essentials/minikql/arrow",
     "//yql/essentials/minikql/invoke_builtins/no_llvm",
     "//yql/essentials/parser/pg_wrapper/interface",
-    "//yql/essentials/public/issue:protos",
-    "//yql/essentials/public/udf:arrow",
+    "//yql/essentials/public/issue/protos",
+    "//yql/essentials/public/udf/arrow",
     "//yql/essentials/types/binary_json",
     "//yql/essentials/utils",
   ]

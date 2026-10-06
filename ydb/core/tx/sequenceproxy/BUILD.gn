@@ -19,7 +19,7 @@ library("sequenceproxy") {
   deps = [
     "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/tx/scheme_cache",
-    # "//ydb/core/tx/sequenceshard:public",
+    # "//ydb/core/tx/sequenceshard/public",
     # "//ydb/library/actors/core",
     # "//ydb/library/services",
     "//ydb/library/ydb_issue",

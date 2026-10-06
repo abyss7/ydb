@@ -8,6 +8,7 @@
 #include <ydb/core/mind/bscontroller/bsc.h>
 #include <ydb/core/backup/controller/tablet.h>
 #include <ydb/core/base/hive.h>
+#include <ydb/core/mind/hive/create_hive.h>
 #include <ydb/core/tx/coordinator/coordinator.h>
 #include <ydb/core/tx/mediator/mediator.h>
 #include <ydb/core/tx/tx_allocator/txallocator.h>

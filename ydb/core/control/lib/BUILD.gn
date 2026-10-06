@@ -1,19 +1,13 @@
-library("base") {
-  public_deps = [ "//library/cpp/deprecated/atomic" ]
-
-  sources = [ "base/immediate_control_board_control.cpp" ]
-}
-
 config("lib_public_config") {
   cflags = [ "-Wno-deprecated-volatile" ]
 }
 
 library("lib") {
   public_deps = [
-    ":base",
     "//library/cpp/monlib/service/pages",
     "//library/cpp/threading/hot_swap",
     # "//ydb/core/base",
+    "//ydb/core/control/lib/base",
     "//ydb/core/control/lib/generated",
     # "//ydb/core/util",
   ]

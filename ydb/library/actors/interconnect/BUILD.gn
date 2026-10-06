@@ -1,15 +1,5 @@
-library("address") {
-  deps = [
-    # "//contrib/libs/libc_compat",  # peerdir only
-  ]
-
-  sources = [ "address/interconnect_address.cpp" ]
-}
-
 library("interconnect") {
   public_deps = [
-    ":address",
-    ":rdma",
     "//contrib/libs/xxhash",
     "//library/cpp/containers/stack_vector",
     "//library/cpp/digest/crc32c",
@@ -17,6 +7,8 @@ library("interconnect") {
     "//library/cpp/monlib/dynamic_counters",
     "//library/cpp/monlib/metrics",
     "//ydb/library/actors/core",
+    "//ydb/library/actors/interconnect/address",
+    "//ydb/library/actors/interconnect/rdma",
     "//ydb/library/actors/prof",
     "//ydb/library/actors/protos",
     "//ydb/library/actors/util",
@@ -24,7 +16,6 @@ library("interconnect") {
   ]
 
   deps = [
-    ":mock",
     "//contrib/libs/ibdrv",
     # "//contrib/libs/libc_compat",  # peerdir only
     "//contrib/libs/openssl",
@@ -32,13 +23,14 @@ library("interconnect") {
     "//contrib/restricted/abseil-cpp-tstring",
     "//library/cpp/json",
     # "//library/cpp/monlib/service/pages",
-    "//library/cpp/monlib/service/pages:resources",  # peerdir only
-    "//library/cpp/monlib/service/pages:tablesorter",  # peerdir only
+    "//library/cpp/monlib/service/pages/resources",  # peerdir only
+    "//library/cpp/monlib/service/pages/tablesorter",  # peerdir only
     "//library/cpp/openssl/init",  # peerdir only
     # "//library/cpp/packedtypes",  # peerdir only
     # "//ydb/library/actors/dnscachelib",  # peerdir only
     # "//ydb/library/actors/dnsresolver",
     # "//ydb/library/actors/helpers",  # peerdir only
+    "//ydb/library/actors/interconnect/mock",
     "//ydb/library/actors/memory_log",
   ]
 
@@ -68,38 +60,5 @@ library("interconnect") {
     "rdma/cq_actor/cq_actor.cpp",
     "subscription_manager.cpp",
     "types.cpp",
-  ]
-}
-
-library("mock") {
-  public_deps = [
-    # ":interconnect",
-    "//ydb/library/actors/core",
-  ]
-
-  sources = [ "mock/ic_mock.cpp" ]
-}
-
-library("rdma") {
-  public_deps = [
-    "//library/cpp/time_provider",
-    # "//ydb/library/actors/core",
-    "//ydb/library/actors/util",
-  ]
-
-  deps = [
-    ":address",
-    "//contrib/libs/ibdrv",
-    "//contrib/libs/protobuf",  # peerdir only
-    "//library/cpp/monlib/dynamic_counters",
-    "//library/cpp/monlib/metrics",
-  ]
-
-  sources = [
-    "rdma/ctx.cpp",
-    "rdma/ctx_open.cpp",
-    "rdma/link_manager.cpp",
-    "rdma/mem_pool.cpp",
-    "rdma/rdma.cpp",
   ]
 }

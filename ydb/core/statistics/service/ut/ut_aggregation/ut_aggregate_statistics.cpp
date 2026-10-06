@@ -61,7 +61,7 @@ std::unique_ptr<TEvStatistics::TEvAggregateStatistics> CreateStatisticsRequest(c
     for (auto tag : data.ColumnTags) {
         columnTags->Add(tag);
     }
-    
+
     for (const auto& tablets : data.Nodes) {
         auto node = record.AddNodes();
         node->SetNodeId(tablets.NodeId);
@@ -72,7 +72,7 @@ std::unique_ptr<TEvStatistics::TEvAggregateStatistics> CreateStatisticsRequest(c
         }
     }
 
-    return std::move(ev);
+    return ev;
 }
 
 std::unique_ptr<TEvStatistics::TEvAggregateStatisticsResponse> CreateAggregateStatisticsResponse(const TAggregateStatisticsResponse& data) {
@@ -103,7 +103,7 @@ std::unique_ptr<TEvStatistics::TEvAggregateStatisticsResponse> CreateAggregateSt
         statistics->SetData(buf.data(), buf.size());
     }
 
-    return std::move(ev);
+    return ev;
 }
 
 std::unique_ptr<TEvStatistics::TEvStatisticsResponse> CreateStatisticsResponse(const TStatisticsResponse& data) {
@@ -128,7 +128,7 @@ std::unique_ptr<TEvStatistics::TEvStatisticsResponse> CreateStatisticsResponse(c
         statistics->SetData(buf.data(), buf.size());
     }
 
-    return std::move(ev);
+    return ev;
 }
 
 TStatServiceSettings GetDefaultSettings() {
@@ -146,7 +146,7 @@ std::unordered_map<ui32, TActorId> InitializeRuntime(TTestActorRuntime& runtime,
     runtime.SetScheduledEventFilter([](TTestActorRuntimeBase&, TAutoPtr<IEventHandle>&, TDuration, TInstant&){
         return false;
     });
-        
+
     TIntrusivePtr<TTableNameserverSetup> nameserverTable(new TTableNameserverSetup());
     TPortManager pm;
 
@@ -253,7 +253,7 @@ Y_UNIT_TEST_SUITE(AggregateStatistics) {
             {1, {{"1", localTabletsIds.size()}, {"2", localTabletsIds.size()}}},
             {2, {{"3", nodesTablets.size() - 1 + localTabletsIds.size()}}},
         };
-        
+
         const auto& columns = record.GetColumns();
         for (const auto& column : columns) {
             const auto tag = column.GetTag();

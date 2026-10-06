@@ -1,6 +1,6 @@
 library("infer_schema") {
   public_deps = [
-    # "//library/cpp/yson:node",
+    # "//library/cpp/yson/node",
     # "//yql/essentials/utils/threading",
     "//yt/cpp/mapreduce/interface",
   ]

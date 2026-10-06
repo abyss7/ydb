@@ -4,12 +4,12 @@ library("abstract") {
     # "//ydb/core/tx/columnshard/common",
     # "//ydb/library/accessor",
     "//ydb/library/actors/core",
-    # "//ydb/library/formats/arrow:common",
+    # "//ydb/library/formats/arrow/common",
   ]
 
   deps = [
     # "//contrib/libs/apache/arrow",
-    # "//ydb/core/sys_view:common",
+    # "//ydb/core/sys_view/common",
     # "//ydb/library/formats/arrow",
   ]
 

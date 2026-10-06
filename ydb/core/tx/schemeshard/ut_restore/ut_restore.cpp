@@ -4226,7 +4226,7 @@ Y_UNIT_TEST_SUITE(TImportTests) {
     void CancelShouldSucceed(TDelayFunc delayFunc) {
         TTestBasicRuntime runtime;
         std::vector<std::string> auditLines;
-        runtime.AuditLogBackends = std::move(CreateTestAuditLogBackends(auditLines));
+        runtime.AuditLogBackends = CreateTestAuditLogBackends(auditLines);
 
         TTestEnv env(runtime, TTestEnvOptions());
         ui64 txId = 100;
@@ -4792,7 +4792,7 @@ Y_UNIT_TEST_SUITE(TImportTests) {
     Y_UNIT_TEST(AuditCompletedImport) {
         TTestBasicRuntime runtime;
         std::vector<std::string> auditLines;
-        runtime.AuditLogBackends = std::move(CreateTestAuditLogBackends(auditLines));
+        runtime.AuditLogBackends = CreateTestAuditLogBackends(auditLines);
 
         TTestEnv env(runtime);
 
@@ -4886,7 +4886,7 @@ Y_UNIT_TEST_SUITE(TImportTests) {
     Y_UNIT_TEST(AuditCancelledImport) {
         TTestBasicRuntime runtime;
         std::vector<std::string> auditLines;
-        runtime.AuditLogBackends = std::move(CreateTestAuditLogBackends(auditLines));
+        runtime.AuditLogBackends = CreateTestAuditLogBackends(auditLines);
 
         TTestEnv env(runtime);
 

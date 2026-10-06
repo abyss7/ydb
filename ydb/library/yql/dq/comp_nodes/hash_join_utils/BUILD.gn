@@ -7,8 +7,8 @@ config("hash_join_utils_private_config") {
 
 library("hash_join_utils") {
   public_deps = [
-    ":simd",
     # "//contrib/libs/apache/arrow",
+    "//ydb/library/yql/dq/comp_nodes/hash_join_utils/simd",
     "//yql/essentials/minikql",
     "//yql/essentials/minikql/computation",
     "//yql/essentials/minikql:alloc",
@@ -22,7 +22,7 @@ library("hash_join_utils") {
     # "//ydb/library/yql/dq/comp_nodes",
     # "//yql/essentials/minikql/arrow",
     # "//yql/essentials/public/decimal",
-    "//yql/essentials/public/udf:arrow",
+    "//yql/essentials/public/udf/arrow",
     # "//yql/essentials/types/binary_json",  # peerdir only
     # "//yql/essentials/utils/log",  # peerdir only
   ]
@@ -41,8 +41,4 @@ library("hash_join_utils") {
   ]
 
   configs = [ ":hash_join_utils_private_config" ]
-}
-
-group("simd") {
-  public_deps = [ "//library/cpp/digest/crc32c" ]
 }

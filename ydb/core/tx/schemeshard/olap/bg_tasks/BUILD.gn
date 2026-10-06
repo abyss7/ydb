@@ -1,11 +1,11 @@
 library("adapter") {
   public_deps = [
-    "//ydb/core/tx/columnshard/bg_tasks:templates",
+    "//ydb/core/tx/columnshard/bg_tasks/templates",
     # "//ydb/core/tx/schemeshard",
   ]
 
   deps = [
-    # "//ydb/core/tx/columnshard/bg_tasks:abstract",  # peerdir only
+    # "//ydb/core/tx/columnshard/bg_tasks/abstract",  # peerdir only
   ]
 
   sources = [ "adapter/adapter.cpp" ]
@@ -14,66 +14,13 @@ library("adapter") {
 group("bg_tasks") {
   public_deps = [
     # ":adapter",  # peerdir only
-    # ":events",  # peerdir only
-    # ":protos",  # peerdir only
-    # ":tx_chain",  # peerdir only
     # "//ydb/core/tx/schemeshard",  # peerdir only
+    # "//ydb/core/tx/schemeshard/olap/bg_tasks/events",  # peerdir only
+    # "//ydb/core/tx/schemeshard/olap/bg_tasks/protos",  # peerdir only
+    # "//ydb/core/tx/schemeshard/olap/bg_tasks/tx_chain",  # peerdir only
   ]
 
   deps = [
     # "//ydb/core/tx/columnshard/bg_tasks",  # peerdir only
-  ]
-}
-
-library("events") {
-  public_deps = [
-    ":protos",
-    # "//ydb/core/base",
-    # "//ydb/library/actors/core",
-  ]
-
-  deps = [
-    # "//ydb/core/tx/columnshard/bg_tasks:abstract",  # peerdir only
-  ]
-
-  sources = [
-    "events/common.cpp",
-    "events/global.cpp",
-  ]
-}
-
-protobuf_library("protos") {
-  public_deps = [
-    "//ydb/core/protos",
-    "//ydb/public/api/protos",
-  ]
-
-  sources = [ "protos/data.proto" ]
-}
-
-library("tx_chain") {
-  public_deps = [
-    ":protos",
-    "//ydb/core/tx/columnshard/bg_tasks:abstract",
-    # "//ydb/core/tx/columnshard/bg_tasks:protos",
-    # "//ydb/library/accessor",
-    # "//ydb/library/conclusion",
-    # "//ydb/services/bg_tasks:abstract",
-  ]
-
-  deps = [
-    # "//ydb/core/base",
-    "//ydb/core/tx/columnshard/bg_tasks:manager",
-    # "//ydb/core/tx/columnshard/bg_tasks:session",
-    # "//ydb/core/tx/schemeshard",
-    "//ydb/core/tx/tx_allocator_client",
-  ]
-
-  sources = [
-    "tx_chain/actor.cpp",
-    "tx_chain/common.cpp",
-    "tx_chain/session.cpp",
-    "tx_chain/status_channel.cpp",
-    "tx_chain/task.cpp",
   ]
 }

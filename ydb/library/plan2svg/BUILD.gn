@@ -1,7 +1,7 @@
 library("plan2svg") {
   public_deps = [
     "//library/cpp/json",
-    # "//library/cpp/json:yson",
+    # "//library/cpp/json/yson",
   ]
 
   sources = [ "plan2svg.cpp" ]

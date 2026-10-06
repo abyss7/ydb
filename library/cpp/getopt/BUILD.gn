@@ -1,5 +1,5 @@
 library("getopt") {
-  public_deps = [ ":small" ]
+  public_deps = [ "//library/cpp/getopt/small" ]
 
   deps = [
     "//library/cpp/build_info",
@@ -7,27 +7,4 @@ library("getopt") {
   ]
 
   sources = [ "print.cpp" ]
-}
-
-library("small") {
-  public_deps = [ "//library/cpp/colorizer" ]
-
-  sources = [
-    "small/completer.cpp",
-    "small/completer_command.cpp",
-    "small/completion_generator.cpp",
-    "small/formatted_output.cpp",
-    "small/last_getopt.cpp",
-    "small/last_getopt_easy_setup.cpp",
-    "small/last_getopt_opt.cpp",
-    "small/last_getopt_opts.cpp",
-    "small/last_getopt_parse_result.cpp",
-    "small/last_getopt_parser.cpp",
-    "small/modchooser.cpp",
-    "small/opt.cpp",
-    "small/opt2.cpp",
-    "small/posix_getopt.cpp",
-    "small/wrap.cpp",
-    "small/ygetopt.cpp",
-  ]
 }

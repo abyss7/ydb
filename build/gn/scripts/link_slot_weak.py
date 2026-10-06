@@ -15,6 +15,10 @@ so a caller gets a weak undefined reference, as with __attribute__((weak)) on
 the declaration, while a provider keeps its definitions strong, and so does
 the interface target itself (the list comes to it too, as a public config).
 
+A class with an out-of-line virtual function (its key function) has its
+vtable and typeinfo emitted by the provider too: a caller that constructs it
+or derives from it refers to them, so they are made weak as well.
+
 The compiler flags are those of a translation unit of the interface target
 (or any other) in compile_commands.json.
 
@@ -198,13 +202,60 @@ def _variants(node):
     return [name]
 
 
+def _source_name(m, i):
+    """A <source-name> (<length><identifier>) of the mangled name `m` at `i`:
+    (the name with its length, the index after it), or None."""
+    j = i
+    while j < len(m) and m[j].isdigit():
+        j += 1
+    if j == i:
+        return None
+    end = j + int(m[i:j])
+    return (m[i:end], end) if end <= len(m) else None
+
+
+def _class_of(mangled):
+    """The mangled name of the class whose member function `mangled` is
+    (_ZN[cv-qualifiers]<class components><member name>E...), for a class
+    named by plain identifiers only -- no templates, substitutions or ABI
+    tags; None otherwise."""
+    if not mangled.startswith("_ZN"):
+        return None
+    i = 3
+    while i < len(mangled) and mangled[i] in "rVKRO":
+        i += 1
+    parts = []
+    while i < len(mangled) and mangled[i] != "E":
+        if mangled[i].isdigit():
+            got = _source_name(mangled, i)
+            if got is None:
+                return None
+            name, i = got
+            parts.append(name)
+        elif mangled[i] in "CD" and i + 1 < len(mangled) and mangled[i + 1].isdigit():
+            parts.append(mangled[i:i + 2])      # constructor / destructor
+            i += 2
+        else:
+            return None
+    if len(parts) < 2 or i >= len(mangled):
+        return None
+    cls = parts[:-1]
+    return "N%sE" % "".join(cls) if len(cls) > 1 else cls[0]
+
+
+def _virtual(node):
+    return bool(node.get("virtual")) or any(
+        c.get("kind") in ("OverrideAttr", "FinalAttr") for c in node.get("inner", []))
+
+
 def _defines(node):
     return any(c.get("kind") in ("CompoundStmt", "CXXCtorInitializer")
                for c in node.get("inner", []))
 
 
 def declared(directory, argv, headers, filters, deps=()):
-    """Mangled names of the out-of-line functions `headers` declare."""
+    """Mangled names of the out-of-line functions `headers` declare, and of the
+    vtables and typeinfo of the classes whose key function is one of them."""
     wanted = {os.path.realpath(h) for h in headers}
     out = set()
 
@@ -215,6 +266,10 @@ def declared(directory, argv, headers, filters, deps=()):
                 and not node.get("explicitlyDefaulted") and not node.get("explicitlyDeleted")
                 and not _defines(node)):
             out.update(_variants(node))
+            if node["kind"] != "FunctionDecl" and _virtual(node):
+                cls = _class_of(node["mangledName"])
+                if cls:
+                    out.update(("_ZTV" + cls, "_ZTI" + cls))
 
     text = "".join('#include "%s"\n' % os.path.realpath(h) for h in headers)
     for tree in ast(directory, argv, filters, text=text, deps=deps):

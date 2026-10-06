@@ -1,29 +1,6 @@
-library("abstract") {
-  public_deps = [
-    # "//library/cpp/json",
-    "//library/cpp/string_utils/base64",
-    "//ydb/core/base",
-    "//ydb/library/actors/core",
-    # "//ydb/library/conclusion",
-    # "//ydb/library/services",
-  ]
-
-  deps = [
-    ":protos",
-    # "//ydb/library/accessor",  # peerdir only
-    # "//ydb/public/api/protos",  # peerdir only
-  ]
-
-  sources = [ "abstract/interface.cpp" ]
-}
-
 group("bg_tasks") {
   public_deps = [
-    # ":abstract",  # peerdir only
-    # ":protos",  # peerdir only
+    # "//ydb/services/bg_tasks/abstract",  # peerdir only
+    # "//ydb/services/bg_tasks/protos",  # peerdir only
   ]
-}
-
-protobuf_library("protos") {
-  sources = [ "protos/container.proto" ]
 }

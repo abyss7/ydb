@@ -1,7 +1,6 @@
-config("private_config") {
+config("public_config") {
     defines = [
         "OPENTELEMETRY_ABI_VERSION_NO=2",
-        "OPENTELEMETRY_PROTO_API=",
         "OPENTELEMETRY_STL_VERSION=2023",
     ]
     include_dirs = [
@@ -15,10 +14,14 @@ config("private_config") {
     ]
 }
 
+config("private_config") {
+    defines = [ "OPENTELEMETRY_PROTO_API=" ]
+}
+
 contrib_library("opentelemetry-cpp") {
     deps = [
         "//contrib/libs/curl",
-        "//contrib/libs/opentelemetry-proto:protos",
+        "//contrib/libs/opentelemetry-proto",
         "//contrib/restricted/nlohmann_json",
     ]
 
@@ -148,5 +151,6 @@ contrib_library("opentelemetry-cpp") {
         "sdk/src/version/version.cc",
     ]
 
+    public_configs = [ ":public_config" ]
     configs = [ ":private_config" ]
 }

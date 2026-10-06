@@ -1,6 +1,5 @@
 library("arrow") {
   public_deps = [
-    # ":switch",
     "//contrib/libs/apache/arrow",
     # "//library/cpp/cache",
     "//library/cpp/json",
@@ -8,21 +7,22 @@ library("arrow") {
     "//ydb/library/accessor",
     "//ydb/library/actors/core",
     "//ydb/library/conclusion",
+    # "//ydb/library/formats/arrow/switch",
   ]
 
   deps = [
-    # ":hash",  # peerdir only
     # ":modifier",  # peerdir only
     # ":scalar",  # peerdir only
-    # ":simple_builder",  # peerdir only
-    # ":splitter",  # peerdir only
-    # ":transformer",  # peerdir only
-    ":validation",
     # "//contrib/libs/xxhash",
     # "//library/cpp/containers/stack_vector",
     # "//ydb/core/scheme_types",
     # "//ydb/library/arrow_clickhouse",  # peerdir only
     # "//ydb/library/arrow_kernels",  # peerdir only
+    # "//ydb/library/formats/arrow/hash",  # peerdir only
+    # "//ydb/library/formats/arrow/simple_builder",  # peerdir only
+    # "//ydb/library/formats/arrow/splitter",  # peerdir only
+    # "//ydb/library/formats/arrow/transformer",  # peerdir only
+    "//ydb/library/formats/arrow/validation",
     # "//ydb/library/services",
     # "//ydb/library/yverify_stream",
     # "//yql/essentials/core/arrow_kernels/request",  # peerdir only
@@ -39,60 +39,23 @@ library("arrow") {
   ]
 }
 
-group("common") {
-  public_deps = [
-    # "//ydb/library/actors/core",
-  ]
-
-  deps = [
-    # ":splitter",  # peerdir only
-    # ":switch",  # peerdir only
-    # ":validation",  # peerdir only
-    # "//contrib/libs/apache/arrow",  # peerdir only
-    # "//ydb/library/conclusion",  # peerdir only
-  ]
-}
-
-library("hash") {
-  public_deps = [ "//contrib/libs/xxhash" ]
-
-  deps = [
-    # ":simple_builder",  # peerdir only
-    # ":switch",  # peerdir only
-    # "//contrib/libs/apache/arrow",  # peerdir only
-    # "//ydb/library/actors/core",  # peerdir only
-    # "//ydb/library/actors/protos",  # peerdir only
-    # "//ydb/library/services",  # peerdir only
-  ]
-
-  sources = [ "hash/xx_hash.cpp" ]
-}
-
 library("modifier") {
   public_deps = [
-    # ":common",
-    ":protos",
     "//contrib/libs/apache/arrow",
     # "//ydb/library/accessor",
     "//ydb/library/actors/core",
     "//ydb/library/conclusion",
+    # "//ydb/library/formats/arrow/common",
+    "//ydb/library/formats/arrow/protos",
   ]
 
   deps = [
-    # ":switch",  # peerdir only
+    # "//ydb/library/formats/arrow/switch",  # peerdir only
   ]
 
   sources = [
     "modifier/schema.cpp",
     "modifier/subset.cpp",
-  ]
-}
-
-protobuf_library("protos") {
-  sources = [
-    "protos/accessor.proto",
-    "protos/fields.proto",
-    "protos/ssa.proto",
   ]
 }
 
@@ -103,75 +66,9 @@ library("scalar") {
   ]
 
   deps = [
-    # ":switch",
     "//ydb/library/actors/core",
+    # "//ydb/library/formats/arrow/switch",
   ]
 
   sources = [ "scalar/serialization.cpp" ]
-}
-
-library("simple_builder") {
-  public_deps = [
-    "//contrib/libs/apache/arrow",
-    # "//ydb/library/accessor",
-  ]
-
-  sources = [
-    "simple_builder/array.cpp",
-    "simple_builder/batch.cpp",
-    "simple_builder/filler.cpp",
-  ]
-}
-
-library("splitter") {
-  public_deps = [
-    "//contrib/libs/apache/arrow",
-    # "//ydb/library/accessor",
-    "//ydb/library/actors/core",
-  ]
-
-  deps = [
-    # "//ydb/library/conclusion",  # peerdir only
-  ]
-
-  sources = [
-    "splitter/similar_packer.cpp",
-    "splitter/stats.cpp",
-  ]
-
-  serialize_enum_headers = [ "splitter/stats.h" ]
-}
-
-library("switch") {
-  public_deps = [
-    ":validation",
-    # "//contrib/libs/apache/arrow",
-    # "//contrib/libs/xxhash",
-    "//ydb/library/actors/core",
-    # "//ydb/library/yverify_stream",
-    # "//yql/essentials/parser/pg_wrapper",
-    # "//yql/essentials/parser/pg_wrapper/interface",
-  ]
-
-  sources = [
-    "switch/compare.cpp",
-    "switch/switch_type.cpp",
-  ]
-}
-
-library("transformer") {
-  public_deps = [ "//contrib/libs/apache/arrow" ]
-
-  sources = [
-    "transformer/abstract.cpp",
-    "transformer/composite.cpp",
-  ]
-}
-
-library("validation") {
-  public_deps = [ "//contrib/libs/apache/arrow" ]
-
-  deps = [ "//ydb/library/actors/core" ]
-
-  sources = [ "validation/validation.cpp" ]
 }

@@ -6,11 +6,11 @@ library("mirrorer") {
   deps = [
     "//library/cpp/string_utils/base64",
     "//ydb/core/persqueue/common",
-    "//ydb/core/persqueue/common:proxy",
+    "//ydb/core/persqueue/common/proxy",
     # "//ydb/core/persqueue/events",
     # "//ydb/core/persqueue/pqtablet/common",  # peerdir only
-    "//ydb/core/persqueue/public:counters",
-    "//ydb/core/persqueue/public:write_meta",
+    "//ydb/core/persqueue/public/counters",
+    "//ydb/core/persqueue/public/write_meta",
     "//ydb/core/persqueue/writer",
     # "//ydb/core/protos",
     # "//ydb/library/persqueue/counter_time_keeper",

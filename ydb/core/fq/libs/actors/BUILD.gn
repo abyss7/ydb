@@ -4,7 +4,7 @@ library("actors") {
     # "//library/cpp/random_provider",
     # "//library/cpp/time_provider",
     "//ydb/core/fq/libs/compute/common",
-    # "//ydb/core/fq/libs/config:protos",
+    # "//ydb/core/fq/libs/config/protos",
     # "//ydb/core/fq/libs/events",
     "//ydb/core/fq/libs/private_client",
     # "//ydb/core/fq/libs/shared_resources",
@@ -14,7 +14,7 @@ library("actors") {
     # "//ydb/library/yql/providers/common/http_gateway",
     "//ydb/library/yql/providers/dq/actors",
     # "//ydb/library/yql/providers/dq/provider",
-    "//ydb/library/yql/providers/dq/worker_manager:interface",
+    "//ydb/library/yql/providers/dq/worker_manager/interface",
     # "//ydb/library/yql/providers/pq/cm_client",
     # "//ydb/library/yql/providers/pq/gateway/abstract",
     # "//ydb/library/yql/providers/s3/actors_factory",
@@ -26,9 +26,8 @@ library("actors") {
   ]
 
   deps = [
-    # ":logging",  # peerdir only
     # "//contrib/libs/protobuf",
-    "//library/cpp/json:yson",
+    "//library/cpp/json/yson",
     # "//library/cpp/monlib/dynamic_counters",  # peerdir only
     "//library/cpp/protobuf/interop",
     "//library/cpp/protobuf/util",
@@ -36,8 +35,9 @@ library("actors") {
     "//library/cpp/scheme",
     "//library/cpp/string_utils/quote",
     # "//library/cpp/yson",  # peerdir only
-    # "//library/cpp/yson:node",
+    # "//library/cpp/yson/node",
     # "//ydb/core/base",  # peerdir only
+    # "//ydb/core/fq/libs/actors/logging",  # peerdir only
     # "//ydb/core/fq/libs/checkpoint_storage",
     "//ydb/core/fq/libs/checkpointing",
     # "//ydb/core/fq/libs/checkpointing_common",
@@ -47,7 +47,7 @@ library("actors") {
     # "//ydb/core/fq/libs/control_plane_config",
     "//ydb/core/fq/libs/control_plane_config:service_id",  # peerdir only
     "//ydb/core/fq/libs/control_plane_storage",  # peerdir only
-    # "//ydb/core/fq/libs/control_plane_storage:events",
+    # "//ydb/core/fq/libs/control_plane_storage/events",
     "//ydb/core/fq/libs/control_plane_storage:service_id",
     "//ydb/core/fq/libs/control_plane_storage:util",
     "//ydb/core/fq/libs/db_id_async_resolver_impl",
@@ -60,7 +60,7 @@ library("actors") {
     "//ydb/core/fq/libs/result_formatter",
     "//ydb/core/fq/libs/tasks_packer",
     "//ydb/core/kqp/federated_query",
-    # "//ydb/core/kqp/proxy_service:script_executions_utils",
+    # "//ydb/core/kqp/proxy_service/script_executions_utils",
     # "//ydb/core/protos",  # peerdir only
     # "//ydb/core/util",  # peerdir only
     "//ydb/library/actors/http",
@@ -69,14 +69,14 @@ library("actors") {
     "//ydb/library/security",
     # "//ydb/library/services",
     "//ydb/library/yql/dq/actors",
-    # "//ydb/library/yql/dq/actors:compute",
-    # "//ydb/library/yql/dq/actors:protos",
+    # "//ydb/library/yql/dq/actors/compute",
+    # "//ydb/library/yql/dq/actors/protos",
     # "//ydb/library/yql/dq/common",
     # "//ydb/library/yql/providers/common/db_id_async_resolver",  # peerdir only
     # "//ydb/library/yql/providers/common/token_accessor/client",  # peerdir only
     # "//ydb/library/yql/providers/dq/common",
     # "//ydb/library/yql/providers/dq/counters",
-    "//ydb/library/yql/providers/dq/provider:exec",
+    "//ydb/library/yql/providers/dq/provider/exec",
     # "//ydb/library/yql/providers/generic/connector/libcpp",
     "//ydb/library/yql/providers/generic/provider",
     # "//ydb/library/yql/providers/pq/proto",
@@ -95,9 +95,9 @@ library("actors") {
     # "//ydb/public/sdk/cpp/src/client/table",
     # "//ydb/public/sdk/cpp/src/client/value",
     # "//yql/essentials/ast",
-    # "//yql/essentials/core/dq_integration:transform",
+    # "//yql/essentials/core/dq_integration/transform",
     "//yql/essentials/core/facade",
-    "//yql/essentials/core/services:mounts",
+    "//yql/essentials/core/services/mounts",
     # "//yql/essentials/core/services:pipeline",
     # "//yql/essentials/minikql",
     # "//yql/essentials/minikql/comp_nodes",
@@ -105,10 +105,10 @@ library("actors") {
     # "//yql/essentials/providers/common/codec",
     # "//yql/essentials/providers/common/comp_nodes",
     # "//yql/essentials/providers/common/provider",
-    # "//yql/essentials/providers/common/schema:mkql",
+    # "//yql/essentials/providers/common/schema/mkql",
     "//yql/essentials/providers/common/udf_resolve",
     # "//yql/essentials/public/issue",
-    # "//yql/essentials/public/issue:protos",
+    # "//yql/essentials/public/issue/protos",
     # "//yql/essentials/sql/settings",
     # "//yql/essentials/utils",
   ]
@@ -128,16 +128,5 @@ library("actors") {
     "task_get.cpp",
     "task_ping.cpp",
     "task_result_write.cpp",
-  ]
-}
-
-group("logging") {
-  public_deps = [
-    "//ydb/library/actors/core",
-    "//ydb/library/services",
-  ]
-
-  deps = [
-    # "//ydb/core/protos",  # peerdir only
   ]
 }

@@ -2,7 +2,7 @@ library("gtest") {
   testonly = true
 
   public_deps = [
-    # "//contrib/restricted/googletest/googlemock",
+    "//contrib/restricted/googletest/googlemock",
     # "//contrib/restricted/googletest/googletest",
     # "//library/cpp/testing/gtest_extensions",
   ]
@@ -10,8 +10,8 @@ library("gtest") {
   deps = [
     # "//library/cpp/json",
     # "//library/cpp/string_utils/relaxed_escaper",
-    # "//library/cpp/testing/common",
-    # "//library/cpp/testing/hook",
+    "//library/cpp/testing/common",
+    "//library/cpp/testing/hook",
   ]
 
   sources = [

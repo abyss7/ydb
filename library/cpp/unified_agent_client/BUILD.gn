@@ -15,7 +15,7 @@ library("unified_agent_client") {
     ":proto",
     # "//contrib/libs/grpc",
     # "//contrib/libs/protobuf",
-    "//library/cpp/logger:global",
+    "//library/cpp/logger/global",
   ]
 
   sources = [

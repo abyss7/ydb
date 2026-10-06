@@ -1,22 +1,3 @@
-library("abstract") {
-  public_deps = [
-    "//contrib/libs/apache/arrow",
-    # "//ydb/core/tx/columnshard/common",
-    # "//ydb/core/tx/columnshard/engines/portions",
-    # "//ydb/library/actors/core",
-  ]
-
-  deps = [
-    "//ydb/core/formats/arrow",
-    # "//ydb/core/tx/columnshard/engines/scheme/abstract",  # peerdir only
-  ]
-
-  sources = [
-    "abstract/chunk_meta.cpp",
-    "abstract/chunks.cpp",
-  ]
-}
-
 library("settings") {
   public_deps = [
     "//ydb/library/accessor",
@@ -28,15 +9,15 @@ library("settings") {
 
 library("splitter") {
   public_deps = [
-    # ":abstract",
     ":settings",
     "//contrib/libs/apache/arrow",
     "//ydb/core/formats/arrow",
     # "//ydb/core/tx/columnshard/counters",
     # "//ydb/core/tx/columnshard/engines/portions",
     "//ydb/core/tx/columnshard/engines/scheme",
+    # "//ydb/core/tx/columnshard/splitter/abstract",
     "//ydb/library/accessor",
-    "//ydb/library/formats/arrow:splitter",
+    "//ydb/library/formats/arrow/splitter",
   ]
 
   sources = [

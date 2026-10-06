@@ -1,6 +1,6 @@
 library("datetime") {
   public_deps = [
-    # "//library/cpp/type_info:tz",
+    # "//library/cpp/type_info/tz",
     "//yql/essentials/minikql",
     "//yql/essentials/public/udf",
   ]

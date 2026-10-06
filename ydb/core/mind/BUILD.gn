@@ -1,288 +1,44 @@
-library("address_classification") {
-  public_deps = [
-    # "//library/cpp/monlib/dynamic_counters",
-    "//ydb/core/base",
-    "//ydb/core/util",
-    # "//ydb/library/actors/core",
-  ]
-
-  deps = [
-    "//ydb/core/cms/console",
-    "//ydb/core/mon",
-    # "//ydb/core/protos",
-  ]
-
-  sources = [
-    "address_classification/counters.cpp",
-    "address_classification/net_classifier.cpp",
-  ]
-
-  serialize_enum_headers = [ "address_classification/net_classifier.h" ]
-}
-
-library("bscontroller") {
-  public_deps = [
-    ":group_mapper",
-    "//ydb/core/base",
-    "//ydb/library/yaml_config",
-  ]
-
-  deps = [
-    # ":mind",
-    # "//contrib/libs/protobuf",
-    # "//contrib/libs/xxhash",
-    # "//library/cpp/json",
-    # "//library/cpp/monlib/service/pages",
-    # "//library/cpp/streams/zstd",
-    "//ydb/core/audit",
-    # "//ydb/core/base:services",
-    # "//ydb/core/blob_depot",
-    # "//ydb/core/blobstorage",  # peerdir only
-    "//ydb/core/blobstorage/base",
-    # "//ydb/core/blobstorage/events",
-    "//ydb/core/blobstorage/groupinfo",
-    "//ydb/core/blobstorage/nodewarden",
-    # "//ydb/core/cms/console",
-    # "//ydb/core/debug_tools",
-    "//ydb/core/driver_lib/version",
-    "//ydb/core/engine:minikql",
-    # "//ydb/core/node_whiteboard",
-    # "//ydb/core/protos",
-    # "//ydb/core/scheme",
-    # "//ydb/core/sys_view:common",
-    "//ydb/core/tablet",
-    "//ydb/core/tablet_flat",
-    "//ydb/core/tx/scheme_cache",
-    "//ydb/core/util",
-    "//ydb/library/aclib",
-    # "//ydb/library/actors/core",
-    # "//ydb/library/actors/interconnect",
-    # "//ydb/library/services",
-    # "//ydb/library/yaml_config:public",
-    "//ydb/library/yaml_json",
-  ]
-
-  sources = [
-    "bscontroller/bridge.cpp",
-    "bscontroller/bsc.cpp",
-    "bscontroller/bsc_audit.cpp",
-    "bscontroller/cluster_balancing.cpp",
-    "bscontroller/cmds_box.cpp",
-    "bscontroller/cmds_bridge.cpp",
-    "bscontroller/cmds_ddisk.cpp",
-    "bscontroller/cmds_drive_status.cpp",
-    "bscontroller/cmds_host_config.cpp",
-    "bscontroller/cmds_storage_pool.cpp",
-    "bscontroller/commit_config.cpp",
-    "bscontroller/config.cpp",
-    "bscontroller/config_cmd.cpp",
-    "bscontroller/config_fit_groups.cpp",
-    "bscontroller/config_fit_pdisks.cpp",
-    "bscontroller/console_interaction.cpp",
-    "bscontroller/ddisk.cpp",
-    "bscontroller/disk_metrics.cpp",
-    "bscontroller/drop_donor.cpp",
-    "bscontroller/get_group.cpp",
-    "bscontroller/group_metrics_exchange.cpp",
-    "bscontroller/grouper.cpp",
-    "bscontroller/init_scheme.cpp",
-    "bscontroller/layout_helpers.cpp",
-    "bscontroller/load_everything.cpp",
-    "bscontroller/migrate.cpp",
-    "bscontroller/monitoring.cpp",
-    "bscontroller/node_report.cpp",
-    "bscontroller/propose_group_key.cpp",
-    "bscontroller/register_node.cpp",
-    "bscontroller/request_controller_info.cpp",
-    "bscontroller/scrub.cpp",
-    "bscontroller/select_groups.cpp",
-    "bscontroller/self_heal.cpp",
-    "bscontroller/shred.cpp",
-    "bscontroller/stat_processor.cpp",
-    "bscontroller/storage_stats_calculator.cpp",
-    "bscontroller/sys_view.cpp",
-    "bscontroller/update_group_latencies.cpp",
-    "bscontroller/update_last_seen_ready.cpp",
-    "bscontroller/update_seen_operational.cpp",
-    "bscontroller/util.cpp",
-    "bscontroller/virtual_group.cpp",
-  ]
-}
-
-library("group_mapper") {
-  public_deps = [
-    # "//library/cpp/containers/absl_flat_hash",
-    # "//library/cpp/containers/stack_vector",
-    "//ydb/core/base",
-    # "//ydb/core/blobstorage/base",
-    "//ydb/core/blobstorage/groupinfo",
-    # "//ydb/core/erasure",
-    # "//ydb/core/protos",
-    # "//ydb/core/scheme",
-    # "//ydb/core/tablet_flat",
-    # "//ydb/library/actors/core",
-    # "//ydb/library/yverify_stream",
-  ]
-
-  deps = [
-    # "//ydb/core/blobstorage/pdisk",
-    # "//ydb/core/control/lib",
-  ]
-
-  sources = [
-    "bscontroller/group_layout_checker.cpp",
-    "bscontroller/group_mapper.cpp",
-  ]
-}
-
-library("hive") {
-  public_deps = [
-    # ":mind",
-    "//ydb/core/base",
-    "//ydb/core/engine:minikql",
-    # "//ydb/core/protos",
-    # "//ydb/core/scheme",
-    "//ydb/core/tablet",
-    "//ydb/core/tablet_flat",
-    # "//ydb/core/util",
-    # "//ydb/library/actors/core",
-  ]
-
-  deps = [
-    # "//library/cpp/containers/absl_flat_hash",
-    # "//library/cpp/containers/ring_buffer",
-    "//library/cpp/digest/md5",
-    # "//library/cpp/json",
-    # "//library/cpp/monlib/dynamic_counters",  # peerdir only
-    # "//library/cpp/monlib/service/pages",
-    "//library/cpp/protobuf/json",
-    # "//library/cpp/random_provider",
-    # "//library/cpp/time_provider",
-    # "//ydb/core/blobstorage/base",  # peerdir only
-    # "//ydb/core/blobstorage/crypto",  # peerdir only
-    "//ydb/core/blobstorage/events",
-    # "//ydb/core/blobstorage/nodewarden",  # peerdir only
-    # "//ydb/core/cms/console",
-    # "//ydb/core/node_whiteboard",
-    # "//ydb/core/sys_view:common",
-    "//ydb/core/tx",
-    "//ydb/core/tx/scheme_cache",
-    "//ydb/library/aclib",
-    # "//ydb/library/actors/interconnect",
-    # "//ydb/library/yverify_stream",
-  ]
-
-  sources = [
-    "hive/balancer.cpp",
-    "hive/boot_queue.cpp",
-    "hive/domain_info.cpp",
-    "hive/drain.cpp",
-    "hive/fill.cpp",
-    "hive/follower_tablet_info.cpp",
-    "hive/hive.cpp",
-    "hive/hive_domains.cpp",
-    "hive/hive_impl.cpp",
-    "hive/hive_log.cpp",
-    "hive/hive_statics.cpp",
-    "hive/leader_tablet_info.cpp",
-    "hive/monitoring.cpp",
-    "hive/node_info.cpp",
-    "hive/reassign_actor.cpp",
-    "hive/sequencer.cpp",
-    "hive/storage_balancer.cpp",
-    "hive/storage_group_info.cpp",
-    "hive/storage_pool_info.cpp",
-    "hive/tablet_info.cpp",
-    "hive/tablet_move_info.cpp",
-    "hive/tx__adopt_tablet.cpp",
-    "hive/tx__block_storage_result.cpp",
-    "hive/tx__configure_scale_recommender.cpp",
-    "hive/tx__configure_subdomain.cpp",
-    "hive/tx__create_tablet.cpp",
-    "hive/tx__cut_tablet_history.cpp",
-    "hive/tx__delete_node.cpp",
-    "hive/tx__delete_tablet.cpp",
-    "hive/tx__delete_tablet_result.cpp",
-    "hive/tx__disconnect_node.cpp",
-    "hive/tx__generate_data_ut.cpp",
-    "hive/tx__init_scheme.cpp",
-    "hive/tx__kill_node.cpp",
-    "hive/tx__load_everything.cpp",
-    "hive/tx__lock_tablet.cpp",
-    "hive/tx__process_boot_queue.cpp",
-    "hive/tx__process_metrics.cpp",
-    "hive/tx__process_pending_operations.cpp",
-    "hive/tx__reassign_groups.cpp",
-    "hive/tx__reassign_groups_on_decommit.cpp",
-    "hive/tx__register_node.cpp",
-    "hive/tx__release_tablets.cpp",
-    "hive/tx__release_tablets_reply.cpp",
-    "hive/tx__request_tablet_owners.cpp",
-    "hive/tx__request_tablet_seq.cpp",
-    "hive/tx__response_tablet_seq.cpp",
-    "hive/tx__restart_tablet.cpp",
-    "hive/tx__resume_tablet.cpp",
-    "hive/tx__seize_tablets.cpp",
-    "hive/tx__seize_tablets_reply.cpp",
-    "hive/tx__set_down.cpp",
-    "hive/tx__start_tablet.cpp",
-    "hive/tx__status.cpp",
-    "hive/tx__stop_tablet.cpp",
-    "hive/tx__switch_drain.cpp",
-    "hive/tx__sync_tablets.cpp",
-    "hive/tx__tablet_owners_reply.cpp",
-    "hive/tx__unlock_tablet.cpp",
-    "hive/tx__update_dc_followers.cpp",
-    "hive/tx__update_domain.cpp",
-    "hive/tx__update_pile.cpp",
-    "hive/tx__update_tablet_groups.cpp",
-    "hive/tx__update_tablet_metrics.cpp",
-    "hive/tx__update_tablet_status.cpp",
-    "hive/tx__update_tablets_object.cpp",
-  ]
-}
-
 library("mind") {
   public_deps = [
     ":nameserver_table_builder",
     ":tenant_node_enumeration",
     "//ydb/core/base",
+    "//ydb/core/blobstorage/events",
     "//ydb/core/cms/console",
-    # "//ydb/core/engine:minikql",
+    # "//ydb/core/engine/minikql",
     # "//ydb/core/protos",
     # "//ydb/core/scheme",
     # "//ydb/core/tablet",
     # "//ydb/core/tablet_flat",
+    # "//ydb/core/util",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
+    # "//ydb/library/services",
   ]
 
   deps = [
-    # ":bscontroller",  # peerdir only
     # "//library/cpp/monlib/service/pages",
     # "//library/cpp/random_provider",
     "//ydb/core/actorlib_impl",
     # "//ydb/core/blobstorage",  # peerdir only
     # "//ydb/core/blobstorage/crypto",  # peerdir only
-    # "//ydb/core/blobstorage/dsproxy:mock",  # peerdir only
-    "//ydb/core/blobstorage/events",
+    # "//ydb/core/blobstorage/dsproxy/mock",  # peerdir only
     # "//ydb/core/blobstorage/groupinfo",  # peerdir only
     # "//ydb/core/blobstorage/incrhuge",  # peerdir only
     # "//ydb/core/blobstorage/pdisk",  # peerdir only
     # "//ydb/core/kesus/tablet",  # peerdir only
     # "//ydb/core/keyvalue",  # peerdir only
+    # "//ydb/core/mind/bscontroller",  # peerdir only
     "//ydb/core/mon",
     # "//ydb/core/node_whiteboard",
-    # "//ydb/core/sys_view:processor",  # peerdir only
-    # "//ydb/core/tablet_flat:recovery",  # peerdir only
+    # "//ydb/core/sys_view/processor",  # peerdir only
+    # "//ydb/core/tablet_flat/recovery",  # peerdir only
     # "//ydb/core/test_tablet",  # peerdir only
     # "//ydb/core/tx/replication/controller",  # peerdir only
     "//ydb/core/tx/scheme_board",
     # "//ydb/core/tx/scheme_cache",
     "//ydb/core/tx/schemeshard",
-    # "//ydb/core/util",
     # "//ydb/library/actors/util",
-    # "//ydb/library/services",
   ]
 
   sources = [

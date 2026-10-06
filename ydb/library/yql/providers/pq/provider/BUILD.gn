@@ -23,8 +23,8 @@ library("provider") {
     # "//ydb/library/yql/providers/dq/common",
     # "//ydb/library/yql/providers/dq/expr_nodes",
     "//ydb/library/yql/providers/dq/mkql",
-    # "//ydb/library/yql/providers/dq/provider:exec",  # peerdir only
-    # "//ydb/library/yql/providers/generic/connector/api/service:protos",
+    # "//ydb/library/yql/providers/dq/provider/exec",  # peerdir only
+    # "//ydb/library/yql/providers/generic/connector/api/service/protos",
     "//ydb/library/yql/providers/generic/provider",
     # "//ydb/library/yql/providers/pq/cm_client",  # peerdir only
     "//ydb/library/yql/providers/pq/common",
@@ -38,7 +38,7 @@ library("provider") {
     "//yql/essentials/providers/common/dq",
     # "//yql/essentials/providers/common/mkql",
     "//yql/essentials/providers/common/provider",
-    "//yql/essentials/providers/common/schema:expr",
+    "//yql/essentials/providers/common/schema/expr",
     "//yql/essentials/providers/common/transform",
     # "//yql/essentials/providers/result/expr_nodes",
     # "//yql/essentials/public/udf",

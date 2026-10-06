@@ -1,19 +1,19 @@
 library("checkpointing") {
   public_deps = [
-    # ":events",
-    "//ydb/core/fq/libs/checkpoint_storage:events",
+    "//ydb/core/fq/libs/checkpoint_storage/events",
+    # "//ydb/core/fq/libs/checkpointing/events",
     "//ydb/core/fq/libs/checkpointing_common",
     # "//ydb/library/accessor",
     "//ydb/library/actors/core",
-    # "//ydb/library/yql/dq/actors:common",
-    "//ydb/library/yql/dq/actors:compute",
-    # "//ydb/library/yql/dq/actors:protos",
+    # "//ydb/library/yql/dq/actors/common",
+    "//ydb/library/yql/dq/actors/compute",
+    # "//ydb/library/yql/dq/actors/protos",
     # "//ydb/public/api/protos",
   ]
 
   deps = [
-    # "//ydb/core/fq/libs/actors:logging",
-    # "//ydb/core/fq/libs/config:protos",
+    # "//ydb/core/fq/libs/actors/logging",
+    # "//ydb/core/fq/libs/config/protos",
     # "//ydb/library/yql/dq/actors",
     "//ydb/library/yql/dq/state",
   ]
@@ -23,19 +23,4 @@ library("checkpointing") {
     "checkpoint_id_generator.cpp",
     "pending_checkpoint.cpp",
   ]
-}
-
-library("events") {
-  public_deps = [
-    "//ydb/core/fq/libs/events",
-    # "//ydb/library/actors/core",
-    # "//ydb/library/actors/interconnect",
-    # "//yql/essentials/public/issue",
-  ]
-
-  deps = [
-    # "//yql/essentials/public/issue:protos",  # peerdir only
-  ]
-
-  sources = [ "events/events.cpp" ]
 }

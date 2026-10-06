@@ -6,8 +6,6 @@ library("dump") {
   ]
 
   deps = [
-    ":files",
-    ":util",
     # "//contrib/libs/protobuf",
     # "//contrib/libs/re2",  # peerdir only
     # "//library/cpp/bucket_quoter",
@@ -19,6 +17,8 @@ library("dump") {
     # "//ydb/public/api/protos",
     "//ydb/public/lib/ydb_cli/common",
     "//ydb/public/lib/ydb_cli/common:retry_func",
+    "//ydb/public/lib/ydb_cli/dump/files",
+    "//ydb/public/lib/ydb_cli/dump/util",
     # "//ydb/public/sdk/cpp/src/client/cms",
     # "//ydb/public/sdk/cpp/src/client/coordination",
     "//ydb/public/sdk/cpp/src/client/discovery",
@@ -45,49 +45,4 @@ library("dump") {
   ]
 
   serialize_enum_headers = [ "dump.h" ]
-}
-
-library("files") {
-  sources = [ "files/files.cpp" ]
-}
-
-library("util") {
-  public_deps = [
-    # "//library/cpp/logger",
-    "//ydb/public/sdk/cpp/src/client/cms",
-    "//ydb/public/sdk/cpp/src/client/draft",
-    # "//ydb/public/sdk/cpp/src/client/scheme",
-    "//ydb/public/sdk/cpp/src/client/table",
-    # "//ydb/public/sdk/cpp/src/client/types/status",
-  ]
-
-  deps = [
-    "//contrib/libs/re2",
-    "//library/cpp/json",
-    # "//library/cpp/protobuf/util",
-    # "//ydb/public/api/protos",
-    "//ydb/public/lib/ydb_cli/common:retry_func",
-    "//ydb/public/sdk/cpp/src/client/query",
-    "//ydb/public/sdk/cpp/src/client/value",
-    "//yql/essentials/parser/proto_ast/gen/v1_antlr4",
-    # "//yql/essentials/parser/proto_ast/gen/v1_proto_split_antlr4",
-    # "//yql/essentials/public/issue",
-    "//yql/essentials/sql/settings",
-    "//yql/essentials/sql/v1/format",
-    # "//yql/essentials/sql/v1/lexer",
-    "//yql/essentials/sql/v1/lexer:antlr4",
-    "//yql/essentials/sql/v1/lexer:antlr4_ansi",
-    # "//yql/essentials/sql/v1/proto_parser",
-    "//yql/essentials/sql/v1/proto_parser:antlr4",
-    "//yql/essentials/sql/v1/proto_parser:antlr4_ansi",
-  ]
-
-  sources = [
-    "util/external_data_source_utils.cpp",
-    "util/external_table_utils.cpp",
-    "util/query_utils.cpp",
-    "util/replication_utils.cpp",
-    "util/util.cpp",
-    "util/view_utils.cpp",
-  ]
 }

@@ -1,7 +1,7 @@
 library("snappy") {
   deps = [
     "//contrib/libs/snappy",
-    "//library/cpp/blockcodecs:core",
+    "//library/cpp/blockcodecs/core",
   ]
 
   sources = [ "snappy.cpp" ]

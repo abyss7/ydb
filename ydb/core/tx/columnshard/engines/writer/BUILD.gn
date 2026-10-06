@@ -9,13 +9,13 @@ library("buffer") {
     # "//ydb/core/tx/columnshard:ev_ids",
     # "//ydb/core/tx/data_events",
     # "//ydb/library/actors/core",
-    "//ydb/library/actors/testlib:common",
+    "//ydb/library/actors/testlib/common",
   ]
 
   deps = [
     # "//ydb/core/protos",  # peerdir only
     # "//ydb/core/tablet_flat",  # peerdir only
-    # "//ydb/core/tx/columnshard/blobs_action:protos",  # peerdir only
+    # "//ydb/core/tx/columnshard/blobs_action/protos",  # peerdir only
     # "//ydb/core/tx/columnshard/data_sharing/protos",  # peerdir only
     # "//yql/essentials/core/expr_nodes",  # peerdir only
   ]
@@ -28,8 +28,8 @@ library("writer") {
     # "//ydb/core/formats/arrow",
     "//ydb/core/protos",
     # "//ydb/core/tx/columnshard",
-    "//ydb/core/tx/columnshard/blobs_action:abstract",
-    "//ydb/core/tx/columnshard/blobs_action:counters",
+    "//ydb/core/tx/columnshard/blobs_action/abstract",
+    "//ydb/core/tx/columnshard/blobs_action/counters",
     "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/core/tx/data_events",
     # "//ydb/library/accessor",
@@ -41,7 +41,7 @@ library("writer") {
     # ":buffer",  # peerdir only
     # "//ydb/core/blobstorage/vdisk/protos",  # peerdir only
     # "//ydb/core/tablet_flat",  # peerdir only
-    # "//ydb/core/tablet_flat:protos",  # peerdir only
+    # "//ydb/core/tablet_flat/protos",  # peerdir only
     "//ydb/core/tx/columnshard/engines/changes/abstract",
     "//ydb/core/tx/columnshard/hooks/abstract",
   ]

@@ -1,10 +1,10 @@
 library("sqs_topic") {
   public_deps = [
-    # "//ydb/core/client:server",
+    # "//ydb/core/client/server",
     "//ydb/core/grpc_services",
     # "//ydb/library/actors/core",
     # "//ydb/library/grpc/server",
-    # "//ydb/public/api/grpc:draft",
+    # "//ydb/public/api/grpc/draft",
   ]
 
   deps = [
@@ -18,9 +18,9 @@ library("sqs_topic") {
     # "//ydb/core/mind",  # peerdir only
     # "//ydb/core/persqueue/events",
     # "//ydb/core/persqueue/public",
-    # "//ydb/core/persqueue/public:describer",
-    "//ydb/core/persqueue/public:list_topics",
-    "//ydb/core/persqueue/public:mlp",
+    # "//ydb/core/persqueue/public/describer",
+    "//ydb/core/persqueue/public/list_topics",
+    "//ydb/core/persqueue/public/mlp",
     "//ydb/core/persqueue/writer",  # peerdir only
     "//ydb/core/protos",
     "//ydb/core/ymq/attributes",
@@ -31,14 +31,14 @@ library("sqs_topic") {
     # "//ydb/public/api/protos",
     "//ydb/public/sdk/cpp/src/client/resources",  # peerdir only
     # "//ydb/public/sdk/cpp/src/library/operation_id",  # peerdir only
-    # "//ydb/services/datastreams:codes",
+    # "//ydb/services/datastreams/codes",
     "//ydb/services/lib/actors",
     # "//ydb/services/lib/sharding",
-    # "//ydb/services/persqueue_v1",  # peerdir only
-    # "//ydb/services/persqueue_v1:actors",
+    # "//ydb/services/persqueue_v1",  # link slot
+    # "//ydb/services/persqueue_v1/actors",
     "//ydb/services/sqs_topic/protos/receipt",
     "//ydb/services/sqs_topic/queue_url",
-    "//ydb/services/sqs_topic/queue_url:holder",
+    "//ydb/services/sqs_topic/queue_url/holder",
     # "//ydb/services/ydb",  # peerdir only
   ]
 

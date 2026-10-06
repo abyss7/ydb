@@ -1,10 +1,10 @@
 library("keyvalue") {
   public_deps = [
-    ":protos",
     "//library/cpp/json",
     # "//library/cpp/time_provider",
     "//ydb/core/base",
-    "//ydb/core/engine:minikql",
+    "//ydb/core/engine/minikql",
+    "//ydb/core/keyvalue/protos",
     # "//ydb/core/protos",
     "//ydb/core/tablet",
     "//ydb/core/tablet_flat",
@@ -41,8 +41,4 @@ library("keyvalue") {
     "keyvalue_stored_state_data.cpp",
     "keyvalue_utils.cpp",
   ]
-}
-
-protobuf_library("protos") {
-  sources = [ "protos/events.proto" ]
 }

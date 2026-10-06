@@ -1,7 +1,7 @@
 library("runtime") {
   public_deps = [
     "//ydb/library/yql/providers/dq/task_runner",
-    # "//yql/essentials/core/dq_integration:transform",
+    # "//yql/essentials/core/dq_integration/transform",
     # "//yql/essentials/minikql",
     "//yql/essentials/minikql/computation",
   ]

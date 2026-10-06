@@ -1,0 +1,7 @@
+protobuf_library("protos") {
+  sources = [
+    "key_range.proto",
+    "pathid.proto",
+    "type_info.proto",
+  ]
+}

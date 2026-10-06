@@ -53,7 +53,7 @@ public:
 
         WriteTask = EWriteTask::COMPLETE;
         NumberOfTriesLeft = 4;
-        RetryCall = [=](const TActorContext& ctx) {
+        RetryCall = [=, this](const TActorContext& ctx) {
             SendResolveMessage<TOrigActor>(orig, ctx, Host, port);
         };
         SendResolveMessage<TOrigActor>(orig, ctx, Host, port);
@@ -121,7 +121,7 @@ public:
                      PrintHostAndPort(*addr).data());
 
         NumberOfTriesLeft = 4;
-        RetryCall = [=](const TActorContext& ctx) {
+        RetryCall = [=, this](const TActorContext& ctx) {
             ConnectSocket<TOrigActor>(OriginalActor, ctx, addr);
         };
 

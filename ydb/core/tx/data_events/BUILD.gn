@@ -1,26 +1,5 @@
-library("common") {
-  public_deps = [
-    "//ydb/core/protos",
-    "//ydb/library/accessor",
-    "//ydb/library/conclusion",
-    "//ydb/library/signals",
-    "//ydb/library/yverify_stream",
-    "//ydb/public/api/protos",
-    "//yql/essentials/core/issue:protos",
-  ]
-
-  sources = [
-    "common/error_codes.cpp",
-    "common/modification_type.cpp",
-    "common/signals_flow.cpp",
-  ]
-
-  serialize_enum_headers = [ "common/signals_flow.h" ]
-}
-
 library("data_events") {
   public_deps = [
-    ":common",
     "//contrib/libs/apache/arrow",
     "//library/cpp/lwtrace",
     "//ydb/core/base",
@@ -29,7 +8,8 @@ library("data_events") {
     "//ydb/core/scheme",
     # "//ydb/core/tx/columnshard",
     "//ydb/core/tx/columnshard/common",
-    "//ydb/core/tx/long_tx_service:public",
+    "//ydb/core/tx/data_events/common",
+    "//ydb/core/tx/long_tx_service/public",
     "//ydb/core/tx/scheme_cache",
     "//ydb/library/accessor",
     "//ydb/library/actors/core",
@@ -47,10 +27,10 @@ library("data_events") {
     "//ydb/core/blobstorage/vdisk/protos",  # peerdir only
     "//ydb/core/tablet",
     "//ydb/core/tablet_flat",  # peerdir only
-    "//ydb/core/tablet_flat:protos",  # peerdir only
+    "//ydb/core/tablet_flat/protos",  # peerdir only
     "//ydb/core/tx/columnshard/splitter:settings",
     "//ydb/core/tx/sharding",
-    # "//ydb/public/api/grpc:draft",  # peerdir only
+    # "//ydb/public/api/grpc/draft",  # peerdir only
   ]
 
   sources = [

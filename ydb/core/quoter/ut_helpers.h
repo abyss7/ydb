@@ -215,7 +215,7 @@ public:
 
     // Consume with Kesus allocation
     Y_WARN_UNUSED_RESULT bool ConsumeResourceAllocateByKesus(TTestTabletPipeFactory::TTestTabletPipe* pipe, ui64 resId, double amount, TDuration tickSize, size_t maxUpdates = 15) {
-        return ConsumeResource(resId, amount, tickSize, [=] {
+        return ConsumeResource(resId, amount, tickSize, [=, this] {
             Runtime->AdvanceCurrentTime(TDuration::MilliSeconds(100));
             SendResourcesAllocated(pipe, resId, 10);
         }, maxUpdates);

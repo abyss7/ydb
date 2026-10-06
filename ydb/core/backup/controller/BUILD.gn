@@ -6,9 +6,9 @@ library("controller") {
 
   deps = [
     # "//library/cpp/lwtrace/protos",  # peerdir only
-    "//ydb/core/engine:minikql",
+    "//ydb/core/engine/minikql",
     # "//ydb/core/protos",
-    # "//ydb/core/scheme:protos",  # peerdir only
+    # "//ydb/core/scheme/protos",  # peerdir only
     "//ydb/core/tablet_flat",
     # "//ydb/core/tx/replication/service",
     # "//ydb/library/yverify_stream",

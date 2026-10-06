@@ -5,7 +5,7 @@ library("interface") {
     "//library/cpp/threading/future",
     "//library/cpp/type_info",
     # "//library/cpp/yson",
-    "//library/cpp/yson:node",
+    "//library/cpp/yson/node",
     # "//library/cpp/yt/memory",
     # "//library/cpp/yt/misc",
     # "//library/cpp/yt/yson_string",
@@ -16,11 +16,11 @@ library("interface") {
   ]
 
   deps = [
-    ":logging",
     # "//library/cpp/json",
     # "//library/cpp/protobuf/runtime",  # peerdir only
     "//library/cpp/svnversion",
-    "//library/cpp/yson:json",
+    "//library/cpp/yson/json",
+    "//yt/cpp/mapreduce/interface/logging",
     # "//yt/yt/core",
   ]
 
@@ -57,19 +57,4 @@ library("interface") {
     "operation.h",
     "protobuf_format.h",
   ]
-}
-
-library("logging") {
-  public_deps = [
-    "//library/cpp/yt/logging",
-    "//yt/yt/core",
-  ]
-
-  sources = [
-    "logging/logger.cpp",
-    "logging/structured.cpp",
-    "logging/yt_log.cpp",
-  ]
-
-  serialize_enum_headers = [ "logging/logger.h" ]
 }

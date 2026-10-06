@@ -21,6 +21,7 @@
 #include <ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/draft/accessor.h>
 #include <ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/scheme/scheme.h>
 #include <ydb/public/sdk/cpp/include/ydb-cpp-sdk/client/topic/client.h>
+#include <ydb/services/metadata/events.h>
 
 #include <yql/essentials/types/uuid/uuid.h>
 #include <yql/essentials/types/binary_json/write.h>

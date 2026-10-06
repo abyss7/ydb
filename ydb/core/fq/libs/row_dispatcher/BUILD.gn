@@ -1,11 +1,12 @@
 library("row_dispatcher") {
   public_deps = [
     "//ydb/core/fq/libs/row_dispatcher/common",
-    # "//ydb/core/fq/libs/shared_resources",
+    "//ydb/core/fq/libs/shared_resources",
     # "//ydb/library/actors/core",
     # "//ydb/library/security",
     "//ydb/library/yql/providers/common/token_accessor/client",
     # "//ydb/library/yql/providers/pq/gateway/abstract",
+    # "//ydb/public/sdk/cpp/src/client/driver",
   ]
 
   deps = [
@@ -13,8 +14,8 @@ library("row_dispatcher") {
     "//library/cpp/lwtrace/mon",
     # "//ydb/core/base",
     # "//ydb/core/fq/libs/actors",
-    # "//ydb/core/fq/libs/actors:logging",
-    # "//ydb/core/fq/libs/config:protos",  # peerdir only
+    # "//ydb/core/fq/libs/actors/logging",
+    # "//ydb/core/fq/libs/config/protos",  # peerdir only
     # "//ydb/core/fq/libs/events",
     "//ydb/core/fq/libs/metrics",
     # "//ydb/core/fq/libs/row_dispatcher/events",
@@ -30,14 +31,13 @@ library("row_dispatcher") {
     # "//ydb/library/actors/protos",
     "//ydb/library/logger",
     # "//ydb/library/yql/dq/actors",
-    "//ydb/library/yql/dq/actors:common",
-    # "//ydb/library/yql/dq/actors:compute",  # peerdir only
+    "//ydb/library/yql/dq/actors/common",
+    # "//ydb/library/yql/dq/actors/compute",  # peerdir only
     # "//ydb/library/yql/dq/proto",  # peerdir only
     # "//ydb/library/yql/providers/dq/counters",
     # "//ydb/library/yql/providers/pq/common",
     # "//ydb/library/yql/providers/pq/provider",  # peerdir only
     "//ydb/public/sdk/cpp/adapters/issue",
-    # "//ydb/public/sdk/cpp/src/client/driver",
     # "//ydb/public/sdk/cpp/src/client/scheme",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/table",  # peerdir only
     "//ydb/public/sdk/cpp/src/client/topic",

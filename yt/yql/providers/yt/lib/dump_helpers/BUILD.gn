@@ -2,7 +2,7 @@ library("dump_helpers") {
   public_deps = [ "//yt/yql/providers/yt/common" ]
 
   deps = [
-    # "//library/cpp/yson:node",
+    # "//library/cpp/yson/node",
     "//yt/yql/providers/yt/lib/hash",
   ]
 

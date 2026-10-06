@@ -7,6 +7,7 @@
 #include <util/system/type_name.h>
 
 #include <ydb/core/base/hive.h>
+#include <ydb/core/mind/hive/create_hive.h>
 #include <ydb/core/base/statestorage.h>
 #include <ydb/core/base/blobstorage.h>
 #include <ydb/core/base/blobstorage_common.h>

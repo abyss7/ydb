@@ -1,15 +1,7 @@
-protobuf_library("protos") {
-  sources = [
-    "protos/key_range.proto",
-    "protos/pathid.proto",
-    "protos/type_info.proto",
-  ]
-}
-
 library("scheme") {
   public_deps = [
-    ":protos",
     # "//library/cpp/deprecated/enum_codegen",
+    "//ydb/core/scheme/protos",
     "//ydb/core/scheme_types",
     "//ydb/library/aclib",
     "//ydb/library/actors/core",
@@ -19,7 +11,7 @@ library("scheme") {
   ]
 
   deps = [
-    # "//library/cpp/charset:lite",  # peerdir only
+    # "//library/cpp/charset/lite",  # peerdir only
     "//library/cpp/containers/absl_flat_hash",
     # "//library/cpp/containers/bitseq",  # peerdir only
     "//library/cpp/lwtrace/mon",  # peerdir only

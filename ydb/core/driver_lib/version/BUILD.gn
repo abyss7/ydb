@@ -8,7 +8,7 @@ library("version") {
     # "//contrib/libs/protobuf",
     # "//library/cpp/monlib/service/pages",  # peerdir only
     "//library/cpp/svnversion",
-    "//ydb/core/viewer:json",
+    "//ydb/core/viewer/json",
     # "//ydb/library/global_plugins",
     # "//ydb/library/yverify_stream",
   ]
