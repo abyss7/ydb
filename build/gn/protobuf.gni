@@ -8,8 +8,8 @@
 #   proto_includes_file          deps advertise (metadata proto_include_dirs)
 #   metadata_deps              walked for that metadata
 #   deps                       of the action itself
-#   extra_plugins, proto_public_include_dirs, generated_sources: as of
-#   protobuf_library()
+#   extra_plugins, proto_public_include_dirs, generated_sources,
+#   proto_transitive_headers: as of protobuf_library()
 template("protobuf_sources") {
     _source_dir = rebase_path("//", root_build_dir)
 
@@ -34,6 +34,11 @@ template("protobuf_sources") {
     if (defined(invoker.extra_plugins)) {
         _extra_plugins = invoker.extra_plugins
     }
+
+    # false: SET(PROTOC_TRANSITIVE_HEADERS "no") of ya make -- X.pb.h holds the
+    # messages of X with the imported ones only declared, X.deps.pb.h adds the
+    # imports (protoc's proto_h, renamed by protoc.py)
+    _transitive_headers = !defined(invoker.proto_transitive_headers) || invoker.proto_transitive_headers
 
     # Include dirs this library both uses for its own protoc invocation and
     # advertises to consumers via metadata (`generated_file` below).
@@ -80,6 +85,9 @@ template("protobuf_sources") {
             "$_out_base/{{source_name_part}}.pb.cc",
             "$_out_base/{{source_name_part}}.pb.h",
         ]
+        if (!_transitive_headers) {
+            outputs += [ "$_out_base/{{source_name_part}}.deps.pb.h" ]
+        }
 
         args = [ _source_dir ] + outputs + ["--"] + [ "./$_protoc_bin" ] + _proto_paths + _self_proto_paths
         args += [
@@ -91,6 +99,9 @@ template("protobuf_sources") {
             "--plugin=protoc-gen-grpc_cpp=$_protoc_plugin_grpc_cpp",
             "--proto-include-paths-file", rebase_path(_proto_includes_file, root_build_dir),
         ]
+        if (!_transitive_headers) {
+            args += [ "--cpp_opt=proto_h=true" ]
+        }
 
         deps = [
             ":${invoker.proto_includes_target}",
@@ -143,7 +154,7 @@ template("protobuf_library") {
 
     protobuf_sources(_gen_target) {
         forward_variables_from(invoker, [ "deps", "extra_plugins", "proto_public_include_dirs",
-                                          "generated_sources", "testonly" ])
+                                          "generated_sources", "proto_transitive_headers", "testonly" ])
         sources = invoker.sources - _cpp_sources
         proto_includes_target = "${_unique_name}_${_name}_proto_includes"
         proto_includes_file = "$target_gen_dir/${_name}.proto_includes"
@@ -207,7 +218,7 @@ template("protobuf_library") {
     }
 
     library(target_name) {
-        forward_variables_from(invoker, "*", [ "deps", "public_configs", "public_deps", "sources", "extra_plugins", "proto_public_include_dirs", "serialize_enum_headers", "generated_sources" ])
+        forward_variables_from(invoker, "*", [ "deps", "public_configs", "public_deps", "sources", "extra_plugins", "proto_public_include_dirs", "serialize_enum_headers", "generated_sources", "proto_transitive_headers" ])
 
         output_dir = "$root_out_dir/" + rebase_path(".", "//") # TODO: doesn't work for some reason
         output_name = _unique_name

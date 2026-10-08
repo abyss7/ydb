@@ -201,6 +201,8 @@ protobuf_library("protos") {
     "shared_cache.pb.h",
   ]
 
+  proto_transitive_headers = false
+
   extra_plugins = [
     {
       name = "config_proto_plugin"

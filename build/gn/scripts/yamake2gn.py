@@ -150,7 +150,7 @@ ARCH_SUFFIXES = ("_avx", "_avx2", "_avx512", "_pclmul")
 
 INCLUDE_RE = re.compile(r'^\s*#\s*include\s*([<"])([^>"]+)[>"]')
 IMPORT_RE = re.compile(r'^\s*import\s+(?:public\s+|weak\s+)?"([^"]+)"')
-PB_RE = re.compile(r'(\.grpc)?\.pb\.(h|cc)$')
+PB_RE = re.compile(r'(\.grpc|\.deps)?\.pb\.(h|cc)$')
 MACRO_RE = re.compile(r'([A-Z][A-Z0-9_]*)\s*\(')
 
 # A BUILD.gn carrying this directive in a comment is hand-maintained: the
@@ -1776,6 +1776,7 @@ class TargetSpec:
         self.header_owners = defaultdict(set)   # own header path -> owners it pulls
         self.header_internal = defaultdict(set) # own header path -> own headers it includes
         self.proto_public = set()               # proto imports (always public)
+        self.proto_transitive_headers = True    # SET(PROTOC_TRANSITIVE_HEADERS "no"): False
         self.sources = []                       # repo-relative, non-proto
         self.proto_sources = []                 # repo-relative .proto sources
         self.enum_headers = []                  # repo-relative (GENERATE_ENUM_SERIALIZATION)
@@ -2304,9 +2305,8 @@ _PROGRAM_NAME_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.+-]*$")
 
 def gen_spec(mod, resolver, graph, report, external):
     target_dir = mod.dir
-    if mod.transitive_headers_no:
-        report.transitive_headers_no.append(target_dir)
     spec = TargetSpec(mod)
+    spec.proto_transitive_headers = not mod.transitive_headers_no
     if mod.kind == "PROGRAM" and _PROGRAM_NAME_RE.match(mod.name or ""):
         # PROGRAM(<name>): the binary is called so, and so is the target
         # (the executable's output name is its target name); the label
@@ -3179,7 +3179,7 @@ def _render_target(tmpl, name, public_deps, deps, sources,
                    link_slot_interface=None, link_slot_headers=(), link_slot_flags_from=(),
                    link_slot_codegen=(), link_slot_module_interfaces=(), link_plugins=(), yql_abi_version=None, configs=(), public_configs=(), extra_plugins=(),
                    include_dirs=(), data_deps=(), data=(), test_sbr=(),
-                   test_depends_unbuilt=(), link_select=()):
+                   test_depends_unbuilt=(), link_select=(), proto_transitive_headers=True):
     """`notes` maps a dep label to a trailing comment ("peerdir only")."""
     lines = ['%s("%s") {' % (tmpl, name)]
     notes = notes or {}
@@ -3233,6 +3233,9 @@ def _render_target(tmpl, name, public_deps, deps, sources,
             lines.append("")
     if tmpl == "library":
         block("link_slot_module_interfaces", link_slot_module_interfaces)
+    if tmpl == "protobuf_library" and not proto_transitive_headers:
+        lines.append("    proto_transitive_headers = false")
+        lines.append("")
     if (tmpl in ("library", "linked_executable") or tmpl in TEST_TEMPLATES) and yql_abi_version is not None:
         lines.append('    yql_abi_version = "%s"' % yql_abi_version)
         lines.append("")
@@ -3428,6 +3431,7 @@ def render_spec(spec, host, remap, uncommented, private_configs=None, proto_labe
                               link_slot_headers=[_slot_header(h, host) for h in spec.slot_headers],
                               link_slot_flags_from=slot_flags_from,
                               link_slot_codegen=spec.slot_codegen,
+                              proto_transitive_headers=spec.proto_transitive_headers,
                               link_slot_module_interfaces=spec.slot_module_interfaces,
                               link_plugins=link_plugins,
                               yql_abi_version=spec.yql_abi if tmpl != "protobuf_library" else None,
@@ -3480,7 +3484,6 @@ class Report:
         self.test_data_missing = defaultdict(set)      # test -> DATA(arcadia/...) not in the tree
         self.unresolved = defaultdict(set)
         self.arch_files = []
-        self.transitive_headers_no = []
         self.slot_codegen_unsupported = []   # (interface, generated header): not of a PROTO_LIBRARY
         self.peer_diff = {}
         self.merged = []
@@ -3644,13 +3647,6 @@ class Report:
                   " a PROTO_LIBRARY (the weak references can't wait for them):", file=o)
             for d, rel in sorted(set(self.slot_codegen_unsupported)):
                 print("  %-58s %s" % (d, rel), file=o)
-        if info and self.transitive_headers_no:
-            print("\nSET(PROTOC_TRANSITIVE_HEADERS \"no\") ignored (no GN equivalent;"
-                  " generated .pb.h will pull in full transitive deps; any"
-                  " #include of the ya.make-only \"*.deps.pb.h\" will be unresolved):",
-                  file=o)
-            for d in sorted(set(self.transitive_headers_no)):
-                print("  %s" % d, file=o)
         if self.resources_missing:
             print("\nresource inputs not found in the source tree (generated? emitted as is):", file=o)
             for d in sorted(self.resources_missing):

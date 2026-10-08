@@ -1,3 +1,5 @@
 protobuf_library("schemeshard") {
   sources = [ "operations.proto" ]
+
+  proto_transitive_headers = false
 }

@@ -134,6 +134,28 @@ def redirect_output_dirs(args, scratch_dir):
     return redirects
 
 
+# SET(PROTOC_TRANSITIVE_HEADERS "no") of ya make (see
+# build/scripts/cpp_proto_wrapper.py): protoc's proto_h makes X.proto.h, the
+# messages of X with the imported ones only declared, and X.pb.h, that plus
+# the imports. They become X.pb.h and X.deps.pb.h; the includes of *.proto.h
+# are patched to *.pb.h (see patch_output). The plugins write into X.proto.h
+# then (PROTOC_PLUGINS_LITE_HEADERS).
+LITE_HEADERS_OPT = "--cpp_opt=proto_h=true"
+
+
+def rename_lite_headers(redirects):
+    for scratch in redirects.values():
+        for root, _, files in os.walk(scratch):
+            for name in files:
+                if name.endswith(".pb.h") and not name.endswith((".grpc.pb.h", ".deps.pb.h")):
+                    path = os.path.join(root, name)
+                    os.replace(path, path[:-len(".pb.h")] + ".deps.pb.h")
+            for name in files:
+                if name.endswith(".proto.h"):
+                    path = os.path.join(root, name)
+                    os.replace(path, path[:-len(".proto.h")] + ".pb.h")
+
+
 def commit_outputs(redirects, declared_outputs):
     for out_dir, scratch in redirects.items():
         for root, _, files in os.walk(scratch):
@@ -143,7 +165,7 @@ def commit_outputs(redirects, declared_outputs):
                 with open(generated, "rb") as f:
                     content = f.read()
                 if target in declared_outputs:
-                    patched_text, num_patches = patch_output(content.decode("utf-8"))
+                    patched_text, num_patches = patch_output(content.decode("utf-8"), lite)
                     if num_patches:
                         content = patched_text.encode("utf-8")
                         with open(generated, "wb") as f:
@@ -159,12 +181,13 @@ def commit_outputs(redirects, declared_outputs):
 
 
 # returns patched content and number of changes.
-def patch_output(content):
+def patch_output(content, lite=False):
     num_patches = 0
     patches = [
         (re.compile(r"((?:struct|class)\s+\S+\s+)final\s*:"), r"\1:"),
-        # (re.compile(r'(#include.*?)(\.proto\.h)"'), r'\1.pb.h"')
     ]
+    if lite:
+        patches.append((re.compile(r'(#include.*?)(\.proto\.h)"'), r'\1.pb.h"'))
     for from_re, to_re in patches:
         content, n = re.subn(from_re, to_re, content)
         num_patches += n
@@ -176,14 +199,18 @@ def patch_output(content):
 scratch_dir = tempfile.mkdtemp(prefix=".protoc.", dir=os.getcwd())
 args = sys.argv[2:]
 outputs = parse_outputs(args)
+lite = LITE_HEADERS_OPT in args
 args = expand_include_paths_files(args)
 make_absolute_path(args)
 shift_output_dirs(args, relativize_proto_sources(args, source_dir))
 os.chdir(source_dir)
 try:
     redirects = redirect_output_dirs(args, scratch_dir)
-    exit = subprocess.call(args)
+    env = dict(os.environ, PROTOC_PLUGINS_LITE_HEADERS="1") if lite else None
+    exit = subprocess.call(args, env=env)
     if exit != 0: sys.exit(exit)
+    if lite:
+        rename_lite_headers(redirects)
     commit_outputs(redirects, set(os.path.normpath(output) for output in outputs))
 finally:
     shutil.rmtree(scratch_dir, ignore_errors=True)
