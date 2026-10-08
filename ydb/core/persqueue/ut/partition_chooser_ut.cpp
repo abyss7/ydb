@@ -9,7 +9,7 @@
 #include <ydb/public/sdk/cpp/src/client/persqueue_public/ut/ut_utils/test_server.h>
 #include <ydb/services/metadata/events.h>
 
-#include <ydb/core/persqueue/writer/pipe_utils.h>
+#include <ydb/core/persqueue/writer/pipe_utils_mock.h>
 
 using namespace NKikimr::NPQ;
 

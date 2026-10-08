@@ -62,7 +62,8 @@ TRIVIAL_MACROS = MODULE_MACROS | {
     "YQL_LAST_ABI_VERSION",   # the default UDF ABI, see //build/gn/config:yql_abi_current
     "GENERATE_ENUM_SERIALIZATION_WITH_HEADER", # TODO: temporary ignore
     "RESOURCE", "RESOURCE_FILES", "ALL_RESOURCE_FILES", "ALL_RESOURCE_FILES_FROM_DIRS",  # -> resources
-    "CFLAGS", "CXXFLAGS", "CONLYFLAGS", "ALLOCATOR_IMPL", "GRPC", # TODO: temporary ignore
+    "CFLAGS", "CXXFLAGS", "CONLYFLAGS", "ALLOCATOR_IMPL", # TODO: temporary ignore
+    "GRPC",   # -> generate_grpc_services (Module.grpc)
     "YQL_ABI_VERSION",   # -> yql_abi_version
     "CHECK_DEPENDENT_DIRS", # TODO: temporary ignore
     "STYLE_CPP",   # a clang-format check run as a test: nothing to build
@@ -71,8 +72,9 @@ TRIVIAL_MACROS = MODULE_MACROS | {
     "NO_UTIL",   # LIBRARY -> contrib_library (no default //util dep)
     "GN_DIRECTIVES",   # carrier of standalone `# gn:` lines, see GN_DIRECTIVES
 }
-# PROTO_LIBRARY macros that are pure noise in GN (template always does grpc +
-# --fatal_warnings, python/metadata/tags are irrelevant) -> drop, do not block.
+# PROTO_LIBRARY macros that are pure noise in GN (template always does
+# --fatal_warnings, python/metadata/tags are irrelevant) -> drop, do not block;
+# but GRPC() -> generate_grpc_services (Module.grpc).
 PROTO_IGNORE_MACROS = {
     "PROTOC_FATAL_WARNINGS", "GRPC", "EXCLUDE_TAGS", "INCLUDE_TAGS", "ONLY_TAGS",
     "PY_NAMESPACE", "NO_OPTIMIZE_PY_PROTOS", "NO_MYPY", "LICENSE", "LICENSE_TEXTS",
@@ -89,7 +91,14 @@ PROTO_TRIVIAL_MACROS = {
 # Proto-provided deps that the GN protobuf_library template already injects:
 # dropped for a PROTO_LIBRARY and for .proto imports only -- any other target
 # that includes <google/protobuf/...> or <grpcpp/...> depends on them as usual.
-PROTO_PROVIDED_LABELS = {"//contrib/libs/protobuf", "//contrib/libs/grpc"}
+PROTOBUF_LABEL = "//contrib/libs/protobuf"
+GRPC_LABEL = "//contrib/libs/grpc"
+PROTO_PROVIDED_LABELS = {PROTOBUF_LABEL, GRPC_LABEL}
+
+
+def proto_provided(label, grpc):
+    """A dep the protobuf templates inject: protobuf always, grpc with GRPC()."""
+    return label == PROTOBUF_LABEL or (grpc and label == GRPC_LABEL)
 # USE_COMMON_GOOGLE_APIS(...) pulls in google/api/*.proto etc., always imported
 # (and thus re-exported) by the module's own .proto sources -> always public.
 GOOGLEAPIS_COMMON_PROTOS_LABEL = "//contrib/libs/googleapis-common-protos"
@@ -349,6 +358,7 @@ class Module:
         self.enum_headers = []
         self.macros = []
         self.transitive_headers_no = False
+        self.grpc = False            # GRPC(): the services of the .proto, by the grpc_cpp plugin
         self.no_util = False
         self.use_common_google_apis = False
         self.resource_macros = []    # (macro, raw args) of RESOURCE* in file order
@@ -834,6 +844,8 @@ def parse_yamake(path, directory, root):
         mod.macros.append(name)
         if name == "SET" and args:
             mod.set_vars[args[0]] = " ".join(args[1:]) or "yes"
+        if name == "GRPC":
+            mod.grpc = True
         if name in KIND_MACROS:
             mod.kind = name
             mod.name = args[0] if args else os.path.basename(directory)
@@ -1777,6 +1789,7 @@ class TargetSpec:
         self.header_internal = defaultdict(set) # own header path -> own headers it includes
         self.proto_public = set()               # proto imports (always public)
         self.proto_transitive_headers = True    # SET(PROTOC_TRANSITIVE_HEADERS "no"): False
+        self.grpc = mod.grpc                    # GRPC()
         self.sources = []                       # repo-relative, non-proto
         self.proto_sources = []                 # repo-relative .proto sources
         self.enum_headers = []                  # repo-relative (GENERATE_ENUM_SERIALIZATION)
@@ -1887,7 +1900,7 @@ def _record(spec, rel, owner, target_dir, header_file, report, external, resolve
     label = owner_label(owner, rel, resolver, external)
     if label == module_label(owner) and target_dir in resolver.self_split.get(owner, ()):
         label = module_part_label(owner, SELF_PART)   # see plan_self_split
-    if label in PROTO_PROVIDED_LABELS and (from_proto or spec.kind == "PROTO_LIBRARY"):
+    if proto_provided(label, spec.grpc) and (from_proto or spec.kind == "PROTO_LIBRARY"):
         return  # protobuf_library template injects protobuf/grpc itself
     spec.deps.add(label)
     if header_file is not None:
@@ -2466,7 +2479,7 @@ def gen_spec(mod, resolver, graph, report, external):
                 spec.explicit.add(label)
             if owner in public_owners:
                 spec.always_public.add(label)
-            if ((label in PROTO_PROVIDED_LABELS and mod.kind == "PROTO_LIBRARY")
+            if ((proto_provided(label, mod.grpc) and mod.kind == "PROTO_LIBRARY")
                     or label in spec.deps or label in spec.proto_public):
                 continue
             add_peerdir(spec, label, owner)
@@ -3179,7 +3192,8 @@ def _render_target(tmpl, name, public_deps, deps, sources,
                    link_slot_interface=None, link_slot_headers=(), link_slot_flags_from=(),
                    link_slot_codegen=(), link_slot_module_interfaces=(), link_plugins=(), yql_abi_version=None, configs=(), public_configs=(), extra_plugins=(),
                    include_dirs=(), data_deps=(), data=(), test_sbr=(),
-                   test_depends_unbuilt=(), link_select=(), proto_transitive_headers=True):
+                   test_depends_unbuilt=(), link_select=(), proto_transitive_headers=True,
+                   proto_imports=(), generate_grpc_services=False):
     """`notes` maps a dep label to a trailing comment ("peerdir only")."""
     lines = ['%s("%s") {' % (tmpl, name)]
     notes = notes or {}
@@ -3233,8 +3247,16 @@ def _render_target(tmpl, name, public_deps, deps, sources,
             lines.append("")
     if tmpl == "library":
         block("link_slot_module_interfaces", link_slot_module_interfaces)
+    if proto_imports:   # labels, never commented (block() would match deps)
+        lines.append("    proto_imports = [")
+        lines.extend('        "%s",' % l for l in proto_imports)
+        lines.append("    ]")
+        lines.append("")
     if tmpl == "protobuf_library" and not proto_transitive_headers:
         lines.append("    proto_transitive_headers = false")
+        lines.append("")
+    if generate_grpc_services:
+        lines.append("    generate_grpc_services = true")
         lines.append("")
     if (tmpl in ("library", "linked_executable") or tmpl in TEST_TEMPLATES) and yql_abi_version is not None:
         lines.append('    yql_abi_version = "%s"' % yql_abi_version)
@@ -3275,7 +3297,8 @@ def _render_target(tmpl, name, public_deps, deps, sources,
     return "\n".join(lines)
 
 
-def render_spec(spec, host, remap, uncommented, private_configs=None, proto_labels=frozenset()):
+def render_spec(spec, host, remap, uncommented, private_configs=None, proto_labels=frozenset(),
+                codegen_labels=frozenset()):
     tmpl = {"PROGRAM": "linked_executable", "GROUP": "group",
             "PROTO_LIBRARY": "protobuf_library"}.get(spec.kind, "library")
     if spec.kind in GEN_TEST_TEMPLATES:
@@ -3432,6 +3455,12 @@ def render_spec(spec, host, remap, uncommented, private_configs=None, proto_labe
                               link_slot_flags_from=slot_flags_from,
                               link_slot_codegen=spec.slot_codegen,
                               proto_transitive_headers=spec.proto_transitive_headers,
+                              generate_grpc_services=spec.grpc and bool(spec.proto_sources),
+                              # the libraries the .proto import: their `<target>_codegen`
+                              proto_imports=sorted(render({l for l in spec.proto_public
+                                                           if remap.get(l, l) in codegen_labels}),
+                                                   key=dep_sort_key)
+                                            if spec.proto_sources and tmpl != "protobuf_library" else (),
                               link_slot_module_interfaces=spec.slot_module_interfaces,
                               link_plugins=link_plugins,
                               yql_abi_version=spec.yql_abi if tmpl != "protobuf_library" else None,
@@ -3457,7 +3486,7 @@ def _absolute_labels(labels, host):
     return {"//%s%s" % (host, l) if l.startswith(":") else l for l in labels}
 
 
-def render_file(root, host, specs, remap, proto_labels=frozenset()):
+def render_file(root, host, specs, remap, proto_labels=frozenset(), codegen_labels=frozenset()):
     """The BUILD.gn of `host`: its targets `specs`; the deps the user left
     uncommented in the existing file stay so (see render_spec)."""
     path = os.path.join(root, host, "BUILD.gn")
@@ -3471,7 +3500,8 @@ def render_file(root, host, specs, remap, proto_labels=frozenset()):
             private_configs.update(parse_existing_configs(os.path.join(root, s.dir, "BUILD.gn")))
     private_configs.update(parse_existing_configs(path))
     return normalize_dep_lists(
-        "\n\n".join(render_spec(s, host, remap, uncommented, private_configs, proto_labels)
+        "\n\n".join(render_spec(s, host, remap, uncommented, private_configs, proto_labels,
+                                codegen_labels)
                     for s in sorted(specs, key=lambda s: s.name)) + "\n")
 
 
@@ -4290,8 +4320,11 @@ def main():
     # ---- emit ----------------------------------------------------------------
     rendered = {}
     proto_labels = frozenset(module_label(d) for d, m in mods.items() if m.kind == "PROTO_LIBRARY")
+    # targets with a `<target>_codegen`: protobuf_library(), library() with .proto
+    codegen_labels = proto_labels | frozenset(module_label(s.dir) for s in specs
+                                              if s.proto_sources and s.kind == "LIBRARY")
     for host, slist in sorted(host_specs.items()):
-        rendered[host] = render_file(root, host, slist, remap, proto_labels)
+        rendered[host] = render_file(root, host, slist, remap, proto_labels, codegen_labels)
     test_mods = test_only_modules(mods, resolver, frameworks)
     node_module = {(host, t.name): t.dir for host, slist in host_specs.items() for t in slist}
     rendered, test_targets, report.test_only_by_edge, report.test_only_conflicts = mark_test_only(

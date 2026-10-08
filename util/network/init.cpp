@@ -27,3 +27,13 @@ namespace {
 void InitNetworkSubSystem() {
     (void)Singleton<TNetworkInit>();
 }
+
+namespace {
+    // once per process instead of a static object in every translation unit
+    // including init.h
+    struct TNetworkInitializer {
+        inline TNetworkInitializer() {
+            InitNetworkSubSystem();
+        }
+    } NetworkInitializerObject;
+} // namespace

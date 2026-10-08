@@ -21,4 +21,6 @@ protobuf_library("draft") {
     "ydb_view_v1.proto",
     "ydb_ymq_v1.proto",
   ]
+
+  generate_grpc_services = true
 }

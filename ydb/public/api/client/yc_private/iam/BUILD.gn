@@ -17,4 +17,6 @@ protobuf_library("iam") {
     "user_account_service.proto",
     "yandex_passport_cookie.proto",
   ]
+
+  generate_grpc_services = true
 }

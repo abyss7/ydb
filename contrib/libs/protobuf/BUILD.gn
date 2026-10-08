@@ -1,12 +1,12 @@
 config("private_config") {
     cflags = [ "-Wno-unused-result" ]
-}
-
-config("public_config") {
     defines = [
         "GOOGLE_PROTOBUF_CMAKE_BUILD",
         "HAVE_ZLIB",
     ]
+}
+
+config("public_config") {
     include_dirs = [ "src" ]
 }
 

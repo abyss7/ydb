@@ -9,3 +9,26 @@ pch_targets = [
   "//ydb/core/tx/schemeshard:schemeshard",
   "//ydb/core/ymq/actor:actor",
 ]
+
+# the precompiled header of contrib (//build/gn/pch:contrib) instead of the
+# global one: contrib/ and what is contrib by its code
+contrib_pch_targets = [
+  "//contrib/*",
+  "//ydb/library/yql/udfs/common/clickhouse/*",
+]
+
+contrib_pch_exclude = [
+  "//contrib/libs/farmhash:*",
+  "//contrib/libs/jemalloc:*",
+  "//contrib/libs/tbb:*",
+]
+
+global_pch_exclude = [
+  "//library/cpp/digest/argonish/internal/proxies:avx2",
+  "//ydb/library/arrow_clickhouse/*",
+  "//ydb/library/yql/dq/comp_nodes/hash_join_utils/simd/exec/pack_tuple:*",
+  "//ydb/library/yql/dq/comp_nodes/hash_join_utils/simd/exec/runtime_dispatching:AVX2_algo",
+  "//ydb/library/yql/dq/comp_nodes/hash_join_utils:*",
+  "//yql/essentials/parser/pg_wrapper/*",
+  "//yt/yt/core:*",
+]

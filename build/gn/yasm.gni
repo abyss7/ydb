@@ -7,7 +7,8 @@ template("yasm_source_set") {
         sources = invoker.sources
         outputs = [ "$_output" ]
 
-        _yasm_bin = rebase_path("$root_out_dir/yasm", root_build_dir)
+        _yasm = "//contrib/tools/yasm:yasm($tool_toolchain)"
+        _yasm_bin = rebase_path(get_label_info(_yasm, "root_out_dir") + "/yasm", root_build_dir)
 
         args = [
             "./$_yasm_bin",
@@ -33,7 +34,7 @@ template("yasm_source_set") {
             "{{source}}",
         ]
 
-        deps = [ "//contrib/tools/yasm:yasm" ]
+        deps = [ _yasm ]
         if (defined(invoker.deps)) {
             deps += invoker.deps
         }

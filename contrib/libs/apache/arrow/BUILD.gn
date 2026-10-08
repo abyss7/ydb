@@ -1,8 +1,4 @@
 config("public_config") {
-    defines = [
-        "ARROW_STATIC",
-        "PARQUET_STATIC",
-    ]
     include_dirs = [ "cpp/src", "src" ]
 }
 

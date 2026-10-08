@@ -21,4 +21,6 @@ protobuf_library("v1") {
     "token_service.proto",
     "user_account.proto",
   ]
+
+  generate_grpc_services = true
 }

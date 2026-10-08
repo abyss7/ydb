@@ -5,4 +5,6 @@ protobuf_library("servicecontrol") {
     "access_service.proto",
     "resource.proto",
   ]
+
+  generate_grpc_services = true
 }

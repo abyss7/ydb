@@ -5,4 +5,6 @@ protobuf_library("audit") {
   ]
 
   sources = [ "annotations.proto" ]
+
+  generate_grpc_services = true
 }

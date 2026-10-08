@@ -5,4 +5,6 @@ protobuf_library("iam") {
   ]
 
   sources = [ "iam_token_service.proto" ]
+
+  generate_grpc_services = true
 }

@@ -1,5 +1,4 @@
 config("public_config") {
-    defines = [ "LZMA_API_STATIC" ]
     include_dirs = [ "liblzma/api" ]
 }
 

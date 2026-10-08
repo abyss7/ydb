@@ -16,16 +16,11 @@ public:
         return TEnumProcessKey<TActorActivityTag, TEnum>::GetIndex(enumValue);
     }
 
-    static ui32 GetActorSystemIndex() {
-        return TEnumProcessKey<TActorActivityTag, EInternalActorType>::GetIndex(EInternalActorType::ACTOR_SYSTEM);
-    }
-
-    static ui32 GetOtherActivityIndex() {
-        return TEnumProcessKey<TActorActivityTag, EInternalActorType>::GetIndex(EInternalActorType::OTHER);
-    }
-
-    static ui32 GetActorActivityIncorrectIndex() {
-        return TEnumProcessKey<TActorActivityTag, EInternalActorType>::GetIndex(EInternalActorType::INCORRECT_ACTOR_TYPE_INDEX);
-    }
+    // out of line: TEnumProcessKey<TActorActivityTag, EInternalActorType> is
+    // instantiated (and registers its names at startup) here only, not in
+    // every translation unit including this header
+    static ui32 GetActorSystemIndex();
+    static ui32 GetOtherActivityIndex();
+    static ui32 GetActorActivityIncorrectIndex();
 };
 }

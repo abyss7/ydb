@@ -12,4 +12,6 @@ protobuf_library("resourcemanager") {
     "folder_service.proto",
     "transitional/folder_service.proto",
   ]
+
+  generate_grpc_services = true
 }

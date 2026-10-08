@@ -1,7 +1,7 @@
 # yamake2gn: keep  -- hand-written, do not regenerate
 
 protobuf_library("client") {
-    deps = [
+    public_deps = [
         "//yt/yt_proto/yt/core",
     ]
 

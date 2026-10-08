@@ -25,6 +25,13 @@ declare_args() {
   compiler = "clang"
   library_type = "shared_library"
 
+  # bin dir of the clang/lld to build with: by default the one ya make uses,
+  # if ya has fetched it (~/.ya/tools, see build/gn/scripts/find_ya_clang.py);
+  # "" -- the system clang-18 and lld-18
+  clang_bin_path = exec_script("//build/gn/scripts/find_ya_clang.py",
+                               [ rebase_path("//") ],
+                               "trim string")
+
   # compression of debug sections in objects and linked files: "zstd", "zlib" or "none"
   # (zstd needs gdb >= 13, system gdb 9 understands only zlib)
   debug_compression = "zstd"
@@ -36,12 +43,23 @@ declare_args() {
   # events shorter than this (in microseconds) are not recorded
   time_trace_granularity = 500
 
-  # precompiled headers for targets from //build/gn/pch/targets.gni
-  enable_pch = true
+  # precompiled headers:
+  #   "per_target" -- each target of pch_targets (//build/gn/pch/targets.gni)
+  #     has its own, //build/gn/pch/<dir>/<name>.h;
+  #   "global" -- //build/gn/pch:global for every C++ library(), program and
+  #     test but those of global_pch_exclude, //build/gn/pch:contrib (the
+  #     C++ standard library) for every contrib_library() but those of
+  #     contrib_pch_exclude and for contrib_pch_targets; the build tools have
+  #     none, see tool_toolchain;
+  #   "none"
+  pch_mode = "per_target"
 
   # write "$" for the shell as "\$\$"
   cc_wrapper = ""
 }
+
+assert(pch_mode == "none" || pch_mode == "per_target" || pch_mode == "global",
+       "unknown pch_mode specified: ${pch_mode}")
 
 assert(build_type == "debug" || build_type == "relwithdebinfo" || build_type == "release",
        "unknown build_type specified: ${build_type}")
@@ -96,4 +114,21 @@ foreach(_target_type, [
 # Toolchains
 # =============================================================================
 
-set_default_toolchain("//build/gn/toolchain/${host_os}:${compiler}")
+_default_toolchain = "//build/gn/toolchain/${host_os}:${compiler}"
+set_default_toolchain(_default_toolchain)
+
+# The build tools the global PCH waits for -- protoc and its plugins,
+# enum_parser, ragel6 and yasm (of util), the code generators of the headers in
+# it -- and all they link: none of them may use the PCH. With pch_mode =
+# "global" they are built by a toolchain of their own, the same but with no
+# PCH (the templates use the global one only in the default toolchain, and
+# the tools' own tools stay in it); otherwise by the default one, nothing is
+# built twice. Such a tool is `<label>($tool_toolchain)`, its binary is in
+# get_label_info(<that>, "root_out_dir"). The other tools (bison, flatc,
+# llvm-tblgen, python...) are built where they are used: a PCH that waits for
+# one of them is a cycle `gn gen` reports.
+if (pch_mode == "global") {
+  tool_toolchain = "//build/gn/toolchain/${host_os}:${compiler}_no_global_pch"
+} else {
+  tool_toolchain = _default_toolchain
+}

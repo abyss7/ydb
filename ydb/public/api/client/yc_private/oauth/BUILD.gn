@@ -10,4 +10,6 @@ protobuf_library("oauth") {
     "cloud_user.proto",
     "session_service.proto",
   ]
+
+  generate_grpc_services = true
 }

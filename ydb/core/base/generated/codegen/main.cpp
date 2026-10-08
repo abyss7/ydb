@@ -1,9 +1,15 @@
+#include <util/generic/ptr.h>
 #include <util/stream/file.h>
 #include <util/stream/output.h>
 #include <util/string/builder.h>
 #include <util/system/src_location.h>
-#include <ydb/core/protos/feature_flags.pb.h>
+#include <util/system/yassert.h>
+#include <google/protobuf/descriptor.h>
 #include <google/protobuf/descriptor.pb.h>
+#include <google/protobuf/dynamic_message.h>
+#ifndef YDB_CODEGEN_DESCRIPTOR_SET
+#include <ydb/core/protos/feature_flags.pb.h>
+#endif
 
 #include <jinja2cpp/template_env.h>
 #include <jinja2cpp/template.h>
@@ -90,11 +96,64 @@ namespace jinja2 {
 
 } // namespace jinja2
 
+// The descriptors of the protos: with YDB_CODEGEN_DESCRIPTOR_SET from a
+// FileDescriptorSet (protoc --descriptor_set_out --include_imports), the first
+// argument, without the generated code of ydb/core/protos to compile and link;
+// else the linked generated ones.
+class TProtoDescriptors {
+public:
+    explicit TProtoDescriptors(const char* descriptorSet)
+        : Pool(descriptorSet ? &OwnPool : google::protobuf::DescriptorPool::generated_pool())
+        , Factory(Pool)
+    {
+        if (descriptorSet) {
+            google::protobuf::FileDescriptorSet set;
+            Y_ABORT_UNLESS(set.ParseFromString(TFileInput(descriptorSet).ReadAll()), "cannot parse %s", descriptorSet);
+            for (const auto& file : set.file()) {
+                Y_ABORT_UNLESS(OwnPool.BuildFile(file), "cannot build %s", file.name().c_str());
+            }
+        }
+    }
+
+    const google::protobuf::Descriptor& Message(const TString& fullName) const {
+        const auto* d = Pool->FindMessageTypeByName(fullName);
+        Y_ABORT_UNLESS(d, "no message %s", fullName.c_str());
+        return *d;
+    }
+
+    const google::protobuf::FieldDescriptor& Extension(const TString& fullName) const {
+        const auto* d = Pool->FindExtensionByName(fullName);
+        Y_ABORT_UNLESS(d, "no extension %s", fullName.c_str());
+        return *d;
+    }
+
+    // the options of `field`, with the extensions of the pool known
+    THolder<google::protobuf::Message> Options(const google::protobuf::FieldDescriptor& field) {
+        THolder<google::protobuf::Message> options(Factory.GetPrototype(&Message("google.protobuf.FieldOptions"))->New());
+        Y_ABORT_UNLESS(options->ParseFromString(field.options().SerializeAsString()));
+        return options;
+    }
+
+private:
+    google::protobuf::DescriptorPool OwnPool;
+    const google::protobuf::DescriptorPool* Pool;
+    google::protobuf::DynamicMessageFactory Factory;
+};
+
 int main(int argc, char** argv) {
-    if (argc < 3) {
-        Cerr << "Usage: " << argv[0] << " INPUT OUTPUT ..." << Endl;
+    const char* descriptorSet = nullptr;
+    int first = 1;
+#ifdef YDB_CODEGEN_DESCRIPTOR_SET
+    descriptorSet = argv[first++];
+#else
+    NKikimrConfig::TFeatureFlags::descriptor();  // linked
+#endif
+    if (argc < first + 2) {
+        Cerr << "Usage: " << argv[0] << (descriptorSet ? " DESCRIPTOR_SET" : "") << " INPUT OUTPUT ..." << Endl;
         return 1;
     }
+    TProtoDescriptors descriptors(descriptorSet);
+    const auto& requireRestart = descriptors.Extension("NKikimrConfig.RequireRestart");
 
     std::deque<TSlot> slots;
     std::deque<TField> fields;
@@ -104,7 +163,7 @@ int main(int argc, char** argv) {
     TSlot* slot = nullptr;
     int currentBits = 0;
 
-    const auto* d = NKikimrConfig::TFeatureFlags::descriptor();
+    const auto* d = &descriptors.Message("NKikimrConfig.TFeatureFlags");
     for (int fieldIndex = 0; fieldIndex < d->field_count(); ++fieldIndex) {
         const auto* protoField = d->field(fieldIndex);
         if (protoField->type() != google::protobuf::FieldDescriptor::TYPE_BOOL) {
@@ -127,7 +186,8 @@ int main(int argc, char** argv) {
         if (protoField->default_value_bool()) {
             field->DefaultValue = field->ValueMask;
         }
-        field->IsRuntime = !protoField->options().GetExtension(NKikimrConfig::RequireRestart);
+        auto options = descriptors.Options(*protoField);
+        field->IsRuntime = !options->GetReflection()->GetBool(*options, &requireRestart);
 
         slot->Fields.push_back(field);
         slot->DefaultValue |= field->DefaultValue;
@@ -141,7 +201,7 @@ int main(int argc, char** argv) {
     env.AddGlobal("slots", jinja2::Reflect(jinjaSlots));
     env.AddGlobal("fields", jinja2::Reflect(jinjaFields));
 
-    for (int i = 1; i < argc; i += 2) {
+    for (int i = first; i < argc; i += 2) {
         if (!(i + 1 < argc)) {
             Cerr << "ERROR: missing output for " << argv[i] << Endl;
             return 1;

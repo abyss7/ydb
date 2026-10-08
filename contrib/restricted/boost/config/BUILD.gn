@@ -1,5 +1,4 @@
 config("public_config") {
-    defines = [ "BOOST_ALL_NO_LIB" ]
     include_dirs = [ "include" ]
 }
 

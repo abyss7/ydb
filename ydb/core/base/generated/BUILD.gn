@@ -7,11 +7,16 @@ _codegen_name = "${_unique_name}_codegen"
 executable("codegen") {
     output_name = "${_codegen_name}"
 
+    defines = [ "YDB_CODEGEN_DESCRIPTOR_SET" ]
     deps += [
         "//contrib/libs/jinja2cpp",
-        "//ydb/core/protos",
+        "//contrib/libs/protobuf",
     ]
     sources = [ "codegen/main.cpp" ]
+}
+
+proto_descriptor_set("feature_flags") {
+    source = "//ydb/core/protos/feature_flags.proto"
 }
 
 template("codegen") {
@@ -23,15 +28,22 @@ template("codegen") {
         sources = invoker.sources
         outputs = [ "$_output" ]
 
-        _codegen_bin = rebase_path("$root_out_dir/$_codegen_name", root_build_dir)
+        _codegen = ":codegen($tool_toolchain)"
+        _codegen_bin = rebase_path(get_label_info(_codegen, "root_out_dir") + "/$_codegen_name", root_build_dir)
+        _descriptors = get_target_outputs(":feature_flags")
+        inputs = _descriptors
 
         args = [
             "./$_codegen_bin",
+            rebase_path(_descriptors[0], root_build_dir),
             "{{source}}",
             "$_output",
         ]
 
-        deps = [ ":codegen" ]
+        deps = [
+            ":feature_flags",
+            _codegen,
+        ]
     }
 
     library(target_name) {

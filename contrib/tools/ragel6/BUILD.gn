@@ -4,12 +4,14 @@ config("private_config") {
         "-Wno-unused-const-variable"
     ]
     defines = [ "HAVE_CONFIG_H" ]
-    include_dirs = [ "//contrib/tools/ragel5/aapl" ]
 }
 
 executable("ragel6") {
     deps = []
-    deps += [ "//contrib/libs/cxxsupp/libcxx" ]
+    deps += [
+        "//contrib/libs/cxxsupp/libcxx",
+        "//contrib/tools/ragel5/aapl",
+    ]
 
     sources = [
         "cdcodegen.cpp",

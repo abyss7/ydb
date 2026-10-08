@@ -18,12 +18,13 @@ template("ragel6_sources") {
     sources = invoker.sources
     outputs = [ "{{source_gen_dir}}/{{source_file_part}}.cpp" ]
 
+    _ragel6 = "//contrib/tools/ragel6:ragel6($tool_toolchain)"
     _flags = "-CT0"
     if (build_type == "release") {
       _flags = "-CG2"
     }
     args = [
-      "./" + rebase_path("$root_out_dir/ragel6", root_build_dir),
+      "./" + rebase_path(get_label_info(_ragel6, "root_out_dir") + "/ragel6", root_build_dir),
       _flags,
       "-L",
       "-I" + rebase_path("//", root_build_dir),
@@ -32,7 +33,7 @@ template("ragel6_sources") {
       "{{source}}",
     ]
 
-    deps = [ "//contrib/tools/ragel6:ragel6" ]
+    deps = [ _ragel6 ]
   }
 }
 
@@ -45,6 +46,8 @@ template("ragel6_sources") {
 template("bison_sources") {
   _cpp = "$target_gen_dir/{{source_file_part}}.cpp"
   _h = "$target_gen_dir/{{source_name_part}}.h"
+  _bison = "//contrib/tools/bison:bison"
+  _m4 = "//contrib/tools/m4:m4"
 
   action_foreach(target_name) {
     forward_variables_from(invoker, [ "visibility" ])
@@ -57,9 +60,9 @@ template("bison_sources") {
     ]
     args = [
       "--bison",
-      "./" + rebase_path("$root_out_dir/bison", root_build_dir),
+      "./" + rebase_path(get_label_info(_bison, "root_out_dir") + "/bison", root_build_dir),
       "--m4",
-      "./" + rebase_path("$root_out_dir/m4", root_build_dir),
+      "./" + rebase_path(get_label_info(_m4, "root_out_dir") + "/m4", root_build_dir),
       "--data",
       rebase_path("//contrib/tools/bison/data", root_build_dir),
       "--output",
@@ -71,8 +74,8 @@ template("bison_sources") {
     ]
 
     deps = [
-      "//contrib/tools/bison:bison",
-      "//contrib/tools/m4:m4",
+      _bison,
+      _m4,
     ]
   }
 

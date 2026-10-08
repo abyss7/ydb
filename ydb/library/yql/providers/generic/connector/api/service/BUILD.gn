@@ -3,4 +3,6 @@ protobuf_library("service") {
       [ "//ydb/library/yql/providers/generic/connector/api/service/protos" ]
 
   sources = [ "connector.proto" ]
+
+  generate_grpc_services = true
 }

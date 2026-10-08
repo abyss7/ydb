@@ -21,4 +21,6 @@ protobuf_library("v1") {
     "storage_type.proto",
     "storage_type_service.proto",
   ]
+
+  generate_grpc_services = true
 }

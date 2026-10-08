@@ -390,6 +390,10 @@ namespace NActors {
         }
     }
 
+    TActorActivityType::TActorActivityType()
+        : TActorActivityType(FromEnum(EInternalActorType::OTHER))
+    {}
+
     void IActor::SetActivityType(TActorActivityType activityType) {
         Y_ENSURE(!SelfActorId, "Cannot change activity type for registered actors");
         ActivityType = activityType;

@@ -6,4 +6,6 @@ protobuf_library("accessservice") {
     "resource.proto",
     "sensitive.proto",
   ]
+
+  generate_grpc_services = true
 }

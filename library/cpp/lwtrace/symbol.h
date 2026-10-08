@@ -1,7 +1,9 @@
 #pragma once
 
 #include <util/generic/string.h>
+#include <util/stream/output.h>
 #include <util/string/builder.h>
+#include <util/string/cast.h>
 #include <util/system/src_location.h>
 
 #define LWTRACE_DEFINE_SYMBOL(variable, text)         \
@@ -66,3 +68,11 @@ namespace NLWTrace {
     };
 
 }
+
+// defined in symbol.cpp: declared before any use, which would otherwise
+// instantiate the primary templates
+template <>
+NLWTrace::TSymbol FromStringImpl<NLWTrace::TSymbol, char>(const char*, size_t);
+
+template <>
+void Out<NLWTrace::TSymbol>(IOutputStream& o, TTypeTraits<NLWTrace::TSymbol>::TFuncParam t);

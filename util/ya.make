@@ -30,6 +30,7 @@ JOIN_SRCS(
 SRCS(
     datetime/parser.rl6
     digest/city.cpp
+    GLOBAL network/init.cpp
     random/random.cpp
     string/cast.cpp
 )
@@ -161,7 +162,6 @@ JOIN_SRCS(
     network/address.cpp
     network/endpoint.cpp
     network/hostip.cpp
-    network/init.cpp
     network/interface.cpp
     network/iovec.cpp
     network/ip.cpp

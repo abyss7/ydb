@@ -2,6 +2,8 @@ protobuf_library("proto") {
   sources = [ "proto/unified_agent.proto" ]
 
   serialize_enum_headers = [ "proto/unified_agent.pb.h" ]
+
+  generate_grpc_services = true
 }
 
 library("unified_agent_client") {

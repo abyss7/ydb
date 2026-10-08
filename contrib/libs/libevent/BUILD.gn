@@ -6,6 +6,7 @@ config("private_config") {
     cflags = [
         "-Wno-array-parameter",
         "-Wno-implicit-function-declaration",
+        "-Wno-tautological-compare",
         "-Wno-unused-function",
     ]
     defines = [ "HAVE_CONFIG_H" ]

@@ -96,6 +96,16 @@ struct TStorageStatusFlags {
     }
 };
 
+} // NKikimr
+
+// defined in blobstorage.cpp: declared before any use, which would otherwise
+// instantiate the primary template
+template<>
+void Out<NKikimr::TStorageStatusFlags>(IOutputStream& o,
+        typename TTypeTraits<NKikimr::TStorageStatusFlags>::TFuncParam x);
+
+namespace NKikimr {
+
 NKikimrBlobStorage::EPDiskType PDiskTypeToPDiskType(const NPDisk::EDeviceType type);
 
 NPDisk::EDeviceType PDiskTypeToPDiskType(const NKikimrBlobStorage::EPDiskType type);

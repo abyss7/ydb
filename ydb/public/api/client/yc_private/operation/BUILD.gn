@@ -2,4 +2,6 @@ protobuf_library("operation") {
   public_deps = [ "//contrib/libs/googleapis-common-protos" ]
 
   sources = [ "operation.proto" ]
+
+  generate_grpc_services = true
 }

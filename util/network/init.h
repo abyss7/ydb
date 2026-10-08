@@ -51,10 +51,5 @@ struct sockaddr_un {
     #endif
 #endif // _win_ or _darwin_
 
+// called at startup by util itself (network/init.cpp)
 void InitNetworkSubSystem();
-
-static struct TNetworkInitializer {
-    inline TNetworkInitializer() {
-        InitNetworkSubSystem();
-    }
-} NetworkInitializerObject;

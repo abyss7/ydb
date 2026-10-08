@@ -14,7 +14,8 @@ template("flatbuffers_library") {
     _unique_name = exec_script("//build/gn/scripts/unique_name.py", [ _path ], "trim string")
     _gen_target = "${_unique_name}_${target_name}_gen"
 
-    _flatc_bin = rebase_path("$root_out_dir/flatc", root_build_dir)
+    _flatc = "//contrib/libs/flatbuffers:flatc"
+    _flatc_bin = rebase_path(get_label_info(_flatc, "root_out_dir") + "/flatc", root_build_dir)
 
     action_foreach(_gen_target) {
         script = "//build/gn/scripts/run.py"
@@ -38,9 +39,7 @@ template("flatbuffers_library") {
             "{{source}}",
         ]
 
-        deps = [
-            "//contrib/libs/flatbuffers:flatc",
-        ]
+        deps = [ _flatc ]
     }
 
     config("public_config") {

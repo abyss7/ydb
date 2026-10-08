@@ -6,4 +6,6 @@ protobuf_library("grpc") {
   ]
 
   sources = [ "persqueue.proto" ]
+
+  generate_grpc_services = true
 }

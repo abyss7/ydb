@@ -1,5 +1,9 @@
 import("//contrib/libs/llvm16/llvm.gni")
 
+config("private_config") {
+    cflags = [ "-Wno-nontrivial-memcall" ]
+}
+
 llvm_library("ExecutionEngine") {
     public_deps = [ "//contrib/libs/llvm16/lib/IR" ]
     deps = [
@@ -17,4 +21,6 @@ llvm_library("ExecutionEngine") {
         "SectionMemoryManager.cpp",
         "TargetSelect.cpp",
     ]
+
+    configs = [ ":private_config" ]
 }

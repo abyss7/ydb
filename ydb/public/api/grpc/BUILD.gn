@@ -22,4 +22,6 @@ protobuf_library("grpc") {
     "ydb_table_v1.proto",
     "ydb_topic_v1.proto",
   ]
+
+  generate_grpc_services = true
 }

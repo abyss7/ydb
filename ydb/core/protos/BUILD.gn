@@ -203,6 +203,8 @@ protobuf_library("protos") {
 
   proto_transitive_headers = false
 
+  generate_grpc_services = true
+
   extra_plugins = [
     {
       name = "config_proto_plugin"

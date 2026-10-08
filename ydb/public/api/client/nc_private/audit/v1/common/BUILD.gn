@@ -5,4 +5,6 @@ protobuf_library("common") {
     "action.proto",
     "action_type.proto",
   ]
+
+  generate_grpc_services = true
 }

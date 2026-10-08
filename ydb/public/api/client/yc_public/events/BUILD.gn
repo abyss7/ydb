@@ -9,4 +9,6 @@ protobuf_library("events") {
     "options.proto",
     "yq.proto",
   ]
+
+  generate_grpc_services = true
 }

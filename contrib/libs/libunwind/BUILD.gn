@@ -1,5 +1,5 @@
 config("public_config") {
-    include_dirs = [ "contrib/libs/clang20-rt/include", "include" ]
+    include_dirs = [ "include" ]
 }
 
 config("private_config") {

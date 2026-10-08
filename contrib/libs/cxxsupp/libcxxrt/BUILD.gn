@@ -6,6 +6,7 @@ config("public_config") {
 system_library("libcxxrt") {
     deps = [
         "//contrib/libs/libunwind",
+        "//library/cpp/sanitizer/include",
     ]
 
     sources = [

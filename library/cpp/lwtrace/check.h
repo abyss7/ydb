@@ -1,5 +1,8 @@
 #pragma once
 
+#include <util/stream/output.h>
+#include <util/string/cast.h>
+
 namespace NLWTrace {
     struct TCheck {
         int Value;
@@ -76,3 +79,11 @@ namespace NLWTrace {
     };
 
 }
+
+// defined in check.cpp: declared before any use, which would otherwise
+// instantiate the primary templates
+template <>
+NLWTrace::TCheck FromStringImpl<NLWTrace::TCheck, char>(const char*, size_t);
+
+template <>
+void Out<NLWTrace::TCheck>(IOutputStream& o, TTypeTraits<NLWTrace::TCheck>::TFuncParam t);

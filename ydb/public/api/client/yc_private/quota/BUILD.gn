@@ -5,4 +5,6 @@ protobuf_library("quota") {
     "quota.proto",
     "quota_limit.proto",
   ]
+
+  generate_grpc_services = true
 }

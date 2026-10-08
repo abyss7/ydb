@@ -358,9 +358,8 @@ namespace NActors {
 
     class TActorActivityType {
     public:
-        TActorActivityType()
-            : TActorActivityType(FromEnum(EInternalActorType::OTHER))
-        {}
+        // out of line, see TActorTypeOperator::GetOtherActivityIndex()
+        TActorActivityType();
 
         template <typename EEnum>
         static TActorActivityType FromEnum(EEnum activityType) requires (std::is_enum_v<EEnum>) {

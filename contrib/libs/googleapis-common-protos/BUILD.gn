@@ -1,5 +1,6 @@
 protobuf_library("googleapis-common-protos") {
     proto_public_include_dirs = [ "//contrib/libs/googleapis-common-protos" ]
+    generate_grpc_services = true
 
     sources = [
         "google/api/annotations.proto",

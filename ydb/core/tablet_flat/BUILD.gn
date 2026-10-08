@@ -119,4 +119,9 @@ library("tablet_flat") {
     "shared_cache_events.h",
     "shared_cache_s3fifo.h",
   ]
+
+  proto_imports = [
+    "//ydb/core/protos",
+    "//ydb/library/actors/protos",
+  ]
 }

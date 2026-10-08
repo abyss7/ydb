@@ -13,4 +13,5 @@ protobuf_library("opentelemetry-proto") {
     ]
 
     proto_public_include_dirs = [ "." ]
+    generate_grpc_services = true
 }

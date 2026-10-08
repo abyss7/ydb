@@ -1,4 +1,5 @@
 config("public_config") {
+    cflags = [ "-Wno-nontrivial-memcall" ]
     include_dirs = [ "include" ]
 }
 

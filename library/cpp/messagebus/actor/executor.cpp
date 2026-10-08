@@ -237,14 +237,12 @@ size_t TExecutor::GetWorkQueueSize() const {
     return WorkItems.Size();
 }
 
-using namespace NTSAN;
-
 ui32 TExecutor::GetMaxQueueSizeAndClear() const {
     ui32 max = 0;
     for (unsigned i = 0; i < WorkerThreads.size(); ++i) {
         TExecutorWorkerThreadLocalData* wtls = AtomicGet(WorkerThreads[i]->ThreadLocalData);
-        max = Max<ui32>(max, RelaxedLoad(&wtls->MaxQueueSize));
-        RelaxedStore<ui32>(&wtls->MaxQueueSize, 0);
+        max = Max<ui32>(max, NTSAN::RelaxedLoad(&wtls->MaxQueueSize));
+        NTSAN::RelaxedStore<ui32>(&wtls->MaxQueueSize, 0);
     }
     return max;
 }
@@ -299,8 +297,8 @@ TAutoPtr<IWorkItem> TExecutor::DequeueWork() {
 
     auto& wtls = TlsRef(WorkerThreadLocalData);
 
-    if (queueSize > RelaxedLoad(&wtls.MaxQueueSize)) {
-        RelaxedStore<ui32>(&wtls.MaxQueueSize, queueSize);
+    if (queueSize > NTSAN::RelaxedLoad(&wtls.MaxQueueSize)) {
+        NTSAN::RelaxedStore<ui32>(&wtls.MaxQueueSize, queueSize);
     }
 
     return wi;

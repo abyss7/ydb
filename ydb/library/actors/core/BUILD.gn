@@ -17,7 +17,7 @@ library("core") {
     "//ydb/library/actors/actor_type",
     "//ydb/library/actors/memory_log",
     "//ydb/library/actors/protos",
-    # "//ydb/library/actors/util",
+    "//ydb/library/actors/util",
     # "//ydb/library/actors/wilson",
     "//ydb/library/services",
   ]

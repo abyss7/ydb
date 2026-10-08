@@ -1,3 +1,7 @@
+config("util_public_config") {
+  cflags = [ "-Wno-nontrivial-memcall" ]
+}
+
 library("util") {
   public_deps = [
     "//library/cpp/containers/stack_vector",
@@ -18,4 +22,6 @@ library("util") {
     "spinparkpad.cpp",
     "threadparkpad.cpp",
   ]
+
+  public_configs = [ ":util_public_config" ]
 }

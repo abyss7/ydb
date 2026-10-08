@@ -1,6 +1,7 @@
 #include "partition_chooser_impl.h"
 #include "partition_chooser_impl__old_chooser_actor.h"
 #include "partition_chooser_impl__sm_chooser_actor.h"
+#include "pipe_utils_mock.h"
 
 #include <ydb/core/persqueue/public/utils.h>
 

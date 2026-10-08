@@ -8,4 +8,6 @@ protobuf_library("v1") {
     "metadata.proto",
     "operation.proto",
   ]
+
+  generate_grpc_services = true
 }

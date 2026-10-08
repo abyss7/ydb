@@ -106,7 +106,8 @@ template("resources") {
         inputs = _files
         outputs = [ _output, _data ]
 
-        _rescompressor_bin = rebase_path("$root_out_dir/rescompressor", root_build_dir)
+        _rescompressor = "//tools/rescompressor"
+        _rescompressor_bin = rebase_path(get_label_info(_rescompressor, "root_out_dir") + "/rescompressor", root_build_dir)
 
         args = [
             "--rescompressor", "./$_rescompressor_bin",
@@ -118,6 +119,6 @@ template("resources") {
         if (!defined(deps)) {
             deps = []
         }
-        deps += [ "//tools/rescompressor" ]
+        deps += [ _rescompressor ]
     }
 }
