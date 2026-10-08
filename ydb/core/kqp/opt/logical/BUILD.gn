@@ -10,7 +10,7 @@ library("logical") {
     # "//ydb/core/kqp/common",
     "//ydb/core/kqp/opt/physical",
     "//ydb/core/kqp/provider",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/yql/dq/common",  # peerdir only
     "//ydb/library/yql/dq/opt",
     # "//ydb/library/yql/providers/dq/common",

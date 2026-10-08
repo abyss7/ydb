@@ -20,7 +20,7 @@ library("coordinator") {
     # "//ydb/core/util",
     # "//ydb/library/actors/helpers",  # peerdir only
     # "//ydb/library/actors/interconnect",
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   sources = [

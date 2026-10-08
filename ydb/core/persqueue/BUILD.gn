@@ -54,10 +54,10 @@ library("persqueue") {
     "//ydb/core/tx/time_cast",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/protobuf_printer",
-    # "//ydb/library/services",
+    "//ydb/library/services",
     # "//ydb/library/wilson_ids",
     # "//ydb/library/yverify_stream",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     # "//ydb/public/lib/base",
     "//ydb/services/persqueue_v1/actors",
   ]

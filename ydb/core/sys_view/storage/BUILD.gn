@@ -1,7 +1,7 @@
 library("storage") {
   public_deps = [
     "//ydb/core/kqp/runtime",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 

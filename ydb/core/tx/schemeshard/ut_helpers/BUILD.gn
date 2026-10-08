@@ -19,8 +19,8 @@ library("ut_helpers") {
     # "//ydb/core/tx/schemeshard",
     # "//ydb/library/actors/core",
     # "//ydb/library/login",
-    # "//ydb/library/ydb_issue/proto",
-    # "//ydb/public/api/grpc",
+    "//ydb/library/ydb_issue/proto",
+    "//ydb/public/api/grpc",
     "//ydb/public/api/protos",
     # "//ydb/public/sdk/cpp/src/client/driver",
     # "//yql/essentials/minikql",
@@ -37,7 +37,7 @@ library("ut_helpers") {
     "//ydb/core/kqp/rm_service",
     # "//ydb/core/metering",
     # "//ydb/core/persqueue/events",
-    # "//ydb/core/protos/schemeshard",
+    "//ydb/core/protos/schemeshard",
     # "//ydb/core/tx",  # peerdir only
     # "//ydb/core/tx/columnshard/test_helper",
     # "//ydb/core/tx/data_events",
@@ -46,7 +46,7 @@ library("ut_helpers") {
     "//ydb/core/tx/tx_proxy",  # peerdir only
     # "//ydb/core/tx/tx_proxy:public",
     # "//ydb/core/util",
-    # "//ydb/library/login/protos",
+    "//ydb/library/login/protos",
     # "//ydb/public/lib/deprecated/kicli",
     # "//ydb/public/lib/scheme_types",
     # "//ydb/public/sdk/cpp/src/client/table",

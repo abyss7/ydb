@@ -20,7 +20,7 @@ library("wilson") {
   deps = [
     # "//contrib/libs/protobuf",
     "//library/cpp/string_utils/url",
-    # "//ydb/library/actors/protos",
+    "//ydb/library/actors/protos",
     # "//ydb/library/actors/wilson/protos",  # peerdir only
   ]
 

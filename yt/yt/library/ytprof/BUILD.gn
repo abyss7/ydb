@@ -19,7 +19,7 @@ library("ytprof") {
     # "//library/cpp/yt/threading",
     # "//yt/yt/core",
     # "//yt/yt/library/ytprof/api",
-    # "//yt/yt/library/ytprof/proto",
+    "//yt/yt/library/ytprof/proto",
   ]
 
   sources = [

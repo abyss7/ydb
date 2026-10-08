@@ -8,7 +8,7 @@ library("db_pool") {
   ]
 
   deps = [
-    # "//ydb/library/services",
+    "//ydb/library/services",
     # "//ydb/public/sdk/cpp/src/client/driver",  # peerdir only
   ]
 

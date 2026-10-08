@@ -6,7 +6,7 @@ library("impl") {
     # "//ydb/core/scheme",
     "//ydb/core/tx/replication/service",
     "//ydb/library/actors/core",
-    # "//ydb/library/services",
+    "//ydb/library/services",
     # "//ydb/library/yverify_stream",
   ]
 

@@ -1,7 +1,7 @@
 library("tx_chain") {
   public_deps = [
     "//ydb/core/tx/columnshard/bg_tasks/abstract",
-    # "//ydb/core/tx/columnshard/bg_tasks/protos",
+    "//ydb/core/tx/columnshard/bg_tasks/protos",
     "//ydb/core/tx/schemeshard/olap/bg_tasks/protos",
     # "//ydb/library/accessor",
     # "//ydb/library/conclusion",

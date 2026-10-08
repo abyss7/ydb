@@ -9,7 +9,7 @@ library("common") {
   ]
 
   deps = [
-    # "//ydb/library/services",
+    "//ydb/library/services",
     # "//ydb/services/bg_tasks/abstract",  # peerdir only
     # "//ydb/services/metadata/initializer",  # peerdir only
   ]

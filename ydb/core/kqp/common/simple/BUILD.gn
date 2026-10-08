@@ -4,7 +4,7 @@ library("simple") {
     "//ydb/core/protos",
     "//ydb/library/aclib",
     # "//ydb/library/actors/core",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     # "//yql/essentials/ast",
     "//yql/essentials/core/pg_settings",
   ]

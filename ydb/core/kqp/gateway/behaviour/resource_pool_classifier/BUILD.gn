@@ -10,7 +10,7 @@ library("resource_pool_classifier") {
     # "//ydb/core/base",
     # "//ydb/core/cms/console",
     "//ydb/core/kqp/workload_service/actors",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/library/query_actor",
     "//ydb/services/metadata/initializer",
   ]

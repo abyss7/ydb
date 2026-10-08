@@ -4,7 +4,7 @@ library("actors") {
     ":scheme_actors",
     # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/kqp/common/events",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
   ]
 
   deps = [
@@ -34,8 +34,8 @@ library("scheme_actors") {
     # "//ydb/core/base",
     "//ydb/core/kqp/common/simple",
     "//ydb/core/kqp/workload_service/common",
-    # "//ydb/core/protos",
-    # "//ydb/core/protos/schemeshard",
+    "//ydb/core/protos",
+    "//ydb/core/protos/schemeshard",
     "//ydb/core/tablet",
     # "//ydb/core/tx/schemeshard",
     "//ydb/core/tx/tx_proxy:public",

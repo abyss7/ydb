@@ -14,7 +14,7 @@ library("testlib") {
 
   deps = [
     # "//ydb/library/actors/interconnect/rdma",
-    # "//ydb/library/actors/protos",
+    "//ydb/library/actors/protos",
     # "//ydb/library/actors/testlib/common",  # peerdir only
   ]
 

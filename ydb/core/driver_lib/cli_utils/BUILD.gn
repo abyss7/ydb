@@ -29,19 +29,19 @@ library("cli_utils") {
     # "//ydb/core/erasure",  # peerdir only
     "//ydb/core/mind/bscontroller",  # peerdir only
     "//ydb/core/mind/bscontroller:group_mapper",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/scheme",
     # "//ydb/core/tx/tx_proxy:public",
     # "//ydb/core/util",
     # "//ydb/library/aclib",
     "//ydb/library/actors/core",
-    # "//ydb/library/actors/protos",
+    "//ydb/library/actors/protos",
     # "//ydb/library/folder_service/proto",  # peerdir only
     "//ydb/library/keys",  # peerdir only
     "//ydb/library/yaml_config",
-    # "//ydb/public/api/grpc",
+    "//ydb/public/api/grpc",
     "//ydb/public/api/grpc/draft",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     "//ydb/public/lib/ydb_cli/commands",
     "//ydb/public/lib/ydb_cli/commands/ydb_discovery",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/driver",  # peerdir only

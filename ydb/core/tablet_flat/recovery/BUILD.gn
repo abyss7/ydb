@@ -9,7 +9,7 @@ library("recovery") {
     "//library/cpp/string_utils/base64",
     "//ydb/core/engine/minikql",
     "//ydb/core/io_formats/cell_maker",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/library/actors/core",
     "//yql/essentials/types/binary_json",
   ]

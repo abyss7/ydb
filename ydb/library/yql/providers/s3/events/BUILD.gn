@@ -3,9 +3,9 @@ library("events") {
     # "//contrib/libs/apache/arrow",
     "//ydb/core/base",
     # "//ydb/library/actors/core",
-    # "//ydb/library/yql/dq/actors/protos",
+    "//ydb/library/yql/dq/actors/protos",
     # "//ydb/library/yql/providers/common/http_gateway",
-    # "//ydb/library/yql/providers/s3/proto",
+    "//ydb/library/yql/providers/s3/proto",
     # "//yql/essentials/public/issue",
   ]
 

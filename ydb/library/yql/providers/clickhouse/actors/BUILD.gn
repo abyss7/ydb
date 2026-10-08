@@ -7,7 +7,7 @@ library("actors") {
 
   deps = [
     # "//ydb/library/actors/core",
-    # "//ydb/library/yql/providers/clickhouse/proto",
+    "//ydb/library/yql/providers/clickhouse/proto",
     # "//yql/essentials/minikql",
     # "//yql/essentials/minikql/computation",  # peerdir only
     # "//yql/essentials/providers/common/provider",

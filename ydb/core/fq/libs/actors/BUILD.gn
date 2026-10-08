@@ -4,7 +4,7 @@ library("actors") {
     # "//library/cpp/random_provider",
     # "//library/cpp/time_provider",
     "//ydb/core/fq/libs/compute/common",
-    # "//ydb/core/fq/libs/config/protos",
+    "//ydb/core/fq/libs/config/protos",
     # "//ydb/core/fq/libs/events",
     "//ydb/core/fq/libs/private_client",
     # "//ydb/core/fq/libs/shared_resources",
@@ -22,7 +22,7 @@ library("actors") {
     "//ydb/public/lib/fq",
     # "//yql/essentials/minikql/computation",
     # "//yql/essentials/providers/common/metrics",
-    # "//yql/essentials/providers/common/proto",
+    "//yql/essentials/providers/common/proto",
   ]
 
   deps = [
@@ -67,10 +67,10 @@ library("actors") {
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/mkql_proto",
     "//ydb/library/security",
-    # "//ydb/library/services",
+    "//ydb/library/services",
     "//ydb/library/yql/dq/actors",
     # "//ydb/library/yql/dq/actors/compute",
-    # "//ydb/library/yql/dq/actors/protos",
+    "//ydb/library/yql/dq/actors/protos",
     # "//ydb/library/yql/dq/common",
     # "//ydb/library/yql/providers/common/db_id_async_resolver",  # peerdir only
     # "//ydb/library/yql/providers/common/token_accessor/client",  # peerdir only
@@ -79,10 +79,10 @@ library("actors") {
     "//ydb/library/yql/providers/dq/provider/exec",
     # "//ydb/library/yql/providers/generic/connector/libcpp",
     "//ydb/library/yql/providers/generic/provider",
-    # "//ydb/library/yql/providers/pq/proto",
+    "//ydb/library/yql/providers/pq/proto",
     "//ydb/library/yql/providers/pq/provider",
     "//ydb/library/yql/providers/pq/task_meta",
-    # "//ydb/library/yql/providers/s3/proto",
+    "//ydb/library/yql/providers/s3/proto",
     "//ydb/library/yql/providers/s3/provider",
     # "//ydb/library/yql/providers/solomon/gateway",
     # "//ydb/library/yql/providers/solomon/provider",
@@ -108,7 +108,7 @@ library("actors") {
     # "//yql/essentials/providers/common/schema/mkql",
     "//yql/essentials/providers/common/udf_resolve",
     # "//yql/essentials/public/issue",
-    # "//yql/essentials/public/issue/protos",
+    "//yql/essentials/public/issue/protos",
     # "//yql/essentials/sql/settings",
     # "//yql/essentials/utils",
   ]

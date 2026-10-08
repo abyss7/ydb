@@ -10,7 +10,7 @@ library("composite") {
     "//library/cpp/protobuf/interop",
     # "//library/cpp/threading/future",
     # "//ydb/library/accessor",
-    # "//ydb/library/services",
+    "//ydb/library/services",
     "//ydb/library/yql/dq/actors/compute",
     # "//ydb/library/yverify_stream",
   ]

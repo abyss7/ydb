@@ -3,8 +3,8 @@ library("raw_socket") {
     "//contrib/libs/openssl",
     "//ydb/library/actors/core",
     "//ydb/library/actors/interconnect",
-    # "//ydb/library/actors/protos",
-    # "//ydb/library/services",
+    "//ydb/library/actors/protos",
+    "//ydb/library/services",
   ]
 
   deps = [

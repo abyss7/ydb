@@ -1,7 +1,7 @@
 library("pg_ext") {
   public_deps = [
     # "//yql/essentials/parser/pg_catalog",
-    # "//yql/essentials/protos",
+    "//yql/essentials/protos",
   ]
 
   sources = [ "yql_pg_ext.cpp" ]

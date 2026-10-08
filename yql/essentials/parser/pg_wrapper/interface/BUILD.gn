@@ -34,6 +34,11 @@ library("interface") {
     "utils.h",
   ]
 
+  link_slot_codegen = [
+    "//yql/essentials/public/issue/protos",
+    "//yql/essentials/public/types",
+  ]
+
   link_slot_module_interfaces = [ "yql_pg_sql_translator" ]
 }
 
@@ -53,4 +58,6 @@ slot_interface_group("yql_pg_sql_translator") {
   ]
 
   link_slot_flags_from = [ "interface.cpp" ]
+
+  link_slot_codegen = [ "//yql/essentials/public/issue/protos" ]
 }

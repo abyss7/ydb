@@ -24,7 +24,7 @@ library("counters") {
   deps = [
     # "//ydb/core/formats/arrow/program",
     "//ydb/core/tx/columnshard/engines/portions",
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   sources = [

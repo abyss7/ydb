@@ -21,7 +21,7 @@ library("batch_builder") {
     # "//ydb/core/tx/data_events/common",
     # "//ydb/library/conclusion",
     # "//ydb/library/formats/arrow",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
   ]
 
   sources = [
@@ -68,7 +68,7 @@ library("operations") {
   public_deps = [
     ":common",
     ":events",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/tablet_flat",
     # "//ydb/core/tx/columnshard/common",
     "//ydb/core/tx/columnshard/engines",

@@ -1,6 +1,6 @@
 library("fmr_tool_lib") {
   public_deps = [
-    # "//yql/essentials/providers/common/proto",
+    "//yql/essentials/providers/common/proto",
     # "//yt/yql/providers/yt/fmr/coordinator/client",
     # "//yt/yql/providers/yt/fmr/coordinator/impl",
     # "//yt/yql/providers/yt/fmr/coordinator/yt_coordinator_service/file",

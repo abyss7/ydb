@@ -8,7 +8,7 @@ library("actors") {
     "//ydb/core/control/lib",
     # "//ydb/core/memory_controller",
     "//ydb/core/mon",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/core/tablet",
     "//ydb/core/testlib/audit_helpers",
     "//ydb/library/actors/testlib",

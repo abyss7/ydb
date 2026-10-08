@@ -9,7 +9,7 @@ library("generic") {
     # "//ydb/core/blobstorage/vdisk/hulldb/bulksst_add",
     "//ydb/core/blobstorage/vdisk/hulldb/fresh",
     # "//ydb/core/blobstorage/vdisk/hullop:hullcompdelete",
-    # "//ydb/core/blobstorage/vdisk/protos",
+    "//ydb/core/blobstorage/vdisk/protos",
     "//ydb/core/blobstorage/vdisk:defs",
     # "//ydb/core/util",
   ]

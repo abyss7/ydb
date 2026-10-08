@@ -13,7 +13,7 @@ library("health_check") {
     # "//ydb/core/cms/console",
     # "//ydb/core/mind",
     "//ydb/core/mon",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/sys_view/common",
     "//ydb/core/tablet",
     # "//ydb/core/tx/scheme_cache",

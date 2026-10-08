@@ -9,7 +9,7 @@ library("abstract") {
   ]
 
   deps = [
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/tx/columnshard",
   ]
 

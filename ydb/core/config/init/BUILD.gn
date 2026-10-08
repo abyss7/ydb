@@ -8,7 +8,7 @@ library("init") {
     "//ydb/core/driver_lib/cli_config_base",
     # "//ydb/core/driver_lib/run:_self",
     # "//ydb/core/driver_lib/run:config",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/util",
     # "//ydb/library/aclib",
     # "//ydb/library/actors/core",

@@ -3,7 +3,7 @@ library("quoter") {
     # "//library/cpp/containers/ring_buffer",
     # "//library/cpp/lwtrace",
     "//ydb/core/base",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/core/quoter/public",
     "//ydb/core/tablet",
     # "//ydb/core/tx/scheme_cache",

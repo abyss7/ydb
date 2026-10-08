@@ -7,9 +7,9 @@ library("locks") {
     # "//ydb/core/scheme",
     # "//ydb/core/tablet",
     "//ydb/core/tablet_flat",
-    # "//ydb/library/mkql_proto/protos",
+    "//ydb/library/mkql_proto/protos",
     # "//ydb/library/range_treap",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
   ]
 
   sources = [

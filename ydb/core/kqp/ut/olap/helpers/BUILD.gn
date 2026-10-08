@@ -23,7 +23,7 @@ library("helpers") {
     # "//ydb/core/tx/datashard",
     # "//ydb/core/tx/datashard/ut_common",
     # "//ydb/library/ut",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     # "//ydb/public/sdk/cpp/src/client/result",
   ]
 

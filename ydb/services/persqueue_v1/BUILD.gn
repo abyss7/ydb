@@ -11,7 +11,7 @@ library("persqueue_v1") {
     # "//ydb/library/grpc/server",
     "//ydb/public/api/grpc",
     "//ydb/public/api/grpc/draft",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     "//ydb/services/persqueue_v1/actors",
   ]
 

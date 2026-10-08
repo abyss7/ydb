@@ -7,7 +7,7 @@ library("program") {
     "//ydb/core/protos",
     # "//ydb/core/tx/columnshard/engines/scheme/indexes/abstract",
     "//ydb/core/tx/schemeshard/olap/schema",
-    # "//ydb/library/formats/arrow/protos",
+    "//ydb/library/formats/arrow/protos",
   ]
 
   deps = [

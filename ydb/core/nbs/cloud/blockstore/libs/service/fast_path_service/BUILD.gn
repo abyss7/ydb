@@ -12,7 +12,7 @@ library("fast_path_service") {
     # "//ydb/core/base",
     # "//ydb/core/blobstorage/ddisk",  # peerdir only
     # "//ydb/core/mind/bscontroller",  # peerdir only
-    # "//ydb/core/nbs/cloud/storage/core/protos",
+    "//ydb/core/nbs/cloud/storage/core/protos",
   ]
 
   sources = [ "fast_path_service.cpp" ]

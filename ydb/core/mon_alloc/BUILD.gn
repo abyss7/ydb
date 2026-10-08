@@ -20,7 +20,7 @@ library("mon_alloc") {
     "//ydb/core/base",
     "//ydb/core/mon",
     # "//ydb/library/actors/prof",
-    # "//ydb/library/services",
+    "//ydb/library/services",
     # "//yql/essentials/utils/memory_profiling",  # peerdir only
   ]
 

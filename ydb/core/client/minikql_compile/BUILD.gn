@@ -25,8 +25,8 @@ library("minikql_compile") {
     # "//ydb/core/scheme",  # peerdir only
     "//ydb/core/tx/scheme_board",
     "//ydb/core/tx/scheme_cache",
-    # "//ydb/library/services",
-    # "//ydb/library/ydb_issue/proto",
+    "//ydb/library/services",
+    "//ydb/library/ydb_issue/proto",
     # "//ydb/public/lib/scheme_types",
     # "//yql/essentials/core",
     "//yql/essentials/core/type_ann",

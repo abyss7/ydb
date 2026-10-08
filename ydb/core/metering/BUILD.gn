@@ -6,9 +6,7 @@ library("metering") {
     # "//ydb/library/actors/core",
   ]
 
-  deps = [
-    # "//ydb/library/services",
-  ]
+  deps = [ "//ydb/library/services" ]
 
   sources = [
     "bill_record.cpp",

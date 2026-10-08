@@ -11,7 +11,7 @@ protobuf_library("protos") {
 library("public_http") {
   public_deps = [
     "//ydb/core/base",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/actors/core",
     "//ydb/library/actors/http",
     "//ydb/public/api/protos",
@@ -28,7 +28,7 @@ library("public_http") {
     "//ydb/core/viewer/json",
     # "//ydb/library/grpc/server",
     # "//ydb/library/http_proxy/error",
-    # "//ydb/library/services",
+    "//ydb/library/services",
     # "//ydb/public/sdk/cpp/src/client/types",
     # "//yql/essentials/public/issue",  # peerdir only
   ]

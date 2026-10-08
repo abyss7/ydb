@@ -2,7 +2,7 @@ library("actorsys_test") {
   public_deps = [
     # "//library/cpp/deprecated/atomic",
     "//ydb/core/base",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/core/tablet",
     "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",

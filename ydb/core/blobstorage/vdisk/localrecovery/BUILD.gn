@@ -5,7 +5,7 @@ library("localrecovery") {
     "//ydb/core/blobstorage/vdisk/common",
     "//ydb/core/blobstorage/vdisk/common:guids",
     # "//ydb/core/blobstorage/vdisk:defs",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
   ]
 
   deps = [

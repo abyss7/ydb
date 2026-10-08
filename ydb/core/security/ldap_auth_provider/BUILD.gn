@@ -22,9 +22,7 @@ library("ldap_auth_provider") {
 library("test_utils") {
   public_deps = [ "//ydb/core/security/certificate_check" ]
 
-  deps = [
-    # "//ydb/core/protos",
-  ]
+  deps = [ "//ydb/core/protos" ]
 
   sources = [ "test_utils/test_settings.cpp" ]
 }

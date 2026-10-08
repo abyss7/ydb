@@ -13,7 +13,7 @@ library("service") {
     # "//ydb/core/tablet",
     "//ydb/core/tx/scheme_cache",
     # "//ydb/library/aclib/protos",  # peerdir only
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   sources = [

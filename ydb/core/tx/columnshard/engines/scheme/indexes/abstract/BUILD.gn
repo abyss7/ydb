@@ -2,7 +2,7 @@ library("abstract") {
   public_deps = [
     "//library/cpp/json",
     "//ydb/core/formats/arrow/program",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/core/tx/columnshard/common",
     # "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/core/tx/columnshard/splitter",

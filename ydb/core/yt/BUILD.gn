@@ -1,12 +1,12 @@
 library("yt") {
   deps = [
     # "//ydb/core/base",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/tablet_flat",
     # "//ydb/core/tx/datashard",
     # "//ydb/library/aclib",  # peerdir only
     # "//ydb/library/actors/core",
-    # "//ydb/library/services",
+    "//ydb/library/services",
     # "//yql/essentials/parser/pg_wrapper/interface",
     # "//yql/essentials/types/binary_json",
     # "//yt/yt/client",

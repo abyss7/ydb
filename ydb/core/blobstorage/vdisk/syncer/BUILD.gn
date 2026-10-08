@@ -11,10 +11,10 @@ library("syncer") {
     # "//ydb/core/blobstorage/vdisk/hulldb/generic",
     "//ydb/core/blobstorage/vdisk/ingress",
     "//ydb/core/driver_lib/version",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/util",
     # "//ydb/library/actors/core",
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   deps = [

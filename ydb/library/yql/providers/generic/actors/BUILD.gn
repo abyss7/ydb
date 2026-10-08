@@ -15,7 +15,7 @@ library("actors") {
     "//ydb/core/formats/arrow",
     "//ydb/library/mkql_proto",
     # "//ydb/library/yql/dq/runtime",
-    # "//ydb/library/yql/providers/generic/connector/api/service/protos",
+    "//ydb/library/yql/providers/generic/connector/api/service/protos",
     # "//ydb/public/sdk/cpp/src/client/types/credentials",
     # "//yql/essentials/core",
     # "//yql/essentials/providers/common/provider",

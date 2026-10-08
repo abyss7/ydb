@@ -3,7 +3,7 @@ library("utils") {
     # "//contrib/libs/grpc",
     # "//library/cpp/logger",
     # "//library/cpp/threading/future",
-    # "//ydb/public/api/grpc",
+    "//ydb/public/api/grpc",
     "//ydb/public/sdk/cpp/src/client/topic",
     # "//ydb/public/sdk/cpp/src/client/topic/common",
   ]

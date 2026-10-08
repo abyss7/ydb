@@ -6,7 +6,7 @@ library("nbs") {
     # "//ydb/library/actors/core",
     # "//ydb/library/grpc/server",
     # "//ydb/public/api/grpc",  # peerdir only
-    # "//ydb/public/api/grpc/draft",
+    "//ydb/public/api/grpc/draft",
   ]
 
   sources = [ "grpc_service.cpp" ]

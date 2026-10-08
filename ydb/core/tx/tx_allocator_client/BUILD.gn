@@ -3,7 +3,7 @@ library("tx_allocator_client") {
     "//ydb/core/base",
     "//ydb/core/tablet",
     # "//ydb/core/tx/tx_allocator",
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   deps = [

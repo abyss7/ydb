@@ -4,7 +4,7 @@ library("provider") {
     # "//ydb/library/yql/providers/common/http_gateway",
     # "//yql/essentials/core",
     # "//yql/essentials/providers/common/config",
-    # "//yql/essentials/providers/common/proto",
+    "//yql/essentials/providers/common/proto",
     # "//yql/essentials/utils/log",
   ]
 
@@ -14,7 +14,7 @@ library("provider") {
     # "//library/cpp/time_provider",  # peerdir only
     # "//ydb/library/yql/dq/expr_nodes",
     # "//ydb/library/yql/providers/clickhouse/expr_nodes",
-    # "//ydb/library/yql/providers/clickhouse/proto",
+    "//ydb/library/yql/providers/clickhouse/proto",
     # "//ydb/library/yql/providers/dq/common",
     # "//ydb/library/yql/providers/dq/expr_nodes",
     # "//yql/essentials/ast",

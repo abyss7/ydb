@@ -4,7 +4,7 @@ library("scheme") {
     "//library/cpp/string_utils/quote",
     "//ydb/core/formats/arrow",
     # "//ydb/core/formats/arrow/program",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/scheme",
     # "//ydb/core/tx/columnshard",
     "//ydb/core/tx/columnshard/blobs_action/abstract",

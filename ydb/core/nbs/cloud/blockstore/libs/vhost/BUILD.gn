@@ -4,7 +4,7 @@ library("vhost") {
     "//ydb/core/nbs/cloud/blockstore/libs/diagnostics",
     "//ydb/core/nbs/cloud/blockstore/libs/service",
     # "//ydb/core/nbs/cloud/storage/core/libs/common",
-    # "//ydb/core/nbs/cloud/storage/core/protos",
+    "//ydb/core/nbs/cloud/storage/core/protos",
   ]
 
   deps = [

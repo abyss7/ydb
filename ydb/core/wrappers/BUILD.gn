@@ -23,13 +23,13 @@ library("wrappers") {
     "//ydb/core/wrappers/events",
     # "//ydb/library/accessor",
     "//ydb/library/actors/core",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
   ]
 
   deps = [
     # "//contrib/libs/curl",
     "//library/cpp/digest/md5",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
   ]
 
   sources = [

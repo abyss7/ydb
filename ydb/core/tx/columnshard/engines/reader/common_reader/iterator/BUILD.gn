@@ -7,7 +7,7 @@ library("iterator") {
     "//ydb/core/formats/arrow/accessor/sub_columns",
     # "//ydb/core/formats/arrow/accessor:composite",
     "//ydb/core/formats/arrow/program",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/tx/columnshard",
     # "//ydb/core/tx/columnshard/blobs_action/abstract",
     "//ydb/core/tx/columnshard/blobs_reader",

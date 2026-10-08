@@ -3,7 +3,7 @@ library("client") {
     "//library/cpp/json",
     "//library/cpp/threading/future",
     "//ydb/library/yql/providers/solomon/common",
-    # "//ydb/library/yql/providers/solomon/proto",
+    "//ydb/library/yql/providers/solomon/proto",
     # "//ydb/public/sdk/cpp/src/client/types/credentials",
   ]
 

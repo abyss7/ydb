@@ -15,7 +15,7 @@ library("tiering") {
     # "//library/cpp/json",  # peerdir only
     # "//library/cpp/retry",
     # "//ydb/core/blobstorage",  # peerdir only
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/tablet_flat/protos",  # peerdir only
     # "//ydb/core/tx/columnshard",
     # "//ydb/core/tx/columnshard/hooks/abstract",

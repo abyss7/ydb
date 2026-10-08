@@ -3,7 +3,7 @@ library("src") {
 
   public_deps = [
     "//ydb/core/fq/libs/config/protos",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/yql/providers/pq/gateway/abstract",
     "//ydb/tests/tools/kqprun/runlib",
     # "//yql/essentials/minikql",

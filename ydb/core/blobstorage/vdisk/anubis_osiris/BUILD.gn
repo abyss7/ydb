@@ -8,7 +8,7 @@ library("anubis_osiris") {
     # "//ydb/core/blobstorage/vdisk/hulldb/base",
     # "//ydb/core/util",
     # "//ydb/library/actors/core",
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   deps = [
@@ -17,7 +17,7 @@ library("anubis_osiris") {
     "//ydb/core/blobstorage/backpressure",
     "//ydb/core/blobstorage/vdisk/hulldb/barriers",  # peerdir only
     "//ydb/core/blobstorage/vdisk/hulldb/generic",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
   ]
 
   sources = [

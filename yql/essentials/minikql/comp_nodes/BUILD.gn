@@ -14,4 +14,9 @@ slot_interface_group("comp_nodes") {
   ]
 
   link_slot_flags_from = [ "mkql_multihopping.cpp" ]
+
+  link_slot_codegen = [
+    "//yql/essentials/public/issue/protos",
+    "//yql/essentials/public/types",
+  ]
 }

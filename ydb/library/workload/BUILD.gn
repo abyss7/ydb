@@ -213,7 +213,7 @@ library("log") {
     # "//library/cpp/json",
     # "//library/cpp/resource",
     "//ydb/library/workload/abstract",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
   ]
 
   sources = [

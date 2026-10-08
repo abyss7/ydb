@@ -33,7 +33,7 @@ library("tablet") {
   public_deps = [
     "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/base",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/library/actors/core",
     # "//ydb/library/time_series_vec",
     "//ydb/public/api/protos",
@@ -51,7 +51,7 @@ library("tablet") {
     "//ydb/core/tablet",
     "//ydb/core/tablet_flat",
     # "//ydb/core/util",
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   sources = [

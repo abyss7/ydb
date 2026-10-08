@@ -10,7 +10,7 @@ library("cluster_tracker") {
     # "//ydb/core/kqp/common",
     # "//ydb/core/persqueue/events",  # peerdir only
     "//ydb/core/persqueue/public",
-    # "//ydb/library/mkql_proto/protos",
+    "//ydb/library/mkql_proto/protos",
     "//ydb/public/sdk/cpp/src/client/result",
   ]
 

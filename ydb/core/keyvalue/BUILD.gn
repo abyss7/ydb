@@ -5,13 +5,13 @@ library("keyvalue") {
     "//ydb/core/base",
     "//ydb/core/engine/minikql",
     "//ydb/core/keyvalue/protos",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/core/tablet",
     "//ydb/core/tablet_flat",
     "//ydb/core/util",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/wilson",
-    # "//ydb/library/services",
+    "//ydb/library/services",
     # "//ydb/library/wilson_ids",
     # "//ydb/public/lib/base",
   ]
@@ -22,7 +22,7 @@ library("keyvalue") {
     # "//ydb/core/mind",
     # "//ydb/core/scheme",
     # "//ydb/core/tx",  # peerdir only
-    # "//ydb/library/actors/protos",
+    "//ydb/library/actors/protos",
   ]
 
   sources = [

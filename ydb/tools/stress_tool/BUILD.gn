@@ -14,16 +14,16 @@ library("lib") {
     # "//ydb/core/blobstorage/vdisk/common",
     "//ydb/core/load_test",
     # "//ydb/core/node_whiteboard",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/tablet",
     "//ydb/core/util",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
-    # "//ydb/library/actors/protos",
+    "//ydb/library/actors/protos",
     "//ydb/library/pdisk_io",
-    # "//ydb/library/services",
+    "//ydb/library/services",
     # "//ydb/library/yverify_stream",
-    # "//ydb/tools/stress_tool/proto",
+    "//ydb/tools/stress_tool/proto",
   ]
 
   deps = [

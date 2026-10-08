@@ -13,7 +13,7 @@ library("facade") {
     # "//yql/essentials/core/url_lister/interface",
     # "//yql/essentials/core/url_preprocessing/interface",
     "//yql/essentials/providers/common/gateways_utils",
-    # "//yql/essentials/providers/common/proto",
+    "//yql/essentials/providers/common/proto",
     "//yql/essentials/providers/config",
     "//yql/essentials/providers/result/provider",
     # "//yql/essentials/public/issue",

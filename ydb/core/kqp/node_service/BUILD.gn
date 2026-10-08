@@ -4,7 +4,7 @@ library("node_service") {
     "//ydb/core/kqp/compute_actor",
     # "//ydb/core/kqp/counters",
     "//ydb/core/kqp/federated_query",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
     # "//ydb/library/yql/dq/actors/compute",
@@ -28,7 +28,7 @@ library("node_service") {
     "//ydb/library/actors/async",
     # "//ydb/library/actors/wilson",
     # "//ydb/library/wilson_ids",
-    # "//ydb/library/yql/dq/proto",
+    "//ydb/library/yql/dq/proto",
   ]
 
   sources = [

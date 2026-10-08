@@ -3,7 +3,7 @@ library("value") {
 
   deps = [
     # "//library/cpp/containers/stack_vector",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     "//ydb/public/sdk/cpp/src/client/impl/internal/value_helpers",
     # "//ydb/public/sdk/cpp/src/client/params",
     "//ydb/public/sdk/cpp/src/client/types/fatal_error_handlers",

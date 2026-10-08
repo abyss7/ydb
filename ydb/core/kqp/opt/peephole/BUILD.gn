@@ -9,7 +9,7 @@ library("peephole") {
     "//ydb/core/kqp/host:transform",
     "//ydb/core/kqp/opt/physical",
     # "//ydb/core/kqp/provider",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/library/naming_conventions",
     # "//ydb/library/yql/dq/opt",
     "//ydb/library/yql/dq/type_ann",

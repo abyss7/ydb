@@ -34,7 +34,7 @@ library("skeleton") {
     # "//ydb/core/cms/console",
     # "//ydb/core/control/lib",
     # "//ydb/core/node_whiteboard",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/util",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/wilson",

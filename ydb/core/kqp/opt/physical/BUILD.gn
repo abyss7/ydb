@@ -35,7 +35,7 @@ library("physical") {
     "//ydb/library/yql/dq/type_ann",
     # "//ydb/library/yql/providers/dq/common",
     # "//ydb/library/yql/providers/dq/expr_nodes",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     # "//ydb/public/lib/scheme_types",
     # "//yql/essentials/core/expr_nodes",
     "//yql/essentials/core/peephole_opt",

@@ -7,13 +7,13 @@ library("tablet") {
     "//ydb/core/base",
     "//ydb/core/mon",
     "//ydb/core/node_whiteboard",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/sys_view/common",
     "//ydb/core/sys_view/service",
     # "//ydb/core/tablet_flat",
     "//ydb/core/util",
     # "//ydb/library/actors/core",
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   deps = [

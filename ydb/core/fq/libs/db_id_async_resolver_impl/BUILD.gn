@@ -10,11 +10,11 @@ library("db_id_async_resolver_impl") {
     # "//library/cpp/json",
     # "//library/cpp/threading/future",  # peerdir only
     # "//ydb/core/fq/libs/common",
-    # "//ydb/core/fq/libs/config/protos",
+    "//ydb/core/fq/libs/config/protos",
     "//ydb/core/fq/libs/events",
     "//ydb/core/util",
     "//ydb/library/actors/http",
-    # "//ydb/library/services",
+    "//ydb/library/services",
     # "//yql/essentials/utils",
   ]
 

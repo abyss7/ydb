@@ -3,7 +3,7 @@ library("service") {
     # "//ydb/core/protos",  # peerdir only
     "//ydb/core/tx/tracing/usage",
     # "//ydb/library/actors/core",
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   sources = [

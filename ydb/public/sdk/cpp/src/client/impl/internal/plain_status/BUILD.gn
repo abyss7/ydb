@@ -1,6 +1,6 @@
 library("plain_status") {
   public_deps = [
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     # "//ydb/public/sdk/cpp/src/client/types",
     "//ydb/public/sdk/cpp/src/library/grpc/client",
     "//ydb/public/sdk/cpp/src/library/issue",

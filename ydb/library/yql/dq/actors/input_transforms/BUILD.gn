@@ -3,7 +3,7 @@ library("input_transforms") {
 
   deps = [
     # "//ydb/library/actors/core",
-    # "//ydb/library/yql/dq/proto",
+    "//ydb/library/yql/dq/proto",
     # "//yql/essentials/minikql",
     # "//yql/essentials/minikql/computation",
   ]

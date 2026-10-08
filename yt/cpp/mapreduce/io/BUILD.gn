@@ -15,7 +15,7 @@ library("io") {
     "//library/cpp/yt/logging",
     "//yt/cpp/mapreduce/interface/logging",
     "//yt/yt/core",
-    # "//yt/yt_proto/yt/formats",
+    "//yt/yt_proto/yt/formats",
   ]
 
   sources = [

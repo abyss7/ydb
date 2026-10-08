@@ -23,7 +23,7 @@ library("arrow") {
     # "//ydb/library/formats/arrow/splitter",  # peerdir only
     # "//ydb/library/formats/arrow/transformer",  # peerdir only
     "//ydb/library/formats/arrow/validation",
-    # "//ydb/library/services",
+    "//ydb/library/services",
     # "//ydb/library/yverify_stream",
     # "//yql/essentials/core/arrow_kernels/request",  # peerdir only
     # "//yql/essentials/types/binary_json",  # peerdir only

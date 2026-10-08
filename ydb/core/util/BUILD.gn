@@ -15,9 +15,9 @@ library("util") {
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/actors/util",
     # "//ydb/library/actors/wilson",
-    # "//ydb/library/services",
+    "//ydb/library/services",
     # "//ydb/library/yverify_stream",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
   ]
 
   deps = [

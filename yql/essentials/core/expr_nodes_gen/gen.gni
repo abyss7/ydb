@@ -24,6 +24,9 @@ template("generate_expr_nodes") {
                         root_build_dir),
             "{{source}}",
         ] + outputs
+        if (defined(invoker.node_namespace)) {
+            args += [ invoker.node_namespace ]
+        }
     }
 
     library(target_name) {

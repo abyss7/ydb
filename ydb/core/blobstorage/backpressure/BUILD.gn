@@ -8,7 +8,7 @@ library("backpressure") {
     # "//ydb/core/blobstorage/groupinfo",
     "//ydb/core/blobstorage/lwtrace_probes",
     "//ydb/core/blobstorage/vdisk/common",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/actors/core",
     "//ydb/library/actors/wilson",
     # "//ydb/library/wilson_ids",

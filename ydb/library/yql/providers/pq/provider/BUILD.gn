@@ -7,7 +7,7 @@ library("provider") {
     # "//yql/essentials/core",
     # "//yql/essentials/core/dq_integration",
     "//yql/essentials/providers/common/config",
-    # "//yql/essentials/providers/common/proto",
+    "//yql/essentials/providers/common/proto",
     "//yql/essentials/providers/common/structured_token",
     # "//yql/essentials/utils/log",
     "//yt/yql/providers/ytflow/integration/interface",
@@ -24,7 +24,7 @@ library("provider") {
     # "//ydb/library/yql/providers/dq/expr_nodes",
     "//ydb/library/yql/providers/dq/mkql",
     # "//ydb/library/yql/providers/dq/provider/exec",  # peerdir only
-    # "//ydb/library/yql/providers/generic/connector/api/service/protos",
+    "//ydb/library/yql/providers/generic/connector/api/service/protos",
     "//ydb/library/yql/providers/generic/provider",
     # "//ydb/library/yql/providers/pq/cm_client",  # peerdir only
     "//ydb/library/yql/providers/pq/common",

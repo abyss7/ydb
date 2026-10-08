@@ -6,7 +6,7 @@ library("provider") {
     # "//yql/essentials/core/dq_integration",
     "//yql/essentials/providers/common/config",
     "//yql/essentials/providers/common/gateway",
-    # "//yql/essentials/providers/common/proto",
+    "//yql/essentials/providers/common/proto",
     "//yql/essentials/providers/common/structured_token",
   ]
 
@@ -14,7 +14,7 @@ library("provider") {
     # "//contrib/libs/protobuf",
     "//library/cpp/monlib/metrics",
     "//ydb/library/actors/core",
-    # "//ydb/library/actors/protos",
+    "//ydb/library/actors/protos",
     # "//ydb/library/yql/dq/expr_nodes",
     "//ydb/library/yql/dq/opt",
     # "//ydb/library/yql/providers/dq/common",

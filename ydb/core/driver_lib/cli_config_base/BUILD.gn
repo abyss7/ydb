@@ -2,8 +2,8 @@ library("cli_config_base") {
   public_deps = [
     # "//contrib/libs/protobuf",
     # "//library/cpp/deprecated/enum_codegen",
-    # "//ydb/core/fq/libs/config/protos",
-    # "//ydb/core/protos",
+    "//ydb/core/fq/libs/config/protos",
+    "//ydb/core/protos",
     "//ydb/core/util",
     "//ydb/public/lib/deprecated/client",
   ]

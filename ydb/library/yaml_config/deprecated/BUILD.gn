@@ -5,7 +5,7 @@ library("deprecated") {
     # "//library/cpp/json",
     # "//library/cpp/protobuf/json",
     # "//library/cpp/yaml/as",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
   ]
 
   deps = [

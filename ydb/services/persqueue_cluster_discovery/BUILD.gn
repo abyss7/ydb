@@ -21,7 +21,7 @@ library("persqueue_cluster_discovery") {
     # "//ydb/core/mind/address_classification",
     # "//ydb/core/mon",
     # "//ydb/core/persqueue/public",  # peerdir only
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/public/api/grpc",  # peerdir only
     # "//ydb/public/api/protos",  # peerdir only
   ]

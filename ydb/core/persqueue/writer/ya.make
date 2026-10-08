@@ -17,7 +17,6 @@ PEERDIR(
     ydb/core/persqueue/events
     ydb/core/grpc_services/cancelation/protos
     ydb/core/kqp/common/simple
-    ydb/core/kqp/topics
     ydb/core/protos
     ydb/library/wilson_ids
     ydb/public/lib/base

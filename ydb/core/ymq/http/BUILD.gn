@@ -3,7 +3,7 @@ library("http") {
     # "//library/cpp/cgiparam",
     # "//library/cpp/http/server",
     "//library/cpp/scheme",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/core/ymq/base",
     # "//ydb/library/actors/core",
     # "//ydb/library/http_proxy/authorization",
@@ -18,7 +18,7 @@ library("http") {
     "//library/cpp/string_utils/url",
     "//ydb/core/ymq/actor",
     # "//ydb/library/http_proxy/error",
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   sources = [

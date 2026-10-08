@@ -19,7 +19,7 @@ library("lib") {
     "//ydb/core/mind/hive",
     # "//ydb/core/mind:tenant_node_enumeration",
     # "//ydb/core/node_whiteboard",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/sys_view/service",
     # "//ydb/core/tx/coordinator",
     # "//ydb/core/tx/mediator",

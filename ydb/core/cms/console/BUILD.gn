@@ -21,10 +21,10 @@ library("console") {
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/grpc/server",
     # "//ydb/library/yverify_stream",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     "//ydb/public/sdk/cpp/src/library/operation_id",
     "//ydb/public/sdk/cpp/src/library/operation_id/protos",
-    # "//yql/essentials/public/issue/protos",
+    "//yql/essentials/public/issue/protos",
   ]
 
   deps = [
@@ -39,14 +39,14 @@ library("console") {
     "//ydb/core/config/validation",
     "//ydb/core/mon",
     # "//ydb/core/node_whiteboard",
-    # "//ydb/core/protos/schemeshard",
+    "//ydb/core/protos/schemeshard",
     # "//ydb/core/util",
     "//ydb/library/actors/http",
-    # "//ydb/library/actors/protos",
+    "//ydb/library/actors/protos",
     "//ydb/library/protobuf_printer",
     # "//ydb/library/wilson_ids",
     "//ydb/library/yaml_config",
-    # "//ydb/public/api/grpc/draft",
+    "//ydb/public/api/grpc/draft",
   ]
 
   sources = [

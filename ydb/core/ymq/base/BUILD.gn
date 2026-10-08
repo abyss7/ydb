@@ -5,7 +5,7 @@ library("base") {
     # "//library/cpp/monlib/dynamic_counters",
     "//library/cpp/scheme",
     "//ydb/core/kqp/common",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/core/ymq/proto",
     "//ydb/library/aclib",
     # "//ydb/library/actors/core",

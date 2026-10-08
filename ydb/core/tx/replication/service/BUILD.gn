@@ -3,7 +3,7 @@ library("service") {
     # "//library/cpp/json",
     # "//ydb/core/base",
     "//ydb/core/change_exchange",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/scheme",
     # "//ydb/core/scheme_types",
     # "//ydb/core/tablet_flat",
@@ -21,7 +21,7 @@ library("service") {
     "//ydb/core/tx/replication/ydb_proxy/local_proxy",  # peerdir only
     "//ydb/core/tx/scheme_cache",
     "//ydb/core/tx/tx_proxy:public",
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   sources = [

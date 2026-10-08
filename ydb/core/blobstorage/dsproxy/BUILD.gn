@@ -25,7 +25,7 @@ library("dsproxy") {
     "//ydb/core/blobstorage/vdisk/ingress",
     # "//ydb/core/blobstorage/vdisk/query",
     "//ydb/core/mon",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/core/retro_tracing_impl",
     "//ydb/core/util",
     # "//ydb/library/actors/core",

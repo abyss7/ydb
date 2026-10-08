@@ -35,11 +35,11 @@ library("yaml_config") {
     "//library/cpp/yaml/as",
     "//ydb/core/base",
     "//ydb/core/erasure",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/actors/core",
     "//ydb/library/fyamlcpp",
     "//ydb/library/yaml_config/public",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     # "//yql/essentials/public/issue",
   ]
 

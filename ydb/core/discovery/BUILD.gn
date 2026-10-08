@@ -9,7 +9,7 @@ library("discovery") {
     # "//ydb/core/blobstorage/base",  # peerdir only
     "//ydb/core/blobstorage/events",
     "//ydb/core/tx/scheme_cache",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
   ]
 
   sources = [ "discovery.cpp" ]

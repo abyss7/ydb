@@ -12,7 +12,7 @@ library("runtime") {
     "//ydb/core/kqp/common/result_set_format",
     "//ydb/core/kqp/counters",
     # "//ydb/core/kqp/gateway:interface",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/resource_pools",
     "//ydb/core/scheme",
     # "//ydb/core/scheme_types",
@@ -22,9 +22,9 @@ library("runtime") {
     "//ydb/core/tx/scheme_cache",
     # "//ydb/library/actors/core",
     "//ydb/library/formats/arrow/validation",
-    # "//ydb/library/services",
+    "//ydb/library/services",
     "//ydb/library/yql/dq/actors/compute",
-    # "//ydb/library/yql/dq/actors/protos",
+    "//ydb/library/yql/dq/actors/protos",
     # "//ydb/library/yql/dq/common",
     "//ydb/library/yql/dq/comp_nodes",
     # "//ydb/library/yql/dq/runtime",
@@ -47,7 +47,7 @@ library("runtime") {
     # "//ydb/core/kqp/common/simple",
     "//ydb/core/kqp/topics",  # peerdir only
     # "//ydb/core/persqueue/events",
-    # "//ydb/core/scheme/protos",
+    "//ydb/core/scheme/protos",
     # "//ydb/core/tx",
     "//ydb/core/tx/datashard:range_ops",
     "//ydb/core/tx/datashard:read_events",  # peerdir only
@@ -58,8 +58,8 @@ library("runtime") {
     # "//ydb/core/ydb_convert",  # peerdir only
     # "//ydb/library/wilson_ids",
     # "//ydb/library/yql/dq/actors/spilling",  # peerdir only
-    # "//ydb/library/yql/dq/proto",
-    # "//ydb/public/api/protos",
+    "//ydb/library/yql/dq/proto",
+    "//ydb/public/api/protos",
     "//yql/essentials/minikql/comp_nodes",
     "//yql/essentials/minikql/computation/llvm16",  # link slot
     # "//yql/essentials/minikql:alloc",

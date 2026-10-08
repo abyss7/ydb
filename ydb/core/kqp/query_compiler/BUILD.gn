@@ -3,7 +3,7 @@ library("query_compiler") {
     "//ydb/core/kqp/expr_nodes",
     "//ydb/core/kqp/opt:helpers",
     # "//ydb/core/kqp/provider",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
   ]
 
   deps = [
@@ -16,7 +16,7 @@ library("query_compiler") {
     "//ydb/core/kqp/runtime",
     # "//ydb/core/scheme",
     "//ydb/core/ydb_convert",
-    # "//ydb/library/formats/arrow/protos",
+    "//ydb/library/formats/arrow/protos",
     # "//ydb/library/mkql_proto",
     "//ydb/library/yql/dq/comp_nodes",
     # "//ydb/library/yql/dq/opt",

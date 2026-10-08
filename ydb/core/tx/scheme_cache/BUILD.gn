@@ -8,7 +8,7 @@ library("scheme_cache") {
     # "//ydb/core/scheme_types",
     # "//ydb/core/tx/locks",
     # "//ydb/library/aclib",
-    # "//ydb/library/login/protos",
+    "//ydb/library/login/protos",
   ]
 
   deps = [

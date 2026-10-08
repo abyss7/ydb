@@ -16,7 +16,7 @@ library("workload_service") {
     "//ydb/core/kqp/workload_service/common",
     "//ydb/core/kqp/workload_service/tables",
     "//ydb/core/mind:tenant_node_enumeration",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/actors/interconnect",
   ]
 

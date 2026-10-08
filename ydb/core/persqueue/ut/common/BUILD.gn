@@ -23,7 +23,7 @@ library("pq_ut_common") {
   public_deps = [
     "//ydb/core/persqueue",
     # "//ydb/core/persqueue/events",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/core/testlib",
     "//ydb/core/testlib/actors",
     # "//ydb/core/testlib/basics",

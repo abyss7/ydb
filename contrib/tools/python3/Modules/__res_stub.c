@@ -111,3 +111,13 @@ PyInit___res(void)
 {
     return PyModule_Create(&res_module);
 }
+
+/* Registered the way library/python/runtime_py3/runtime_reg_py3.cpp does it
+ * in ya: a global constructor extends the inittab before Py_Initialize, so
+ * Modules/config.c stays as in upstream. */
+__attribute__((constructor))
+static void
+res_stub_register(void)
+{
+    PyImport_AppendInittab("__res", PyInit___res);
+}

@@ -1,10 +1,10 @@
 library("tx_allocator") {
   public_deps = [
     "//ydb/core/base",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/core/tablet",
     "//ydb/core/tablet_flat",
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   deps = [

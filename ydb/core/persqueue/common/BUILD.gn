@@ -5,10 +5,10 @@ library("common") {
     # "//ydb/core/kafka_proxy",
     "//ydb/core/persqueue/public",
     # "//ydb/core/persqueue/public/partition_key_range",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/core/tablet",
     # "//ydb/library/actors/core",
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   deps = [

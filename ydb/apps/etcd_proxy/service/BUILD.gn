@@ -1,7 +1,7 @@
 library("service") {
   public_deps = [
     # "//library/cpp/monlib/dynamic_counters",
-    # "//ydb/apps/etcd_proxy/proto",
+    "//ydb/apps/etcd_proxy/proto",
     # "//ydb/core/grpc_services/base",
     # "//ydb/library/actors/core",
     # "//ydb/library/grpc/server",

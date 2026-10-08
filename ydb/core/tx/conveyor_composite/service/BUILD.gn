@@ -14,7 +14,7 @@ library("service") {
     "//ydb/core/kqp/query_data",
     # "//ydb/core/protos",  # peerdir only
     "//ydb/core/tx/conveyor_composite/tracing",
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   sources = [

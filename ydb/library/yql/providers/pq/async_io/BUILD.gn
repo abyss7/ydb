@@ -22,7 +22,7 @@ library("async_io") {
     "//ydb/core/fq/libs/row_dispatcher/events",
     # "//ydb/library/actors/log_backend",
     # "//ydb/library/yql/dq/actors/common",
-    # "//ydb/library/yql/dq/actors/protos",
+    "//ydb/library/yql/dq/actors/protos",
     # "//ydb/library/yql/dq/common",
     # "//ydb/library/yql/providers/dq/api/protos",  # peerdir only
     "//ydb/library/yql/providers/pq/common",

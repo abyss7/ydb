@@ -4,7 +4,7 @@ library("ingress") {
     "//ydb/core/blobstorage/groupinfo",
     # "//ydb/core/util",
     # "//ydb/library/actors/core",
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   deps = [

@@ -15,7 +15,7 @@ library("nodewarden") {
     # "//ydb/core/cms/console",
     "//ydb/core/mind/bscontroller:group_mapper",
     # "//ydb/core/node_whiteboard",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/tablet",
     "//ydb/core/util",
     # "//ydb/library/aclib",

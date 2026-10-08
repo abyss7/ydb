@@ -8,7 +8,7 @@ library("hive") {
     "//ydb/core/engine/minikql",
     # "//ydb/core/mind",
     # "//ydb/core/node_whiteboard",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/scheme",
     # "//ydb/core/sys_view/common",
     "//ydb/core/tablet",

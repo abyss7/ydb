@@ -9,7 +9,7 @@ library("address_classification") {
   deps = [
     "//ydb/core/cms/console",
     "//ydb/core/mon",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
   ]
 
   sources = [

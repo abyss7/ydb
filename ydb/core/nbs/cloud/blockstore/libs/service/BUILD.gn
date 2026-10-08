@@ -3,7 +3,7 @@ library("service") {
     "//library/cpp/threading/future",
     "//ydb/core/nbs/cloud/blockstore/libs/common",
     "//ydb/core/nbs/cloud/storage/core/libs/common",
-    # "//ydb/core/nbs/cloud/storage/core/protos",
+    "//ydb/core/nbs/cloud/storage/core/protos",
   ]
 
   deps = [

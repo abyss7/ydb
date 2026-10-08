@@ -25,7 +25,7 @@ library("pdisk") {
     "//ydb/library/actors/wilson",
     "//ydb/library/pdisk_io",
     "//ydb/library/schlab/schine",
-    # "//ydb/library/services",
+    "//ydb/library/services",
     # "//ydb/library/wilson_ids",
     # "//ydb/library/yverify_stream",
   ]

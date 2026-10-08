@@ -16,7 +16,7 @@ library("actors") {
   deps = [
     # "//ydb/core/tx/tx_proxy",  # peerdir only
     "//ydb/core/util",
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   sources = [

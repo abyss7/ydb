@@ -7,13 +7,13 @@ library("checkpointing") {
     "//ydb/library/actors/core",
     # "//ydb/library/yql/dq/actors/common",
     "//ydb/library/yql/dq/actors/compute",
-    # "//ydb/library/yql/dq/actors/protos",
-    # "//ydb/public/api/protos",
+    "//ydb/library/yql/dq/actors/protos",
+    "//ydb/public/api/protos",
   ]
 
   deps = [
     # "//ydb/core/fq/libs/actors/logging",
-    # "//ydb/core/fq/libs/config/protos",
+    "//ydb/core/fq/libs/config/protos",
     # "//ydb/library/yql/dq/actors",
     "//ydb/library/yql/dq/state",
   ]

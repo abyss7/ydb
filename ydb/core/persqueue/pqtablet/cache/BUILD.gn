@@ -12,7 +12,7 @@ library("cache") {
     # "//library/cpp/cache",
     # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/mon",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
   ]
 
   sources = [ "pq_l2_cache.cpp" ]

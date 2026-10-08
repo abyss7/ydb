@@ -13,7 +13,7 @@ library("spilling") {
   deps = [
     # "//library/cpp/monlib/service/pages",
     # "//ydb/library/actors/util",  # peerdir only
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   sources = [

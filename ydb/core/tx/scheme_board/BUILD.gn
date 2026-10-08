@@ -3,11 +3,11 @@ library("scheme_board") {
     "//library/cpp/json",
     "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/base",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/scheme",
     "//ydb/core/tx/scheme_cache",
     # "//ydb/library/actors/core",
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   deps = [

@@ -8,7 +8,7 @@ library("session_actor") {
     "//ydb/core/kqp/executer_actor",
     "//ydb/core/kqp/federated_query",
     "//ydb/core/kqp/gateway:interface",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/actors/core",
     # "//ydb/library/yql/dq/actors/compute",
     # "//ydb/library/yql/dq/runtime",
@@ -33,7 +33,7 @@ library("session_actor") {
     "//ydb/core/kqp/rm_service",
     "//ydb/core/kqp/runtime",
     "//ydb/core/kqp/topics",  # peerdir only
-    # "//ydb/core/protos/schemeshard",
+    "//ydb/core/protos/schemeshard",
     # "//ydb/core/sys_view/common",
     # "//ydb/core/sys_view/service",
     # "//ydb/core/tablet",

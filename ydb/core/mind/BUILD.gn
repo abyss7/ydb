@@ -6,14 +6,14 @@ library("mind") {
     "//ydb/core/blobstorage/events",
     "//ydb/core/cms/console",
     # "//ydb/core/engine/minikql",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/scheme",
     # "//ydb/core/tablet",
     # "//ydb/core/tablet_flat",
     # "//ydb/core/util",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   deps = [
@@ -75,9 +75,7 @@ library("mind") {
 library("nameserver_table_builder") {
   public_deps = [ "//ydb/library/actors/interconnect" ]
 
-  deps = [
-    # "//ydb/core/protos",
-  ]
+  deps = [ "//ydb/core/protos" ]
 
   sources = [ "nameserver_table_builder.cpp" ]
 }

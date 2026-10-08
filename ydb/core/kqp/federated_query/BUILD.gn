@@ -10,7 +10,7 @@ library("federated_query") {
     # "//ydb/library/yql/providers/pq/gateway/abstract",
     "//ydb/library/yql/providers/s3/actors_factory",
     "//ydb/library/yql/providers/solomon/gateway",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     # "//yql/essentials/core/dq_integration/transform",
     # "//yql/essentials/minikql/computation",
     # "//yql/essentials/public/issue",
@@ -19,10 +19,10 @@ library("federated_query") {
 
   deps = [
     "//ydb/core/fq/libs/db_id_async_resolver_impl",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/library/actors/http",
     "//ydb/library/yql/providers/pq/gateway/native",
-    # "//ydb/library/yql/providers/s3/proto",
+    "//ydb/library/yql/providers/s3/proto",
     "//ydb/public/sdk/cpp/adapters/issue",
     "//ydb/public/sdk/cpp/src/client/extensions/discovery_mutator",
     "//yt/yql/providers/yt/comp_nodes/dq",

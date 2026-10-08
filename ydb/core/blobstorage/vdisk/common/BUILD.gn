@@ -18,7 +18,7 @@ library("common") {
     "//ydb/core/blobstorage/vdisk/protos",
     # "//ydb/core/blobstorage/vdisk:defs",
     "//ydb/core/control/lib",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/core/util",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/lockfree_bucket",
@@ -31,7 +31,7 @@ library("common") {
     # "//ydb/core/blobstorage/vdisk/huge",
     "//ydb/core/blobstorage/vdisk/hulldb/base:base_types",
     # "//ydb/core/blobstorage/vdisk/skeleton",
-    # "//ydb/library/actors/protos",
+    "//ydb/library/actors/protos",
   ]
 
   sources = [

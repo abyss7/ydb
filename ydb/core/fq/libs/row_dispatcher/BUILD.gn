@@ -28,7 +28,7 @@ library("row_dispatcher") {
     # "//ydb/core/mind",  # peerdir only
     "//ydb/core/mind:tenant_node_enumeration",
     "//ydb/core/mon",
-    # "//ydb/library/actors/protos",
+    "//ydb/library/actors/protos",
     "//ydb/library/logger",
     # "//ydb/library/yql/dq/actors",
     "//ydb/library/yql/dq/actors/common",

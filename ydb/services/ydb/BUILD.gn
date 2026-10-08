@@ -29,7 +29,7 @@ library("ydb") {
     "//ydb/core/tx/scheme_cache",
     # "//ydb/library/aclib",  # peerdir only
     # "//ydb/library/ydb_issue",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     # "//yql/essentials/public/types",  # peerdir only
   ]
 

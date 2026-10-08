@@ -56,7 +56,7 @@ library("lib") {
   deps = [
     # "//library/cpp/lfalloc/alloc_profiler",
     # "//ydb/core/fq/libs/actors",  # peerdir only
-    # "//ydb/core/fq/libs/config/protos",
+    "//ydb/core/fq/libs/config/protos",
     # "//ydb/core/fq/libs/db_id_async_resolver_impl",
     # "//ydb/core/fq/libs/init",
     # "//ydb/core/fq/libs/shared_resources/interface",

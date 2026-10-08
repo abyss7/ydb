@@ -7,7 +7,7 @@ group("base") {
     # "//ydb/core/grpc_services/counters",
     # "//ydb/core/grpc_streaming",
     "//ydb/core/jaeger_tracing",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/core/util",
     "//ydb/library/aclib",
     "//ydb/library/actors/core",

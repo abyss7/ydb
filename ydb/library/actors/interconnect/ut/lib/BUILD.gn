@@ -6,7 +6,7 @@ group("lib") {
     "//ydb/library/actors/dnsresolver",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/actors/interconnect/rdma",
-    # "//ydb/library/actors/interconnect/ut/protos",
+    "//ydb/library/actors/interconnect/ut/protos",
   ]
 }
 

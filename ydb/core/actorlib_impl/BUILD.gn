@@ -3,8 +3,8 @@ library("actorlib_impl") {
     "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/actors/memory_log",
-    # "//ydb/library/actors/protos",
-    # "//ydb/library/services",
+    "//ydb/library/actors/protos",
+    "//ydb/library/services",
   ]
 
   deps = [

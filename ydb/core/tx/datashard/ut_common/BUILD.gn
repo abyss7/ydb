@@ -6,7 +6,7 @@ library("ut_common") {
     # "//ydb/core/engine",
     # "//ydb/core/kqp/compute_actor:events",
     "//ydb/core/kqp/ut/common",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/testlib",
     "//ydb/core/tx/datashard",
     # "//ydb/core/tx/scheme_cache",
@@ -16,7 +16,7 @@ library("ut_common") {
   deps = [
     # "//contrib/libs/protobuf",
     # "//ydb/core/base",
-    # "//ydb/core/protos/schemeshard",
+    "//ydb/core/protos/schemeshard",
     # "//ydb/core/scheme",
     # "//ydb/core/tablet_flat",
     # "//ydb/core/testlib/basics",

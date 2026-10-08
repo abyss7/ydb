@@ -1,6 +1,6 @@
 library("database") {
   public_deps = [
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/core/scheme",
     # "//ydb/core/statistics",
     "//ydb/library/actors/core",

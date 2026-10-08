@@ -10,7 +10,7 @@ library("processor") {
     "//ydb/core/engine/minikql",
     "//ydb/core/grpc_services/counters",
     "//ydb/core/kqp/counters",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/sys_view/common",
     "//ydb/core/sys_view/service",
     "//ydb/core/tablet",

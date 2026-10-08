@@ -3,7 +3,7 @@ library("pgproxy") {
     ":protos",
     "//ydb/core/raw_socket",
     "//ydb/library/actors/core",
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   deps = [

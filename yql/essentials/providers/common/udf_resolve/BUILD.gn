@@ -4,7 +4,7 @@ library("udf_resolve") {
     "//yql/essentials/core/file_storage",
     # "//yql/essentials/minikql",
     # "//yql/essentials/minikql:alloc",
-    # "//yql/essentials/providers/common/proto",
+    "//yql/essentials/providers/common/proto",
   ]
 
   deps = [

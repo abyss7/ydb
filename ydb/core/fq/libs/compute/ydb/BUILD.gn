@@ -1,9 +1,9 @@
 library("events") {
   public_deps = [
     "//ydb/core/fq/libs/config/protos",
-    # "//ydb/core/fq/libs/control_plane_storage/proto",
+    "//ydb/core/fq/libs/control_plane_storage/proto",
     # "//ydb/core/fq/libs/events",
-    # "//ydb/core/fq/libs/protos",
+    "//ydb/core/fq/libs/protos",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
     # "//ydb/public/sdk/cpp/src/client/query",
@@ -25,7 +25,7 @@ library("ydb") {
     # "//library/cpp/random_provider",
     # "//library/cpp/time_provider",
     "//ydb/core/fq/libs/compute/common",
-    # "//ydb/core/fq/libs/config/protos",
+    "//ydb/core/fq/libs/config/protos",
     # "//ydb/core/fq/libs/events",
     "//ydb/core/fq/libs/metrics",
     "//ydb/core/fq/libs/private_client",
@@ -62,7 +62,7 @@ library("ydb") {
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/protos",  # peerdir only
     # "//ydb/library/db_pool/protos",  # peerdir only
-    # "//ydb/library/services",
+    "//ydb/library/services",
     # "//ydb/library/yql/dq/actors",
     # "//ydb/library/yql/dq/expr_nodes",  # peerdir only
     # "//ydb/library/yql/providers/dq/api/protos",  # peerdir only

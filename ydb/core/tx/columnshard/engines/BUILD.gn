@@ -15,7 +15,7 @@ library("engines") {
     "//ydb/core/tx/columnshard/engines/changes/actualization:controller",
     "//ydb/core/tx/columnshard/engines/portions",
     "//ydb/core/tx/columnshard/engines/predicate",
-    # "//ydb/core/tx/columnshard/engines/protos",
+    "//ydb/core/tx/columnshard/engines/protos",
     # "//ydb/core/tx/columnshard/engines/scheme",
     "//ydb/core/tx/columnshard/engines/scheme/tiering",
     # "//ydb/core/tx/columnshard/engines/storage/actualizer:abstract",
@@ -35,7 +35,7 @@ library("engines") {
     # "//contrib/libs/apache/arrow",  # peerdir only
     # "//library/cpp/time_provider",
     # "//ydb/core/formats",  # peerdir only
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/scheme",  # peerdir only
     # "//ydb/core/tablet",  # peerdir only
     # "//ydb/core/tablet_flat",

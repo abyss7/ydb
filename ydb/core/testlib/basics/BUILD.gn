@@ -10,7 +10,7 @@ library("basics") {
     "//ydb/core/blobstorage/nodewarden",
     "//ydb/core/blobstorage/pdisk",
     # "//ydb/core/formats",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/scheme",
     "//ydb/core/tablet_flat",
     "//ydb/core/testlib/actors",

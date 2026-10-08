@@ -5,9 +5,7 @@ library("auth") {
     # "//yt/yt/library/tvm",
   ]
 
-  deps = [
-    # "//yt/yt_proto/yt/core",
-  ]
+  deps = [ "//yt/yt_proto/yt/core" ]
 
   sources = [
     "auth.cpp",

@@ -2,8 +2,8 @@ library("validators") {
   public_deps = [
     # "//library/cpp/deprecated/atomic",
     "//ydb/core/protos",
-    # "//ydb/public/api/protos",
-    # "//yql/essentials/public/issue/protos",
+    "//ydb/public/api/protos",
+    "//yql/essentials/public/issue/protos",
   ]
 
   deps = [

@@ -19,7 +19,7 @@ library("executer_actor") {
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/wilson",
     # "//ydb/library/yql/dq/actors/compute",
-    # "//ydb/library/yql/dq/actors/protos",
+    "//ydb/library/yql/dq/actors/protos",
     # "//ydb/library/yql/dq/common",
     # "//ydb/library/yql/dq/runtime",
     # "//ydb/library/yql/dq/tasks",
@@ -50,7 +50,7 @@ library("executer_actor") {
     "//ydb/core/kqp/session_actor:worker_common",
     "//ydb/core/kqp/topics",  # peerdir only
     # "//ydb/core/persqueue/events",
-    # "//ydb/core/protos/schemeshard",
+    "//ydb/core/protos/schemeshard",
     # "//ydb/core/sys_view/common",  # peerdir only
     # "//ydb/core/tx/columnshard",
     "//ydb/core/tx/data_events/common",
@@ -71,7 +71,7 @@ library("executer_actor") {
     "//ydb/library/yql/dq/comp_nodes",
     # "//ydb/library/yql/providers/common/http_gateway",
     "//ydb/library/yql/providers/pq/proto",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     # "//ydb/services/metadata/abstract",
     # "//ydb/services/metadata/manager",
     # "//ydb/services/metadata/secret",
@@ -108,7 +108,7 @@ library("shards_resolver") {
   public_deps = [
     # "//ydb/core/kqp/common/simple",
     "//ydb/library/actors/core",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     "//yql/essentials/public/issue",
   ]
 

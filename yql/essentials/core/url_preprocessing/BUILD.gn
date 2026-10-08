@@ -6,7 +6,7 @@ library("url_preprocessing") {
   ]
 
   deps = [
-    # "//yql/essentials/providers/common/proto",
+    "//yql/essentials/providers/common/proto",
     # "//yql/essentials/utils/log",
   ]
 

@@ -15,5 +15,5 @@ python_binary("gen") {
         "//contrib/python/Jinja2",
     ]
 
-    main_source = "gen/main.py"
+    main_source = "gen/__main__.py"
 }

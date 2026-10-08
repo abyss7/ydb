@@ -6,7 +6,7 @@ library("provider") {
     # "//ydb/public/sdk/cpp/src/client/driver",
     # "//yql/essentials/core",
     # "//yql/essentials/providers/common/config",
-    # "//yql/essentials/providers/common/proto",
+    "//yql/essentials/providers/common/proto",
   ]
 
   deps = [
@@ -18,7 +18,7 @@ library("provider") {
     # "//ydb/library/yql/providers/dq/common",
     # "//ydb/library/yql/providers/dq/expr_nodes",
     # "//ydb/library/yql/providers/ydb/expr_nodes",
-    # "//ydb/library/yql/providers/ydb/proto",
+    "//ydb/library/yql/providers/ydb/proto",
     # "//ydb/public/sdk/cpp/adapters/issue",
     # "//ydb/public/sdk/cpp/src/client/table",
     # "//yql/essentials/ast",

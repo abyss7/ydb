@@ -17,7 +17,7 @@ library("sharding") {
 
   deps = [
     # "//ydb/core/formats",  # peerdir only
-    # "//ydb/core/tx/columnshard/common/protos",
+    "//ydb/core/tx/columnshard/common/protos",
     "//yql/essentials/minikql",
     # "//yql/essentials/utils",
   ]

@@ -4,8 +4,8 @@ library("hive_metastore") {
     # "//library/cpp/threading/future",
     # "//ydb/core/external_sources/hive_metastore/hive_metastore_native",
     # "//ydb/library/actors/core",
-    # "//ydb/library/yql/providers/generic/connector/api/service/protos",
-    # "//ydb/public/api/protos",
+    "//ydb/library/yql/providers/generic/connector/api/service/protos",
+    "//ydb/public/api/protos",
     # "//yql/essentials/public/issue",
   ]
 

@@ -14,7 +14,7 @@ library("common") {
     # "//ydb/core/tx/schemeshard",
     # "//ydb/library/actors/core",
     # "//ydb/library/yql/dq/actors/compute",
-    # "//ydb/library/yql/dq/actors/protos",
+    "//ydb/library/yql/dq/actors/protos",
     # "//yql/essentials/public/issue",
   ]
 

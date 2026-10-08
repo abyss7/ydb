@@ -20,7 +20,7 @@ library("tablet_flat") {
     "//ydb/library/actors/protos",
     "//ydb/library/actors/util",
     "//ydb/library/actors/wilson",
-    # "//ydb/library/services",
+    "//ydb/library/services",
     # "//ydb/library/wilson_ids",
     # "//ydb/library/yverify_stream",
   ]
@@ -37,7 +37,7 @@ library("tablet_flat") {
     "//library/cpp/protobuf/json",
     "//library/cpp/string_utils/base64",
     # "//ydb/core/cms/console",
-    # "//ydb/core/scheme/protos",
+    "//ydb/core/scheme/protos",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/mkql_proto/protos",  # peerdir only
     "//yql/essentials/types/binary_json",

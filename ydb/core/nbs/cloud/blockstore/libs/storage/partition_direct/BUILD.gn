@@ -19,7 +19,7 @@ library("partition_direct") {
     # "//ydb/core/blobstorage/events",
     "//ydb/core/nbs/cloud/blockstore/config",
     # "//ydb/core/nbs/cloud/blockstore/libs/storage/api",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/library/actors/core",
   ]
 

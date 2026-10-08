@@ -251,6 +251,9 @@ template("link_slot_provider_config") {
 #     for `<header>  # gn: slot <slot>` in the SRCS of the interface's ya.make
 #   flags_from: the interface's sources; the first C/C++ one lends its
 #     compiler flags (include dirs) to parsing the headers
+#   codegen: the protobuf_library() targets whose generated headers the
+#     headers include, `link_slot_codegen` -- written by yamake2gn; the action
+#     waits for their protoc (`<target>_codegen`), not for any compile or link
 # An action lists the functions from the headers' AST
 # (build/gn/scripts/link_slot_weak.py); it reruns only when the headers or
 # what they include change (depfile), and leaves the list untouched when it
@@ -308,6 +311,12 @@ template("link_slot_weak_refs") {
         rebase_path(_flags_from[0], "//"),
       ]
     }
+    deps = []
+    if (defined(invoker.codegen)) {
+      foreach(_l, invoker.codegen) {
+        deps += [ get_label_info(_l, "dir") + ":" + get_label_info(_l, "name") + "_codegen" ]
+      }
+    }
   }
 
   config("${target_name}_slot_weak_config") {
@@ -333,6 +342,9 @@ template("slot_interface_group") {
     if (defined(invoker.link_slot_flags_from)) {
       flags_from = invoker.link_slot_flags_from
     }
+    if (defined(invoker.link_slot_codegen)) {
+      codegen = invoker.link_slot_codegen
+    }
   }
 
   group(target_name) {
@@ -342,6 +354,7 @@ template("slot_interface_group") {
                              "link_slot_interface",
                              "link_slot_headers",
                              "link_slot_flags_from",
+                             "link_slot_codegen",
                            ])
     if (!defined(public_deps)) {
       public_deps = []

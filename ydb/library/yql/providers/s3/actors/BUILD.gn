@@ -7,7 +7,7 @@ library("actors") {
     # "//ydb/library/yql/dq/common",
     "//ydb/library/yql/providers/common/http_gateway",
     # "//ydb/library/yql/providers/common/token_accessor/client",
-    # "//ydb/library/yql/providers/generic/connector/api/service/protos",
+    "//ydb/library/yql/providers/generic/connector/api/service/protos",
     # "//ydb/library/yql/providers/s3/actors_factory",
     "//ydb/library/yql/providers/s3/object_listers",
     "//ydb/library/yql/providers/s3/proto",
@@ -29,9 +29,9 @@ library("actors") {
     "//ydb/core/util",
     "//ydb/library/actors/http",
     # "//ydb/library/actors/util",
-    # "//ydb/library/services",
+    "//ydb/library/services",
     "//ydb/library/yql/dq/actors/common",
-    # "//ydb/library/yql/dq/actors/protos",
+    "//ydb/library/yql/dq/actors/protos",
     # "//ydb/library/yql/providers/common/arrow",  # peerdir only
     # "//ydb/library/yql/providers/common/arrow/interface",  # peerdir only
     "//ydb/library/yql/providers/generic/pushdown",

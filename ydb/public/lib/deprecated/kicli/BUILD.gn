@@ -5,7 +5,7 @@ library("kicli") {
     "//library/cpp/threading/future",
     "//ydb/core/protos",
     # "//ydb/library/actors/core",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     # "//ydb/public/lib/base",
     "//ydb/public/lib/deprecated/client",
     # "//ydb/public/lib/scheme_types",
@@ -14,7 +14,7 @@ library("kicli") {
 
   deps = [
     # "//contrib/libs/grpc",  # peerdir only
-    # "//ydb/core/protos/schemeshard",
+    "//ydb/core/protos/schemeshard",
     # "//ydb/library/aclib",  # peerdir only
     "//ydb/library/yql/public/ydb_issue",  # peerdir only
     # "//ydb/public/api/grpc",  # peerdir only

@@ -1,6 +1,6 @@
 library("control_plane") {
   public_deps = [
-    # "//ydb/core/fq/libs/config/protos",
+    "//ydb/core/fq/libs/config/protos",
     # "//ydb/core/fq/libs/shared_resources",
     # "//ydb/core/fq/libs/signer",
     # "//ydb/library/actors/core",
@@ -23,7 +23,7 @@ library("control_plane") {
     "//ydb/library/actors/http",
     # "//ydb/library/actors/protos",  # peerdir only
     # "//ydb/library/db_pool/protos",  # peerdir only
-    # "//ydb/library/services",
+    "//ydb/library/services",
     "//ydb/library/ycloud/api",
     "//ydb/library/yql/utils/actors",
     "//ydb/public/api/grpc",

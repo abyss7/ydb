@@ -24,6 +24,21 @@ template("contrib_library") {
             provides = invoker.link_slot_provides
         }
     }
+    _slot_weak = defined(invoker.link_slot_interface)
+    if (_slot_weak) {
+        link_slot_weak_refs(target_name) {
+            slot = invoker.link_slot_interface
+            headers = invoker.link_slot_headers
+            if (defined(invoker.link_slot_flags_from)) {
+                flags_from = invoker.link_slot_flags_from
+            } else if (defined(invoker.sources)) {
+                flags_from = invoker.sources
+            }
+            if (defined(invoker.link_slot_codegen)) {
+                codegen = invoker.link_slot_codegen
+            }
+        }
+    }
 
     # Translated sources among `sources` (//build/gn/source_kinds.gni)
     _rl6 = []
@@ -61,7 +76,7 @@ template("contrib_library") {
     not_needed(invoker, [ "plugins" ])
 
     target(_type, target_name) {
-        forward_variables_from(invoker, "*", [ "configs", "deps", "link_slot_provides", "plugins", "static" ])
+        forward_variables_from(invoker, "*", [ "configs", "deps", "link_slot_provides", "link_slot_interface", "link_slot_headers", "link_slot_flags_from", "link_slot_codegen", "plugins", "static" ])
 
         if (!_static) {
             _unique_name = exec_script("//build/gn/scripts/unique_name.py", [ rebase_path(".", "//") ], "trim string")
@@ -94,9 +109,30 @@ template("contrib_library") {
            configs += invoker.configs
         }
 
-        # a link slot provider's definitions stay strong
+        # Link slots: a provider's definitions stay strong; an interface's
+        # dependents get weak references, the library itself does not, see
+        # library() in //build/gn/base.gni
         if (_slot_provider) {
             configs += [ ":${target_name}_slot_provider_config" ]
+        }
+        if (_slot_weak) {
+            if (!defined(defines)) {
+                defines = []
+            }
+            defines += [ "GN_SLOT_INTERFACE_" + invoker.link_slot_interface ]
+            if (!defined(public_deps)) {
+                public_deps = []
+            }
+            public_deps += [ ":${target_name}_slot_weak" ]
+            if (!defined(public_configs)) {
+                public_configs = []
+            }
+            public_configs += [ ":${target_name}_slot_weak_config" ]
+            if (!defined(metadata)) {
+                metadata = {}
+            }
+            metadata.link_slot_interfaces = [ invoker.link_slot_interface + "|" +
+                                              get_label_info(":$target_name", "label_no_toolchain") ]
         }
     }
 }

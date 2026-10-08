@@ -10,7 +10,7 @@ library("runtime") {
     "//ydb/library/yql/dq/actors/protos",
     # "//ydb/library/yql/dq/actors/spilling",
     "//ydb/library/yql/dq/common",
-    # "//ydb/library/yql/dq/proto",
+    "//ydb/library/yql/dq/proto",
     # "//yql/essentials/ast",
     # "//yql/essentials/minikql",
     "//yql/essentials/minikql/comp_nodes",
@@ -25,7 +25,7 @@ library("runtime") {
     # "//ydb/library/formats/arrow",  # peerdir only
     "//ydb/library/formats/arrow/hash",
     # "//ydb/library/mkql_proto",
-    # "//ydb/library/services",
+    "//ydb/library/services",
     "//ydb/library/yql/dq/actors",
     # "//ydb/library/yql/dq/expr_nodes",
     "//ydb/library/yql/dq/type_ann",

@@ -2,11 +2,11 @@ library("init") {
   public_deps = [
     "//ydb/core/base",
     "//ydb/core/fq/libs/actors",
-    # "//ydb/core/fq/libs/config/protos",
+    "//ydb/core/fq/libs/config/protos",
     # "//ydb/core/fq/libs/events",
     # "//ydb/core/fq/libs/shared_resources/interface",
     # "//ydb/library/actors/core",
-    # "//ydb/library/folder_service/proto",
+    "//ydb/library/folder_service/proto",
     # "//ydb/library/yql/providers/pq/cm_client",
     # "//ydb/library/yql/providers/pq/gateway/abstract",
   ]
@@ -37,7 +37,7 @@ library("init") {
     "//ydb/core/fq/libs/shared_resources",
     "//ydb/core/fq/libs/test_connection",
     "//ydb/core/kqp/federated_query",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/library/actors/http",
     "//ydb/library/folder_service",
     "//ydb/library/security",
@@ -58,7 +58,7 @@ library("init") {
     "//ydb/library/yql/providers/pq/gateway/native",
     # "//ydb/library/yql/providers/pq/provider",  # peerdir only
     "//ydb/library/yql/providers/s3/actors",
-    # "//ydb/library/yql/providers/s3/proto",
+    "//ydb/library/yql/providers/s3/proto",
     # "//ydb/library/yql/providers/s3/provider",  # peerdir only
     "//ydb/library/yql/providers/solomon/actors",
     # "//ydb/library/yql/providers/solomon/gateway",  # peerdir only

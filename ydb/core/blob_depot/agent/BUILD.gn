@@ -8,7 +8,7 @@ library("agent") {
 
   deps = [
     # "//ydb/core/blobstorage/pdisk",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/core/wrappers",
   ]
 

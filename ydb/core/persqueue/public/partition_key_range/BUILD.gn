@@ -6,7 +6,7 @@ library("partition_key_range") {
 
   deps = [
     "//library/cpp/digest/md5",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/library/actors/core",
     "//ydb/services/lib/sharding",
   ]

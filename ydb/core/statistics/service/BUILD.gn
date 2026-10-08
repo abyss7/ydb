@@ -16,11 +16,11 @@ library("service") {
     "//ydb/core/grpc_services/local_rpc",
     "//ydb/core/io_formats/cell_maker",
     "//ydb/core/mon",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/core/statistics/database",
     "//ydb/core/tablet",  # peerdir only
     # "//ydb/core/tablet_flat",  # peerdir only
-    # "//ydb/library/services",
+    "//ydb/library/services",
     # "//ydb/public/sdk/cpp/src/client/proto",
     "//yql/essentials/core/histogram",
     "//yql/essentials/core/minsketch",
@@ -43,11 +43,11 @@ library("service_id") {
     "//ydb/core/base",
     # "//ydb/core/cms/console",
     "//ydb/core/mon",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/statistics",
     # "//ydb/core/statistics/database",
     "//ydb/core/tx/scheme_cache",
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   sources = [ "service.cpp" ]

@@ -2,7 +2,7 @@ library("topics") {
   public_deps = [
     # "//library/cpp/containers/disjoint_interval_tree",
     # "//ydb/core/kafka_proxy",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/core/tx/long_tx_service/public",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/library/actors/core",

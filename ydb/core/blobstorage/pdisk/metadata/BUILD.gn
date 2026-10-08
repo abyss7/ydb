@@ -1,7 +1,7 @@
 library("metadata") {
   public_deps = [
     "//ydb/core/blobstorage/pdisk",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
   ]
 
   deps = [

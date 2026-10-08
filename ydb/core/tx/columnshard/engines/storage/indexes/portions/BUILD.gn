@@ -3,7 +3,7 @@ library("extractor") {
     # "//library/cpp/json",
     # "//ydb/core/formats/arrow",
     # "//ydb/core/formats/arrow/accessor/common",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/core/tx/columnshard/engines/scheme/indexes/abstract",
     # "//ydb/services/bg_tasks/abstract",
   ]

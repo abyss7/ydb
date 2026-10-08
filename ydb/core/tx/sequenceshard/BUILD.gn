@@ -6,7 +6,7 @@ library("sequenceshard") {
   deps = [
     "//ydb/core/engine/minikql",
     # "//ydb/core/erasure",  # peerdir only
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/core/tablet",
     "//ydb/core/tablet_flat",
     # "//ydb/core/tx/sequenceshard/public",

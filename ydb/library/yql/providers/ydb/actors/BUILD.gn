@@ -8,7 +8,7 @@ library("actors") {
   deps = [
     # "//ydb/core/scheme",
     # "//ydb/library/actors/core",
-    # "//ydb/library/yql/providers/ydb/proto",
+    "//ydb/library/yql/providers/ydb/proto",
     # "//ydb/public/lib/experimental",
     # "//ydb/public/sdk/cpp/adapters/issue",
     # "//yql/essentials/minikql",

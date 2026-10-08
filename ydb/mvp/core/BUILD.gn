@@ -23,7 +23,7 @@ library("core") {
     "//ydb/public/api/client/yc_private/quota",
     "//ydb/public/api/client/yc_private/resourcemanager",
     "//ydb/public/api/client/yc_private/ydb/v1",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     # "//ydb/public/lib/deprecated/client",
     "//ydb/public/sdk/cpp/src/client/datastreams",
     "//ydb/public/sdk/cpp/src/client/draft",
@@ -51,7 +51,7 @@ library("core") {
     # "//ydb/library/actors/protos",  # peerdir only
     # "//ydb/library/security",
     "//ydb/public/api/client/nc_private",
-    # "//ydb/public/api/client/yc_private/accessservice",
+    "//ydb/public/api/client/yc_private/accessservice",
     "//ydb/public/api/grpc",
     # "//ydb/public/sdk/cpp/src/library/operation_id",  # peerdir only
   ]

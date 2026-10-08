@@ -1,7 +1,7 @@
 library("scheduler") {
   public_deps = [
     "//ydb/library/actors/core",
-    # "//ydb/library/yql/dq/proto",
+    "//ydb/library/yql/dq/proto",
     "//ydb/library/yql/providers/dq/api/protos",
     "//ydb/library/yql/providers/dq/config",
     # "//ydb/library/yql/providers/dq/counters",

@@ -3,7 +3,7 @@ library("local_pgwire") {
     "//library/cpp/string_utils/base64",
     "//ydb/core/pgproxy",
     # "//ydb/library/actors/core",
-    # "//ydb/public/api/grpc",
+    "//ydb/public/api/grpc",
     "//ydb/public/sdk/cpp/src/client/draft",
     # "//ydb/public/sdk/cpp/src/client/impl/internal/plain_status",
     # "//ydb/public/sdk/cpp/src/client/table",
@@ -22,7 +22,7 @@ library("local_pgwire") {
     # "//ydb/core/protos",  # peerdir only
     # "//ydb/core/tx/scheme_cache",
     "//ydb/core/ydb_convert",
-    # "//ydb/library/services",
+    "//ydb/library/services",
     "//ydb/public/sdk/cpp/adapters/issue",
     "//ydb/public/sdk/cpp/src/client/result",
     # "//ydb/public/sdk/cpp/src/library/operation_id",  # peerdir only

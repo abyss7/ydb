@@ -6,8 +6,8 @@ library("common") {
 
   deps = [
     # "//ydb/core/base",
-    # "//ydb/core/fq/libs/config/protos",
-    # "//ydb/core/protos",
+    "//ydb/core/fq/libs/config/protos",
+    "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 

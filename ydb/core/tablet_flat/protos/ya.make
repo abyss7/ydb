@@ -6,7 +6,6 @@ SRCS(
 )
 
 PEERDIR(
-    contrib/libs/protobuf
     ydb/core/protos
     ydb/core/scheme/protos
 )

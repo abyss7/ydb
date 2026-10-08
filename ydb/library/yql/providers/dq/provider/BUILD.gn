@@ -3,7 +3,7 @@ library("provider") {
     # "//library/cpp/threading/future",
     # "//library/cpp/yson",
     # "//ydb/library/yql/providers/common/http_gateway",
-    # "//ydb/library/yql/providers/dq/api/protos",
+    "//ydb/library/yql/providers/dq/api/protos",
     "//ydb/library/yql/providers/dq/common",
     # "//ydb/library/yql/providers/dq/planner",
     # "//ydb/public/sdk/cpp/src/client/driver",
@@ -15,7 +15,7 @@ library("provider") {
     # "//yql/essentials/minikql/computation",
     "//yql/essentials/providers/common/gateway",
     # "//yql/essentials/providers/common/metrics",
-    # "//yql/essentials/providers/common/proto",
+    "//yql/essentials/providers/common/proto",
     "//yql/essentials/providers/common/transform",
   ]
 

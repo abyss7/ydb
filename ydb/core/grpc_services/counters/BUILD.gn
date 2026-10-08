@@ -12,7 +12,7 @@ library("counters") {
     # "//ydb/core/protos",  # peerdir only
     "//ydb/core/sys_view/service",
     # "//ydb/core/util",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
   ]
 
   sources = [

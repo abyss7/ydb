@@ -14,14 +14,14 @@ library("common") {
     # "//ydb/library/accessor",
     # "//ydb/library/conclusion",
     # "//ydb/library/formats/arrow",
-    # "//ydb/library/yql/dq/actors/protos",
+    "//ydb/library/yql/dq/actors/protos",
   ]
 
   deps = [
     "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/core/tx/columnshard/engines/reader/abstract",
     # "//ydb/library/actors/core",
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   sources = [

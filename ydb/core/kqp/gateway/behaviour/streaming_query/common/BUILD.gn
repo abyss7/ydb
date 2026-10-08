@@ -3,7 +3,7 @@ library("common") {
 
   deps = [
     "//ydb/core/base",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/library/yql/providers/pq/proto",
     # "//ydb/library/yverify_stream",
   ]

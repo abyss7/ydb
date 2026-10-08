@@ -1,7 +1,7 @@
 library("compile_cache") {
   public_deps = [
     "//ydb/core/kqp/runtime",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
@@ -23,7 +23,7 @@ library("compile_cache") {
 library("nodes") {
   public_deps = [
     "//ydb/core/kqp/runtime",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
@@ -60,7 +60,7 @@ library("pg_tables") {
 library("query_stats") {
   public_deps = [
     "//ydb/core/kqp/runtime",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
@@ -81,7 +81,7 @@ library("query_stats") {
 library("resource_pool_classifiers") {
   public_deps = [
     "//ydb/core/kqp/runtime",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
@@ -105,7 +105,7 @@ library("resource_pool_classifiers") {
 library("resource_pools") {
   public_deps = [
     "//ydb/core/kqp/runtime",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
@@ -127,7 +127,7 @@ library("resource_pools") {
 library("sessions") {
   public_deps = [
     "//ydb/core/kqp/runtime",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
@@ -169,7 +169,7 @@ library("streaming_queries") {
 library("sys_view") {
   public_deps = [
     "//ydb/core/kqp/runtime",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
@@ -202,7 +202,7 @@ library("sys_view") {
 library("tablets") {
   public_deps = [
     "//ydb/core/kqp/runtime",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 

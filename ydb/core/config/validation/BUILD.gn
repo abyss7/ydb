@@ -4,7 +4,7 @@ library("validation") {
   deps = [
     "//library/cpp/protobuf/json",
     "//ydb/core/base",
-    # "//ydb/core/config/protos",
+    "//ydb/core/config/protos",
     "//ydb/core/formats/arrow",
     # "//ydb/core/util",
   ]

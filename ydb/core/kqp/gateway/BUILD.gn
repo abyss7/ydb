@@ -33,7 +33,7 @@ library("gateway") {
     "//ydb/core/kqp/query_data",  # peerdir only
     # "//ydb/core/kqp/rm_service",
     # "//ydb/core/kqp/topics",  # peerdir only
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/core/statistics",
     "//ydb/core/statistics/service",  # peerdir only
     "//ydb/core/statistics/service:service_id",
@@ -79,7 +79,7 @@ library("interface") {
     # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/wilson",
-    # "//ydb/library/ydb_issue/proto",
+    "//ydb/library/ydb_issue/proto",
     # "//yql/essentials/ast",
   ]
 

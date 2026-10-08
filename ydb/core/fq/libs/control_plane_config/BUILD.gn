@@ -3,7 +3,7 @@ library("control_plane_config") {
     ":service_id",
     # "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/fq/libs/actors/logging",
-    # "//ydb/core/fq/libs/config/protos",
+    "//ydb/core/fq/libs/config/protos",
     "//ydb/core/fq/libs/shared_resources",
     # "//ydb/library/actors/core",
   ]
@@ -43,7 +43,7 @@ library("events") {
     "//ydb/core/fq/libs/quota_manager/events",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     # "//yql/essentials/public/issue",
   ]
 

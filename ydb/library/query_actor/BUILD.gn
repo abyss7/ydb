@@ -4,7 +4,7 @@ library("query_actor") {
     # "//library/cpp/threading/future",
     "//ydb/core/grpc_services/local_rpc",
     # "//ydb/library/actors/core",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     "//ydb/public/sdk/cpp/src/client/params",
     "//ydb/public/sdk/cpp/src/client/proto",
     "//ydb/public/sdk/cpp/src/client/result",

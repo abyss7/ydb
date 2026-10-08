@@ -4,9 +4,7 @@ library("stats_collector") {
     "//ydb/library/actors/core",
   ]
 
-  deps = [
-    "//ydb/library/actors/helpers",
-  ]
+  deps = [ "//ydb/library/actors/helpers" ]
 
   sources = [ "pool_stats_collector.cpp" ]
 }

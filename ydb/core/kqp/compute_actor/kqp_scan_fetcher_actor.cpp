@@ -5,6 +5,7 @@
 #include <ydb/core/kqp/common/kqp_yql.h>
 #include <ydb/core/scheme/scheme_types_proto.h>
 #include <ydb/core/tx/datashard/range_ops.h>
+#include <ydb/library/formats/arrow/protos/ssa.pb.h>
 
 #include <ydb/library/wilson_ids/wilson.h>
 #include <ydb/library/yql/dq/actors/compute/dq_compute_actor_impl.h>

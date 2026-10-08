@@ -52,4 +52,9 @@ library("computation") {
     "mkql_computation_node_graph_saveload.h",
     "mkql_computation_node_holders_codegen.h",
   ]
+
+  link_slot_codegen = [
+    "//yql/essentials/public/issue/protos",
+    "//yql/essentials/public/types",
+  ]
 }

@@ -1,4 +1,4 @@
-library("api") {
+contrib_library("api") {
   sources = [ "malloc.cpp" ]
 
   link_slot_interface = "allocator"

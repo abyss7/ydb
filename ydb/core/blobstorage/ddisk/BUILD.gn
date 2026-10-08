@@ -4,7 +4,7 @@ library("ddisk") {
     # "//ydb/core/blobstorage",
     "//ydb/core/blobstorage/pdisk",
     "//ydb/core/blobstorage/vdisk/common",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/library/actors/wilson",
     # "//ydb/library/wilson_ids",
   ]

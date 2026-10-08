@@ -20,7 +20,7 @@ library("formats") {
     # "//yt/yt/library/numeric",
     # "//yt/yt/library/skiff_ext",
     # "//yt/yt/library/tz_types",
-    # "//yt/yt_proto/yt/formats",
+    "//yt/yt_proto/yt/formats",
   ]
 
   sources = [

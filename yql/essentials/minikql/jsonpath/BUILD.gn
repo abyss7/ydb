@@ -11,7 +11,7 @@ library("jsonpath") {
 
   deps = [
     # "//yql/essentials/ast",  # peerdir only
-    # "//yql/essentials/core/issue/protos",
+    "//yql/essentials/core/issue/protos",
     # "//yql/essentials/minikql/dom",
     # "//yql/essentials/minikql/jsonpath/rewrapper",  # peerdir only
     "//yql/essentials/minikql/jsonpath/rewrapper/hyperscan",  # peerdir only

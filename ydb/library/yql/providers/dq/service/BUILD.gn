@@ -26,7 +26,7 @@ library("service") {
     # "//ydb/library/yql/providers/dq/counters",
     # "//ydb/library/yql/providers/dq/worker_manager",  # peerdir only
     "//ydb/library/yql/providers/dq/worker_manager/interface",
-    # "//ydb/public/api/protos",
+    "//ydb/public/api/protos",
     # "//yql/essentials/minikql/invoke_builtins",
     # "//yql/essentials/public/issue",
     # "//yql/essentials/sql",  # peerdir only

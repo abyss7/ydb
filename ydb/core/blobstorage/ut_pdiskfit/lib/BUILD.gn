@@ -10,7 +10,7 @@ library("lib") {
     "//ydb/core/blobstorage/pdisk",
     "//ydb/core/protos",
     "//ydb/library/actors/core",
-    # "//ydb/library/actors/protos",
+    "//ydb/library/actors/protos",
     # "//ydb/library/pdisk_io",
   ]
 

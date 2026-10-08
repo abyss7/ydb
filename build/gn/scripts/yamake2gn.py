@@ -1795,6 +1795,7 @@ class TargetSpec:
         self.slot_interface = None              # the link slot the module is the interface of, `# gn: slot ...`
         self.slot_headers = []                  # its headers, repo-relative
         self.slot_flags_from = None             # a source lending its flags to parsing them
+        self.slot_codegen = []                  # protobuf libraries whose .pb.h they include, see slot_codegen
         self.slot_module_interfaces = []        # slots whose interface is another target of the module
         self.proto_plugins = list(mod.proto_plugins)   # CPP_PROTO_PLUGIN0
         self.link_plugins = set()               # `# gn: plugin` PEERDIRs: `plugins`, not deps
@@ -1809,6 +1810,30 @@ class TargetSpec:
 
 def module_part_label(d, part):
     return module_label(d) if part is None else "%s:%s" % (module_label(d), part)
+
+
+def slot_codegen(headers, graph, resolver, external, report, d):
+    """Labels of the protobuf_library() targets whose generated .pb.h the link
+    slot headers of module `d` include -- directly or through other headers,
+    not through a .pb.h: the `<target>_codegen` of a library brings its
+    imports. The weak references wait for their protoc (link_slot_codegen,
+    see //build/gn/link_slots.gni)."""
+    seen, queue, out = set(headers), list(headers), set()
+    while queue:
+        for _, rel in graph.includes(queue.pop()):
+            if rel is None or rel in seen:
+                continue
+            seen.add(rel)
+            if rel.endswith(PROTO_EXTS):
+                owner = resolver.nearest_module(rel)
+                mod = resolver.mods.get(owner) if owner else None
+                if mod is None or mod.kind != "PROTO_LIBRARY":
+                    report.slot_codegen_unsupported.append((d, rel))
+                    continue
+                out.add(owner_label(owner, rel, resolver, external))
+            elif rel.endswith(HEADER_EXTS):
+                queue.append(rel)
+    return sorted(out)
 
 
 def owner_label(owner, rel, resolver, external):
@@ -2324,6 +2349,8 @@ def gen_spec(mod, resolver, graph, report, external):
         stems = {os.path.splitext(os.path.basename(h))[0] for h in slot_spec.slot_headers}
         own.sort(key=lambda f: os.path.splitext(f)[0] not in stems)
         slot_spec.slot_flags_from = os.path.join(target_dir, own[0]) if own else None
+        slot_spec.slot_codegen = slot_codegen(slot_spec.slot_headers, graph, resolver, external,
+                                              report, target_dir)
 
     # the headers among the module's files are its own: a test's of its dir
     # (no module owns them: tests are none) and the test support it took
@@ -3150,7 +3177,7 @@ def _render_target(tmpl, name, public_deps, deps, sources,
                    serialize_enum_headers=(), commented=frozenset(),
                    resources=(), resource_files=(), notes=None, link_slot_provides=(),
                    link_slot_interface=None, link_slot_headers=(), link_slot_flags_from=(),
-                   link_slot_module_interfaces=(), link_plugins=(), yql_abi_version=None, configs=(), public_configs=(), extra_plugins=(),
+                   link_slot_codegen=(), link_slot_module_interfaces=(), link_plugins=(), yql_abi_version=None, configs=(), public_configs=(), extra_plugins=(),
                    include_dirs=(), data_deps=(), data=(), test_sbr=(),
                    test_depends_unbuilt=(), link_select=()):
     """`notes` maps a dep label to a trailing comment ("peerdir only")."""
@@ -3194,11 +3221,16 @@ def _render_target(tmpl, name, public_deps, deps, sources,
             lines.extend('        "%s",' % it for it in link_plugins)
             lines.append("    ]")
             lines.append("")
-    if tmpl in ("library", SLOT_INTERFACE_GROUP) and link_slot_interface:
+    if tmpl in ("library", "contrib_library", SLOT_INTERFACE_GROUP) and link_slot_interface:
         lines.append('    link_slot_interface = "%s"' % link_slot_interface)
         lines.append("")
         block("link_slot_headers", link_slot_headers)
         block("link_slot_flags_from", link_slot_flags_from)
+        if link_slot_codegen:   # labels, never commented (block() would match deps)
+            lines.append("    link_slot_codegen = [")
+            lines.extend('        "%s",' % l for l in link_slot_codegen)
+            lines.append("    ]")
+            lines.append("")
     if tmpl == "library":
         block("link_slot_module_interfaces", link_slot_module_interfaces)
     if (tmpl in ("library", "linked_executable") or tmpl in TEST_TEMPLATES) and yql_abi_version is not None:
@@ -3240,7 +3272,7 @@ def _render_target(tmpl, name, public_deps, deps, sources,
     return "\n".join(lines)
 
 
-def render_spec(spec, host, remap, uncommented, private_configs=None):
+def render_spec(spec, host, remap, uncommented, private_configs=None, proto_labels=frozenset()):
     tmpl = {"PROGRAM": "linked_executable", "GROUP": "group",
             "PROTO_LIBRARY": "protobuf_library"}.get(spec.kind, "library")
     if spec.kind in GEN_TEST_TEMPLATES:
@@ -3336,9 +3368,14 @@ def render_spec(spec, host, remap, uncommented, private_configs=None):
     commented = frozenset(no_target)
     if tmpl in ("library", "contrib_library", "group"):
         proto_imports = render(spec.proto_public) - peerdir_only
+        # a derived dep on a protobuf_library: the generated .pb.h needs its
+        # code, and it closes no cycle (it depends on protobuf libraries only)
+        proto_libs = render({l for l in spec.deps | spec.public_deps
+                             if remap.get(l, l) in proto_labels}) - peerdir_only
         commented = frozenset(l for l in pub + dep
                               if (l not in keep or l in slot_reset) and l not in own_parts
-                              and l not in proto_imports and l != ":" + resources_target)
+                              and l not in proto_imports and l not in proto_libs
+                              and l != ":" + resources_target)
     elif tmpl == "protobuf_library":
         # proto imports are genuinely needed and stay enabled; a PEERDIR with
         # no import behind is new to this target and starts disabled as usual
@@ -3390,6 +3427,7 @@ def render_spec(spec, host, remap, uncommented, private_configs=None):
                               link_slot_interface=spec.slot_interface,
                               link_slot_headers=[_slot_header(h, host) for h in spec.slot_headers],
                               link_slot_flags_from=slot_flags_from,
+                              link_slot_codegen=spec.slot_codegen,
                               link_slot_module_interfaces=spec.slot_module_interfaces,
                               link_plugins=link_plugins,
                               yql_abi_version=spec.yql_abi if tmpl != "protobuf_library" else None,
@@ -3415,7 +3453,7 @@ def _absolute_labels(labels, host):
     return {"//%s%s" % (host, l) if l.startswith(":") else l for l in labels}
 
 
-def render_file(root, host, specs, remap):
+def render_file(root, host, specs, remap, proto_labels=frozenset()):
     """The BUILD.gn of `host`: its targets `specs`; the deps the user left
     uncommented in the existing file stay so (see render_spec)."""
     path = os.path.join(root, host, "BUILD.gn")
@@ -3429,7 +3467,7 @@ def render_file(root, host, specs, remap):
             private_configs.update(parse_existing_configs(os.path.join(root, s.dir, "BUILD.gn")))
     private_configs.update(parse_existing_configs(path))
     return normalize_dep_lists(
-        "\n\n".join(render_spec(s, host, remap, uncommented, private_configs)
+        "\n\n".join(render_spec(s, host, remap, uncommented, private_configs, proto_labels)
                     for s in sorted(specs, key=lambda s: s.name)) + "\n")
 
 
@@ -3443,6 +3481,7 @@ class Report:
         self.unresolved = defaultdict(set)
         self.arch_files = []
         self.transitive_headers_no = []
+        self.slot_codegen_unsupported = []   # (interface, generated header): not of a PROTO_LIBRARY
         self.peer_diff = {}
         self.merged = []
         self.move_blocked = []         # (module, why): `# gn: move into parent` that can't be
@@ -3600,6 +3639,11 @@ class Report:
             print("\nper-file arch sources (need -m<arch>, NOT emitted):", file=o)
             for f in sorted(set(self.arch_files)):
                 print("  %s" % f, file=o)
+        if self.slot_codegen_unsupported:
+            print("\nERROR: link slot headers include generated headers of a module other than"
+                  " a PROTO_LIBRARY (the weak references can't wait for them):", file=o)
+            for d, rel in sorted(set(self.slot_codegen_unsupported)):
+                print("  %-58s %s" % (d, rel), file=o)
         if info and self.transitive_headers_no:
             print("\nSET(PROTOC_TRANSITIVE_HEADERS \"no\") ignored (no GN equivalent;"
                   " generated .pb.h will pull in full transitive deps; any"
@@ -4249,8 +4293,9 @@ def main():
 
     # ---- emit ----------------------------------------------------------------
     rendered = {}
+    proto_labels = frozenset(module_label(d) for d, m in mods.items() if m.kind == "PROTO_LIBRARY")
     for host, slist in sorted(host_specs.items()):
-        rendered[host] = render_file(root, host, slist, remap)
+        rendered[host] = render_file(root, host, slist, remap, proto_labels)
     test_mods = test_only_modules(mods, resolver, frameworks)
     node_module = {(host, t.name): t.dir for host, slist in host_specs.items() for t in slist}
     rendered, test_targets, report.test_only_by_edge, report.test_only_conflicts = mark_test_only(

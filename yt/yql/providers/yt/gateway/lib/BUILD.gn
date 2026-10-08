@@ -38,7 +38,7 @@ library("lib") {
     # "//yql/essentials/core/expr_nodes",
     # "//yql/essentials/core/issue",
     # "//yql/essentials/minikql:alloc",
-    # "//yql/essentials/providers/common/proto",
+    "//yql/essentials/providers/common/proto",
     "//yt/cpp/mapreduce/client",  # peerdir only
     "//yt/yql/providers/yt/lib/hash",
     "//yt/yql/providers/yt/lib/res_pull",

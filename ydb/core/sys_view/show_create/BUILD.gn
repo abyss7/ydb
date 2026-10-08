@@ -1,7 +1,7 @@
 library("show_create") {
   public_deps = [
     "//ydb/core/kqp/runtime",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/actors/core",
     "//ydb/public/api/protos",
     # "//yql/essentials/public/issue",
@@ -18,7 +18,7 @@ library("show_create") {
     # "//ydb/core/scheme",
     "//ydb/core/sys_view/common",
     # "//ydb/core/tablet",
-    # "//ydb/core/tx/columnshard/engines/scheme/defaults/protos",
+    "//ydb/core/tx/columnshard/engines/scheme/defaults/protos",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/schemeshard",
     "//ydb/core/tx/schemeshard/common",
@@ -27,6 +27,7 @@ library("show_create") {
     # "//ydb/core/tx/tx_proxy",  # peerdir only
     # "//ydb/core/tx/tx_proxy:public",
     "//ydb/core/ydb_convert",
+    "//ydb/library/formats/arrow/protos",
     # "//ydb/library/yql/dq/actors/compute",
     # "//ydb/public/lib/json_value",  # peerdir only
     "//ydb/public/lib/ydb_cli/dump/util",

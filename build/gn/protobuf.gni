@@ -156,6 +156,20 @@ template("protobuf_library") {
         }
     }
 
+    # protoc of this library and of the ones it imports, transitively: the
+    # generated headers, without compiling or linking anything -- what the
+    # weak references of a link slot wait for (link_slot_codegen, see
+    # //build/gn/link_slots.gni). The imports are the public_deps.
+    group("${target_name}_codegen") {
+        forward_variables_from(invoker, [ "testonly" ])
+        public_deps = [ ":$_gen_target" ]
+        if (defined(invoker.public_deps)) {
+            foreach(_l, invoker.public_deps) {
+                public_deps += [ get_label_info(_l, "dir") + ":" + get_label_info(_l, "name") + "_codegen" ]
+            }
+        }
+    }
+
     # Opt-in enum serialization for proto enums, analogous to the `library`
     _enum_targets = []
     _enum_sources = []

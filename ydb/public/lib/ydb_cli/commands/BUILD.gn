@@ -50,7 +50,7 @@ library("commands") {
     "//ydb/library/workload/benchmark_base",
     "//ydb/library/yaml_config/public",
     # "//ydb/library/yverify_stream",
-    # "//ydb/public/api/grpc",
+    "//ydb/public/api/grpc",
     "//ydb/public/api/protos",
     # "//ydb/public/api/protos/annotations",  # peerdir only
     "//ydb/public/lib/stat_visualization",

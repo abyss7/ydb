@@ -13,7 +13,7 @@ library("long_tx_service") {
     "//ydb/core/tx/tx_proxy:public",
     # "//ydb/core/util",
     # "//ydb/library/actors/core",
-    # "//ydb/library/services",
+    "//ydb/library/services",
   ]
 
   sources = [

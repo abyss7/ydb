@@ -16,7 +16,7 @@ library("worker_job") {
     # "//yql/essentials/public/udf/service/terminate_policy",  # link slot
     # "//yql/essentials/utils",
     # "//yql/essentials/utils/log",
-    # "//yql/essentials/utils/log/proto",
+    "//yql/essentials/utils/log/proto",
     # "//yql/essentials/utils/network",
     # "//yql/essentials/utils/signals",
     # "//yt/cpp/mapreduce/client",  # peerdir only

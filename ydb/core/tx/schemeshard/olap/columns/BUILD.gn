@@ -1,7 +1,7 @@
 library("columns") {
   public_deps = [
     "//ydb/core/formats/arrow",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     "//ydb/core/scheme_types",
     "//ydb/core/tx/columnshard/engines/scheme/defaults/common",
     "//ydb/core/tx/schemeshard/olap/common",

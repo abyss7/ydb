@@ -4,7 +4,7 @@ library("incrhuge") {
     "//ydb/core/base",
     # "//ydb/core/blobstorage",
     "//ydb/core/blobstorage/pdisk",
-    # "//ydb/core/protos",
+    "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 

@@ -11,7 +11,7 @@ library("comp_nodes") {
     # "//ydb/library/mkql_proto/protos",  # peerdir only
     # "//ydb/library/yql/dq/actors/compute",
     # "//ydb/library/yql/dq/actors/protos",  # peerdir only
-    # "//ydb/library/yql/providers/ydb/proto",
+    "//ydb/library/yql/providers/ydb/proto",
     # "//ydb/public/lib/experimental",
     # "//ydb/public/sdk/cpp/adapters/issue",
     # "//yql/essentials/minikql",
