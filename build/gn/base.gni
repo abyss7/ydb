@@ -62,14 +62,19 @@ template("expand_template") {
 }
 
 # GENERATE_ENUM_SERIALIZATION: <header>_serialized.cpp and .h of each of
-# `headers` by the action `<target_name>_enum`. The target compiling them
-# takes its outputs to `sources`, it and //tools/enum_parser:runtime to `deps`
-# (library(), linked_executable(): `serialize_enum_headers`).
+# `headers` by the action `<target_name>_enum`, the .cpp compiled by the
+# source_set `<target_name>_enum_objs`, which the target takes to `deps`
+# (library(), linked_executable(): `serialize_enum_headers`). Compiled with
+# the flags of the target -- its deps, public_deps, configs, public_configs,
+# defines, include_dirs, cflags*, yql_abi_version -- but no precompiled
+# header: the .cpp defines the specializations of Out<>, FromStringImpl<>...
+# the PCH may have instantiated already.
 template("serialize_enums") {
+    _enum = "${target_name}_enum"
     _output = "{{source_gen_dir}}/{{source_file_part}}_serialized.cpp"
     _header = "{{source_gen_dir}}/{{source_file_part}}_serialized.h"
 
-    action_foreach("${target_name}_enum") {
+    action_foreach(_enum) {
         forward_variables_from(invoker, [ "testonly" ])
         script = "//build/gn/scripts/run.py"
         sources = invoker.headers
@@ -88,6 +93,40 @@ template("serialize_enums") {
 
         deps = [ _enum_parser ]
     }
+
+    source_set("${target_name}_enum_objs") {
+        forward_variables_from(invoker, [ "testonly", "defines", "include_dirs", "cflags", "cflags_c", "cflags_cc" ])
+        visibility = [ ":*" ]
+        sources = filter_include(get_target_outputs(":$_enum"), [ "*.cpp" ])
+        deps += [
+            ":$_enum",
+            "//tools/enum_parser:runtime",
+        ]
+        if (defined(invoker.deps)) {
+            deps += invoker.deps
+        }
+        if (defined(invoker.public_deps)) {
+            deps += invoker.public_deps
+        }
+        if (defined(invoker.configs)) {
+            configs += invoker.configs
+        }
+        if (defined(invoker.public_configs)) {
+            configs += invoker.public_configs
+        }
+        if (defined(invoker.yql_abi_version)) {
+            _abi = string_split(invoker.yql_abi_version, ".")
+            configs -= [ "//build/gn/config:yql_abi_current" ]
+            if (!defined(defines)) {
+                defines = []
+            }
+            defines += [
+                "UDF_ABI_VERSION_MAJOR=${_abi[0]}",
+                "UDF_ABI_VERSION_MINOR=${_abi[1]}",
+                "UDF_ABI_VERSION_PATCH=${_abi[2]}",
+            ]
+        }
+    }
 }
 
 template("library") {
@@ -95,8 +134,9 @@ template("library") {
     _unique_name = exec_script("//build/gn/scripts/unique_name.py", [ _path ], "trim string")
 
     if (defined(invoker.serialize_enum_headers)) {
-        _enum_target = "${target_name}_enum"
         serialize_enums(target_name) {
+            forward_variables_from(invoker, [ "testonly", "deps", "public_deps", "configs", "public_configs", "defines",
+                                              "include_dirs", "cflags", "cflags_c", "cflags_cc", "yql_abi_version" ])
             headers = invoker.serialize_enum_headers
         }
     }
@@ -226,13 +266,9 @@ template("library") {
 
         if (defined(invoker.serialize_enum_headers)) {
             deps += [
-                ":$_enum_target",
-                "//tools/enum_parser:runtime"
+                ":${target_name}_enum_objs",
+                "//tools/enum_parser:runtime",
             ]
-            if (!defined(sources)) {
-                sources = []
-            }
-            sources += get_target_outputs(":$_enum_target")
         }
 
         if (_has_resources) {

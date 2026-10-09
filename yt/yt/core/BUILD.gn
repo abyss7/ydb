@@ -1,7 +1,10 @@
 # yamake2gn: keep  -- hand-written, do not regenerate
 
 config("core_private_config") {
-    cflags = [ "-mpclmul" ]
+    cflags = [
+        "-mpclmul",
+        "-Wno-missing-template-arg-list-after-template-kw",
+    ]
 }
 
 library("core") {

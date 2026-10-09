@@ -2,6 +2,7 @@
 #include <ydb/library/yql/providers/dq/runtime/file_cache.h>
 #include <util/system/fs.h>
 #include <util/system/file.h>
+#include <util/string/cast.h>
 
 using namespace NYql;
 
@@ -9,7 +10,7 @@ namespace {
     int fileNo = 1;
 
     TString GetFile(i64 size) {
-        auto file = TFile(std::to_string(fileNo++), CreateAlways | RdWr);
+        auto file = TFile(ToString(fileNo++), CreateAlways | RdWr);
         file.Resize(size);
         return file.GetName();
     }

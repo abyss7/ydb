@@ -156,6 +156,14 @@ struct TSysTables {
                 result.PathId = lock.PathId;
                 return result;
             }
+
+            // a hidden friend: found by ADL for TLock only, it hides no other
+            // operator << from the code in NKikimr
+            friend IOutputStream& operator << (IOutputStream& out, const TLock& lock) {
+                out << lock.LockId << ':' << lock.DataShard << ':' << lock.Generation << ':' << lock.Counter << ':'
+                    << lock.SchemeShard << ':' << lock.PathId;
+                return out;
+            }
         };
 
         static const char * GetColName(EColumns colId) {
@@ -219,11 +227,5 @@ struct TSysTables {
     };
 };
 
-
-inline IOutputStream& operator << (IOutputStream& out, const TSysTables::TLocksTable::TLock& lock) {
-    out << lock.LockId << ':' << lock.DataShard << ':' << lock.Generation << ':' << lock.Counter << ':'
-        << lock.SchemeShard << ':' << lock.PathId;
-    return out;
-}
 
 }

@@ -1,7 +1,7 @@
 library("common") {
   public_deps = [
     # "//library/cpp/threading/future",
-    # "//ydb/public/sdk/cpp/src/client/common_client/impl",
+    "//ydb/public/sdk/cpp/src/client/common_client/impl",
     "//ydb/public/sdk/cpp/src/client/topic:_self",
   ]
 

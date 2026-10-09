@@ -61,8 +61,8 @@ public:
         return PgTypeDesc;
     }
 
-    const TString GetPgTypeMod(const TStringBuf name) const {
-        return TypeId != NTypeIds::Pg ? TString{} : NPg::TypeModFromPgTypeName(name);
+    const ::TString GetPgTypeMod(const TStringBuf name) const {
+        return TypeId != NTypeIds::Pg ? ::TString{} : NPg::TypeModFromPgTypeName(name);
     }
 
     constexpr const TDecimalType& GetDecimalType() const {

@@ -9,9 +9,9 @@ namespace NKikimr {
 namespace {
 
 using TRangeTreap = NRangeTreap::TRangeTreap<ui64, ui64>;
-using TRange = NRangeTreap::TRange<ui64>;
+using TTestRange = NRangeTreap::TRange<ui64>;
 
-void PrintRange(TStringBuilder& builder, const TRange& range, ui64 value) {
+void PrintRange(TStringBuilder& builder, const TTestRange& range, ui64 value) {
     builder << (range.LeftInclusive ? '[' : '(');
     builder << range.LeftKey;
     builder << ", ";
@@ -28,7 +28,7 @@ public:
     {
     }
 
-    bool operator()(const TRange& range, ui64 value) {
+    bool operator()(const TTestRange& range, ui64 value) {
         if (Index++) {
             Builder << ',';
             Builder << ' ';
@@ -90,14 +90,14 @@ Y_UNIT_TEST_SUITE(TRangeTreap) {
     Y_UNIT_TEST(Simple) {
         TRangeTreap treap;
 
-        treap.AddRange(TRange(1, true, 10, true), 42);
-        treap.AddRange(TRange(2, true, 20, true), 43);
-        treap.AddRange(TRange(3, true, 30, true), 44);
+        treap.AddRange(TTestRange(1, true, 10, true), 42);
+        treap.AddRange(TTestRange(2, true, 20, true), 43);
+        treap.AddRange(TTestRange(3, true, 30, true), 44);
         treap.Validate();
         UNIT_ASSERT_VALUES_EQUAL(TreapToString(treap), "[1, 10] -> 42, [2, 20] -> 43, [3, 30] -> 44");
         UNIT_ASSERT_VALUES_EQUAL(treap.Size(), 3u);
 
-        treap.AddRange(TRange(2, true, 40, true), 43);
+        treap.AddRange(TTestRange(2, true, 40, true), 43);
         treap.Validate();
         UNIT_ASSERT_VALUES_EQUAL(TreapToString(treap), "[1, 10] -> 42, [2, 40] -> 43, [3, 30] -> 44");
         UNIT_ASSERT_VALUES_EQUAL(treap.Size(), 3u);
@@ -133,7 +133,7 @@ Y_UNIT_TEST_SUITE(TRangeTreap) {
             ui64 left = i + 1;
             ui64 right = i + 1;
             ui64 value = i + 1;
-            treap.AddRange(TRange(left, true, right, true), value);
+            treap.AddRange(TTestRange(left, true, right, true), value);
         }
         treap.Validate();
 
@@ -171,7 +171,7 @@ Y_UNIT_TEST_SUITE(TRangeTreap) {
             ui64 size = singleRangeMinSize + (RandomNumber<ui64>() % (singleRangeMaxSize - singleRangeMinSize + 1));
             ui64 right = Min(left + size - 1, ui64(totalRangeSize));
             ui64 value = 1 + (RandomNumber<ui64>() % nValues);
-            treap.AddRange(TRange(left, true, right, true), value);
+            treap.AddRange(TTestRange(left, true, right, true), value);
             // Add it to the classical map too
             auto key = std::make_pair(left, value);
             auto it = map.find(key);
@@ -209,7 +209,7 @@ Y_UNIT_TEST_SUITE(TRangeTreap) {
         UNIT_ASSERT_VALUES_EQUAL(treap.Size(), map.size());
 
         auto checkIt = map.begin();
-        treap.EachRange([&](const TRange& range, ui64 value) {
+        treap.EachRange([&](const TTestRange& range, ui64 value) {
             TCheckValue found{ range.LeftKey, range.RightKey, value };
             UNIT_ASSERT_C(checkIt != map.end(), "Treap has more values than the map, e.g.: " << found);
             TCheckValue expected{ checkIt->first.first, checkIt->second, checkIt->first.second };
@@ -226,7 +226,7 @@ Y_UNIT_TEST_SUITE(TRangeTreap) {
             auto checkIt = map.begin();
             treap.ResetStats();
             size_t foundCount = 0;
-            treap.EachIntersection(point, [&](const TRange& range, ui64 value) {
+            treap.EachIntersection(point, [&](const TTestRange& range, ui64 value) {
                 TCheckValue found{ range.LeftKey, range.RightKey, value };
                 // Skip all map values that don't intersect with point
                 while (checkIt != map.end() && !(checkIt->first.first <= point && point <= checkIt->second)) {
@@ -259,13 +259,13 @@ Y_UNIT_TEST_SUITE(TRangeTreap) {
             ui64 left = i + 1;
             ui64 right = i + 100;
             ui64 value = i + 1;
-            treap.AddRange(TRange(left, true, right, true), value);
+            treap.AddRange(TTestRange(left, true, right, true), value);
         }
         treap.Validate();
 
         {
             ui64 iterations = 0;
-            treap.EachRange([&iterations](const TRange&, ui64) {
+            treap.EachRange([&iterations](const TTestRange&, ui64) {
                 ++iterations;
                 return iterations < 100;
             });
@@ -274,7 +274,7 @@ Y_UNIT_TEST_SUITE(TRangeTreap) {
 
         {
             ui64 iterations = 0;
-            treap.EachIntersection(100, [&iterations](const TRange&, ui64) {
+            treap.EachIntersection(100, [&iterations](const TTestRange&, ui64) {
                 ++iterations;
                 return iterations < 10;
             });

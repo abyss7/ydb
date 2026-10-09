@@ -42,12 +42,6 @@ private:
 void ProcessThreadPoolTasks(TAtomicSharedPtr<TNamespacesList> nsl, TAtomicSharedPtr<ISpillStorage> sti);
 
 
-// Class to store session object ids
-class TSessionIds {
-    ui32 NsId_ = 0;
-    ui32 ObjId_ = 0;
-};
-
 class TSessionImp: public ISession {
 public:
     NThreading::TFuture<TOperationResults> Save(const TString & objNamespace, const TString & name,  TBuffer && buf);
@@ -73,9 +67,7 @@ public:
                                                 const TMaybe<TString>& objName = TMaybe<TString>(),
                                                 bool onlyValid = true);
 private:
-    bool NameSpacesIterator_ = false;
     TVector<TString> ObjNamespaces_;
-    TVector<TString>::const_iterator CurrNamespace_;
 };
 
 

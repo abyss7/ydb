@@ -184,7 +184,7 @@ void ClearAlignedTail(char* tail) noexcept {
 #if defined(_x86_64_) || defined(_i386_)
 #include <xmmintrin.h>
 // the main motivation is not poluting CPU cache
-NO_SANITIZE_THREAD
+Y_NO_SANITIZE("thread")
 void NoCacheMemcpy(char* dst, const char* src, size_t size) noexcept {
     while (size >= sizeof(__m128) * 2) {
         __m128 a = _mm_load_ps((float*)(src + 0 * sizeof(__m128)));
@@ -199,7 +199,7 @@ void NoCacheMemcpy(char* dst, const char* src, size_t size) noexcept {
     memcpy(dst, src, size);
 }
 
-NO_SANITIZE_THREAD
+Y_NO_SANITIZE("thread")
 void NoWCacheMemcpy(char* dst, const char* src, size_t size) noexcept {
     constexpr ui16 ITEMS_COUNT = 1024;
     alignas(TMemoryLog::MemcpyAlignment) __m128 buf[ITEMS_COUNT];
@@ -226,7 +226,7 @@ void NoWCacheMemcpy(char* dst, const char* src, size_t size) noexcept {
 
 #endif
 
-NO_SANITIZE_THREAD
+Y_NO_SANITIZE("thread")
 char* BareMemLogWrite(const char* begin, size_t msgSize, bool isLast) noexcept {
     bool lastMark =
         isLast && TMemoryLog::PrintLastMark.load(std::memory_order_acquire);
@@ -255,7 +255,7 @@ char* BareMemLogWrite(const char* begin, size_t msgSize, bool isLast) noexcept {
     return buffer;
 }
 
-NO_SANITIZE_THREAD
+Y_NO_SANITIZE("thread")
 bool MemLogWrite(const char* begin, size_t msgSize, bool addLF) noexcept {
     bool lastMark = TMemoryLog::PrintLastMark.load(std::memory_order_acquire);
     size_t amount = lastMark ? msgSize + TMemoryLog::LAST_MARK_SIZE : msgSize;
@@ -313,7 +313,7 @@ bool MemLogWrite(const char* begin, size_t msgSize, bool addLF) noexcept {
     return true;
 }
 
-NO_SANITIZE_THREAD
+Y_NO_SANITIZE("thread")
 void TMemoryLog::ChangeLastMark(char* buffer) noexcept {
     memcpy(buffer, DEFAULT_LAST_MARK, LAST_MARK_SIZE);
     auto oldMark = AtomicSwap(&LastMarkIsHere, buffer);

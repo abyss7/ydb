@@ -402,7 +402,7 @@ Y_UNIT_TEST_SUITE(PgCatalog) {
 
     Y_UNIT_TEST(PgTables) {
         bool experimentalPg = false;
-        if (auto* p = std::getenv("YDB_EXPERIMENTAL_PG")) {
+        if (std::getenv("YDB_EXPERIMENTAL_PG")) {
             experimentalPg = true;
         }
         TKikimrRunner kikimr(NKqp::TKikimrSettings().SetWithSampleTables(false));

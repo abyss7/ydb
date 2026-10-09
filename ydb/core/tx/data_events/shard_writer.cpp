@@ -25,7 +25,7 @@ namespace NKikimr::NEvWrite {
         }
     }
 
-    NO_SANITIZE_THREAD
+    Y_NO_SANITIZE("thread")
     void TWritersController::OnFail(const Ydb::StatusIds::StatusCode code, const TString& message) {
         Counters->OnCSFailed(code);
         FailsCount.Inc();

@@ -167,7 +167,8 @@ template("linked_executable") {
 
   if (defined(invoker.serialize_enum_headers)) {
     serialize_enums(_exe) {
-      forward_variables_from(invoker, [ "testonly" ])
+      forward_variables_from(invoker, [ "testonly", "deps", "public_deps", "configs", "public_configs", "defines",
+                                        "include_dirs", "cflags", "cflags_c", "cflags_cc", "yql_abi_version" ])
       headers = invoker.serialize_enum_headers
     }
   }
@@ -207,12 +208,8 @@ template("linked_executable") {
       }
     }
     if (defined(invoker.serialize_enum_headers)) {
-      if (!defined(sources)) {
-        sources = []
-      }
-      sources += get_target_outputs(":${_exe}_enum")
       deps += [
-        ":${_exe}_enum",
+        ":${_exe}_enum_objs",
         "//tools/enum_parser:runtime",
       ]
     }

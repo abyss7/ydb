@@ -12,7 +12,11 @@ the consumer lacks -- the macro is then defined in the consumer. So:
     as is and once with every such macro defined to a poison token, and any
     difference fails, naming the macros.
 
-Usage: pch_check.py --compile-commands F --pch P --source S --stamp T [--root R]
+It reruns when the compile commands or the PCH change: the depfile names both
+(compile_commands.json is written by `gn gen`, no target of the build).
+
+Usage: pch_check.py --compile-commands F --pch P --source S --stamp T
+                    --depfile D [--root R]
 """
 
 import argparse
@@ -113,6 +117,7 @@ def main():
     ap.add_argument("--pch", required=True)
     ap.add_argument("--source", required=True)
     ap.add_argument("--stamp", required=True)
+    ap.add_argument("--depfile", required=True)
     ap.add_argument("--root", default=".")
     args = ap.parse_args()
 
@@ -153,6 +158,8 @@ def main():
 
     with open(args.stamp, "w", encoding="utf-8") as f:
         f.write("%d files\n" % len(users))
+    with open(args.depfile, "w", encoding="utf-8") as f:
+        f.write("%s: %s %s\n" % (args.stamp, args.compile_commands, args.pch))
 
 
 if __name__ == "__main__":

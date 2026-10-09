@@ -5,6 +5,11 @@ template("shared_pch") {
             get_path_info(invoker.source, "file") + ".o"
   _pch = "$target_gen_dir/$_name.pch"
 
+  config("${_name}_private_config") {
+    visibility = [ ":*" ]
+    cflags = [ "-w" ]
+  }
+
   source_set(_compile) {
     visibility = [ ":*" ]
     sources = [ invoker.source ]
@@ -14,6 +19,8 @@ template("shared_pch") {
       "-fpch-instantiate-templates",
     ]
     configs -= [ "//build/gn/config:yql_abi_current" ]
+    configs += [ ":${_name}_private_config" ]
+    deps = []
     deps = platform_deps + [ "//contrib/libs/cxxsupp/libcxx" ]
     if (defined(invoker.deps)) {
       deps += invoker.deps
@@ -30,11 +37,9 @@ template("shared_pch") {
   action("${_name}_check") {
     visibility = [ ":*" ]
     script = "//build/gn/scripts/pch_check.py"
-    inputs = [
-      "$root_build_dir/compile_commands.json",
-      invoker.source,
-    ]
+    inputs = [ invoker.source ]
     outputs = [ "$target_gen_dir/$_name.check.stamp" ]
+    depfile = "$target_gen_dir/$_name.check.d"
     args = [
       "--compile-commands",
       "compile_commands.json",
@@ -46,8 +51,10 @@ template("shared_pch") {
       rebase_path(invoker.source, "//"),
       "--stamp",
       rebase_path(outputs[0], root_build_dir),
+      "--depfile",
+      rebase_path(depfile, root_build_dir),
     ]
-    deps = [ ":$_compile" ]
+    deps = [ ":${_name}_pch" ]
   }
 
   config("${_name}_config") {

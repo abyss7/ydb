@@ -8,6 +8,7 @@
 #include <util/system/types.h>
 #include <library/cpp/deprecated/atomic/atomic.h>
 #include <util/system/align.h>
+#include <util/system/compiler.h>
 #include <util/system/tls.h>
 
 #include <atomic>
@@ -15,16 +16,6 @@
 
 #ifdef _win_
 #include <util/system/winint.h>
-#endif
-
-#ifndef NO_SANITIZE_THREAD
-#define NO_SANITIZE_THREAD
-#if defined(__has_feature)
-#if __has_feature(thread_sanitizer)
-#undef NO_SANITIZE_THREAD
-#define NO_SANITIZE_THREAD __attribute__((no_sanitize_thread))
-#endif
-#endif
 #endif
 
 class TMemoryLog {
@@ -169,12 +160,12 @@ private:
 };
 
 // it's no use of sanitizing this function
-NO_SANITIZE_THREAD
+Y_NO_SANITIZE("thread")
 char* BareMemLogWrite(
     const char* begin, size_t msgSize, bool isLast = true) noexcept;
 
 // it's no use of sanitizing this function
-NO_SANITIZE_THREAD
+Y_NO_SANITIZE("thread")
 bool MemLogWrite(
     const char* begin, size_t msgSize, bool addLF = false) noexcept;
 
