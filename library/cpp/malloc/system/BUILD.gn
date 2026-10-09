@@ -1,7 +1,5 @@
 contrib_library("system") {
-  deps = [
-    "//library/cpp/malloc/api",
-  ]
+  deps = [ "//library/cpp/malloc/api" ]
 
   sources = [ "malloc-info.cpp" ]
 

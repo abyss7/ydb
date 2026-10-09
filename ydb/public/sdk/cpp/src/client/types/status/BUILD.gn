@@ -7,9 +7,7 @@ library("status") {
     "//ydb/public/sdk/cpp/src/library/issue",
   ]
 
-  deps = [
-    "//ydb/public/sdk/cpp/src/client/impl/internal/plain_status",
-  ]
+  deps = [ "//ydb/public/sdk/cpp/src/client/impl/internal/plain_status" ]
 
   sources = [ "status.cpp" ]
 }
