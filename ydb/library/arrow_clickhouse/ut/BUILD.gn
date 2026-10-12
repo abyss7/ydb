@@ -9,8 +9,5 @@ unittest_executable("ut") {
 
   include_dirs = [ "//ydb/library/arrow_clickhouse" ]
 
-  link_select = [
-    "YqlServicePolicy=stub",
-    "allocator=tcmalloc",
-  ]
+  link_select = [ "allocator=tcmalloc" ]
 }

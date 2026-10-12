@@ -66,11 +66,14 @@ template("expand_template") {
 # source_set `<target_name>_enum_objs`, which the target takes to `deps`
 # (library(), linked_executable(): `serialize_enum_headers`). Compiled with
 # the flags of the target -- its deps, public_deps, configs, public_configs,
-# defines, include_dirs, cflags*, yql_abi_version -- but no precompiled
-# header: the .cpp defines the specializations of Out<>, FromStringImpl<>...
-# the PCH may have instantiated already.
+# defines, include_dirs, cflags*, yql_abi_version -- and the shared
+# precompiled header of the target, but for enum_serialization_pch_exclude
+# (//build/gn/pch/targets.gni): there the .cpp defines specializations of
+# Out<>, FromStringImpl<>... the PCH has instantiated already.
 template("serialize_enums") {
     _enum = "${target_name}_enum"
+    _owner = get_label_info(":$target_name", "label_no_toolchain")
+    not_needed([ "_owner" ])
     _output = "{{source_gen_dir}}/{{source_file_part}}_serialized.cpp"
     _header = "{{source_gen_dir}}/{{source_file_part}}_serialized.h"
 
@@ -125,6 +128,16 @@ template("serialize_enums") {
                 "UDF_ABI_VERSION_MINOR=${_abi[1]}",
                 "UDF_ABI_VERSION_PATCH=${_abi[2]}",
             ]
+        }
+        if (pch_mode == "global" && current_toolchain == default_toolchain) {
+            if (label_matches(_owner, contrib_pch_targets)) {
+                if (!label_matches(_owner, contrib_pch_exclude)) {
+                    deps += [ "//build/gn/pch:contrib" ]
+                }
+            } else if (!label_matches(_owner, global_pch_exclude) &&
+                       !label_matches(_owner, enum_serialization_pch_exclude)) {
+                deps += [ "//build/gn/pch:global" ]
+            }
         }
     }
 }
@@ -340,7 +353,10 @@ template("library") {
             configs -= [ "//build/gn/config:no_undefined" ]
         }
 
-        if (pch_mode == "per_target" &&
+        # a precompiled header of its own for pch_targets; with pch_mode =
+        # "global" it is chained to the shared one below (compiled with its
+        # -include-pch)
+        if ((pch_mode == "per_target" || (pch_mode == "global" && current_toolchain == default_toolchain)) &&
             label_matches(get_label_info(":$target_name", "label_no_toolchain"), pch_targets)) {
             precompiled_header = "pch.h"
             precompiled_source = "//build/gn/pch/$_path/$target_name.h"

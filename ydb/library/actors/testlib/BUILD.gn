@@ -1,6 +1,4 @@
 library("testlib") {
-  testonly = true
-
   public_deps = [
     "//library/cpp/random_provider",
     # "//library/cpp/testing/unittest",

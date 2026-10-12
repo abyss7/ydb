@@ -5,7 +5,6 @@ SRCS(
 )
 
 PEERDIR(
-    library/cpp/testing/unittest
     ydb/library/actors/core
     ydb/library/actors/interconnect/mock
     ydb/library/actors/protos

@@ -49,7 +49,8 @@ declare_args() {
   #   "global" -- //build/gn/pch:global for every C++ library(), program and
   #     test but those of global_pch_exclude, //build/gn/pch:contrib (the
   #     C++ standard library) for every contrib_library() but those of
-  #     contrib_pch_exclude and for contrib_pch_targets; the build tools have
+  #     contrib_pch_exclude and for contrib_pch_targets, and for the targets
+  #     of pch_targets their own on top of it (chained); the build tools have
   #     none, see tool_toolchain;
   #   "none"
   pch_mode = "per_target"
