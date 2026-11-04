@@ -19,12 +19,14 @@ unittest_executable("ut") {
     "//ydb/public/sdk/cpp/src/client/topic/impl",
     "//ydb/public/sdk/cpp/src/client/types/credentials",
     "//ydb/public/sdk/cpp/src/client/types/exceptions",
+    "//ydb/public/sdk/cpp/src/client/types/executor",
     "//ydb/public/sdk/cpp/tests/integration/topic/utils",
   ]
 
   sources = [
     "basic_usage_ut.cpp",
     "federation_observer_deadlock_ut.cpp",
+    "read_session_membership_ut.cpp",
     "simple_blocking_write_session_ut.cpp",
   ]
 
