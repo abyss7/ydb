@@ -19,6 +19,7 @@ unittest_executable("ut") {
     "//ydb/core/tx/columnshard/blobs_reader",
     "//ydb/core/tx/columnshard/common",
     "//ydb/core/tx/columnshard/counters",
+    "//ydb/core/tx/columnshard/data_accessor",
     "//ydb/core/tx/columnshard/data_locks:manager",
     "//ydb/core/tx/columnshard/engines",
     "//ydb/core/tx/columnshard/engines/portions",
@@ -69,6 +70,7 @@ unittest_executable("ut") {
     "ut_scan_cursor.cpp",
     "ut_scan_snapshot_guard.cpp",
     "ut_script.cpp",
+    "ut_shared_schema_cache.cpp",
     "ut_snapshot_holders.cpp",
     "ut_sync_portion_index_reuse.cpp",
   ]
