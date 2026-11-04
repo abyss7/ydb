@@ -5,6 +5,7 @@ unittest_executable("ut_worker_lifecycle") {
     "//ydb/core/grpc_services",
     "//ydb/core/protos/schemeshard",
     "//ydb/core/testlib",
+    "//ydb/core/transfer",
     "//ydb/core/tx/replication/controller",
     "//ydb/core/tx/replication/service",
     "//ydb/core/tx/replication/ut_helpers",
