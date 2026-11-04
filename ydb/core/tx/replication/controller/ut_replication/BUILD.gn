@@ -6,7 +6,10 @@ unittest_executable("ut_replication") {
     "//ydb/core/tx/replication/controller",
   ]
 
-  sources = [ "//ydb/core/tx/replication/controller/replication_ut.cpp" ]
+  sources = [
+    "//ydb/core/tx/replication/controller/replication_ut.cpp",
+    "//ydb/core/tx/replication/controller/worker_lag_expiry_queue_ut.cpp",
+  ]
 
   include_dirs = [ "//ydb/core/tx/replication/controller" ]
 
