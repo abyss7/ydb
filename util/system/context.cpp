@@ -43,10 +43,6 @@ void ITrampoLine::DoRunNaked() {
     abort();
 }
 
-static inline void Run(void* arg) {
-    ((ITrampoLine*)arg)->DoRunNaked();
-}
-
 #if defined(USE_JUMP_CONT)
 extern "C" void __mylongjmp(__myjmp_buf env, int val) __attribute__((__noreturn__));
 extern "C" int __mysetjmp(__myjmp_buf env) __attribute__((__returns_twice__));

@@ -3,7 +3,6 @@ library("config") {
 
   deps = [
     # "//yql/essentials/ast",
-    # "//yql/essentials/core/expr_nodes",
     # "//yql/essentials/core/type_ann",
     # "//yql/essentials/minikql/runtime_settings",
     "//yql/essentials/providers/common/activation",
