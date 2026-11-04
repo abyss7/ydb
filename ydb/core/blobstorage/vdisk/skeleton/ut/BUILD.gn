@@ -19,6 +19,7 @@ unittest_executable("ut") {
 
   sources = [
     "//ydb/core/blobstorage/vdisk/skeleton/skeleton_front_latency_ut.cpp",
+    "//ydb/core/blobstorage/vdisk/skeleton/skeleton_log_counters_ut.cpp",
     "//ydb/core/blobstorage/vdisk/skeleton/skeleton_oos_logic_ut.cpp",
     "//ydb/core/blobstorage/vdisk/skeleton/skeleton_vpatch_actor_ut.cpp",
   ]

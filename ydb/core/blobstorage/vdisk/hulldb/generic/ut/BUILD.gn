@@ -16,6 +16,7 @@ unittest_executable("ut") {
     "//ydb/core/blobstorage/vdisk/hulldb/generic/blobstorage_hullwritesst_estimate_ut.cpp",
     "//ydb/core/blobstorage/vdisk/hulldb/generic/blobstorage_hullwritesst_space_model_ut.cpp",
     "//ydb/core/blobstorage/vdisk/hulldb/generic/blobstorage_hullwritesst_ut.cpp",
+    "//ydb/core/blobstorage/vdisk/hulldb/generic/hullds_idx_counters_ut.cpp",
     "//ydb/core/blobstorage/vdisk/hulldb/generic/hullds_sst_it_all_ut.cpp",
   ]
 
