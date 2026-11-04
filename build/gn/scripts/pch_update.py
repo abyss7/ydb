@@ -361,7 +361,9 @@ def pch_roots():
             for line in f:
                 m = _INCLUDE_RE.match(line)
                 if m:
-                    name = _LIBCXX + m.group(2) if m.group(1) == "<" else m.group(2)
+                    name = m.group(2)
+                    if m.group(1) == "<" and os.path.isfile(os.path.join(_ROOT, _LIBCXX, name)):
+                        name = _LIBCXX + name
                     out[name].add(pch)
     return dict((k, tuple(sorted(v))) for k, v in out.items())
 

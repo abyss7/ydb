@@ -9,6 +9,7 @@
 #include <iterator>
 #include <map>
 #include <numeric>
+#include <regex>
 #include <set>
 
 namespace NPchUpdate {
@@ -145,7 +146,7 @@ namespace NPchUpdate {
                     std::string text = ReadFile(JoinPath(dir, header));
                     for (std::string_view line : Split(text, '\n')) {
                         std::string name;
-                        if (ParseInclude(line, &name)) {
+                        if (ParseInclude(line, root, &name)) {
                             pchOf[name].insert(pch);
                         }
                     }
@@ -179,7 +180,7 @@ namespace NPchUpdate {
 
         private:
             // ^\s*#\s*include\s*([<"])([^>"]+)[>"]
-            static bool ParseInclude(std::string_view line, std::string* name) {
+            static bool ParseInclude(std::string_view line, const std::string& root, std::string* name) {
                 size_t i = 0;
                 auto skipSpace = [&] {
                     while (i < line.size() && (line[i] == ' ' || line[i] == '\t')) {
@@ -206,7 +207,13 @@ namespace NPchUpdate {
                     return false;
                 }
                 std::string_view spelling = line.substr(i + 1, end - i - 1);
-                *name = system ? std::string(LIBCXX) + std::string(spelling) : std::string(spelling);
+                *name = std::string(spelling);
+                if (system) {
+                    std::string libcxx = JoinPath(root, std::string(LIBCXX) + *name);
+                    if (Exists(libcxx) && !IsDir(libcxx)) {
+                        *name = std::string(LIBCXX) + *name;
+                    }
+                }
                 return true;
             }
 
@@ -684,6 +691,11 @@ namespace NPchUpdate {
         }
         if (StartsWith(name, GEN)) {
             return "\"" + std::string(name.substr(GEN.size())) + "\"";
+        }
+        static const std::regex clangResource(R"(/lib/clang/\d+(?:\.\d+)*/include/(.+)$)");
+        std::match_results<std::string_view::const_iterator> clang;
+        if (std::regex_search(name.begin(), name.end(), clang, clangResource)) {
+            return "<" + clang[1].str() + ">";
         }
         if (IsAbs(name) || StartsWith(name, "<")) {
             return "\"" + facts.Paths.Real(name) + "\"";
