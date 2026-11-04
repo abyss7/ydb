@@ -21,6 +21,7 @@ unittest_executable("query") {
     "//ydb/core/tablet",
     "//ydb/core/testlib",
     "//ydb/core/testlib/actors",
+    "//ydb/core/tx/columnshard/engines/scheme",
     "//ydb/core/tx/datashard",
     "//ydb/library/aclib",
     "//ydb/library/actors/testlib",
