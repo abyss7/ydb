@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "profiles": {
+    "workspace": {
+      "rules": [
+        {
+          "action": "edit",
+          "resource": "/home/ilezhankin/.config/opencode/memory",
+          "match": "exact",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "/home/ilezhankin/.config/opencode/memory/*",
+          "match": "glob",
+          "effect": "allow"
+        }
+      ]
+    }
+  }
+}
