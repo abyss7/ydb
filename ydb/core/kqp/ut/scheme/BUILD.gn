@@ -1,6 +1,7 @@
 unittest_executable("scheme") {
   deps = [
     "//contrib/libs/fmt",
+    "//contrib/libs/protobuf",
     "//library/cpp/json",
     "//library/cpp/string_utils/base64",
     "//library/cpp/threading/local_executor",
@@ -16,7 +17,9 @@ unittest_executable("scheme") {
     "//ydb/core/kqp/counters",
     "//ydb/core/kqp/gateway/actors",
     "//ydb/core/kqp/gateway:interface",
+    "//ydb/core/kqp/provider",
     "//ydb/core/kqp/ut/common",
+    "//ydb/core/protos",
     "//ydb/core/protos/schemeshard",
     "//ydb/core/sys_view/common",
     "//ydb/core/tablet",
@@ -25,6 +28,7 @@ unittest_executable("scheme") {
     "//ydb/core/tx/columnshard/hooks/testing",
     "//ydb/core/tx/columnshard/test_helper",
     "//ydb/core/tx/datashard",
+    "//ydb/core/tx/schemeshard",
     "//ydb/core/tx/tx_proxy:public",
     "//ydb/library/yql/udfs/common/knn",  # peerdir only
     "//ydb/library/yql/utils/actor_log",
