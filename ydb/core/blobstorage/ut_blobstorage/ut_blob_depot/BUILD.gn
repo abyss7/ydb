@@ -6,6 +6,7 @@ unittest_executable("ut_blob_depot") {
     "//ydb/core/control/lib",
     "//ydb/core/protos",
     "//ydb/core/testlib",
+    "//ydb/core/wrappers",
     "//ydb/library/actors/core",
   ]
 

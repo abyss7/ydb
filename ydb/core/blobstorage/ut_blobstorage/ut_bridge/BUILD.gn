@@ -3,6 +3,7 @@ unittest_executable("ut_bridge") {
     "//contrib/libs/yaml-cpp",
     "//library/cpp/yaml/as",
     "//ydb/core/base",
+    "//ydb/core/blob_depot",
     "//ydb/core/blobstorage/base",
     "//ydb/core/blobstorage/bridge/syncer",
     "//ydb/core/blobstorage/nodewarden",
