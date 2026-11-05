@@ -5,6 +5,7 @@ config("public_config") {
         "include/readpassphrase",
         "memfd_create",
         "random",
+        "reallocarray",
     ]
 }
 
@@ -17,10 +18,13 @@ config("private_config") {
 
 system_library("libc_compat") {
     sources = [
-        "string.c",
-        "random/getrandom.c",
+        "explicit_bzero.c",
+        "memfd_create/memfd_create.c",
         "random/getentropy.c",
+        "random/getrandom.c",
         "readpassphrase.c",
+        "reallocarray/reallocarray.c",
+        "string.c",
         "strlcat.c",
         "strlcpy.c",
     ]

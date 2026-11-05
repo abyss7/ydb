@@ -17,10 +17,6 @@ import subprocess
 import sys
 import time
 
-DEFAULT_LAUNCHER = ("/place/vartmp/claude-25341/-home-ilezhankin-g-ydb-gn/"
-                    "68912edb-cd26-452f-b8f7-b5c5efe0a8f7/scratchpad/fastld/fastld")
-
-
 def run(argv, cwd, env, timeout):
     """(seconds, rc, stdout bytes, stderr bytes); rc None on a timeout."""
     t = time.monotonic()
@@ -46,14 +42,14 @@ def binaries(build_dir, specs):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--build-dir", default=os.path.expanduser("~/b/gn"))
-    ap.add_argument("--launcher", default=DEFAULT_LAUNCHER, help="command, shell-split")
+    ap.add_argument("--launcher", help="command, shell-split (default: BUILD_DIR/fastld)")
     ap.add_argument("-n", "--repeat", type=int, default=2)
     ap.add_argument("--timeout", type=float, default=600, help="seconds per run")
     ap.add_argument("--stats", action="store_true", help="FASTLD_STATS=1, print its lines of the last run")
     ap.add_argument("specs", nargs="+", metavar="BIN|GLOB")
     args = ap.parse_args()
     build_dir = os.path.realpath(args.build_dir)
-    launcher = shlex.split(args.launcher)
+    launcher = shlex.split(args.launcher) if args.launcher else [os.path.join(build_dir, "fastld")]
     bins = binaries(build_dir, args.specs)
     env = dict(os.environ, ARCADIA_BUILD_ROOT=build_dir)
     if args.stats:

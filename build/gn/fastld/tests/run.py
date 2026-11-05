@@ -19,11 +19,11 @@ from concurrent.futures import ThreadPoolExecutor
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, '..', '..', '..', '..'))
-TOOLS = '/home/ilezhankin/.ya/tools/v4/13899442575/bin'
-SYSROOT = '/home/ilezhankin/.ya/tools/v4/243881345'
+YA_CACHE = os.environ.get('YA_CACHE_DIR', os.path.expanduser('~/.ya'))
+TOOLS = os.path.join(YA_CACHE, 'tools', 'v4', '13899442575', 'bin')
+SYSROOT = os.path.join(YA_CACHE, 'tools', 'v4', '243881345')
 LIBCXX_SO = os.path.expanduser('~/b/gn/libcxx.so')
-SCRATCH = '/place/vartmp/claude-25341/-home-ilezhankin-g-ydb-gn/68912edb-cd26-452f-b8f7-b5c5efe0a8f7/scratchpad'
-DEFAULT_OUT = SCRATCH + '/fastld_tests_out'
+DEFAULT_OUT = os.path.expanduser('~/b/gn/fastld_tests_out')
 
 CFLAGS = ['--sysroot=' + SYSROOT, '-D_GNU_SOURCE', '-fPIC', '-pthread', '-g', '-Wall', '-Werror',
           '-Wno-unused-function']
