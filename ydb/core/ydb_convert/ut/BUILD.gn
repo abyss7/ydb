@@ -12,6 +12,7 @@ unittest_executable("ut") {
     "//ydb/library/aclib",
     "//ydb/library/actors/core",
     "//ydb/library/formats/arrow/protos",
+    "//ydb/public/api/protos",
   ]
 
   sources = [
@@ -21,6 +22,7 @@ unittest_executable("ut") {
     "//ydb/core/ydb_convert/table_description_ut.cpp",
     "//ydb/core/ydb_convert/table_settings_ut.cpp",
     "//ydb/core/ydb_convert/ydb_convert_ut.cpp",
+    "replication_description_ut.cpp",
     "topic_description_ut.cpp",
   ]
 

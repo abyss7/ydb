@@ -13,6 +13,7 @@ PEERDIR(
     ydb/core/tx/replication/ut_helpers
     library/cpp/testing/unittest
 )
+# gn: peerdir ydb/core/tx/replication/ydb_proxy/local_proxy
 
 SRCS(
     stream_creator_ut.cpp
