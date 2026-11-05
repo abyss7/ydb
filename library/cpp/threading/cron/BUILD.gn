@@ -1,3 +1,0 @@
-library("cron") {
-  sources = [ "cron.cpp" ]
-}

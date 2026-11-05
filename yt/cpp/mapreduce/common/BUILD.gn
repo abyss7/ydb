@@ -9,7 +9,6 @@ library("common") {
 
   deps = [
     # "//library/cpp/json",
-    # "//library/cpp/svnversion",  # peerdir only
     # "//library/cpp/threading/future",
     # "//library/cpp/yson/json",  # peerdir only
     # "//library/cpp/yt/logging",
