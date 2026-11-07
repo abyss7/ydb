@@ -1,4 +1,8 @@
 library("path_aliasing") {
+  public_deps = [
+    # "//library/cpp/monlib/dynamic_counters",
+  ]
+
   deps = [
     "//ydb/core/base",
     "//ydb/core/protos",
