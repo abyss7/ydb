@@ -4,6 +4,7 @@ unittest_executable("ut") {
     "//library/cpp/testing/unittest",
     "//ydb/library/yql/dq/expr_nodes",
     "//ydb/library/yql/dq/opt",
+    "//ydb/library/yql/dq/type_ann",
     "//yql/essentials/core",
     "//yql/essentials/core/cbo",
     "//yql/essentials/core/expr_nodes",
@@ -17,6 +18,7 @@ unittest_executable("ut") {
 
   sources = [
     "dq_cbo_ut.cpp",
+    "dq_opt_build_ut.cpp",
     "dq_opt_equal_nulls_ut.cpp",
     "dq_opt_hypergraph_ut.cpp",
     "dq_opt_interesting_orderings_ut.cpp",
