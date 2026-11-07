@@ -68,6 +68,7 @@ def compile_argv(entries, source, root):
     chosen = chosen or same_dir or any_cpp
     if chosen is None:
         sys.exit("link_slot_weak: no compile command to borrow flags from")
+    input_path = os.path.realpath(os.path.join(chosen["directory"], chosen["file"]))
     argv = shlex.split(chosen["command"]) if "command" in chosen else list(chosen["arguments"])
     out, skip, skip3 = [], False, 0
     for i, a in enumerate(argv):
@@ -81,6 +82,11 @@ def compile_argv(entries, source, root):
             skip = True
             continue
         if a in _DROP or a == chosen["file"]:
+            continue
+        # GN may spell `file` relative to the build directory but use an
+        # absolute source argument. Borrow only flags, never that TU: in a
+        # sampled build its generated source need not exist at all.
+        if not a.startswith("-") and os.path.realpath(os.path.join(chosen["directory"], a)) == input_path:
             continue
         # force-included files: a precompiled header, or another slot's weak
         # references (-Xclang -include -Xclang <file>) -- the headers parse

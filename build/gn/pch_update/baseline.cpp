@@ -900,7 +900,7 @@ namespace NPchUpdate {
                             continue;
                         }
                         const TNinjaManifest::TEdge& edge = edges[e];
-                        for (const auto* list : {&edge.Inputs, &edge.ImplicitInputs, &edge.OrderOnly}) {
+                        for (const auto* list : {&edge.Inputs, &edge.ImplicitInputs, &edge.OrderOnly, &edge.Validations}) {
                             for (const std::string& p : *list) {
                                 auto it = multi.find(p);
                                 if (it != multi.end()) {
@@ -1101,6 +1101,10 @@ namespace NPchUpdate {
     // check
     // =========================================================================
 
+    std::vector<std::string> GnGenerationSwitches(const TNinjaManifest& manifest) {
+        return GnCommand(manifest).Switches;
+    }
+
     bool CheckBaseline(const TOptions& options, const TTools& tools, TWorkDir& work, TFacts& facts) {
         std::string buildDir = RealPath(options.Baseline);
         std::vector<std::string> errors;
@@ -1169,8 +1173,8 @@ namespace NPchUpdate {
                 stale = !scan.Wanted({"build.ninja"}).empty();
             }
             if (stale) {
-                errors.push_back("the ninja files are stale (gn files changed since the build): "
-                                 "ninja would regenerate them and rebuild what changed");
+                Fail("the ninja files are stale (gn files changed since the build): "
+                     "regenerate and rebuild the baseline before collecting PCH facts");
             } else {
                 commands = scan.Wanted(options.Targets);
             }

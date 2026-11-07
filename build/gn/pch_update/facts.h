@@ -59,6 +59,9 @@ namespace NPchUpdate {
         std::string Ninja = "ninja";
         // Roots tried at once by a step of the search of the root breaking a file.
         int BisectWays = 4;
+        // How long a state generation may go without a successful cycle
+        // before it is deleted; zero never expires it. Seconds.
+        int64_t StateAge = 7 * 86400;
     };
 
     // What the steps learn of the baseline, the tree and the history.

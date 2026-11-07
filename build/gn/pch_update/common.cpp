@@ -17,6 +17,7 @@
 #include <fcntl.h>
 #include <poll.h>
 #include <signal.h>
+#include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -30,6 +31,37 @@ namespace NPchUpdate {
     namespace {
         std::mutex LogMutex;
         FILE* RunLog = nullptr;
+        bool ProgressShown = false;
+
+        bool ProgressTerminal() {
+            static const bool terminal = isatty(STDERR_FILENO) != 0;
+            return terminal;
+        }
+
+        int TerminalColumns() {
+            struct winsize size;
+            if (ioctl(STDERR_FILENO, TIOCGWINSZ, &size) == 0 && size.ws_col > 0) {
+                return size.ws_col;
+            }
+            return 0;
+        }
+
+        // Erases an unfinished progress line so a message starts on its own line.
+        void FinishProgress() {
+            if (ProgressShown) {
+                fputs("\r\033[K", stderr);
+                fflush(stderr);
+                ProgressShown = false;
+            }
+        }
+
+        void FinishProgressAtExit() {
+            if (ProgressShown) {
+                fputc('\n', stderr);
+                fflush(stderr);
+                ProgressShown = false;
+            }
+        }
 
         std::string ErrnoText(const std::string& what) {
             return what + ": " + strerror(errno);
@@ -57,6 +89,7 @@ namespace NPchUpdate {
 
     void Log(const std::string& message) {
         std::lock_guard<std::mutex> lock(LogMutex);
+        FinishProgress();
         fprintf(stderr, "pch_update: %s\n", message.c_str());
         fflush(stderr);
         if (RunLog) {
@@ -65,8 +98,37 @@ namespace NPchUpdate {
         }
     }
 
+    // One line that keeps being overwritten on a terminal, like Ninja status.
+    // Redirected output keeps a line per update so logs stay complete.
+    void Progress(const std::string& message) {
+        std::lock_guard<std::mutex> lock(LogMutex);
+        if (RunLog) {
+            fprintf(RunLog, "pch_update: %s\n", message.c_str());
+            fflush(RunLog);
+        }
+        std::string line = "pch_update: " + message;
+        if (!ProgressTerminal()) {
+            fprintf(stderr, "%s\n", line.c_str());
+            fflush(stderr);
+            return;
+        }
+        static const bool registered = [] {
+            std::atexit(FinishProgressAtExit);
+            return true;
+        }();
+        (void)registered;
+        const int columns = TerminalColumns();
+        if (columns > 1 && int(line.size()) >= columns) {
+            line.resize(size_t(columns - 1));
+        }
+        fprintf(stderr, "\r\033[K%s", line.c_str());
+        fflush(stderr);
+        ProgressShown = true;
+    }
+
     void Report(const std::string& line) {
         std::lock_guard<std::mutex> lock(LogMutex);
+        FinishProgress();
         fprintf(stdout, "%s\n", line.c_str());
         fflush(stdout);
         if (RunLog) {

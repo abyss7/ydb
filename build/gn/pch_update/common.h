@@ -21,6 +21,9 @@ namespace NPchUpdate {
 
     // "pch_update: <message>" on stderr and in the log of the run.
     void Log(const std::string& message);
+    // A progress line that replaces itself on a terminal and is written as a
+    // normal line when the output is redirected.
+    void Progress(const std::string& message);
     // A line of the report: stdout and the log of the run.
     void Report(const std::string& line);
     void OpenRunLog(const std::string& path);

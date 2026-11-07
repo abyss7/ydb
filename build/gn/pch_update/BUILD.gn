@@ -14,12 +14,13 @@ executable("pch_update") {
         "model.cpp",
         "ninja.cpp",
         "trace.cpp",
+        "two_step.cpp",
+        "two_step_run.cpp",
+        "two_step_test.cpp",
         "write.cpp",
     ]
-    deps = platform_deps + [
-        "//contrib/libs/cxxsupp/libcxx",
-        "//contrib/libs/rapidjson",
-    ]
+    # Executable defaults already provide platform_deps and libcxx.
+    deps += [ "//contrib/libs/rapidjson" ]
     configs -= [
         "//build/gn/config:std_string",
         "//build/gn/config:ydb_embedded_nbs",

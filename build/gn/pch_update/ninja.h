@@ -47,6 +47,8 @@ namespace NPchUpdate {
         // A top-level variable of build.ninja.
         std::string Variable(std::string_view name) const;
 
+        const std::unordered_map<std::string, int>& PoolDepths() const;
+
     private:
         struct TImpl;
         std::unique_ptr<TImpl> Impl_;

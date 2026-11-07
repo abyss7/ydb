@@ -1087,7 +1087,7 @@ namespace NPchUpdate {
                         RemoveFile(f);
                     }
                 }
-                Log(Format("checks: %zu of %zu groups", std::min(all.size(), begin + chunk), all.size()));
+                Progress(Format("checks: %zu of %zu groups", std::min(all.size(), begin + chunk), all.size()));
             }
             LinkConflicts(all, out);
             return out;

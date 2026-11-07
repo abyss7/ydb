@@ -832,7 +832,7 @@ namespace NPchUpdate {
                 }
             }
             if (end / 2000 != begin / 2000) {
-                Log(Format("%zu of %zu", end, traced.size()));
+                Progress(Format("%zu of %zu", end, traced.size()));
             }
         }
         chunk.clear();

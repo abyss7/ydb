@@ -63,6 +63,7 @@ namespace NPchUpdate {
     // The steps: each reports its lines; false stops the run, nothing written.
     // check, gn labels, traces: the baseline as built, the facts of its files.
     bool CheckBaseline(const TOptions& options, const TTools& tools, TWorkDir& work, TFacts& facts);
+    std::vector<std::string> GnGenerationSwitches(const TNinjaManifest& manifest);
     bool ReadTraces(const TOptions& options, TWorkDir& work, TFacts& facts);
     bool ReadHistory(const TOptions& options, TFacts& facts);
     bool FlagClasses(const TOptions& options, TFacts& facts);

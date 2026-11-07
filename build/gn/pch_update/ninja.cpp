@@ -598,6 +598,7 @@ namespace NPchUpdate {
             // The first is phony.
             std::deque<TRule> Rules;
             std::vector<std::string> Pools;
+            std::unordered_map<std::string, int> PoolDepths;
             TScope* Root = nullptr;
             std::vector<TEdgeData> EdgeData;
             std::unordered_map<std::string_view, size_t> Producers;
@@ -737,6 +738,10 @@ namespace NPchUpdate {
                     lexer.Throw("expected 'depth =' line");
                 }
                 Impl_.Pools.emplace_back(name);
+                if (depth > 2147483647) {
+                    lexer.Throw("pool depth is too large");
+                }
+                Impl_.PoolDepths.emplace(std::string(name), int(depth));
             }
 
             void ParseDefault(TLexer& lexer) {
@@ -967,6 +972,7 @@ namespace NPchUpdate {
         phony.Name = "phony";
         Impl_->Root->AddRule(&phony);
         Impl_->Pools.emplace_back("console");
+        Impl_->PoolDepths.emplace("console", 1);
 
         TManifestParser parser(*Impl_, Edges_);
         parser.ParseFile("build.ninja", Impl_->Root);
@@ -985,6 +991,10 @@ namespace NPchUpdate {
     }
 
     TNinjaManifest::~TNinjaManifest() = default;
+
+    const std::unordered_map<std::string, int>& TNinjaManifest::PoolDepths() const {
+        return Impl_->PoolDepths;
+    }
 
     std::string TNinjaManifest::Binding(size_t edge, std::string_view name) const {
         TEdgeEnv env(Edges_.at(edge), Impl_->EdgeData.at(edge));
