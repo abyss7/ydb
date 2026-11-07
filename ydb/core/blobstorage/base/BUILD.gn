@@ -27,6 +27,7 @@ library("base") {
     "blobstorage_events.cpp",
     "blobstorage_syncstate.cpp",
     "blobstorage_vdiskid.cpp",
+    "data_center_states.cpp",
     "html.cpp",
     "storage_pool_pile_override.cpp",
     "vdisk_priorities.cpp",
