@@ -57,6 +57,7 @@ library("_self") {
     "//library/cpp/yt/malloc",
     "//yt/yt/build",
     "//yt/yt/core/misc/isa_crc64",
+    "//yt/yt/library/cgroup",
     # "//yt/yt/library/numeric",
     "//yt/yt/library/signals",
     "//yt/yt/library/undumpable",
