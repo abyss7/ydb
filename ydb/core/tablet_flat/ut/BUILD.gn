@@ -85,6 +85,7 @@ unittest_executable("ut") {
     "ut_other.cpp",
     "ut_pages.cpp",
     "ut_part.cpp",
+    "ut_part_layout.cpp",
     "ut_part_multi.cpp",
     "ut_proto.cpp",
     "ut_redo.cpp",
