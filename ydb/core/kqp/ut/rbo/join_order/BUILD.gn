@@ -8,7 +8,7 @@ unittest_executable("join_order") {
     "//yql/essentials/sql/pg",  # peerdir only
   ]
 
-  sources = [ "//ydb/core/kqp/ut/rbo/kqp_join_order_ut.cpp" ]
+  sources = [ "kqp_join_order_ut.cpp" ]
 
   include_dirs = [
     "//ydb/core/kqp",  # peerdir only

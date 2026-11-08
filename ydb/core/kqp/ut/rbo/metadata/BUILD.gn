@@ -1,0 +1,63 @@
+unittest_executable("metadata") {
+  deps = [
+    "//library/cpp/json",
+    "//library/cpp/random_provider",
+    "//library/cpp/testing/common",
+    "//library/cpp/testing/unittest",
+    "//library/cpp/time_provider",
+    "//ydb/core/kqp",  # peerdir only
+    "//ydb/core/kqp/common",
+    "//ydb/core/kqp/common/events",
+    "//ydb/core/kqp/common/simple",
+    "//ydb/core/kqp/executer_actor",
+    "//ydb/core/kqp/opt/rbo",
+    "//ydb/core/kqp/provider",
+    "//ydb/core/kqp/query_data",
+    "//ydb/core/kqp/ut/common",
+    "//ydb/core/kqp/ut/olap/helpers",
+    "//ydb/core/statistics:ut_common",
+    "//ydb/core/tx/columnshard/engines/scheme",
+    "//ydb/library/aclib",
+    "//ydb/library/actors/testlib",
+    "//ydb/library/plan2svg",  # peerdir only
+    "//ydb/library/yql/udfs/statistics_internal",  # peerdir only
+    "//ydb/public/lib/ut_helpers",
+    "//ydb/public/lib/ydb_cli/common",
+    "//yql/essentials/core",
+    "//yql/essentials/core/pg_settings",
+    "//yql/essentials/minikql",
+    "//yql/essentials/minikql/invoke_builtins",
+    "//yql/essentials/parser/pg_catalog",
+    "//yql/essentials/parser/pg_wrapper",
+    "//yql/essentials/parser/pg_wrapper/interface",
+    "//yql/essentials/public/udf/service/exception_policy",  # peerdir only
+    "//yql/essentials/sql/pg",  # peerdir only
+    "//yql/essentials/udfs/common/digest",  # peerdir only
+    "//yql/essentials/udfs/common/hyperloglog",  # peerdir only
+    "//yql/essentials/udfs/common/url_base",  # peerdir only
+    "//yql/essentials/utils/log",
+  ]
+
+  sources = [ "kqp_rbo_yql_metadata_ut.cpp" ]
+
+  include_dirs = [
+    "//ydb/core/kqp",  # peerdir only
+  ]
+
+  data = [
+    "//ydb/core/kqp/ut/join/data/",
+    "//ydb/core/kqp/ut/rbo/data/",
+  ]
+
+  link_select = [
+    "YqlServicePolicy=exception_policy",
+    "allocator=tcmalloc",
+    "minikql_codegen=llvm16",
+    "retro_spans=spans",
+    "topic_rpc=persqueue_v1",
+    "wasm=engine",
+    "yql_pg_runtime=pg_wrapper",
+    "yql_pg_sql_translator=pg",
+    "yt_codegen=llvm16",
+  ]
+}
