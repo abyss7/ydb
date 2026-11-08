@@ -1,5 +1,9 @@
 unittest_executable("functional") {
-  deps = [ "//ydb/core/transfer/ut/common" ]
+  deps = [
+    "//ydb/core/testlib/pg",  # peerdir only
+    "//ydb/core/transfer/ut/common",
+    "//ydb/library/testlib/common",
+  ]
 
   data_deps = [ "//ydb/apps/ydbd" ]
 
@@ -7,5 +11,15 @@ unittest_executable("functional") {
 
   test_depends_unbuilt = [ "//ydb/public/tools/ydb_recipe" ]
 
-  link_select = [ "allocator=tcmalloc" ]
+  link_select = [
+    "YqlServicePolicy=exception_policy",
+    "allocator=tcmalloc",
+    "minikql_codegen=llvm16",
+    "retro_spans=spans",
+    "topic_rpc=persqueue_v1",
+    "wasm=engine",
+    "yql_pg_runtime=pg_wrapper",
+    "yql_pg_sql_translator=pg",
+    "yt_codegen=llvm16",
+  ]
 }

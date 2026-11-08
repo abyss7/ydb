@@ -6,6 +6,7 @@ unittest_executable("ut_topic_reader") {
     "//ydb/core/tx/replication/ut_helpers",
     "//ydb/core/tx/replication/ydb_proxy",
     "//ydb/public/sdk/cpp/src/client/topic",
+    "//ydb/services/persqueue_v1/actors",
   ]
 
   sources = [ "//ydb/core/tx/replication/service/topic_reader_ut.cpp" ]
