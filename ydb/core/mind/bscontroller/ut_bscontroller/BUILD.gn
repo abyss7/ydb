@@ -9,6 +9,7 @@ unittest_executable("ut_bscontroller") {
     "//ydb/core/mind/bscontroller",
     "//ydb/core/mind/bscontroller:group_mapper",
     "//ydb/core/protos",
+    "//ydb/core/tablet_flat/test/libs/table",
     "//ydb/core/testlib",
     "//ydb/core/testlib/basics",
     "//ydb/core/testlib/default",  # peerdir only
@@ -16,7 +17,10 @@ unittest_executable("ut_bscontroller") {
     "//ydb/library/actors/interconnect",
   ]
 
-  sources = [ "main.cpp" ]
+  sources = [
+    "main.cpp",
+    "pdisk_filter_compatibility_ut.cpp",
+  ]
 
   link_select = [
     "YqlServicePolicy=exception_policy",
