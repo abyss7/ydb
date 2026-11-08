@@ -394,6 +394,7 @@ PEERDIR(
     library/cpp/yt/system
     library/cpp/yt/threading
 
+    yt/yt/library/cgroup
     yt/yt/library/syncmap
     yt/yt/library/undumpable
     yt/yt/library/ytprof/api
