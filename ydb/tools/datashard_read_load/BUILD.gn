@@ -1,0 +1,20 @@
+linked_executable("datashard_read_load") {
+  public_deps = [
+    "//library/cpp/histogram/hdr",
+    "//library/cpp/json",
+  ]
+
+  deps = [
+    "//library/cpp/getopt",
+    "//ydb/public/sdk/cpp/src/client/driver",
+    "//ydb/public/sdk/cpp/src/client/query",
+    "//ydb/public/sdk/cpp/src/client/table",
+  ]
+
+  sources = [
+    "main.cpp",
+    "workload.cpp",
+  ]
+
+  link_select = [ "allocator=tcmalloc" ]
+}

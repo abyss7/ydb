@@ -5,6 +5,7 @@ unittest_executable("ut_read_iterator") {
     "//library/cpp/svnversion",  # peerdir only
     "//library/cpp/testing/unittest",
     "//ydb/core/base",
+    "//ydb/core/control/lib",
     "//ydb/core/formats/arrow",
     "//ydb/core/grpc_services/local_rpc",
     "//ydb/core/kqp/runtime",

@@ -1,0 +1,16 @@
+gtest_executable("ut") {
+  deps = [
+    "//library/cpp/getopt",
+    "//library/cpp/histogram/hdr",  # peerdir only
+    "//library/cpp/json",  # peerdir only
+    "//library/cpp/testing/gtest",
+    "//ydb/tools/datashard_read_load",
+  ]
+
+  sources = [
+    "//ydb/tools/datashard_read_load/workload.cpp",
+    "workload_ut.cpp",
+  ]
+
+  link_select = [ "allocator=tcmalloc" ]
+}
