@@ -37,6 +37,8 @@ unittest_executable("ut_olap") {
     "//ydb/core/tx/schemeshard",  # peerdir only
   ]
 
+  serialize_enum_headers = [ "ut_olap_enums.h" ]
+
   link_select = [
     "YqlServicePolicy=exception_policy",
     "allocator=tcmalloc",
