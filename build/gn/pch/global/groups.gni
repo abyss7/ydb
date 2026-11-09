@@ -2444,7 +2444,8 @@ pch_groups = [
     name = "13"
     targets = [
       "//ydb/public/sdk/cpp/src/client/federated_topic/ut:ut",
-      "//ydb/public/sdk/cpp/src/client/persqueue_public/ut/*",
+      "//ydb/public/sdk/cpp/src/client/persqueue_public/ut/ut_utils:ut_utils",
+      "//ydb/public/sdk/cpp/src/client/persqueue_public/ut/with_offset_ranges_mode_ut:with_offset_ranges_mode_ut",
       "//ydb/public/sdk/cpp/src/client/topic/ut/slow:slow",
       "//ydb/public/sdk/cpp/src/client/topic/ut/ut_utils/*",
       "//ydb/public/sdk/cpp/src/client/topic/ut/with_direct_read_ut:with_direct_read_ut",

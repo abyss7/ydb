@@ -1,0 +1,16 @@
+unittest_executable("replication") {
+  deps = [
+    "//contrib/libs/grpc",
+    "//library/cpp/containers/disjoint_interval_tree",
+    "//library/cpp/testing/common",
+    "//library/cpp/testing/unittest",
+    "//ydb/public/api/grpc",
+    "//ydb/public/sdk/cpp/src/client/topic",
+  ]
+
+  sources = [ "read_session_replication_ut.cpp" ]
+
+  include_dirs = [ "//ydb/public/sdk/cpp/src/client/topic" ]
+
+  link_select = [ "allocator=tcmalloc" ]
+}

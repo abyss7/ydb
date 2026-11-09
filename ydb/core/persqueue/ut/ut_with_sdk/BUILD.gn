@@ -16,6 +16,7 @@ unittest_executable("ut_with_sdk") {
     "//ydb/core/testlib/default",  # peerdir only
     "//ydb/core/tx/schemeshard/ut_helpers",
     "//ydb/public/api/grpc",
+    "//ydb/public/api/grpc/draft",
     "//ydb/public/sdk/cpp/src/client/persqueue_public/ut/ut_utils",
     "//ydb/public/sdk/cpp/src/client/query",
     "//ydb/public/sdk/cpp/src/client/topic",
@@ -30,6 +31,7 @@ unittest_executable("ut_with_sdk") {
     "describe_ut.cpp",
     "mirrorer_autoscaling_ut.cpp",
     "mirrorer_ut.cpp",
+    "topic_replication_ut.cpp",
     "topic_timestamp_ut.cpp",
     "topic_ut.cpp",
   ]

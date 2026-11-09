@@ -17,6 +17,7 @@ library("mirrorer") {
     # "//ydb/library/actors/struct_log",
     "//ydb/library/persqueue/topic_parser",
     # "//ydb/public/lib/base",
+    # "//ydb/public/sdk/cpp/src/client/topic/common",
     # "//ydb/public/sdk/cpp/src/library/kafka",
   ]
 

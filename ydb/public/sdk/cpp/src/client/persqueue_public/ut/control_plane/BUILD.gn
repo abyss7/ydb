@@ -1,0 +1,17 @@
+unittest_executable("control_plane") {
+  deps = [
+    "//library/cpp/testing/unittest",
+    "//ydb/public/api/protos",  # peerdir only
+    "//ydb/public/sdk/cpp/src/client/persqueue_public",  # peerdir only
+    "//ydb/public/sdk/cpp/src/client/persqueue_public/impl",
+    "//ydb/public/sdk/cpp/src/client/persqueue_public:include",
+  ]
+
+  sources = [ "replication_attributes_ut.cpp" ]
+
+  include_dirs = [
+    "//ydb/public/sdk/cpp/src/client/persqueue_public",  # peerdir only
+  ]
+
+  link_select = [ "allocator=tcmalloc" ]
+}

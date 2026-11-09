@@ -84,6 +84,7 @@ library("persqueue") {
     "pqtablet/partition/partition_mlp.cpp",
     "pqtablet/partition/partition_monitoring.cpp",
     "pqtablet/partition/partition_read.cpp",
+    "pqtablet/partition/partition_replication.cpp",
     "pqtablet/partition/partition_reset_offset.cpp",
     "pqtablet/partition/partition_sourcemanager.cpp",
     "pqtablet/partition/partition_write.cpp",
