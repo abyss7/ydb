@@ -19,7 +19,7 @@ after the last one merged
   4. gn gen    failed -> STOP gn-gen
   5. build     autofix.py: ninja, uncommenting the edges it can; still
                failing -> STOP build
-  6. commit    `gn: sync <U>` with what 3-5 changed (if anything)
+  6. commit    `gn: sync <U>` with what 3-5 changed (empty if nothing changed)
   7. bench     with --bench (off by default; the bench is --bench-root):
                follow_bench.py measures the incremental
                build of the commit by ninja and by ya make in the bench work
@@ -34,13 +34,21 @@ after the last one merged
   8. amend     the GN-Bench-* trailers of the measurements go into the message
                of the commit (the tree stays the same)
 
-A commit that touches only docs and .github skips 3-5. The branch itself is the
-state: the last merged U is the merge-base of HEAD and the upstream, the
-journal tells whether its step is done. After a STOP fix the work tree (or
+A commit that touches only docs and .github skips 3-5, but still gets a sync
+commit. Without a local journal, the latest first-parent merge named
+`Merge <U>:` identifies the upstream commit (checked against its second parent),
+and a following `gn: sync <U>:` completes its step. Manual fix commits may follow
+either one. This restores the journal's starting point once; the pipeline then
+uses the journal as usual, preserving local STOPs and bench progress. A restored
+sync is not a local build: it still needs bootstrap on this machine.
+After a STOP fix the work tree (or
 finish the merge, delete the markers) and run again, like `git rebase
 --continue`: the step resumes after the merge once the tree is in order.
 
-The first run checks the starting point: the generator on it must change
+Without a local journal, an unfinished follow merge resumes at review, then
+regenerates and builds locally; changes by the generator are expected there.
+Old steps without a sync commit are conservatively treated as unfinished.
+Otherwise the first run checks the starting point: the generator on it must change
 nothing (else STOP idempotence: commit what it changed, any message, or fix
 the generator) and the build
 must pass; with --bench it then builds the starting point in the bench
@@ -195,6 +203,29 @@ class Git:
     def short(self, rev):
         return self.out("rev-parse", "--short=11", rev)
 
+    def follow_step(self):
+        """(upstream SHA, sync SHA or None), or None for an unmanaged history."""
+        row = self.out("log", "--first-parent", "--merges", "-1", "--format=%H %P%x09%s", "HEAD")
+        if not row:
+            return None
+        commits, subject = row.split("\t", 1)
+        match = re.match(r"^Merge ([0-9a-f]{7,40}):", subject)
+        if not match:
+            return None
+        parents = commits.split()
+        if len(parents) != 3 or not parents[2].startswith(match.group(1)):
+            raise Stop("conflict", "follow merge message does not match its second parent: %s" % row)
+        merge, _, upstream = parents
+        row = self.out("log", "--first-parent", "-1", "--format=%H %P%x09%s", "--extended-regexp",
+                       "--grep=^gn: sync [0-9a-f]{7,40}:", merge + "..HEAD")
+        if not row:
+            return upstream, None
+        commits, subject = row.split("\t", 1)
+        match = re.match(r"^gn: sync ([0-9a-f]{7,40}):", subject)
+        parents = commits.split()
+        if len(parents) != 2 or not upstream.startswith(match.group(1)):
+            raise Stop("conflict", "follow sync message does not match the latest follow merge: %s" % row)
+        return upstream, parents[0]
 
 # ---- journal ------------------------------------------------------------------
 
@@ -206,12 +237,13 @@ class State:
         self.report = os.path.join(path, "report.txt")
         self.blocked = os.path.join(path, "blocked.txt")
         self.stopped = os.path.join(path, "STOPPED.md")
+        self._preview = []
 
     def records(self):
         if not os.path.exists(self.journal):
-            return []
+            return list(self._preview)
         with open(self.journal) as f:
-            return [json.loads(l) for l in f if l.strip()]
+            return [json.loads(l) for l in f if l.strip()] + self._preview
 
     def append(self, rec):
         rec = dict(rec, time=time.strftime("%Y-%m-%dT%H:%M:%S"))
@@ -223,7 +255,40 @@ class State:
         return {r["upstream"] for r in self.records() if r["status"] in ("done", "bootstrap")}
 
     def bootstrapped(self):
-        return any(r["status"] == "bootstrap" for r in self.records())
+        return any(r["status"] in ("bootstrap", "recovered") for r in self.records())
+
+    def restore(self, git, upstream, persist=False):
+        """Seed a missing journal from history; never import local build/bench results."""
+        if self.bootstrapped() or any(r.get("from_history") for r in self.records()):
+            return None
+        history = git.follow_step()
+        if not history:
+            return None
+        u, sync = history
+        if git.run("merge-base", "--is-ancestor", u, upstream, check=False).returncode != 0 \
+                and git.run("merge-base", "--is-ancestor", upstream, u, check=False).returncode != 0:
+            raise Stop("conflict", "the last followed commit %s and upstream %s have diverged; "
+                       "check --upstream before continuing" % (git.short(u), upstream))
+        rec = {"upstream": u, "status": "done" if sync else "recovered", "from_history": True,
+               "result": sync or git.out("rev-parse", "HEAD"), "subject": git.subject(u),
+               "seconds": {}, "time": time.strftime("%Y-%m-%dT%H:%M:%S")}
+        if persist:
+            self.append(rec)
+        else:
+            self._preview.append(rec)
+        return rec
+
+    def last_merged(self, git, upstream):
+        """Use the restored journal anchor if the upstream ref is older than it."""
+        last = git.out("merge-base", "HEAD", upstream)
+        for rec in self.records():
+            if rec.get("from_history") or rec["status"] == "recovered":
+                u = rec["upstream"]
+                if git.run("merge-base", "--is-ancestor", last, u, check=False).returncode == 0 \
+                        and git.run("merge-base", "--is-ancestor", u, "HEAD", check=False).returncode == 0:
+                    return u
+                break
+        return last
 
     def last_stop(self):
         recs = [r for r in self.records() if r["status"] != "ack"]
@@ -827,7 +892,7 @@ class Follower:
                      "Fix the work tree (uncommitted) and run again."]
             raise Stop("build", "\n".join(text))
 
-    def commit(self, message, rec):
+    def commit(self, message, rec, allow_empty=False):
         left = self.review_markers()
         if left:
             raise Stop("review", "review markers left (`gn-follow: REVIEW` lines) in:\n%s\n\nDelete them "
@@ -837,9 +902,9 @@ class Follower:
             raise Stop("generator", "%s still has blocks of new problems: fix or accept them, then run "
                        "again." % REPORT_FILE)
         self.git.out("add", "-A")
-        if self.git.run("diff", "--cached", "--quiet", check=False).returncode != 0:
+        if allow_empty or self.git.run("diff", "--cached", "--quiet", check=False).returncode != 0:
             rec["sync_files"] = len(self.git.lines("diff", "--cached", "--name-only"))
-            self.git.out("commit", "-q", "-m", message)
+            self.git.out("commit", "-q", "--allow-empty", "-m", message)
         rec["result"] = self.git.out("rev-parse", "HEAD")
 
     def bench(self, step, rec, full):
@@ -913,7 +978,7 @@ class Follower:
     # -- steps
 
     def bootstrap(self):
-        base = self.git.out("merge-base", "HEAD", self.args.upstream)
+        base = self.state.last_merged(self.git, self.args.upstream)
         name = "bootstrap-" + self.git.short(base)
         step = self.state.step_dir(name)
         rec = {"upstream": base, "status": "bootstrap", "seconds": {}, "env": self.args.env}
@@ -954,13 +1019,15 @@ class Follower:
                 with open(os.path.join(step, "classify.json"), "w") as f:
                     json.dump(cls, f, indent=1)
                 self.review(u, cls)
-                if not cls["build"] and not self.git.dirty():
+                # Recovery must establish a local baseline even for a docs-only
+                # merge; a remote machine's successful build is not ours.
+                if not cls["build"] and not self.git.dirty() and self.state.done():
                     rec["noop"] = True
                 else:
                     self.regen(step, rec, idempotence=False)
                     self.gn_gen(step, rec)
                     self.build(step, rec)
-                self.commit("gn: sync %s: %s" % (short, rec["subject"]), rec)
+                self.commit("gn: sync %s: %s" % (short, rec["subject"]), rec, allow_empty=True)
             self.amend(self.bench(step, rec, full=False), rec)
 
         self.guarded(u, rec, run)
@@ -1004,7 +1071,7 @@ class Follower:
         if mh:
             self.finish_merge(mh)
             return mh, True
-        last = self.git.out("merge-base", "HEAD", self.args.upstream)
+        last = self.state.last_merged(self.git, self.args.upstream)
         if last not in self.state.done():
             return last, True
         if self.git.dirty():
@@ -1017,6 +1084,10 @@ class Follower:
         if self.args.fetch:
             remote, _, branch = self.args.upstream.partition("/")
             self.git.out("fetch", "-q", remote, branch)
+        restored = self.state.restore(self.git, self.args.upstream, persist=True)
+        if restored:
+            self.say("journal: restored %s step %s from history" %
+                     (restored["status"], self.git.short(restored["upstream"])))
         if self.args.skip_bench:
             self.skip_bench()
         if not self.state.bootstrapped():
@@ -1069,6 +1140,7 @@ def status(args):
     if args.fetch:
         remote, _, branch = args.upstream.partition("/")
         git.out("fetch", "-q", remote, branch)
+    restored = state.restore(git, args.upstream)
     say = print
     lock_path = os.path.join(args.state, "lock")
     running = False
@@ -1101,12 +1173,15 @@ def status(args):
     fetch_head = fetch_head if os.path.isabs(fetch_head) else os.path.join(root, fetch_head)
     fetched = time.strftime("%Y-%m-%d %H:%M", time.localtime(os.path.getmtime(fetch_head))) \
         if os.path.exists(fetch_head) else "never"
-    last = git.out("merge-base", "HEAD", args.upstream)
+    last = state.last_merged(git, args.upstream)
     pending = git.lines("rev-list", "--first-parent", "--reverse", last + ".." + args.upstream)
     say("Upstream:   %s @ %s (fetched %s; --fetch to update)" % (args.upstream, git.short(args.upstream), fetched))
     say("            last merged: %s %s" % (git.short(last), git.subject(last)[:70]))
 
     recs = state.records()
+    if restored:
+        say("Journal:    preview: %s step %s restored from history (not written)" %
+            (restored["status"], git.short(restored["upstream"])))
     if not state.bootstrapped():
         say("Journal:    no bootstrap yet: the first run checks and builds the starting point")
     stop = state.last_stop()
@@ -1118,7 +1193,7 @@ def status(args):
         say("            details: %s, logs: %s" % (state.stopped, os.path.join(state.path, "steps", name)))
     done = [r for r in recs if r["status"] in ("done", "bootstrap")]
     if done:
-        say("Done:       %d commits (and the bootstrap); the last ones:"
+        say("Done:       %d commits; the last journal records:"
             % sum(1 for r in done if r["status"] == "done"))
         for r in done[-5:]:
             u = r["upstream"]
@@ -1282,7 +1357,11 @@ def main():
     if not args.run:
         if args.skip_bench or args.bench:
             ap.error("--skip-bench and --bench go with --run")
-        return status(args)
+        try:
+            return status(args)
+        except Stop as s:
+            print("\nSTOP %s\n%s" % (s.kind, s.text), file=sys.stderr)
+            return EXIT[s.kind]
     if args.max_commits == "all":
         args.max_commits = None
     if args.bench and not args.bench_root:
