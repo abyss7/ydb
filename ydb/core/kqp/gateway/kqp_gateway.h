@@ -22,6 +22,8 @@
 #include <library/cpp/lwtrace/shuttle.h>
 #include <library/cpp/protobuf/util/pb_io.h>
 
+#include <functional>
+
 namespace NKikimr::NGRpcService {
 
 class IRequestCtxMtSafe;
@@ -244,10 +246,12 @@ public:
 // kqp/rm_service) would otherwise have to link the whole IC gateway for it.
 inline const IKqpGateway::TKqpSnapshot IKqpGateway::TKqpSnapshot::InvalidSnapshot = IKqpGateway::TKqpSnapshot();
 
+// The optional provider overrides traceId, even when it returns empty.
+// It must retain any captured context.
 TIntrusivePtr<IKqpGateway> CreateKikimrIcGateway(const TString& cluster, NKikimrKqp::EQueryType queryType, const TString& database, const TString& databaseId,
     std::shared_ptr<IKqpGateway::IKqpTableMetadataLoader>&& metadataLoader, NActors::TActorSystem* actorSystem,
     ui32 nodeId, TKqpRequestCounters::TPtr counters, const NKikimrConfig::TQueryServiceConfig& queryServiceConfig = NKikimrConfig::TQueryServiceConfig(),
-    NWilson::TTraceId traceId = {});
+    NWilson::TTraceId traceId = {}, std::function<NWilson::TTraceId()> traceParentProvider = {});
 
 } // namespace NKikimr::NKqp
 
