@@ -11,6 +11,7 @@ library("runtime_settings") {
     "//contrib/libs/openssl",
     "//library/cpp/hyperloglog",
     "//yql/essentials/providers/common/activation",
+    # "//yql/essentials/utils/meta",
   ]
 
   sources = [

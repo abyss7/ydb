@@ -10,6 +10,7 @@ protobuf_library("core") {
     "rpc/proto/rpc.proto",
     "tracing/proto/span.proto",
     "tracing/proto/tracing_ext.proto",
+    "yson/proto/list_types.proto",
     "yson/proto/protobuf_interop.proto",
     "ytree/proto/attributes.proto",
     "ytree/proto/request_complexity_limits.proto",
