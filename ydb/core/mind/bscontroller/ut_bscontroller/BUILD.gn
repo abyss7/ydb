@@ -18,6 +18,7 @@ unittest_executable("ut_bscontroller") {
   ]
 
   sources = [
+    "group_state_ut.cpp",
     "main.cpp",
     "pdisk_filter_compatibility_ut.cpp",
   ]
