@@ -4,17 +4,23 @@ unittest_executable("ut_volatile") {
     "//library/cpp/regex/pcre",  # peerdir only
     "//library/cpp/svnversion",  # peerdir only
     "//ydb/core/base",
+    "//ydb/core/engine/minikql",
     "//ydb/core/grpc_services/local_rpc",
     "//ydb/core/kqp/executer_actor",
     "//ydb/core/kqp/ut/common",  # peerdir only
     "//ydb/core/persqueue/events",
     "//ydb/core/persqueue/public",
     "//ydb/core/persqueue/public/write_meta",
+    "//ydb/core/protos",
+    "//ydb/core/testlib",
     "//ydb/core/testlib/actors",
     "//ydb/core/testlib/default",  # peerdir only
     "//ydb/core/tx",  # peerdir only
+    "//ydb/core/tx/data_events",
     "//ydb/core/tx/datashard",
     "//ydb/core/tx/datashard/ut_common",
+    "//ydb/library/aclib",
+    "//ydb/library/actors/core",
     "//ydb/library/ut",
     "//ydb/public/lib/yson_value",  # peerdir only
     "//ydb/public/sdk/cpp/src/client/datastreams",
