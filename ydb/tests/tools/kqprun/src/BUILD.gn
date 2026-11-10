@@ -9,6 +9,9 @@ library("src") {
 
   public_deps = [
     ":proto",
+    # "//contrib/libs/protobuf",
+    # "//contrib/proto/opentelemetry",
+    # "//library/cpp/json",
     "//ydb/core/protos",
     # "//ydb/library/aclib",
     # "//ydb/library/actors/core",
@@ -23,6 +26,7 @@ library("src") {
     "//contrib/libs/fmt",
     # "//library/cpp/colorizer",
     # "//library/cpp/protobuf/json",
+    # "//library/cpp/threading/future",
     # "//ydb/core/blob_depot",
     # "//ydb/core/client/server",
     # "//ydb/core/grpc_services",
@@ -35,6 +39,7 @@ library("src") {
     # "//ydb/core/testlib",
     # "//ydb/core/testlib/basics",
     # "//ydb/core/util",  # peerdir only
+    # "//ydb/library/actors/wilson",
     "//ydb/library/aws_init",
     # "//ydb/public/sdk/cpp/src/client/query",
     "//ydb/services/keyvalue",
