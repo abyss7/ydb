@@ -23,6 +23,7 @@ library("rbo") {
     "//ydb/core/kqp/opt/peephole",
     "//ydb/core/kqp/opt/physical",
     # "//ydb/core/kqp/provider",
+    "//ydb/core/kqp/tracing",
     # "//ydb/library/formats/arrow/protos",  # peerdir only
     "//ydb/library/yql/dq/actors/protos",
     # "//ydb/library/yql/dq/common",  # peerdir only

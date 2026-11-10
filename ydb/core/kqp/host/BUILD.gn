@@ -5,6 +5,7 @@ library("host") {
     # "//ydb/core/kqp/gateway:interface",
     "//ydb/core/kqp/opt/logical",
     "//ydb/core/kqp/provider",
+    "//ydb/core/kqp/tracing",
     # "//ydb/library/aclib",
     # "//ydb/library/yql/providers/common/http_gateway",
     # "//ydb/library/yql/providers/common/token_accessor/client",

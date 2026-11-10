@@ -12,6 +12,7 @@ library("logical") {
     # "//ydb/core/kqp/expr_nodes",
     "//ydb/core/kqp/opt/cbo/solver",
     "//ydb/core/kqp/opt/physical",
+    "//ydb/core/kqp/tracing",
     "//ydb/core/protos",
     "//ydb/library/json_index",
     # "//ydb/library/yql/dq/common",  # peerdir only

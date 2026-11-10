@@ -1,10 +1,12 @@
 library("tracing") {
   public_deps = [
+    # "//library/cpp/threading/future",
     # "//library/cpp/time_provider",
     "//ydb/core/protos",
     "//ydb/library/actors/wilson",
     # "//ydb/library/wilson_ids",
     "//ydb/public/api/protos",
+    # "//yql/essentials/core",
   ]
 
   deps = [
@@ -20,6 +22,8 @@ library("tracing") {
   ]
 
   sources = [
+    "kqp_compile_trace.cpp",
+    "kqp_compile_trace_transformer.cpp",
     "kqp_execution_rendering.cpp",
     "kqp_query_rendering.cpp",
     "kqp_scan_rendering.cpp",

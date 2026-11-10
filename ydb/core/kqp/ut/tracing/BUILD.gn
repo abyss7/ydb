@@ -5,12 +5,16 @@ unittest_executable("tracing") {
     "//ydb/core/grpc_services/cancelation",
     "//ydb/core/kqp",  # peerdir only
     "//ydb/core/kqp/executer_actor",
+    "//ydb/core/kqp/gateway",
+    "//ydb/core/kqp/gateway:interface",
     "//ydb/core/kqp/node_service",
     "//ydb/core/kqp/rm_service",
     "//ydb/core/kqp/tracing",
     "//ydb/core/kqp/tracing/test_util",
     "//ydb/core/kqp/ut/common",
     "//ydb/core/protos",
+    "//ydb/core/statistics",
+    "//ydb/core/statistics/service:service_id",
     "//ydb/core/testlib",
     "//ydb/core/testlib/default",  # peerdir only
     "//ydb/core/tx/datashard/ut_common",

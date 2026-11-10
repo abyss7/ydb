@@ -24,6 +24,7 @@ library("provider") {
         "//ydb/core/kqp/common/simple",
         "//ydb/core/kqp/expr_nodes",
         "//ydb/core/kqp/opt/cbo",
+        "//ydb/core/kqp/tracing",
         "//ydb/core/local_indexes/bloom",
         "//ydb/core/protos",
         "//ydb/core/scheme",

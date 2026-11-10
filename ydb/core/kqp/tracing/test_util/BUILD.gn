@@ -3,6 +3,7 @@ group("test_util") {
 
   public_deps = [
     # "//library/cpp/testing/unittest",
+    # "//ydb/core/kqp/tracing",
     # "//ydb/library/actors/wilson:test_util",
   ]
 }

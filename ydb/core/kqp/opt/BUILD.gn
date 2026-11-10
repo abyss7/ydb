@@ -20,6 +20,7 @@ library("helpers") {
   ]
 
   deps = [
+    "//ydb/core/kqp/tracing",
     # "//yql/essentials/providers/common/provider",
   ]
 
@@ -54,6 +55,7 @@ library("opt") {
     "//ydb/core/kqp/opt/peephole",
     "//ydb/core/kqp/opt/physical",
     "//ydb/core/kqp/opt/rbo",
+    "//ydb/core/kqp/tracing",
     "//ydb/core/protos",
     # "//ydb/core/statistics",
     "//ydb/core/statistics/service:service_id",
