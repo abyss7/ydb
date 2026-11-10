@@ -3,6 +3,7 @@ library("long_tx_service") {
     # "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/base",
     # "//ydb/core/scheme",
+    "//ydb/core/tx/long_tx_service/public",
     # "//ydb/library/actors/core",
   ]
 
@@ -10,12 +11,12 @@ library("long_tx_service") {
     # "//library/cpp/lwtrace",
     "//library/cpp/lwtrace/mon",
     # "//library/cpp/monlib/service/pages",
+    # "//library/cpp/random_provider",
     # "//library/cpp/time_provider",
     "//ydb/core/actorlib_impl",
     # "//ydb/core/mon",
     "//ydb/core/protos",
     "//ydb/core/tx/columnshard",
-    "//ydb/core/tx/long_tx_service/public",
     "//ydb/core/tx/tx_proxy:public",
     # "//ydb/core/util",
     # "//ydb/library/actors/interconnect",

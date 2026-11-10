@@ -1,8 +1,10 @@
 unittest_executable("ut") {
   deps = [
     "//library/cpp/testing/unittest",
+    "//ydb/core/base",
     "//ydb/core/protos",
     "//ydb/core/testlib",
+    "//ydb/core/testlib/basics",
     "//ydb/core/testlib/default",  # peerdir only
     "//ydb/core/tx/long_tx_service",
     "//ydb/core/tx/long_tx_service/public",
@@ -10,7 +12,10 @@ unittest_executable("ut") {
     "//ydb/library/actors/interconnect",
   ]
 
-  sources = [ "//ydb/core/tx/long_tx_service/long_tx_service_ut.cpp" ]
+  sources = [
+    "//ydb/core/tx/long_tx_service/long_tx_service_ut.cpp",
+    "snapshots_exchange_ut.cpp",
+  ]
 
   include_dirs = [ "//ydb/core/tx/long_tx_service" ]
 
