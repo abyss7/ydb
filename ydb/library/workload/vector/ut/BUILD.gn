@@ -1,0 +1,26 @@
+unittest_executable("ut") {
+  deps = [
+    "//contrib/libs/apache/arrow",
+    "//library/cpp/getopt",
+    "//library/cpp/testing/unittest",
+    "//ydb/library/yql/udfs/common/knn",
+    "//ydb/public/lib/ydb_cli/commands",
+    "//ydb/public/lib/ydb_cli/import",  # peerdir only
+  ]
+
+  sources = [ "float8_ut.cpp" ]
+
+  include_dirs = [ "//ydb/library/workload/vector" ]
+
+  link_select = [
+    "YqlServicePolicy=stub",
+    "allocator=tcmalloc",
+    "minikql_codegen=no_llvm",
+    "retro_spans=spans",
+    "topic_rpc=persqueue_v1",
+    "wasm=wasm_default",
+    "yql_pg_runtime=pg_dummy",
+    "yql_pg_sql_translator=pg_dummy",
+    "yt_codegen=no_llvm",
+  ]
+}

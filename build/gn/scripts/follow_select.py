@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """The targets a developer would build to check a commit, as if the commit were
-one edit of an iteration (the ya side of the bench of follow_main.py):
+one edit of an iteration (the ya side of the bench of follow.py):
 
   1. the tests the commit changes (the dirs of //:tests in the root BUILD.gn
      that hold changed files) -- the author ran them; the other files of the

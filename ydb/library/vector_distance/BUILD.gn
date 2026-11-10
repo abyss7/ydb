@@ -1,13 +1,13 @@
 library("vector_distance") {
   public_deps = [
     # "//library/cpp/dot_product",
-  ]
-
-  deps = [
     # "//library/cpp/sse",
   ]
 
   sources = [
+    "float8_distance.cpp",
+    "float8_distance_avx2.cpp",
+    "float8_distance_sse.cpp",
     "half_distance.cpp",
     "half_distance_avx2.cpp",
     "half_distance_sse.cpp",

@@ -4,11 +4,13 @@ library("commands") {
     "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-sqs",
     "//library/cpp/colorizer",
     "//library/cpp/containers/concurrent_hash",
+    "//library/cpp/getopt/small",
     "//library/cpp/histogram/hdr",
     "//library/cpp/logger",
     "//library/cpp/threading/future",
     "//library/cpp/unified_agent_client",
     "//ydb/library/workload/abstract",
+    "//ydb/library/workload/benchmark_base",
     # "//ydb/public/lib/json_value",
     "//ydb/public/lib/ydb_cli/commands/command_base",
     "//ydb/public/lib/ydb_cli/common",
@@ -32,7 +34,6 @@ library("commands") {
     # "//contrib/libs/protobuf",
     # "//contrib/restricted/patched/replxx",  # peerdir only
     "//library/cpp/digest/md5",
-    "//library/cpp/getopt/small",
     "//library/cpp/json",
     # "//library/cpp/protobuf/json",  # peerdir only
     "//library/cpp/regex/pcre",
@@ -48,9 +49,8 @@ library("commands") {
     "//ydb/library/backup",
     "//ydb/library/formats/arrow/csv/converter",
     "//ydb/library/formats/arrow/csv/table",
-    # "//ydb/library/vector_distance",  # peerdir only
+    # "//ydb/library/vector_distance",
     # "//ydb/library/workload",  # peerdir only
-    "//ydb/library/workload/benchmark_base",
     "//ydb/library/yaml_config/public",
     # "//ydb/library/yql/udfs/common/knn",
     # "//ydb/library/yverify_stream",

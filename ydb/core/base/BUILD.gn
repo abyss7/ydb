@@ -72,7 +72,7 @@ library("base") {
     "//ydb/library/login/protos",
     "//ydb/library/services",
     "//ydb/library/superlemmer_stub",  # peerdir only
-    "//ydb/library/vector_distance",  # peerdir only
+    "//ydb/library/vector_distance",
     # "//ydb/library/wilson_ids",
     "//ydb/library/ydb_issue",  # peerdir only
     # "//ydb/library/yql/udfs/common/knn",

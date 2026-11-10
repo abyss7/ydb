@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Moves the GN branch along the upstream main one commit at a time (the front
-pipeline of the GN follow-up): for every first-parent commit U of the upstream
-after the last one merged
+"""Moves the GN branch along the upstream branch one commit at a time (the front
+pipeline of the GN follow-up; the branch is --branch, main by default): for
+every first-parent commit U of the upstream after the last one merged
 
   1. merge     git merge U (rerere on); a conflict left -> STOP conflict
   2. review    U touches what the generator does not carry over: contrib
@@ -35,7 +35,11 @@ after the last one merged
                of the commit (the tree stays the same)
 
 A commit that touches only docs and .github skips 3-5, but still gets a sync
-commit. Without a local journal, the latest first-parent merge named
+commit. With --only-head there is one step to the head of the upstream instead
+of one per commit: one merge of the head, the review and the build over the
+whole range since the last followed commit, one sync commit; the journal
+records that step alone (with how many commits it skipped).
+ Without a local journal, the latest first-parent merge named
 `Merge <U>:` identifies the upstream commit (checked against its second parent),
 and a following `gn: sync <U>:` completes its step. Manual fix commits may follow
 either one. This restores the journal's starting point once; the pipeline then
@@ -67,21 +71,26 @@ from the dir of this script, yamake2gn.py from the work tree.
 
 Run it in the work tree of the GN branch (e.g. cd ~/g/ydb/gn-follow):
 
-    build/gn/scripts/follow_main.py                          # the status
-    build/gn/scripts/follow_main.py --max-commits 3          # the status, the 3 commits marked
-    build/gn/scripts/follow_main.py --run --max-commits 3    # go on for 3 commits
-    build/gn/scripts/follow_main.py --run --bench            # go on, measuring every step
-    build/gn/scripts/follow_main.py --run --skip-bench       # after a STOP bench: go on without it
+    build/gn/scripts/follow.py                               # the status of main
+    build/gn/scripts/follow.py --branch stable-25.1          # the status of another branch
+    build/gn/scripts/follow.py --max-commits 3               # the status, the 3 commits marked
+    build/gn/scripts/follow.py --run --max-commits 3         # go on for 3 commits
+    build/gn/scripts/follow.py --run --bench                 # go on, measuring every step
+    build/gn/scripts/follow.py --run --skip-bench            # after a STOP bench: go on without it
+    build/gn/scripts/follow.py --run --only-head             # one merge of the head, no per-commit steps
 
-The first run takes the bench and other settings, they are remembered in
-<state>/config.json (an argument given later overrides and is saved):
+--branch NAME follows origin/NAME (main by default); --upstream REF overrides
+it for a ref of another shape, e.g. a third-party remote. The first run takes
+the bench and other settings, they are remembered in <state>/config.json (an
+argument given later overrides and is saved):
 
-    build/gn/scripts/follow_main.py --bench-root ~/g/ydb/gn-bench --ya-out ~/b/ya-bench/out \
+    build/gn/scripts/follow.py --bench-root ~/g/ydb/gn-bench --ya-out ~/b/ya-bench/out \
         --ya-cache-root ~/b/ya-bench/cache --ya-cache-size 120GiB --bench-env DC_TAGS=gn/follow/bench
 
 Defaults: the work tree is the one of the cwd, the build dir <root>/out/gn,
-the state <git dir of the work tree>/gn-follow (outside the work tree, git
-does not see it), the bench build dir <bench root>/out/gn, nice 10.
+the state <git dir of the work tree>/gn-follow/<branch> (outside the work
+tree, git does not see it; one state, config and bench per followed branch),
+the bench build dir <bench root>/out/gn, nice 10.
 
 The whole run is niced: `--nice N` raises the niceness of this process (default
 10, 0 off), and every command it starts (the generator, gn gen, ninja, ya make)
@@ -95,7 +104,8 @@ the bench tree. --run does the work: up to the upstream, or for --max-commits N
 commits of it (the commit it stopped at counts, the bootstrap does not).
 
 State dir: config.json (the remembered arguments), journal.jsonl (a record
-per step), run.log (the output of every run), report.txt (the accepted
+per step; `mode: only-head` marks a step of --only-head), run.log (the output
+of every run), report.txt (the accepted
 generator report before it moved into the branch), blocked.txt (edges gn gen rejected, for
 autofix.py), STOPPED.md (why the last run stopped), steps/<U>/ (logs of a
 step, bench.json).
@@ -128,14 +138,27 @@ SCRIPTS = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, SCRIPTS)
 import follow_select  # noqa: E402
 
-EXIT = {"review": 10, "conflict": 11, "generator": 12, "gn-gen": 13, "build": 14, "idempotence": 15,
-        "bench": 16}
 REPORT_FILE = "build/gn/follow/report.txt"       # the accepted problems of the generator report, in the branch
 REVIEW_FILE = "build/gn/follow/REVIEW.md"       # review markers with no BUILD.gn to put them in
 REVIEW_MARK = re.compile(r"^(# )?gn-follow: REVIEW ")
 REPORT_NEW = "<<<<<<< new in "
 REPORT_END = ">>>>>>>"
 SKIP_TRAILER = "GN-Bench-Skip"
+STOP_KINDS = {      # stage the run stopped at: (exit code, what to do after the STOP)
+    "review": (10, "mirror the change by hand where the `gn-follow: REVIEW` markers are, delete them, "
+                   "run again"),
+    "conflict": (11, "finish the merge in the work tree, then run again"),
+    "generator": (12, "fix the new problems, or accept them by deleting their marker lines in " + REPORT_FILE
+                      + "; run again"),
+    "gn-gen": (13, "fix the work tree (uncommitted), then run again"),
+    "build": (14, "fix the work tree (uncommitted), then run again"),
+    "idempotence": (15, "the generator changed the starting point: commit it (any message) or fix the "
+                        "generator; run again"),
+    "bench": (16, "a finding of the incremental build, not fixed in the bench tree: --run --bench measures "
+                  "again, or --run --skip-bench to go on without the measurement of this commit"),
+}
+EXIT = {kind: code for kind, (code, _) in STOP_KINDS.items()}
+HINTS = {kind: hint for kind, (_, hint) in STOP_KINDS.items()}
 
 DEFAULT_GEN_ARGS = "--as-target --recurse --prune-root-groups ydb"
 DEFAULT_TARGETS = ["all", "tests"]
@@ -156,6 +179,26 @@ YA_CONFIG_OTHER = ("build/conf/ts/", "build/conf/java", "build/conf/go", "build/
 INFO = (("ya", "ya"), ("ya.conf", "ya"), ("build/scripts/", "build scripts"))
 # a commit touching only these builds nothing
 NO_BUILD = (".github/", "ydb/docs/")
+
+
+def read_text(path):
+    """The text of a file (errors replaced, for logs and reports)."""
+    with open(path, errors="replace") as f:
+        return f.read()
+
+
+def write_text(path, text):
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    with open(path, "w") as f:
+        f.write(text)
+
+
+def listing(items, limit=40, indent="  "):
+    """The items one per line (at most limit) for a STOP message."""
+    items = list(items)
+    shown = [indent + str(i) for i in items[:limit]]
+    rest = len(items) - len(shown)
+    return "\n".join(shown + ([indent + "... %d more" % rest] if rest > 0 else []))
 
 
 class Stop(Exception):
@@ -206,26 +249,31 @@ class Git:
     def follow_step(self):
         """(upstream SHA, sync SHA or None), or None for an unmanaged history."""
         row = self.out("log", "--first-parent", "--merges", "-1", "--format=%H %P%x09%s", "HEAD")
-        if not row:
+        merge = self.merge_step(row) if row else None
+        if not merge:
             return None
-        commits, subject = row.split("\t", 1)
+        merge_commit, upstream = merge
+        row = self.out("log", "--first-parent", "-1", "--format=%H %P%x09%s", "--extended-regexp",
+                       "--grep=^gn: sync [0-9a-f]{7,40}:", merge_commit + "..HEAD")
+        if not row:
+            return upstream, None
+        parents, _, subject = row.partition("\t")
+        match = re.match(r"^gn: sync ([0-9a-f]{7,40}):", subject)
+        parents = parents.split()
+        if len(parents) != 2 or not upstream.startswith(match.group(1)):
+            raise Stop("conflict", "follow sync message does not match the latest follow merge: %s" % row)
+        return upstream, parents[0]
+
+    def merge_step(self, row):
+        """(merge SHA, upstream SHA) of a `Merge <U>:` first-parent merge, or None."""
+        commits, _, subject = row.partition("\t")
         match = re.match(r"^Merge ([0-9a-f]{7,40}):", subject)
         if not match:
             return None
         parents = commits.split()
         if len(parents) != 3 or not parents[2].startswith(match.group(1)):
             raise Stop("conflict", "follow merge message does not match its second parent: %s" % row)
-        merge, _, upstream = parents
-        row = self.out("log", "--first-parent", "-1", "--format=%H %P%x09%s", "--extended-regexp",
-                       "--grep=^gn: sync [0-9a-f]{7,40}:", merge + "..HEAD")
-        if not row:
-            return upstream, None
-        commits, subject = row.split("\t", 1)
-        match = re.match(r"^gn: sync ([0-9a-f]{7,40}):", subject)
-        parents = commits.split()
-        if len(parents) != 2 or not upstream.startswith(match.group(1)):
-            raise Stop("conflict", "follow sync message does not match the latest follow merge: %s" % row)
-        return upstream, parents[0]
+        return parents[0], parents[2]
 
 # ---- journal ------------------------------------------------------------------
 
@@ -306,10 +354,10 @@ class State:
 
 # ---- classification -----------------------------------------------------------
 
-def changes(git, u):
-    """[(status letter, path)] of U against its first parent."""
+def changes(git, since, u):
+    """[(status letter, path)] of U against `since` (U^1 for a single commit)."""
     out = []
-    for line in git.lines("diff", "--name-status", "--no-renames", u + "^1", u):
+    for line in git.lines("diff", "--name-status", "--no-renames", since, u):
         status, path = line.split("\t", 1)
         out.append((status[0], path))
     return out
@@ -338,10 +386,12 @@ def keep_owner(root, keeps, path):
     return None
 
 
-def classify(root, git, u, keeps):
-    """{"review": [(why, path)], "info": [(what, path)], "files": N, "build": bool}"""
+def classify(root, git, u, keeps, since=None):
+    """{"review": [(why, path)], "info": [(what, path)], "files": N, "build": bool}
+
+    since: the base of the diff (U^1 unless the step spans many commits)."""
     review, info, build = [], [], False
-    ch = changes(git, u)
+    ch = changes(git, since or u + "^1", u)
     for status, path in ch:
         if not path.startswith(NO_BUILD) and not path.endswith(".md"):
             build = True
@@ -452,6 +502,13 @@ def new_problems(old_text, new_text):
         if added:
             new[heading] = sorted(added)
     return new
+
+
+def has_new_problem_blocks(path):
+    """Does the accepted report of the branch still hold the blocks of new problems?"""
+    if not os.path.exists(path):
+        return False
+    return strip_new_blocks(read_text(path))[1]
 
 
 # ---- progress -----------------------------------------------------------------
@@ -692,6 +749,20 @@ class Progress:
 
 # ---- the step -----------------------------------------------------------------
 
+def fetch_upstream(git, upstream, enabled):
+    """git fetch of a remote ref, e.g. origin/main."""
+    if enabled and "/" in upstream:
+        remote, _, branch = upstream.partition("/")
+        git.out("fetch", "-q", remote, branch)
+
+
+def pending_commits(git, state, upstream):
+    """(last followed commit, merge in progress, first-parent commits after it)."""
+    last = state.last_merged(git, upstream)
+    pending = git.lines("rev-list", "--first-parent", "--reverse", last + ".." + upstream)
+    return last, git.merge_head(), pending
+
+
 class Follower:
     def __init__(self, args, term):
         self.args = args
@@ -766,11 +837,12 @@ class Follower:
             if left:
                 raise Stop("review", "review markers left (`gn-follow: REVIEW` lines) in:\n%s\n\n"
                            "Mirror the change by hand and delete the marker lines, then run again."
-                           % "\n".join("  " + p for p in left))
+                           % listing(left))
             return
         short, targets = self.git.short(u), {}
         for why, item in cls["review"]:
-            path, target = item.split(" ", 1)[1], REVIEW_FILE
+            path = item.split(" ", 1)[1]
+            target = REVIEW_FILE
             if why.startswith("keep //"):
                 target = why[len("keep //"):] + "/BUILD.gn"
             elif why == "contrib":
@@ -781,16 +853,14 @@ class Follower:
             targets.setdefault(target, []).append("%s (%s)" % (item, why))
         for target, items in sorted(targets.items()):
             full = os.path.join(self.root, target)
-            os.makedirs(os.path.dirname(full), exist_ok=True)
-            old = open(full).read() if os.path.exists(full) else ""
+            old = read_text(full) if os.path.exists(full) else ""
             prefix = "" if target == REVIEW_FILE else "# "
-            with open(full, "w") as f:
-                f.write("".join("%sgn-follow: REVIEW %s: %s\n" % (prefix, short, i) for i in items) + old)
+            write_text(full, "".join("%sgn-follow: REVIEW %s: %s\n" % (prefix, short, i) for i in items) + old)
         raise Stop("review", "%s touches what the generator does not carry over; a marker line "
                    "(`gn-follow: REVIEW`) is put at the top of:\n%s\n\nMirror the change there by hand "
                    "(nothing to mirror: just delete the line), delete the marker lines, then run again."
-                   % (short, "\n".join("  %s\n%s" % (t, "\n".join("      " + i for i in items))
-                                       for t, items in sorted(targets.items()))))
+                   % (short, listing("%s\n%s" % (t, listing(items, 20, "      "))
+                                     for t, items in sorted(targets.items())), 30))
 
     def regen(self, step, rec, idempotence):
         py = self.args.python
@@ -803,8 +873,7 @@ class Follower:
                 self.progress.stage("  regen: yamake2gn.py", last=self.last_seconds("regen")):
             rc = subprocess.run(cmd, cwd=self.root, stdout=o, stderr=e, env=self.env).returncode
         rec["seconds"]["regen"] = round(time.time() - t, 1)
-        with open(os.path.join(step, "yamake2gn.txt")) as f:
-            report = f.read()
+        report = read_text(os.path.join(step, "yamake2gn.txt"))
         m = re.search(r"generated : (\d+)\s+deleted\(BUILD.gn\): (\d+)", report)
         if m:
             rec["generated"], rec["deleted"] = int(m.group(1)), int(m.group(2))
@@ -816,34 +885,30 @@ class Follower:
         if idempotence and changed:
             raise Stop("idempotence", "the generator changed the starting tree (%d files):\n%s\n\n"
                        "Commit it (any message) to take it as the starting point, or fix the "
-                       "generator; then run again."
-                       % (len(changed), "\n".join("  " + c for c in changed[:50])))
+                       "generator; then run again." % (len(changed), listing(changed, 50)))
+        self.check_report(step, rec, report)
+
+    def check_report(self, step, rec, report):
+        """Compares the generator report with the accepted one; STOP on the new problems."""
         path = os.path.join(self.root, REPORT_FILE)
-        if os.path.exists(path):
-            with open(path) as f:
-                text = f.read()
-        elif os.path.exists(self.state.report):      # before the report moved into the branch
-            with open(self.state.report) as f:
-                text = format_problems(report_problems(f.read()))
-        else:
-            text = None
+        text = read_text(path) if os.path.exists(path) else None
+        if text is None and os.path.exists(self.state.report):      # before the report moved into the branch
+            text = format_problems(report_problems(read_text(self.state.report)))
         accepted, _ = strip_new_blocks(text) if text is not None else ("", False)
         new = new_problems(accepted, report) if text is not None else {}
-        os.makedirs(os.path.dirname(path), exist_ok=True)
         if new:
-            with open(path, "w") as f:
-                f.write(accepted.rstrip("\n") + "\n\n" + "".join(
-                    "%s%s: delete this line and the %s one to accept\n%s:\n%s%s\n" % (
-                        REPORT_NEW, self.git.short(rec["upstream"]) if len(rec["upstream"]) == 40
-                        else rec["upstream"], REPORT_END, h, "".join("  %s\n" % i for i in items), REPORT_END)
-                    for h, items in new.items()))
+            short = self.git.short(rec["upstream"]) if len(rec["upstream"]) == 40 else rec["upstream"]
+            write_text(path, accepted.rstrip("\n") + "\n\n" + "".join(
+                "%s%s: delete this line and the %s one to accept\n%s:\n%s%s\n" % (
+                    REPORT_NEW, short, REPORT_END, h, "".join("  %s\n" % i for i in items), REPORT_END)
+                for h, items in new.items()))
             raise Stop("generator", "new problems in the generator report (%s/yamake2gn.txt), written "
                        "into %s between %s... and %s lines:\n%s\n\nFix them (ya.make, a keep BUILD.gn, ...) "
                        "or accept them by deleting those marker lines; then run again."
                        % (step, REPORT_FILE, REPORT_NEW, REPORT_END,
-                          "\n".join("%s:\n%s" % (h, "\n".join("  " + i for i in items)) for h, items in new.items())))
-        with open(path, "w") as f:
-            f.write(format_problems(report_problems(report)))
+                          "\n".join("%s:\n%s" % (h, "\n".join("  " + i for i in items))
+                                    for h, items in new.items())))
+        write_text(path, format_problems(report_problems(report)))
 
     def gn_gen(self, step, rec):
         with self.progress.stage("  gn gen", last=self.last_seconds("gn_gen")):
@@ -896,9 +961,8 @@ class Follower:
         left = self.review_markers()
         if left:
             raise Stop("review", "review markers left (`gn-follow: REVIEW` lines) in:\n%s\n\nDelete them "
-                       "once the change is mirrored, then run again." % "\n".join("  " + p for p in left))
-        if strip_new_blocks(open(os.path.join(self.root, REPORT_FILE)).read())[1] \
-                if os.path.exists(os.path.join(self.root, REPORT_FILE)) else False:
+                       "once the change is mirrored, then run again." % listing(left))
+        if has_new_problem_blocks(os.path.join(self.root, REPORT_FILE)):
             raise Stop("generator", "%s still has blocks of new problems: fix or accept them, then run "
                        "again." % REPORT_FILE)
         self.git.out("add", "-A")
@@ -1008,13 +1072,17 @@ class Follower:
         rec = {"upstream": u, "subject": self.git.subject(u), "status": "done", "seconds": {},
                "committed": self.git.out("log", "-1", "--format=%cI", u), "env": self.args.env}
         self.say("%s %s" % (short, rec["subject"][:90]))
+        since = self.step_since(step, u)
         committed = "bench" in self.state.stopped_at(u)    # it stopped after the commit
+        if self.args.only_head and not committed:
+            rec["mode"] = "only-head"
+            rec["skipped"] = len(self.git.lines("rev-list", "--first-parent", since + ".." + u))
 
         def run():
             if not committed:
                 if not merged:
                     self.merge(u, rec)
-                cls = classify(self.root, self.git, u, keep_dirs(self.git))
+                cls = classify(self.root, self.git, u, keep_dirs(self.git), since)
                 rec.update(files=cls["files"], review=cls["review"], info=cls["info"])
                 with open(os.path.join(step, "classify.json"), "w") as f:
                     json.dump(cls, f, indent=1)
@@ -1037,6 +1105,23 @@ class Follower:
         if self.args.push:
             self.git.out("push", "-q", self.args.push, "HEAD:refs/heads/" + self.git.out(
                 "rev-parse", "--abbrev-ref", "HEAD"))
+
+    def step_since(self, step, u):
+        """The base of the step's diff: U^1, or the last followed commit with --only-head
+        (the merge commits U, so the base cannot be recomputed after it: it is kept in
+        the step dir)."""
+        path = os.path.join(step, "meta.json")
+        if os.path.exists(path):
+            since = json.loads(read_text(path)).get("since")
+            if since:
+                return since
+        since = u + "^1"
+        if self.args.only_head:
+            last = self.state.last_merged(self.git, self.args.upstream)
+            if last != u:
+                since = last
+        write_text(path, json.dumps({"upstream": u, "since": since}) + "\n")
+        return since
 
     def guarded(self, u, rec, body):
         try:
@@ -1067,23 +1152,20 @@ class Follower:
 
     def current(self):
         """(U, merged) of the step to do, or None when the upstream is reached."""
-        mh = self.git.merge_head()
-        if mh:
-            self.finish_merge(mh)
-            return mh, True
-        last = self.state.last_merged(self.git, self.args.upstream)
+        last, merge, pending = pending_commits(self.git, self.state, self.args.upstream)
+        if merge:
+            self.finish_merge(merge)
+            return merge, True
         if last not in self.state.done():
             return last, True
         if self.git.dirty():
             raise Stop("conflict", "the work tree has changes, but the step of %s is done:\n%s"
-                       % (last, "\n".join("  " + l for l in self.git.dirty()[:30])))
-        pending = self.git.lines("rev-list", "--first-parent", "--reverse", last + ".." + self.args.upstream)
+                       % (last, listing(self.git.dirty(), 30)))
+        if self.args.only_head:
+            pending = pending[-1:]
         return (pending[0], False) if pending else None
 
     def follow(self):
-        if self.args.fetch:
-            remote, _, branch = self.args.upstream.partition("/")
-            self.git.out("fetch", "-q", remote, branch)
         restored = self.state.restore(self.git, self.args.upstream, persist=True)
         if restored:
             self.say("journal: restored %s step %s from history" %
@@ -1107,20 +1189,6 @@ class Follower:
         return 0
 
 
-HINTS = {
-    "conflict": "finish the merge in the work tree, then run again",
-    "review": "mirror the change by hand where the `gn-follow: REVIEW` markers are, delete them, run again",
-    "generator": "fix the new problems, or accept them by deleting their marker lines in " + REPORT_FILE
-                 + "; run again",
-    "gn-gen": "fix the work tree (uncommitted), then run again",
-    "build": "fix the work tree (uncommitted), then run again",
-    "idempotence": "the generator changed the starting point: commit it (any message) or fix the "
-                   "generator; run again",
-    "bench": "a finding of the incremental build, not fixed in the bench tree: --run --bench measures "
-             "again, or --run --skip-bench to go on without the measurement of this commit",
-}
-
-
 def bench_summary(b):
     if isinstance(b, str):      # "skipped"
         return "bench " + b
@@ -1134,12 +1202,9 @@ def bench_summary(b):
 
 
 def status(args):
-    """What the follow-up stands at; changes nothing (but --fetch)."""
+    """What the follow-up stands at; changes nothing."""
     root = os.path.realpath(args.root)
     git, state = Git(root), State(args.state)
-    if args.fetch:
-        remote, _, branch = args.upstream.partition("/")
-        git.out("fetch", "-q", remote, branch)
     restored = state.restore(git, args.upstream)
     say = print
     lock_path = os.path.join(args.state, "lock")
@@ -1150,7 +1215,7 @@ def status(args):
                 fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except OSError:
                 running = True
-    say("Run:        %s" % ("IN PROGRESS (another follow_main.py holds the lock)" if running else "none"))
+    say("Run:        %s" % ("IN PROGRESS (another follow.py holds the lock)" if running else "none"))
     say("State:      %s (run.log, journal.jsonl, steps/)" % args.state)
     cfg = {k: getattr(args, k) for k in CONFIG_DEFAULTS if getattr(args, k) != CONFIG_DEFAULTS[k]}
     lines = ["--%s %s" % (k.replace("_", "-"), " ".join(v) if isinstance(v, list) else v)
@@ -1173,8 +1238,7 @@ def status(args):
     fetch_head = fetch_head if os.path.isabs(fetch_head) else os.path.join(root, fetch_head)
     fetched = time.strftime("%Y-%m-%d %H:%M", time.localtime(os.path.getmtime(fetch_head))) \
         if os.path.exists(fetch_head) else "never"
-    last = state.last_merged(git, args.upstream)
-    pending = git.lines("rev-list", "--first-parent", "--reverse", last + ".." + args.upstream)
+    last, mh, pending = pending_commits(git, state, args.upstream)
     say("Upstream:   %s @ %s (fetched %s; --fetch to update)" % (args.upstream, git.short(args.upstream), fetched))
     say("            last merged: %s %s" % (git.short(last), git.subject(last)[:70]))
 
@@ -1197,26 +1261,38 @@ def status(args):
             % sum(1 for r in done if r["status"] == "done"))
         for r in done[-5:]:
             u = r["upstream"]
-            kind = "bootstrap: " if r["status"] == "bootstrap" else "docs: " if r.get("noop") else ""
+            kind = ("bootstrap: " if r["status"] == "bootstrap" else
+                    "head: " if r.get("mode") == "only-head" else "docs: " if r.get("noop") else "")
             say("  %s %s  %-44s %s" % (git.short(u), r.get("time", "")[:16].replace("T", " "),
                                        kind + bench_summary(r.get("bench")), (r.get("subject") or "")[:60]))
 
     current = mh or (last if last not in state.done() else None)
     queue = ([current] if current else []) + [u for u in pending if u != current]
-    say("Pending:    %d commits%s" % (len(queue), "" if not queue else "; the next ones:"))
+    ahead = len(queue)
+    if args.only_head and queue:
+        queue = queue[-1:]
+    if args.only_head and ahead:
+        say("Pending:    %d commits; --only-head: one step to the head of %s:"
+            % (ahead, args.upstream))
+    else:
+        say("Pending:    %d commits%s" % (ahead, "" if not ahead else "; the next ones:"))
     keeps = keep_dirs(git)
     limit = None if args.max_commits in (None, "all") else args.max_commits
     show = queue if args.show == "all" else queue[:max(int(args.show), limit or 0)]
+    since = last if args.only_head else None
     for u in show:
-        c = classify(root, git, u, keeps)
-        yamake = sum(1 for _, p in changes(git, u) if os.path.basename(p) == "ya.make")
+        c = classify(root, git, u, keeps, since)
+        yamake = sum(1 for _, p in changes(git, since or u + "^1", u) if os.path.basename(p) == "ya.make")
         mark = "REVIEW" if c["review"] else ("docs" if not c["build"] else "")
-        say("  %s %s %-6s %4d files %3d ya.make  %s%s" % (
+        say("  %s %s %-6s %4d files %3d ya.make  %s%s%s" % (
             git.short(u), git.out("log", "-1", "--format=%cs", u), mark, c["files"], yamake,
             git.subject(u)[:70], ("  <- current" if u == current else "")
-            + ("  [--run]" if limit is not None and queue.index(u) < limit else "")))
-        for why, path in c["review"] + c["info"]:
+            + ("  [--run]" if limit is not None and queue.index(u) < limit else ""),
+            "  [--only-head]" if args.only_head else ""))
+        for why, path in (c["review"] + c["info"])[:40]:
             say("        %-24s %s" % (why, path))
+        if len(c["review"] + c["info"]) > 40:
+            say("        ... %d more" % (len(c["review"] + c["info"]) - 40))
     if len(show) < len(queue):
         say("  ... %d more (--show N or --show all)" % (len(queue) - len(show)))
 
@@ -1230,15 +1306,16 @@ def status(args):
         if args.bench_out and not os.path.exists(os.path.join(args.bench_out, ".ninja_log")):
             say("            no .ninja_log in %s: the ninja warm-up will rebuild everything" % args.bench_out)
     say("")
-    say("To go on: build/gn/scripts/follow_main.py --run [--max-commits N]%s"
-        % (" [--skip-bench]" if stop and stop["stage"] == "bench" else ""))
+    branch = args.upstream.partition("/")[2]
+    say("To go on: build/gn/scripts/follow.py --run%s [--max-commits N]%s"
+        % (" --branch " + branch if branch and branch != "main" else "",
+           " [--skip-bench]" if stop and stop["stage"] == "bench" else ""))
     return 0
 
 
 # what a run remembers in <state>/config.json: an argument given overrides it and is saved
 CONFIG_DEFAULTS = {
     "out": None,                # <root>/out/gn
-    "upstream": "origin/main",
     "env": [],
     "jobs": None,
     "nice": 10,                 # niceness of the run and everything it starts (0: off)
@@ -1258,30 +1335,69 @@ CONFIG_DEFAULTS = {
 CONFIG_PATHS = ("out", "bench_root", "bench_out", "ya_out", "ya_cache_root")
 
 
-def apply_config(args, path):
-    """Fills the arguments not given from the config and saves the given ones; the saved names."""
+def state_name(upstream):
+    """The state subdir of an upstream ref: origin/main -> main, origin/ydb/stable -> ydb-stable."""
+    ref = upstream.partition("/")[2] or upstream
+    return re.sub(r"[^A-Za-z0-9._-]+", "-", ref).strip("-") or "default"
+
+
+def load_config(args, path):
+    """Fills the arguments not given from the config; (the whole config, the values given)."""
     cfg = {}
     if os.path.exists(path):
         with open(path) as f:
             cfg = json.load(f)
-    given = []
+    given = {}
     for key, default in CONFIG_DEFAULTS.items():
         value = getattr(args, key)
-        if value is not None:
-            if key in CONFIG_PATHS:
-                value = os.path.realpath(value)
-            if cfg.get(key) != value:
-                given.append(key)
-            cfg[key] = value
-        setattr(args, key, cfg.get(key, default))
-    if given:
-        with open(path, "w") as f:
-            json.dump(cfg, f, indent=1, sort_keys=True)
-    if not args.out:
-        args.out = os.path.join(args.root, "out", "gn")
-    if args.bench_root and not args.bench_out:
-        args.bench_out = os.path.join(args.bench_root, "out", "gn")
-    return given
+        if value is None:
+            setattr(args, key, cfg.get(key, default))
+            continue
+        if key in CONFIG_PATHS:
+            value = os.path.realpath(value)
+        setattr(args, key, value)
+        if cfg.get(key) != value:
+            given[key] = value
+        cfg[key] = value
+    return cfg, given
+
+
+def save_config(path, cfg, given):
+    """Saves the arguments given (they override the remembered ones from now on)."""
+    if not given:
+        return
+    write_text(path, json.dumps(cfg, indent=1, sort_keys=True))
+    print("config: saved %s" % ", ".join("--" + k.replace("_", "-") for k in sorted(given)))
+
+
+def resolve_upstream(ap, args):
+    """--branch NAME follows origin/NAME; --upstream REF overrides it."""
+    if args.branch and args.upstream:
+        ap.error("give --branch or --upstream, not both")
+    return args.upstream or "origin/" + (args.branch or "main")
+
+
+def validate(ap, args):
+    """The checks of the arguments as they are with the remembered settings."""
+    if args.max_commits == "all":
+        args.max_commits = None
+    if args.only_head and args.max_commits is not None:
+        ap.error("--only-head goes to the head in one step: drop --max-commits")
+    if not args.run and (args.skip_bench or args.bench):
+        ap.error("--skip-bench and --bench go with --run")
+    if args.bench and not args.bench_root:
+        ap.error("--bench needs --bench-root")
+    if args.bench and not args.ya_out:
+        ap.error("--bench-root needs --ya-out")
+    if args.nice and args.nice < 0:
+        ap.error("--nice must be 0 or more")
+
+
+def require_ref(ap, root, ref):
+    """A clear error before the status or the run uses the ref."""
+    if subprocess.run(["git", "-C", root, "rev-parse", "--verify", "--quiet", ref + "^{commit}"],
+                      stdout=subprocess.PIPE, stderr=subprocess.PIPE).returncode != 0:
+        ap.error("%s is not fetched: run with --fetch, or check --branch" % ref)
 
 
 class Tee:
@@ -1301,8 +1417,15 @@ class Tee:
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--root", help="the work tree of the GN branch (default: the one of the cwd)")
-    ap.add_argument("--state", help="journal, logs, config (default: <git dir of the work tree>/gn-follow)")
+    ap.add_argument("--state", help="journal, logs, config (default: <git dir of the work "
+                                    "tree>/gn-follow/<branch>)")
+    ap.add_argument("--branch", metavar="NAME",
+                    help="the upstream branch to follow: origin/NAME (default: main; every branch "
+                         "has its own state)")
+    ap.add_argument("--upstream", metavar="REF", help="the ref to follow instead of origin/<branch>")
     ap.add_argument("--run", action="store_true", help="do the work; without it only the status is shown")
+    ap.add_argument("--only-head", action="store_true",
+                    help="with --run: skip the intermediate commits, one step to the head of the branch")
     ap.add_argument("--max-commits", type=lambda v: v if v == "all" else int(v), metavar="N|all",
                     help="with --run: go on for at most N commits of the upstream (the one stopped at "
                          "counts; default: all)")
@@ -1318,7 +1441,6 @@ def main():
                     help="gn gen --script-executable")
     c = ap.add_argument_group("remembered in <state>/config.json (given: overrides and is saved)")
     c.add_argument("--out", help="the build dir (default: <root>/out/gn)")
-    c.add_argument("--upstream", help="default: origin/main")
     c.add_argument("--env", action="append", metavar="NAME=VALUE",
                    help="for gn gen and ninja, e.g. the compiler cache's (repeatable)")
     c.add_argument("-j", "--jobs", type=int, help="ninja -j")
@@ -1348,39 +1470,43 @@ def main():
     if top.returncode != 0:
         ap.error("run it in the work tree of the GN branch (or give --root): %s" % top.stderr.strip())
     args.root, git_dir = top.stdout.split("\n")[:2]
-    args.state = os.path.realpath(args.state or os.path.join(git_dir, "gn-follow"))
+    args.upstream = resolve_upstream(ap, args)
+    if args.fetch:
+        if "/" not in args.upstream:
+            ap.error("--fetch needs an upstream like <remote>/<branch>: %s" % args.upstream)
+        fetch_upstream(Git(args.root), args.upstream, True)
+        args.fetch = False      # done here, before the status or the run touches the ref
+    require_ref(ap, args.root, args.upstream)
+    base = os.path.realpath(args.state or os.path.join(git_dir, "gn-follow"))
+    if not args.state:
+        base = os.path.join(base, state_name(args.upstream))
+    args.state = base
     os.makedirs(args.state, exist_ok=True)
-    saved = apply_config(args, os.path.join(args.state, "config.json"))
-    if saved:
-        print("config: saved %s" % ", ".join("--" + k.replace("_", "-") for k in saved))
+    cfg, given = load_config(args, os.path.join(args.state, "config.json"))
+    if not args.out:
+        args.out = os.path.join(args.root, "out", "gn")
+    if args.bench_root and not args.bench_out:
+        args.bench_out = os.path.join(args.bench_root, "out", "gn")
+    validate(ap, args)
+    save_config(os.path.join(args.state, "config.json"), cfg, given)
 
     if not args.run:
-        if args.skip_bench or args.bench:
-            ap.error("--skip-bench and --bench go with --run")
         try:
             return status(args)
         except Stop as s:
             print("\nSTOP %s\n%s" % (s.kind, s.text), file=sys.stderr)
             return EXIT[s.kind]
-    if args.max_commits == "all":
-        args.max_commits = None
-    if args.bench and not args.bench_root:
-        ap.error("--bench needs --bench-root")
-    if args.bench and not args.ya_out:
-        ap.error("--bench-root needs --ya-out")
-    if args.nice and args.nice < 0:
-        ap.error("--nice must be 0 or more")
     if args.nice:
         os.nice(args.nice)      # the children inherit it: the build runs at low priority
     lock = open(os.path.join(args.state, "lock"), "w")
     try:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except OSError:
-        sys.exit("follow_main.py: another run holds %s/lock" % args.state)
+        sys.exit("follow.py: another run holds %s/lock" % args.state)
     log = open(os.path.join(args.state, "run.log"), "a")
     term = sys.stdout
     sys.stdout, sys.stderr = Tee(sys.stdout, log), Tee(sys.stderr, log)
-    print("\n%s follow_main.py %s" % (time.strftime("%Y-%m-%d %H:%M:%S"), " ".join(sys.argv[1:])))
+    print("\n%s follow.py %s" % (time.strftime("%Y-%m-%d %H:%M:%S"), " ".join(sys.argv[1:])))
     f = Follower(args, term)
     try:
         rc = f.follow()

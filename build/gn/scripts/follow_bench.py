@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Measures the incremental build of one commit by GN/ninja and by ya make (the
-bench stage of the GN follow-up, see follow_main.py): checks the commit out in
+bench stage of the GN follow-up, see follow.py): checks the commit out in
 the bench work tree -- moving it there from the previous one, nothing else
 touches that tree -- and builds the same targets both ways, one after another:
 
@@ -35,7 +35,7 @@ from the local cache (its evlog).
                     [--env NAME=VALUE ...] [--max-load X] [--full]
 
 --full: the first build of a series (warms the caches; the same measurements).
-The result JSON has "trailers": the lines follow_main.py adds to the commit
+The result JSON has "trailers": the lines follow.py adds to the commit
 message. Exit code: 0, or 1 if a build failed (the result says which).
 """
 

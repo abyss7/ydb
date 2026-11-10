@@ -1,10 +1,13 @@
+import contextlib
+import io
 import os
 import tempfile
 import types
 import unittest
 from unittest.mock import Mock, patch
 
-from follow_main import Follower, Git, State, Stop
+import follow
+from follow import Follower, Git, State, Stop
 
 
 class FollowHistoryTest(unittest.TestCase):
@@ -45,7 +48,7 @@ class FollowHistoryTest(unittest.TestCase):
         # repository is used. The real follow/current/step/commit flow is kept.
         f = Follower.__new__(Follower)
         f.args = types.SimpleNamespace(upstream="upstream", fetch=False, skip_bench=False,
-                                       max_commits=1, env=[], push=None)
+                                       max_commits=1, env=[], push=None, only_head=False)
         f.root, f.git = self.root, self.git
         f.env = dict(os.environ)
         f.state = State(os.path.join(self.tmp.name, "state"))
@@ -149,7 +152,7 @@ class FollowHistoryTest(unittest.TestCase):
         merge = self.merge()
         f = self.follower()
         f.state.append({"status": "bootstrap", "upstream": self.base})
-        with patch("follow_main.classify", return_value={"files": 1, "review": [], "info": [], "build": False}):
+        with patch("follow.classify", return_value={"files": 1, "review": [], "info": [], "build": False}):
             f.follow()
         f.regen.assert_not_called()
         f.build.assert_not_called()
@@ -159,7 +162,7 @@ class FollowHistoryTest(unittest.TestCase):
     def test_fresh_docs_merge_still_builds_locally(self):
         self.merge()
         f = self.follower()
-        with patch("follow_main.classify", return_value={"files": 1, "review": [], "info": [], "build": False}):
+        with patch("follow.classify", return_value={"files": 1, "review": [], "info": [], "build": False}):
             f.follow()
         f.regen.assert_called_once()
         f.build.assert_called_once()
@@ -270,6 +273,87 @@ class FollowHistoryTest(unittest.TestCase):
         self.git.out("checkout", "-q", "front")
         self.git.out("merge", "-q", "--no-ff", "-m", "Merge %s: next upstream" % next_u[:11], next_u)
         self.assertEqual(f.current(), (next_u, True))
+
+
+    def test_state_name_is_per_branch(self):
+        self.assertEqual(follow.state_name("origin/main"), "main")
+        self.assertEqual(follow.state_name("origin/stable-25.1"), "stable-25.1")
+        self.assertEqual(follow.state_name("origin/ydb/stable-25.1"), "ydb-stable-25.1")
+        self.assertEqual(follow.state_name("upstream"), "upstream")
+
+    def test_missing_ref_is_a_usage_error(self):
+        ap = Mock()
+        ap.error.side_effect = SystemExit(2)
+        with self.assertRaises(SystemExit):
+            follow.require_ref(ap, self.root, "no-such-ref")
+        follow.require_ref(ap, self.root, "upstream")
+
+    def test_only_head_merges_the_head_once(self):
+        self.git.out("checkout", "-q", "upstream")
+        with open(os.path.join(self.root, "second.cpp"), "w") as out:
+            out.write("// second upstream\n")
+        self.git.out("add", "second.cpp")
+        self.git.out("commit", "-q", "-m", "second upstream change")
+        tip = self.git.out("rev-parse", "HEAD")
+        self.git.out("checkout", "-q", "front")
+        f = self.follower()
+        f.args.only_head, f.args.max_commits = True, None
+        f.state.append({"status": "bootstrap", "upstream": self.base})
+        with patch("follow.classify", wraps=follow.classify) as classify:
+            self.assertEqual(f.follow(), 0)
+        classify.assert_called_once()
+        self.assertEqual(classify.call_args.args[4], self.base)     # the whole range, not U^1
+        f.regen.assert_called_once()
+        self.assertEqual(self.git.out("rev-list", "--count", "--merges", "HEAD"), "1")
+        merge = self.git.out("rev-parse", "HEAD^")
+        self.assertEqual(self.git.out("rev-parse", merge + "^2"), tip)
+        self.assertTrue(self.git.subject("HEAD").startswith("gn: sync " + tip[:11] + ":"))
+        rec = [r for r in f.state.records() if r["upstream"] == tip and r["status"] == "done"][0]
+        self.assertEqual((rec["mode"], rec["skipped"]), ("only-head", 2))
+        self.assertIsNone(f.current())
+
+
+class ConfigTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.ap = Mock()
+        self.ap.error.side_effect = SystemExit(2)
+
+    def args(self, **kw):
+        """The arguments as argparse leaves them (every one None unless given)."""
+        fields = dict({k: None for k in follow.CONFIG_DEFAULTS},
+                      run=False, only_head=False, skip_bench=False, bench=False, fetch=False,
+                      max_commits=None, branch=None, upstream=None)
+        fields.update(kw)
+        return types.SimpleNamespace(**fields)
+
+    def test_branch_gives_the_upstream_ref(self):
+        self.assertEqual(follow.resolve_upstream(self.ap, self.args()), "origin/main")
+        self.assertEqual(follow.resolve_upstream(self.ap, self.args(branch="stable-25.1")),
+                         "origin/stable-25.1")
+        self.assertEqual(follow.resolve_upstream(self.ap, self.args(upstream="other/main")), "other/main")
+        with self.assertRaises(SystemExit):
+            follow.resolve_upstream(self.ap, self.args(branch="main", upstream="other/main"))
+
+    def test_only_head_rejects_max_commits(self):
+        with self.assertRaises(SystemExit):
+            follow.validate(self.ap, self.args(only_head=True, max_commits=3))
+        args = self.args(max_commits="all")
+        follow.validate(self.ap, args)
+        self.assertIsNone(args.max_commits)
+
+    def test_given_arguments_are_remembered(self):
+        path = os.path.join(self.tmp.name, "state", "config.json")
+        cfg, given = follow.load_config(self.args(bench_root=self.tmp.name), path)
+        self.assertEqual(sorted(given), ["bench_root"])
+        with contextlib.redirect_stdout(io.StringIO()):
+            follow.save_config(path, cfg, given)
+        args = self.args()
+        follow.load_config(args, path)
+        self.assertEqual(args.bench_root, os.path.realpath(self.tmp.name))
+        self.assertEqual(args.nice, follow.CONFIG_DEFAULTS["nice"])
+        self.assertEqual(args.out, None)        # <root>/out/gn is resolved after the config
 
 
 if __name__ == "__main__":
