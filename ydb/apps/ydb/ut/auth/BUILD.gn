@@ -10,6 +10,7 @@ unittest_executable("auth") {
     "//ydb/core/security/certificate_check/test_utils",
     "//ydb/public/api/client/yc_public/iam",
     "//ydb/public/api/grpc",
+    "//ydb/public/api/grpc/draft",
     "//ydb/public/sdk/cpp/tests/unit/client/oauth2_token_exchange/helpers",
     "//ydb/public/sdk/cpp/tests/unit/client/oidc/helpers",
   ]
@@ -17,6 +18,7 @@ unittest_executable("auth") {
   data_deps = [ "//ydb/apps/ydb" ]
 
   sources = [
+    "//ydb/apps/ydb/ut/bridge.cpp",
     "//ydb/apps/ydb/ut/mock_env.cpp",
     "//ydb/apps/ydb/ut/oidc.cpp",
     "//ydb/apps/ydb/ut/oidc_interactive.cpp",
