@@ -21,7 +21,6 @@ library("actorlib_impl") {
     # "//library/cpp/monlib/dynamic_counters",  # peerdir only
     "//library/cpp/monlib/service/pages/resources",  # peerdir only
     "//library/cpp/monlib/service/pages/tablesorter",  # peerdir only
-    # "//library/cpp/packedtypes",  # peerdir only
     # "//library/cpp/sliding_window",  # peerdir only
     "//ydb/core/base",
     # "//ydb/core/driver_lib/version",  # peerdir only
@@ -29,7 +28,6 @@ library("actorlib_impl") {
     # "//ydb/core/node_whiteboard",  # peerdir only
     # "//ydb/core/protos",  # peerdir only
     # "//ydb/core/util",  # peerdir only
-    # "//ydb/library/actors/dnscachelib",  # peerdir only
   ]
 
   sources = [
