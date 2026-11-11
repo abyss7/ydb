@@ -15,6 +15,7 @@ unittest_executable("ut") {
     "//ydb/core/mon",
     "//ydb/core/persqueue/deferred_publish",
     "//ydb/core/persqueue/public/cluster_tracker",
+    "//ydb/core/persqueue/ut/common",
     "//ydb/core/persqueue/writer",
     "//ydb/core/protos",
     "//ydb/core/tablet",
@@ -39,6 +40,7 @@ unittest_executable("ut") {
     "//ydb/public/sdk/cpp/src/client/scheme",
     "//ydb/public/sdk/cpp/src/client/table",
     "//ydb/public/sdk/cpp/src/client/topic",
+    "//ydb/public/sdk/cpp/src/client/topic/ut/ut_utils",  # peerdir only
     "//ydb/public/sdk/cpp/src/client/types",
     "//ydb/public/sdk/cpp/src/library/persqueue/obfuscate",
     "//ydb/services/persqueue_v1",  # peerdir only
@@ -56,6 +58,7 @@ unittest_executable("ut") {
     "functions_executor_wrapper.cpp",
     "persqueue_v1_gaps_ut.cpp",
     "rate_limiter_test_setup.cpp",
+    "read_session_multi_topic_ut.cpp",
     "topic_deferred_publish_ut.cpp",
     "topic_service_ut.cpp",
   ]
