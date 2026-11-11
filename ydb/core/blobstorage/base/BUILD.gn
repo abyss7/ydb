@@ -19,6 +19,7 @@ library("base") {
     # "//library/cpp/deprecated/atomic",  # peerdir only
     # "//library/cpp/lwtrace",  # peerdir only
     # "//library/cpp/monlib/service/pages",
+    # "//ydb/core/blobstorage/groupinfo",
     # "//ydb/library/actors/wilson",  # peerdir only
   ]
 
