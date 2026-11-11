@@ -211,7 +211,15 @@ template("linked_executable") {
       configs += invoker.configs
     }
 
-    deps += _slot_deps + [ ":${_exe}_link_slot_check" ]
+    # The check is a data_dep, not a dep: a dep's outputs are order-only
+    # prerequisites of every compile of the target, so a dep would hold the
+    # first object until the whole library tree it walks is built. The check
+    # gates the link (where the weak references matter) and no compile.
+    deps += _slot_deps
+    if (!defined(data_deps)) {
+      data_deps = []
+    }
+    data_deps += [ ":${_exe}_link_slot_check" ]
     if (defined(invoker.deps)) {
       deps += invoker.deps
     }

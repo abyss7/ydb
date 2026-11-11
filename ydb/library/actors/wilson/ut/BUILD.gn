@@ -1,10 +1,14 @@
 unittest_executable("ut") {
   deps = [
     "//library/cpp/testing/unittest",
+    "//ydb/library/actors/testlib",
     "//ydb/library/actors/wilson",
   ]
 
-  sources = [ "//ydb/library/actors/wilson/wilson_trace_ut.cpp" ]
+  sources = [
+    "//ydb/library/actors/wilson/wilson_span_ut.cpp",
+    "//ydb/library/actors/wilson/wilson_trace_ut.cpp",
+  ]
 
   include_dirs = [ "//ydb/library/actors/wilson" ]
 

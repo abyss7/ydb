@@ -16,7 +16,8 @@ every first-parent commit U of the upstream after the last one merged
                in the branch) -> STOP generator: the new items go into that
                file between <<<<<<< and >>>>>>> lines; fix them, or accept them
                by deleting those lines
-  4. gn gen    failed -> STOP gn-gen
+  4. gn gen    skipped when 3 changed nothing and no hand-written input is
+               dirty; failed -> STOP gn-gen
   5. build     autofix.py: ninja, uncommenting the edges it can; still
                failing -> STOP build
   6. commit    `gn: sync <U>` with what 3-5 changed (empty if nothing changed)
@@ -209,6 +210,27 @@ def set_link_pool_size(path, jobs):
     return True
 
 
+def gen_input(path):
+    """A file of the build graph (`gn gen` reads it and lists it in its
+    depfile): a BUILD.gn, a .gni, .gn, args.gn. A source reaches ninja, not
+    gn gen. Only the *new* files are matched by this: a modified one is caught
+    by its mtime against the depfile."""
+    return (path in (".gn", "args.gn")
+            or path.endswith("BUILD.gn") or path.endswith(".gni"))
+
+
+def gen_inputs(out):
+    """The paths the last `gn gen` read, from its depfile: the BUILD.gn, .gni,
+    .gn, args.gn and the exec_script files. As ninja spells them, relative to
+    the build dir; None if there is no depfile."""
+    try:
+        text = read_text(os.path.join(out, "build.ninja.d"))
+    except OSError:
+        return None
+    tokens = text.replace("\\\n", " ").split()
+    return tokens[1:] if tokens and tokens[0].endswith(":") else tokens
+
+
 def listing(items, limit=40, indent="  "):
     """The items one per line (at most limit) for a STOP message."""
     items = list(items)
@@ -252,6 +274,16 @@ class Git:
 
     def dirty(self):
         return self.lines("status", "--porcelain")
+
+    def added_paths(self):
+        """Paths the work tree has and HEAD does not: merged in or untracked.
+        -z, split by NUL: git quotes a path with a space or a non-ASCII byte,
+        and the caller matches on the extension."""
+        out = []
+        for args in (("diff", "--name-only", "--diff-filter=A", "-z", "HEAD"),
+                     ("ls-files", "--others", "--exclude-standard", "-z")):
+            out += [p for p in self.run(*args).stdout.split("\0") if p]
+        return out
 
     def unmerged(self):
         return self.lines("diff", "--name-only", "--diff-filter=U")
@@ -926,9 +958,41 @@ class Follower:
                                     for h, items in new.items())))
         write_text(path, format_problems(report_problems(report)))
 
+    def need_gen(self, rec):
+        """Whether `gn gen` has anything new to read. The generator writes only
+        what changed (yamake2gn keeps the mtime of an identical file), so an
+        input of the previous gen older than its build.ninja means the build
+        files are still valid; regenerating would also restart the pch checks,
+        `compile_commands.json` is in their depfile. A new BUILD.gn/.gni is not
+        in the depfile yet: it forces a run too. Ninja has the same edge
+        (`rule gn --regeneration` in build.ninja), so a miss costs the gen, not
+        a stale build."""
+        build_ninja = os.path.join(self.out, "build.ninja")
+        if not os.path.exists(build_ninja):
+            return True
+        if rec.get("args_gn_changed"):
+            return True
+        inputs = gen_inputs(self.out)
+        if inputs is None:
+            return True
+        done = os.stat(build_ninja).st_mtime_ns
+        for p in inputs:
+            try:
+                st = os.stat(os.path.join(self.out, p))
+            except OSError:
+                return True             # the last gen read it, now it is gone
+            if st.st_mtime_ns > done:
+                return True
+        return any(gen_input(p) for p in self.git.added_paths())
+
     def gn_gen(self, step, rec):
         if self.args.jobs and set_link_pool_size(os.path.join(self.out, "args.gn"), self.args.jobs):
+            rec["args_gn_changed"] = True
             self.say("  args.gn: link_pool_size = %d" % self.args.jobs)
+        if not self.need_gen(rec):
+            rec["gen_skipped"] = True
+            self.say("  gn gen: skipped, no input changed")
+            return
         with self.progress.stage("  gn gen", last=self.last_seconds("gn_gen")):
             rc, s = self.sh(["gn", "gen", "--script-executable=" + self.args.script_executable, self.out],
                             os.path.join(step, "gn_gen.log"))

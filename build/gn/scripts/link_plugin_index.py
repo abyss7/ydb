@@ -26,10 +26,16 @@ Usage: link_plugin_index.py <source root> <gn binary> [<build dir>]
 Prints a gn scope (for exec_script(..., "scope")):
 
     executables = [ { label = "//dir:name"  plugins = [ ... ] }, ... ]
+
+The per-file parse is cached in <build dir>/link_plugin_index.cache.json and
+reused until the file's stat or the gn binary changes: parsing the tree is
+what takes the time, and a regen rewrites a few files only.
 """
 
+import json
 import os
 import re
+import shutil
 import sys
 
 import link_slot_index as lsi
@@ -123,21 +129,110 @@ def short(label):
     return "//%s" % d if name == os.path.basename(d) else label
 
 
-def index(root, gn, build_dir=None):
-    files = all_build_files(root, build_dir)
-    if not mentions_plugins(root, files):
+CACHE = "link_plugin_index.cache.json"
+CACHE_VERSION = 1
+
+
+def gn_stamp(gn):
+    """[real path, mtime, size] of the gn binary, or None: another gn may
+    parse the same file differently."""
+    path = gn if os.path.isabs(gn) else shutil.which(gn)
+    if not path:
+        return None
+    try:
+        st = os.stat(path)
+    except OSError:
+        return None
+    return [os.path.realpath(path), st.st_mtime_ns, st.st_size]
+
+
+def file_stats(root, files):
+    """{file: [mtime, size]} of the files that exist."""
+    out = {}
+    for f in files:
+        try:
+            st = os.stat(os.path.join(root, f))
+        except OSError:
+            continue
+        out[f] = [st.st_mtime_ns, st.st_size]
+    return out
+
+
+def parse_files(root, gn, files):
+    """{file: [[func, label, deps, plugins, link_select], ...]} as gn sees it."""
+    out = {}
+    for file, tree in lsi.dump_trees(root, gn, files):
+        rows = []
+        for func, name, block in _calls(tree):
+            rows.append([func, full(lsi.label(file, name)),
+                         [resolve(file, l) for k in DEP_KEYS for l in _strings(block, k)],
+                         [resolve(file, l) for l in _strings(block, KEY)],
+                         _strings(block, "link_select")])
+        out[file] = rows
+    return out
+
+
+def load_cache(path, stamp, stats):
+    """{file: targets} of the cache entries that still match stats."""
+    if not path:
         return {}
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        if data.get("version") != CACHE_VERSION or data.get("gn") != stamp:
+            return {}
+        return {f: e[2] for f, e in data["files"].items()
+                if f in stats and isinstance(e, list) and len(e) == 3 and e[:2] == stats[f]}
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
+        return {}
+
+
+def save_cache(path, stamp, stats, targets):
+    """The parsed files into the cache, atomically: two toolchains run this."""
+    if not path:
+        return
+    data = {"version": CACHE_VERSION, "gn": stamp,
+            "files": {f: stats[f] + [t] for f, t in targets.items() if f in stats}}
+    tmp = "%s.%d.tmp" % (path, os.getpid())
+    try:
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(data, f, separators=(",", ":"))
+        os.replace(tmp, path)
+    except OSError:
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
+
+
+def index(root, gn, build_dir=None):
+    # Parsing the tree (`gn format --dump-tree`) is the slow part, ~10 s of a
+    # `gn gen`. The facts of one BUILD.gn do not depend on the others, so they
+    # are kept in the build dir, keyed by their stat: a regen that rewrites a
+    # few files re-parses those few, the closure is then computed from the
+    # cache. Nothing points gn at the file: no build input, no build output,
+    # it just goes away with the dir (a broken or other-version cache is
+    # re-parsed, never trusted).
+    files = all_build_files(root, build_dir)
+    cache = os.path.join(build_dir, CACHE) if build_dir else None
+    stamp = gn_stamp(gn) if cache else None
+    stats = file_stats(root, files) if stamp else {}
+    targets = load_cache(cache, stamp, stats) if stamp else {}
+    if not targets and not mentions_plugins(root, files):
+        return {}
+    todo = [f for f in files if f not in targets]
+    if todo:
+        targets.update(parse_files(root, gn, todo))
+        save_cache(cache, stamp, stats, targets)
     exes = executables(root)
     deps, plugins, selects = {}, {}, {}
-    for file, tree in lsi.dump_trees(root, gn, files):
-        for func, name, block in _calls(tree):
-            me = full(lsi.label(file, name))
-            deps[me] = [resolve(file, l) for k in DEP_KEYS for l in _strings(block, k)]
-            p = [resolve(file, l) for l in _strings(block, KEY)]
+    for rows in targets.values():
+        for func, me, d, p, s in rows:
+            deps[me] = d
             if p:
                 plugins[me] = p
             if func in exes:
-                selects[me] = _strings(block, "link_select")
+                selects[me] = s
     providers = lsi.index(root, gn, build_dir)[0]
 
     out = {}

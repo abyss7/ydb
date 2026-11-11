@@ -376,5 +376,86 @@ class LinkPoolArgsTest(unittest.TestCase):
         self.assertFalse(follow.set_link_pool_size(self.path, 17))
 
 
+class NeedGenTest(unittest.TestCase):
+    """gn_gen() runs only when `gn gen` has something new to read."""
+
+    INPUTS = ["../../a/BUILD.gn", "./args.gn"]
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.out = os.path.join(self.tmp.name, "out", "gn")
+        self.git = Mock()
+        self.git.added_paths.return_value = []
+
+    def need_gen(self, **rec):
+        return Follower.need_gen(types.SimpleNamespace(out=self.out, git=self.git), rec)
+
+    def generated(self, stamp=10 ** 18, newer=(), missing=()):
+        """A build dir as the last `gn gen` left it: its inputs older than its
+        build.ninja, `newer` ones written after, `missing` ones gone."""
+        follow.write_text(os.path.join(self.out, "build.ninja.d"),
+                          "build.ninja.stamp: " + " ".join(self.INPUTS) + "\n")
+        follow.write_text(os.path.join(self.out, "build.ninja"), "")
+        os.utime(os.path.join(self.out, "build.ninja"), ns=(stamp, stamp))
+        for path in self.INPUTS:
+            if path in missing:
+                continue
+            full = os.path.join(self.out, path)
+            follow.write_text(full, "")
+            ns = stamp + 100 if path in newer else stamp
+            os.utime(full, ns=(ns, ns))
+
+    def test_no_build_dir_means_gen(self):
+        self.assertTrue(self.need_gen())
+
+    def test_no_depfile_means_gen(self):
+        follow.write_text(os.path.join(self.out, "build.ninja"), "")
+        self.assertTrue(self.need_gen())
+
+    def test_unchanged_inputs_skip_the_gen(self):
+        self.generated()
+        self.assertFalse(self.need_gen())
+
+    def test_an_input_written_after_the_gen_forces_it(self):
+        self.generated(newer=("../../a/BUILD.gn",))
+        self.assertTrue(self.need_gen())
+
+    def test_an_input_that_disappeared_forces_it(self):
+        self.generated(missing=("../../a/BUILD.gn",))
+        self.assertTrue(self.need_gen())
+
+    def test_new_link_pool_size_forces_it(self):
+        self.generated()
+        self.assertTrue(self.need_gen(args_gn_changed=True))
+
+    def test_a_new_build_file_forces_it(self):
+        self.generated()
+        self.git.added_paths.return_value = ["ydb/core/new/BUILD.gn"]
+        self.assertTrue(self.need_gen())
+
+    def test_a_new_gni_forces_it(self):
+        self.generated()
+        self.git.added_paths.return_value = ["ydb/core/new/ya.gni"]
+        self.assertTrue(self.need_gen())
+
+    def test_a_new_source_does_not(self):
+        self.generated()
+        self.git.added_paths.return_value = ["ydb/core/health_check/health_check.cpp",
+                                             "ydb/core/health_check/ya.make"]
+        self.assertFalse(self.need_gen())
+
+    def test_depfile_continuations_are_read(self):
+        follow.write_text(os.path.join(self.out, "build.ninja.d"),
+                          "build.ninja.stamp: ../../a/BUILD.gn \\\n ./args.gn\n")
+        follower = types.SimpleNamespace(out=self.out)
+        self.assertEqual(follow.gen_inputs(self.out), ["../../a/BUILD.gn", "./args.gn"])
+
+    def test_a_source_is_not_a_gen_input(self):
+        self.assertTrue(follow.gen_input("x/BUILD.gn"))
+        self.assertFalse(follow.gen_input("x/ya.make"))
+        self.assertFalse(follow.gen_input("x/health_check_ut.cpp"))
+
+
 if __name__ == "__main__":
     unittest.main()
