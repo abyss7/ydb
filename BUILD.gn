@@ -896,6 +896,7 @@ group("tests") {
         "//ydb/tests/functional/kqp/kqp_query_svc",
         "//ydb/tests/functional/replication",
         "//ydb/tests/functional/sdk/cpp/path_aliasing",
+        "//ydb/tests/functional/sdk/cpp/relative_database",
         "//ydb/tests/functional/sdk/cpp/sdk_credprovider",
         "//ydb/tests/olap/high_load",
         "//ydb/tests/stress/kv_volume_tool/ut",

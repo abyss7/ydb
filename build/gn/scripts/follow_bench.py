@@ -50,6 +50,8 @@ import subprocess
 import sys
 import time
 
+from follow import set_link_pool_size
+
 DEFAULT_TARGETS = ["all", "tests"]
 STATUS_RE = re.compile(r"^\[(\d+)/(\d+)\] ")
 
@@ -142,6 +144,8 @@ def run_ninja(args, env, log_dir, name="bench_ninja"):
     res = {}
     t = time.time()
     gen_log = "bench_gn_gen.log" if name == "bench_ninja" else name + "_gn_gen.log"
+    if args.jobs and set_link_pool_size(os.path.join(args.out, "args.gn"), args.jobs):
+        say("args.gn: link_pool_size = %d" % args.jobs)
     with open(os.path.join(log_dir, gen_log), "w") as f:
         rc = subprocess.run(["gn", "gen", "--script-executable=" + args.script_executable, args.out],
                             cwd=args.root, stdout=f, stderr=subprocess.STDOUT, env=env).returncode
@@ -153,7 +157,8 @@ def run_ninja(args, env, log_dir, name="bench_ninja"):
     dc0, c0, t = dc_stats(), cpu_busy(), time.time()
     log = os.path.join(log_dir, name + ".log")
     with open(log, "w") as f:
-        rc = subprocess.run(["ninja", "-C", args.out] + args.targets, stdout=f, stderr=subprocess.STDOUT,
+        rc = subprocess.run(["ninja", "-C", args.out] + (["-j", str(args.jobs)] if args.jobs else [])
+                            + args.targets, stdout=f, stderr=subprocess.STDOUT,
                             env=dict(env, NINJA_STATUS="[%f/%t] ")).returncode
     res.update(rc=rc, wall=round(time.time() - t, 1), cpu=round(cpu_busy() - c0))
     actions = 0
@@ -302,6 +307,7 @@ def main():
     ap.add_argument("--idle-timeout", type=int, default=900)
     ap.add_argument("--full", action="store_true", help="the first build of a series")
     ap.add_argument("--python", default=sys.executable)
+    ap.add_argument("-j", "--jobs", type=int, help="ninja -j, also link_pool_size of args.gn")
     ap.add_argument("--script-executable", default=os.environ.get("GN_SCRIPT_EXECUTABLE", "python3.9"))
     args = ap.parse_args()
     args.root, args.out = os.path.realpath(args.root), os.path.realpath(args.out)

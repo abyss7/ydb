@@ -4,6 +4,8 @@ unittest_executable("grpc_request_tracing_ut") {
     "//ydb/core/grpc_services",
     "//ydb/core/grpc_services/base",
     "//ydb/core/grpc_services/counters",
+    "//ydb/core/path_aliasing",
+    "//ydb/core/testlib",
     "//ydb/core/testlib/basics",
     "//ydb/core/testlib/default",  # peerdir only
     "//ydb/library/actors/wilson:test_util",

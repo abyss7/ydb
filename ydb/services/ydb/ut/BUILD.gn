@@ -104,6 +104,7 @@ unittest_executable("ut") {
     "//ydb/services/ydb/ydb_query_ut.cpp",
     "//ydb/services/ydb/ydb_read_rows_ut.cpp",
     "//ydb/services/ydb/ydb_register_node_ut.cpp",
+    "//ydb/services/ydb/ydb_relative_database_ut.cpp",
     "//ydb/services/ydb/ydb_scripting_ut.cpp",
     "//ydb/services/ydb/ydb_stats_ut.cpp",
     "//ydb/services/ydb/ydb_table_ut.cpp",

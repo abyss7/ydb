@@ -1,0 +1,19 @@
+gtest_executable("relative_database") {
+  deps = [
+    "//library/cpp/testing/gtest",
+    "//ydb/public/sdk/cpp/src/client/discovery",
+    "//ydb/public/sdk/cpp/src/client/draft",
+    "//ydb/public/sdk/cpp/src/client/operation",
+    "//ydb/public/sdk/cpp/src/client/query",
+    "//ydb/public/sdk/cpp/src/client/table",
+  ]
+
+  data_deps = [ "//ydb/apps/ydbd" ]
+
+  sources = [ "relative_database_it.cpp" ]
+
+  test_depends_unbuilt =
+      [ "//ydb/tests/functional/sdk/cpp/relative_database/recipe" ]
+
+  link_select = [ "allocator=tcmalloc" ]
+}

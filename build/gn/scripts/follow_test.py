@@ -356,5 +356,25 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(args.out, None)        # <root>/out/gn is resolved after the config
 
 
+class LinkPoolArgsTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.path = os.path.join(self.tmp.name, "out", "gn", "args.gn")
+
+    def test_creates_the_file_with_the_arg(self):
+        self.assertTrue(follow.set_link_pool_size(self.path, 34))
+        self.assertEqual(follow.read_text(self.path), "link_pool_size = 34\n")
+
+    def test_replaces_the_arg_and_keeps_the_rest(self):
+        follow.write_text(self.path, 'pch_mode = "global"\nlink_pool_size = 8\n')
+        self.assertTrue(follow.set_link_pool_size(self.path, 17))
+        self.assertEqual(follow.read_text(self.path), 'pch_mode = "global"\nlink_pool_size = 17\n')
+
+    def test_the_same_value_writes_nothing(self):
+        follow.set_link_pool_size(self.path, 17)
+        self.assertFalse(follow.set_link_pool_size(self.path, 17))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -58,6 +58,11 @@ declare_args() {
   # compile through dist-clang, tagged with the git branch of the sources
   # (or the short commit when detached)
   distclang = false
+
+  # how many link steps (link, solink) may run at once, half of the machine
+  # cores by default: a link takes much more memory than a compile, so they
+  # stay outside the global ninja -j race, see //build/gn/toolchain/linux
+  link_pool_size = exec_script("//build/gn/scripts/cpu_count.py", [ "2" ], "value")
 }
 
 if (distclang) {
@@ -65,6 +70,8 @@ if (distclang) {
 } else {
   cc_wrapper = ""
 }
+
+assert(link_pool_size >= 1, "link_pool_size must be >= 1")
 
 assert(pch_mode == "none" || pch_mode == "per_target" || pch_mode == "global",
        "unknown pch_mode specified: ${pch_mode}")

@@ -193,6 +193,22 @@ def write_text(path, text):
         f.write(text)
 
 
+LINK_POOL_ARG = re.compile(r"^\s*link_pool_size\s*=")
+
+
+def set_link_pool_size(path, jobs):
+    """link_pool_size = jobs in args.gn, the rest of the file kept. The link
+    steps get a pool of their own (//build/gn/config/CONFIG.gn), its depth
+    follows ninja -j. True if the file changed."""
+    text = read_text(path) if os.path.exists(path) else ""
+    kept = [l for l in text.splitlines() if not LINK_POOL_ARG.match(l)]
+    new = "\n".join(kept + ["link_pool_size = %d" % jobs]) + "\n"
+    if new == text:
+        return False
+    write_text(path, new)
+    return True
+
+
 def listing(items, limit=40, indent="  "):
     """The items one per line (at most limit) for a STOP message."""
     items = list(items)
@@ -911,6 +927,8 @@ class Follower:
         write_text(path, format_problems(report_problems(report)))
 
     def gn_gen(self, step, rec):
+        if self.args.jobs and set_link_pool_size(os.path.join(self.out, "args.gn"), self.args.jobs):
+            self.say("  args.gn: link_pool_size = %d" % self.args.jobs)
         with self.progress.stage("  gn gen", last=self.last_seconds("gn_gen")):
             rc, s = self.sh(["gn", "gen", "--script-executable=" + self.args.script_executable, self.out],
                             os.path.join(step, "gn_gen.log"))
@@ -992,6 +1010,7 @@ class Follower:
                "--python", a.python, "--script-executable", a.script_executable,
                "--targets"] + (a.bench_targets or a.targets)
         cmd += ["--env=" + kv for kv in a.bench_env]
+        cmd += (["-j", str(a.jobs)] if a.jobs else [])
         cmd += (["--ya-cache-size", a.ya_cache_size] if a.ya_cache_size else [])
         dirs = list(a.ya_dirs)
         if not full and not a.no_select:

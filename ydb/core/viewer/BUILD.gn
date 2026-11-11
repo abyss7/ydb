@@ -1,6 +1,7 @@
 library("viewer") {
   public_deps = [
     ":yaml",
+    "//library/cpp/monlib/encode/prometheus",
     # "//library/cpp/protobuf/json",
     # "//ydb/core/base",
     # "//ydb/core/blobstorage/base",
@@ -35,7 +36,6 @@ library("viewer") {
     # "//library/cpp/digest/md5",
     # "//library/cpp/json",
     # "//library/cpp/mime/types",
-    "//library/cpp/monlib/encode/prometheus",
     # "//library/cpp/monlib/service/pages",
     # "//library/cpp/yaml/as",
     # "//ydb/core/base/services",

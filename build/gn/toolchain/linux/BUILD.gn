@@ -1,3 +1,13 @@
+# Link steps get a pool of their own: a link takes much more memory than a
+# compile, so only link_pool_size of them may run at once, while ninja -j still
+# applies to everything else. One pool for every toolchain that links, hence
+# the explicit toolchain: the pool lives in the default one.
+if (current_toolchain == default_toolchain) {
+  pool("link_pool") {
+    depth = link_pool_size
+  }
+}
+
 template("clang_toolchain") {
   not_needed([ "invoker" ])
 
@@ -82,6 +92,8 @@ template("clang_toolchain") {
     }
 
     tool("solink") {
+      pool = ":link_pool($default_toolchain)"
+
       soname = "{{target_output_name}}{{output_extension}}"
       sofile = "{{root_out_dir}}/$soname"
       tocname = sofile + ".TOC"
@@ -108,6 +120,8 @@ template("clang_toolchain") {
     }
 
     tool("link") {
+      pool = ":link_pool($default_toolchain)"
+
       outfile = "{{root_out_dir}}/{{target_output_name}}{{output_extension}}"
       command = "$ld $sysroot -rdynamic {{ldflags}} -o $outfile -Wl,--whole-archive -Wl,--start-group {{inputs}} {{solibs}} -Wl,--end-group -Wl,--no-whole-archive {{libs}}"
       description = "LINK $outfile"

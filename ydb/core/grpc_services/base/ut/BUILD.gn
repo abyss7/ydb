@@ -1,9 +1,12 @@
 unittest_executable("ut") {
   deps = [
     "//library/cpp/testing/unittest",
+    "//ydb/core/base",
     "//ydb/core/grpc_services/base",
     "//ydb/core/path_aliasing",
     "//ydb/core/protos",
+    "//ydb/core/testlib",
+    "//yql/essentials/sql/pg_dummy",  # peerdir only
   ]
 
   sources = [ "path_aliasing_ut.cpp" ]
@@ -11,14 +14,14 @@ unittest_executable("ut") {
   include_dirs = [ "//ydb/core/grpc_services/base" ]
 
   link_select = [
-    "YqlServicePolicy=stub",
+    "YqlServicePolicy=exception_policy",
     "allocator=tcmalloc",
-    "minikql_codegen=no_llvm",
+    "minikql_codegen=llvm16",
     "retro_spans=spans",
     "topic_rpc=persqueue_v1",
-    "wasm=wasm_default",
+    "wasm=engine",
     "yql_pg_runtime=pg_dummy",
     "yql_pg_sql_translator=pg_dummy",
-    "yt_codegen=no_llvm",
+    "yt_codegen=llvm16",
   ]
 }
