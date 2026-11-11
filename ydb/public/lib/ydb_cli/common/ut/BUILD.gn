@@ -4,6 +4,7 @@ unittest_executable("ut") {
     "//contrib/libs/jwt-cpp",  # peerdir only
     "//contrib/libs/protobuf",
     "//contrib/libs/yaml-cpp",
+    "//library/cpp/json",
     "//library/cpp/testing/common",
     "//library/cpp/testing/unittest",
     "//ydb/public/api/protos",
@@ -30,6 +31,7 @@ unittest_executable("ut") {
     "build_info_ut.cpp",
     "markdown_ut.cpp",
     "print_utils_ut.cpp",
+    "query_plan_ut.cpp",
     "tabbed_table_ut.cpp",
     "tx_mode_utils_ut.cpp",
     "utf8_utils_ut.cpp",

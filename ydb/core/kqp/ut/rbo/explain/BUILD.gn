@@ -5,6 +5,7 @@ unittest_executable("explain") {
     "//library/cpp/testing/common",
     "//library/cpp/testing/unittest",
     "//library/cpp/time_provider",
+    "//library/cpp/xml/document",
     "//ydb/core/kqp",  # peerdir only
     "//ydb/core/kqp/common",
     "//ydb/core/kqp/common/events",
@@ -19,7 +20,7 @@ unittest_executable("explain") {
     "//ydb/core/tx/columnshard/engines/scheme",
     "//ydb/library/aclib",
     "//ydb/library/actors/testlib",
-    "//ydb/library/plan2svg",  # peerdir only
+    "//ydb/library/plan2svg",
     "//ydb/library/yql/udfs/statistics_internal",  # peerdir only
     "//ydb/public/lib/ut_helpers",
     "//ydb/public/lib/ydb_cli/common",
