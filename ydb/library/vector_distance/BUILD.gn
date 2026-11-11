@@ -11,5 +11,9 @@ library("vector_distance") {
     "half_distance.cpp",
     "half_distance_avx2.cpp",
     "half_distance_sse.cpp",
+    "int4_distance.cpp",
+    "int4_distance_avx2.cpp",
+    "int4_distance_simple.cpp",
+    "int4_distance_sse.cpp",
   ]
 }

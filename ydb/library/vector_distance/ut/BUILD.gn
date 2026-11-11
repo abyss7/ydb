@@ -1,16 +1,23 @@
 unittest_executable("ut") {
   deps = [
+    "//library/cpp/l1_distance",  # peerdir only
+    "//library/cpp/l2_distance",  # peerdir only
     "//library/cpp/testing/unittest",
     "//ydb/library/vector_distance",
+    "//ydb/library/yql/udfs/common/knn",
   ]
 
   sources = [
     "float8_load_ut.cpp",
     "float8_torch_ut.cpp",
     "float8_ut.cpp",
+    "int4_ut.cpp",
   ]
 
   include_dirs = [ "//ydb/library/vector_distance" ]
 
-  link_select = [ "allocator=tcmalloc" ]
+  link_select = [
+    "YqlServicePolicy=stub",
+    "allocator=tcmalloc",
+  ]
 }

@@ -45,6 +45,7 @@ unittest_executable("ut") {
     "//ydb/core/base/statestorage_ut.cpp",
     "bridge_ut.cpp",
     "fulltext_ut.cpp",
+    "int4_kmeans_ut.cpp",
     "kmeans_ut.cpp",
     "memory_stats_ut.cpp",
     "mon_auth_ut.cpp",
