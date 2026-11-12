@@ -32,6 +32,7 @@ RECURSE(
     fetcher
     ru_quoter
     list_topics
+    metrics
     mlp
     nameresolver
     partition_index_generator
