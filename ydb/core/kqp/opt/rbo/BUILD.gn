@@ -86,6 +86,7 @@ library("rbo") {
     "rules/build_initial_cbo_tree.cpp",
     "rules/constant_folding_stage.cpp",
     "rules/decorrelation/dependent_join_pushdown.cpp",
+    "rules/decorrelation/pull_up_correlated_exists.cpp",
     "rules/disable_blocks_on_columns_limit.cpp",
     "rules/eliminate_left_join.cpp",
     "rules/expand_cbo_tree.cpp",
