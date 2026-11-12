@@ -6,6 +6,7 @@ unittest_executable("ut_comp_defrag") {
     "//ydb/core/blobstorage/vdisk/hullop",
     "//ydb/core/load_test/common",
     "//ydb/core/util",
+    "//ydb/library/actors/core",
   ]
 
   sources = [ "//ydb/core/blobstorage/ut_blobstorage/comp_defrag.cpp" ]
