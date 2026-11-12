@@ -96,6 +96,7 @@ library("rbo") {
     "rules/expand_cbo_tree.cpp",
     "rules/expand_distinct_aggregation.cpp",
     "rules/expand_grouping_sets.cpp",
+    "rules/expand_insert_revert.cpp",
     "rules/expand_replicate.cpp",
     "rules/expand_whole_partition_window.cpp",
     "rules/extract_common_conjuncts.cpp",

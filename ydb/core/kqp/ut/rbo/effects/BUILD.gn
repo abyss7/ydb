@@ -1,7 +1,10 @@
 unittest_executable("effects") {
   deps = [
     "//ydb/core/base",
+    "//ydb/core/cms/console",
     "//ydb/core/kqp",  # peerdir only
+    "//ydb/core/kqp/common/simple",
+    "//ydb/core/kqp/runtime",
     "//ydb/core/kqp/ut/common",
     "//ydb/core/testlib",
     "//ydb/core/tx/data_events",
@@ -17,6 +20,7 @@ unittest_executable("effects") {
     "kqp_inplace_update_ut.cpp",
     "kqp_overload_ut.cpp",
     "kqp_reattach_ut.cpp",
+    "kqp_returning_ut.cpp",
     "kqp_write_ut.cpp",
   ]
 
