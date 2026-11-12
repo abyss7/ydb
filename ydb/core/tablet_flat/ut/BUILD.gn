@@ -92,6 +92,7 @@ unittest_executable("ut") {
     "ut_rename_table_column.cpp",
     "ut_rowlocks.cpp",
     "ut_sausage.cpp",
+    "ut_scan_delta.cpp",
     "ut_screen.cpp",
     "ut_self.cpp",
     "ut_shared_sausagecache.cpp",
