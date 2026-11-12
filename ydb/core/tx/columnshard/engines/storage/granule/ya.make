@@ -2,6 +2,7 @@ LIBRARY()
 
 SRCS(
     granule.cpp  # gn: into ydb/core/tx/columnshard/engines
+    loaded_key_ranges.cpp  # gn: into ydb/core/tx/columnshard/engines
     storage.cpp  # gn: into ydb/core/tx/columnshard/engines
     portions_index.cpp  # gn: into ydb/core/tx/columnshard/engines
     portion_interval_tree.cpp  # gn: into ydb/core/tx/columnshard/engines
@@ -13,6 +14,7 @@ PEERDIR(
     ydb/core/tx/columnshard/engines/storage/actualizer/index
     ydb/core/tx/columnshard/counters
     ydb/core/tx/columnshard/engines/portions
+    ydb/core/tx/columnshard/engines/predicate
     ydb/core/tx/columnshard/hooks/abstract
     ydb/core/base
     ydb/core/formats/arrow/reader
