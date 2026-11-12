@@ -49,6 +49,7 @@ skipped (non-trivial):
   ydb/tests/fq/streaming_common/vm_metadata_emulator/recipe PY3_PROGRAM,PY_SRCS,STYLE_PYTHON
   ydb/tests/fq/tools PY3_LIBRARY,PY_SRCS,STYLE_PYTHON
   ydb/tests/functional/sdk/cpp/path_aliasing/recipe PY3_PROGRAM,PY_SRCS
+  ydb/tests/functional/sdk/cpp/relative_database/recipe PY3_PROGRAM,PY_SRCS
   ydb/tests/functional/secrets/lib PY3_LIBRARY,PY_SRCS
   ydb/tests/functional/security/lib PY3_LIBRARY,PY_SRCS
   ydb/tests/functional/tpc/lib PY3_LIBRARY,PY_SRCS
