@@ -1367,11 +1367,13 @@ def status(args):
         c = classify(root, git, u, keeps, since)
         yamake = sum(1 for _, p in changes(git, since or u + "^1", u) if os.path.basename(p) == "ya.make")
         mark = "REVIEW" if c["review"] else ("docs" if not c["build"] else "")
-        say("  %s %s %-6s %4d files %3d ya.make  %s%s%s" % (
-            git.short(u), git.out("log", "-1", "--format=%cs", u), mark, c["files"], yamake,
-            git.subject(u)[:70], ("  <- current" if u == current else "")
-            + ("  [--run]" if limit is not None and queue.index(u) < limit else ""),
-            "  [--only-head]" if args.only_head else ""))
+        tail = [t for t in (mark,
+                            "<- current" if u == current else "",
+                            "[--run]" if limit is not None and queue.index(u) < limit else "",
+                            "[--only-head]" if args.only_head else "") if t]
+        say(("  %s %s %4d files %3d ya.make  %-70s%s" % (
+            git.short(u), git.out("log", "-1", "--format=%cs", u), c["files"], yamake,
+            git.subject(u)[:70], "".join("  " + t for t in tail))).rstrip())
         for why, path in (c["review"] + c["info"])[:40]:
             say("        %-24s %s" % (why, path))
         if len(c["review"] + c["info"]) > 40:
