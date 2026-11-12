@@ -97,6 +97,7 @@ library("engines") {
     "storage/actualizer/tiering/counters.cpp",
     "storage/actualizer/tiering/tiering.cpp",
     "storage/granule/granule.cpp",
+    "storage/granule/loaded_key_ranges.cpp",
     "storage/granule/portion_interval_tree.cpp",
     "storage/granule/portions_index.cpp",
     "storage/granule/stages.cpp",

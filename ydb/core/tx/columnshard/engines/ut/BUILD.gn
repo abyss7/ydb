@@ -62,6 +62,7 @@ unittest_executable("ut") {
     "ut_bloom_ngram_size.cpp",
     "ut_index_blob_size_limit.cpp",
     "ut_index_info_schema_diff.cpp",
+    "ut_loaded_key_ranges.cpp",
     "ut_minmax_index.cpp",
     "ut_portion_blob_validation.cpp",
     "ut_predicate_ranges_builder.cpp",

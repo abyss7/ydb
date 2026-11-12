@@ -227,6 +227,7 @@ library("columnshard") {
     "engines/reader/simple_reader/constructor/constructor.cpp",
     "engines/reader/simple_reader/constructor/read_metadata.cpp",
     "engines/reader/transaction/common.cpp",
+    "engines/reader/transaction/scan_gate.cpp",
     "engines/reader/transaction/tx_internal_scan.cpp",
     "engines/reader/transaction/tx_scan.cpp",
     "engines/reader/trivial_reader/constructor/constructor.cpp",
