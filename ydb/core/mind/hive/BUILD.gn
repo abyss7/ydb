@@ -21,6 +21,7 @@ library("hive") {
   ]
 
   deps = [
+    # "//contrib/libs/protobuf",
     "//library/cpp/digest/md5",
     "//library/cpp/html/pcdata",
     # "//library/cpp/json",
