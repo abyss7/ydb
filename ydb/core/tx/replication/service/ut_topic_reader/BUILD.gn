@@ -5,6 +5,7 @@ unittest_executable("ut_topic_reader") {
     "//ydb/core/tx/replication/service",
     "//ydb/core/tx/replication/ut_helpers",
     "//ydb/core/tx/replication/ydb_proxy",
+    "//ydb/core/tx/replication/ydb_proxy/local_proxy",  # peerdir only
     "//ydb/public/sdk/cpp/src/client/topic",
     "//ydb/services/persqueue_v1/actors",
   ]
