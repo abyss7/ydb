@@ -12,6 +12,7 @@ unittest_executable("ut") {
     "//ydb/core/testlib/actors",
     "//ydb/core/testlib/default",  # peerdir only
     "//ydb/core/tx/schemeshard",
+    "//ydb/core/util",
     "//ydb/public/api/protos",
     "//ydb/public/lib/deprecated/kicli",
   ]
