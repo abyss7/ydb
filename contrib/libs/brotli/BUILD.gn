@@ -2,10 +2,6 @@ config("public_config") {
     include_dirs = [ "c/include" ]
 }
 
-config("private_config") {
-    defines = [ "BROTLI_HAVE_LOG2=1" ]
-}
-
 contrib_library("common") {
     sources = [
         "c/common/constants.c",
@@ -17,7 +13,6 @@ contrib_library("common") {
     ]
 
     public_configs = [ ":public_config" ]
-    configs = [ ":private_config" ]
 }
 
 contrib_library("dec") {
@@ -27,10 +22,10 @@ contrib_library("dec") {
         "c/dec/bit_reader.c",
         "c/dec/decode.c",
         "c/dec/huffman.c",
+        "c/dec/prefix.c",
         "c/dec/state.c",
+        "c/dec/static_init.c",
     ]
-
-    configs = [ ":private_config" ]
 }
 
 contrib_library("enc") {
@@ -57,10 +52,10 @@ contrib_library("enc") {
         "c/enc/memory.c",
         "c/enc/metablock.c",
         "c/enc/static_dict.c",
+        "c/enc/static_dict_lut.c",
+        "c/enc/static_init.c",
         "c/enc/utf8_util.c",
     ]
-
-    configs = [ ":private_config" ]
 }
 
 group("brotli") {

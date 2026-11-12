@@ -903,12 +903,15 @@ class Follower:
             full = os.path.join(self.root, target)
             old = read_text(full) if os.path.exists(full) else ""
             prefix = "" if target == REVIEW_FILE else "# "
-            write_text(full, "".join("%sgn-follow: REVIEW %s: %s\n" % (prefix, short, i) for i in items) + old)
+            block = "".join("%sgn-follow: REVIEW %s: %s\n" % (prefix, short, i) for i in items)
+            if block in old:        # a run that stopped after writing them
+                continue
+            write_text(full, block + old)
         raise Stop("review", "%s touches what the generator does not carry over; a marker line "
                    "(`gn-follow: REVIEW`) is put at the top of:\n%s\n\nMirror the change there by hand "
                    "(nothing to mirror: just delete the line), delete the marker lines, then run again."
-                   % (short, listing("%s\n%s" % (t, listing(items, 20, "      "))
-                                     for t, items in sorted(targets.items())), 30))
+                   % (short, listing(("%s\n%s" % (t, listing(items, 20, "      "))
+                                      for t, items in sorted(targets.items())), 30)))
 
     def regen(self, step, rec, idempotence):
         py = self.args.python

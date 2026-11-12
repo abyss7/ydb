@@ -1,3 +1,4 @@
+import ast
 import contextlib
 import io
 import os
@@ -455,6 +456,57 @@ class NeedGenTest(unittest.TestCase):
         self.assertTrue(follow.gen_input("x/BUILD.gn"))
         self.assertFalse(follow.gen_input("x/ya.make"))
         self.assertFalse(follow.gen_input("x/health_check_ut.cpp"))
+
+
+def percent_messages(path):
+    """(line, text, value expression) of every `%`-formatted string literal."""
+    for node in ast.walk(ast.parse(open(path).read())):
+        if not (isinstance(node, ast.BinOp) and isinstance(node.op, ast.Mod)):
+            continue
+        left, parts = node.left, []
+        while isinstance(left, ast.BinOp) and isinstance(left.op, ast.Add) and isinstance(left.right, ast.Constant):
+            parts.insert(0, left.right.value)
+            left = left.left
+        if isinstance(left, ast.Constant) and isinstance(left.value, str):
+            parts.insert(0, left.value)
+            yield node.lineno, "".join(parts), node.right
+
+
+def percent_specs(text):
+    """How many values the string wants."""
+    specs, i = 0, 0
+    while i < len(text) - 1:
+        if text[i] == "%":
+            if text[i + 1] == "%":
+                i += 2
+                continue
+            specs += 1
+            while i + 1 < len(text) and text[i + 1] not in "sdrfx":
+                i += 1
+        i += 1
+    return specs
+
+
+class MessageFormatTest(unittest.TestCase):
+    """A STOP message is the explanation of the stop: a `%` with the wrong
+    number of values raises inside the raise and hides it (the review STOP did,
+    2026-11-12: the `30` limit went into the tuple of values, not into the
+    listing() call)."""
+
+    def test_every_message_has_its_values(self):
+        path = os.path.join(os.path.dirname(os.path.abspath(follow.__file__)), "follow.py")
+        bad = []
+        for line, text, value in percent_messages(path):
+            specs = percent_specs(text)
+            if isinstance(value, ast.Tuple):
+                values = len(value.elts)
+            elif specs == 1:
+                values = 1
+            else:
+                continue        # a named value: its arity is not visible here
+            if specs != values:
+                bad.append("%s:%d: %d specs, %d values" % (os.path.basename(path), line, specs, values))
+        self.assertEqual(bad, [])
 
 
 if __name__ == "__main__":
