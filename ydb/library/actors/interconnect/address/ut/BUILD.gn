@@ -1,0 +1,12 @@
+unittest_executable("ut") {
+  deps = [
+    "//library/cpp/testing/unittest",
+    "//ydb/library/actors/interconnect/address",
+  ]
+
+  sources = [ "interconnect_address_ut.cpp" ]
+
+  include_dirs = [ "//ydb/library/actors/interconnect/address" ]
+
+  link_select = [ "allocator=tcmalloc" ]
+}

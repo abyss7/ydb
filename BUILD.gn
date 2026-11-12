@@ -670,6 +670,7 @@ group("tests") {
         "//ydb/library/actors/dnsresolver/ut",
         "//ydb/library/actors/helpers/ut",
         "//ydb/library/actors/http/ut",
+        "//ydb/library/actors/interconnect/address/ut",
         "//ydb/library/actors/interconnect/bench:ic_bench",
         "//ydb/library/actors/interconnect/rdma/ut",
         "//ydb/library/actors/interconnect/rdma/ut_mem_pool_limit_128",
