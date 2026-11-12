@@ -33,6 +33,7 @@ library("pqrb") {
     # "//library/cpp/monlib/service/pages",
     # "//library/cpp/random_provider",
     # "//library/cpp/string_utils/base64",
+    "//ydb/core/persqueue/public/metrics",
     # "//ydb/core/persqueue/public/partition_key_range",
     "//ydb/core/protos/schemeshard",
     # "//ydb/library/yverify_stream",

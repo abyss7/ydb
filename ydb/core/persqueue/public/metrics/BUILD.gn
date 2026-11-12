@@ -1,0 +1,10 @@
+library("metrics") {
+  public_deps = [ "//ydb/core/protos" ]
+
+  deps = [
+    "//ydb/core/base",
+    "//ydb/library/persqueue/topic_parser",
+  ]
+
+  sources = [ "metrics.cpp" ]
+}

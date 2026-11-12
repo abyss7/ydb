@@ -402,6 +402,7 @@ group("tests") {
         "//ydb/core/persqueue/public/describer/ut",
         "//ydb/core/persqueue/public/fetcher/ut",
         "//ydb/core/persqueue/public/list_topics/ut",
+        "//ydb/core/persqueue/public/metrics/ut",
         "//ydb/core/persqueue/public/mlp/ut",
         "//ydb/core/persqueue/public/mlp/ut/pipe",
         "//ydb/core/persqueue/public/nameresolver/ut",

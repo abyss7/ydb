@@ -25,6 +25,7 @@ library("sqs_topic") {
     # "//ydb/core/persqueue/events",
     # "//ydb/core/persqueue/public",
     "//ydb/core/persqueue/public/list_topics",
+    "//ydb/core/persqueue/public/metrics",
     "//ydb/core/persqueue/public/ru_quoter",
     # "//ydb/core/persqueue/public/schema",
     # "//ydb/core/tx/scheme_cache",

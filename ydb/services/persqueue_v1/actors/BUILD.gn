@@ -46,6 +46,7 @@ library("actors") {
     # "//ydb/core/persqueue/public/cluster_tracker",  # peerdir only
     "//ydb/core/persqueue/public/codecs",
     "//ydb/core/persqueue/public/dataplane",
+    "//ydb/core/persqueue/public/metrics",
     "//ydb/core/persqueue/public/reset_offset",
     "//ydb/core/persqueue/public/write_meta",
     # "//ydb/core/ydb_convert",

@@ -34,6 +34,7 @@ library("tablet") {
     "//ydb/core/graph/shard/protos",
     # "//ydb/core/mind",
     # "//ydb/core/mon_alloc",  # peerdir only
+    "//ydb/core/persqueue/public/metrics",
     "//ydb/core/tracing",
     # "//ydb/core/tx",
     # "//ydb/core/tx/columnshard/common",

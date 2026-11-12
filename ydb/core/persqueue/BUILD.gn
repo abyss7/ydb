@@ -44,6 +44,7 @@ library("persqueue") {
     "//ydb/core/persqueue/pqtablet/partition/mlp",
     # "//ydb/core/persqueue/public/fetcher",  # peerdir only
     # "//ydb/core/persqueue/public/list_topics",  # peerdir only
+    "//ydb/core/persqueue/public/metrics",
     "//ydb/core/persqueue/public/write_meta",
     "//ydb/core/persqueue/writer",
     # "//ydb/core/quoter/public",
