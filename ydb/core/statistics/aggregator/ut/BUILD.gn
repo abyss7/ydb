@@ -39,6 +39,7 @@ unittest_executable("ut") {
     "ut_analyze.cpp",
     "ut_analyze_op.cpp",
     "ut_analyze_sampling.cpp",
+    "ut_base_statistics_counters.cpp",
     "ut_key_range_predicate.cpp",
     "ut_traverse.cpp",
   ]
