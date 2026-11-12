@@ -78,7 +78,7 @@ JOIN_SRCS(
     build_initial_cbo_tree.cpp  # gn: into ydb/core/kqp/opt/rbo
     constant_folding_stage.cpp  # gn: into ydb/core/kqp/opt/rbo
     decorrelation/dependent_join_pushdown.cpp  # gn: into ydb/core/kqp/opt/rbo
-    decorrelation/pull_up_correlated_exists.cpp # gn: into ydb/core/kqp/opt/rbo
+    decorrelation/pull_up_correlated_predicate.cpp # gn: into ydb/core/kqp/opt/rbo
     disable_blocks_on_columns_limit.cpp  # gn: into ydb/core/kqp/opt/rbo
     eliminate_left_join.cpp  # gn: into ydb/core/kqp/opt/rbo
     fuse_filters.cpp  # gn: into ydb/core/kqp/opt/rbo
