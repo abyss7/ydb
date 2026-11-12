@@ -21,6 +21,7 @@ unittest_executable("ut_change_exchange") {
     "//ydb/core/tx/datashard",
     "//ydb/core/tx/datashard/ut_common",
     "//ydb/core/tx/scheme_board",
+    "//ydb/core/tx/schemeshard",
     "//ydb/core/tx/schemeshard/ut_helpers",
     "//ydb/core/tx/tx_proxy:public",
     "//ydb/library/aclib",
