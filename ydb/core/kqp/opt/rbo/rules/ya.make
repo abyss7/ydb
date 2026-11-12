@@ -1,6 +1,7 @@
 YQL_LIBRARY()
 
 SRCS(
+    expand_insert_revert.cpp  # gn: into ydb/core/kqp/opt/rbo
     expand_replicate.cpp  # gn: into ydb/core/kqp/opt/rbo
     inline_join_filters.cpp  # gn: into ydb/core/kqp/opt/rbo
     propagate_topsort_through_stage.cpp  # gn: into ydb/core/kqp/opt/rbo
