@@ -804,6 +804,7 @@ group("tests") {
         "//ydb/public/lib/ydb_cli/common/ut",
         "//ydb/public/lib/ydb_cli/common/yql_parser/ut",
         "//ydb/public/lib/ydb_cli/dump/ut",
+        "//ydb/public/lib/ydb_cli/dump/util/ut",
         "//ydb/public/lib/ydb_cli/import/ut",
         "//ydb/public/lib/ydb_cli/topic/ut",
         "//ydb/public/sdk/cpp/src/client/federated_topic/ut",

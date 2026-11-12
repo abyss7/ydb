@@ -1,0 +1,23 @@
+unittest_executable("ut") {
+  deps = [
+    "//library/cpp/testing/unittest",
+    "//ydb/public/api/protos",
+    "//ydb/public/lib/ydb_cli/dump/util",
+    "//ydb/public/sdk/cpp/src/client/draft",
+    "//yql/essentials/public/udf",
+  ]
+
+  sources = [ "replication_utils_ut.cpp" ]
+
+  link_select = [
+    "YqlServicePolicy=stub",
+    "allocator=tcmalloc",
+    "minikql_codegen=no_llvm",
+    "retro_spans=spans",
+    "topic_rpc=persqueue_v1",
+    "wasm=wasm_default",
+    "yql_pg_runtime=pg_dummy",
+    "yql_pg_sql_translator=pg_dummy",
+    "yt_codegen=no_llvm",
+  ]
+}
