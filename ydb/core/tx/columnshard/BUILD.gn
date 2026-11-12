@@ -259,9 +259,11 @@ library("columnshard") {
   ]
 
   serialize_enum_headers = [
+    "backup/import/import_actor.h",
     "backup/import/session.h",
     "columnshard.h",
     "columnshard_impl.h",
+    "export/actor/export_actor.h",
     "export/session/session.h",
     "transactions/tx_controller.h",
   ]
