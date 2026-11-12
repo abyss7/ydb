@@ -200,7 +200,8 @@ namespace NKikimr::NBsController {
             return Type.GetErasure();
         }
 
-        bool MatchesGroup(const TBlobStorageController::TGroupInfo& group) const {
+        template <typename TGroup>
+        bool MatchesGroup(const TGroup& group) const {
             return group.ErasureSpecies == GetErasure()
                 && group.Topology->GetTotalFailRealmsNum() == GetNumFailRealms()
                 && group.Topology->GetNumFailDomainsPerFailRealm() == GetNumFailDomainsPerFailRealm()
