@@ -9,6 +9,7 @@ unittest_executable("ut_with_sdk") {
     "//ydb/core/persqueue/events",
     "//ydb/core/persqueue/pqrb",
     "//ydb/core/persqueue/pqtablet/partition/mirrorer",
+    "//ydb/core/persqueue/public/mlp/ut/common",
     "//ydb/core/persqueue/public/partition_key_range",
     "//ydb/core/persqueue/ut/common",
     "//ydb/core/persqueue/ut/common:pq_ut_common",
