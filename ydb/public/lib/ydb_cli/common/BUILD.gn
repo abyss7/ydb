@@ -19,7 +19,6 @@ library("common") {
     "//ydb/library/plan2svg",
     "//ydb/public/api/protos",
     "//ydb/public/lib/json_value",
-    # "//ydb/public/lib/ydb_cli/commands/command_base",
     "//ydb/public/sdk/cpp/src/client/coordination",
     "//ydb/public/sdk/cpp/src/client/draft",
     "//ydb/public/sdk/cpp/src/client/driver",
@@ -41,7 +40,6 @@ library("common") {
   ]
 
   deps = [
-    ":yql_parser",
     "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-core",
     "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-s3",
     "//contrib/libs/openssl",
@@ -91,7 +89,6 @@ library("common") {
     "oidc_options.cpp",
     "oidc_token_cache.cpp",
     "parameter_stream.cpp",
-    "parameters.cpp",
     "pg_dump_parser.cpp",
     "pretty_table.cpp",
     "print_operation.cpp",
@@ -118,10 +115,7 @@ library("common") {
     "yt.cpp",
   ]
 
-  serialize_enum_headers = [
-    "formats.h",
-    "parameters.h",
-  ]
+  serialize_enum_headers = [ "formats.h" ]
 }
 
 library("ini_config") {
@@ -138,19 +132,4 @@ library("retry_func") {
   ]
 
   sources = [ "retry_func.cpp" ]
-}
-
-library("yql_parser") {
-  public_deps = [ "//ydb/public/sdk/cpp/src/client/value" ]
-
-  deps = [
-    # "//ydb/public/sdk/cpp/src/client/types",  # peerdir only
-    # "//yql/essentials/public/issue",
-    # "//yql/essentials/sql/settings",
-    "//yql/essentials/sql/v1/lexer",
-    "//yql/essentials/sql/v1/lexer/antlr4",
-    "//yql/essentials/sql/v1/lexer/antlr4_ansi",
-  ]
-
-  sources = [ "yql_parser/yql_parser.cpp" ]
 }

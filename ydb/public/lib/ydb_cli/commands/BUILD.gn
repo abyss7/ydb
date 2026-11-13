@@ -18,6 +18,7 @@ library("commands") {
     "//ydb/public/sdk/cpp/src/client/discovery",
     # "//ydb/public/sdk/cpp/src/client/draft",
     "//ydb/public/sdk/cpp/src/client/driver",
+    # "//ydb/public/sdk/cpp/src/client/params",
     # "//ydb/public/sdk/cpp/src/client/persqueue_public",
     "//ydb/public/sdk/cpp/src/client/query",
     "//ydb/public/sdk/cpp/src/client/scheme",
@@ -27,6 +28,7 @@ library("commands") {
   ]
 
   deps = [
+    ":yql_parser",
     "//contrib/libs/apache/arrow",
     "//contrib/libs/fmt",
     "//contrib/libs/ftxui",
@@ -130,6 +132,7 @@ library("commands") {
     "//ydb/library/workload/vector/vector_workload_generator.cpp",
     "//ydb/library/workload/vector/vector_workload_params.cpp",
     "benchmark_utils.cpp",
+    "parameters.cpp",
     "sqs_workload/http_client.cpp",
     "sqs_workload/message_groups_locker.cpp",
     "sqs_workload/sqs_client_wrapper.cpp",
@@ -213,8 +216,26 @@ library("commands") {
     "//ydb/library/workload/tpcc/constants.h",
     "//ydb/library/workload/tpcc/runner.h",
     "//ydb/library/workload/vector/vector_enums.h",
+    "parameters.h",
     "tx_mode.h",
     "ydb_latency.h",
     "ydb_ping.h",
   ]
+}
+
+library("yql_parser") {
+  public_deps = [
+    "//ydb/public/sdk/cpp/src/client/value",
+  ]
+
+  deps = [
+    # "//ydb/public/sdk/cpp/src/client/types",  # peerdir only
+    # "//yql/essentials/public/issue",
+    "//yql/essentials/sql/settings",
+    "//yql/essentials/sql/v1/lexer",
+    "//yql/essentials/sql/v1/lexer/antlr4",
+    "//yql/essentials/sql/v1/lexer/antlr4_ansi",
+  ]
+
+  sources = [ "yql_parser/yql_parser.cpp" ]
 }
