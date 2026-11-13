@@ -940,8 +940,8 @@ Y_UNIT_TEST_SUITE(KqpRboYql) {
         hub->GetInput()->Props.StageId = producerStage.Id();
         leftPtr->Props.StageId = rightPtr->Props.StageId = producerStage.Id();
         mergePtr->Props.StageId = unionStage.Id();
-        root->PlanProps.BindStageInput(*mergePtr, 0, graph.Connect(producerStage, unionStage, MakeIntrusive<TMergeConnection>(TSortIUs{{b, {true, true}}}, 0)));
-        root->PlanProps.BindStageInput(*mergePtr, 1, graph.Connect(producerStage, unionStage, MakeIntrusive<TShuffleConnection>(TOrderedIUs<>{rightC}, 1)));
+        root->PlanProps.BindStageInput(*mergePtr, 0, graph.Connect(producerStage, unionStage, MakeIntrusive<TMergeConnection>(TSortIUs{{b, {true, true}}}, 0u)));
+        root->PlanProps.BindStageInput(*mergePtr, 1, graph.Connect(producerStage, unionStage, MakeIntrusive<TShuffleConnection>(TOrderedIUs<>{rightC}, 1u)));
         ComputePlanLiveness(*root);
         UNIT_ASSERT(GetLiveOut(leftPtr) == (TUnorderedIUs{a, b}));
         UNIT_ASSERT(GetLiveOut(rightPtr) == (TUnorderedIUs{rightA, rightC}));

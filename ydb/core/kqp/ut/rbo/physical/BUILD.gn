@@ -45,6 +45,7 @@ unittest_executable("physical") {
     "kqp_rbo_compatibility_ut.cpp",
     "kqp_rbo_lowering_ut.cpp",
     "kqp_rbo_yql_physical_ut.cpp",
+    "kqp_stage_graph_ut.cpp",
   ]
 
   include_dirs = [

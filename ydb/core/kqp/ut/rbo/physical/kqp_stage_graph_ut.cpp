@@ -66,7 +66,7 @@ Y_UNIT_TEST_SUITE(KqpStageGraph) {
         TStageGraph graph;
         const auto& source = graph.AddStage();
         const auto& consumer = graph.AddStage();
-        auto settings = MakeIntrusive<TShuffleConnection>(TOrderedIUs<>{}, 7);
+        auto settings = MakeIntrusive<TShuffleConnection>(TOrderedIUs<>{}, 7u);
         auto& edge = graph.Connect(source, consumer, settings);
         edge.SetShuffleHashFunction(NYql::NDq::EHashShuffleFuncType::HashV2);
         UNIT_ASSERT(!settings->HashFuncType);
@@ -76,9 +76,9 @@ Y_UNIT_TEST_SUITE(KqpStageGraph) {
         UNIT_ASSERT_EXCEPTION(edge.SetStreamLookupInputType({}), yexception);
         UNIT_ASSERT_VALUES_EQUAL(graph.AllocateOutput(source), 8);
         UNIT_ASSERT_VALUES_EQUAL(graph.GetOutput(source, 7), 7);
-        UNIT_ASSERT_EXCEPTION(edge.ReplaceConnection(MakeIntrusive<TMapConnection>(0)), yexception);
+        UNIT_ASSERT_EXCEPTION(edge.ReplaceConnection(MakeIntrusive<TMapConnection>(0u)), yexception);
         const auto id = edge.Id();
-        edge.ReplaceConnection(MakeIntrusive<TMergeConnection>(TSortIUs{}, 7));
+        edge.ReplaceConnection(MakeIntrusive<TMergeConnection>(TSortIUs{}, 7u));
         UNIT_ASSERT(edge.Id() == id);
         UNIT_ASSERT(IsConnection<TMergeConnection>(edge.Connection()));
         UNIT_ASSERT_VALUES_EQUAL(edge.OutputIndex(), 7);
