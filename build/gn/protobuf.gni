@@ -107,6 +107,7 @@ template("protobuf_sources") {
         script = "//build/gn/scripts/protoc.py"
         sources = invoker.sources
         inputs = [ _proto_includes_file ]
+        depfile = "$_out_base/{{source_name_part}}.${_action}.d"
         outputs = [
             "$_out_base/{{source_name_part}}.pb.cc",
             "$_out_base/{{source_name_part}}.pb.h",
@@ -125,7 +126,10 @@ template("protobuf_sources") {
         foreach(_o, outputs) {
             _output_args += [ string_replace(_o, _out_base, _out_base_arg) ]
         }
-        args = [ _source_dir ] + _output_args + ["--"] + [ "./$_protoc_bin" ] + _proto_paths + _self_proto_paths
+        # The wrapper rebases protoc's transitive imports to root_build_dir
+        # and replaces its temporary output paths with the declared outputs.
+        _depfile_arg = string_replace(depfile, _out_base, _out_base_arg)
+        args = [ _source_dir, "--depfile", _depfile_arg ] + _output_args + ["--"] + [ "./$_protoc_bin" ] + _proto_paths + _self_proto_paths
         args += [
             "--cpp_out", _cpp_out,
             "--cpp_styleguide_out", _cpp_out,

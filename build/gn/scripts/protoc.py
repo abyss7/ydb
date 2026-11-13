@@ -187,6 +187,31 @@ def commit_outputs(redirects, declared_outputs):
                 os.replace(generated, target)
 
 
+def commit_depfile(raw_depfile, depfile, outputs, build_dir):
+    # This protoc writes unescaped disk paths, one prerequisite per continued
+    # line. They are relative to source_dir, its cwd. Keep spaces within paths.
+    with open(raw_depfile, encoding="utf-8") as f:
+        _, separator, prerequisites = f.read().partition(": ")
+    if not separator:
+        raise ValueError("protoc.py: invalid dependency file: " + raw_depfile)
+    dependencies = [path.strip() for path in prerequisites.split("\\\n") if path.strip()]
+
+    def escape_path(path):
+        path = os.path.relpath(os.path.join(source_dir, path), build_dir)
+        return (path.replace("\\", "\\\\").replace("$", "$$")
+                .replace(" ", "\\ ").replace("\t", "\\\t")
+                .replace("#", "\\#").replace(":", "\\:"))
+
+    # Do not use protoc's targets: they are in scratch_dir, and lite headers
+    # have not yet been renamed there. Ninja needs the actual declared outputs.
+    targets = " ".join(escape_path(path) for path in outputs)
+    inputs = " ".join(escape_path(path) for path in dependencies)
+    with open(raw_depfile, "w", encoding="utf-8") as f:
+        f.write(targets + ": " + inputs + "\n")
+    os.makedirs(os.path.dirname(depfile), exist_ok=True)
+    os.replace(raw_depfile, depfile)
+
+
 # returns patched content and number of changes.
 def patch_output(content, lite=False):
     num_patches = 0
@@ -203,8 +228,13 @@ def patch_output(content, lite=False):
 
 # Main script
 # scratch dir is in the build dir: same filesystem as outputs, so os.replace() is atomic
-scratch_dir = tempfile.mkdtemp(prefix=".protoc.", dir=os.getcwd())
+build_dir = os.getcwd()
+scratch_dir = tempfile.mkdtemp(prefix=".protoc.", dir=build_dir)
 args = sys.argv[2:]
+depfile = None
+if args[:1] == ["--depfile"]:
+    depfile = os.path.abspath(args[1])
+    del args[:2]
 outputs = parse_outputs(args)
 lite = LITE_HEADERS_OPT in args
 args = expand_include_paths_files(args)
@@ -213,15 +243,19 @@ shift_output_dirs(args, relativize_proto_sources(args, source_dir))
 os.chdir(source_dir)
 try:
     redirects = redirect_output_dirs(args, scratch_dir)
+    if depfile:
+        raw_depfile = os.path.join(scratch_dir, "imports.d")
+        args.append("--dependency_out=" + raw_depfile)
     env = dict(os.environ, PROTOC_PLUGINS_LITE_HEADERS="1") if lite else None
     exit = subprocess.call(args, env=env)
     if exit != 0: sys.exit(exit)
     if lite:
         rename_lite_headers(redirects)
     commit_outputs(redirects, set(os.path.normpath(output) for output in outputs))
+    for output in outputs:
+        if not os.path.exists(output):
+            sys.exit("protoc.py: output was not generated: " + output)
+    if depfile:
+        commit_depfile(raw_depfile, depfile, outputs, build_dir)
 finally:
     shutil.rmtree(scratch_dir, ignore_errors=True)
-
-for output in outputs:
-    if not os.path.exists(output):
-        sys.exit("protoc.py: output was not generated: " + output)

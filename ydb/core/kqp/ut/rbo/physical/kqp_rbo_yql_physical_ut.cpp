@@ -1487,7 +1487,7 @@ Y_UNIT_TEST_SUITE(KqpRboYql) {
             };
 
             // A limit of any size works, including the way "all rows after the offset" is written, which must not overflow.
-            for (const TString limit : {TString("1000000"), TString("1000000000000"), ToString(maxLimit)}) {
+            for (const TString& limit : {TString("1000000"), TString("1000000000000"), ToString(maxLimit)}) {
                 // The maximum limit keeps every row, so it needs no top-N.
                 const auto assertSort = [&](const TString& ast, const TString& query) {
                     if (limit == ToString(maxLimit)) {
