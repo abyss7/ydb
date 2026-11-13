@@ -5,6 +5,7 @@ unittest_executable("ut") {
     "//ydb/core/engine",
     "//ydb/core/engine/minikql",
     "//ydb/core/kqp/ut/common",
+    "//ydb/core/scheme",
     "//ydb/core/scheme_types",
     "//ydb/core/tablet_flat",
     "//ydb/core/tablet_flat/test/libs/table",
@@ -14,6 +15,7 @@ unittest_executable("ut") {
     "//yql/essentials/minikql/comp_nodes",
     "//yql/essentials/minikql/computation",
     "//yql/essentials/minikql/invoke_builtins",
+    "//yql/essentials/public/udf",
     "//yql/essentials/public/udf/service/exception_policy",  # peerdir only
     "//yql/essentials/sql/pg_dummy",  # peerdir only
   ]
