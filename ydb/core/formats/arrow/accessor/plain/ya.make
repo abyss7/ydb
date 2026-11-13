@@ -1,5 +1,7 @@
 YQL_LIBRARY()
 
+# gn: into ydb/core/formats/arrow
+
 PEERDIR(
     ydb/core/formats/arrow
     ydb/core/formats/arrow/accessor/abstract
@@ -8,9 +10,9 @@ PEERDIR(
 )
 
 SRCS(
-    accessor.cpp  # gn: into ydb/core/formats/arrow
-    GLOBAL constructor.cpp  # gn: into ydb/core/formats/arrow
-    GLOBAL request.cpp  # gn: into ydb/core/formats/arrow
+    accessor.cpp
+    GLOBAL constructor.cpp
+    GLOBAL request.cpp
 )
 
 END()

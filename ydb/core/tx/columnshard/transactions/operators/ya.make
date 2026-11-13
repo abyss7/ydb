@@ -1,11 +1,13 @@
 LIBRARY()
 
+# gn: into ydb/core/tx/columnshard
+
 SRCS(
-    GLOBAL schema.cpp  # gn: into ydb/core/tx/columnshard
-    GLOBAL backup.cpp  # gn: into ydb/core/tx/columnshard
-    GLOBAL sharing.cpp  # gn: into ydb/core/tx/columnshard
-    GLOBAL restore.cpp  # gn: into ydb/core/tx/columnshard
-    propose_tx.cpp  # gn: into ydb/core/tx/columnshard
+    GLOBAL schema.cpp
+    GLOBAL backup.cpp
+    GLOBAL sharing.cpp
+    GLOBAL restore.cpp
+    propose_tx.cpp
 )
 
 PEERDIR(

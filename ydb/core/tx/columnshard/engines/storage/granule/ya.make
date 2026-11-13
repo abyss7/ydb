@@ -1,12 +1,14 @@
 LIBRARY()
 
+# gn: into ydb/core/tx/columnshard/engines
+
 SRCS(
-    granule.cpp  # gn: into ydb/core/tx/columnshard/engines
-    loaded_key_ranges.cpp  # gn: into ydb/core/tx/columnshard/engines
-    storage.cpp  # gn: into ydb/core/tx/columnshard/engines
-    portions_index.cpp  # gn: into ydb/core/tx/columnshard/engines
-    portion_interval_tree.cpp  # gn: into ydb/core/tx/columnshard/engines
-    stages.cpp  # gn: into ydb/core/tx/columnshard/engines
+    granule.cpp
+    loaded_key_ranges.cpp
+    storage.cpp
+    portions_index.cpp
+    portion_interval_tree.cpp
+    stages.cpp
 )
 
 PEERDIR(

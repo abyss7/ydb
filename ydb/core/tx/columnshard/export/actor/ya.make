@@ -1,7 +1,9 @@
 LIBRARY()
 
+# gn: into ydb/core/tx/columnshard
+
 SRCS(
-    export_actor.cpp  # gn: into ydb/core/tx/columnshard
+    export_actor.cpp
 )
 
 PEERDIR(

@@ -1,5 +1,7 @@
 YQL_LIBRARY()
 
+# gn: into ydb/core/formats/arrow
+
 PEERDIR(
     contrib/libs/apache/arrow
     ydb/services/metadata/abstract
@@ -9,11 +11,11 @@ PEERDIR(
 )
 
 SRCS(
-    abstract.cpp  # gn: into ydb/core/formats/arrow
-    GLOBAL native.cpp  # gn: into ydb/core/formats/arrow
-    stream.cpp  # gn: into ydb/core/formats/arrow
-    parsing.cpp  # gn: into ydb/core/formats/arrow
-    utils.cpp  # gn: into ydb/core/formats/arrow
+    abstract.cpp
+    GLOBAL native.cpp
+    stream.cpp
+    parsing.cpp
+    utils.cpp
 )
 
 END()

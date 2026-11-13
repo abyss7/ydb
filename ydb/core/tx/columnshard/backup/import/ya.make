@@ -1,10 +1,12 @@
 LIBRARY()
 
+# gn: into ydb/core/tx/columnshard
+
 SRCS(
-    GLOBAL session.cpp  # gn: into ydb/core/tx/columnshard
-    GLOBAL task.cpp  # gn: into ydb/core/tx/columnshard
-    GLOBAL control.cpp  # gn: into ydb/core/tx/columnshard
-    import_actor.cpp  # gn: into ydb/core/tx/columnshard
+    GLOBAL session.cpp
+    GLOBAL task.cpp
+    GLOBAL control.cpp
+    import_actor.cpp
 )
 
 PEERDIR(

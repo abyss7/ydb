@@ -1,5 +1,7 @@
 YQL_LIBRARY()
 
+# gn: into ydb/core/formats/arrow
+
 PEERDIR(
     contrib/libs/apache/arrow
     ydb/core/formats/arrow/switch
@@ -11,8 +13,8 @@ PEERDIR(
 )
 
 SRCS(
-    filter.cpp  # gn: into ydb/core/formats/arrow
-    filter.h  # gn: into ydb/core/formats/arrow
+    filter.cpp
+    filter.h
 )
 
 END()

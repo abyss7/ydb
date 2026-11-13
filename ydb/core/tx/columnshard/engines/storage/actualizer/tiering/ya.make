@@ -1,8 +1,10 @@
 LIBRARY()
 
+# gn: into ydb/core/tx/columnshard/engines
+
 SRCS(
-    tiering.cpp  # gn: into ydb/core/tx/columnshard/engines
-    counters.cpp  # gn: into ydb/core/tx/columnshard/engines
+    tiering.cpp
+    counters.cpp
 )
 
 PEERDIR(

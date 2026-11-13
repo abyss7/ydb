@@ -1,5 +1,7 @@
 LIBRARY()
 
+# gn: into util
+
 NO_UTIL()
 
 IF (TSTRING_IS_STD_STRING)
@@ -8,20 +10,20 @@ ENDIF()
 
 JOIN_SRCS(
     all_charset.cpp
-    generated/unidata.cpp  # gn: into util
-    recode_result.cpp  # gn: into util
-    unicode_table.cpp  # gn: into util
-    unidata.cpp  # gn: into util
-    utf8.cpp  # gn: into util
-    wide.cpp  # gn: into util
+    generated/unidata.cpp
+    recode_result.cpp
+    unicode_table.cpp
+    unidata.cpp
+    utf8.cpp
+    wide.cpp
 )
 
 IF (ARCH_X86_64 AND NOT DISABLE_INSTRUCTION_SETS)
-    SRC_C_SSE41(wide_sse41.cpp  # gn: into util
+    SRC_C_SSE41(wide_sse41.cpp
     )
 ELSE()
     SRC(
-        wide_sse41.cpp  # gn: into util
+        wide_sse41.cpp
         -DSSE41_STUB
     )
 ENDIF()

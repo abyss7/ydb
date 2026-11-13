@@ -1,8 +1,10 @@
 LIBRARY()
 
+# gn: into ydb/core/tx/tracing/usage
+
 SRCS(
-    global.cpp  # gn: into ydb/core/tx/tracing/usage
-    actor.cpp  # gn: into ydb/core/tx/tracing/usage
+    global.cpp
+    actor.cpp
 )
 
 PEERDIR(

@@ -430,6 +430,7 @@ class Module:
         self.generated = []          # repo-relative files the module generates (RUN_PROGRAM ... OUT, ...)
         self.proto_plugins = []      # (name, dir) of CPP_PROTO_PLUGIN0(<name> <dir>)
         self.src_into = {}           # SRCS entry (as written) -> (module dir, part or None), `# gn: into ...`
+        self.into_module = None      # (module dir, part or None): `# gn: into ...` on the whole target
         self.foreign_srcs = {}       # another module's file compiled here -> own part or None, see link_foreign_sources
         self.absorbs = set()         # modules all of whose sources are compiled here
         self.absorbed_into = None    # label of the target that absorbed this module, see link_foreign_sources
@@ -748,6 +749,13 @@ def strip_yamake_comments(text):
 #     and the other module no longer depends on it (its headers are then that
 #     module's code).
 #
+#   # gn: into ydb/core/tx/columnshard/engines/portions
+#
+#     The same for the whole target: every source of the module is compiled by
+#     the target named (its main one, or ":<part>"), nothing of it is built
+#     here -- so a source added later needs no comment of its own. A source
+#     marked `# gn: into` explicitly goes where it says. Standalone line.
+#
 # The comment is rewritten here, before comments are dropped, into "@gn..."
 # tokens that ride along with the macro arguments (parse_yamake picks them up):
 # a trailing directive becomes "@gn:<word>" tokens right after the entry it
@@ -789,7 +797,7 @@ def _gn_directive_tokens(code, comment):
         token = "@gn-peerdir:%s:%s" % (words[0], ",".join(words[2:]))
     elif words[0] == "into":
         if not code.strip():
-            return ""   # a trailing directive needs an entry on its line
+            return "GN_DIRECTIVES(@gn-into-module:%s)" % ",".join(words[1:])
         return " @gn-into:" + ",".join(words[1:])
     if token is not None:
         return (" " + token) if code.strip() else "GN_DIRECTIVES(%s)" % token
@@ -1034,6 +1042,13 @@ def parse_yamake(path, directory, root):
         mod.name = os.path.basename(directory)
     if mod.yql_udf:
         mod.peerdirs.extend(d for d in YQL_UDF_PEERDIRS if d not in mod.peerdirs)
+    if mod.into_module is not None:
+        # `# gn: into <dir>[:<part>]` of the whole target: every source goes
+        # there. An explicit `# gn: into` of a source wins (a module may send
+        # most of its code away and keep the rest).
+        into, part = mod.into_module
+        for src in mod.srcs:
+            mod.src_into.setdefault(src, (into, part))
     _check_gn_parts(mod)
     convert_resources(mod, root)
     return mod
@@ -1148,6 +1163,15 @@ def _take_gn_directives(mod, macro, args):
                 mod.macros.append("GN<bad into %r in %s>" % (value, macro))
             else:
                 mod.src_into[last] = (_norm_dir(d), sub or None)
+        elif a.startswith("@gn-into-module:"):
+            value = a[len("@gn-into-module:"):]
+            d, _, sub = value.partition(":")
+            if not d or "," in value:
+                mod.macros.append("GN<bad into %r of the whole target>" % value)
+            elif mod.into_module is not None:
+                mod.macros.append("GN<into of the whole target twice>")
+            else:
+                mod.into_module = (_norm_dir(d), sub or None)
         elif a.startswith("@gn:"):
             value = a[len("@gn:"):]
             if last is None:

@@ -1,11 +1,13 @@
 LIBRARY()
 
+# gn: into ydb/core/tx/columnshard/engines/reader/simple_reader/iterator
+
 SRCS(
-    abstract.cpp  # gn: into ydb/core/tx/columnshard/engines/reader/simple_reader/iterator
-    result.cpp  # gn: into ydb/core/tx/columnshard/engines/reader/simple_reader/iterator
-    limit.cpp  # gn: into ydb/core/tx/columnshard/engines/reader/simple_reader/iterator
-    aggr.cpp  # gn: into ydb/core/tx/columnshard/engines/reader/simple_reader/iterator
-    distinct_limit.cpp  # gn: into ydb/core/tx/columnshard/engines/reader/simple_reader/iterator
+    abstract.cpp
+    result.cpp
+    limit.cpp
+    aggr.cpp
+    distinct_limit.cpp
 )
 
 PEERDIR(

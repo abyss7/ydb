@@ -1,7 +1,9 @@
 LIBRARY()
 
+# gn: into ydb/core/tx/schemeshard
+
 SRCS(
-    tasks_list.cpp  # gn: into ydb/core/tx/schemeshard
+    tasks_list.cpp
 )
 
 PEERDIR(

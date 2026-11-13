@@ -1,4 +1,7 @@
 RECURSE(
+
+# gn: into ydb/core/formats/arrow
+
     filterable
 )
 
@@ -13,8 +16,8 @@ PEERDIR(
 )
 
 SRCS(
-    container.cpp  # gn: into ydb/core/formats/arrow
-    container.h  # gn: into ydb/core/formats/arrow
+    container.cpp
+    container.h
 )
 
 END()

@@ -1,5 +1,7 @@
 LIBRARY()
 
+# gn: into ydb/core/formats/arrow
+
 PEERDIR(
     contrib/libs/apache/arrow
     ydb/core/formats/arrow/dictionary
@@ -7,7 +9,7 @@ PEERDIR(
 )
 
 SRCS(
-    dictionary.cpp  # gn: into ydb/core/formats/arrow
+    dictionary.cpp
 )
 
 END()

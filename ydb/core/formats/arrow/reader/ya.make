@@ -1,5 +1,7 @@
 YQL_LIBRARY()
 
+# gn: into ydb/core/formats/arrow
+
 PEERDIR(
     contrib/libs/apache/arrow
     ydb/core/formats/arrow/accessor/abstract
@@ -15,11 +17,11 @@ PEERDIR(
 )
 
 SRCS(
-    batch_iterator.cpp  # gn: into ydb/core/formats/arrow
-    merger.cpp  # gn: into ydb/core/formats/arrow
-    position.cpp  # gn: into ydb/core/formats/arrow
-    heap.cpp  # gn: into ydb/core/formats/arrow
-    result_builder.cpp  # gn: into ydb/core/formats/arrow
+    batch_iterator.cpp
+    merger.cpp
+    position.cpp
+    heap.cpp
+    result_builder.cpp
 )
 
 END()

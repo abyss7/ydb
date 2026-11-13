@@ -1,10 +1,12 @@
 LIBRARY()
 
+# gn: into ydb/public/sdk/cpp/src/client/query
+
 SRCS(
-    exec_query.cpp  # gn: into ydb/public/sdk/cpp/src/client/query
-    exec_query.h  # gn: into ydb/public/sdk/cpp/src/client/query
-    client_session.cpp  # gn: into ydb/public/sdk/cpp/src/client/query
-    session_state_handler.cpp  # gn: into ydb/public/sdk/cpp/src/client/query
+    exec_query.cpp
+    exec_query.h
+    client_session.cpp
+    session_state_handler.cpp
 )
 
 PEERDIR(

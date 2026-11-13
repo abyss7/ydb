@@ -1,8 +1,10 @@
 LIBRARY()
 
+# gn: into ydb/core/tx/columnshard/data_accessor/abstract
+
 SRCS(
-    manager.cpp  # gn: into ydb/core/tx/columnshard/data_accessor/abstract
-    GLOBAL constructor.cpp  # gn: into ydb/core/tx/columnshard/data_accessor/abstract
+    manager.cpp
+    GLOBAL constructor.cpp
 )
 
 PEERDIR(

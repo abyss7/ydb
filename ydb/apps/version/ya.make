@@ -1,7 +1,9 @@
 LIBRARY(version_definition)
 
+# gn: into ydb/core/driver_lib/version
+
 SRCS(
-    version_definition.cpp  # gn: into ydb/core/driver_lib/version
+    version_definition.cpp
 )
 
 PEERDIR(

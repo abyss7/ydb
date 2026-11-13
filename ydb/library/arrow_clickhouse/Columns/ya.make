@@ -1,5 +1,7 @@
 LIBRARY()
 
+# gn: into ydb/library/arrow_clickhouse
+
 PEERDIR(
     contrib/libs/apache/arrow
 )
@@ -10,8 +12,8 @@ ADDINCL(
 )
 
 SRCS(
-    ColumnsCommon.cpp  # gn: into ydb/library/arrow_clickhouse
-    ColumnAggregateFunction.cpp  # gn: into ydb/library/arrow_clickhouse
+    ColumnsCommon.cpp
+    ColumnAggregateFunction.cpp
 )
 
 END()

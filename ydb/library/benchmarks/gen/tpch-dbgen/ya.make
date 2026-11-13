@@ -1,5 +1,7 @@
 LIBRARY()
 
+# gn: into ydb/library/workload/tpch
+
 CONLYFLAGS(
     -Wno-deprecated-non-prototype
     -Wno-format
@@ -24,16 +26,16 @@ ENDIF()
 CONLYFLAGS(GLOBAL -DVECTORWISE GLOBAL -DTPCH GLOBAL -DRNG_TEST)
 
 SRCS(
-    build.c  # gn: into ydb/library/workload/tpch
-    bm_utils.c  # gn: into ydb/library/workload/tpch
-    rnd.c  # gn: into ydb/library/workload/tpch
-    print.c  # gn: into ydb/library/workload/tpch
-    load_stub.c  # gn: into ydb/library/workload/tpch
-    bcd2.c  # gn: into ydb/library/workload/tpch
-    speed_seed.c  # gn: into ydb/library/workload/tpch
-    text.c  # gn: into ydb/library/workload/tpch
-    permute.c  # gn: into ydb/library/workload/tpch
-    rng64.c  # gn: into ydb/library/workload/tpch
+    build.c
+    bm_utils.c
+    rnd.c
+    print.c
+    load_stub.c
+    bcd2.c
+    speed_seed.c
+    text.c
+    permute.c
+    rng64.c
 )
 
 END()

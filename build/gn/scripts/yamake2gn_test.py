@@ -47,6 +47,34 @@ class TreeScanTest(unittest.TestCase):
                          ["a", os.path.join("a", "b")])
 
 
+class IntoModuleTest(unittest.TestCase):
+    """`# gn: into <dir>[:<part>]` of the whole target: every source of the
+    module goes there, so a source added later needs no comment of its own."""
+
+    def parse(self, srcs, directive):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = os.path.realpath(tmp)
+            directory = os.path.join(root, "a")
+            os.makedirs(directory)
+            path = os.path.join(directory, "ya.make")
+            with open(path, "w") as f:
+                f.write("%s\nLIBRARY()\n\nSRCS(\n%s)\n\nEND()\n" % (directive, srcs))
+            return yamake2gn.parse_yamake(path, "a", root)
+
+    def test_every_source_goes_to_the_named_target(self):
+        self.assertEqual(self.parse("    x.cpp\n    y.h\n", "# gn: into b").src_into,
+                         {"x.cpp": ("b", None), "y.h": ("b", None)})
+
+    def test_a_part_of_the_target(self):
+        self.assertEqual(self.parse("    x.cpp\n", "# gn: into b:p").src_into,
+                         {"x.cpp": ("b", "p")})
+
+    def test_a_source_saying_its_own_target_wins(self):
+        self.assertEqual(self.parse("    x.cpp\n    y.cpp  # gn: into c\n",
+                                    "# gn: into b").src_into,
+                         {"x.cpp": ("b", None), "y.cpp": ("c", None)})
+
+
 class WriteBuildgnsTest(unittest.TestCase):
     """write_buildgns() formats and writes only what it did not write before."""
 

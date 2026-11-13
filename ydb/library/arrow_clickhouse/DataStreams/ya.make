@@ -1,5 +1,7 @@
 LIBRARY()
 
+# gn: into ydb/library/arrow_clickhouse
+
 PEERDIR(
     contrib/libs/apache/arrow
 )
@@ -10,9 +12,9 @@ ADDINCL(
 )
 
 SRCS(
-    AggregatingBlockInputStream.cpp  # gn: into ydb/library/arrow_clickhouse
-    IBlockInputStream.cpp  # gn: into ydb/library/arrow_clickhouse
-    MergingAggregatedBlockInputStream.cpp  # gn: into ydb/library/arrow_clickhouse
+    AggregatingBlockInputStream.cpp
+    IBlockInputStream.cpp
+    MergingAggregatedBlockInputStream.cpp
 )
 
 END()

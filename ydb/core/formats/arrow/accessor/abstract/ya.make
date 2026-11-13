@@ -1,5 +1,7 @@
 YQL_LIBRARY()
 
+# gn: into ydb/core/formats/arrow
+
 PEERDIR(
     contrib/libs/apache/arrow
     contrib/libs/apache/arrow_next
@@ -14,11 +16,11 @@ PEERDIR(
 )
 
 SRCS(
-    common.cpp  # gn: into ydb/core/formats/arrow
-    constructor.cpp  # gn: into ydb/core/formats/arrow
-    request.cpp  # gn: into ydb/core/formats/arrow
-    accessor.cpp  # gn: into ydb/core/formats/arrow
-    minmax_utils.cpp  # gn: into ydb/core/formats/arrow
+    common.cpp
+    constructor.cpp
+    request.cpp
+    accessor.cpp
+    minmax_utils.cpp
 )
 
 GENERATE_ENUM_SERIALIZATION(accessor.h)

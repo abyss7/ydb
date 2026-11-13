@@ -1,9 +1,11 @@
 YQL_LIBRARY()
 
+# gn: into ydb/core/formats/arrow
+
 SRCS(
-    view.cpp  # gn: into ydb/core/formats/arrow
-    view_v0.cpp  # gn: into ydb/core/formats/arrow
-    collection.cpp  # gn: into ydb/core/formats/arrow
+    view.cpp
+    view_v0.cpp
+    collection.cpp
 )
 
 PEERDIR(

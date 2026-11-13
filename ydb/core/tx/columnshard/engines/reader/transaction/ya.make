@@ -1,10 +1,12 @@
 LIBRARY()
 
+# gn: into ydb/core/tx/columnshard
+
 SRCS(
-    common.cpp  # gn: into ydb/core/tx/columnshard
-    scan_gate.cpp  # gn: into ydb/core/tx/columnshard
-    tx_scan.cpp  # gn: into ydb/core/tx/columnshard
-    tx_internal_scan.cpp  # gn: into ydb/core/tx/columnshard
+    common.cpp
+    scan_gate.cpp
+    tx_scan.cpp
+    tx_internal_scan.cpp
 )
 
 PEERDIR(

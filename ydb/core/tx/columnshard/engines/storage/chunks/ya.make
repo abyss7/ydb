@@ -1,9 +1,11 @@
 LIBRARY()
 
+# gn: into ydb/core/tx/columnshard/engines/portions
+
 SRCS(
-    data.cpp  # gn: into ydb/core/tx/columnshard/engines/portions
-    column.cpp  # gn: into ydb/core/tx/columnshard/engines/portions
-    chunked_array_serialized.cpp  # gn: into ydb/core/tx/columnshard/engines/portions
+    data.cpp
+    column.cpp
+    chunked_array_serialized.cpp
 )
 
 PEERDIR(

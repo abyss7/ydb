@@ -1,7 +1,9 @@
 LIBRARY()
 
+# gn: into ydb/core/tx/columnshard
+
 SRCS(
-    tx_change_blobs_owning.cpp  # gn: into ydb/core/tx/columnshard
+    tx_change_blobs_owning.cpp
 )
 
 PEERDIR(

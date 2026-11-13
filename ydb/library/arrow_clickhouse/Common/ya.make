@@ -1,5 +1,7 @@
 LIBRARY()
 
+# gn: into ydb/library/arrow_clickhouse
+
 PEERDIR(
     contrib/libs/apache/arrow
 )
@@ -10,8 +12,8 @@ ADDINCL(
 )
 
 SRCS(
-    Allocator.cpp  # gn: into ydb/library/arrow_clickhouse
-    PODArray.cpp  # gn: into ydb/library/arrow_clickhouse
+    Allocator.cpp
+    PODArray.cpp
 )
 
 END()

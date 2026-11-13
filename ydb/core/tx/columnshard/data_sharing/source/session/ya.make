@@ -1,8 +1,10 @@
 LIBRARY()
 
+# gn: into ydb/core/tx/columnshard
+
 SRCS(
-    source.cpp  # gn: into ydb/core/tx/columnshard
-    cursor.cpp  # gn: into ydb/core/tx/columnshard
+    source.cpp
+    cursor.cpp
 )
 
 PEERDIR(

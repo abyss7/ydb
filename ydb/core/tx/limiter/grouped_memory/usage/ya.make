@@ -1,11 +1,13 @@
 LIBRARY()
 
+# gn: into ydb/core/tx/limiter/grouped_memory/service
+
 SRCS(
-    events.cpp  # gn: into ydb/core/tx/limiter/grouped_memory/service
-    config.cpp  # gn: into ydb/core/tx/limiter/grouped_memory/service
-    abstract.cpp  # gn: into ydb/core/tx/limiter/grouped_memory/service
-    service.cpp  # gn: into ydb/core/tx/limiter/grouped_memory/service
-    stage_features.cpp  # gn: into ydb/core/tx/limiter/grouped_memory/service
+    events.cpp
+    config.cpp
+    abstract.cpp
+    service.cpp
+    stage_features.cpp
 )
 
 PEERDIR(

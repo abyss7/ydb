@@ -1,8 +1,10 @@
 LIBRARY()
 
+# gn: into ydb/core/tx/columnshard
+
 SRCS(
-    GLOBAL constructor.cpp  # gn: into ydb/core/tx/columnshard
-    read_metadata.cpp  # gn: into ydb/core/tx/columnshard
+    GLOBAL constructor.cpp
+    read_metadata.cpp
 )
 
 PEERDIR(

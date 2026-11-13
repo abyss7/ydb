@@ -1,5 +1,7 @@
 YQL_LIBRARY()
 
+# gn: into ydb/core/formats/arrow
+
 PEERDIR(
     contrib/libs/apache/arrow
     ydb/core/formats/arrow/common
@@ -10,7 +12,7 @@ PEERDIR(
 )
 
 SRCS(
-    calcer.cpp  # gn: into ydb/core/formats/arrow
+    calcer.cpp
 )
 
 END()
