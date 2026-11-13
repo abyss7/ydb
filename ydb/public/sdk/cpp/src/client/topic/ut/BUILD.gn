@@ -54,6 +54,7 @@ unittest_executable("ut") {
     "describe_topic_ut.cpp",
     "local_partition_ut.cpp",
     "producer_deferred_publication_ut.cpp",
+    "producer_retry_policy_ut.cpp",
     "read_session_accounting_ut.cpp",
     "read_session_credentials_ut.cpp",
     "read_session_kafka_timestamps_ut.cpp",
