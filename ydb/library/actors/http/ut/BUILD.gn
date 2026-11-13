@@ -9,6 +9,7 @@ unittest_executable("ut") {
     "//library/cpp/resource",
     "//library/cpp/testing/unittest",
     "//ydb/core/security/certificate_check/test_utils",
+    "//ydb/library/actors/async",
     "//ydb/library/actors/core",
     "//ydb/library/actors/http",
     "//ydb/library/actors/testlib",
@@ -17,6 +18,7 @@ unittest_executable("ut") {
   sources = [
     "//ydb/library/actors/http/http2_ut.cpp",
     "//ydb/library/actors/http/http_cache_ut.cpp",
+    "//ydb/library/actors/http/http_proxy_cookie_ut.cpp",
     "//ydb/library/actors/http/http_tls_init_ut.cpp",
     "//ydb/library/actors/http/http_ut.cpp",
     "http_obfuscation_ut.cpp",
