@@ -12,11 +12,21 @@ unittest_executable("ut_schema_change") {
     "//ydb/core/tx/scheme_cache",
     "//ydb/core/tx/schemeshard",
     "//ydb/core/tx/tx_proxy:public",
+    "//ydb/core/wrappers:ut_helpers",
     "//ydb/library/actors/core",
+    "//ydb/library/aws_init",
     "//ydb/library/mkql_proto/protos",
+    "//ydb/public/lib/yson_value",
+    "//ydb/public/sdk/cpp/src/client/export",
+    "//ydb/public/sdk/cpp/src/client/import",
+    "//ydb/public/sdk/cpp/src/client/operation",
+    "//ydb/public/sdk/cpp/src/client/result",
+    "//ydb/public/sdk/cpp/src/client/table",
+    "//ydb/public/sdk/cpp/src/client/topic",
   ]
 
   sources = [
+    "//ydb/core/tx/replication/controller/bootstrap_ut.cpp",
     "//ydb/core/tx/replication/controller/dst_delivery_retry_ut.cpp",
     "//ydb/core/tx/replication/controller/schema_change_ut.cpp",
   ]
