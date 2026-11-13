@@ -30,7 +30,6 @@ library("arrow") {
     # "//library/cpp/containers/stack_vector",
     # "//ydb/core/base",
     # "//ydb/core/formats/arrow/program",
-    # "//ydb/core/kqp/common:types",
     # "//ydb/library/arrow_kernels",
     # "//ydb/library/formats/arrow/common",
     "//ydb/library/formats/arrow/minikql",
