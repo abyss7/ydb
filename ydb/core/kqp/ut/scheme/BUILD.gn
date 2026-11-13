@@ -29,6 +29,7 @@ unittest_executable("scheme") {
     "//ydb/core/tx/columnshard/test_helper",
     "//ydb/core/tx/datashard",
     "//ydb/core/tx/replication/controller",
+    "//ydb/core/tx/replication/service",
     "//ydb/core/tx/schemeshard",
     "//ydb/core/tx/tx_proxy:public",
     "//ydb/library/yql/udfs/common/knn",  # peerdir only

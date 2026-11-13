@@ -1,9 +1,13 @@
 unittest_executable("ut_json_change_record") {
   deps = [
+    "//library/cpp/json",
     "//library/cpp/json/yson",
+    "//library/cpp/string_utils/base64",
     "//library/cpp/testing/unittest",
+    "//ydb/core/io_formats/json",
     "//ydb/core/protos",
     "//ydb/core/testlib/pg",  # peerdir only
+    "//ydb/core/tx/datashard",
     "//ydb/core/tx/replication/service",
     "//ydb/library/aclib",
     "//yql/essentials/public/udf/service/exception_policy",  # peerdir only
