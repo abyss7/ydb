@@ -1,0 +1,14 @@
+unittest_executable("ut_producer_endpoint") {
+  deps = [
+    "//library/cpp/testing/unittest",
+    "//ydb/public/sdk/cpp/src/client/driver",
+    "//ydb/public/sdk/cpp/src/client/topic",
+    "//ydb/public/sdk/cpp/src/client/types/exceptions",
+  ]
+
+  sources = [ "endpoint_ut.cpp" ]
+
+  include_dirs = [ "//ydb/public/sdk/cpp/src/client/topic" ]
+
+  link_select = [ "allocator=tcmalloc" ]
+}

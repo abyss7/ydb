@@ -1,0 +1,14 @@
+unittest_executable("ut_cds") {
+  deps = [
+    "//library/cpp/testing/unittest",
+    "//ydb/public/sdk/cpp/src/client/persqueue_public",  # peerdir only
+  ]
+
+  sources = [ "endpoint_ut.cpp" ]
+
+  include_dirs = [
+    "//ydb/public/sdk/cpp/src/client/persqueue_public",  # peerdir only
+  ]
+
+  link_select = [ "allocator=tcmalloc" ]
+}
