@@ -117,6 +117,7 @@ library("rbo") {
     "rules/pull_up_map_over_cbo.cpp",
     "rules/push_filter_into_join.cpp",
     "rules/push_filter_through_aggregate.cpp",
+    "rules/push_filter_through_union_all.cpp",
     "rules/push_filter_under_map.cpp",
     "rules/push_limit_into_sort.cpp",
     "rules/push_map_elements_through_input.cpp",
