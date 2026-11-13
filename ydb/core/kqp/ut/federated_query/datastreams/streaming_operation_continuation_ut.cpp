@@ -120,7 +120,7 @@ struct TContinuationTest {
         });
 
         const auto endpoint = GetEnv("YDB_ENDPOINT");
-        const auto database = GetEnv("YDB_DATABASE");
+        const auto database = "/" + GetEnv("YDB_DATABASE");
         TDriver externalDriver(TDriverConfig().SetEndpoint(endpoint).SetDatabase(database));
         NYdb::NTopic::TTopicClient topics(externalDriver);
         for (const auto& name : { InputTopic, OutputTopic }) {
