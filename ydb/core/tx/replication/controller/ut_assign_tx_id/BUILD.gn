@@ -1,12 +1,19 @@
 unittest_executable("ut_assign_tx_id") {
   deps = [
     "//library/cpp/testing/unittest",
+    "//ydb/core/base",
     "//ydb/core/tx/replication/controller",
     "//ydb/core/tx/replication/service",
     "//ydb/core/tx/replication/ut_helpers",
+    "//ydb/library/actors/core",
+    "//ydb/public/api/protos",
+    "//ydb/public/sdk/cpp/src/client/draft",
   ]
 
-  sources = [ "//ydb/core/tx/replication/controller/assign_tx_id_ut.cpp" ]
+  sources = [
+    "//ydb/core/tx/replication/controller/assign_tx_id_ut.cpp",
+    "//ydb/core/tx/replication/controller/transactions_ut.cpp",
+  ]
 
   include_dirs = [ "//ydb/core/tx/replication/controller" ]
 
