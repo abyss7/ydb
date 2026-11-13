@@ -4,6 +4,7 @@ unittest_executable("ut_with_sdk") {
     "//library/cpp/regex/pcre",  # peerdir only
     "//library/cpp/svnversion",  # peerdir only
     "//library/cpp/testing/unittest",
+    "//library/cpp/threading/future",
     "//ydb/core/persqueue",  # peerdir only
     "//ydb/core/persqueue/common/proxy",
     "//ydb/core/persqueue/events",
@@ -32,6 +33,7 @@ unittest_executable("ut_with_sdk") {
     "describe_ut.cpp",
     "mirrorer_autoscaling_ut.cpp",
     "mirrorer_ut.cpp",
+    "source_topic_mutate_ut.cpp",
     "topic_replication_ut.cpp",
     "topic_timestamp_ut.cpp",
     "topic_ut.cpp",
