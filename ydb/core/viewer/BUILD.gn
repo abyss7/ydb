@@ -49,7 +49,6 @@ library("viewer") {
     # "//ydb/core/kqp/executer_actor",
     "//ydb/core/kqp/gateway",  # peerdir only
     "//ydb/core/kqp/proxy_service",  # peerdir only
-    "//ydb/core/kqp/script_executions/table_queries",
     # "//ydb/core/mon",
     "//ydb/core/path_aliasing",  # peerdir only
     # "//ydb/core/persqueue/events",

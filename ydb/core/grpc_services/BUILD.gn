@@ -80,6 +80,7 @@ library("grpc_services") {
     # "//ydb/core/kqp/executer_actor",
     "//ydb/core/kqp/executer_actor:shards_resolver",
     "//ydb/core/kqp/opt",
+    # "//ydb/core/kqp/script_executions/common",  # peerdir only
     # "//ydb/core/local_indexes/bloom",
     # "//ydb/core/mind",
     # "//ydb/core/mind/bscontroller",
