@@ -1,11 +1,14 @@
 unittest_executable("ut_replication") {
   deps = [
+    "//ydb/core/base",
     "//ydb/core/blobstorage/backpressure",
     "//ydb/core/blobstorage/ut_blobstorage/lib",
     "//ydb/core/blobstorage/vdisk/common",
     "//ydb/core/blobstorage/vdisk/hulldb/base:base_types",
     "//ydb/core/blobstorage/vdisk/repl",
     "//ydb/core/blobstorage/vdisk/syncer",
+    "//ydb/core/node_whiteboard",
+    "//ydb/core/sys_view/common",
   ]
 
   sources = [
