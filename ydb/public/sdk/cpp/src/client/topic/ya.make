@@ -24,5 +24,6 @@ PEERDIR(
 END()
 
 RECURSE_FOR_TESTS(
+    ut_producer_endpoint
     ut
 )
