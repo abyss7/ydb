@@ -38,7 +38,6 @@ library("control_plane_storage") {
     "//ydb/core/fq/libs/rate_limiter/events",
     # "//ydb/core/fq/libs/shared_resources",
     "//ydb/core/fq/libs/ydb",
-    # "//ydb/core/kqp/opt",  # peerdir only
     "//ydb/core/metering",
     # "//ydb/core/mon",
     "//ydb/core/util",

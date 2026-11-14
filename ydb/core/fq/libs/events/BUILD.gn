@@ -1,20 +1,19 @@
 library("events") {
   public_deps = [
+    # "//library/cpp/threading/future",
     "//ydb/core/fq/libs/graph_params/proto",
     "//ydb/core/fq/libs/protos",
     # "//ydb/library/actors/core",
     # "//ydb/library/yql/providers/common/db_id_async_resolver",
     "//ydb/library/yql/providers/dq/provider",
-    # "//ydb/public/sdk/cpp/src/client/table",
-    # "//yql/essentials/core/facade",
+    "//ydb/public/api/protos",
+    # "//ydb/public/sdk/cpp/src/client/types/status",
+    # "//yql/essentials/core",
     # "//yql/essentials/public/issue",
   ]
 
   deps = [
     # "//ydb/core/base",
-    # "//ydb/core/fq/libs/row_dispatcher/protos",  # peerdir only
-    # "//ydb/library/yql/providers/pq/proto",  # peerdir only
-    # "//ydb/public/api/protos",  # peerdir only
   ]
 
   sources = [ "events.cpp" ]

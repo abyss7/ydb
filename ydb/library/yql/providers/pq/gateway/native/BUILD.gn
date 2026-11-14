@@ -12,6 +12,7 @@ library("native") {
     # "//library/cpp/threading/future",
     "//ydb/library/yql/providers/pq/gateway/clients/external",
     # "//ydb/library/yverify_stream",
+    "//ydb/public/sdk/cpp/adapters/executor",
     "//ydb/public/sdk/cpp/src/client/datastreams",
     # "//ydb/public/sdk/cpp/src/client/driver",
     "//yql/essentials/providers/common/proto",
@@ -20,6 +21,7 @@ library("native") {
   ]
 
   sources = [
+    "topic_client_settings.cpp",
     "yql_pq_gateway.cpp",
     "yql_pq_gateway_factory.cpp",
     "yql_pq_gateway_services.cpp",

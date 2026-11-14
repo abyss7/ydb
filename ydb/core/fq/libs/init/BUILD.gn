@@ -36,7 +36,6 @@ library("init") {
     "//ydb/core/fq/libs/row_dispatcher/events",
     "//ydb/core/fq/libs/shared_resources",
     "//ydb/core/fq/libs/test_connection",
-    "//ydb/core/kqp/federated_query",
     "//ydb/core/protos",
     "//ydb/library/actors/http",
     "//ydb/library/folder_service",
