@@ -47,6 +47,7 @@ unittest_executable("ut_blobstorage") {
     "//ydb/core/blobstorage/vdisk/synclog",
     "//ydb/core/retro_tracing_impl/spans",
     "//ydb/core/sys_view/common",
+    "//ydb/library/actors/core",
     "//ydb/library/actors/interconnect/rdma",
     "//ydb/library/actors/retro_tracing/span",
   ]
