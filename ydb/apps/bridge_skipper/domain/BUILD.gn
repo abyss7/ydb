@@ -1,0 +1,16 @@
+library("domain") {
+  public_deps = [ "//library/cpp/time_provider" ]
+
+  deps = [
+    "//library/cpp/json",
+    "//ydb/public/api/protos",
+  ]
+
+  sources = [
+    "health.cpp",
+    "mutation.cpp",
+    "policy.cpp",
+    "types.cpp",
+    "view.cpp",
+  ]
+}

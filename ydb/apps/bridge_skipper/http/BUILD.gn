@@ -1,0 +1,18 @@
+library("http") {
+  public_deps = [ "//ydb/apps/bridge_skipper/runtime" ]
+
+  deps = [
+    # "//library/cpp/json",
+    "//library/cpp/monlib/encode/prometheus",
+    # "//library/cpp/monlib/metrics",  # peerdir only
+    # "//library/cpp/time_provider",
+    # "//ydb/library/actors/core",
+    "//ydb/library/actors/http",
+  ]
+
+  sources = [
+    "actor.cpp",
+    "metrics.cpp",
+    "state_json.cpp",
+  ]
+}

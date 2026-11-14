@@ -1,0 +1,26 @@
+library("runtime") {
+  public_deps = [
+    # "//library/cpp/json",
+    # "//library/cpp/time_provider",
+    "//ydb/apps/bridge_skipper/config",
+    "//ydb/apps/bridge_skipper/domain",
+    "//ydb/library/actors/core",
+    "//ydb/library/actors/protos",
+    # "//ydb/public/sdk/cpp/src/client/common_client",
+    "//ydb/public/sdk/cpp/src/client/draft",
+    "//ydb/public/sdk/cpp/src/client/monitoring",
+    "//ydb/public/sdk/cpp/src/client/types/credentials",
+  ]
+
+  deps = [
+    # "//ydb/library/actors/struct_log",
+    "//ydb/public/api/protos",
+    # "//ydb/public/sdk/cpp/src/client/proto",
+  ]
+
+  sources = [
+    "skipper.cpp",
+    "state_file.cpp",
+    "ydb_clients.cpp",
+  ]
+}

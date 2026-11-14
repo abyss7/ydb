@@ -1,0 +1,5 @@
+library("config") {
+  deps = [ "//contrib/libs/yaml-cpp" ]
+
+  sources = [ "config.cpp" ]
+}

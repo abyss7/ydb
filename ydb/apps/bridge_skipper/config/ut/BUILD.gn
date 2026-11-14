@@ -1,0 +1,13 @@
+unittest_executable("ut") {
+  deps = [
+    "//library/cpp/testing/common",
+    "//library/cpp/testing/unittest",
+    "//ydb/apps/bridge_skipper/config",
+  ]
+
+  sources = [ "config_ut.cpp" ]
+
+  data = [ "//ydb/apps/bridge_skipper/config/example.yaml" ]
+
+  link_select = [ "allocator=tcmalloc" ]
+}

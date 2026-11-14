@@ -1,5 +1,6 @@
 group("all") {
     deps = [
+        "//ydb/apps/bridge_skipper",
         "//ydb/apps/etcd_proxy",
         "//ydb/apps/ydb",
         "//ydb/apps/ydb/experimental/ydb",
@@ -102,6 +103,10 @@ group("tests") {
         "//util/system/ut",
         "//util/thread/ut",
         "//util/ut",
+        "//ydb/apps/bridge_skipper/config/ut",
+        "//ydb/apps/bridge_skipper/domain/ut",
+        "//ydb/apps/bridge_skipper/http/ut",
+        "//ydb/apps/bridge_skipper/runtime/ut",
         "//ydb/apps/ydb/ut",
         "//ydb/apps/ydb/ut/auth",
         "//ydb/core/actorlib_impl/ut",

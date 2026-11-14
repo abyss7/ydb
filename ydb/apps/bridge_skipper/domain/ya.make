@@ -10,7 +10,7 @@ SRCS(
 
 PEERDIR(
     library/cpp/json
-    library/cpp/time_provider
+    library/cpp/time_provider  # gn: public dep
     ydb/public/api/protos
 )
 

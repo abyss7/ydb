@@ -1,0 +1,32 @@
+unittest_executable("ut") {
+  deps = [
+    "//contrib/libs/protobuf",
+    "//library/cpp/json",
+    "//library/cpp/testing/common",
+    "//library/cpp/testing/unittest",
+    "//ydb/apps/bridge_skipper/domain",
+    "//ydb/public/api/protos",
+  ]
+
+  sources = [
+    "admin_ut.cpp",
+    "health_ut.cpp",
+    "policy_ut.cpp",
+  ]
+
+  include_dirs = [ "//ydb/apps/bridge_skipper/domain" ]
+
+  data = [
+    "fixtures/blue_only.pbtxt",
+    "fixtures/blue_with_orange.pbtxt",
+    "fixtures/bsc_clean_with_pile_issues.pbtxt",
+    "fixtures/bsc_red.pbtxt",
+    "fixtures/fallback_grey.pbtxt",
+    "fixtures/fallback_red.pbtxt",
+    "fixtures/stage2.pbtxt",
+    "fixtures/truncated.pbtxt",
+    "fixtures/unattributed.pbtxt",
+  ]
+
+  link_select = [ "allocator=tcmalloc" ]
+}

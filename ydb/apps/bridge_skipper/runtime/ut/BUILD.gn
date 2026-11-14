@@ -1,0 +1,32 @@
+unittest_executable("ut") {
+  deps = [
+    "//contrib/libs/grpc",
+    "//library/cpp/json",
+    "//library/cpp/logger",
+    "//library/cpp/testing/unittest",
+    "//ydb/apps/bridge_skipper/runtime",
+    "//ydb/library/actors/core",
+    "//ydb/library/actors/testlib",
+    "//ydb/public/api/grpc",
+    "//ydb/public/api/grpc/draft",
+    "//ydb/public/api/protos",
+  ]
+
+  sources = [
+    "skipper_ut.cpp",
+    "state_file_ut.cpp",
+    "ydb_clients_ut.cpp",
+  ]
+
+  link_select = [
+    "YqlServicePolicy=stub",
+    "allocator=tcmalloc",
+    "minikql_codegen=no_llvm",
+    "retro_spans=spans",
+    "topic_rpc=persqueue_v1",
+    "wasm=wasm_default",
+    "yql_pg_runtime=pg_dummy",
+    "yql_pg_sql_translator=pg_dummy",
+    "yt_codegen=no_llvm",
+  ]
+}
