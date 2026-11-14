@@ -1,7 +1,6 @@
 unittest_executable("ut_bsc_migration") {
   deps = [
     "//library/cpp/testing/unittest",
-    "//ydb/core/base",
     "//ydb/core/blobstorage/ut_blobstorage/lib",
     "//ydb/core/protos",
     "//yql/essentials/minikql",
