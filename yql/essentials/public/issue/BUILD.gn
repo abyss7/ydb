@@ -7,7 +7,10 @@ library("issue") {
     "//yql/essentials/utils",
   ]
 
-  deps = [ "//library/cpp/colorizer" ]
+  deps = [
+    "//library/cpp/colorizer",
+    "//yql/essentials/public/utf8",
+  ]
 
   sources = [
     "yql_issue.cpp",

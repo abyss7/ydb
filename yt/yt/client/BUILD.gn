@@ -65,6 +65,7 @@ library("client") {
         "api/dynamic_table_transaction_mixin.cpp",
         "api/etc_client.cpp",
         "api/file_client.cpp",
+        "api/flow_client.cpp",
         "api/helpers.cpp",
         "api/internal_client.cpp",
         "api/journal_client.cpp",

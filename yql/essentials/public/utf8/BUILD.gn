@@ -1,0 +1,3 @@
+library("utf8") {
+  sources = [ "utf8.cpp" ]
+}

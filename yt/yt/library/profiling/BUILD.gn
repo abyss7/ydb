@@ -4,7 +4,7 @@ library("profiling") {
     "//library/cpp/yt/cpu_clock",
     "//library/cpp/yt/memory",
     # "//library/cpp/yt/misc",
-    # "//library/cpp/yt/rseq",
+    "//library/cpp/yt/rseq",
     "//library/cpp/yt/string",
     # "//library/cpp/yt/system",
   ]

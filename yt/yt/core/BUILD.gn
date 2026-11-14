@@ -10,6 +10,7 @@ library("_self") {
   public_deps = [
     "//contrib/libs/openssl",
     # "//contrib/libs/protobuf",
+    "//library/cpp/containers/absl",
     # "//library/cpp/containers/concurrent_hash",
     # "//library/cpp/iterator",
     # "//library/cpp/protobuf/interop",

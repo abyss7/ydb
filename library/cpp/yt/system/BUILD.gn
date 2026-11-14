@@ -3,7 +3,6 @@ library("system") {
     "//library/cpp/yt/assert",
     "//library/cpp/yt/cpu_clock",
     "//library/cpp/yt/misc",
-    "//library/cpp/yt/rseq",
   ]
 
   deps = [ "//library/cpp/yt/exception" ]

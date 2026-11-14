@@ -2,7 +2,7 @@ library("type_ann") {
   public_deps = [
     # "//yql/essentials/ast",
     "//yql/essentials/core",
-    # "//yql/essentials/public/udf_meta",
+    "//yql/essentials/public/udf_meta",
   ]
 
   deps = [

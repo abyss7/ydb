@@ -21,7 +21,7 @@ library("interface") {
     "//library/cpp/svnversion",
     "//library/cpp/yson/json",
     "//yt/cpp/mapreduce/interface/logging",
-    # "//yt/yt/core",
+    "//yt/yt/core",
   ]
 
   sources = [

@@ -1,8 +1,13 @@
 library("udf_meta") {
   public_deps = [
-    # "//library/cpp/json",
-    # "//yql/essentials/public/langver",
+    "//yql/essentials/public/langver",
+    "//yql/essentials/public/udf_meta/abi",
   ]
 
-  sources = [ "udf_meta.cpp" ]
+  deps = [ "//library/cpp/json" ]
+
+  sources = [
+    "parse.cpp",
+    "udf_meta.cpp",
+  ]
 }

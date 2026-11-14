@@ -3,7 +3,7 @@ library("http") {
     "//library/cpp/http/io",
     # "//library/cpp/yt/logging",
     "//yt/cpp/mapreduce/interface",
-    # "//yt/yt/core",
+    "//yt/yt/core",
   ]
 
   deps = [

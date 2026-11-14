@@ -4,6 +4,7 @@ library("utils") {
     "//library/cpp/digest/md5",
     "//library/cpp/threading/future",
     "//library/cpp/time_provider",
+    "//yql/essentials/public/utf8",
     # "//yql/essentials/utils/meta",
   ]
 
@@ -34,7 +35,6 @@ library("utils") {
     "time_provider.cpp",
     "tty.cpp",
     "url_builder.cpp",
-    "utf8.cpp",
     "yql_panic.cpp",
     "yql_paths.cpp",
   ]
