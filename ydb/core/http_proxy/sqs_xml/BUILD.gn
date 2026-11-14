@@ -1,13 +1,11 @@
 library("sqs_xml") {
-  public_deps = [
-    # "//library/cpp/cgiparam",
-  ]
+  public_deps = [ "//library/cpp/cgiparam" ]
 
   deps = [
     "//contrib/libs/libxml",
     # "//library/cpp/http/misc",  # peerdir only
     # "//library/cpp/protobuf/json",  # peerdir only
-    # "//library/cpp/string_utils/base64",
+    "//library/cpp/string_utils/base64",
     # "//library/cpp/string_utils/quote",  # peerdir only
     # "//library/cpp/string_utils/url",  # peerdir only
     # "//ydb/core/protos",  # peerdir only

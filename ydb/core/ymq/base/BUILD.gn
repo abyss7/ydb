@@ -4,7 +4,8 @@ library("base") {
     # "//library/cpp/lwtrace",
     # "//library/cpp/monlib/dynamic_counters",
     "//library/cpp/scheme",
-    "//ydb/core/kqp/common",
+    # "//ydb/core/kqp/common/events",
+    # "//ydb/core/kqp/common/simple",
     "//ydb/core/protos",
     "//ydb/core/ymq/proto",
     "//ydb/library/aclib",
@@ -25,6 +26,7 @@ library("base") {
     "//library/cpp/string_utils/base64",
     "//library/cpp/unified_agent_client",
     # "//ydb/core/base",
+    "//ydb/core/kqp/common",  # peerdir only
     # "//ydb/core/persqueue/public/mlp",
     # "//ydb/library/http_proxy/authorization",  # peerdir only
     "//ydb/library/protobuf_printer",
