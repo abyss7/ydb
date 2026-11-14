@@ -78,6 +78,9 @@ namespace NPchUpdate {
         // gn desc: label -> type, the labels it depends on.
         std::unordered_map<std::string, std::string> TypeOf;
         std::unordered_map<std::string, std::vector<std::string>> DepsOf;
+        // Actual GN compile target -> owner whose global PCH config it receives.
+        // Missing means the target's template has no global PCH hook.
+        std::unordered_map<std::string, std::string> GlobalPchOwner;
         // Durations of .ninja_log, by output.
         std::unordered_map<std::string, int64_t> DurationMs;
 

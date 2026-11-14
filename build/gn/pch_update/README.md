@@ -1,14 +1,27 @@
 # Two-step PCH selection
 
-`pch_update` selects compatible base/delta PCH chains, measures one build, and
-reselects the deltas and their consumers once. The base contents and compiler
+`pch_update` selects compatible base/delta PCH chains, measures the initial build,
+reselects the deltas and their consumers once, measures the corrected build and
+installs the groups in the ordinary GN global-PCH build. The base contents and compiler
 classes remain fixed during correction. This is a bounded two-step workflow,
 not a convergence guarantee.
+
+The assignment unit is a **GN PCH-owner target**, including generated enum
+helpers that inherit its configuration. Every C++ compilation of that owner
+uses the same leaf (or none). Candidate partitions, expected-work comparisons,
+control selection, verification sampling, calibration rows and compatibility
+fallbacks operate on whole targets. Individual compilation timings and the real
+action DAG remain the inputs for scheduling and incremental invalidation.
+An owner with mixed exact compiler classes stays entirely without PCH; it is
+reported as `mixed-compiler-classes`, never split into source-level assignments.
+Targets whose GN templates lack a global PCH hook remain unassigned and are
+reported as `no-global-pch-hook`. Eligibility comes from `global_pch_owner`
+metadata in the real GN graph, including enum helpers inheriting an owner's PCH.
 
 ```sh
 pch_update --baseline /path/to/no-pch-build --disk 16G
 
-# Independently saved optimization profiles:
+# Choose the objective for this run:
 pch_update --baseline /path/to/no-pch-build --disk 16G --mode=global
 pch_update --baseline /path/to/no-pch-build --disk 16G --mode=incremental
 
@@ -17,128 +30,159 @@ pch_update --baseline /path/to/no-pch-build \
     --workers 32 --ram-gb 96 --disk 16G --q 0.1
 ```
 
-The normal command runs the complete analysis → compatibility → prediction →
-measured verification → correction cycle. It stops on the first failure and
-prints the cycle directory and final result path. No manually numbered plan
-directories are needed. `run` is an optional explicit command name.
+Run from the source worktree (or a subdirectory). The normal command runs
+baseline preparation → analysis/selection → initial measurement → correction →
+corrected measurement → GN export/replacement/validation. It stops on failure;
+repeat the same invocation to continue. There is exactly one correction.
+
+| Stage | Command | Work |
+| --- | --- | --- |
+| Predict | `pch_update --baseline B --disk 6G --predict` | Prepare/build no-PCH baseline with traces; analyze, select, check compatibility |
+| Correct | `pch_update --baseline B --correct` | Measure initial groups, calibrate/correct, measure corrected groups |
+| Apply | `pch_update --baseline B --apply` | Export GN groups, replace the old tree, check flags/assignments and build normal global targets |
+| All | `pch_update --baseline B --disk 6G` | All three stages in order |
+
+Only one stage flag may be supplied. Stage prerequisites are explicit: a standalone
+`--correct` needs a completed prediction; `--apply` needs a verified correction.
+Paths and parameters are stored automatically; no `--output`, `--plan`,
+`--analysis` or `--export` arguments exist. Retries inherit settings while the run
+is unfinished. After successful application, all temporary state and settings are
+removed. The next weekly run starts fresh and needs `--disk` again.
 
 | Option | Default |
 | --- | --- |
-| `--workers` | Available CPU count |
-| `--ram-gb` | 75% of available RAM at startup, capped by the exposed cgroup-v2 budget |
-| `--disk` | **required**: resident PCH budget, e.g. `16G`, `4.5G`, `800M`, `400K`; a bare number means gigabytes |
+| `--workers` | CPU count at run start; shared baseline/MEASURE worker ceiling |
+| `--ram-gb` | 75% of available RAM before baseline preparation, capped by the exposed cgroup-v2 budget; shared baseline/MEASURE budget |
+| `--disk` | **required on first predict**: resident PCH budget, e.g. `16G`, `4.5G`, `800M`, `400K`; a bare number means gigabytes |
 | `--mode` | `incremental`; `global` prioritizes cold builds, `incremental` prioritizes historical rebuilds |
 | `--q` | Cold-build weight: `1` for `global`, `0.1` for `incremental`; an explicit value overrides the profile default |
 | `--bandwidth-gbps` | 1 GB/s |
 | `--action-memory-gb` | 1 GB unmeasured-action RSS prior |
 | `--analysis-jobs` | min(24, CPU count) |
-| `--state-age` | `7d`: expire the selected profile if no successful cycle renewed it for this long (`12h`, `2w`, bare = days, `0` = never) |
-| `--sample` | `100`: share of compile actions that `verify` measures (`10`..`100`); all PCHs and required generator tools are built |
+| `--measure-max-external-cpu` | max(0.5, 2% of min(host CPUs, workers)): allowed outside CPU cores during MEASURE |
+| `--sample` | `100`: share of whole PCH-owner targets that `verify` measures (`10`..`100`); all their C++ members, all PCHs and required generator tools are built |
 | `--target` | `all` and `tests`; repeat to override |
 
 `--mode=global` and `--mode global` are equivalent. Explicit `--q` takes precedence
 regardless of argument order. The profile name chooses the optimization objective
-and saved variant; it does not change GN's `pch_mode`. Both profiles select
-base/delta PCH chains. Current output is a frozen Ninja plan; exporting these
-chains to GN `pch_mode="global"` is a separate, unfinished integration.
+only; it does not change GN's `pch_mode`. Both objectives select
+base/delta PCH chains. Both install into GN `pch_mode="global"`. When omitted,
+`--mode` resumes the current run's objective (initially `incremental`). There is
+only one unfinished run, even when changing the objective.
 
-All default state is owned by the baseline. Analysis and caches are shared,
-while working cycles and saved results are profile-local:
+All scratch belongs to this one run under the baseline:
 
 ```text
 BASELINE/.pch_update/
-  cache/                  # header/history/trace jobs and compatibility-v1/
-  analysis.path           # latest reusable checkpoint from either profile
-  generation              # shared cache identity: schema, source tree, baseline
-  modes/
-    global/
-      runs/cycle-*/initial/
-      runs/cycle-*/corrected/
-      analysis.path       # this profile's latest checkpoint
-      current.path        # this profile's current cycle
-      result.path         # this profile's latest successful corrected result
-      generation          # profile identity and last successful cycle time
-    incremental/          # the same layout, maintained independently
+  state.bin               # worktree binding and current parameters
+  cache/                  # resumable analysis jobs and compatibility probes
+  analysis.path           # current reusable analysis checkpoint
+  current/
+    initial/              # prediction, measured graph and telemetry
+    corrected/            # corrected plan and its measured graph
+    export/               # generated global PCH tree
+    original-global/      # rollback backup of the previous groups
+    global/               # ordinary GN validation build
 ```
 
-Generation identity includes the analysis schema (`pch-analysis-*`), source tree
-(`git rev-parse HEAD` plus `git diff`) and baseline configuration (`args.gn`,
-`build.ninja`, `build.ninja.d`, `compile_commands.json`). A change invalidates the
-shared analysis pointer and compatibility cache. Content-addressed `cache/j`
-entries are retained and aged by `jobs.bin`. Changing only `--mode` or `--q`
-reuses checked analysis and compatibility work.
+Worktree and baseline locks serialize the workflow. Source/configuration/tool
+fingerprints protect frozen measurements. Changing inputs restarts prediction
+when running the full cycle or `--predict`; later stages request `--predict` first.
+Analysis checkpoints and content-addressed compiler probes are reused when their
+inputs still match. Stale results are replaced in the same working directory,
+with a journal for interrupted resets; no previous iterations are archived.
+An existing legacy active run is adopted without relocating its embedded paths.
+Its old scratch is also removed when application succeeds.
 
-Each profile checks its own generation and `--state-age` on a full cycle. Expiry
-or cleanup touches that profile's runs and pointers; the other profile's result,
-measurements and build remain intact. Age expiry alone does not clear shared
-caches. A common cycle lock serializes full cycles using the shared state.
+Successful probes discard their redundant depfiles after saving dependency
+fingerprints. Once the corrected plan is durable, compatibility scratch and
+initial `.o`/`.pch`/`.dwo` artifacts that are not snapshot inputs are discarded.
+The corrected model and its measured build remain available until application
+finishes. There are no age limits, LRU policies or persistent cross-run caches.
 
-Within each profile the state keeps one working cycle: as soon as a new plan and
-its analysis checkpoint exist, older cycles in its `runs/` lose their build products
-(`build/`, `actions/`, `snapshot.bin`, `analysis.bin`) but keep their
-measurements and reports (`observations/`, `initial-errors.tsv`, `predictions.tsv`,
-`summary.tsv`, `calibration.tsv`), so the last result stays comparable for a few
-megabytes. Cycles older than the last one are deleted. A profile generation change
-does the same within that profile: the last cycle keeps its measurements.
-Only a plan given by `--output` keeps the checkpoint it may reuse.
+The baseline is generated/built with `pch_mode="none"`, `time_trace=true`.
+Existing build arguments are retained. A baseline bound to another worktree is
+rejected. `--target NAME` overrides the default `all tests` workload. With no
+history, use `--q 1`. Resource limits remain frozen while a measurement resumes.
 
-Legacy `BASELINE/.pch_update/runs/` and root-level result pointers are left in
-place: moving them would break frozen absolute paths. Old analysis checkpoints
-and compatibility records remain readable; snapshots without a profile field
-default to `incremental` while retaining their recorded `q`. New full cycles use
-the profile directories above, including when `--mode` is omitted.
+Worker, RAM, bandwidth and per-action memory defaults are resolved and saved
+**before** preparing the baseline. Retries and both MEASURE stages inherit those
+values, including when available RAM has changed since the first invocation.
+Existing unfinished plans supply their already frozen resource defaults.
 
-Repeating an unchanged invocation within a profile resumes an unstarted verification or reuses a
-completed successful verification/result, after identity checks. Resource
-defaults are frozen in that plan when resuming. Failed/interrupted measured
-builds require a fresh cycle; valid analysis and compatibility results are still
-reused automatically. Changing the tool invalidates frozen measured plans but
-allows checked analysis reuse. Explicit extraction options (`--target`,
-`--main-ref`, `--root`, `--gn`, `--ninja`) conservatively rerun analysis using the
-lower-level caches. `--output` overrides the cycle directory; `--work-dir`
-overrides the cache location.
+The no-PCH model reserves `--action-memory-gb` for each non-phony action. Baseline
+Ninja therefore uses explicit
+`-j min(workers, floor(ram-gb / action-memory-gb))`. MEASURE uses `-j workers`
+and admission against the same RAM budget, with additional PCH memory and later
+calibrated per-action reservations. These are estimated reservations, not OS hard
+RSS limits. GN's named pools are inherited from the baseline and checked against
+the freshly generated measurement graph. Bandwidth admission applies to modeled
+PCH reads/writes; no-PCH actions have no such cost.
 
-The baseline must be complete and current, with `pch_mode = "none"` and
-`time_trace = true`. New output directories must not exist and must be outside
-the source tree; inside the baseline only `.pch_update/` descendants are allowed.
-Use `--target NAME` repeatedly to change the default
-`all tests` workload. `--q` is the cold-build fraction; with no history, use
-`--q 1`. Run `pch_update --help` for the remaining options.
+These settings govern newly executed baseline commands. An incremental baseline
+can retain traces produced earlier under other parallelism or cache conditions;
+matching launch settings does not retroactively remeasure those traces or prove
+full-build speedup.
 
-`predict` reuses cached trace, history and standalone-header analysis. It runs
-GN and analysis compiler probes, then emits a separate full Ninja graph with
-per-file PCH assignments, real generators and linking. The baseline and the
-source-tree PCH configuration are preserved; tool state is stored in the
-baseline's reserved `.pch_update/` subtree.
+Analysis is saved before selection/emission. Completed selection is saved as
+`selection.bin` immediately, before compatibility probes or graph emission, for
+both the initial and corrected plan. A retry reuses it when the tool, model,
+calibration and frozen-base inputs match. Resolved resource defaults stay frozen
+when resuming an incomplete plan. Interrupted selection or correction also
+reuses successful compatibility probes. Interrupted measurements reuse their
+Ninja graph, successful objects and validated telemetry; missing/failed records
+invalidate only their own outputs. Completed stages are reused while the run is
+unfinished. Elapsed wall
+time across resumed measurement attempts includes time between attempts; action
+timings used for calibration do not include that idle interval.
+Source/tool changes that invalidate a frozen measurement require recomputation;
+resuming does not bypass input fingerprints.
 
-For diagnosis or explicit stage control, the low-level commands remain:
+### CPU interference during MEASURE
 
-```sh
-pch_update predict --baseline /path/to/no-pch-build --output /path/to/initial-plan --disk 16G
-pch_update verify --plan /path/to/initial-plan
-pch_update correct --plan /path/to/initial-plan --output /path/to/corrected-plan
-```
+Both measured builds monitor host CPU accounting once per second. Compilers run
+directly without compiler-cache daemons. The monitor subtracts the controller and
+the measured Ninja process group's CPU, including waited-for children, from
+`/proc/stat` busy CPU. The remaining work includes other processes, interrupts
+and VM steal time; idle and I/O wait are excluded. Short-lived or hidden outside
+processes still contribute to the host total.
 
-After analysis, `analysis.bin` is saved **before** selection and build emission.
-If selection or emission needs a tool fix, reuse this boundary in a new directory:
+The limit is **2% of min(host CPUs, configured workers), with a floor of 0.5 CPU
+cores**, averaged over five-second windows. The final shorter window is also
+checked, with a one-second minimum CPU-time allowance for accounting granularity.
+`--measure-max-external-cpu N` sets an explicit positive allowance in CPU cores;
+it is persisted with the unfinished run's other settings. For example, `2`
+permits an average of two busy outside CPU cores, not 2% of the machine.
+Brief bursts below this budget are tolerated; no attempt is made to mathematically
+correct contaminated wall times. This is a CPU-noise bound, not a guarantee about
+disk, memory bandwidth or thermal interference.
 
-```sh
-pch_update replan --plan /path/to/initial-plan --output /path/to/replanned --disk 16G
-```
+When the limit is exceeded, CPU accounting fails, or monitoring stalls for more
+than three seconds, only the measured process group is stopped. Exit status is
+125 for a detected rejection. All results of that measured phase are marked
+invalid; the next `--correct` or full invocation clears their outputs/telemetry
+and repeats the measurement, retaining analysis and the selected plan. The other
+measured phase is unaffected. No unrelated process is stopped.
 
-This skips trace parsing, history extraction and standalone-header analysis. It retains
-the original model inputs and resource settings, but runs the current selector
-and emitter. `--disk` supplies the new PCH budget. `replan` inherits the saved
-profile and `q` unless overridden: `--mode=global` selects the global profile
-and its default weight; adding `--q 0.5` overrides that weight. `verify` and
-`correct` always use the frozen profile and objective.
-Source/configuration fingerprints, Git history and baseline logs
-are checked; object/trace sizes and modification times are checked without
-rereading their contents. Selector/tool edits are allowed unless those files
-are themselves measured build inputs. Extraction changes require incrementing
-the analysis schema and a fresh `predict`. Complete older v2 plans can also be
-replanned, with a stricter unchanged-tree check. This starts a new cycle with
-new predictions; it does not revise a measured cycle or reuse its observations.
+`initial/cpu-load.tsv` and `corrected/cpu-load.tsv` record host, own and outside CPU
+rates; `cpu-last-rejection.txt` records the reason and up to five observed outside
+process names/PIDs. A durable `cpu-monitor.active` checkpoint covers checked
+intervals. After a controller `SIGKILL`, completed actions from those intervals
+are reused, but recent actions and orphan work without CPU monitoring are
+remeasured. These diagnostics are scratch and disappear after successful apply.
+
+`--apply` emits exact owner labels and ordered compiler classes, resolves generated
+headers through public codegen targets and represents parent PCH dependencies in
+GN. Before building, it checks every assigned consumer and every PCH producer
+against the actual global graph. The normal GN workload is then built, including
+bootstrap-tool work. A journal and backup restore the old global tree on failure
+or recover an interrupted replacement on the next invocation. User edits made
+during a suspended replacement are detected rather than overwritten.
+After the successful build and installation commit, the entire `.pch_update`
+directory is renamed to `.pch_update.cleanup` and deleted. A retry finishes an
+interrupted cleanup without rebuilding or reinstalling anything. The baseline
+itself and the installed source-tree PCH groups remain. A later invocation with
+`--disk` starts a new run rather than recalling the previous one.
 
 Selection removes unused artifacts and prunes low-benefit leaf groups to fit
 the PCH disk budget before scoring the complete graph. Frozen bases survive
@@ -159,16 +203,16 @@ Before freezing any initial or corrected prediction, `predict`, `replan` and
 `correct` run a **compatibility preflight** against the completed baseline:
 
 1. Compile each selected PCH chain with its exact compiler class.
-2. Check every assigned translation unit with `-fsyntax-only` and its PCH.
-3. On a compiler diagnostic, try the parent PCH, then a no-PCH compile. Only a
-   successful fallback is accepted. A no-PCH failure or compiler crash aborts
-   planning instead of silently discarding assignments.
+2. Check every C++ member of each assigned target with `-fsyntax-only` and its PCH.
+3. If any member fails, move the **whole target** to the parent PCH and recheck
+   every member, then try all members without PCH. Only a universally successful
+   fallback is accepted. A no-PCH failure or compiler crash aborts planning.
 4. Remove unused chains and recompute the prediction from the checked layout.
    Correction preserves every frozen base; failure to compile one aborts it.
 
 This catches cases where a PCH compiles alone but introduces declarations that
 make a consumer ambiguous (for example `llvm::Module` in `Minidump.cpp`).
-`compatibility.tsv` records fallback decisions and diagnostic log paths; its
+`compatibility.tsv` records target-wide fallback decisions and diagnostic log paths; its
 group IDs refer to the candidate before unused groups are compacted.
 
 Successful probes and PCH artifacts are cached under
@@ -200,18 +244,19 @@ cache and its `compatibility-v1/` subdirectory need this marker. Old paths then
 contain only links, while all artifacts live in the baseline. Keep those aliases
 while the migrated entries are in use. Newly created caches need no aliases.
 
-`verify` runs the generated `build/measured.ninja` once, using direct local
+The measurement steps run `build/measured.ninja`, using direct local
 compiler commands and explicit per-action observations. Worker/pool limits are
 enforced by Ninja; the runner reserves predicted RAM and PCH I/O bandwidth
 across processes. `--disk` limits resident PCH artifacts, rather than total
 build-directory size. Memory reservations are estimates, not OS memory limits.
-Each fresh plan permits one verification invocation; failed or interrupted
-runs cannot provide calibration data. Use a new plan directory to retry.
+Each plan has a persistent measurement identity. A failed or interrupted run
+resumes under that identity; calibration is allowed only after every required
+measurement has completed successfully and passed output validation.
 
 `--sample PERCENT` (10..100, default 100) makes verification build only a share
-of the compilations. The selection is deterministic per plan, so a plan always
-measures the same actions: every PCH build plus a pseudo-random share of the
-compile actions. Sampling changes prerequisites, not the selected compiler
+of the targets. Selection is deterministic per plan and GN owner label, independent
+of target size: every PCH build plus **all C++ compilations** of a pseudo-random
+share of targets. Sampling changes prerequisites, not the selected compiler
 commands or PCH assignments. For sampled compilation, GN's target-wide order-only
 dependencies are replaced by generated inputs recorded in the frozen baseline's
 `.ninja_deps`, supplemented by inputs from successful compatibility probes with
@@ -222,12 +267,14 @@ Generators still compile and link their tools and libraries as needed; only
 unnecessary target-wide ordering is removed from compilation. Therefore 20%
 does not promise a fivefold speedup: all PCHs and their required tools still
 have to be built. `sampling.tsv` and the `measurement sample` log line report
-both selected compilations and the actual prerequisite closure, including links.
+selected targets, their compilations and the actual prerequisite closure, including links.
 At 100%, the full GN ordering is preserved.
 
 Calibration uses the selected observations, keeping mandatory extra tool builds
-out of the random sample. Unmeasured actions keep the model estimate; `correct`
-reports calibration coverage in `calibration.tsv` (`# measured_actions`).
+out of the random sample. Calibration sums features and timings per complete
+target; partially observed targets contribute neither controls nor training or
+holdout rows. Unmeasured actions keep the model estimate; `correct` reports
+coverage in `calibration.tsv` (`# measured_actions`, `# measured_targets`).
 With a sampled run `cold_seconds` is a prediction rather than a measured full
 build; `summary.tsv` says so.
 
@@ -238,50 +285,45 @@ emits a new independent build directory. The corrected configuration remains
 a prediction. It can optionally be measured with `verify --plan` too, but cannot
 be corrected again within this cycle.
 
+`assignments.tsv` has one row per owner target, including its compilation count
+and predicted aggregate compile work in seconds; `target-members.tsv` maps each
+member's source and output back to its owner. `initial-errors.tsv` compares
+aggregate compile work per measured target and reports target WAPE. Detailed
+per-action measurements remain in `initial-action-errors.tsv`. Aggregate work
+is not target wall time: wall predictions still use the complete scheduled DAG.
+
 ## Building
 
-The binary is an ordinary GN target, `//build/gn/pch_update:pch_update`. It is
-deliberately absent from the root `group("all")`, so a full build does not need
-it. Because GN only loads referenced `BUILD.gn` files, a build directory must be
-generated with the tool reachable from a root target:
+The binary is an ordinary GN target, `//build/gn/pch_update:pch_update`, reachable
+from the root `group("all")`. To reuse an existing GN build directory after
+switching worktrees, regenerate its graph against the new source root before
+building the tool:
 
 ```sh
-# 1. add a temporary root group (NOT inside group("all"))
-printf '\ngroup("pch_tools") {\n    deps = [ "//build/gn/pch_update" ]\n}\n' >> BUILD.gn
-
-# 2. generate and build in a dedicated directory
-gn gen ~/b/gn-tools --script-executable=python3.9 \
-    --args='build_type="relwithdebinfo" distclang=true clang_bin_path="'"$HOME"'/.ya/tools/v4/13899442575/bin" pch_mode="none"'
+gn gen ~/b/gn-tools --root="$PWD" --script-executable=python3.9
 ninja -C ~/b/gn-tools build/gn/pch_update:pch_update
-
-# 3. restore the tracked tree, keeping the previous mtime
-cp -p BUILD.gn.pristine BUILD.gn   # or: git checkout -- BUILD.gn && touch -r <old> BUILD.gn
 ```
 
 The executable is written to the build directory root: `~/b/gn-tools/pch_update`.
-Restoring `BUILD.gn` keeps the source-tree identity used by analysis checkpoints
-intact. Keep the temporary group only while generating and building; a later
-`gn gen` without it removes the target from that graph, but the binary remains.
-
-Restore `BUILD.gn` **with its old modification time** (`cp -p`, `touch -r`). A
-plain copy makes it newer than the baseline's generated `build.ninja`, and
-`pch_update` then refuses the baseline as stale ("gn files changed since the
-build"). The content is what matters: the same bytes need no regeneration, and
-`ninja -C BASELINE -n build.ninja` should report "no work to do".
-`build/gn/pch_update/BUILD.gn` is not an input of the baseline graph at all
-(the target is not referenced there), so its timestamp never matters.
+The existing `args.gn` is preserved. Regenerating a *different* build directory
+against this tree requires its own GN invocation; the no-PCH baseline is not
+modified by the tool build. Adding the tool to `group("all")` changes the source
+tree identity, so existing analysis checkpoints must be regenerated.
 
 ## Artifacts
 
 - `snapshot.bin`: checksummed analysis, configuration, initial predictions and
   action identities; never rewritten by verification or correction.
-- `summary.tsv`, `predictions.tsv`, `assignments.tsv`: objective, per-action
-  estimates and per-file leaf assignments.
+- `selection.bin`: completed layout keyed by selector inputs, reusable even
+  when compatibility checking or build emission has not finished yet.
+- `summary.tsv`, `predictions.tsv`, `assignments.tsv`, `target-members.tsv`:
+  objective, per-action estimates, target-level leaves and their C++ members.
 - `build/pch/*.h`: selected root headers; the Ninja manifest records the chains.
 - `observations/*.bin`, `run.bin`: action timing, child CPU/RSS, output sizes,
   command identity and verification invocation.
-- `initial-errors.tsv`, `calibration.tsv` in the corrected plan: original
-  prediction errors, measured wall time, fit coverage and held-out errors.
+- `initial-errors.tsv`, `initial-action-errors.tsv`, `calibration.tsv` in the
+  corrected plan: aggregate target and detailed action errors, measured wall
+  time, fit coverage and held-out errors.
 
 The model uses exclusive header costs and full cold/historical DAG scheduling.
 Order-only edges affect scheduling but not dirty propagation. Validation edges
@@ -292,4 +334,15 @@ priors. Exact compiler flags, macros and include order define compatibility
 classes, so some classes may have too few groups to identify separate costs.
 
 `pch_update self-test` checks scheduling, invalidation, frozen-base refinement,
-calibration rank/holdout isolation, snapshot corruption and measurement records.
+calibration rank/holdout isolation, snapshot corruption, measurement restart,
+missing telemetry and interrupted replacement recovery.
+
+The public CLI and real GN export/build are exercised by:
+
+```sh
+python3 build/gn/pch_update/workflow_test.py /path/to/pch_update /path/to/clang++
+```
+
+This uses a temporary sparse shared clone without creating commits, and retains
+its fixture/log on failure. It covers separate stages, inherited parameters,
+repeat invocations and the full default pipeline after a source change.

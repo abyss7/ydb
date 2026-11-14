@@ -79,6 +79,14 @@ namespace NPchUpdate::NTwoStep {
             return d;
         }
 
+        void TestTargets(TData& d, int members = 1) {
+            std::vector<std::string> labels;
+            for (size_t f = 0; f < d.Files.size(); ++f) {
+                labels.push_back("//test:t" + std::to_string(1000000 + f / members));
+            }
+            GroupTargets(d, labels);
+        }
+
         void FrozenBase() {
             auto d = Data();
             d.Units.resize(2);
@@ -100,6 +108,7 @@ namespace NPchUpdate::NTwoStep {
                 d.Files[f].Own = {{0, 3}, {1, 4}};
                 d.Files[f].Source = std::to_string(f);
             }
+            TestTargets(d, 2);
             TLayout initial;
             TPch base;
             base.Class = 0;
@@ -107,7 +116,7 @@ namespace NPchUpdate::NTwoStep {
             base.Roots = base.Units = {0};
             initial.Bases = 1;
             initial.Pchs = {base};
-            initial.Assignment.assign(8, 0);
+            initial.Assignment.assign(d.Targets.size(), 0);
             auto corrected = Select(d, {}, &initial);
             Check(corrected.Bases == 1 && corrected.Pchs[0].Roots == base.Roots &&
                   corrected.Pchs[0].Units == base.Units && corrected.Pchs[0].Representative == 0,
@@ -145,8 +154,9 @@ namespace NPchUpdate::NTwoStep {
                     d.Files.push_back(f);
                 }
             }
+            TestTargets(d, 2);
             TLayout none;
-            none.Assignment.assign(d.Files.size(), -1);
+            none.Assignment.assign(d.Targets.size(), -1);
             auto selected = Select(d, {});
             Check(selected.Bases == 1 && selected.Pchs.size() == 1 && selected.Pchs[0].Class == 0,
                   "disk budget keeps the profitable subset instead of rejecting all bases");
@@ -183,6 +193,7 @@ namespace NPchUpdate::NTwoStep {
                 d.Actions.push_back(a);
                 d.Files.push_back({i, 0, std::to_string(i), {{0, 6}, {1, 1}}});
             }
+            TestTargets(d);
             for (const char* include : {"\"/sysroot/usr/include/stdlib.h\"",
                                         "\"google/protobuf/port_def.inc\"", "<macros.def>"}) {
                 d.Units[0].Include = include;
@@ -218,7 +229,6 @@ namespace NPchUpdate::NTwoStep {
                     file.Own = {{g, 0.5 + 0.1 * j}};
                     d.Actions.push_back(action);
                     d.Files.push_back(file);
-                    layout.Assignment.push_back(g);
                 }
             }
             for (int j = 0; j < 4; ++j) {
@@ -229,7 +239,15 @@ namespace NPchUpdate::NTwoStep {
                 f.Class = 0;
                 d.Actions.push_back(a);
                 d.Files.push_back(f);
-                layout.Assignment.push_back(-1);
+            }
+            std::vector<std::string> owners;
+            for (size_t f = 0; f < d.Files.size(); ++f) {
+                owners.push_back("//test:t" + std::to_string(1000000 + (f < 24 ? f / 2 : f)));
+            }
+            GroupTargets(d, owners);
+            for (const auto& target : d.Targets) {
+                int f = target.Files.front();
+                layout.Assignment.push_back(f < 24 ? f / 4 : -1);
             }
             auto prediction = Predict(d, layout, {});
             std::vector<TObservation> obs(prediction.Actions.size());
@@ -239,11 +257,21 @@ namespace NPchUpdate::NTwoStep {
                 if (i >= d.Actions.size()) { obs[i].Bytes = prediction.PchBytes[i - d.Actions.size()]; }
             }
             for (size_t f = 0; f < d.Files.size(); ++f) {
-                obs[f].Time = layout.Assignment[f] < 0 ? 20 : 20 - 1.4 * prediction.Saved[f] + 0.03 * prediction.Load[f] + 0.5;
+                obs[f].Time = layout.Assignment[d.Files[f].Target] < 0 ? 20 : 20 - 1.4 * prediction.Saved[f] + 0.03 * prediction.Load[f] + 0.5;
             }
             auto fit = Calibrate(d, layout, prediction, obs);
             Check(fit.Classes[0].Identified, "independent parse/load variation identified");
-            Near(fit.Classes[0].Saved, 1 + (4.0 / 6) * 0.4, "rank-tested shrinkage fit");
+            Near(fit.Classes[0].Saved, 1 + (8.0 / 10) * 0.4, "target-aggregated rank-tested shrinkage fit");
+            auto partial = obs;
+            partial[1] = {};
+            auto partialFit = Calibrate(d, layout, prediction, partial);
+            partial[0].Time *= 100;
+            partial[0].Memory *= 100;
+            auto changedPartial = Calibrate(d, layout, prediction, partial);
+            Near(changedPartial.Classes[0].Saved, partialFit.Classes[0].Saved,
+                 "a partially measured target contributes no training rows");
+            Near(changedPartial.Classes[0].ConsumerMemory, partialFit.Classes[0].ConsumerMemory,
+                 "partial target RSS cannot leak into calibration");
             // A sampled verification measures only part of the graph: the fit
             // must use what it has, and the rest keeps the model's own time.
             std::vector<TObservation> sampled = obs;
@@ -281,6 +309,63 @@ namespace NPchUpdate::NTwoStep {
                 Check(slower.Actions[f].Time >= 20, "negative combined fit cannot reward unused PCH bytes");
             }
         }
+
+        void AtomicTargets() {
+            auto d = Data();
+            d.Resources.Workers = 1;
+            d.Units.resize(1);
+            d.Units[0].Include = "<shared>";
+            d.Units[0].Stable = true;
+            d.Units[0].Parse = 10;
+            d.Units[0].Bytes = 1;
+            std::vector<std::string> labels;
+            auto add = [&](const std::string& label, double saved) {
+                int id = int(d.Files.size());
+                TAction a;
+                a.Time = 10;
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                d.Files.push_back({id, 0, std::to_string(id), saved > 0 ?
+                    std::vector<std::pair<int, double>>{{0, saved}} : std::vector<std::pair<int, double>>{}});
+                labels.push_back(label);
+            };
+            add("//a:control", 0);
+            // One profitable file cannot opt in when its siblings' load loses more.
+            for (int f = 0; f < 25; ++f) { add("//b:losing", f == 0 ? 4 : 0); }
+            // The target is profitable in aggregate, although half its files lose.
+            for (int f = 0; f < 8; ++f) { add("//c:winning", f < 4 ? 4 : 0); }
+            GroupTargets(d, labels);
+            auto selected = Select(d, {});
+            Check(selected.Assignment.size() == 3 && selected.Assignment[0] < 0 &&
+                  selected.Assignment[1] < 0 && selected.Assignment[2] >= 0,
+                  "assignment sums benefits and load over every target member");
+            auto prediction = Predict(d, selected, {});
+            int leaf = int(d.Actions.size()) + selected.Assignment[2];
+            for (int f : d.Targets[2].Files) {
+                const auto& a = prediction.Actions[d.Files[f].Action];
+                Check(a.Dependencies == std::vector<int>{leaf}, "all members use the same leaf, including losing members");
+            }
+            Check(prediction.Actions.back().Time > 0 && prediction.Actions[33].Time > d.Actions[33].Time,
+                  "target cost includes PCH load in files with no parse savings");
+            d.Targets[2].PchEligible = false;
+            Check(Select(d, {}).Assignment[2] == -1, "profitable target without a GN hook cannot be assigned");
+            bool noHook = false;
+            try { Predict(d, selected, {}); } catch (const TError&) { noHook = true; }
+            Check(noHook, "prediction rejects an assignment GN cannot apply");
+            d.Classes = 2;
+            d.Files.back().Class = 1;
+            GroupTargets(d, labels);
+            auto mixed = Select(d, {});
+            Check(d.Targets[2].Class == -1 && mixed.Assignment[2] == -1,
+                  "mixed compiler classes leave the whole owner without PCH");
+            bool rejected = false;
+            try { Predict(d, selected, {}); } catch (const TError&) { rejected = true; }
+            Check(rejected, "prediction rejects a PCH incompatible with any target member");
+            d.Targets[2].Files.pop_back();
+            rejected = false;
+            try { Select(d, {}); } catch (const TError&) { rejected = true; }
+            Check(rejected, "missing target members are never silently ignored");
+        }
     } // namespace
 
     int SelfTest() {
@@ -290,6 +375,7 @@ namespace NPchUpdate::NTwoStep {
         DiskBudgetSelection();
         AbsoluteSystemRoot();
         Calibration();
+        AtomicTargets();
         IoSelfTest();
         Report("two-step self-tests: OK");
         return 0;

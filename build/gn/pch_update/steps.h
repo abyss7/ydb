@@ -19,6 +19,8 @@ namespace NPchUpdate {
         std::string Ninja = "ninja";
     };
 
+    bool BuildRunning(const std::string& buildDir);
+
     // A group of targets with a PCH: its flag class (an index of
     // TFacts::Classes), its selection; the targets the checks keep in it.
     struct TGroup {

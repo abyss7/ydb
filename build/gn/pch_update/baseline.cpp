@@ -24,7 +24,7 @@ namespace NPchUpdate {
 
     namespace {
 
-        constexpr uint64_t GN_RESULT_TAG = 0x70636875'676e7201ull + JOBS_VERSION;
+        constexpr uint64_t GN_RESULT_TAG = 0x70636875'676e7301ull + JOBS_VERSION;
         constexpr size_t THREADS = 8;
         // A trace is written right after its object; older than it by more is of another compile.
         constexpr int64_t TRACE_SLACK_NS = 60'000'000'000;
@@ -43,6 +43,7 @@ namespace NPchUpdate {
             std::string Type;
             std::vector<std::string> Deps;
             std::vector<std::string> Outputs;
+            std::string PchOwner;
         };
 
         void SaveGnResult(const std::string& path, const std::vector<TGnTarget>& targets) {
@@ -54,6 +55,7 @@ namespace NPchUpdate {
                 out.Str(t.Type);
                 out.StrList(t.Deps);
                 out.StrList(t.Outputs);
+                out.Str(t.PchOwner);
             }
             WriteFileIfChanged(path, out.Data());
         }
@@ -70,6 +72,7 @@ namespace NPchUpdate {
                 t.Type = in.Str();
                 t.Deps = in.StrList();
                 t.Outputs = in.StrList();
+                t.PchOwner = in.Str();
             }
             return targets;
         }
@@ -942,11 +945,13 @@ namespace NPchUpdate {
             }
             facts.TypeOf.clear();
             facts.DepsOf.clear();
+            facts.GlobalPchOwner.clear();
             for (const TGnTarget& t : targets) {
                 if (IsQualified(t.Label) || t.Type.empty()) {
                     continue;
                 }
                 facts.TypeOf[t.Label] = t.Type;
+                if (!t.PchOwner.empty()) { facts.GlobalPchOwner[t.Label] = t.PchOwner; }
                 std::vector<std::string>& deps = facts.DepsOf[t.Label];
                 for (const std::string& d : t.Deps) {
                     if (!IsQualified(d)) {
@@ -1059,6 +1064,14 @@ namespace NPchUpdate {
                         target.Type = JsonString(type->value);
                     }
                     target.Deps = JsonStrings(t->value, "deps");
+                    auto metadata = t->value.FindMember("metadata");
+                    if (metadata != t->value.MemberEnd() && metadata->value.IsObject()) {
+                        auto owners = JsonStrings(metadata->value, "global_pch_owner");
+                        if (owners.size() > 1 || (!owners.empty() && !StartsWith(owners[0], "//"))) {
+                            Fail("invalid global_pch_owner metadata for " + label);
+                        }
+                        if (!owners.empty()) { target.PchOwner = owners[0]; }
+                    }
                 }
             }
         }
@@ -1103,6 +1116,10 @@ namespace NPchUpdate {
 
     std::vector<std::string> GnGenerationSwitches(const TNinjaManifest& manifest) {
         return GnCommand(manifest).Switches;
+    }
+
+    bool BuildRunning(const std::string& buildDir) {
+        return !RunningNinja(buildDir).empty();
     }
 
     bool CheckBaseline(const TOptions& options, const TTools& tools, TWorkDir& work, TFacts& facts) {

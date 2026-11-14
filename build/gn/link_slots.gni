@@ -252,13 +252,18 @@ template("linked_executable") {
       precompiled_source = "//build/gn/pch/per_target/" + rebase_path(".", "//") + "/$_exe.h"
       configs += [ "//build/gn/config:pch" ]
     }
-    if (pch_mode == "global" && current_toolchain == default_toolchain && defined(sources) &&
+    if (current_toolchain == default_toolchain && defined(sources) &&
         filter_include(sources, [ "*.cpp", "*.cc", "*.cxx" ]) != []) {
       _pch_label = get_label_info(":$_exe", "label_no_toolchain")
-      not_needed([ "_pch_label" ])
-      foreach(_group, pch_groups) {
-        if (label_matches(_pch_label, _group.targets)) {
-          deps += [ "//build/gn/pch/global:pch_${_group.name}" ]
+      if (!defined(metadata)) {
+        metadata = {}
+      }
+      metadata.global_pch_owner = [ _pch_label ]
+      if (pch_mode == "global") {
+        foreach(_group, pch_groups) {
+          if (label_matches(_pch_label, _group.targets)) {
+            deps += [ "//build/gn/pch/global:pch_${_group.name}" ]
+          }
         }
       }
     }

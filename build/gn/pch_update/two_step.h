@@ -47,12 +47,21 @@ namespace NPchUpdate::NTwoStep {
         int Class = -1;
         std::string Source;
         std::vector<std::pair<int, double>> Own;
+        int Target = -1;
+    };
+
+    struct TTarget {
+        std::string Label; // GN PCH owner, including helpers inheriting its config
+        int Class = -1; // mixed compiler classes: keep the entire target without PCH
+        std::vector<int> Files;
+        bool PchEligible = true; // all members receive this owner's PCH in GN
     };
 
     struct TData {
         std::vector<TAction> Actions;
         std::vector<TUnit> Units;
         std::vector<TFile> Files;
+        std::vector<TTarget> Targets;
         int Classes = 0;
         int Scenarios = 0;
         double Q = 0;
@@ -71,7 +80,7 @@ namespace NPchUpdate::NTwoStep {
     struct TLayout {
         std::vector<TPch> Pchs; // bases first, then deltas
         int Bases = 0;
-        std::vector<int> Assignment; // file -> leaf, -1 means no PCH
+        std::vector<int> Assignment; // target -> leaf, -1 means no PCH
     };
 
     struct TCoefficients {
@@ -117,6 +126,8 @@ namespace NPchUpdate::NTwoStep {
     };
 
     // Returns infinity on resource infeasibility; malformed graphs are errors.
+    void GroupTargets(TData& data, const std::vector<std::string>& owners);
+    void ValidateTargets(const TData& data);
     double Makespan(const std::vector<TAction>& actions, const TResources& resources,
                     const std::vector<char>& dirty = {});
     std::vector<char> Invalidate(const std::vector<TAction>& actions, int scenario);

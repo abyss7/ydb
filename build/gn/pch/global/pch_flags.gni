@@ -9,4 +9,8 @@ pch_only_cflags = [
   "-relocatable-pch",
   "-Xclang",
   "-fno-pch-timestamp",
+  # Parent PCH paths in a chain are relative to the compiler's working
+  # directory, even when the relocatable headers use a different sysroot.
+  "-Xclang",
+  "-fmodule-file-home-is-cwd",
 ]

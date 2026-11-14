@@ -6,6 +6,10 @@ template("shared_pch") {
   _object = get_path_info(invoker.source, "out_dir") + "/$_compile." +
             get_path_info(invoker.source, "file") + ".o"
   _pch = "$target_gen_dir/$_name.pch"
+  if (defined(invoker.parent)) {
+    _parent_pch = "$target_gen_dir/pch_${invoker.parent}.pch"
+    _parent_target = ":pch_${invoker.parent}_pch"
+  }
   _pch_root = [
     "-isysroot",
     string_replace(string_replace(rebase_path("//.") + "/", "/./", "/"), "//", "/"),
@@ -22,10 +26,31 @@ template("shared_pch") {
     include_dirs = invoker.include_dirs
   }
 
+  # Generated layouts carry the exact compiler class. Keep generator and
+  # runtime public configs behind a private dependency boundary.
+  group("${_name}_inputs") {
+    visibility = [ ":*" ]
+    deps = platform_deps + [ "//contrib/libs/cxxsupp/libcxx" ]
+    if (defined(invoker.deps)) {
+      deps += invoker.deps
+    }
+  }
+
   source_set(_compile) {
     visibility = [ ":*" ]
     sources = [ invoker.source ]
+    deps = []
     cflags_cc = pch_only_cflags + _pch_root
+    if (defined(invoker.parent)) {
+      # GN target deps order the parent build; inputs also make an unchanged
+      # delta source recompile when its parent PCH bytes change.
+      deps = [ _parent_target ]
+      inputs = [ _parent_pch ]
+      cflags_cc += [
+        "-include-pch",
+        rebase_path(_parent_pch, root_build_dir),
+      ]
+    }
     if (defined(invoker.cflags)) {
       cflags = invoker.cflags
     }
@@ -33,10 +58,18 @@ template("shared_pch") {
       ":${_name}_private_config",
       ":${_name}_group_config",
     ]
-    deps = []
-    deps = platform_deps + [ "//contrib/libs/cxxsupp/libcxx" ]
+    deps += platform_deps + [ "//contrib/libs/cxxsupp/libcxx" ]
     if (defined(invoker.deps)) {
       deps += invoker.deps
+    }
+    if (defined(invoker.compiler_flags)) {
+      configs = []
+      cflags = invoker.compiler_flags
+      deps = []
+      deps = [ ":${_name}_inputs" ]
+      if (defined(invoker.parent)) {
+        deps += [ _parent_target ]
+      }
     }
   }
 
@@ -75,6 +108,10 @@ template("shared_pch") {
     cflags_cc = [
       "-include-pch",
       rebase_path(_pch, root_build_dir),
+      # Include all ancestors in direct-build depfiles too. A delta can remain
+      # byte-identical when only its parent's serialized macro state changes.
+      "-Xclang",
+      "-module-file-deps",
     ] + _pch_root
   }
 
@@ -92,5 +129,11 @@ foreach(_group, pch_groups) {
     cflags = _group.cflags
     defines = _group.defines
     include_dirs = _group.include_dirs
+    if (defined(_group.compiler_flags)) {
+      compiler_flags = _group.compiler_flags
+    }
+    if (defined(_group.parent)) {
+      parent = _group.parent
+    }
   }
 }

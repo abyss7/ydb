@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <atomic>
 #include <cerrno>
+#include <chrono>
 #include <climits>
 #include <cstdarg>
 #include <cstdio>
@@ -651,6 +652,9 @@ namespace NPchUpdate {
         int errPipe[2] = {-1, -1};
         bool pipeOut = options.CaptureStdout && options.StdoutFile.empty();
         bool pipeErr = options.CaptureStderr && options.StderrFile.empty() && !options.MergeStderr;
+        if (options.CheckProcess && (pipeOut || pipeErr)) {
+            Fail("monitored commands require uncaptured output");
+        }
         if ((pipeOut && pipe2(outPipe, O_CLOEXEC) != 0) || (pipeErr && pipe2(errPipe, O_CLOEXEC) != 0)) {
             Fail(ErrnoText("pipe"));
         }
@@ -700,6 +704,12 @@ namespace NPchUpdate {
             Fail(ErrnoText("fork"));
         }
         if (pid == 0) {
+            if (options.CheckProcess && setpgid(0, 0) != 0) {
+                int e = errno;
+                ssize_t ignored = write(failPipe[1], &e, sizeof(e));
+                (void)ignored;
+                _exit(127);
+            }
             int in = open("/dev/null", O_RDONLY);
             dup2(in, 0);
             if (!options.StdoutFile.empty()) {
@@ -769,13 +779,45 @@ namespace NPchUpdate {
             errReader.join();
             close(errPipe[0]);
         }
+        bool canceled = false;
+        std::exception_ptr monitorError;
+        if (options.CheckProcess) {
+            auto stop = [&]() {
+                // Keep the leader unreaped until both signals have been sent:
+                // its PID/process-group ID cannot be recycled underneath us.
+                kill(-pid, SIGTERM);
+                std::this_thread::sleep_for(std::chrono::milliseconds(200));
+                kill(-pid, SIGKILL);
+            };
+            try {
+                while (true) {
+                    siginfo_t info{};
+                    if (waitid(P_PID, pid, &info, WEXITED | WNOHANG | WNOWAIT) != 0) {
+                        if (errno == EINTR) { continue; }
+                        Fail(ErrnoText("waitid"));
+                    }
+                    const bool finished = info.si_pid == pid;
+                    if (!options.CheckProcess(pid, finished)) {
+                        canceled = true;
+                        stop();
+                        break;
+                    }
+                    if (finished) { break; }
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                }
+            } catch (...) {
+                monitorError = std::current_exception();
+                stop();
+            }
+        }
         int status = 0;
         while (waitpid(pid, &status, 0) < 0) {
             if (errno != EINTR) {
                 Fail(ErrnoText("waitpid"));
             }
         }
-        result.ExitCode = WIFEXITED(status) ? WEXITSTATUS(status) : 128 + WTERMSIG(status);
+        if (monitorError) { std::rethrow_exception(monitorError); }
+        result.ExitCode = canceled ? 125 : WIFEXITED(status) ? WEXITSTATUS(status) : 128 + WTERMSIG(status);
         return result;
     }
 
