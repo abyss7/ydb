@@ -126,6 +126,7 @@ library("rbo") {
     "rules/push_olap_projection.cpp",
     "rules/push_ranges.cpp",
     "rules/push_simple_join_filter.cpp",
+    "rules/push_top_sort_through_union_all.cpp",
     "rules/rewrite_join_to_index_lookup_join.cpp",
     "rules/rewrite_right_join.cpp",
     "rules/traces/kqp_cbo_trace.cpp",
