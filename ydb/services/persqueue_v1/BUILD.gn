@@ -22,7 +22,6 @@ library("persqueue_v1") {
     # "//library/cpp/containers/disjoint_interval_tree",  # peerdir only
     # "//library/cpp/json",  # peerdir only
     # "//ydb/core/base",
-    # "//ydb/core/kqp/common",  # peerdir only
     # "//ydb/core/kqp/common/events",  # peerdir only
     # "//ydb/core/kqp/common/simple",  # peerdir only
     "//ydb/core/persqueue/deferred_publish",
