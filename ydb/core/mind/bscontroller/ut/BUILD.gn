@@ -14,6 +14,7 @@ unittest_executable("ut") {
     "//ydb/core/mind/bscontroller/database_space_ut.cpp",
     "//ydb/core/mind/bscontroller/group_mapper_ut.cpp",
     "//ydb/core/mind/bscontroller/grouper_ut.cpp",
+    "//ydb/core/mind/bscontroller/layout_helpers_ut.cpp",
     "//ydb/core/mind/bscontroller/mv_object_map_ut.cpp",
   ]
 
