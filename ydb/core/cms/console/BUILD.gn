@@ -1,10 +1,12 @@
 library("console") {
   public_deps = [
+    # "//library/cpp/cache",
     "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/actorlib_impl",
     "//ydb/core/base",
     "//ydb/core/blobstorage/base",
     "//ydb/core/cms/console/util",
+    "//ydb/core/cms/console/validators",
     "//ydb/core/config/init",
     "//ydb/core/control/lib",
     "//ydb/core/engine/minikql",
@@ -36,7 +38,6 @@ library("console") {
     "//ydb/core/audit",
     # "//ydb/core/blobstorage",  # peerdir only
     # "//ydb/core/blobstorage/groupinfo",  # peerdir only
-    "//ydb/core/cms/console/validators",
     "//ydb/core/config/validation",
     "//ydb/core/mon",
     # "//ydb/core/node_whiteboard",

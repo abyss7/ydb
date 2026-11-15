@@ -18,14 +18,18 @@ unittest_executable("ut_console") {
     "//ydb/core/tablet_flat",
     "//ydb/core/testlib",
     "//ydb/core/testlib/actors",
+    "//ydb/core/testlib/basics",
     "//ydb/core/testlib/default",  # peerdir only
     "//ydb/core/tx/schemeshard",
+    "//ydb/library/actors/core",
     "//ydb/library/actors/http",
     "//ydb/library/actors/interconnect",
     "//ydb/library/yaml_config",
   ]
 
   sources = [
+    "//ydb/core/cms/console/console_configs_delivery_ut.cpp",
+    "//ydb/core/cms/console/console_configs_provider_ut.cpp",
     "//ydb/core/cms/console/console_handshake_ut.cpp",
     "//ydb/core/cms/console/console_ut_configs.cpp",
     "//ydb/core/cms/console/console_ut_tenants.cpp",
@@ -35,6 +39,7 @@ unittest_executable("ut_console") {
     "//ydb/core/cms/console/log_settings_configurator_ut.cpp",
     "//ydb/core/cms/console/modifications_validator_ut.cpp",
     "//ydb/core/cms/console/net_classifier_updater_ut.cpp",
+    "//ydb/core/cms/console/ut_configs_subscriber.cpp",
   ]
 
   include_dirs = [ "//ydb/core/cms/console" ]
