@@ -4,11 +4,15 @@ unittest_executable("ut") {
     "//library/cpp/monlib/encode/prometheus",  # peerdir only
     "//library/cpp/testing/unittest",
     "//ydb/apps/bridge_skipper/http",
+    "//ydb/apps/bridge_skipper/runtime",
     "//ydb/library/actors/http",
     "//ydb/library/actors/testlib",
   ]
 
-  sources = [ "http_ut.cpp" ]
+  sources = [
+    "commands_ut.cpp",
+    "http_ut.cpp",
+  ]
 
   include_dirs = [ "//ydb/apps/bridge_skipper/http" ]
 

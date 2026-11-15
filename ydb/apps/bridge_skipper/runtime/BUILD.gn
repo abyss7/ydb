@@ -19,6 +19,7 @@ library("runtime") {
   ]
 
   sources = [
+    "diagnostics.cpp",
     "skipper.cpp",
     "state_file.cpp",
     "ydb_clients.cpp",

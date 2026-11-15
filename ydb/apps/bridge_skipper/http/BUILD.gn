@@ -2,6 +2,7 @@ library("http") {
   public_deps = [ "//ydb/apps/bridge_skipper/runtime" ]
 
   deps = [
+    # "//library/cpp/cgiparam",
     # "//library/cpp/json",
     "//library/cpp/monlib/encode/prometheus",
     # "//library/cpp/monlib/metrics",  # peerdir only
@@ -13,6 +14,7 @@ library("http") {
   sources = [
     "actor.cpp",
     "metrics.cpp",
+    "page.cpp",
     "state_json.cpp",
   ]
 }
