@@ -15,6 +15,7 @@ SRCS(
     worker_info.cpp
     counters.cpp
 )
+
 # gn: peerdir ydb/library/yql/providers/dq/common:attrs
 
 END()
