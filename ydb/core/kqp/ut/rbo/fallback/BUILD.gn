@@ -4,6 +4,7 @@ unittest_executable("fallback") {
     "//library/cpp/random_provider",
     "//library/cpp/testing/unittest",
     "//library/cpp/time_provider",
+    "//ydb/core/cms/console",
     "//ydb/core/kqp",  # peerdir only
     "//ydb/core/kqp/common",
     "//ydb/core/kqp/common/events",
@@ -37,7 +38,14 @@ unittest_executable("fallback") {
     "//yql/essentials/utils/log",
   ]
 
-  sources = [ "kqp_rbo_yql_fallback_ut.cpp" ]
+  sources = [
+    "kqp_rbo_effects_guards_fallback_ut.cpp",
+    "kqp_rbo_generated_sources_fallback_ut.cpp",
+    "kqp_rbo_index_returning_fallback_ut.cpp",
+    "kqp_rbo_index_writes_fallback_ut.cpp",
+    "kqp_rbo_shared_effects_fallback_ut.cpp",
+    "kqp_rbo_yql_fallback_ut.cpp",
+  ]
 
   include_dirs = [
     "//ydb/core/kqp",  # peerdir only

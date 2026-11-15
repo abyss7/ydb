@@ -329,6 +329,7 @@ template("link_slot_weak_refs") {
   }
   _compile_commands = "$root_build_dir/compile_commands.json"
   _weak_header = "$target_gen_dir/${target_name}_slot_weak.h"
+  _weak_stamp = "$target_gen_dir/${target_name}_slot_weak.stamp"
 
   action("${target_name}_slot_weak") {
     script = "//build/gn/scripts/link_slot_weak.py"
@@ -354,7 +355,7 @@ template("link_slot_weak_refs") {
     }
     outputs = [
       _weak_header,
-      "$target_gen_dir/${target_name}_slot_weak.stamp",
+      _weak_stamp,
     ]
     depfile = "$target_gen_dir/${target_name}.d"
     args = [
@@ -369,7 +370,7 @@ template("link_slot_weak_refs") {
       "--depfile",
       rebase_path(depfile, root_build_dir),
       "--stamp",
-      rebase_path("$target_gen_dir/${target_name}_slot_weak.stamp", root_build_dir),
+      rebase_path(_weak_stamp, root_build_dir),
     ]
     foreach(_h, invoker.headers) {
       args += [

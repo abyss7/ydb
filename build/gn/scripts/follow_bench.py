@@ -144,8 +144,9 @@ def run_ninja(args, env, log_dir, name="bench_ninja"):
     res = {}
     t = time.time()
     gen_log = "bench_gn_gen.log" if name == "bench_ninja" else name + "_gn_gen.log"
-    if args.jobs and set_link_pool_size(os.path.join(args.out, "args.gn"), args.jobs):
-        say("args.gn: link_pool_size = %d" % args.jobs)
+    pool = args.link_jobs or args.jobs
+    if pool and set_link_pool_size(os.path.join(args.out, "args.gn"), pool):
+        say("args.gn: link_pool_size = %d" % pool)
     with open(os.path.join(log_dir, gen_log), "w") as f:
         rc = subprocess.run(["gn", "gen", "--script-executable=" + args.script_executable, args.out],
                             cwd=args.root, stdout=f, stderr=subprocess.STDOUT, env=env).returncode
@@ -308,6 +309,8 @@ def main():
     ap.add_argument("--full", action="store_true", help="the first build of a series")
     ap.add_argument("--python", default=sys.executable)
     ap.add_argument("-j", "--jobs", type=int, help="ninja -j, also link_pool_size of args.gn")
+    ap.add_argument("--link-jobs", type=int, metavar="N",
+                    help="link_pool_size of args.gn (default: --jobs)")
     ap.add_argument("--script-executable", default=os.environ.get("GN_SCRIPT_EXECUTABLE", "python3.9"))
     args = ap.parse_args()
     args.root, args.out = os.path.realpath(args.root), os.path.realpath(args.out)

@@ -989,9 +989,10 @@ class Follower:
         return any(gen_input(p) for p in self.git.added_paths())
 
     def gn_gen(self, step, rec):
-        if self.args.jobs and set_link_pool_size(os.path.join(self.out, "args.gn"), self.args.jobs):
+        pool = self.args.link_jobs or self.args.jobs
+        if pool and set_link_pool_size(os.path.join(self.out, "args.gn"), pool):
             rec["args_gn_changed"] = True
-            self.say("  args.gn: link_pool_size = %d" % self.args.jobs)
+            self.say("  args.gn: link_pool_size = %d" % pool)
         if not self.need_gen(rec):
             rec["gen_skipped"] = True
             self.say("  gn gen: skipped, no input changed")
@@ -1076,6 +1077,8 @@ class Follower:
                "--result", result, "--order", "ninja,ya" if benched % 2 == 0 else "ya,ninja",
                "--python", a.python, "--script-executable", a.script_executable,
                "--targets"] + (a.bench_targets or a.targets)
+        if a.link_jobs:
+            cmd += ["--link-jobs", str(a.link_jobs)]
         cmd += ["--env=" + kv for kv in a.bench_env]
         cmd += (["-j", str(a.jobs)] if a.jobs else [])
         cmd += (["--ya-cache-size", a.ya_cache_size] if a.ya_cache_size else [])
@@ -1406,6 +1409,7 @@ CONFIG_DEFAULTS = {
     "out": None,                # <root>/out/gn
     "env": [],
     "jobs": None,
+    "link_jobs": None,          # link_pool_size of args.gn, --jobs when None
     "nice": 10,                 # niceness of the run and everything it starts (0: off)
     "targets": DEFAULT_TARGETS,
     "gen_args": DEFAULT_GEN_ARGS,
@@ -1546,6 +1550,8 @@ def main():
     c.add_argument("--env", action="append", metavar="NAME=VALUE",
                    help="for gn gen and ninja, e.g. the compiler cache's (repeatable)")
     c.add_argument("-j", "--jobs", type=int, help="ninja -j")
+    c.add_argument("--link-jobs", type=int, metavar="N",
+                   help="link_pool_size of args.gn (default: --jobs, the ninja one)")
     c.add_argument("--nice", type=int, metavar="N",
                    help="niceness of the run and every command it starts (default: %d, 0: off)"
                         % CONFIG_DEFAULTS["nice"])

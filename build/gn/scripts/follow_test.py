@@ -358,6 +358,21 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(args.nice, follow.CONFIG_DEFAULTS["nice"])
         self.assertEqual(args.out, None)        # <root>/out/gn is resolved after the config
 
+    def test_link_jobs_is_remembered_apart_from_jobs(self):
+        path = os.path.join(self.tmp.name, "config.json")
+        args = self.args(link_jobs=6)
+        cfg, given = follow.load_config(args, path)
+        self.assertEqual(given, {"link_jobs": 6})
+        with contextlib.redirect_stdout(io.StringIO()):
+            follow.save_config(path, cfg, given)
+        args = self.args(jobs=12)               # --jobs stays the ninja one
+        follow.load_config(args, path)
+        self.assertEqual(args.link_jobs, 6)     # the remembered pool wins
+        self.assertEqual(args.jobs, 12)
+        args = self.args()                      # both fresh: the pool is --jobs'
+        follow.load_config(args, os.path.join(self.tmp.name, "none.json"))
+        self.assertIsNone(args.link_jobs)
+
     def test_the_pythons_default_and_are_remembered(self):
         path = os.path.join(self.tmp.name, "config.json")
         args = self.args()

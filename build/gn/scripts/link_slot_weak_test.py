@@ -67,6 +67,20 @@ class StampTest(unittest.TestCase):
             with open(stamp) as f:
                 self.assertEqual(f.read(), self.borrowed(tmp) + "\n")
 
+    def test_unchanged_names_still_owe_the_stamp(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            from link_slot_weak import render
+            out = os.path.join(tmp, "weak.h")
+            with open(out, "w") as f:              # what the dumps rendered last time
+                f.write(render("s", {"_ZN1fEv"}))
+            before = os.stat(out).st_mtime_ns
+            _, stamp, _, dumps = self.run_main(                    # a stale stamp
+                tmp, "stale\n", declared={"_ZN1fEv"})
+            dumps.assert_called_once()
+            self.assertEqual(os.stat(out).st_mtime_ns, before)     # not touched
+            with open(stamp) as f:                                 # but owed to ninja
+                self.assertEqual(f.read(), self.borrowed(tmp) + "\n")
+
     def test_other_flags_run_the_dumps_and_remember_the_new_ones(self):
         with tempfile.TemporaryDirectory() as tmp:
             out, stamp, dep, dumps = self.run_main(tmp, "stale\n", declared={"_ZN1fEv"})

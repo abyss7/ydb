@@ -391,16 +391,20 @@ def main():
             names -= d
 
     text = render(args.slot, names)
+    changed = True
     try:
         with open(args.output, encoding="utf-8") as f:
-            if f.read() == text:
-                return      # unchanged: keeps the consumers from recompiling
+            changed = f.read() != text
     except OSError:
         pass
-    os.makedirs(os.path.dirname(os.path.abspath(args.output)), exist_ok=True)
-    with open(args.output, "w", encoding="utf-8") as f:
-        f.write(text)
+    if changed:
+        os.makedirs(os.path.dirname(os.path.abspath(args.output)), exist_ok=True)
+        with open(args.output, "w", encoding="utf-8") as f:
+            f.write(text)    # unchanged: keeps the consumers from recompiling
     if args.stamp:
+        # written even when the header is not: it is an output of the edge,
+        # ninja expects it to exist once the edge has run -- a missing one
+        # would rerun the dumps on every build
         os.makedirs(os.path.dirname(os.path.abspath(args.stamp)), exist_ok=True)
         with open(args.stamp, "w", encoding="utf-8") as f:
             f.write(sig + "\n")
