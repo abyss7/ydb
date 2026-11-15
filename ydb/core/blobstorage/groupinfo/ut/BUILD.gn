@@ -8,6 +8,7 @@ unittest_executable("ut") {
     "//ydb/core/blobstorage/groupinfo",
     "//ydb/core/blobstorage/vdisk/ingress",
     "//ydb/core/erasure",  # peerdir only
+    "//ydb/core/protos",
   ]
 
   sources = [

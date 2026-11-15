@@ -2,6 +2,7 @@ unittest_executable("ut_strategy") {
   deps = [
     "//library/cpp/testing/unittest",
     "//ydb/core/blobstorage/dsproxy",
+    "//ydb/core/blobstorage/groupinfo",
   ]
 
   sources = [
