@@ -119,6 +119,7 @@ group("tests") {
         "//ydb/core/base/ut_auth",
         "//ydb/core/base/ut_backtrace/helper",
         "//ydb/core/base/ut_board_subscriber",
+        "//ydb/core/base/ut_hnsw_settings",
         "//ydb/core/base/ut_http_database_param",
         "//ydb/core/base/ut_statestorage_proxy",
         "//ydb/core/blob_depot/ut",
