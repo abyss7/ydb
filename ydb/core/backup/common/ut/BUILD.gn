@@ -1,5 +1,6 @@
 unittest_executable("ut") {
   deps = [
+    "//library/cpp/json",
     "//library/cpp/testing/unittest",
     "//ydb/core/backup/common",
   ]

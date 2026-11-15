@@ -42,6 +42,7 @@ library("tablet") {
   ]
 
   deps = [
+    # "//contrib/libs/protobuf",
     "//library/cpp/lwtrace",
     "//library/cpp/lwtrace/mon",
     # "//library/cpp/monlib/service/pages",
@@ -85,6 +86,7 @@ library("tablet") {
     "tx_semaphore_release.cpp",
     "tx_semaphore_timeout.cpp",
     "tx_semaphore_update.cpp",
+    "tx_semaphores_describe.cpp",
     "tx_session_attach.cpp",
     "tx_session_destroy.cpp",
     "tx_session_detach.cpp",
