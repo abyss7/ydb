@@ -333,9 +333,16 @@ template("link_slot_weak_refs") {
   action("${target_name}_slot_weak") {
     script = "//build/gn/scripts/link_slot_weak.py"
 
-    # TODO: rerun when the flags in compile_commands.json change; gn rejects
-    # it in inputs (a file of the build dir no target generates)
-    inputs = invoker.headers
+    # The flags are borrowed from compile_commands.json: gn rejects a
+    # build-dir file in `inputs` (no target generates it). Two levels keep
+    # the action honest without rerunning its AST dumps needlessly:
+    #   * the digest of ALL the commands (//build/gn/config:cc_digest,
+    #     scripts/cc_digest.py) as an input: unchanged flags -- the common
+    #     step, a new source of the same flags -- do not run it at all;
+    #   * the stamp of the flags of the borrowed TU (--stamp, a second
+    #     output): a flag of another target wakes the action into its cheap
+    #     check, the dumps run only when this slot's own flags changed.
+    inputs = invoker.headers + [ "$root_build_dir/compile_commands.digest" ]
     _sources = []
     if (defined(invoker.sources)) {
       _sources = filter_include(invoker.sources,
@@ -345,7 +352,10 @@ template("link_slot_weak_refs") {
                                 ])
       inputs += _sources
     }
-    outputs = [ _weak_header ]
+    outputs = [
+      _weak_header,
+      "$target_gen_dir/${target_name}_slot_weak.stamp",
+    ]
     depfile = "$target_gen_dir/${target_name}.d"
     args = [
       "--slot",
@@ -358,6 +368,8 @@ template("link_slot_weak_refs") {
       rebase_path(_weak_header, root_build_dir),
       "--depfile",
       rebase_path(depfile, root_build_dir),
+      "--stamp",
+      rebase_path("$target_gen_dir/${target_name}_slot_weak.stamp", root_build_dir),
     ]
     foreach(_h, invoker.headers) {
       args += [
@@ -377,7 +389,7 @@ template("link_slot_weak_refs") {
         rebase_path(_flags_from[0], "//"),
       ]
     }
-    deps = []
+    deps = [ "//build/gn/config:cc_digest($default_toolchain)" ]
     if (defined(invoker.codegen)) {
       foreach(_l, invoker.codegen) {
         deps += [ get_label_info(_l, "dir") + ":" + get_label_info(_l, "name") + "_codegen" ]

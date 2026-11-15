@@ -230,3 +230,25 @@ config("ydb_default_pdisk_sequence_weak") {
 if (current_toolchain == default_toolchain) {
     write_file("$root_build_dir/.gitignore", [ "*" ])
 }
+
+# The digest of the compile commands (scripts/cc_digest.py): what the
+# link-slot weak references (//build/gn/link_slots.gni) take as their input
+# instead of compile_commands.json itself -- gn rejects that one in `inputs`
+# (a file of the build dir no target generates), and a gen rewrites it every
+# time, which would rerun every slot's AST dumps on every gen. The digest
+# action reads the commands undeclared and names them in its depfile; an
+# unchanged flags set keeps its mtime, so a step that adds a source costs
+# the hash, not the dumps.
+action("cc_digest") {
+    script = "//build/gn/scripts/cc_digest.py"
+    outputs = [ "$root_build_dir/compile_commands.digest" ]
+    depfile = "$root_build_dir/compile_commands.digest.d"
+    args = [
+        "--compile-commands",
+        rebase_path("$root_build_dir/compile_commands.json", root_build_dir),
+        "--output",
+        rebase_path(outputs[0], root_build_dir),
+        "--depfile",
+        rebase_path(depfile, root_build_dir),
+    ]
+}

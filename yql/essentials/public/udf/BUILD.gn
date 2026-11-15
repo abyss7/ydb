@@ -36,4 +36,8 @@ library("udf") {
     "udf_allocator.h",
     "udf_terminator.h",
   ]
+
+  link_slot_self = true
+
+  link_slot_codegen = [ "//yql/essentials/public/types" ]
 }

@@ -1419,6 +1419,8 @@ CONFIG_DEFAULTS = {
     "no_select": False,
     "bench_env": [],
     "bench_targets": None,
+    "python": sys.executable,          # for yamake2gn.py and autofix.py
+    "script_executable": None,         # gn gen: $GN_SCRIPT_EXECUTABLE, else the python of the run
 }
 CONFIG_PATHS = ("out", "bench_root", "bench_out", "ya_out", "ya_cache_root")
 
@@ -1447,6 +1449,9 @@ def load_config(args, path):
         if cfg.get(key) != value:
             given[key] = value
         cfg[key] = value
+    # gn gen runs its scripts with it: the env names one, else the python of the run
+    if args.script_executable is None:
+        args.script_executable = os.environ.get("GN_SCRIPT_EXECUTABLE") or args.python
     return cfg, given
 
 
@@ -1479,6 +1484,15 @@ def validate(ap, args):
         ap.error("--bench-root needs --ya-out")
     if args.nice and args.nice < 0:
         ap.error("--nice must be 0 or more")
+    for opt, exe in (("--python", args.python), ("--script-executable", args.script_executable)):
+        try:
+            ok = exe is not None and subprocess.run(
+                [exe, "-c", "pass"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).returncode == 0
+        except OSError:
+            ok = False
+        if not ok:
+            ap.error("%s %r does not run: gn gen would fail its scripts with it "
+                     "(give a working --python/--script-executable)" % (opt, exe))
 
 
 def require_ref(ap, root, ref):
@@ -1524,10 +1538,10 @@ def main():
                     help="with --run, only after a stop at the bench of a commit: marks the commit with "
                          "%s and goes on without its measurement" % SKIP_TRAILER)
     ap.add_argument("--fetch", action="store_true", help="git fetch the upstream first")
-    ap.add_argument("--python", default=sys.executable, help="for yamake2gn.py and autofix.py")
-    ap.add_argument("--script-executable", default=os.environ.get("GN_SCRIPT_EXECUTABLE", "python3.9"),
-                    help="gn gen --script-executable")
     c = ap.add_argument_group("remembered in <state>/config.json (given: overrides and is saved)")
+    c.add_argument("--python", help="for yamake2gn.py and autofix.py (default: the python of follow.py)")
+    c.add_argument("--script-executable", metavar="PYTHON",
+                   help="gn gen --script-executable (default: $GN_SCRIPT_EXECUTABLE, else --python)")
     c.add_argument("--out", help="the build dir (default: <root>/out/gn)")
     c.add_argument("--env", action="append", metavar="NAME=VALUE",
                    help="for gn gen and ninja, e.g. the compiler cache's (repeatable)")

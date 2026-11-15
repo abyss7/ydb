@@ -6,7 +6,7 @@ library("helpers") {
     "//library/cpp/http/misc",
     "//library/cpp/http/server",
     "//library/cpp/testing/unittest",
-    # "//ydb/public/sdk/cpp/src/client/types/credentials/oidc",
+    "//ydb/public/sdk/cpp/src/client/types/credentials/oidc",
   ]
 
   deps = [

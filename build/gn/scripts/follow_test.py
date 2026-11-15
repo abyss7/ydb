@@ -2,6 +2,7 @@ import ast
 import contextlib
 import io
 import os
+import sys
 import tempfile
 import types
 import unittest
@@ -340,7 +341,8 @@ class ConfigTest(unittest.TestCase):
     def test_only_head_rejects_max_commits(self):
         with self.assertRaises(SystemExit):
             follow.validate(self.ap, self.args(only_head=True, max_commits=3))
-        args = self.args(max_commits="all")
+        args = self.args(max_commits="all", python=sys.executable,
+                         script_executable=sys.executable)   # as after load_config
         follow.validate(self.ap, args)
         self.assertIsNone(args.max_commits)
 
@@ -355,6 +357,23 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(args.bench_root, os.path.realpath(self.tmp.name))
         self.assertEqual(args.nice, follow.CONFIG_DEFAULTS["nice"])
         self.assertEqual(args.out, None)        # <root>/out/gn is resolved after the config
+
+    def test_the_pythons_default_and_are_remembered(self):
+        path = os.path.join(self.tmp.name, "config.json")
+        args = self.args()
+        follow.load_config(args, path)
+        self.assertEqual(args.python, follow.CONFIG_DEFAULTS["python"])    # the python of the run
+        self.assertEqual(args.script_executable,
+                         os.environ.get("GN_SCRIPT_EXECUTABLE", args.python))
+        args = self.args(script_executable=sys.executable)
+        cfg, given = follow.load_config(args, path)
+        self.assertEqual(given, {"script_executable": sys.executable})
+        with contextlib.redirect_stdout(io.StringIO()):
+            follow.save_config(path, cfg, given)
+        follow.load_config(self.args(), path)   # not given anymore: the remembered one
+        args = self.args()
+        follow.load_config(args, path)
+        self.assertEqual(args.script_executable, sys.executable)
 
 
 class LinkPoolArgsTest(unittest.TestCase):
