@@ -3874,6 +3874,19 @@ source_set("pch_group_0_compile") {
             const auto limits = WorkflowResources(resourceRequest);
             check(resourceOptions == resourceRequest.Options && limits.Workers == 4 && limits.BaselineWorkers == 2,
                   "resolved defaults persist and no-PCH RAM admission caps baseline concurrency");
+            check(limits.AnalysisJobs == int(std::min(size_t(24), CpuCount())), "default analysis budget matches prediction command");
+            auto analysisRequest = resourceRequest;
+            analysisRequest.Options["--analysis-jobs"] = {"3"};
+            auto resumedAnalysis = Decode<TWorkflow>(Encode(analysisRequest));
+            check(WorkflowResources(resumedAnalysis).AnalysisJobs == 3 &&
+                  WorkflowResources(resumedAnalysis).Workers == limits.Workers,
+                  "resumed correction inherits analysis concurrency without changing build workers");
+            for (const auto* invalid : {"0", "-1", "1.5", "1000001", "invalid"}) {
+                analysisRequest.Options["--analysis-jobs"] = {invalid};
+                bool rejected = false;
+                try { WorkflowResources(analysisRequest); } catch (const TError&) { rejected = true; }
+                check(rejected, "invalid analysis concurrency fails before workflow execution");
+            }
             std::vector<TAction> noPch(4);
             for (auto& action : noPch) { action.Time = 1; action.Memory = limits.ActionMemory; }
             TResources modelResources;

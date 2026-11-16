@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <string>
+#include <tuple>
 
 namespace NPchUpdate::NTwoStep {
     namespace {
@@ -281,6 +282,34 @@ namespace NPchUpdate::NTwoStep {
             Check(dirty[d.Actions.size() + 1], "delta edit invalidates delta artifact");
         }
 
+        TLayout CheckParallelSelection(const TData& d, const TCalibration& calibration = {}, const TLayout* frozen = nullptr) {
+            std::vector<TDiskAlternative> expected;
+            auto serial = Select(d, calibration, frozen, &expected, 1);
+            auto pchFields = [](const TPch& p) {
+                return std::tie(p.Class, p.Parent, p.Representative, p.Roots, p.Units);
+            };
+            auto alternativeFields = [](const TDiskAlternative& a) {
+                return std::tie(a.Width, a.Step, a.Selected, a.Pchs, a.Targets, a.BaseBytes, a.AddedBytes,
+                                a.TotalBytes, a.RequiredBudget, a.SavedWork, a.TotalSavedWork);
+            };
+            for (size_t jobs : {2, 4, 7}) {
+                std::vector<TDiskAlternative> actual;
+                auto parallel = Select(d, calibration, frozen, &actual, jobs);
+                Check(serial.Bases == parallel.Bases && serial.Assignment == parallel.Assignment &&
+                      serial.Pchs.size() == parallel.Pchs.size(), "parallel widths preserve the winning layout and target assignment");
+                for (size_t g = 0; g < serial.Pchs.size(); ++g) {
+                    Check(pchFields(serial.Pchs[g]) == pchFields(parallel.Pchs[g]),
+                          "parallel widths preserve exact PCH contents, IDs, parents and representatives");
+                }
+                Check(expected.size() == actual.size(), "parallel widths preserve all disk alternatives");
+                for (size_t i = 0; i < expected.size(); ++i) {
+                    Check(alternativeFields(expected[i]) == alternativeFields(actual[i]),
+                          "parallel width diagnostics retain exact values, ordering and tie winner");
+                }
+            }
+            return serial;
+        }
+
         void DiskBudgetSelection() {
             auto d = Data();
             d.Classes = 2;
@@ -311,6 +340,7 @@ namespace NPchUpdate::NTwoStep {
             auto selected = Select(d, {}, nullptr, &alternatives);
             Check(selected.Bases == 1 && selected.Pchs.size() == 1 && selected.Pchs[0].Class == 0,
                   "disk budget keeps the profitable subset instead of rejecting all bases");
+            CheckParallelSelection(d);
             auto same = Select(d, {});
             Check(same.Assignment == selected.Assignment && same.Pchs.size() == selected.Pchs.size(),
                   "collecting expansion diagnostics does not change selection");
@@ -328,6 +358,7 @@ namespace NPchUpdate::NTwoStep {
             auto corrected = Select(d, {}, &selected);
             Check(corrected.Bases == 1 && corrected.Pchs[0].Roots == selected.Pchs[0].Roots,
                   "budget pruning preserves the frozen base");
+            CheckParallelSelection(d, {}, &selected);
             // A measured slowdown may remove consumers, but cannot discard the
             // frozen base artifact merely because it becomes unused.
             TCalibration slow;
@@ -338,6 +369,7 @@ namespace NPchUpdate::NTwoStep {
                   "an unused frozen base survives correction");
             d.Resources.Disk = 1.95e6;
             Select(d, {}, nullptr, &alternatives);
+            CheckParallelSelection(d);
             Check(!alternatives.empty(), "a restoration exactly at twice the budget is reported");
             for (const auto& option : alternatives) {
                 Near(option.RequiredBudget, 2 * d.Resources.Disk, "inclusive 2x diagnostic boundary");
@@ -381,7 +413,16 @@ namespace NPchUpdate::NTwoStep {
             Near(chain[1].AddedBytes, 3.9e6, "shared base is not charged twice");
             Near(chain[1].TotalBytes, 11.7e6, "cumulative bytes include both leaves and one base");
             Near(chain[1].TotalSavedWork, chain[0].SavedWork + chain[1].SavedWork,
-                 "cumulative work counts each restored artifact once");
+                  "cumulative work counts each restored artifact once");
+            d.Resources.Disk = 9e6;
+            d.Q = .3;
+            d.Scenarios = 5;
+            d.Units[1].Children = d.Units[2].Children = {0};
+            d.Units[1].Changes = {0, 2};
+            d.Units[2].Changes = {1, 3};
+            for (size_t i = 0; i < d.Actions.size(); ++i) { d.Actions[i].Changes = {int(i % 5)}; }
+            auto selected = CheckParallelSelection(d);
+            CheckParallelSelection(d, {}, &selected);
         }
 
         void AbsoluteSystemRoot() {

@@ -703,8 +703,20 @@ namespace NPchUpdate::NTwoStep {
             best.Assignment.assign(d.Targets.size(), -1);
         }
         double score = Predict(d, best, c, analysisJobs).Objective;
-        for (int width : {0, 32, 128, 512}) {
-            TLayout candidate = bases;
+        const std::vector<int> widths = {0, 32, 128, 512};
+        struct TCandidate {
+            TLayout Layout;
+            std::vector<TDiskAlternative> Alternatives;
+        };
+        std::vector<TCandidate> candidates(widths.size());
+        ParallelFor(widths.size(), analysisJobs, [&](size_t i) {
+            const int width = widths[i];
+            // A parallel width owns its mutable closure cache. With one worker
+            // keep reusing the cache across widths, as the serial selector did.
+            auto localClosures = analysisJobs > 1 ? closures : decltype(closures){};
+            auto& candidateClosures = analysisJobs > 1 ? localClosures : closures;
+            auto& candidate = candidates[i].Layout;
+            candidate = bases;
             for (int cls = 0; cls < d.Classes; ++cls) {
                 int parent = -1;
                 for (int g = 0; g < bases.Bases; ++g) {
@@ -720,7 +732,7 @@ namespace NPchUpdate::NTwoStep {
                 if (width) {
                     for (size_t begin = 0; begin < targets.size(); begin += width) {
                         std::vector<int> group(targets.begin() + begin, targets.begin() + std::min(targets.size(), begin + width));
-                        auto p = Pick(d, c, cls, filesOf(group), parent < 0 ? nullptr : &bases.Pchs[parent], false, closures);
+                        auto p = Pick(d, c, cls, filesOf(group), parent < 0 ? nullptr : &bases.Pchs[parent], false, candidateClosures);
                         chunks.push_back(p.Roots.empty() ? -1 : int(candidate.Pchs.size()));
                         if (!p.Roots.empty()) {
                             p.Parent = parent;
@@ -787,7 +799,20 @@ namespace NPchUpdate::NTwoStep {
                     }
                 }
             }
-            FitDisk(d, candidate, c, frozen != nullptr, width, diskAlternatives);
+            FitDisk(d, candidate, c, frozen != nullptr, width, diskAlternatives ? &candidates[i].Alternatives : nullptr);
+        });
+        // Reuse the full analysis budget for scenario scoring after grouping;
+        // never multiply a width pool by nested scenario pools. Only one full
+        // prediction graph is resident at a time. Reduce in the original order
+        // to retain tie-breaking, diagnostics and progress output determinism.
+        for (size_t i = 0; i < widths.size(); ++i) {
+            const int width = widths[i];
+            auto& candidate = candidates[i].Layout;
+            if (diskAlternatives) {
+                for (auto& alternative : candidates[i].Alternatives) {
+                    diskAlternatives->push_back(std::move(alternative));
+                }
+            }
             auto prediction = Predict(d, candidate, c, analysisJobs);
             double value = prediction.Objective;
             Log(Format("selection width=%d: %d bases, %zu PCHs, %.3f GB, objective %.3f s%s",

@@ -58,9 +58,16 @@ removed. The next weekly run starts fresh and needs `--disk` again.
 | `--q` | Cold-build weight: `1` for `global`, `0.1` for `incremental`; an explicit value overrides the profile default |
 | `--bandwidth-gbps` | 1 GB/s |
 | `--action-memory-gb` | 1 GB unmeasured-action RSS prior |
-| `--analysis-jobs` | min(24, CPU count); analysis compiler jobs and parallel prediction scenarios |
+| `--analysis-jobs` | min(24, CPU count); analysis compiler jobs, grouping candidates and prediction scenarios |
 | `--sample` | `100`: share of whole PCH-owner targets that `verify` measures (`10`..`100`); all their C++ members, all PCHs and required generator tools are built |
 | `--target` | `all` and `tests`; repeat to override |
+
+PCH compatibility builds and leaf-link probes run concurrently as their parent
+PCHs become ready, using the shared `--workers` and RAM-derived ceiling. Analysis
+uses `--analysis-jobs`: grouping candidates run in parallel, then each candidate's
+historical scenarios run in parallel without nested pools. Scenario sums and
+candidate tie-breaking retain their serial order. `--analysis-jobs 1` serializes
+these model computations without changing modeled build resources.
 
 `--mode=global` and `--mode global` are equivalent. Explicit `--q` takes precedence
 regardless of argument order. The profile name chooses the optimization objective
