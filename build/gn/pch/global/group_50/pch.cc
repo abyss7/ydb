@@ -1,0 +1,12 @@
+#pragma once
+#include <string>
+#include <locale>
+#include <__vector/vector.h>
+#include <__bit_reference>
+#include <algorithm>
+#include <bitset>
+#include "contrib/libs/poco/Foundation/include/Poco/Bugcheck.h"
+#include <istream>
+#include <sstream>
+#include <vector>
+#include "contrib/libs/poco/XML/include/Poco/XML/XML.h"

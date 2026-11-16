@@ -1,0 +1,13 @@
+#pragma once
+#include "contrib/libs/apache/arrow_next/cpp/src/arrow/type.h"
+#include "contrib/libs/apache/arrow_next/cpp/src/arrow/array/data.h"
+#include "contrib/libs/apache/arrow_next/cpp/src/arrow/compute/exec.h"
+#include "contrib/libs/apache/arrow_next/cpp/src/arrow/compute/kernel.h"
+#include "contrib/libs/apache/arrow_next/cpp/src/arrow/array/builder_base.h"
+#include <istream>
+#include <sstream>
+#include <deque>
+#include <__format/extended_grapheme_cluster_table.h>
+#include <__format/format_functions.h>
+#include <unordered_set>
+#include <__chrono/formatter.h>

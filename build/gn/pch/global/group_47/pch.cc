@@ -1,0 +1,11 @@
+#pragma once
+#include "contrib/libs/opentelemetry-cpp/sdk/include/opentelemetry/sdk/common/attribute_utils.h"
+#include <locale>
+#include <__format/extended_grapheme_cluster_table.h>
+#include <__format/format_functions.h>
+#include <__chrono/formatter.h>
+#include <deque>
+#include "contrib/libs/protobuf/src/google/protobuf/descriptor.pb.h"
+#include "contrib/proto/opentelemetry/opentelemetry/proto/common/v1/common.pb.h"
+#include "contrib/libs/protobuf/src/google/protobuf/descriptor_database.h"
+#include "contrib/proto/opentelemetry/opentelemetry/proto/trace/v1/trace.pb.h"

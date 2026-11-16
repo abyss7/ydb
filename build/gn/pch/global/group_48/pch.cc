@@ -1,0 +1,10 @@
+#pragma once
+#include <string>
+#include <locale>
+#include <algorithm>
+#include <__vector/vector.h>
+#include <bitset>
+#include <istream>
+#include <deque>
+#include "contrib/libs/poco/Foundation/include/Poco/Bugcheck.h"
+#include <sstream>
