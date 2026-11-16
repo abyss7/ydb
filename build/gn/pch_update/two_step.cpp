@@ -384,12 +384,24 @@ namespace NPchUpdate::NTwoStep {
         }
     } // namespace
 
-    double Makespan(const std::vector<TAction>& actions, const TResources& r, const std::vector<char>& dirty) {
+    namespace {
+        struct TTopology {
+            std::vector<std::vector<int>> Users;
+            std::vector<int> Order;
+
+            explicit TTopology(const std::vector<TAction>& actions)
+                : Order(Topology(actions, Users))
+            {}
+        };
+    }
+
+    static double MakespanPrepared(const std::vector<TAction>& actions, const TResources& r,
+                                   const std::vector<char>& dirty, const TTopology& topology) {
         if (r.Workers < 1 || r.Ram <= 0 || r.Bandwidth <= 0 || (!dirty.empty() && dirty.size() != actions.size())) {
             Fail("scheduler: invalid resource limits or dirty mask");
         }
-        std::vector<std::vector<int>> users;
-        auto order = Topology(actions, users);
+        const auto& users = topology.Users;
+        const auto& order = topology.Order;
         std::vector<double> time(actions.size()), critical(actions.size()), io(actions.size());
         double minimumMemory = INF;
         std::vector<int> pending(actions.size());
@@ -485,11 +497,10 @@ namespace NPchUpdate::NTwoStep {
         return now;
     }
 
-    std::vector<char> Invalidate(const std::vector<TAction>& actions, int scenario) {
-        std::vector<std::vector<int>> users;
-        auto order = Topology(actions, users);
+    static std::vector<char> InvalidatePrepared(const std::vector<TAction>& actions, int scenario,
+                                              const TTopology& topology) {
         std::vector<char> dirty(actions.size());
-        for (int i : order) {
+        for (int i : topology.Order) {
             dirty[i] = std::binary_search(actions[i].Changes.begin(), actions[i].Changes.end(), scenario);
             for (int dep : actions[i].DirtyDependencies) {
                 if (dep < 0 || size_t(dep) >= actions.size()) {
@@ -499,6 +510,14 @@ namespace NPchUpdate::NTwoStep {
             }
         }
         return dirty;
+    }
+
+    double Makespan(const std::vector<TAction>& actions, const TResources& resources, const std::vector<char>& dirty) {
+        return MakespanPrepared(actions, resources, dirty, TTopology(actions));
+    }
+
+    std::vector<char> Invalidate(const std::vector<TAction>& actions, int scenario) {
+        return InvalidatePrepared(actions, scenario, TTopology(actions));
     }
 
     void GroupTargets(TData& d, const std::vector<std::string>& owners) {
@@ -628,9 +647,12 @@ namespace NPchUpdate::NTwoStep {
             p.Objective = INF;
             return p;
         }
-        p.Cold = Makespan(p.Actions, d.Resources);
+        // Scheduling and invalidation share the same immutable graph across
+        // cold and all historical scenarios; only per-scenario state differs.
+        const TTopology topology(p.Actions);
+        p.Cold = MakespanPrepared(p.Actions, d.Resources, {}, topology);
         for (int k = 0; k < d.Scenarios; ++k) {
-            p.Incremental += Makespan(p.Actions, d.Resources, Invalidate(p.Actions, k));
+            p.Incremental += MakespanPrepared(p.Actions, d.Resources, InvalidatePrepared(p.Actions, k, topology), topology);
         }
         p.Incremental /= std::max(1, d.Scenarios);
         p.Feasible = std::isfinite(p.Cold) && std::isfinite(p.Incremental);

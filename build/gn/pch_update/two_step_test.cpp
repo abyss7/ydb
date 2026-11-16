@@ -135,6 +135,33 @@ namespace NPchUpdate::NTwoStep {
             Check(delta == std::vector<char>({0, 1, 1, 1, 0}), "delta preserves base");
             auto orderOnly = Invalidate(graph, 2);
             Check(orderOnly == std::vector<char>({0, 0, 0, 0, 1}), "order-only does not dirty consumers");
+
+            // Deliberately not in topological index order: action 2 waits for 4.
+            TData d;
+            d.Actions = graph;
+            d.Scenarios = 3;
+            d.Q = .25;
+            d.Resources.Workers = 2;
+            d.Resources.Ram = 12;
+            d.Resources.Disk = d.Resources.Bandwidth = 1000;
+            const double times[] = {3, 5, 2, 1, 4};
+            for (size_t i = 0; i < graph.size(); ++i) {
+                d.Actions[i].Time = times[i];
+                d.Actions[i].Memory = 6;
+            }
+            auto prediction = Predict(d, {}, {});
+            Near(prediction.Cold, 11, "shared topology cold schedule");
+            Near(prediction.Incremental, 23.0 / 3, "shared topology preserves scenario-specific invalidation");
+            Near(prediction.Objective, .25 * 11 + .75 * 23 / 3, "shared topology objective");
+            double incremental = 0;
+            for (int k = 0; k < d.Scenarios; ++k) {
+                incremental += Makespan(d.Actions, d.Resources, Invalidate(d.Actions, k));
+            }
+            Near(prediction.Incremental, incremental / d.Scenarios, "prepared graph agrees with standalone scheduling");
+            d.Actions[2].DirtyDependencies = {5};
+            bool rejected = false;
+            try { Predict(d, {}, {}); } catch (const TError&) { rejected = true; }
+            Check(rejected, "prepared invalidation still validates dependency indices");
         }
 
         TData Data() {
