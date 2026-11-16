@@ -299,8 +299,8 @@ tree identity, so existing analysis checkpoints must be regenerated.
 The model uses exclusive header costs and full cold/historical DAG scheduling.
 Order-only edges affect scheduling but not dirty propagation. Validation edges
 are additional roots. Changed restat outputs are conservatively assumed to
-propagate. Header selection uses a bounded local shortlist, followed by full
-graph scoring; it is heuristic. Initial size, RSS and loading costs are explicit
+propagate. Header selection greedily considers all eligible roots, followed by
+full graph scoring; it is heuristic. Initial size, RSS and loading costs are explicit
 priors. Exact compiler flags, macros and include order define compatibility
 classes, so some classes may have too few groups to identify separate costs.
 

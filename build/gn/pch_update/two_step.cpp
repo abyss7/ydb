@@ -154,9 +154,9 @@ namespace NPchUpdate::NTwoStep {
             std::stable_sort(candidates.begin(), candidates.end(), [&](int a, int b) {
                 return mass[a] > mass[b];
             });
-            if (candidates.size() > 128) {
-                candidates.resize(128);
-            }
+            // TODO: investigate and document why the former 128-candidate
+            // limit was chosen, including measured selection cost and quality.
+            // Leave the search uncapped until that limit can be justified.
             std::vector<char> selected(d.Units.size());
             for (int u : p.Units) {
                 selected[u] = true;
