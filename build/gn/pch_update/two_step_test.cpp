@@ -1,7 +1,10 @@
 #include "two_step.h"
+#include "checks.h"
 #include "common.h"
+#include "ninja.h"
 
 #include <cmath>
+#include <cstdlib>
 #include <string>
 
 namespace NPchUpdate::NTwoStep {
@@ -12,6 +15,74 @@ namespace NPchUpdate::NTwoStep {
 
         void Near(double actual, double expected, const std::string& message) {
             Check(std::abs(actual - expected) < 1e-7, message + ": " + std::to_string(actual));
+        }
+
+        void LinkRequirements() {
+            TSymbolProviders providers = {{"needed", {"provider.a", "alternative.a"}}, {"unknown", {}}};
+            std::vector<TLinkLine> links = {{"app", {"consumer.o", "provider.a"}},
+                                          {"test", {"consumer.o", "alternative.a"}}};
+            Check(CheckLinkRequirements({"needed"}, providers, links).Available(),
+                  "different providers may satisfy the same symbol in different final links");
+            links[1].Inputs.erase("alternative.a");
+            auto missing = CheckLinkRequirements({"needed", "needed"}, providers, links);
+            Check(!missing.Available() && missing.Missing.at("needed") == std::vector<std::string>{"test"} &&
+                  missing.UnknownSymbols.empty() && !missing.UnknownLinks,
+                  "every final consumer must have a provider; duplicate requirements do not duplicate failures");
+            auto unknown = CheckLinkRequirements({"needed", "unknown", "not-indexed"}, providers, links);
+            Check(!unknown.Available() && unknown.UnknownSymbols == std::vector<std::string>({"not-indexed", "unknown"}) &&
+                  unknown.Missing.count("needed"), "unknown providers cannot disappear or hide known conflicts");
+            auto noLinks = CheckLinkRequirements({"needed"}, providers, {});
+            Check(!noLinks.Available() && noLinks.UnknownLinks && noLinks.Missing.empty(),
+                  "absent final links are unknown, not proof of availability or a missing library");
+            Check(CheckLinkRequirements({}, {}, {}).Available(), "no external requirements need no providers");
+        }
+
+        void LinkInputGraph() {
+            const char* temp = std::getenv("TMPDIR");
+            auto dir = MakeTempDir(temp ? temp : ".", "pch-link-inputs-");
+            try {
+                WriteFile(JoinPath(dir, "build.ninja"),
+                    "rule cxx\n  command = c++ -c $in -o $out\n"
+                    "rule alink\n  command = ar rcs $out $in\n"
+                    "rule link\n  command = c++ $in -o $out\n"
+                    "rule solink\n  command = c++ -shared $in -o $out\n"
+                    "build first.o: cxx first.cpp\n"
+                    "build second.o: cxx second.cpp\n"
+                    "build member.o: cxx member.cpp\n"
+                    "build shared.o: cxx shared.cpp\n"
+                    "build order.o: cxx order.cpp\n"
+                    "build archive.a: alink member.o\n"
+                    "build shared.so: solink shared.o\n"
+                    "build app: link first.o archive.a | shared.so || order.o\n"
+                    "build test: link second.o archive.a\n");
+                TNinjaManifest manifest(dir);
+                auto inputs = CollectLinkInputs(manifest, {
+                    {"first.o", "//same:owner"}, {"second.o", "//same:owner"},
+                    {"member.o", "//archive:member"}, {"archive.a", "//archive:archive"},
+                    {"shared.o", "//shared:member"}, {"shared.so", "//shared:shared"},
+                    {"order.o", "//order:only"}, {"app", "//app:app"}, {"test", "//test:test"}
+                });
+                const auto& owner = inputs.Targets.at("//same:owner");
+                Check(owner.size() == 2 && owner[0].Inputs == std::set<std::string>({"first.o", "archive.a", "shared.so"}),
+                      "link lines keep actual explicit/implicit objects and libraries, excluding order-only inputs");
+                auto sameLabel = CheckLinkRequirements({"second_only"}, {{"second_only", {"second.o"}}}, owner);
+                Check(!sameLabel.Available() && sameLabel.Missing.at("second_only") == std::vector<std::string>{"app"},
+                      "another object with the same target label cannot falsely supply a symbol");
+                Check(inputs.Targets.at("//archive:member").size() == 2 && inputs.Targets.at("//archive:archive").size() == 2,
+                      "archive members are checked in every final link using the archive");
+                const auto& shared = inputs.Targets.at("//shared:member");
+                Check(shared.size() == 1 && shared[0].Output == "shared.so" &&
+                      inputs.Targets.at("//shared:shared").size() == 1,
+                      "shared-library members are checked at their own link boundary");
+                Check(!inputs.Targets.count("//order:only") &&
+                      std::set<std::string>(inputs.Libraries.begin(), inputs.Libraries.end()) ==
+                          std::set<std::string>({"first.o", "second.o", "archive.a", "shared.o", "shared.so"}),
+                      "symbol providers use linked artifacts, not unlinked archive members or order-only objects");
+            } catch (...) {
+                RemoveTree(dir);
+                throw;
+            }
+            RemoveTree(dir);
         }
 
         void Scheduling() {
@@ -369,6 +440,8 @@ namespace NPchUpdate::NTwoStep {
     } // namespace
 
     int SelfTest() {
+        LinkRequirements();
+        LinkInputGraph();
         Scheduling();
         Invalidation();
         FrozenBase();

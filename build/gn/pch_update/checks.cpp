@@ -1,3 +1,4 @@
+#include "checks.h"
 #include "elf.h"
 #include "ninja.h"
 #include "steps.h"
@@ -37,6 +38,128 @@ namespace NPchUpdate {
         bool IsLinkRule(const std::string& rule) {
             return rule == "link" || rule == "solink";
         }
+
+    } // namespace
+
+    TLinkInputs CollectLinkInputs(const TNinjaManifest& manifest,
+                                 const std::unordered_map<std::string, std::string>& labels) {
+        TLinkInputs result;
+        std::set<std::string> libraries;
+        std::map<std::string, std::set<std::string>> members;
+        std::set<std::string> visiting;
+        // An archive's objects introduce the PCH requirements into each final
+        // link using it. Stop at shared libraries: they have their own link.
+        std::function<const std::set<std::string>&(const std::string&)> owners;
+        owners = [&](const std::string& path) -> const std::set<std::string>& {
+            if (visiting.count(path)) { Fail("cycle in link inputs: " + path); }
+            auto [it, added] = members.try_emplace(path);
+            if (!added) { return it->second; }
+            visiting.insert(path);
+            auto label = labels.find(path);
+            if (label != labels.end()) { it->second.insert(label->second); }
+            int64_t producer = manifest.Producer(path);
+            if (producer >= 0 && manifest.Edges()[producer].Rule == "alink") {
+                const auto& edge = manifest.Edges()[producer];
+                for (const auto* inputs : {&edge.Inputs, &edge.ImplicitInputs}) {
+                    for (const auto& input : *inputs) {
+                        int64_t source = manifest.Producer(input);
+                        if (source < 0) { continue; }
+                        const auto& rule = manifest.Edges()[source].Rule;
+                        if (IsCompileRule(rule) || rule == "alink") {
+                            const auto& nested = owners(input);
+                            it->second.insert(nested.begin(), nested.end());
+                        }
+                    }
+                }
+            }
+            visiting.erase(path);
+            return it->second;
+        };
+        for (const auto& edge : manifest.Edges()) {
+            if (!IsLinkRule(edge.Rule)) { continue; }
+            TLinkLine line;
+            line.Output = edge.Outputs.at(0);
+            std::set<std::string> targets;
+            auto own = labels.find(line.Output);
+            if (own != labels.end()) { targets.insert(own->second); }
+            for (const auto* inputs : {&edge.Inputs, &edge.ImplicitInputs}) {
+                for (const auto& input : *inputs) {
+                    int64_t producer = manifest.Producer(input);
+                    if (producer < 0) { continue; }
+                    const auto& rule = manifest.Edges()[producer].Rule;
+                    if (!IsCompileRule(rule) && rule != "alink" && rule != "solink") { continue; }
+                    line.Inputs.insert(input);
+                    libraries.insert(input);
+                    if (rule != "solink") {
+                        const auto& nested = owners(input);
+                        targets.insert(nested.begin(), nested.end());
+                    }
+                }
+            }
+            for (const auto& target : targets) { result.Targets[target].push_back(line); }
+        }
+        result.Libraries.assign(libraries.begin(), libraries.end());
+        return result;
+    }
+
+    void LoadLinkProviders(TWorkDir& work, const std::string& buildDir,
+                           const std::vector<std::string>& libraries,
+                           const std::set<std::string>& symbols, TSymbolProviders& providers) {
+        std::set<std::string> fresh;
+        for (const auto& symbol : symbols) {
+            if (!providers.count(symbol)) { fresh.insert(symbol); }
+        }
+        if (fresh.empty()) { return; }
+        std::vector<std::string> results;
+        for (const auto& path : libraries) {
+            TWorkDir::TJob job;
+            job.Kind = "syms";
+            std::string abs = JoinPath(buildDir, path);
+            job.Args = {abs};
+            job.Inputs = {abs};
+            job.Depfile = false;
+            results.push_back(work.Add(job));
+        }
+        work.Build(results, "symbols of the libraries");
+        TSymbolProviders loaded;
+        for (const auto& symbol : fresh) { loaded[symbol]; }
+        std::mutex lock;
+        ParallelFor(results.size(), 8, [&](size_t i) {
+            auto defined = LoadSymbolsResult(results[i]);
+            std::vector<const std::string*> hits;
+            for (const auto& symbol : defined) {
+                auto it = fresh.find(symbol);
+                if (it != fresh.end()) { hits.push_back(&*it); }
+            }
+            std::lock_guard<std::mutex> guard(lock);
+            for (const auto* symbol : hits) { loaded[*symbol].insert(libraries[i]); }
+        });
+        providers.insert(loaded.begin(), loaded.end());
+        Log(Format("checks: %zu libraries read for %zu symbols", results.size(), fresh.size()));
+    }
+
+    TLinkAvailability CheckLinkRequirements(const std::vector<std::string>& symbols,
+                                           const TSymbolProviders& providers,
+                                           const std::vector<TLinkLine>& links) {
+        TLinkAvailability result;
+        if (symbols.empty()) { return result; }
+        result.UnknownLinks = links.empty();
+        for (const auto& symbol : std::set<std::string>(symbols.begin(), symbols.end())) {
+            auto it = providers.find(symbol);
+            if (it == providers.end() || it->second.empty()) {
+                result.UnknownSymbols.push_back(symbol);
+                continue;
+            }
+            for (const auto& line : links) {
+                bool found = std::any_of(it->second.begin(), it->second.end(),
+                    [&](const auto& path) { return line.Inputs.count(path) != 0; });
+                if (!found) { result.Missing[symbol].push_back(line.Output); }
+            }
+        }
+        return result;
+    }
+
+    namespace {
 
         using THeaders = std::set<int32_t>;
         using TSignature = std::pair<std::vector<int32_t>, std::vector<int32_t>>;
@@ -352,8 +475,8 @@ namespace NPchUpdate {
             void PchErrors(const TProbe& p, const TPchResult& pch, TRoundResult& r, std::vector<TBisect>& bisects);
             void StepBisect(TProbe& p, TBisect& b, std::vector<std::string>& wave);
             void LinkConflicts(const std::vector<TProbe*>& probes, std::map<int64_t, TRoundResult>& out);
-            const std::map<std::string, std::set<std::string>>& Definers(const std::set<std::string>& symbols);
-            const std::unordered_map<std::string, std::vector<std::set<std::string>>>& LinkLines();
+            const TSymbolProviders& Definers(const std::set<std::string>& symbols);
+            const TLinkInputs& LinkInputs();
 
             const TOptions& Options_;
             TWorkDir& Work_;
@@ -362,9 +485,8 @@ namespace NPchUpdate {
             std::vector<std::string> PchOnly_;
             // source -> its #define before its last #include; kept for the run
             std::unordered_map<std::string, std::vector<std::pair<std::string, std::string>>> DefinesIn_;
-            std::map<std::string, std::set<std::string>> Definers_;
-            std::optional<std::unordered_map<std::string, std::vector<std::set<std::string>>>> LinkLines_;
-            std::vector<std::pair<std::string, std::string>> Libraries_;
+            TSymbolProviders Definers_;
+            std::optional<TLinkInputs> LinkInputs_;
         };
 
         TProbe TChecker::MakeProbe(int64_t id, int32_t n, const TSelection* sel) {
@@ -846,95 +968,13 @@ namespace NPchUpdate {
             }
         }
 
-        const std::unordered_map<std::string, std::vector<std::set<std::string>>>& TChecker::LinkLines() {
-            if (LinkLines_) {
-                return *LinkLines_;
-            }
-            LinkLines_.emplace();
-            const auto& manifest = *Facts_.Manifest;
-            auto labelOf = [&](const std::string& path) -> const std::string* {
-                auto it = Facts_.LabelOfOutput.find(path);
-                return it == Facts_.LabelOfOutput.end() ? nullptr : &it->second;
-            };
-            std::set<std::pair<std::string, std::string>> libraries;
-            for (const auto& e : manifest.Edges()) {
-                if (e.Rule == "alink" || e.Rule == "solink") {
-                    if (const std::string* label = labelOf(e.Outputs[0])) {
-                        libraries.emplace(e.Outputs[0], *label);
-                    }
-                }
-                if (!IsLinkRule(e.Rule)) {
-                    continue;
-                }
-                const std::string* own = labelOf(e.Outputs[0]);
-                std::set<std::string> line;
-                std::set<std::string> objects;
-                if (own) {
-                    line.insert(*own);
-                    objects.insert(*own);
-                }
-                for (const auto* inputs : {&e.Inputs, &e.ImplicitInputs}) {
-                    for (const std::string& input : *inputs) {
-                        const std::string* label = labelOf(input);
-                        if (!label) {
-                            continue;
-                        }
-                        line.insert(*label);
-                        int64_t producer = manifest.Producer(input);
-                        if (producer >= 0 && IsCompileRule(manifest.Edges()[producer].Rule)) {
-                            objects.insert(*label);
-                            // an object linked as is: a library of its own
-                            libraries.emplace(input, *label);
-                        }
-                    }
-                }
-                for (const std::string& t : objects) {
-                    (*LinkLines_)[t].push_back(line);
-                }
-            }
-            Libraries_.assign(libraries.begin(), libraries.end());
-            return *LinkLines_;
+        const TLinkInputs& TChecker::LinkInputs() {
+            if (!LinkInputs_) { LinkInputs_ = CollectLinkInputs(*Facts_.Manifest, Facts_.LabelOfOutput); }
+            return *LinkInputs_;
         }
 
-        const std::map<std::string, std::set<std::string>>& TChecker::Definers(const std::set<std::string>& symbols) {
-            std::set<std::string> fresh;
-            for (const std::string& s : symbols) {
-                if (!Definers_.count(s)) {
-                    fresh.insert(s);
-                    Definers_[s];
-                }
-            }
-            if (fresh.empty()) {
-                return Definers_;
-            }
-            LinkLines();
-            std::vector<std::string> results;
-            for (const auto& [path, _] : Libraries_) {
-                TWorkDir::TJob job;
-                job.Kind = "syms";
-                std::string abs = JoinPath(Facts_.BuildDir, path);
-                job.Args = {abs};
-                job.Inputs = {abs};
-                job.Depfile = false;
-                results.push_back(Work_.Add(job));
-            }
-            Work_.Build(results, "symbols of the libraries");
-            std::mutex lock;
-            ParallelFor(results.size(), 8, [&](size_t i) {
-                std::vector<std::string> defined = LoadSymbolsResult(results[i]);
-                std::vector<const std::string*> hits;
-                for (const std::string& s : defined) {
-                    auto it = fresh.find(s);
-                    if (it != fresh.end()) {
-                        hits.push_back(&*it);
-                    }
-                }
-                std::lock_guard<std::mutex> guard(lock);
-                for (const std::string* s : hits) {
-                    Definers_[*s].insert(Libraries_[i].second);
-                }
-            });
-            Log(Format("checks: %zu libraries read for %zu symbols", results.size(), fresh.size()));
+        const TSymbolProviders& TChecker::Definers(const std::set<std::string>& symbols) {
+            LoadLinkProviders(Work_, Facts_.BuildDir, LinkInputs().Libraries, symbols, Definers_);
             return Definers_;
         }
 
@@ -970,21 +1010,15 @@ namespace NPchUpdate {
                 return;
             }
             const auto& defined = Definers(all);
-            const auto& lines = LinkLines();
+            const auto& lines = LinkInputs().Targets;
+            const std::vector<TLinkLine> noLines;
             for (const TProbe* p : probes) {
                 auto it = needs.find(p->Id);
-                if (it == needs.end()) {
+                if (it == needs.end() || it->second.empty()) {
                     continue;
                 }
                 TRoundResult& r = out[p->Id];
                 const TModelCore& core = p->Sel->M.Core();
-                std::map<std::string, const std::set<std::string>*> need;
-                for (const std::string& s : it->second) {
-                    const auto& d = defined.at(s);
-                    if (!d.empty()) {
-                        need[s] = &d;
-                    }
-                }
                 std::map<std::string, std::vector<int32_t>> culprits;
                 auto culpritsOf = [&](const std::string& s) -> const std::vector<int32_t>& {
                     auto c = culprits.find(s);
@@ -1030,28 +1064,25 @@ namespace NPchUpdate {
                     members.insert(Facts_.TargetOf[t]);
                 }
                 for (int32_t target : members) {
-                    auto l = lines.find(Facts_.TargetNames[target]);
-                    if (l == lines.end() || l->second.empty()) {
-                        continue;
+                    const auto& name = Facts_.TargetNames[target];
+                    auto l = lines.find(name);
+                    auto availability = CheckLinkRequirements(it->second, defined, l == lines.end() ? noLines : l->second);
+                    if (!availability.UnknownLinks) { ++r.Files["links"]; }
+                    if (availability.Available()) { continue; }
+                    ++r.Files["links lacking"];
+                    if (availability.UnknownLinks) {
+                        r.Conflicts[target].emplace_back(-1, name + ": no known final link; PCH requirements need validation");
                     }
-                    ++r.Files["links"];
-                    std::set<std::string> lacking;
-                    for (const auto& [s, d] : need) {
-                        for (const auto& line : l->second) {
-                            bool has = std::any_of(d->begin(), d->end(), [&](const std::string& lib) { return line.count(lib) != 0; });
-                            if (!has) {
-                                lacking.insert(s);
-                                break;
-                            }
+                    for (const auto& s : availability.UnknownSymbols) {
+                        for (int32_t h : culpritsOf(s)) {
+                            r.Conflicts[target].emplace_back(h, name + ": no known provider for " +
+                                Demangled(s).substr(0, 120) + "; PCH requirements need validation");
                         }
                     }
-                    if (lacking.empty()) {
-                        continue;
-                    }
-                    ++r.Files["links lacking"];
-                    for (const std::string& s : lacking) {
-                        std::vector<std::string> libs(need[s]->begin(), need[s]->end());
-                        std::string message = Format("%s: a link has no %s for %s", Facts_.TargetNames[target].c_str(),
+                    for (const auto& [s, missing] : availability.Missing) {
+                        const auto& providers = defined.at(s);
+                        std::vector<std::string> libs(providers.begin(), providers.end());
+                        std::string message = Format("%s: link %s has no %s for %s", name.c_str(), missing.front().c_str(),
                                                      Join(libs, " or ").c_str(), Demangled(s).substr(0, 120).c_str());
                         for (int32_t h : culpritsOf(s)) {
                             r.Conflicts[target].emplace_back(h, message);
