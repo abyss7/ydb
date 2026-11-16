@@ -286,7 +286,21 @@ tree identity, so existing analysis checkpoints must be regenerated.
 - `snapshot.bin`: checksummed analysis, configuration, initial predictions and
   action identities; never rewritten by verification or correction.
 - `selection.bin`: completed layout keyed by selector inputs, reusable even
-  when compatibility checking or build emission has not finished yet.
+  when compatibility checking or build emission has not finished yet; also
+  retains disk-budget diagnostics so a retry can restore a missing report.
+- `disk-budget.tsv`: predicted restoration of evicted PCHs up to **2x** the
+  configured disk budget. Each grouping width has its own cumulative sequence;
+  missing parents are included once and oversized packages are skipped.
+  Columns show added MB, total occupied MB, the required budget increase,
+  restored targets and the estimated step/cumulative work savings. MB means
+  1,000,000 bytes. Estimates reuse `FitDisk` scores: they are neither measured
+  CPU seconds nor predicted build wall time, and precede compatibility checks.
+  `selected_at_original_budget` identifies the width chosen at the original
+  budget. Sequences of different widths must not be added together.
+- `BASELINE/pch-disk-budget.tsv`: latest completed prediction phase's copy of
+  the report above; survives successful cleanup of `.pch_update/`. A corrected
+  prediction replaces the initial report. No extra compilations are performed
+  for these diagnostics.
 - `summary.tsv`, `predictions.tsv`, `assignments.tsv`, `target-members.tsv`:
   objective, per-action estimates, target-level leaves and their C++ members.
 - `build/pch/*.h`: selected root headers; the Ninja manifest records the chains.

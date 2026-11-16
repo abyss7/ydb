@@ -261,9 +261,21 @@ namespace NPchUpdate::NTwoStep {
             TestTargets(d, 2);
             TLayout none;
             none.Assignment.assign(d.Targets.size(), -1);
-            auto selected = Select(d, {});
+            std::vector<TDiskAlternative> alternatives;
+            auto selected = Select(d, {}, nullptr, &alternatives);
             Check(selected.Bases == 1 && selected.Pchs.size() == 1 && selected.Pchs[0].Class == 0,
                   "disk budget keeps the profitable subset instead of rejecting all bases");
+            auto same = Select(d, {});
+            Check(same.Assignment == selected.Assignment && same.Pchs.size() == selected.Pchs.size(),
+                  "collecting expansion diagnostics does not change selection");
+            auto baseOption = std::find_if(alternatives.begin(), alternatives.end(), [](const auto& a) { return a.Width == 0; });
+            Check(baseOption != alternatives.end() && baseOption->Selected && baseOption->Step == 1 &&
+                  baseOption->Targets.size() == 4, "report identifies the winning width and restored target owners");
+            Near(baseOption->AddedBytes, 3.9e6, "diagnostic restores the excluded PCH bytes");
+            Near(baseOption->RequiredBudget, 7.8e6, "new budget includes already retained artifacts");
+            Near(baseOption->RequiredBudget - d.Resources.Disk, 3.6e6,
+                 "required budget increase accounts for existing free space");
+            Near(baseOption->SavedWork, 12.52, "work estimate includes all consumers and the PCH build cost");
             auto p = Predict(d, selected, {});
             Check(p.Feasible && p.Objective < Predict(d, none, {}).Objective,
                   "disk-constrained subset improves the complete graph");
@@ -278,6 +290,52 @@ namespace NPchUpdate::NTwoStep {
             auto unused = Select(d, slow, &selected);
             Check(unused.Bases == 1 && unused.Pchs[0].Roots == selected.Pchs[0].Roots,
                   "an unused frozen base survives correction");
+            d.Resources.Disk = 1.95e6;
+            Select(d, {}, nullptr, &alternatives);
+            Check(!alternatives.empty(), "a restoration exactly at twice the budget is reported");
+            for (const auto& option : alternatives) {
+                Near(option.RequiredBudget, 2 * d.Resources.Disk, "inclusive 2x diagnostic boundary");
+                Check(!option.Selected, "no width is marked selected when all candidates only tie the incumbent");
+            }
+            d.Resources.Disk -= 1;
+            Select(d, {}, nullptr, &alternatives);
+            Check(alternatives.empty(), "packages exceeding twice the budget are omitted, not partially restored");
+        }
+
+        void SharedBaseDiskDiagnostics() {
+            auto d = Data();
+            d.Resources.Disk = 6e6;
+            d.Units.resize(3);
+            for (int u = 0; u < 3; ++u) {
+                d.Units[u].Include = "<header" + std::to_string(u) + ">";
+                d.Units[u].Stable = u == 0;
+                d.Units[u].Parse = 1;
+                d.Units[u].Bytes = 1e6;
+            }
+            for (int f = 0; f < 64; ++f) {
+                TAction action;
+                action.Time = 20;
+                action.Memory = 1e6;
+                d.Actions.push_back(action);
+                d.Files.push_back({f, 0, std::to_string(f), {{0, 3}, {f < 32 ? 1 : 2, 4}}});
+            }
+            TestTargets(d);
+            std::vector<TDiskAlternative> alternatives;
+            Select(d, {}, nullptr, &alternatives);
+            std::vector<TDiskAlternative> chain;
+            for (const auto& option : alternatives) {
+                Check(option.RequiredBudget <= 2 * d.Resources.Disk, "all reported variants respect the 2x bound");
+                if (option.Width == 32) { chain.push_back(option); }
+            }
+            Check(chain.size() == 2 && chain[0].Pchs.size() == 2 && chain[1].Pchs.size() == 1,
+                  "first restored leaf brings its missing base; the next reuses it");
+            Check(chain[0].Pchs[0] == 0 && chain[0].Step == 1 && chain[1].Step == 2,
+                  "restored dependencies precede children and steps are cumulative within a width");
+            Near(chain[0].AddedBytes, 7.8e6, "first package includes the shared base");
+            Near(chain[1].AddedBytes, 3.9e6, "shared base is not charged twice");
+            Near(chain[1].TotalBytes, 11.7e6, "cumulative bytes include both leaves and one base");
+            Near(chain[1].TotalSavedWork, chain[0].SavedWork + chain[1].SavedWork,
+                 "cumulative work counts each restored artifact once");
         }
 
         void AbsoluteSystemRoot() {
@@ -480,6 +538,7 @@ namespace NPchUpdate::NTwoStep {
         LibraryDependentLeaves();
         FrozenBase();
         DiskBudgetSelection();
+        SharedBaseDiskDiagnostics();
         AbsoluteSystemRoot();
         Calibration();
         AtomicTargets();

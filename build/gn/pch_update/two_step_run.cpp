@@ -180,6 +180,12 @@ namespace NPchUpdate::NTwoStep {
             TSnapshot Snapshot;
         };
 
+        struct TSelectionCheckpoint {
+            std::string Key;
+            TLayout Layout;
+            std::string DiskReport;
+        };
+
         struct TMeasureConfig {
             std::string Directory, Nonce, Command, Depfile, CacheMode;
             std::vector<std::string> Outputs;
@@ -231,6 +237,7 @@ namespace NPchUpdate::NTwoStep {
             a(v.LinkInputs);
         }
         template <class A> void Fields(A& a, TAnalysis& v) { a(v.Version, v.Tree, v.Baseline, v.Snapshot); }
+        template <class A> void Fields(A& a, TSelectionCheckpoint& v) { a(v.Key, v.Layout, v.DiskReport); }
         template <class A> void Fields(A& a, TMeasureConfig& v) { a(v.Directory, v.Nonce, v.Command, v.Depfile, v.CacheMode, v.Outputs, v.Id, v.Memory, v.Bandwidth, v.RamLimit, v.BandwidthLimit); }
         template <class A> void Fields(A& a, TRecord& v) { a(v.Nonce, v.Digest, v.Id, v.Status, v.Observation, v.Outputs); }
         template <class A> void Fields(A& a, TRunRecord& v) { a(v.Nonce, v.Token, v.Snapshot, v.Status, v.Start, v.End); }
@@ -1920,7 +1927,40 @@ namespace NPchUpdate::NTwoStep {
             return inputs;
         }
 
+        std::string DiskBudgetReport(const TData& data, const std::vector<TDiskAlternative>& options, bool corrected) {
+            std::ostringstream out;
+            out << std::setprecision(12)
+                << "# phase=" << (corrected ? "corrected-prediction" : "initial-prediction")
+                << " budget_mb=" << data.Resources.Disk / 1e6 << " max_budget_mb=" << 2 * data.Resources.Disk / 1e6
+                << " q=" << data.Q << '\n'
+                << "# MB=1000000 bytes. Each width is an independent pre-compatibility candidate; steps within it are cumulative.\n"
+                << "# Restore evictions in reverse order with missing parents; skip packages exceeding 2x. Not an exhaustive search.\n"
+                << "# Saved work is FitDisk's weighted action-time estimate including PCH costs, not CPU seconds or build wall time.\n"
+                << "# Added PCH IDs precede pruning; restored assignments have not passed compatibility checks.\n"
+                << "width\tselected_at_original_budget\tstep\tbase_pch_mb\tadded_pchs\trestored_targets"
+                << "\tstep_added_mb\ttotal_added_mb\tpch_mb\trequired_budget_mb\tbudget_increase_mb"
+                << "\testimated_step_saved_work_seconds\testimated_total_saved_work_seconds\n";
+            for (const auto& option : options) {
+                std::vector<std::string> pchs;
+                for (int g : option.Pchs) { pchs.push_back(std::to_string(g)); }
+                out << option.Width << '\t' << int(option.Selected) << '\t' << option.Step << '\t'
+                    << option.BaseBytes / 1e6 << '\t' << Join(pchs, ",") << '\t' << Join(option.Targets, ";") << '\t'
+                    << option.AddedBytes / 1e6 << '\t' << (option.TotalBytes - option.BaseBytes) / 1e6 << '\t'
+                    << option.TotalBytes / 1e6 << '\t' << option.RequiredBudget / 1e6 << '\t'
+                    << (option.RequiredBudget - data.Resources.Disk) / 1e6 << '\t'
+                    << option.SavedWork << '\t' << option.TotalSavedWork << '\n';
+            }
+            return out.str();
+        }
+
+        void PublishDiskBudgetReport(const TSnapshot& s) {
+            // The normal successful workflow deletes .pch_update/current. Keep
+            // the latest completed phase's diagnostics outside that scratch tree.
+            WriteFile(JoinPath(s.Baseline, "pch-disk-budget.tsv"), ReadFile(JoinPath(s.Directory, "disk-budget.tsv")));
+        }
+
         void Summary(TSnapshot& s) {
+            PublishDiskBudgetReport(s);
             std::ostringstream out;
             out << std::setprecision(10)
                 << "phase\t" << (s.Corrected ? "corrected-prediction" : "initial-prediction")
@@ -1933,6 +1973,7 @@ namespace NPchUpdate::NTwoStep {
                 << "\ncompilations\t" << s.Data.Files.size()
                 << "\nworkers\t" << s.Data.Resources.Workers << "\nram_bytes\t" << s.Data.Resources.Ram
                 << "\npch_disk_bytes_budget\t" << s.Data.Resources.Disk
+                << "\ndisk_budget_report\t" << JoinPath(s.Baseline, "pch-disk-budget.tsv")
                 << "\nsample_percent\t" << s.Sample << "\n";
             if (s.Sample < 100) {
                 out << "# Verification samples whole targets (all C++ members): " << s.Measured.size()
@@ -1991,19 +2032,25 @@ namespace NPchUpdate::NTwoStep {
             inputs(s.Tool, s.Data, calibration, hasFrozen, seed);
             const auto key = HashHex(inputs.Out.Data());
             const auto path = JoinPath(output, "selection.bin");
+            const auto report = JoinPath(output, "disk-budget.tsv");
             if (Exists(path)) {
-                auto saved = Decode<std::pair<std::string, TLayout>>(ReadFile(path));
-                if (saved.first == key) {
+                std::optional<TSelectionCheckpoint> saved;
+                try { saved = Decode<TSelectionCheckpoint>(ReadFile(path)); }
+                catch (const TError&) { Log("selection checkpoint has no usable diagnostics; recomputing layout"); }
+                if (saved && saved->Key == key) {
                     Log("selection: reusing saved layout from " + path);
-                    return std::move(saved.second);
+                    WriteFileIfChanged(report, saved->DiskReport);
+                    return std::move(saved->Layout);
                 }
-                Log("selection inputs changed; recomputing layout");
+                if (saved) { Log("selection inputs changed; recomputing layout"); }
             }
-            auto layout = compute ? compute() : Select(s.Data, calibration, frozen);
-            std::pair<std::string, TLayout> saved{key, layout};
+            std::vector<TDiskAlternative> alternatives;
+            auto layout = compute ? compute() : Select(s.Data, calibration, frozen, &alternatives);
+            TSelectionCheckpoint saved{key, layout, DiskBudgetReport(s.Data, alternatives, frozen != nullptr)};
             // Publish before compatibility/graph emission, either of which can
             // be interrupted long after the expensive selector has finished.
             WriteFile(path, Encode(saved));
+            WriteFileIfChanged(report, saved.DiskReport);
             return layout;
         }
 
@@ -3734,13 +3781,25 @@ source_set("pch_group_0_compile") {
             int selections = 0;
             auto select = [&]() { ++selections; return TLayout{}; };
             const auto selectionDir = JoinPath(dir, "selection");
-            SelectCheckpoint(selecting, selectionDir, calibration, nullptr, select);
+            const auto diskReport = JoinPath(selectionDir, "disk-budget.tsv");
+            MakeDirs(diskReport); // publication fails after the checkpoint is durable
+            bool reportFailed = false;
+            try { SelectCheckpoint(selecting, selectionDir, calibration, nullptr, select); }
+            catch (const TError&) { reportFailed = true; }
+            check(reportFailed && selections == 1, "report failure occurs after completing selection");
             check(Exists(JoinPath(selectionDir, "selection.bin")) &&
                   !Exists(JoinPath(selectionDir, "snapshot.bin")), "selection is durable before compatibility completes");
+            RemoveTree(diskReport);
+            SelectCheckpoint(selecting, selectionDir, calibration, nullptr, select);
+            const auto firstReport = ReadFile(diskReport);
+            check(selections == 1 && firstReport.find("max_budget_mb=2000") != std::string::npos,
+                  "a failed diagnostic write is retried from the checkpoint without rerunning selection");
             auto resumed = Decode<TSnapshot>(Encode(selecting));
             resumed.Nonce = "new-analysis-resume-nonce";
+            RemoveFile(diskReport);
             SelectCheckpoint(resumed, selectionDir, calibration, nullptr, select);
-            check(selections == 1, "resume after selection skips the expensive selector");
+            check(selections == 1 && ReadFile(diskReport) == firstReport,
+                  "resume restores missing diagnostics and skips the expensive selector");
             calibration.Classes[0].Load *= 2;
             SelectCheckpoint(resumed, selectionDir, calibration, nullptr, select);
             check(selections == 2, "changed calibration invalidates selection");
@@ -3751,6 +3810,20 @@ source_set("pch_group_0_compile") {
             SelectCheckpoint(resumed, selectionDir, calibration, &frozen, select);
             SelectCheckpoint(resumed, selectionDir, calibration, &frozen, select);
             check(selections == 4, "frozen-base correction has its own reusable selection");
+            check(ReadFile(diskReport).find("phase=corrected-prediction") != std::string::npos &&
+                  ReadFile(diskReport).find("max_budget_mb=4000") != std::string::npos,
+                  "corrected diagnostics use the corrected phase and current budget");
+            std::pair<std::string, TLayout> oldSelection{"old-format", {}};
+            WriteFile(JoinPath(selectionDir, "selection.bin"), Encode(oldSelection));
+            SelectCheckpoint(resumed, selectionDir, calibration, &frozen, select);
+            check(selections == 5, "old checkpoints without diagnostics are recomputed once");
+            resumed.Directory = selectionDir;
+            resumed.Baseline = JoinPath(dir, "diagnostic-baseline");
+            PublishDiskBudgetReport(resumed);
+            const auto published = ReadFile(JoinPath(resumed.Baseline, "pch-disk-budget.tsv"));
+            RemoveTree(selectionDir);
+            check(ReadFile(JoinPath(resumed.Baseline, "pch-disk-budget.tsv")) == published && !published.empty(),
+                  "published disk diagnostics survive deletion of the disposable phase");
             TSnapshot s;
             s.Root = WorktreeRoot();
             s.Tree = TreeIdentity(s.Root);

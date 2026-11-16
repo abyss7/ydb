@@ -125,6 +125,22 @@ namespace NPchUpdate::NTwoStep {
         std::string Report;
     };
 
+    // One cumulative restoration step for a particular pre-compatibility
+    // grouping width. These are FitDisk work estimates, not CPU or wall time.
+    struct TDiskAlternative {
+        int Width = 0;
+        int Step = 0;
+        bool Selected = false; // this width won at the original budget
+        std::vector<int> Pchs; // IDs before budget pruning, parents first
+        std::vector<std::string> Targets;
+        double BaseBytes = 0;
+        double AddedBytes = 0;
+        double TotalBytes = 0;
+        double RequiredBudget = 0;
+        double SavedWork = 0;
+        double TotalSavedWork = 0;
+    };
+
     // Returns infinity on resource infeasibility; malformed graphs are errors.
     void GroupTargets(TData& data, const std::vector<std::string>& owners);
     void ValidateTargets(const TData& data);
@@ -132,7 +148,8 @@ namespace NPchUpdate::NTwoStep {
                     const std::vector<char>& dirty = {});
     std::vector<char> Invalidate(const std::vector<TAction>& actions, int scenario);
     TPrediction Predict(const TData& data, const TLayout& layout, const TCalibration& calibration);
-    TLayout Select(const TData& data, const TCalibration& calibration, const TLayout* frozen = nullptr);
+    TLayout Select(const TData& data, const TCalibration& calibration, const TLayout* frozen = nullptr,
+                   std::vector<TDiskAlternative>* diskAlternatives = nullptr);
     TCalibration Calibrate(const TData& data, const TLayout& layout, const TPrediction& prediction,
                            const std::vector<TObservation>& observations);
 

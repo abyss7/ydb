@@ -216,12 +216,14 @@ namespace NPchUpdate::NTwoStep {
         // Admit useful subtrees instead of rejecting the entire shortlist when
         // the aggregate artifacts exceed the disk budget. Prune leaves first;
         // a parent becomes removable only after its last child is removed.
-        void FitDisk(const TData& d, TLayout& layout, const TCalibration& calibration, bool frozen) {
+        void FitDisk(const TData& d, TLayout& layout, const TCalibration& calibration, bool frozen,
+                     int width, std::vector<TDiskAlternative>* alternatives) {
             const int count = int(layout.Pchs.size());
             std::vector<double> bytes(count), work(count), gain(count);
             std::vector<std::set<int>> changes(count);
             std::vector<int> children(count), consumers(count);
             std::vector<char> keep(count, true);
+            std::vector<int> removed;
             double disk = 0;
             for (int g = 0; g < count; ++g) {
                 const auto& p = layout.Pchs[g];
@@ -266,9 +268,47 @@ namespace NPchUpdate::NTwoStep {
                 leaves.pop();
                 if (consumers[g] && disk <= d.Resources.Disk) { break; }
                 keep[g] = false;
+                if (alternatives) { removed.push_back(g); }
                 disk -= bytes[g];
                 int parent = layout.Pchs[g].Parent;
                 if (parent >= 0 && !--children[parent]) { enqueue(parent); }
+            }
+            if (alternatives) {
+                // Replay removals backwards without changing the selected plan.
+                // A useful group brings all missing ancestors with it. Skip a
+                // package that would exceed 2x rather than proposing a partial
+                // chain or charging a shared parent again in a later step.
+                auto restored = keep;
+                double expandedDisk = disk, savedWork = 0;
+                int step = 0;
+                std::vector<std::vector<int>> targets(count);
+                for (size_t t = 0; t < layout.Assignment.size(); ++t) {
+                    int g = layout.Assignment[t];
+                    if (g >= 0) { targets[g].push_back(int(t)); }
+                }
+                for (auto it = removed.rbegin(); it != removed.rend(); ++it) {
+                    int g = *it;
+                    if (restored[g] || !consumers[g]) { continue; }
+                    TDiskAlternative option;
+                    option.Width = width;
+                    option.BaseBytes = disk;
+                    for (int h = g; h >= 0 && !restored[h]; h = layout.Pchs[h].Parent) {
+                        option.Pchs.push_back(h);
+                        option.AddedBytes += bytes[h];
+                        option.SavedWork += gain[h];
+                        for (int t : targets[h]) { option.Targets.push_back(d.Targets[t].Label); }
+                    }
+                    option.TotalBytes = expandedDisk + option.AddedBytes;
+                    option.RequiredBudget = std::max(d.Resources.Disk, option.TotalBytes);
+                    if (option.RequiredBudget > 2 * d.Resources.Disk) { continue; }
+                    std::reverse(option.Pchs.begin(), option.Pchs.end());
+                    for (int h : option.Pchs) { restored[h] = true; }
+                    expandedDisk = option.TotalBytes;
+                    savedWork += option.SavedWork;
+                    option.TotalSavedWork = savedWork;
+                    option.Step = ++step;
+                    alternatives->push_back(std::move(option));
+                }
             }
             std::vector<int> remap(count, -1);
             std::vector<TPch> kept;
@@ -598,7 +638,10 @@ namespace NPchUpdate::NTwoStep {
         return p;
     }
 
-    TLayout Select(const TData& d, const TCalibration& c, const TLayout* frozen) {
+    TLayout Select(const TData& d, const TCalibration& c, const TLayout* frozen,
+                   std::vector<TDiskAlternative>* diskAlternatives) {
+        if (diskAlternatives) { diskAlternatives->clear(); }
+        int selectedWidth = -1;
         ValidateTargets(d);
         std::map<int, std::vector<int>> closures;
         std::vector<std::vector<int>> classes(d.Classes);
@@ -718,7 +761,7 @@ namespace NPchUpdate::NTwoStep {
                     }
                 }
             }
-            FitDisk(d, candidate, c, frozen != nullptr);
+            FitDisk(d, candidate, c, frozen != nullptr, width, diskAlternatives);
             auto prediction = Predict(d, candidate, c);
             double value = prediction.Objective;
             Log(Format("selection width=%d: %d bases, %zu PCHs, %.3f GB, objective %.3f s%s",
@@ -727,11 +770,15 @@ namespace NPchUpdate::NTwoStep {
                 value, prediction.Feasible ? "" : " (infeasible)"));
             if (value < score) {
                 score = value;
+                selectedWidth = width;
                 best = std::move(candidate);
             }
         }
         if (!std::isfinite(score)) {
             Fail("no layout fits the worker/pool/RAM/disk constraints");
+        }
+        if (diskAlternatives) {
+            for (auto& option : *diskAlternatives) { option.Selected = option.Width == selectedWidth; }
         }
         return best;
     }
