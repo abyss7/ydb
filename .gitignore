@@ -122,3 +122,4 @@ path.bash.inc
 /local.ymake
 
 /.ydb-build/
+/out/gn/
