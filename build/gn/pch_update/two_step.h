@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <map>
 #include <string>
@@ -147,9 +148,12 @@ namespace NPchUpdate::NTwoStep {
     double Makespan(const std::vector<TAction>& actions, const TResources& resources,
                     const std::vector<char>& dirty = {});
     std::vector<char> Invalidate(const std::vector<TAction>& actions, int scenario);
-    TPrediction Predict(const TData& data, const TLayout& layout, const TCalibration& calibration);
+    // Analysis concurrency is execution-only: it does not change modeled build
+    // resources, snapshot identity or deterministic reduction order.
+    TPrediction Predict(const TData& data, const TLayout& layout, const TCalibration& calibration,
+                        size_t analysisJobs = 1);
     TLayout Select(const TData& data, const TCalibration& calibration, const TLayout* frozen = nullptr,
-                   std::vector<TDiskAlternative>* diskAlternatives = nullptr);
+                   std::vector<TDiskAlternative>* diskAlternatives = nullptr, size_t analysisJobs = 1);
     TCalibration Calibrate(const TData& data, const TLayout& layout, const TPrediction& prediction,
                            const std::vector<TObservation>& observations);
 

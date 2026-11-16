@@ -569,7 +569,7 @@ namespace NPchUpdate::NTwoStep {
         }
     }
 
-    TPrediction Predict(const TData& d, const TLayout& l, const TCalibration& calibration) {
+    TPrediction Predict(const TData& d, const TLayout& l, const TCalibration& calibration, size_t analysisJobs) {
         ValidateTargets(d);
         if (l.Assignment.size() != d.Targets.size()) {
             Fail("prediction: assignment size mismatch");
@@ -651,9 +651,13 @@ namespace NPchUpdate::NTwoStep {
         // cold and all historical scenarios; only per-scenario state differs.
         const TTopology topology(p.Actions);
         p.Cold = MakespanPrepared(p.Actions, d.Resources, {}, topology);
-        for (int k = 0; k < d.Scenarios; ++k) {
-            p.Incremental += MakespanPrepared(p.Actions, d.Resources, InvalidatePrepared(p.Actions, k, topology), topology);
-        }
+        std::vector<double> incremental(std::max(0, d.Scenarios));
+        ParallelFor(incremental.size(), analysisJobs, [&](size_t k) {
+            incremental[k] = MakespanPrepared(p.Actions, d.Resources, InvalidatePrepared(p.Actions, int(k), topology), topology);
+        });
+        // Fixed scenario order preserves floating-point results and selection
+        // ties regardless of worker count or completion order.
+        p.Incremental = std::accumulate(incremental.begin(), incremental.end(), 0.0);
         p.Incremental /= std::max(1, d.Scenarios);
         p.Feasible = std::isfinite(p.Cold) && std::isfinite(p.Incremental);
         p.Objective = p.Feasible ? d.Q * p.Cold + (1 - d.Q) * p.Incremental : INF;
@@ -661,7 +665,7 @@ namespace NPchUpdate::NTwoStep {
     }
 
     TLayout Select(const TData& d, const TCalibration& c, const TLayout* frozen,
-                   std::vector<TDiskAlternative>* diskAlternatives) {
+                   std::vector<TDiskAlternative>* diskAlternatives, size_t analysisJobs) {
         if (diskAlternatives) { diskAlternatives->clear(); }
         int selectedWidth = -1;
         ValidateTargets(d);
@@ -698,7 +702,7 @@ namespace NPchUpdate::NTwoStep {
         if (!frozen) {
             best.Assignment.assign(d.Targets.size(), -1);
         }
-        double score = Predict(d, best, c).Objective;
+        double score = Predict(d, best, c, analysisJobs).Objective;
         for (int width : {0, 32, 128, 512}) {
             TLayout candidate = bases;
             for (int cls = 0; cls < d.Classes; ++cls) {
@@ -784,7 +788,7 @@ namespace NPchUpdate::NTwoStep {
                 }
             }
             FitDisk(d, candidate, c, frozen != nullptr, width, diskAlternatives);
-            auto prediction = Predict(d, candidate, c);
+            auto prediction = Predict(d, candidate, c, analysisJobs);
             double value = prediction.Objective;
             Log(Format("selection width=%d: %d bases, %zu PCHs, %.3f GB, objective %.3f s%s",
                 width, candidate.Bases, candidate.Pchs.size(),

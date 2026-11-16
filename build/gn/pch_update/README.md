@@ -58,7 +58,7 @@ removed. The next weekly run starts fresh and needs `--disk` again.
 | `--q` | Cold-build weight: `1` for `global`, `0.1` for `incremental`; an explicit value overrides the profile default |
 | `--bandwidth-gbps` | 1 GB/s |
 | `--action-memory-gb` | 1 GB unmeasured-action RSS prior |
-| `--analysis-jobs` | min(24, CPU count) |
+| `--analysis-jobs` | min(24, CPU count); analysis compiler jobs and parallel prediction scenarios |
 | `--sample` | `100`: share of whole PCH-owner targets that `verify` measures (`10`..`100`); all their C++ members, all PCHs and required generator tools are built |
 | `--target` | `all` and `tests`; repeat to override |
 

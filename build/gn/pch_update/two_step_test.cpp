@@ -158,10 +158,29 @@ namespace NPchUpdate::NTwoStep {
                 incremental += Makespan(d.Actions, d.Resources, Invalidate(d.Actions, k));
             }
             Near(prediction.Incremental, incremental / d.Scenarios, "prepared graph agrees with standalone scheduling");
+            auto scenarios = d;
+            scenarios.Scenarios = 37;
+            for (size_t i = 0; i < scenarios.Actions.size(); ++i) {
+                auto& action = scenarios.Actions[i];
+                action.Time *= .137;
+                action.Changes.clear();
+                for (int k = 0; k < scenarios.Scenarios; ++k) {
+                    if (k % 5 == int(i)) { action.Changes.push_back(k); }
+                }
+            }
+            const auto serial = Predict(scenarios, {}, {}, 1);
+            for (size_t jobs : {2, 8, 64}) {
+                const auto parallel = Predict(scenarios, {}, {}, jobs);
+                Check(serial.Cold == parallel.Cold && serial.Incremental == parallel.Incremental &&
+                      serial.Objective == parallel.Objective && serial.Feasible == parallel.Feasible,
+                      "parallel scenarios retain exact serial reduction results");
+            }
+            scenarios.Scenarios = 0;
+            Check(Predict(scenarios, {}, {}, 8).Incremental == 0, "empty history needs no scenario workers");
             d.Actions[2].DirtyDependencies = {5};
             bool rejected = false;
-            try { Predict(d, {}, {}); } catch (const TError&) { rejected = true; }
-            Check(rejected, "prepared invalidation still validates dependency indices");
+            try { Predict(d, {}, {}, 3); } catch (const TError&) { rejected = true; }
+            Check(rejected, "parallel invalidation propagates malformed dependency errors");
         }
 
         TData Data() {

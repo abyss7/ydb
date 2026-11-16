@@ -1785,7 +1785,8 @@ namespace NPchUpdate::NTwoStep {
             return Join(reasons, "; ");
         }
 
-        TCompileInputs Preflight(TSnapshot& s, const std::string& workDir, const TCalibration& calibration = {}) {
+        TCompileInputs Preflight(TSnapshot& s, const std::string& workDir, const TCalibration& calibration = {},
+                                 size_t analysisJobs = 1) {
             auto& layout = s.Layout;
             TCompileInputs inputs(s.Data.Actions.size() + layout.Pchs.size());
             if (layout.Pchs.empty()) { return inputs; }
@@ -1843,7 +1844,7 @@ namespace NPchUpdate::NTwoStep {
             std::vector<char> built(layout.Pchs.size());
             std::vector<TLeafLinkProbe> linkProbes(layout.Pchs.size());
             std::set<std::string> linkNeeds;
-            auto prediction = Predict(s.Data, layout, calibration);
+            auto prediction = Predict(s.Data, layout, calibration, analysisJobs);
             double memory = s.Data.ActionMemory;
             for (size_t g = 0; g < layout.Pchs.size(); ++g) {
                 memory = std::max(memory, prediction.Actions.at(s.Data.Actions.size() + g).Memory);
@@ -2090,7 +2091,7 @@ namespace NPchUpdate::NTwoStep {
 
         TLayout SelectCheckpoint(TSnapshot& s, const std::string& output,
                                  TCalibration calibration = {}, const TLayout* frozen = nullptr,
-                                 const std::function<TLayout()>& compute = {}) {
+                                 const std::function<TLayout()>& compute = {}, size_t analysisJobs = 1) {
             // Nonces and report/build paths are not selector inputs. In
             // particular LoadAnalysis generates a new nonce on resume.
             bool hasFrozen = frozen != nullptr;
@@ -2112,7 +2113,7 @@ namespace NPchUpdate::NTwoStep {
                 if (saved) { Log("selection inputs changed; recomputing layout"); }
             }
             std::vector<TDiskAlternative> alternatives;
-            auto layout = compute ? compute() : Select(s.Data, calibration, frozen, &alternatives);
+            auto layout = compute ? compute() : Select(s.Data, calibration, frozen, &alternatives, analysisJobs);
             TSelectionCheckpoint saved{key, layout, DiskBudgetReport(s.Data, alternatives, frozen != nullptr)};
             // Publish before compatibility/graph emission, either of which can
             // be interrupted long after the expensive selector has finished.
@@ -2121,7 +2122,7 @@ namespace NPchUpdate::NTwoStep {
             return layout;
         }
 
-        int CreatePlan(TSnapshot& s, const std::string& output, const std::string& workDir) {
+        int CreatePlan(TSnapshot& s, const std::string& output, const std::string& workDir, size_t analysisJobs = 1) {
             ValidateIdentity(s);
             CheckProfileOutput(s.Baseline, s.Mode, output);
             if (!Exists(output)) { NewDirectory(output, s.Root, s.Baseline); }
@@ -2138,9 +2139,9 @@ namespace NPchUpdate::NTwoStep {
             if (Under(s.Directory, StateDirectory(s.Baseline))) {
                 WriteFile(JoinPath(StateDirectory(s.Baseline), "analysis.path"), s.Directory + "\n");
             }
-            s.Layout = SelectCheckpoint(s, output);
-            const auto probeInputs = Preflight(s, workDir);
-            s.Prediction = Predict(s.Data, s.Layout, {});
+            s.Layout = SelectCheckpoint(s, output, {}, nullptr, {}, analysisJobs);
+            const auto probeInputs = Preflight(s, workDir, {}, analysisJobs);
+            s.Prediction = Predict(s.Data, s.Layout, {}, analysisJobs);
             Emit(s, probeInputs);
             ValidateIdentity(s);
             Summary(s);
@@ -2302,7 +2303,8 @@ namespace NPchUpdate::NTwoStep {
             report = errors.str();
             return result;
         }
-        int CorrectPlan(TSnapshot& s, const std::string& plan, const std::string& output, const std::string& workDir) {
+        int CorrectPlan(TSnapshot& s, const std::string& plan, const std::string& output, const std::string& workDir,
+                        size_t analysisJobs = 1) {
             if (s.Corrected) { Fail("correction is one step; start a new predict cycle to change the base"); }
             CheckProfileOutput(s.Baseline, s.Mode, output);
             ValidateIdentity(s);
@@ -2310,14 +2312,14 @@ namespace NPchUpdate::NTwoStep {
             auto observations = ReadObservations(s, errors, actionErrors);
             auto calibration = Calibrate(s.Data, s.Layout, s.Prediction, observations);
             if (!Exists(output)) { NewDirectory(output, s.Root, s.Baseline); }
-            auto layout = SelectCheckpoint(s, output, calibration, &s.Layout);
+            auto layout = SelectCheckpoint(s, output, calibration, &s.Layout, {}, analysisJobs);
             s.Directory = RealPath(output);
             s.Nonce = HashHex(s.Nonce + "corrected");
             s.Corrected = true;
             s.Layout = std::move(layout);
             SaveAnalysis(s);
-            const auto probeInputs = Preflight(s, workDir, calibration);
-            s.Prediction = Predict(s.Data, s.Layout, calibration);
+            const auto probeInputs = Preflight(s, workDir, calibration, analysisJobs);
+            s.Prediction = Predict(s.Data, s.Layout, calibration, analysisJobs);
             Emit(s, probeInputs);
             ValidateIdentity(s);
             WriteFile(JoinPath(output, "initial-errors.tsv"), errors);
@@ -2337,7 +2339,7 @@ namespace NPchUpdate::NTwoStep {
                 run.Snapshot == DigestFile(JoinPath(s.Directory, "snapshot.bin"));
         }
 
-        int FinishCycle(TSnapshot& s, const std::string& cycle, const std::string& workDir) {
+        int FinishCycle(TSnapshot& s, const std::string& cycle, const std::string& workDir, size_t analysisJobs = 1) {
             // The plan and its analysis checkpoint are written; older cycles
             // are not needed any more, and verification needs the disk.
             const auto state = ProfileDirectory(s.Baseline, s.Mode);
@@ -2360,7 +2362,7 @@ namespace NPchUpdate::NTwoStep {
                 if (Exists(output)) { output += "-" + std::to_string(Now()); }
                 Log("cycle: correction");
                 const auto initial = s.Directory;
-                int status = CorrectPlan(s, initial, output, workDir);
+                int status = CorrectPlan(s, initial, output, workDir, analysisJobs);
                 if (status) { return status; }
             }
             WriteFile(JoinPath(cycle, "result.path"), output + "\n");
@@ -3041,7 +3043,7 @@ namespace NPchUpdate::NTwoStep {
                             Exists(JoinPath(result, "snapshot.bin"));
                         resumable = saved.Mode == s.Mode && (unstarted || (Verified(saved) && correctionRetry));
                     } catch (const TError& error) { Log("cycle cannot resume: " + std::string(error.what())); }
-                    if (resumable) { return FinishCycle(saved, previous, options.WorkDir); }
+                    if (resumable) { return FinishCycle(saved, previous, options.WorkDir, options.Jobs); }
                 }
                 if (output.empty()) {
                     auto runs = JoinPath(modeState, "runs");
@@ -3085,8 +3087,8 @@ namespace NPchUpdate::NTwoStep {
                             action.Memory = action.Phony ? 0 : cached.Data.ActionMemory;
                         }
                         if (!cached.Data.Scenarios && cached.Data.Q != 1) { Fail("no history scenarios; use --q 1"); }
-                        int status = CreatePlan(cached, output, options.WorkDir);
-                        return status ? status : FinishCycle(cached, cycle, options.WorkDir);
+                        int status = CreatePlan(cached, output, options.WorkDir, options.Jobs);
+                        return status ? status : FinishCycle(cached, cycle, options.WorkDir, options.Jobs);
                     }
                 }
             }
@@ -3117,7 +3119,7 @@ namespace NPchUpdate::NTwoStep {
                         cached.Mode = s.Mode;
                         cached.Sample = s.Sample;
                     }
-                    return CreatePlan(cached, output, options.WorkDir);
+                    return CreatePlan(cached, output, options.WorkDir, options.Jobs);
                 }
             }
             TWorkDir work(options.WorkDir, tools.Ninja, options.Jobs);
@@ -3145,8 +3147,8 @@ namespace NPchUpdate::NTwoStep {
             s.Tool = DigestFile(SelfExe());
             s.Nonce = HashHex(s.Tree + std::to_string(Now()) + output);
             Extract(facts, s);
-            int status = CreatePlan(s, output, options.WorkDir);
-            return status || !fullCycle ? status : FinishCycle(s, cycle, options.WorkDir);
+            int status = CreatePlan(s, output, options.WorkDir, options.Jobs);
+            return status || !fullCycle ? status : FinishCycle(s, cycle, options.WorkDir, options.Jobs);
         }
         if (plan.empty()) { Fail("--plan is required"); }
         if (command == "replan") {
@@ -3159,13 +3161,13 @@ namespace NPchUpdate::NTwoStep {
             if (!s.Data.Scenarios && s.Data.Q != 1) { Fail("no history scenarios; use --mode global or --q 1"); }
             if (options.WorkDir.empty()) { options.WorkDir = JoinPath(StateDirectory(s.Baseline), "cache"); }
             options.WorkDir = CacheDirectory(options.WorkDir);
-            return CreatePlan(s, output, options.WorkDir);
+            return CreatePlan(s, output, options.WorkDir, options.Jobs);
         }
         s = LoadPlan(plan);
         if (command == "verify") { return Verify(s); }
         if (output.empty()) { Fail("correct requires a new --output directory"); }
         if (options.WorkDir.empty()) { options.WorkDir = JoinPath(StateDirectory(s.Baseline), "cache"); }
-        return CorrectPlan(s, plan, output, CacheDirectory(options.WorkDir));
+        return CorrectPlan(s, plan, output, CacheDirectory(options.WorkDir), options.Jobs);
     }
     namespace {
         struct TWorkflow {
@@ -3228,6 +3230,7 @@ namespace NPchUpdate::NTwoStep {
 
         struct TWorkflowResources {
             int Workers = 0, BaselineWorkers = 0;
+            int AnalysisJobs = int(std::min(size_t(24), CpuCount()));
             double Ram = 0, ActionMemory = 0, Bandwidth = 0;
         };
 
@@ -3244,6 +3247,11 @@ namespace NPchUpdate::NTwoStep {
             const auto workers = number("--workers");
             if (workers > 1000000 || workers != std::floor(workers)) { Fail("--workers requires an integer between 1 and 1000000"); }
             TWorkflowResources resources;
+            if (state.Options.count("--analysis-jobs")) {
+                const auto jobs = number("--analysis-jobs");
+                if (jobs > 1000000 || jobs != std::floor(jobs)) { Fail("--analysis-jobs requires an integer between 1 and 1000000"); }
+                resources.AnalysisJobs = int(jobs);
+            }
             resources.Workers = int(workers);
             resources.Ram = number("--ram-gb", 1e9);
             resources.ActionMemory = number("--action-memory-gb", 1e9);
@@ -4253,7 +4261,8 @@ source_set("pch_group_0_compile") {
             if (!Exists(JoinPath(corrected, "snapshot.bin"))) {
                 status = Verify(s);
                 if (status) { return status; }
-                status = CorrectPlan(s, initial, corrected, CacheDirectory(JoinPath(state, "cache")));
+                status = CorrectPlan(s, initial, corrected, CacheDirectory(JoinPath(state, "cache")),
+                                     WorkflowResources(workflow).AnalysisJobs);
                 if (status) { return status; }
                 s = LoadPlan(initial);
             }
