@@ -66,7 +66,7 @@ set_defaults("source_set") {
 ''')
     write("toolchain/BUILD.gn", '''toolchain("clang") {
   tool("cxx") {
-    command = "%s -MD -MF {{output}}.d {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
+    command = "%s --sysroot=/ -MD -MF {{output}}.d {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
     depfile = "{{output}}.d"
     depsformat = "gcc"
     outputs = [ "{{source_out_dir}}/{{target_output_name}}.{{source_file_part}}.o" ]
@@ -100,7 +100,8 @@ set_defaults("source_set") {
 }
 group("fixture_codegen") { deps = [ ":generate" ] }
 config("common") {
-  cflags_cc = [ "-std=c++20" ]
+  cflags_cc = [ "-std=c++20", "-ffile-prefix-map=" + rebase_path("//", root_build_dir) + "/=",
+                "-Xclang", "-include", "-Xclang", "gen/generated.h" ]
   defines = [ "WORKFLOW_TEST=1" ]
   include_dirs = [ "//", "$root_gen_dir" ]
   if (time_trace) { cflags_cc += [ "-ftime-trace" ] }
