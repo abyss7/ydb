@@ -22,8 +22,10 @@
 #include <cerrno>
 #include <chrono>
 #include <cmath>
+#include <condition_variable>
 #include <cstdlib>
 #include <cstring>
+#include <deque>
 #include <fstream>
 #include <filesystem>
 #include <functional>
@@ -1620,6 +1622,58 @@ namespace NPchUpdate::NTwoStep {
             std::map<std::string, std::string> Digests_;
         };
 
+        size_t CompatibilityJobs(const TResources& resources, double memory) {
+            if (memory > resources.Ram) { Fail("compatibility action cannot fit RAM budget"); }
+            return std::max(1, std::min(resources.Workers, int(std::min(
+                double(resources.Workers), std::floor(resources.Ram / std::max(1.0, memory))))));
+        }
+
+        // Only ready PCHs occupy workers. Completion publishes the parent's
+        // artifacts before releasing its children; exceptions wake every waiter.
+        void ParallelPchs(const std::vector<TPch>& pchs, size_t jobs, const std::function<void(size_t)>& check) {
+            std::vector<std::vector<size_t>> children(pchs.size());
+            std::deque<size_t> ready;
+            for (size_t g = 0; g < pchs.size(); ++g) {
+                int parent = pchs[g].Parent;
+                if (parent < -1 || parent >= int(g)) { Fail("compatibility: invalid PCH parent"); }
+                if (parent < 0) { ready.push_back(g); }
+                else { children[parent].push_back(g); }
+            }
+            std::mutex mutex;
+            std::condition_variable changed;
+            size_t remaining = pchs.size();
+            bool failed = false;
+            size_t workers = std::min(pchs.size(), std::max<size_t>(1, jobs));
+            ParallelFor(workers, workers, [&](size_t) {
+                for (;;) {
+                    size_t g;
+                    {
+                        std::unique_lock<std::mutex> lock(mutex);
+                        changed.wait(lock, [&] { return failed || !remaining || !ready.empty(); });
+                        if (failed || !remaining) { return; }
+                        g = ready.front();
+                        ready.pop_front();
+                    }
+                    try {
+                        check(g);
+                    } catch (...) {
+                        {
+                            std::lock_guard<std::mutex> lock(mutex);
+                            failed = true;
+                        }
+                        changed.notify_all();
+                        throw;
+                    }
+                    {
+                        std::lock_guard<std::mutex> lock(mutex);
+                        --remaining;
+                        ready.insert(ready.end(), children[g].begin(), children[g].end());
+                    }
+                    changed.notify_all();
+                }
+            });
+        }
+
         void CompatibleTargets(const TData& data, TLayout& layout, const std::vector<char>& built,
                                size_t jobs, const std::function<bool(int, int)>& check) {
             std::vector<int> pending;
@@ -1799,13 +1853,19 @@ namespace NPchUpdate::NTwoStep {
                     memory = std::max(memory, prediction.Actions.at(s.Data.Files[f].Action).Memory);
                 }
             }
-            if (memory > s.Data.Resources.Ram) { Fail("compatibility action cannot fit RAM budget"); }
+            const size_t jobs = CompatibilityJobs(s.Data.Resources, memory);
             std::ostringstream report;
             report << "kind\ttarget_or_group\told_leaf\tnew_leaf_before_compaction\tdiagnostics\n";
-            Log("compatibility: checking " + std::to_string(layout.Pchs.size()) + " PCHs; cache " + RealPath(cacheRoot));
-            for (size_t g = 0; g < layout.Pchs.size(); ++g) {
+            const auto reportHeader = report.str();
+            std::vector<std::string> rows(layout.Pchs.size());
+            std::mutex reportMutex;
+            size_t completed = 0;
+            Log(Format("compatibility: checking %zu PCHs, %zu workers; cache %s",
+                       layout.Pchs.size(), jobs, RealPath(cacheRoot).c_str()));
+            ParallelPchs(layout.Pchs, jobs, [&](size_t g) {
                 const auto& pch = layout.Pchs[g];
-                if (pch.Parent >= 0 && !built[pch.Parent]) { continue; }
+                if (pch.Parent >= 0 && !built[pch.Parent]) { return; }
+                std::ostringstream row;
                 auto argv = flags.at(pch.Representative);
                 const auto header = PchHeader(s.Data, pch);
                 TBinWriter key;
@@ -1822,27 +1882,36 @@ namespace NPchUpdate::NTwoStep {
                 argv.insert(argv.end(), {"-x", "c++-header", JoinPath(dir, "input.h"), "-o", artifacts[g]});
                 built[g] = cache.Probe(keys[g], s.Baseline, argv, header);
                 if (built[g]) { inputs[s.Data.Actions.size() + g] = probeInputs(keys[g]); }
-                report << "pch\t" << g << "\t" << g << "\t" << (built[g] ? int(g) : -1)
+                row << "pch\t" << g << "\t" << g << "\t" << (built[g] ? int(g) : -1)
                        << "\t" << JoinPath(dir, "compiler.log") << '\n';
-                WriteFile(JoinPath(s.Directory, "compatibility.tsv"), report.str());
-                Progress(Format("compatibility PCH %zu/%zu: %s", g + 1, layout.Pchs.size(), built[g] ? "OK" : "rejected"));
-                if (!built[g] && s.Corrected && int(g) < layout.Bases) {
-                    Fail("frozen base failed compatibility checking; see " + JoinPath(dir, "compiler.log"));
-                }
                 if (built[g] && int(g) >= layout.Bases) {
                     auto& link = linkProbes[g];
                     link = ProbeLeafLink(cache, s.Baseline, flags.at(pch.Representative), artifacts[g], keys[g]);
                     if (link.Ok) {
-                        linkNeeds.insert(link.Needs.begin(), link.Needs.end());
                         auto deps = probeInputs(link.Key);
                         auto& all = inputs[s.Data.Actions.size() + g];
                         all.insert(all.end(), deps.begin(), deps.end());
                         Unique(all);
                     }
-                    report << "pch-link\t" << g << '\t' << g << '\t' << (link.Ok ? int(g) : -1)
+                    row << "pch-link\t" << g << '\t' << g << '\t' << (link.Ok ? int(g) : -1)
                            << '\t' << JoinPath(cache.Directory(link.Key), "compiler.log") << '\n';
-                    WriteFile(JoinPath(s.Directory, "compatibility.tsv"), report.str());
                 }
+                {
+                    std::lock_guard<std::mutex> lock(reportMutex);
+                    rows[g] = row.str();
+                    report.str("");
+                    report << reportHeader;
+                    for (const auto& text : rows) { report << text; }
+                    WriteFile(JoinPath(s.Directory, "compatibility.tsv"), report.str());
+                    Progress(Format("compatibility PCH %zu/%zu: %s (group %zu)",
+                                    ++completed, layout.Pchs.size(), built[g] ? "OK" : "rejected", g));
+                }
+                if (!built[g] && s.Corrected && int(g) < layout.Bases) {
+                    Fail("frozen base failed compatibility checking; see " + JoinPath(dir, "compiler.log"));
+                }
+            });
+            for (const auto& link : linkProbes) {
+                if (link.Ok) { linkNeeds.insert(link.Needs.begin(), link.Needs.end()); }
             }
             TSymbolProviders providers;
             if (!linkNeeds.empty()) {
@@ -1867,8 +1936,6 @@ namespace NPchUpdate::NTwoStep {
                         : "PCH link probe failed: " + JoinPath(cache.Directory(link.Key), "compiler.log");
                 }
             }
-            size_t jobs = std::max(1, std::min(s.Data.Resources.Workers, int(std::min(
-                double(s.Data.Resources.Workers), std::floor(s.Data.Resources.Ram / std::max(1.0, memory))))));
             const auto original = layout.Assignment;
             std::vector<std::string> diagnostics(s.Data.Files.size());
             std::atomic<size_t> done{0};
@@ -2698,6 +2765,51 @@ namespace NPchUpdate::NTwoStep {
         check(frozenCompatibility.Bases == 2 && frozenCompatibility.Pchs.size() == 2 &&
               frozenCompatibility.Pchs[0].Roots == std::vector<int>{10} && frozenCompatibility.Assignment[0] == 1,
               "correction retains an unused frozen base and its ID");
+
+        std::vector<TPch> concurrentPchs(4);
+        concurrentPchs[2].Parent = 0;
+        concurrentPchs[3].Parent = 1;
+        std::mutex concurrentMutex;
+        std::condition_variable concurrentChanged;
+        std::vector<char> concurrentDone(4);
+        int arrivals[2] = {}, active = 0, peak = 0;
+        ParallelPchs(concurrentPchs, 2, [&](size_t g) {
+            std::unique_lock<std::mutex> lock(concurrentMutex);
+            int parent = concurrentPchs[g].Parent;
+            check(parent < 0 || concurrentDone[parent], "PCH parent completes before its delta starts");
+            peak = std::max(peak, ++active);
+            ++arrivals[g / 2];
+            concurrentChanged.notify_all();
+            check(concurrentChanged.wait_for(lock, std::chrono::seconds(5), [&] { return arrivals[g / 2] == 2; }),
+                  "independent bases and deltas really run concurrently");
+            concurrentDone[g] = true;
+            --active;
+        });
+        check(peak == 2 && std::all_of(concurrentDone.begin(), concurrentDone.end(), [](char v) { return v; }),
+              "PCH queue completes all work within its worker ceiling");
+        std::fill(concurrentDone.begin(), concurrentDone.end(), false);
+        ParallelPchs(concurrentPchs, 1, [&](size_t g) {
+            int parent = concurrentPchs[g].Parent;
+            check(parent < 0 || concurrentDone[parent], "serial PCH queue preserves dependencies");
+            concurrentDone[g] = true;
+        });
+        rejected = false;
+        try {
+            ParallelPchs(concurrentPchs, 2, [&](size_t g) { if (!g) { Fail("PCH worker failure"); } });
+        } catch (const TError&) { rejected = true; }
+        check(rejected, "PCH worker failure wakes waiters and propagates");
+        concurrentPchs[0].Parent = 1;
+        rejected = false;
+        try { ParallelPchs(concurrentPchs, 2, [](size_t) {}); } catch (const TError&) { rejected = true; }
+        check(rejected, "invalid PCH dependency fails before launching workers");
+        TResources compatibilityResources;
+        compatibilityResources.Workers = 8;
+        compatibilityResources.Ram = 5e9;
+        check(CompatibilityJobs(compatibilityResources, 2e9) == 2 &&
+              CompatibilityJobs(compatibilityResources, 1e8) == 8, "PCH workers respect RAM and CPU ceilings");
+        rejected = false;
+        try { CompatibilityJobs(compatibilityResources, 6e9); } catch (const TError&) { rejected = true; }
+        check(rejected, "oversized PCH probe cannot start");
 
         auto probeRoot = JoinPath(dir, "compatibility-cache");
         TCompatibilityCache probeCache(probeRoot);
