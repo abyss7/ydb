@@ -1,6 +1,10 @@
 library("ut_resources") {
   resources = [
     {
+      path = "data/async_coroutine.wasm"
+      key = "/async_coroutine.wasm"
+    },
+    {
       path = "data/throw_with_dwarf.wasm"
       key = "/throw_with_dwarf.wasm"
     },
@@ -35,6 +39,7 @@ unittest_executable("ut") {
     "//ydb/services/udf_store/blob_chunks.cpp",
     "//ydb/services/udf_store/udf_name.cpp",
     "//ydb/services/udf_store/wasm/manifest.cpp",
+    "async_runtime_ut.cpp",
     "blob_chunks_ut.cpp",
     "bridge_abi_ut.cpp",
     "bridge_dict_ut.cpp",

@@ -1,7 +1,8 @@
 library("wasm") {
   public_deps = [
     "//ydb/library/wasm/api",
-    # "//yql/essentials/minikql:alloc",
+    # "//ydb/services/udf_store/wasm/abi",
+    "//yql/essentials/minikql:alloc",
     "//yql/essentials/public/udf",
   ]
 
@@ -15,7 +16,6 @@ library("wasm") {
     "//ydb/public/lib/udf/manifest",
     # "//ydb/services/udf_store",
     "//ydb/services/udf_store/metadata_subscription",
-    # "//ydb/services/udf_store/wasm/abi",
     "//yql/essentials/ast",
     # "//yql/essentials/minikql",  # peerdir only
     # "//yql/essentials/minikql:terminator",
@@ -25,6 +25,8 @@ library("wasm") {
 
   sources = [
     "//ydb/services/udf_store/cpu_spec.cpp",
+    "async_runtime/host.cpp",
+    "async_runtime/runtime.cpp",
     "bridge_host.cpp",
     "bridge_node_table.cpp",
     "bridge_resident.cpp",
