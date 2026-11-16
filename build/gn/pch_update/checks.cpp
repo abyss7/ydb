@@ -88,7 +88,10 @@ namespace NPchUpdate {
                     if (producer < 0) { continue; }
                     const auto& rule = manifest.Edges()[producer].Rule;
                     if (!IsCompileRule(rule) && rule != "alink" && rule != "solink") { continue; }
-                    line.Inputs.insert(input);
+                    // GN uses solink's .TOC as depend_output, but passes its
+                    // primary output (the shared library) to the linker.
+                    // Scan and index that artifact, never the textual TOC.
+                    line.Inputs.insert(rule == "solink" ? manifest.Edges()[producer].Outputs.at(0) : input);
                     if (rule != "solink") {
                         const auto& nested = owners(input);
                         targets.insert(nested.begin(), nested.end());

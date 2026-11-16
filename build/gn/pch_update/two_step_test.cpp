@@ -53,9 +53,9 @@ namespace NPchUpdate::NTwoStep {
                     "build shared.o: cxx shared.cpp\n"
                     "build order.o: cxx order.cpp\n"
                     "build archive.a: alink member.o\n"
-                    "build shared.so: solink shared.o\n"
-                    "build app: link first.o archive.a | shared.so || order.o\n"
-                    "build test: link second.o archive.a\n");
+                    "build shared.so shared.so.TOC: solink shared.o\n"
+                    "build app: link first.o archive.a | shared.so.TOC || order.o\n"
+                    "build test: link second.o archive.a | shared.so\n");
                 TNinjaManifest manifest(dir);
                 auto inputs = CollectLinkInputs(manifest, {
                     {"first.o", "//same:owner"}, {"second.o", "//same:owner"},
@@ -65,7 +65,9 @@ namespace NPchUpdate::NTwoStep {
                 });
                 const auto& owner = inputs.Targets.at("//same:owner");
                 Check(owner.size() == 2 && inputs.Lines.at(owner[0]).Inputs == std::set<std::string>({"first.o", "archive.a", "shared.so"}),
-                      "link lines keep actual explicit/implicit objects and libraries, excluding order-only inputs");
+                      "link lines resolve GN TOC dependencies to actual libraries, excluding order-only inputs");
+                Check(CheckLinkRequirements({"exported"}, {{"exported", {"shared.so"}}}, inputs.Lines, owner).Available(),
+                      "TOC and direct shared-library dependencies identify the same symbol provider");
                 auto sameLabel = CheckLinkRequirements({"second_only"}, {{"second_only", {"second.o"}}}, inputs.Lines, owner);
                 Check(!sameLabel.Available() && sameLabel.Missing.at("second_only") == std::vector<std::string>{"app"},
                       "another object with the same target label cannot falsely supply a symbol");

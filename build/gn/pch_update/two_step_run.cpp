@@ -46,7 +46,7 @@ namespace NPchUpdate::NTwoStep {
         constexpr const char* PREVIOUS_VERSION = "pch-two-step-4";
         constexpr const char* LEGACY_VERSION = "pch-two-step-3";
         // Bump when extraction or the meaning of cached model features changes.
-        constexpr const char* ANALYSIS_VERSION = "pch-analysis-6";
+        constexpr const char* ANALYSIS_VERSION = "pch-analysis-7";
 
         const char* HELP =
             "pch_update --baseline DIR [--predict | --correct | --apply] [options]\n"
@@ -3748,15 +3748,16 @@ namespace NPchUpdate::NTwoStep {
             auto buildProvider = [&](const std::string& text) {
                 WriteFile(provider, text);
                 auto argv = flags;
-                argv.insert(argv.end(), {"-c", provider, "-o", "provider.o"});
+                argv.insert(argv.end(), {"-shared", "-nostdlib", "-fuse-ld=lld", provider, "-o", "provider.so"});
                 RunChecked(argv, run);
             };
             buildProvider("int Provided() { return 7; }\n");
+            WriteFile(JoinPath(s.Baseline, "provider.so.TOC"), "_Z8Providedv T\n");
             WriteFile(JoinPath(s.Baseline, "build.ninja"),
-                "rule cxx\n  command = unused\nrule link\n  command = unused\n"
+                "rule cxx\n  command = unused\nrule link\n  command = unused\nrule solink\n  command = unused\n"
                 "build file0.o: cxx file0.cpp\nbuild file1.o: cxx file1.cpp\nbuild file2.o: cxx file2.cpp\n"
-                "build provider.o: cxx provider.cpp\n"
-                "build allowed: link file0.o provider.o\nbuild helper: link file1.o provider.o\n"
+                "build provider.so provider.so.TOC: solink provider.cpp\n"
+                "build allowed: link file0.o | provider.so.TOC\nbuild helper: link file1.o | provider.so.TOC\n"
                 "build missing: link file2.o\n");
             TNinjaManifest manifest(s.Baseline);
             s.LinkInputs = CollectLinkInputs(manifest, {{"file0.o", "file0.o"}, {"file1.o", "file1.o"}, {"file2.o", "file2.o"}});
@@ -3778,11 +3779,11 @@ namespace NPchUpdate::NTwoStep {
                   "target fallback explains the failing final link");
             s.Layout = candidate;
             auto helper = s.LinkInputs.Targets.at("file1.o").front();
-            s.LinkInputs.Lines[helper].Inputs.erase("provider.o");
+            s.LinkInputs.Lines[helper].Inputs.erase("provider.so");
             Preflight(s, cache);
             check(s.Layout.Assignment == std::vector<int>({0, 0}),
                   "one helper's missing provider moves the whole owner to its parent");
-            s.LinkInputs.Lines[helper].Inputs.insert("provider.o");
+            s.LinkInputs.Lines[helper].Inputs.insert("provider.so");
             s.LinkInputs.Targets.erase("file1.o");
             s.Layout = candidate;
             Preflight(s, cache);
