@@ -63,15 +63,15 @@ namespace NPchUpdate::NTwoStep {
                     {"order.o", "//order:only"}, {"app", "//app:app"}, {"test", "//test:test"}
                 });
                 const auto& owner = inputs.Targets.at("//same:owner");
-                Check(owner.size() == 2 && owner[0].Inputs == std::set<std::string>({"first.o", "archive.a", "shared.so"}),
+                Check(owner.size() == 2 && inputs.Lines.at(owner[0]).Inputs == std::set<std::string>({"first.o", "archive.a", "shared.so"}),
                       "link lines keep actual explicit/implicit objects and libraries, excluding order-only inputs");
-                auto sameLabel = CheckLinkRequirements({"second_only"}, {{"second_only", {"second.o"}}}, owner);
+                auto sameLabel = CheckLinkRequirements({"second_only"}, {{"second_only", {"second.o"}}}, inputs.Lines, owner);
                 Check(!sameLabel.Available() && sameLabel.Missing.at("second_only") == std::vector<std::string>{"app"},
                       "another object with the same target label cannot falsely supply a symbol");
                 Check(inputs.Targets.at("//archive:member").size() == 2 && inputs.Targets.at("//archive:archive").size() == 2,
                       "archive members are checked in every final link using the archive");
                 const auto& shared = inputs.Targets.at("//shared:member");
-                Check(shared.size() == 1 && shared[0].Output == "shared.so" &&
+                Check(shared.size() == 1 && inputs.Lines.at(shared[0]).Output == "shared.so" &&
                       inputs.Targets.at("//shared:shared").size() == 1,
                       "shared-library members are checked at their own link boundary");
                 Check(!inputs.Targets.count("//order:only") &&
@@ -156,6 +156,39 @@ namespace NPchUpdate::NTwoStep {
                 labels.push_back("//test:t" + std::to_string(1000000 + f / members));
             }
             GroupTargets(d, labels);
+        }
+
+        void LibraryDependentLeaves() {
+            auto d = Data();
+            d.Units.resize(2);
+            for (int u = 0; u < 2; ++u) {
+                d.Units[u].Include = u ? "<requires_library>" : "<independent>";
+                d.Units[u].Stable = true;
+                d.Units[u].Parse = 1;
+                d.Units[u].Bytes = 1;
+            }
+            d.Units[1].Safe = false;
+            d.Actions.resize(12);
+            d.Files.resize(12);
+            for (int f = 0; f < 12; ++f) {
+                d.Actions[f].Time = 20;
+                d.Actions[f].Memory = 1e6;
+                d.Files[f] = {f, 0, std::to_string(f), {{0, 5}, {1, 5}}};
+            }
+            TestTargets(d);
+            auto selected = Select(d, {});
+            bool assignedLeaf = false;
+            for (int g = 0; g < int(selected.Pchs.size()); ++g) {
+                const auto& units = selected.Pchs[g].Units;
+                bool needsLibrary = std::find(units.begin(), units.end(), 1) != units.end();
+                if (g < selected.Bases) {
+                    Check(!needsLibrary, "library-dependent headers never enter conservative shared bases");
+                } else if (needsLibrary) {
+                    assignedLeaf |= std::find(selected.Assignment.begin(), selected.Assignment.end(), g) != selected.Assignment.end();
+                }
+            }
+            Check(selected.Bases > 0 && assignedLeaf,
+                  "profitable library-dependent leaves reach target-aware compatibility instead of global rejection");
         }
 
         void FrozenBase() {
@@ -444,6 +477,7 @@ namespace NPchUpdate::NTwoStep {
         LinkInputGraph();
         Scheduling();
         Invalidation();
+        LibraryDependentLeaves();
         FrozenBase();
         DiskBudgetSelection();
         AbsoluteSystemRoot();

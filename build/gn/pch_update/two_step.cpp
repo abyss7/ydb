@@ -174,7 +174,10 @@ namespace NPchUpdate::NTwoStep {
                 double work = 0, gain = 0;
                 std::set<int> changes;
                 for (int u : closure) {
-                    valid &= d.Units[u].Safe && (!stable || d.Units[u].Stable);
+                    // Shared bases stay conservative. Specialized leaves may
+                    // require libraries: Preflight checks the actual PCH against
+                    // every final link of each assigned owner before accepting it.
+                    valid &= !stable || (d.Units[u].Safe && d.Units[u].Stable);
                     if (!selected[u]) {
                         work += d.Units[u].Parse;
                         gain += c.Saved * mass[u];

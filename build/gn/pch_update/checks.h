@@ -18,7 +18,10 @@ namespace NPchUpdate {
     };
 
     struct TLinkInputs {
-        std::unordered_map<std::string, std::vector<TLinkLine>> Targets;
+        // Store each final link once, even when it contains thousands of
+        // objects whose owners all need the same availability check.
+        std::vector<TLinkLine> Lines;
+        std::map<std::string, std::vector<int>> Targets;
         std::vector<std::string> Libraries;
     };
 
@@ -49,4 +52,8 @@ namespace NPchUpdate {
     TLinkAvailability CheckLinkRequirements(const std::vector<std::string>& symbols,
                                            const TSymbolProviders& providers,
                                            const std::vector<TLinkLine>& links);
+    TLinkAvailability CheckLinkRequirements(const std::vector<std::string>& symbols,
+                                           const TSymbolProviders& providers,
+                                           const std::vector<TLinkLine>& links,
+                                           const std::vector<int>& selected);
 } // namespace NPchUpdate

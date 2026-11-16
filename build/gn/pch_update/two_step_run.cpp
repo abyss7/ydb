@@ -1,5 +1,7 @@
 #include "two_step.h"
+#include "checks.h"
 #include "common.h"
+#include "elf.h"
 #include "ninja.h"
 #include "steps.h"
 #include "gni.h"
@@ -36,12 +38,13 @@
 
 namespace NPchUpdate::NTwoStep {
     namespace {
-        constexpr const char* VERSION = "pch-two-step-6";
+        constexpr const char* VERSION = "pch-two-step-7";
+        constexpr const char* OWNER_VERSION = "pch-two-step-6";
         constexpr const char* TARGET_VERSION = "pch-two-step-5";
         constexpr const char* PREVIOUS_VERSION = "pch-two-step-4";
         constexpr const char* LEGACY_VERSION = "pch-two-step-3";
         // Bump when extraction or the meaning of cached model features changes.
-        constexpr const char* ANALYSIS_VERSION = "pch-analysis-5";
+        constexpr const char* ANALYSIS_VERSION = "pch-analysis-6";
 
         const char* HELP =
             "pch_update --baseline DIR [--predict | --correct | --apply] [options]\n"
@@ -118,6 +121,9 @@ namespace NPchUpdate::NTwoStep {
             std::vector<std::string> GnSwitches;
             std::vector<std::pair<std::string, std::string>> Inputs;
             std::vector<std::vector<std::string>> Flags;
+            // Keys are actual object outputs, so inherited helper targets and
+            // partially linked owners cannot silently lose a consumer's links.
+            TLinkInputs LinkInputs;
             TData Data;
             TLayout Layout;
             TPrediction Prediction;
@@ -217,9 +223,12 @@ namespace NPchUpdate::NTwoStep {
               v.Size, v.Memory, v.ConsumerMemory, v.Identified);
         }
         template <class A> void Fields(A& a, TCalibration& v) { a(v.Classes, v.ActionTime, v.ActionMemory, v.Report); }
+        template <class A> void Fields(A& a, TLinkLine& v) { a(v.Output, v.Inputs); }
+        template <class A> void Fields(A& a, TLinkInputs& v) { a(v.Lines, v.Targets, v.Libraries); }
         template <class A> void Fields(A& a, TSnapshot& v) {
             a(v.Root, v.Baseline, v.Directory, v.Args, v.Gn, v.Ninja, v.Nonce, v.Tree, v.Tool, v.Targets, v.GnSwitches, v.Inputs, v.Flags, v.Data, v.Layout, v.Prediction, v.Commands, v.Corrected, v.Sample, v.Measured);
             if (a.HasProfile) { a(v.Mode); }
+            a(v.LinkInputs);
         }
         template <class A> void Fields(A& a, TAnalysis& v) { a(v.Version, v.Tree, v.Baseline, v.Snapshot); }
         template <class A> void Fields(A& a, TMeasureConfig& v) { a(v.Directory, v.Nonce, v.Command, v.Depfile, v.CacheMode, v.Outputs, v.Id, v.Memory, v.Bandwidth, v.RamLimit, v.BandwidthLimit); }
@@ -250,6 +259,10 @@ namespace NPchUpdate::NTwoStep {
                 for (auto& x : v) { One(x); }
             }
             template <class X, class Y> void One(std::pair<X, Y>& v) { One(v.first); One(v.second); }
+            template <class T> void One(std::set<T>& v) {
+                Out.U64(v.size());
+                for (auto x : v) { One(x); }
+            }
             template <class X, class Y> void One(std::map<X, Y>& v) {
                 Out.U64(v.size());
                 for (auto& [key, value] : v) { auto k = key; One(k); One(value); }
@@ -288,6 +301,10 @@ namespace NPchUpdate::NTwoStep {
                 for (auto& x : v) { One(x); }
             }
             template <class X, class Y> void One(std::pair<X, Y>& v) { One(v.first); One(v.second); }
+            template <class T> void One(std::set<T>& v) {
+                size_t n = Count();
+                for (size_t i = 0; i < n; ++i) { T x; One(x); v.insert(std::move(x)); }
+            }
             template <class X, class Y> void One(std::map<X, Y>& v) {
                 size_t n = Count();
                 for (size_t i = 0; i < n; ++i) { X k; Y x; One(k); One(x); v.emplace(std::move(k), std::move(x)); }
@@ -309,12 +326,12 @@ namespace NPchUpdate::NTwoStep {
         T Decode(const std::string& text) {
             TBinReader envelope(text);
             const auto version = envelope.Str();
-            if (version != VERSION && version != TARGET_VERSION && version != PREVIOUS_VERSION && version != LEGACY_VERSION) {
+            if (version != VERSION && version != OWNER_VERSION && version != TARGET_VERSION && version != PREVIOUS_VERSION && version != LEGACY_VERSION) {
                 Fail("unsupported two-step snapshot version");
             }
             if constexpr (std::is_same_v<T, TSnapshot> || std::is_same_v<T, TAnalysis>) {
                 if (version != VERSION) {
-                    Fail("plan/analysis schema changed (GN owner membership/eligibility); run predict again (old results are preserved)");
+                    Fail("plan/analysis schema changed (GN owners/link inputs); run predict again (old results are preserved)");
                 }
             }
             std::string hash(envelope.Str());
@@ -647,6 +664,14 @@ namespace NPchUpdate::NTwoStep {
                 stamp.Str(path);
                 stamp.Str(Exists(path) ? DigestFile(path) : std::string("missing"));
             }
+            // Link-provider caches and resumed analysis must also notice rebuilt
+            // libraries, including untraced objects and generated helper targets.
+            for (const auto& input : s.LinkInputs.Libraries) {
+                const auto path = NormPath(JoinPath(s.Baseline, input));
+                stamp.Str(path);
+                stamp.I64(FileSize(path));
+                stamp.I64(MtimeNs(path));
+            }
             // Avoid rereading tens of GB of traces. A rebuild changes the Ninja
             // logs above; also reject replaced/touched object or trace files.
             for (const auto& file : s.Data.Files) {
@@ -965,6 +990,12 @@ namespace NPchUpdate::NTwoStep {
             }
             d.Classes = int(classOf.size());
             GroupTargets(d, owners);
+            std::unordered_map<std::string, std::string> objects;
+            for (const auto& file : d.Files) {
+                const auto& output = d.Actions[file.Action].Output;
+                objects.emplace(output, output);
+            }
+            s.LinkInputs = CollectLinkInputs(*facts.Manifest, objects);
             for (auto& target : d.Targets) {
                 target.PchEligible = !ineligibleOwners.count(target.Label);
                 if (omittedOwners.count(target.Label)) {
@@ -1494,7 +1525,8 @@ namespace NPchUpdate::NTwoStep {
 
             bool Probe(const std::string& key, const std::string& cwd,
                        std::vector<std::string> argv, const std::string& header = {},
-                       const std::function<TRunResult(const std::vector<std::string>&, const TRunOptions&)>& run = Run) {
+                       const std::function<TRunResult(const std::vector<std::string>&, const TRunOptions&)>& run = Run,
+                       const std::string& output = {}) {
                 const auto dir = Directory(key);
                 MakeDirs(dir);
                 struct TLock {
@@ -1502,7 +1534,7 @@ namespace NPchUpdate::NTwoStep {
                     ~TLock() { if (Fd >= 0) { close(Fd); } }
                 } lock{open(JoinPath(dir, "lock").c_str(), O_CREAT | O_RDWR | O_CLOEXEC, 0644)};
                 if (lock.Fd < 0 || flock(lock.Fd, LOCK_EX) != 0) { Fail("cannot lock compatibility cache: " + dir); }
-                const auto artifact = header.empty() ? std::string() : JoinPath(dir, "output.pch");
+                const auto artifact = header.empty() ? output : JoinPath(dir, "output.pch");
                 if (!header.empty()) { WriteFileIfChanged(JoinPath(dir, "input.h"), header); }
                 const auto depfile = JoinPath(dir, "deps.d");
                 argv.insert(argv.end(), {"-MD", "-MF", depfile, "-ferror-limit=1"});
@@ -1638,6 +1670,60 @@ namespace NPchUpdate::NTwoStep {
             return remap;
         }
 
+        struct TLeafLinkProbe {
+            std::string Key;
+            bool Ok = false;
+            std::vector<std::string> Needs;
+        };
+
+        TLeafLinkProbe ProbeLeafLink(TCompatibilityCache& cache, const std::string& baseline,
+                                    std::vector<std::string> flags, const std::string& pch,
+                                    const std::string& pchKey) {
+            TLeafLinkProbe result;
+            result.Key = "link-" + pchKey;
+            const auto dir = cache.Directory(result.Key);
+            const auto source = JoinPath(dir, "empty.cpp");
+            const auto output = JoinPath(dir, "output.so");
+            WriteFileIfChanged(source, "// Probe the complete PCH with the consumer's code-generation flags.\n");
+            // Keep the actual optimization, target, sysroot and ABI flags. The
+            // minimal system link removes ordinary runtime references; remaining
+            // strong symbols must be supplied by each consumer's actual links.
+            flags.insert(flags.end(), {"-include-pch", pch, "-x", "c++", source, "-shared", "-nodefaultlibs",
+                "-fuse-ld=lld", "-Wl,--gc-sections", "-o", output, "-lc", "-lm", "-ldl", "-lpthread", "-lrt"});
+            result.Ok = cache.Probe(result.Key, baseline, flags, {}, Run, output);
+            if (result.Ok) { result.Needs = ReadSharedObjectSymbols(output).Unresolved; }
+            return result;
+        }
+
+        TLinkAvailability TargetLinkAvailability(const TSnapshot& s, int target,
+                                                const std::vector<std::string>& needs,
+                                                const TSymbolProviders& providers) {
+            std::vector<int> links;
+            bool complete = true;
+            for (int f : s.Data.Targets.at(target).Files) {
+                const auto& output = s.Data.Actions[s.Data.Files[f].Action].Output;
+                auto it = s.LinkInputs.Targets.find(output);
+                if (it == s.LinkInputs.Targets.end() || it->second.empty()) { complete = false; }
+                else { links.insert(links.end(), it->second.begin(), it->second.end()); }
+            }
+            Unique(links);
+            auto result = CheckLinkRequirements(needs, providers, s.LinkInputs.Lines, links);
+            result.UnknownLinks |= !complete && !needs.empty();
+            return result;
+        }
+
+        std::string LinkDiagnostic(const TLinkAvailability& result) {
+            std::vector<std::string> reasons;
+            if (result.UnknownLinks) { reasons.push_back("unknown final links for an owner member"); }
+            for (const auto& symbol : result.UnknownSymbols) {
+                reasons.push_back("unknown provider for " + symbol);
+            }
+            for (const auto& [symbol, links] : result.Missing) {
+                for (const auto& link : links) { reasons.push_back(link + ": no known provider for " + symbol); }
+            }
+            return Join(reasons, "; ");
+        }
+
         TCompileInputs Preflight(TSnapshot& s, const std::string& workDir, const TCalibration& calibration = {}) {
             auto& layout = s.Layout;
             TCompileInputs inputs(s.Data.Actions.size() + layout.Pchs.size());
@@ -1694,6 +1780,8 @@ namespace NPchUpdate::NTwoStep {
             const auto identity = HashHex(context.Data());
             std::vector<std::string> keys(layout.Pchs.size()), artifacts(layout.Pchs.size());
             std::vector<char> built(layout.Pchs.size());
+            std::vector<TLeafLinkProbe> linkProbes(layout.Pchs.size());
+            std::set<std::string> linkNeeds;
             auto prediction = Predict(s.Data, layout, calibration);
             double memory = s.Data.ActionMemory;
             for (size_t g = 0; g < layout.Pchs.size(); ++g) {
@@ -1734,6 +1822,43 @@ namespace NPchUpdate::NTwoStep {
                 if (!built[g] && s.Corrected && int(g) < layout.Bases) {
                     Fail("frozen base failed compatibility checking; see " + JoinPath(dir, "compiler.log"));
                 }
+                if (built[g] && int(g) >= layout.Bases) {
+                    auto& link = linkProbes[g];
+                    link = ProbeLeafLink(cache, s.Baseline, flags.at(pch.Representative), artifacts[g], keys[g]);
+                    if (link.Ok) {
+                        linkNeeds.insert(link.Needs.begin(), link.Needs.end());
+                        auto deps = probeInputs(link.Key);
+                        auto& all = inputs[s.Data.Actions.size() + g];
+                        all.insert(all.end(), deps.begin(), deps.end());
+                        Unique(all);
+                    }
+                    report << "pch-link\t" << g << '\t' << g << '\t' << (link.Ok ? int(g) : -1)
+                           << '\t' << JoinPath(cache.Directory(link.Key), "compiler.log") << '\n';
+                    WriteFile(JoinPath(s.Directory, "compatibility.tsv"), report.str());
+                }
+            }
+            TSymbolProviders providers;
+            if (!linkNeeds.empty()) {
+                std::vector<std::string> libraries;
+                for (const auto& path : s.LinkInputs.Libraries) {
+                    // A partial baseline can have final consumers not built yet.
+                    // Missing artifacts cannot establish a provider; their links
+                    // remain unproven and cannot silently opt in to a leaf.
+                    if (Exists(JoinPath(s.Baseline, path))) { libraries.push_back(path); }
+                }
+                TWorkDir symbols(JoinPath(workDir, "link-symbols"), s.Ninja, std::max(1, s.Data.Resources.Workers));
+                LoadLinkProviders(symbols, s.Baseline, libraries, linkNeeds, providers);
+            }
+            // Decide once per owner/leaf, then let the existing atomic target
+            // fallback recheck every member against the parent (or no PCH).
+            std::vector<std::map<int, std::string>> linkErrors(s.Data.Targets.size());
+            for (size_t t = 0; t < s.Data.Targets.size(); ++t) {
+                for (int g = layout.Assignment[t]; g >= 0; g = layout.Pchs[g].Parent) {
+                    if (g < layout.Bases || !built[g]) { continue; }
+                    const auto& link = linkProbes[g];
+                    linkErrors[t][g] = link.Ok ? LinkDiagnostic(TargetLinkAvailability(s, int(t), link.Needs, providers))
+                        : "PCH link probe failed: " + JoinPath(cache.Directory(link.Key), "compiler.log");
+                }
             }
             size_t jobs = std::max(1, std::min(s.Data.Resources.Workers, int(std::min(
                 double(s.Data.Resources.Workers), std::floor(s.Data.Resources.Ram / std::max(1.0, memory))))));
@@ -1742,6 +1867,12 @@ namespace NPchUpdate::NTwoStep {
             std::atomic<size_t> done{0};
             Log(Format("compatibility: checking assigned targets, %zu workers", jobs));
             CompatibleTargets(s.Data, layout, built, jobs, [&](int f, int g) {
+                    const auto& errors = linkErrors[s.Data.Files[f].Target];
+                    auto error = errors.find(g);
+                    if (error != errors.end() && !error->second.empty()) {
+                        diagnostics[f] += (diagnostics[f].empty() ? "" : ";") + error->second;
+                        return false;
+                    }
                     auto argv = flags[f];
                     if (g >= 0) { argv.insert(argv.end(), {"-include-pch", artifacts[g]}); }
                     argv.insert(argv.end(), {"-fsyntax-only", "-Wno-unused-command-line-argument", sources[f]});
@@ -2148,6 +2279,9 @@ namespace NPchUpdate::NTwoStep {
         GroupTargets(snapshot.Data, {"//test:owner"});
         snapshot.Layout.Assignment = {-1};
         snapshot.Data.Targets[0].PchEligible = false;
+        snapshot.LinkInputs.Lines = {{"app", {"file.o", "library.a"}}};
+        snapshot.LinkInputs.Targets = {{"file.o", {0}}};
+        snapshot.LinkInputs.Libraries = {"file.o", "library.a"};
         auto encoded = Encode(snapshot);
         auto loaded = Decode<TSnapshot>(encoded);
         check(loaded.Data.Files[0].Own[0].second == 2.5 && loaded.Data.Resources.Pools.at("compile") == 2,
@@ -2155,6 +2289,10 @@ namespace NPchUpdate::NTwoStep {
         check(loaded.Sample == 40 && loaded.Measured == std::vector<int>({1, 2, 3}),
               "measurement sample survives a snapshot");
         check(loaded.Mode == "global", "profile survives a frozen snapshot");
+        check(loaded.LinkInputs.Targets.at("file.o") == std::vector<int>{0} &&
+              loaded.LinkInputs.Lines[0].Inputs == std::set<std::string>({"file.o", "library.a"}) &&
+              loaded.LinkInputs.Libraries == snapshot.LinkInputs.Libraries,
+              "exact object membership and deduplicated link inputs survive analysis/snapshot serialization");
         check(loaded.Data.Targets[0].Label == "//test:owner" && loaded.Data.Targets[0].Files == std::vector<int>{0} &&
               loaded.Data.Files[0].Target == 0 && !loaded.Data.Targets[0].PchEligible && loaded.Layout.Assignment == std::vector<int>{-1},
               "target membership and atomic assignments survive a snapshot");
@@ -3389,6 +3527,122 @@ namespace NPchUpdate::NTwoStep {
             }
         }
 
+        void LinkPreflightSelfTest(const std::string& parent, const std::string& compiler) {
+            auto check = [](bool ok, const std::string& message) { if (!ok) { Fail("link self-test: " + message); } };
+            TSnapshot s;
+            s.Root = RealPath(".");
+            s.Baseline = JoinPath(parent, "link-baseline");
+            s.Directory = JoinPath(parent, "link-plan");
+            s.Ninja = Program("ninja");
+            s.Data.Classes = s.Data.Scenarios = 1;
+            s.Data.Q = 1;
+            s.Data.ActionMemory = 1e6;
+            s.Data.Resources.Workers = 2;
+            s.Data.Resources.Ram = s.Data.Resources.Disk = s.Data.Resources.Bandwidth = 1e9;
+            const auto base = JoinPath(s.Baseline, "base.h");
+            const auto leaf = JoinPath(s.Baseline, "leaf.h");
+            WriteFile(base, "#pragma once\nstruct Base {};\n");
+            WriteFile(leaf, "#pragma once\nextern int Provided();\nstatic const int Registration = Provided();\n");
+            s.Data.Units.resize(2);
+            for (int u = 0; u < 2; ++u) {
+                s.Data.Units[u].Include = "\"" + (u ? leaf : base) + "\"";
+                s.Data.Units[u].Parse = .01;
+                s.Data.Units[u].Bytes = 100;
+                s.Data.Units[u].Stable = true;
+            }
+            s.Data.Units[1].Safe = false;
+            const std::vector<std::string> flags = {compiler, "-std=c++20", "-O2", "-fPIC"};
+            s.Flags = {Canonical(flags, s.Baseline, s.Root)};
+            TRunOptions run;
+            run.Cwd = s.Baseline;
+            std::ostringstream commands;
+            commands << "[";
+            for (int f = 0; f < 3; ++f) {
+                const auto source = JoinPath(s.Baseline, "file" + std::to_string(f) + ".cpp");
+                const auto output = "file" + std::to_string(f) + ".o";
+                WriteFile(source, "int Function" + std::to_string(f) + "() { return 1; }\n");
+                auto argv = flags;
+                argv.insert(argv.end(), {"-c", source, "-o", output});
+                RunChecked(argv, run);
+                if (f) { commands << ','; }
+                commands << "{\"directory\":" << std::quoted(s.Baseline) << ",\"file\":" << std::quoted(source)
+                         << ",\"command\":" << std::quoted(ShellJoin(argv)) << '}';
+                TAction action;
+                action.Output = output;
+                action.Time = 1;
+                action.Memory = 1e6;
+                s.Data.Actions.push_back(action);
+                s.Data.Files.push_back({f, 0, source, {{0, .01}, {1, .01}}});
+            }
+            commands << "]";
+            WriteFile(JoinPath(s.Baseline, "compile_commands.json"), commands.str());
+            GroupTargets(s.Data, {"//allowed:owner", "//allowed:owner", "//missing:owner"});
+            const auto provider = JoinPath(s.Baseline, "provider.cpp");
+            auto buildProvider = [&](const std::string& text) {
+                WriteFile(provider, text);
+                auto argv = flags;
+                argv.insert(argv.end(), {"-c", provider, "-o", "provider.o"});
+                RunChecked(argv, run);
+            };
+            buildProvider("int Provided() { return 7; }\n");
+            WriteFile(JoinPath(s.Baseline, "build.ninja"),
+                "rule cxx\n  command = unused\nrule link\n  command = unused\n"
+                "build file0.o: cxx file0.cpp\nbuild file1.o: cxx file1.cpp\nbuild file2.o: cxx file2.cpp\n"
+                "build provider.o: cxx provider.cpp\n"
+                "build allowed: link file0.o provider.o\nbuild helper: link file1.o provider.o\n"
+                "build missing: link file2.o\n");
+            TNinjaManifest manifest(s.Baseline);
+            s.LinkInputs = CollectLinkInputs(manifest, {{"file0.o", "file0.o"}, {"file1.o", "file1.o"}, {"file2.o", "file2.o"}});
+            TLayout candidate;
+            candidate.Bases = 1;
+            candidate.Pchs.resize(2);
+            for (auto& pch : candidate.Pchs) { pch.Class = pch.Representative = 0; }
+            candidate.Pchs[0].Roots = candidate.Pchs[0].Units = {0};
+            candidate.Pchs[1].Roots = {1};
+            candidate.Pchs[1].Units = {0, 1};
+            candidate.Pchs[1].Parent = 0;
+            candidate.Assignment = {1, 1};
+            s.Layout = candidate;
+            const auto cache = JoinPath(parent, "link-cache");
+            Preflight(s, cache);
+            check(s.Layout.Assignment == std::vector<int>({1, 0}),
+                  "real leaf is kept only by the owner whose every final link has the provider");
+            check(ReadFile(JoinPath(s.Directory, "compatibility.tsv")).find("missing: no known provider") != std::string::npos,
+                  "target fallback explains the failing final link");
+            s.Layout = candidate;
+            auto helper = s.LinkInputs.Targets.at("file1.o").front();
+            s.LinkInputs.Lines[helper].Inputs.erase("provider.o");
+            Preflight(s, cache);
+            check(s.Layout.Assignment == std::vector<int>({0, 0}),
+                  "one helper's missing provider moves the whole owner to its parent");
+            s.LinkInputs.Lines[helper].Inputs.insert("provider.o");
+            s.LinkInputs.Targets.erase("file1.o");
+            s.Layout = candidate;
+            Preflight(s, cache);
+            check(s.Layout.Assignment == std::vector<int>({0, 0}) &&
+                  ReadFile(JoinPath(s.Directory, "compatibility.tsv")).find("unknown final links") != std::string::npos,
+                  "missing helper link metadata is not accepted as success");
+            s.LinkInputs.Targets["file1.o"] = {helper};
+            const auto identity = BaselineIdentity(s);
+            buildProvider("int DifferentProvider() { return 12345; }\n");
+            check(identity != BaselineIdentity(s), "changed library invalidates baseline identity without a Ninja log update");
+            s.Layout = candidate;
+            Preflight(s, cache);
+            check(s.Layout.Assignment == std::vector<int>({0, 0}) &&
+                  ReadFile(JoinPath(s.Directory, "compatibility.tsv")).find("unknown provider") != std::string::npos,
+                  "provider cache notices replaced artifacts and rejects unknown symbols");
+            candidate.Bases = 0;
+            candidate.Pchs.erase(candidate.Pchs.begin());
+            candidate.Pchs[0].Parent = -1;
+            candidate.Pchs[0].Units = candidate.Pchs[0].Roots = {1};
+            candidate.Assignment = {0, 0};
+            s.Layout = candidate;
+            Preflight(s, cache);
+            check(s.Layout.Pchs.empty() && s.Layout.Assignment == std::vector<int>({-1, -1}),
+                  "a rejected leaf without a base falls back to checked no-PCH compilations");
+            Report("real Clang PCH link self-test: OK");
+        }
+
         void WorkflowSelfTest() {
             auto check = [](bool ok, const std::string& text) { if (!ok) { Fail("workflow self-test: " + text); } };
             TWorkflow request;
@@ -3398,6 +3652,9 @@ namespace NPchUpdate::NTwoStep {
             auto decoded = Decode<TWorkflow>(Encode(request));
             check(decoded.Root == request.Root && decoded.Options == request.Options, "persist parameters and target lists");
             auto dir = MakeTempDir(getenv("TMPDIR") ? getenv("TMPDIR") : "/place/vartmp/opencode", "pch-resume-");
+            if (const char* compiler = getenv("PCH_UPDATE_TEST_CXX"); compiler && *compiler) {
+                LinkPreflightSelfTest(dir, Program(compiler, {}, false));
+            }
             // Exercise export through GN itself, including the toolchain-owned
             // sysroot and the trailing slash in GN's source-root path.
             TSnapshot exported;

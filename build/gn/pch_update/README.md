@@ -308,6 +308,20 @@ classes, so some classes may have too few groups to identify separate costs.
 calibration rank/holdout isolation, snapshot corruption, measurement restart,
 missing telemetry and interrupted replacement recovery.
 
+Shared bases require headers without standalone external-symbol requirements.
+Specialized leaves may include library-dependent headers: compatibility builds
+an empty source with the complete PCH and the consumer's actual compiler flags,
+then checks its remaining strong symbols against every final link of every
+member of the assigned GN owner. Missing providers or incomplete link metadata
+move the whole owner to a checked parent PCH, or to no PCH. Library presence is
+a necessary check; actual final linking and initialization semantics still need
+validation. `compatibility.tsv` records link probes and target-local reasons.
+
+Set `PCH_UPDATE_TEST_CXX=/path/to/clang++` when running `self-test` to also exercise
+real PCH chains, provider discovery, helper-owner fallback and cache invalidation
+with a small native fixture. Analysis snapshots now include exact link inputs;
+older snapshots require fresh prediction.
+
 The public CLI and real GN export/build are exercised by:
 
 ```sh

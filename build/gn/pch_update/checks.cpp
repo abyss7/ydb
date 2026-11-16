@@ -89,14 +89,16 @@ namespace NPchUpdate {
                     const auto& rule = manifest.Edges()[producer].Rule;
                     if (!IsCompileRule(rule) && rule != "alink" && rule != "solink") { continue; }
                     line.Inputs.insert(input);
-                    libraries.insert(input);
                     if (rule != "solink") {
                         const auto& nested = owners(input);
                         targets.insert(nested.begin(), nested.end());
                     }
                 }
             }
-            for (const auto& target : targets) { result.Targets[target].push_back(line); }
+            if (targets.empty()) { continue; }
+            libraries.insert(line.Inputs.begin(), line.Inputs.end());
+            for (const auto& target : targets) { result.Targets[target].push_back(int(result.Lines.size())); }
+            result.Lines.push_back(std::move(line));
         }
         result.Libraries.assign(libraries.begin(), libraries.end());
         return result;
@@ -141,16 +143,26 @@ namespace NPchUpdate {
     TLinkAvailability CheckLinkRequirements(const std::vector<std::string>& symbols,
                                            const TSymbolProviders& providers,
                                            const std::vector<TLinkLine>& links) {
+        std::vector<int> selected;
+        for (size_t i = 0; i < links.size(); ++i) { selected.push_back(int(i)); }
+        return CheckLinkRequirements(symbols, providers, links, selected);
+    }
+
+    TLinkAvailability CheckLinkRequirements(const std::vector<std::string>& symbols,
+                                           const TSymbolProviders& providers,
+                                           const std::vector<TLinkLine>& links,
+                                           const std::vector<int>& selected) {
         TLinkAvailability result;
         if (symbols.empty()) { return result; }
-        result.UnknownLinks = links.empty();
+        result.UnknownLinks = selected.empty();
         for (const auto& symbol : std::set<std::string>(symbols.begin(), symbols.end())) {
             auto it = providers.find(symbol);
             if (it == providers.end() || it->second.empty()) {
                 result.UnknownSymbols.push_back(symbol);
                 continue;
             }
-            for (const auto& line : links) {
+            for (int index : selected) {
+                const auto& line = links.at(index);
                 bool found = std::any_of(it->second.begin(), it->second.end(),
                     [&](const auto& path) { return line.Inputs.count(path) != 0; });
                 if (!found) { result.Missing[symbol].push_back(line.Output); }
@@ -1011,7 +1023,7 @@ namespace NPchUpdate {
             }
             const auto& defined = Definers(all);
             const auto& lines = LinkInputs().Targets;
-            const std::vector<TLinkLine> noLines;
+            const std::vector<int> noLines;
             for (const TProbe* p : probes) {
                 auto it = needs.find(p->Id);
                 if (it == needs.end() || it->second.empty()) {
@@ -1066,7 +1078,8 @@ namespace NPchUpdate {
                 for (int32_t target : members) {
                     const auto& name = Facts_.TargetNames[target];
                     auto l = lines.find(name);
-                    auto availability = CheckLinkRequirements(it->second, defined, l == lines.end() ? noLines : l->second);
+                    auto availability = CheckLinkRequirements(it->second, defined, LinkInputs().Lines,
+                                                             l == lines.end() ? noLines : l->second);
                     if (!availability.UnknownLinks) { ++r.Files["links"]; }
                     if (availability.Available()) { continue; }
                     ++r.Files["links lacking"];
