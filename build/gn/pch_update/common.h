@@ -146,10 +146,6 @@ namespace NPchUpdate {
         std::function<void(std::string_view)> OnStdout;
         std::string StdoutFile;
         std::string StderrFile;
-        // Live, uncaptured commands only. Runs in a dedicated process group;
-        // called before reaping the leader, periodically and once on exit.
-        // Return false to terminate only that group (exit 125).
-        std::function<bool(int, bool)> CheckProcess;
     };
 
     struct TRunResult {

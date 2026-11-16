@@ -59,7 +59,6 @@ removed. The next weekly run starts fresh and needs `--disk` again.
 | `--bandwidth-gbps` | 1 GB/s |
 | `--action-memory-gb` | 1 GB unmeasured-action RSS prior |
 | `--analysis-jobs` | min(24, CPU count) |
-| `--measure-max-external-cpu` | max(0.5, 2% of min(host CPUs, workers)): allowed outside CPU cores during MEASURE |
 | `--sample` | `100`: share of whole PCH-owner targets that `verify` measures (`10`..`100`); all their C++ members, all PCHs and required generator tools are built |
 | `--target` | `all` and `tests`; repeat to override |
 
@@ -129,47 +128,19 @@ Analysis is saved before selection/emission. Completed selection is saved as
 both the initial and corrected plan. A retry reuses it when the tool, model,
 calibration and frozen-base inputs match. Resolved resource defaults stay frozen
 when resuming an incomplete plan. Interrupted selection or correction also
-reuses successful compatibility probes. Interrupted measurements reuse their
-Ninja graph, successful objects and validated telemetry; missing/failed records
-invalidate only their own outputs. Completed stages are reused while the run is
-unfinished. Elapsed wall
-time across resumed measurement attempts includes time between attempts; action
-timings used for calibration do not include that idle interval.
+reuses successful compatibility probes. A failed or interrupted MEASURE restarts
+the entire affected phase: all measured outputs and telemetry are discarded and
+a new measurement identity is created. The selected plan and Ninja graph are
+retained. Missing or invalid telemetry also restarts the whole phase. Completed
+phases with intact outputs and telemetry are reused while the run is unfinished.
+Elapsed wall time and calibration observations belong to one successful attempt.
 Source/tool changes that invalidate a frozen measurement require recomputation;
 resuming does not bypass input fingerprints.
 
-### CPU interference during MEASURE
-
-Both measured builds monitor host CPU accounting once per second. Compilers run
-directly without compiler-cache daemons. The monitor subtracts the controller and
-the measured Ninja process group's CPU, including waited-for children, from
-`/proc/stat` busy CPU. The remaining work includes other processes, interrupts
-and VM steal time; idle and I/O wait are excluded. Short-lived or hidden outside
-processes still contribute to the host total.
-
-The limit is **2% of min(host CPUs, configured workers), with a floor of 0.5 CPU
-cores**, averaged over five-second windows. The final shorter window is also
-checked, with a one-second minimum CPU-time allowance for accounting granularity.
-`--measure-max-external-cpu N` sets an explicit positive allowance in CPU cores;
-it is persisted with the unfinished run's other settings. For example, `2`
-permits an average of two busy outside CPU cores, not 2% of the machine.
-Brief bursts below this budget are tolerated; no attempt is made to mathematically
-correct contaminated wall times. This is a CPU-noise bound, not a guarantee about
-disk, memory bandwidth or thermal interference.
-
-When the limit is exceeded, CPU accounting fails, or monitoring stalls for more
-than three seconds, only the measured process group is stopped. Exit status is
-125 for a detected rejection. All results of that measured phase are marked
-invalid; the next `--correct` or full invocation clears their outputs/telemetry
-and repeats the measurement, retaining analysis and the selected plan. The other
-measured phase is unaffected. No unrelated process is stopped.
-
-`initial/cpu-load.tsv` and `corrected/cpu-load.tsv` record host, own and outside CPU
-rates; `cpu-last-rejection.txt` records the reason and up to five observed outside
-process names/PIDs. A durable `cpu-monitor.active` checkpoint covers checked
-intervals. After a controller `SIGKILL`, completed actions from those intervals
-are reused, but recent actions and orphan work without CPU monitoring are
-remeasured. These diagnostics are scratch and disappear after successful apply.
+Ninja stays in the terminal's foreground process group, so Ctrl+C interrupts the
+controller and the build together. MEASURE runs direct compiler commands without
+compiler-cache daemons. Run measurements on an otherwise idle host; external
+CPU load is not monitored or corrected automatically.
 
 `--apply` emits exact owner labels and ordered compiler classes, resolves generated
 headers through public codegen targets and represents parent PCH dependencies in
@@ -249,9 +220,9 @@ compiler commands and explicit per-action observations. Worker/pool limits are
 enforced by Ninja; the runner reserves predicted RAM and PCH I/O bandwidth
 across processes. `--disk` limits resident PCH artifacts, rather than total
 build-directory size. Memory reservations are estimates, not OS memory limits.
-Each plan has a persistent measurement identity. A failed or interrupted run
-resumes under that identity; calibration is allowed only after every required
-measurement has completed successfully and passed output validation.
+Each measurement attempt has its own identity. A failed or interrupted run is
+repeated in full under a new identity; calibration is allowed only after every
+required measurement has completed successfully and passed output validation.
 
 `--sample PERCENT` (10..100, default 100) makes verification build only a share
 of the targets. Selection is deterministic per plan and GN owner label, independent

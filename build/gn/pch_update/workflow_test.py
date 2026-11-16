@@ -140,10 +140,8 @@ config("common") {
     run(common + ["--apply"], expected=1)
     run(common + ["--predict", "--correct"], expected=1)
     run(common + ["--plan", "unused"], expected=1)
-    # The fixture shares a developer host. Keep CPU monitoring enabled with an
-    # explicit noise allowance; strict rejection/reset is tested by self-test.
     run(common + ["--predict", "--disk", "1G", "--q", "1", "--sample", "100", "--main-ref", "HEAD", "--workers", "2",
-                  "--ram-gb", "2", "--action-memory-gb", "1.1", "--measure-max-external-cpu", "4"])
+                  "--ram-gb", "2", "--action-memory-gb", "1.1"])
     state = baseline / ".pch_update"
     snapshots = list(state.glob("current/initial/snapshot.bin"))
     assert len(snapshots) == 1, snapshots
@@ -188,11 +186,6 @@ config("common") {
     measured = {p.name: p.read_bytes() for p in (corrected / "observations").glob("*.bin")}
     run(common + ["--correct"])
     assert measured == {p.name: p.read_bytes() for p in (corrected / "observations").glob("*.bin")}
-    for plan in (initial, corrected):
-        assert (plan / "cpu-load.tsv").is_file(), "measured phase has no CPU monitoring report"
-        assert "limit_cores=4" in (plan / "cpu-load.tsv").read_text(), "CPU allowance was not inherited"
-        assert not (plan / "cpu-monitor.active").exists(), "CPU monitoring did not finish"
-        assert not (plan / "cpu-rejected").exists(), "contaminated measurement was accepted"
     assert not (state / "cache/compatibility-v1").exists()
     assert not list((initial / "build").rglob("*.o")), "initial objects survived calibration"
     assert not (state / "modes").exists(), "mode-specific saved runs must not be created"
@@ -220,7 +213,7 @@ config("common") {
     with (root / "heavy.h").open("a") as header:
         header.write("\n// next weekly baseline\n")
     run(common + ["--disk", "1G", "--q", "1", "--sample", "100", "--main-ref", "HEAD", "--workers", "2",
-                  "--ram-gb", "2", "--action-memory-gb", "1.1", "--measure-max-external-cpu", "4"])
+                  "--ram-gb", "2", "--action-memory-gb", "1.1"])
     assert not state.exists(), "full default run must also clean all scratch"
     assert (baseline / "build.ninja").exists(), "cleanup removed the baseline"
     # Simulate SIGKILL midway through the final recursive deletion.

@@ -22,7 +22,6 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
-#include <deque>
 #include <fstream>
 #include <filesystem>
 #include <functional>
@@ -62,7 +61,6 @@ namespace NPchUpdate::NTwoStep {
             "  --target T          repeat for each target (default: all, tests)\n"
             "  --main-ref REF --gn PATH --ninja PATH\n"
             "  --analysis-jobs N    parallel analysis jobs (default: min(24, CPUs))\n"
-            "  --measure-max-external-cpu N  allowed outside CPU cores (default: max(0.5, 2% of CPUs/workers))\n"
             "  --sample PERCENT     share of whole GN PCH-owner targets measured (10..100,\n"
             "                       default 100); PCHs and required generator tools always built\n"
             "pch_update self-test\n"
@@ -1906,186 +1904,7 @@ namespace NPchUpdate::NTwoStep {
             return 0;
         }
 
-        double CpuClock() {
-            return std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
-        }
-
-        struct TCpuProcess {
-            int Group = 0;
-            char State = 0;
-            uint64_t Start = 0;
-            double Cpu = 0, Waited = 0;
-            std::string Name;
-        };
-
-        bool ParseCpuProcess(const std::string& text, double ticks, TCpuProcess& process) {
-            const auto first = text.find('('), last = text.rfind(')');
-            if (first == std::string::npos || last == std::string::npos || last <= first) { return false; }
-            std::istringstream in(text.substr(last + 1));
-            std::vector<std::string> fields;
-            for (std::string field; in >> field;) { fields.push_back(std::move(field)); }
-            if (fields.size() < 20) { return false; }
-            try {
-                process.Group = std::stoi(fields[2]);
-                process.State = fields[0][0];
-                process.Start = std::stoull(fields[19]);
-                process.Cpu = (std::stoull(fields[11]) + std::stoull(fields[12])) / ticks;
-                process.Waited = (std::stoull(fields[13]) + std::stoull(fields[14])) / ticks;
-                process.Name = text.substr(first + 1, last - first - 1);
-                for (auto& c : process.Name) { if (c == '\n' || c == '\r' || c == '\t') { c = ' '; } }
-                return true;
-            } catch (const std::exception&) { return false; }
-        }
-
-        struct TCpuSample {
-            double Time = 0, Busy = 0, Own = 0;
-            int64_t Wall = 0;
-            int LiveChildren = 0;
-            std::map<int, TCpuProcess> Foreign;
-        };
-
-        TCpuSample ReadCpu(int group) {
-            const auto ticks = sysconf(_SC_CLK_TCK);
-            if (ticks <= 0) { Fail("cannot determine CPU accounting clock"); }
-            TCpuSample sample;
-            bool foundSelf = false;
-            // utime/stime include threads; cutime/cstime retain CPU of reaped
-            // children. Summing them over the live owned tree accounts for short
-            // compiler/helper processes even when they exit between samples.
-            for (const auto& entry : std::filesystem::directory_iterator("/proc")) {
-                const auto name = entry.path().filename().string();
-                if (name.empty() || name.find_first_not_of("0123456789") != std::string::npos) { continue; }
-                const int pid = std::stoi(name);
-                std::ifstream in(entry.path() / "stat");
-                std::string text;
-                std::getline(in, text);
-                TCpuProcess process;
-                if (!ParseCpuProcess(text, ticks, process)) {
-                    if (pid == getpid()) { Fail("cannot read own CPU accounting"); }
-                    continue; // exited or hidden; host aggregate still covers it
-                }
-                if (pid == getpid() || (group > 0 && process.Group == group)) {
-                    sample.Own += process.Cpu + process.Waited;
-                    foundSelf |= pid == getpid();
-                    if (pid != getpid() && pid != group && process.State != 'Z' && process.State != 'X') {
-                        ++sample.LiveChildren;
-                    }
-                } else { sample.Foreign.emplace(pid, std::move(process)); }
-            }
-            if (!foundSelf) { Fail("CPU monitor cannot see its own process"); }
-            std::ifstream stat("/proc/stat");
-            std::string cpu;
-            uint64_t user, nice, system, idle, iowait, irq, softirq, steal;
-            if (!(stat >> cpu >> user >> nice >> system >> idle >> iowait >> irq >> softirq >> steal) || cpu != "cpu") {
-                Fail("cannot read host CPU accounting");
-            }
-            // guest is already in user/nice. I/O wait and idle are not CPU work.
-            sample.Busy = (user + nice + system + irq + softirq + steal) / double(ticks);
-            sample.Time = CpuClock();
-            sample.Wall = Now();
-            return sample;
-        }
-
-        using TCpuReader = std::function<TCpuSample(int)>;
-
-        class TMeasureCpuMonitor {
-        public:
-            TMeasureCpuMonitor(std::string directory, std::string token, double limit,
-                               TCpuReader reader, double window, double period)
-                : Directory_(std::move(directory)), Token_(std::move(token)), Limit_(limit),
-                  Read_(std::move(reader)), Window_(window), Period_(period)
-            {
-                Samples_.push_back(Read_(0));
-                Started_ = Samples_.front().Wall;
-                SaveCoverage(Started_);
-                Log_.open(JoinPath(Directory_, "cpu-load.tsv"), std::ios::app);
-                Log_ << "# attempt " << Started_ << " limit_cores=" << Limit_ << " window_seconds=" << Window_
-                     << "\n# epoch_ns\twindow_seconds\thost_cores\town_cores\texternal_cores\n";
-                Flush();
-                Log(Format("MEASURE CPU guard: external/unattributed limit %.2f cores over %.1f s", Limit_, Window_));
-            }
-
-            bool Check(int group, bool finished) {
-                try {
-                    if (!finished && CpuClock() - Samples_.back().Time < Period_) { return true; }
-                    auto next = Read_(group);
-                    if (finished && next.LiveChildren) { return Reject("measurement left running descendant processes"); }
-                    if (next.Time < Samples_.back().Time || next.Busy < Samples_.back().Busy) {
-                        return Reject("CPU accounting counters went backwards");
-                    }
-                    if (next.Time - Samples_.back().Time > std::max(3.0, Period_ * 3)) {
-                        return Reject("CPU monitoring was interrupted for too long");
-                    }
-                    Samples_.push_back(std::move(next));
-                    while (Samples_.size() > 2 && Samples_[1].Time <= Samples_.back().Time - Window_) {
-                        Samples_.pop_front();
-                    }
-                    const auto& a = Samples_.front();
-                    const auto& b = Samples_.back();
-                    const double span = b.Time - a.Time;
-                    if (span <= 0) { return true; }
-                    const double busy = b.Busy - a.Busy, own = b.Own - a.Own;
-                    const double external = std::max(0.0, busy - own);
-                    Log_ << b.Wall << '\t' << span << '\t' << busy / span << '\t' << own / span << '\t' << external / span << '\n';
-                    Flush();
-                    // The final short window is checked too. A one-second floor
-                    // avoids treating tick rounding during a no-op as overload.
-                    if ((finished || span >= Window_) && external > Limit_ * std::max(1.0, span)) {
-                        std::vector<std::pair<double, std::string>> culprits;
-                        for (const auto& [pid, process] : b.Foreign) {
-                            auto it = a.Foreign.find(pid);
-                            double used = 0;
-                            if (it != a.Foreign.end() && it->second.Start == process.Start) {
-                                used = process.Cpu - it->second.Cpu;
-                            }
-                            if (used > 0) { culprits.emplace_back(used, std::to_string(pid) + ":" + process.Name); }
-                        }
-                        std::sort(culprits.rbegin(), culprits.rend());
-                        std::string reason = Format("external/unattributed CPU %.2f cores exceeds %.2f over %.2f s",
-                                                    external / std::max(1.0, span), Limit_, span);
-                        for (size_t i = 0; i < std::min(size_t(5), culprits.size()); ++i) {
-                            reason += Format("; %s=%.2f cores", culprits[i].second.c_str(), culprits[i].first / span);
-                        }
-                        return Reject(reason);
-                    }
-                    // On SIGKILL, only actions fully covered by already checked
-                    // windows may be reused. Never accept orphan work performed
-                    // after the controller stopped observing host load.
-                    SaveCoverage(finished ? b.Wall : std::max(Started_, b.Wall - int64_t(Window_ * 1e9)));
-                    return true;
-                } catch (const std::exception& error) { return Reject(std::string("CPU monitor failed: ") + error.what()); }
-            }
-
-            bool Reject(const std::string& reason) {
-                Rejected_ = true;
-                WriteFile(JoinPath(Directory_, "cpu-rejected"), reason + "\n");
-                WriteFile(JoinPath(Directory_, "cpu-last-rejection.txt"), reason + "\n");
-                Log("MEASURE rejected: " + reason + "; measurement state will be reset on retry (prediction is retained)");
-                return false;
-            }
-            bool Rejected() const { return Rejected_; }
-
-        private:
-            std::string Directory_, Token_;
-            double Limit_;
-            TCpuReader Read_;
-            double Window_, Period_;
-            int64_t Started_ = 0;
-            bool Rejected_ = false;
-            std::deque<TCpuSample> Samples_;
-            std::ofstream Log_;
-            void Flush() {
-                Log_.flush();
-                if (!Log_) { Fail("cannot persist CPU monitoring log"); }
-            }
-            void SaveCoverage(int64_t through) {
-                std::pair<std::string, int64_t> coverage{Token_, through};
-                WriteFile(JoinPath(Directory_, "cpu-monitor.active"), Encode(coverage));
-            }
-        };
-
-        int Verify(TSnapshot& s, const TCpuReader& cpuReader = ReadCpu, double cpuWindow = 5, double cpuPeriod = 1,
-                   double externalLimit = 0) {
+        int Verify(TSnapshot& s) {
             TCycleLock verificationLock;
             // Uncached measurement children retain the lock if their controller
             // is killed, so a retry cannot delete outputs still being written.
@@ -2101,87 +1920,62 @@ namespace NPchUpdate::NTwoStep {
             TRunRecord run;
             const auto recordPath = JoinPath(s.Directory, "run.bin");
             const auto snapshot = DigestFile(JoinPath(s.Directory, "snapshot.bin"));
-            const bool rejected = Exists(JoinPath(s.Directory, "cpu-rejected"));
-            if (rejected) {
-                Log("discarding contaminated MEASURE results; keeping the selected plan");
-                RemoveFile(recordPath); // new token invalidates every old action
-            }
             if (Exists(recordPath)) {
                 run = Decode<TRunRecord>(ReadFile(recordPath));
                 if (run.Nonce != s.Nonce || run.Snapshot != snapshot) { Fail("verification belongs to another plan"); }
-            } else {
-                run.Nonce = s.Nonce;
-                run.Token = HashHex(s.Nonce + std::to_string(Now()) + std::to_string(getpid()));
-                run.Snapshot = snapshot;
-                run.Start = Now();
             }
-            int64_t coveredThrough = std::numeric_limits<int64_t>::max();
-            if (Exists(JoinPath(s.Directory, "cpu-monitor.active"))) {
-                coveredThrough = 0;
-                try {
-                    const auto coverage = Decode<std::pair<std::string, int64_t>>(ReadFile(JoinPath(s.Directory, "cpu-monitor.active")));
-                    if (coverage.first == run.Token) { coveredThrough = coverage.second; }
-                } catch (const TError&) { }
-                Log("resuming interrupted CPU monitoring; unobserved actions will be remeasured");
-            }
-            // Ninja can have an output but no durable telemetry after a crash.
-            // Invalidate only such actions; successful records keep their token
-            // across attempts, including a process restart or machine reboot.
-            for (size_t i = 0; i < s.Commands.size(); ++i) {
-                if (s.Prediction.Actions[i].Phony) { continue; }
+            // Only an entirely successful phase with intact telemetry and
+            // outputs is reusable. Never mix measurements from separate runs.
+            bool complete = run.Status == 0 && run.End > run.Start;
+            const auto measured = MeasuredActions(s.Prediction.Actions.size(), s.Measured);
+            for (size_t i = 0; complete && i < s.Commands.size(); ++i) {
+                if (s.Prediction.Actions[i].Phony || !measured[i]) { continue; }
                 const auto config = Decode<TMeasureConfig>(ReadFile(JoinPath(s.Directory, "actions/" + std::to_string(i) + ".bin")));
                 const auto observation = JoinPath(s.Directory, "observations/" + std::to_string(i) + ".bin");
-                bool valid = false;
                 try {
                     auto r = Decode<TRecord>(ReadFile(observation));
-                    valid = r.Nonce == s.Nonce && r.Id == int(i) && r.Status == 0 &&
+                    complete = r.Nonce == s.Nonce && r.Id == int(i) && r.Status == 0 &&
                         r.Digest == s.Commands[i] && r.Observation.Invocation == run.Token &&
                         r.Observation.Start >= run.Start && r.Observation.End > r.Observation.Start &&
-                        r.Observation.End <= coveredThrough &&
+                        r.Observation.End <= run.End &&
                         r.Observation.Time > 0 && r.Outputs.size() == config.Outputs.size();
-                    for (size_t o = 0; valid && o < config.Outputs.size(); ++o) {
+                    for (size_t o = 0; complete && o < config.Outputs.size(); ++o) {
                         auto path = JoinPath(JoinPath(s.Directory, "build"), config.Outputs[o]);
-                        valid = FileSize(path) == r.Outputs[o].first && MtimeNs(path) == r.Outputs[o].second;
+                        complete = FileSize(path) == r.Outputs[o].first && MtimeNs(path) == r.Outputs[o].second;
                     }
-                } catch (const TError&) { }
-                if (!valid) {
-                    for (const auto& output : config.Outputs) {
-                        auto path = JoinPath(JoinPath(s.Directory, "build"), output);
-                        if (Exists(path)) { RemoveFile(path); }
-                    }
-                }
+                } catch (const TError&) { complete = false; }
             }
-            if (rejected) {
-                RemoveTree(JoinPath(s.Directory, "observations"));
-                MakeDirs(JoinPath(s.Directory, "observations"));
-                RemoveFile(JoinPath(s.Directory, "cpu-rejected"));
-            }
-            // Even a completed run gets Ninja's cheap up-to-date check: both a
-            // prerequisite output and its telemetry could have been removed.
+            if (complete) { return 0; }
+            Log("starting the entire MEASURE phase from scratch; keeping the selected plan");
+            run.Nonce = s.Nonce;
+            run.Token = HashHex(s.Nonce + std::to_string(Now()) + std::to_string(getpid()));
+            run.Snapshot = snapshot;
+            run.Start = Now();
             run.Status = -1;
             run.End = 0;
-            WriteFile(JoinPath(s.Directory, "run.bin"), Encode(run));
+            WriteFile(recordPath, Encode(run)); // a crash during cleanup also restarts the phase
+            for (size_t i = 0; i < s.Commands.size(); ++i) {
+                if (s.Prediction.Actions[i].Phony || !measured[i]) { continue; }
+                const auto config = Decode<TMeasureConfig>(ReadFile(JoinPath(s.Directory, "actions/" + std::to_string(i) + ".bin")));
+                for (const auto& output : config.Outputs) {
+                    auto path = JoinPath(JoinPath(s.Directory, "build"), output);
+                    if (Exists(path)) { RemoveFile(path); }
+                }
+            }
+            RemoveTree(JoinPath(s.Directory, "observations"));
+            MakeDirs(JoinPath(s.Directory, "observations"));
             TRunOptions options;
             options.CaptureStdout = options.CaptureStderr = false;
             options.Env = {"PCH_UPDATE_RUN=" + run.Token};
-            if (!externalLimit) {
-                externalLimit = std::max(0.5, 0.02 * std::min(double(CpuCount()), double(s.Data.Resources.Workers)));
-            }
-            TMeasureCpuMonitor monitor(s.Directory, run.Token, externalLimit, cpuReader, cpuWindow, cpuPeriod);
-            options.CheckProcess = [&](int pid, bool finished) { return monitor.Check(pid, finished); };
             run.Status = Run({s.Ninja, "-C", JoinPath(s.Directory, "build"), "-f", "measured.ninja", "-j",
                               std::to_string(s.Data.Resources.Workers), "_pch_verify"}, options).ExitCode;
             run.End = Now();
-            WriteFile(JoinPath(s.Directory, "run.bin"), Encode(run));
-            if (!monitor.Rejected()) { RemoveFile(JoinPath(s.Directory, "cpu-monitor.active")); }
+            WriteFile(recordPath, Encode(run));
             ValidateIdentity(s);
             return run.Status;
         }
 
         std::vector<TObservation> ReadObservations(const TSnapshot& s, std::string& report, std::string& actionReport) {
-            if (Exists(JoinPath(s.Directory, "cpu-rejected")) || Exists(JoinPath(s.Directory, "cpu-monitor.active"))) {
-                Fail("MEASURE CPU monitoring is rejected or incomplete; repeat --correct");
-            }
             auto run = Decode<TRunRecord>(ReadFile(JoinPath(s.Directory, "run.bin")));
             if (run.Nonce != s.Nonce || run.Status != 0 || run.End <= run.Start ||
                 run.Snapshot != DigestFile(JoinPath(s.Directory, "snapshot.bin"))) {
@@ -2291,7 +2085,6 @@ namespace NPchUpdate::NTwoStep {
         }
 
         bool Verified(const TSnapshot& s) {
-            if (Exists(JoinPath(s.Directory, "cpu-rejected")) || Exists(JoinPath(s.Directory, "cpu-monitor.active"))) { return false; }
             auto path = JoinPath(s.Directory, "run.bin");
             if (!Exists(path)) { return false; }
             auto run = Decode<TRunRecord>(ReadFile(path));
@@ -3106,17 +2899,6 @@ namespace NPchUpdate::NTwoStep {
             return it == state.Options.end() ? fallback : it->second.back();
         }
 
-        double MeasurementCpuLimit(const TWorkflow& state) {
-            const auto value = Setting(state, "--measure-max-external-cpu");
-            if (value.empty()) { return 0; }
-            char* end = nullptr;
-            const double limit = strtod(value.c_str(), &end);
-            if (!std::isfinite(limit) || limit <= 0 || end == value.c_str() || *end) {
-                Fail("--measure-max-external-cpu requires a positive finite number of CPU cores");
-            }
-            return limit;
-        }
-
         void ResolveResourceDefaults(TWorkflow& state) {
             const std::vector<std::string> keys = {"--workers", "--ram-gb", "--bandwidth-gbps", "--action-memory-gb"};
             if (std::all_of(keys.begin(), keys.end(), [&](const auto& key) { return state.Options.count(key); })) { return; }
@@ -3687,88 +3469,6 @@ source_set("pch_group_0_compile") {
             check(WorkflowResources(resourceRequest).Ram == limits.Ram &&
                   WorkflowResources(resourceRequest).Workers == limits.Workers,
                   "unfinished runs inherit frozen resources rather than current free RAM");
-            std::vector<std::string> procFields(20, "0");
-            procFields[0] = "R";
-            procFields[2] = "7";
-            procFields[11] = "10";
-            procFields[12] = "20";
-            procFields[13] = "30";
-            procFields[14] = "40";
-            procFields[19] = "999";
-            TCpuProcess parsedCpu;
-            check(ParseCpuProcess("7 (name ) with spaces) " + Join(procFields, " "), 100, parsedCpu) &&
-                  parsedCpu.Group == 7 && parsedCpu.Start == 999 && parsedCpu.Cpu == .3 && parsedCpu.Waited == .7,
-                  "CPU accounting handles process names and reaped children");
-            check(ReadCpu(0).Own > 0, "live Linux CPU accounting includes the controller");
-            // Exercise real /proc attribution with an outside sibling and
-            // short-lived, waited-for helpers inside the measured group.
-            pid_t outside = fork();
-            check(outside >= 0, "fork unrelated CPU load fixture");
-            if (outside == 0) {
-                const auto until = CpuClock() + .4;
-                volatile uint64_t value = 1;
-                while (CpuClock() < until) { value = value * 1664525 + 1013904223; }
-                _exit(0);
-            }
-            rusage childBefore{}, selfBefore{}, childAfter{}, selfAfter{};
-            getrusage(RUSAGE_CHILDREN, &childBefore);
-            getrusage(RUSAGE_SELF, &selfBefore);
-            auto cpuBefore = ReadCpu(0);
-            TCpuSample cpuAfter;
-            TRunOptions accounting;
-            accounting.CaptureStdout = accounting.CaptureStderr = false;
-            accounting.CheckProcess = [&](int group, bool finished) {
-                if (finished) { cpuAfter = ReadCpu(group); }
-                return true;
-            };
-            check(Run({"/bin/sh", "-c", "for n in 1 2 3; do /bin/sh -c 'i=0; while [ $i -lt 100000 ]; do i=$((i+1)); done'; done"}, accounting).ExitCode == 0,
-                  "run real CPU accounting process group");
-            getrusage(RUSAGE_CHILDREN, &childAfter);
-            getrusage(RUSAGE_SELF, &selfAfter);
-            auto cpuUsage = [](const rusage& usage) {
-                return usage.ru_utime.tv_sec + usage.ru_stime.tv_sec +
-                    (usage.ru_utime.tv_usec + usage.ru_stime.tv_usec) / 1e6;
-            };
-            const auto expectedOwn = cpuUsage(childAfter) - cpuUsage(childBefore) + cpuUsage(selfAfter) - cpuUsage(selfBefore);
-            int outsideStatus = 0;
-            check(waitpid(outside, &outsideStatus, 0) == outside && WIFEXITED(outsideStatus), "reap unrelated CPU fixture");
-            check(std::abs(cpuAfter.Own - cpuBefore.Own - expectedOwn) < .15 &&
-                  cpuAfter.Foreign.count(outside) && cpuAfter.Foreign.at(outside).Cpu > 0,
-                  "real accounting retains reaped helper CPU and separates outside processes");
-            const auto cpuDir = JoinPath(dir, "cpu-test");
-            MakeDirs(cpuDir);
-            int cpuSamples = 0;
-            auto syntheticCpu = [&](int) {
-                TCpuSample sample;
-                sample.Time = CpuClock() + 2 * cpuSamples;
-                sample.Wall = Now() + int64_t(2e9 * cpuSamples);
-                sample.Busy = sample.Own = 100 * cpuSamples++;
-                return sample;
-            };
-            TMeasureCpuMonitor ownCpu(cpuDir, "own", .5, syntheticCpu, 5, 1);
-            check(ownCpu.Check(0, true), "heavy CPU of measurement processes is not external interference");
-            cpuSamples = 0;
-            TMeasureCpuMonitor foreignCpu(cpuDir, "foreign", .5, [&](int pid) {
-                auto sample = syntheticCpu(pid);
-                sample.Own *= .5;
-                return sample;
-            }, 5, 1);
-            check(!foreignCpu.Check(0, true) && Exists(JoinPath(cpuDir, "cpu-rejected")),
-                  "short final noisy interval is rejected durably");
-            cpuSamples = 0;
-            TMeasureCpuMonitor blindCpu(cpuDir, "blind", .5, [&](int pid) {
-                if (cpuSamples) { Fail("injected /proc read failure"); }
-                return syntheticCpu(pid);
-            }, 5, 1);
-            check(!blindCpu.Check(0, true) && blindCpu.Rejected(), "unavailable CPU monitoring fails closed");
-            auto quietCpu = [](int) {
-                TCpuSample sample;
-                sample.Time = CpuClock();
-                sample.Wall = Now();
-                sample.Busy = sample.Own = sample.Time * 8;
-                return sample;
-            };
-            auto verify = [&](TSnapshot& plan) { return Verify(plan, quietCpu, .1, .05); };
             TSnapshot selecting;
             selecting.Tool = "selector-version";
             selecting.Data.Resources.Disk = 1e9;
@@ -3828,101 +3528,87 @@ source_set("pch_group_0_compile") {
             ninja += "build _pch_verify: phony output1\n";
             WriteFile(JoinPath(dir, "build/measured.ninja"), ninja);
             WriteFile(JoinPath(dir, "snapshot.bin"), Encode(s));
-            check(verify(s) != 0, "fixture fails after the first completed action");
+            const auto frozenPlan = ReadFile(JoinPath(dir, "snapshot.bin"));
+            check(Verify(s) != 0, "fixture fails after the first completed action");
             auto first = ReadFile(JoinPath(dir, "observations/0.bin"));
             auto mtime = MtimeNs(JoinPath(dir, "build/output0"));
-            check(verify(s) == 0, "retry resumes failed action");
-            check(first == ReadFile(JoinPath(dir, "observations/0.bin")) && mtime == MtimeNs(JoinPath(dir, "build/output0")),
-                  "retry preserves completed measurement and object");
-            RemoveFile(JoinPath(dir, "observations/1.bin"));
-            check(verify(s) == 0 && Exists(JoinPath(dir, "observations/1.bin")), "missing telemetry regenerates only its action");
-            check(verify(s) == 0, "completed verification is idempotent");
-
-            auto noisyAction = Decode<TMeasureConfig>(ReadFile(JoinPath(dir, "actions/1.bin")));
-            noisyAction.Command = "if test -f noisy-once; then printf clean > output1; "
-                                  "else touch noisy-once; sleep 30; printf noisy > output1; fi";
-            auto noisyConfig = Encode(noisyAction);
-            WriteFile(JoinPath(dir, "actions/1.bin"), noisyConfig);
-            s.Commands[1] = HashHex(noisyConfig);
-            const auto frozenPlan = Encode(s);
-            WriteFile(JoinPath(dir, "snapshot.bin"), frozenPlan);
-            RemoveFile(JoinPath(dir, "run.bin"));
-            double noiseAt = 0;
-            auto noisyCpu = [&](int pid) {
-                auto sample = quietCpu(pid);
-                if (Exists(JoinPath(dir, "build/noisy-once"))) {
-                    if (!noiseAt) { noiseAt = sample.Time; }
-                    sample.Busy += 20 * (sample.Time - noiseAt);
-                }
-                return sample;
-            };
-            check(Verify(s, noisyCpu, .1, .05) == 125 && !Verified(s),
-                  "CPU interference terminates the actual Ninja/compiler process group and rejects the phase");
-            const auto rejectedToken = Decode<TRunRecord>(ReadFile(JoinPath(dir, "run.bin"))).Token;
+            check(Verify(s) == 0, "retry repeats the whole failed phase");
+            check(first != ReadFile(JoinPath(dir, "observations/0.bin")) && mtime != MtimeNs(JoinPath(dir, "build/output0")) &&
+                  ReadFile(JoinPath(dir, "snapshot.bin")) == frozenPlan,
+                  "retry replaces even successful measurements and outputs while preserving the plan");
             first = ReadFile(JoinPath(dir, "observations/0.bin"));
-            check(verify(s) == 0 && ReadFile(JoinPath(dir, "snapshot.bin")) == frozenPlan &&
-                  Decode<TRunRecord>(ReadFile(JoinPath(dir, "run.bin"))).Token != rejectedToken &&
-                  first != ReadFile(JoinPath(dir, "observations/0.bin")) &&
-                  !Exists(JoinPath(dir, "cpu-rejected")),
-                  "noise retry discards all contaminated telemetry and keeps prediction unchanged");
-            // Kill the controller while Ninja and a measurement child remain
-            // alive. Inherited locks must protect their unfinished output;
-            // the next controller keeps covered observations but remeasures
-            // work completed by orphans without an active CPU observer.
-            s.Directory = JoinPath(dir, "crash");
-            s.Nonce = "crash-test";
-            s.Commands.clear();
-            MakeDirs(JoinPath(s.Directory, "build"));
-            for (int i = 0; i < 2; ++i) {
-                auto c = Decode<TMeasureConfig>(ReadFile(JoinPath(dir, "actions/" + std::to_string(i) + ".bin")));
-                c.Directory = s.Directory;
-                c.Nonce = s.Nonce;
-                if (i == 1) {
-                    c.Command = "if test -f released; then printf resumed > output1; else "
-                                "printf ready > ready.pipe; cat release.pipe > output1; touch released; fi";
+            RemoveFile(JoinPath(dir, "observations/1.bin"));
+            check(Verify(s) == 0 && Exists(JoinPath(dir, "observations/1.bin")) &&
+                  first != ReadFile(JoinPath(dir, "observations/0.bin")), "missing telemetry restarts the whole phase");
+            first = ReadFile(JoinPath(dir, "observations/0.bin"));
+            const auto completedRun = ReadFile(JoinPath(dir, "run.bin"));
+            check(Verify(s) == 0 && first == ReadFile(JoinPath(dir, "observations/0.bin")) &&
+                  completedRun == ReadFile(JoinPath(dir, "run.bin")), "completed verification is idempotent");
+            // Model Ctrl+C to the foreground group, then a controller-only
+            // SIGKILL. Both retries must replace the entire interrupted phase.
+            for (int interrupt : {SIGINT, SIGKILL}) {
+                s.Directory = JoinPath(dir, interrupt == SIGINT ? "interrupt" : "crash");
+                s.Nonce = "interrupt-test-" + std::to_string(interrupt);
+                s.Commands.clear();
+                MakeDirs(JoinPath(s.Directory, "build"));
+                for (int i = 0; i < 2; ++i) {
+                    auto c = Decode<TMeasureConfig>(ReadFile(JoinPath(dir, "actions/" + std::to_string(i) + ".bin")));
+                    c.Directory = s.Directory;
+                    c.Nonce = s.Nonce;
+                    if (i == 1) {
+                        c.Command = "if test -f released; then printf resumed > output1; else "
+                                    "printf ready > ready.pipe; cat release.pipe > output1; touch released; fi";
+                    }
+                    auto bytes = Encode(c);
+                    WriteFile(JoinPath(s.Directory, "actions/" + std::to_string(i) + ".bin"), bytes);
+                    s.Commands.push_back(HashHex(bytes));
                 }
-                auto bytes = Encode(c);
-                WriteFile(JoinPath(s.Directory, "actions/" + std::to_string(i) + ".bin"), bytes);
-                s.Commands.push_back(HashHex(bytes));
+                auto interruptedNinja = ninja;
+                Replace(interruptedNinja, dir + "/actions/", s.Directory + "/actions/");
+                WriteFile(JoinPath(s.Directory, "build/measured.ninja"), interruptedNinja);
+                const auto interruptedPlan = Encode(s);
+                WriteFile(JoinPath(s.Directory, "snapshot.bin"), interruptedPlan);
+                const auto readyPipe = JoinPath(s.Directory, "build/ready.pipe");
+                const auto releasePipe = JoinPath(s.Directory, "build/release.pipe");
+                check(mkfifo(readyPipe.c_str(), 0600) == 0 && mkfifo(releasePipe.c_str(), 0600) == 0, "create interruption rendezvous");
+                pid_t controller = fork();
+                check(controller >= 0, "fork verification controller");
+                if (controller == 0) {
+                    // Only the test creates a foreground group; Run must keep
+                    // Ninja in it so the same SIGINT reaches both processes.
+                    if (interrupt == SIGINT && setpgid(0, 0) != 0) { _exit(98); }
+                    signal(SIGINT, SIG_DFL);
+                    try { _exit(Verify(s)); } catch (...) { _exit(99); }
+                }
+                int readyFd = open(readyPipe.c_str(), O_RDONLY);
+                char message[5];
+                check(readyFd >= 0 && read(readyFd, message, sizeof(message)) == ssize_t(sizeof(message)), "measurement reached rendezvous");
+                close(readyFd);
+                first = ReadFile(JoinPath(s.Directory, "observations/0.bin"));
+                const auto interruptedRun = Decode<TRunRecord>(ReadFile(JoinPath(s.Directory, "run.bin")));
+                check(kill(interrupt == SIGINT ? -controller : controller, interrupt) == 0, "interrupt measurement");
+                int status = 0;
+                check(waitpid(controller, &status, 0) == controller && WIFSIGNALED(status) &&
+                      WTERMSIG(status) == interrupt, "controller was interrupted");
+                const auto lockPath = JoinPath(s.Directory, "verification.lock/cycle.lock");
+                int lockFd = open(lockPath.c_str(), O_RDWR);
+                check(lockFd >= 0, "open verification lock");
+                if (interrupt == SIGKILL) {
+                    check(flock(lockFd, LOCK_EX | LOCK_NB) != 0, "orphaned child retains verification lock");
+                    int releaseFd = open(releasePipe.c_str(), O_WRONLY);
+                    check(releaseFd >= 0 && write(releaseFd, "good", 4) == 4, "release orphaned child");
+                    close(releaseFd);
+                }
+                check(flock(lockFd, LOCK_EX) == 0, "wait for Ninja and measurement children to exit");
+                close(lockFd);
+                check(!BuildRunning(JoinPath(s.Directory, "build")), "interrupted measurement leaves no running Ninja");
+                WriteFile(JoinPath(s.Directory, "build/released"), "ready\n");
+                check(Verify(s) == 0 && first != ReadFile(JoinPath(s.Directory, "observations/0.bin")) &&
+                      Decode<TRunRecord>(ReadFile(JoinPath(s.Directory, "run.bin"))).Token != interruptedRun.Token &&
+                      ReadFile(JoinPath(s.Directory, "snapshot.bin")) == interruptedPlan &&
+                      ReadFile(JoinPath(s.Directory, "build/output1")) == "resumed",
+                      "interruption restarts every measured action under a new token, preserving the plan");
             }
-            Replace(ninja, dir + "/actions/", s.Directory + "/actions/");
-            WriteFile(JoinPath(s.Directory, "build/measured.ninja"), ninja);
-            WriteFile(JoinPath(s.Directory, "snapshot.bin"), Encode(s));
-            const auto readyPipe = JoinPath(s.Directory, "build/ready.pipe");
-            const auto releasePipe = JoinPath(s.Directory, "build/release.pipe");
-            check(mkfifo(readyPipe.c_str(), 0600) == 0 && mkfifo(releasePipe.c_str(), 0600) == 0, "create crash-test rendezvous");
-            pid_t controller = fork();
-            check(controller >= 0, "fork verification controller");
-            if (controller == 0) {
-                try { _exit(verify(s)); } catch (...) { _exit(99); }
-            }
-            int readyFd = open(readyPipe.c_str(), O_RDONLY);
-            char message[5];
-            check(readyFd >= 0 && read(readyFd, message, sizeof(message)) == ssize_t(sizeof(message)), "measurement reached rendezvous");
-            close(readyFd);
-            first = ReadFile(JoinPath(s.Directory, "observations/0.bin"));
-            const auto completedAt = Decode<TRecord>(first).Observation.End;
-            bool covered = false;
-            for (int retry = 0; retry < 100; ++retry) {
-                auto coverage = Decode<std::pair<std::string, int64_t>>(ReadFile(JoinPath(s.Directory, "cpu-monitor.active")));
-                if (coverage.second >= completedAt) { covered = true; break; }
-                std::this_thread::sleep_for(std::chrono::milliseconds(50));
-            }
-            check(covered, "CPU monitor durably covers the first action before controller interruption");
-            check(kill(controller, SIGKILL) == 0, "interrupt controller");
-            int status = 0;
-            check(waitpid(controller, &status, 0) == controller && WIFSIGNALED(status), "controller was interrupted");
-            const auto lockPath = JoinPath(s.Directory, "verification.lock/cycle.lock");
-            int lockFd = open(lockPath.c_str(), O_RDWR);
-            check(lockFd >= 0 && flock(lockFd, LOCK_EX | LOCK_NB) != 0, "orphaned child retains verification lock");
-            int releaseFd = open(releasePipe.c_str(), O_WRONLY);
-            check(releaseFd >= 0 && write(releaseFd, "good", 4) == 4, "release orphaned child");
-            close(releaseFd);
-            check(flock(lockFd, LOCK_EX) == 0, "wait for child completion without polling");
-            close(lockFd);
-            check(verify(s) == 0 && first == ReadFile(JoinPath(s.Directory, "observations/0.bin")) &&
-                  ReadFile(JoinPath(s.Directory, "build/output1")) == "resumed",
-                  "resume keeps covered telemetry but replaces unmonitored orphan results");
             // Recover an interrupted replacement without discarding novel edits.
             auto root = JoinPath(dir, "source"), cycle = JoinPath(dir, "cycle");
             auto live = JoinPath(root, GLOBAL_DIR);
@@ -4003,8 +3689,7 @@ source_set("pch_group_0_compile") {
         std::string stage, baseline;
         std::map<std::string, std::vector<std::string>> supplied;
         const std::set<std::string> allowed = {"--disk", "--mode", "--q", "--sample", "--workers", "--ram-gb",
-            "--bandwidth-gbps", "--action-memory-gb", "--analysis-jobs", "--main-ref", "--target", "--gn", "--ninja",
-            "--measure-max-external-cpu"};
+            "--bandwidth-gbps", "--action-memory-gb", "--analysis-jobs", "--main-ref", "--target", "--gn", "--ninja"};
         for (size_t i = 0; i < args.size(); ++i) {
             if (args[i] == "--predict" || args[i] == "--correct" || args[i] == "--apply") {
                 if (!stage.empty()) { Fail("choose one of --predict, --correct, --apply, or none for the full cycle"); }
@@ -4074,13 +3759,13 @@ source_set("pch_group_0_compile") {
         }
         // Freeze defaults before baseline work consumes RAM. Materializing old
         // defaults does not count as a user settings change on resume.
+        workflow.Options.erase("--measure-max-external-cpu"); // obsolete persisted setting
         ResolveResourceDefaults(workflow);
         const auto before = workflow.Options;
         for (const auto& [key, values] : supplied) { workflow.Options[key] = values; }
         if (!workflow.Options.count("--mode")) { workflow.Options["--mode"] = {"incremental"}; }
         (void)ModeQ(Setting(workflow, "--mode"));
         (void)WorkflowResources(workflow); // reject invalid limits before starting a build
-        const auto externalLimit = MeasurementCpuLimit(workflow);
         const bool changed = !workflow.Cycle.empty() && before != workflow.Options;
         if (changed && (stage == "--correct" || stage == "--apply")) { Fail("parameters changed; run --predict first"); }
         if (workflow.Cycle.empty()) {
@@ -4114,7 +3799,6 @@ source_set("pch_group_0_compile") {
             PrepareBaseline(workflow, baseline);
             std::vector<std::string> command = {"predict", "--baseline", baseline, "--output", initial};
             for (const auto& [key, values] : workflow.Options) {
-                if (key == "--measure-max-external-cpu") { continue; }
                 for (const auto& value : values) { command.insert(command.end(), {key, value}); }
             }
             int status = StepCommand(command, Exists(JoinPath(initial, "settings.changed")));
@@ -4125,7 +3809,7 @@ source_set("pch_group_0_compile") {
             auto s = LoadPlan(initial);
             int status = 0;
             if (!Exists(JoinPath(corrected, "snapshot.bin"))) {
-                status = Verify(s, ReadCpu, 5, 1, externalLimit);
+                status = Verify(s);
                 if (status) { return status; }
                 status = CorrectPlan(s, initial, corrected, CacheDirectory(JoinPath(state, "cache")));
                 if (status) { return status; }
@@ -4138,7 +3822,7 @@ source_set("pch_group_0_compile") {
             // Compatibility is complete for both plans. No later stage needs
             // these duplicate PCHs or per-translation-unit dependency records.
             RemoveTree(JoinPath(state, "cache/compatibility-v1"));
-            status = Verify(c, ReadCpu, 5, 1, externalLimit);
+            status = Verify(c);
             if (status) { return status; }
             if (stage == "--correct") { Report("correction verified: " + corrected); return 0; }
         }
