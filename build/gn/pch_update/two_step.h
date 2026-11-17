@@ -143,6 +143,14 @@ namespace NPchUpdate::NTwoStep {
     };
 
     // Returns infinity on resource infeasibility; malformed graphs are errors.
+    // Optional observer: no model/checkpoint fields and no additional scoring.
+    struct TSelectionDiagnostics {
+        std::string Targets; // winning width, one decision per owner
+        std::string Choices; // shortlist costs, IDs local to each width before pruning
+        std::string Candidates; // roots/parents for those local IDs
+        std::string Widths;
+    };
+
     void GroupTargets(TData& data, const std::vector<std::string>& owners);
     void ValidateTargets(const TData& data);
     double Makespan(const std::vector<TAction>& actions, const TResources& resources,
@@ -153,7 +161,8 @@ namespace NPchUpdate::NTwoStep {
     TPrediction Predict(const TData& data, const TLayout& layout, const TCalibration& calibration,
                         size_t analysisJobs = 1);
     TLayout Select(const TData& data, const TCalibration& calibration, const TLayout* frozen = nullptr,
-                   std::vector<TDiskAlternative>* diskAlternatives = nullptr, size_t analysisJobs = 1);
+                   std::vector<TDiskAlternative>* diskAlternatives = nullptr, size_t analysisJobs = 1,
+                   TSelectionDiagnostics* diagnostics = nullptr);
     TCalibration Calibrate(const TData& data, const TLayout& layout, const TPrediction& prediction,
                            const std::vector<TObservation>& observations);
 

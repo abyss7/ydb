@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <chrono>
 #include <functional>
 #include <stdexcept>
 #include <string>
@@ -27,6 +28,23 @@ namespace NPchUpdate {
     // A line of the report: stdout and the log of the run.
     void Report(const std::string& line);
     void OpenRunLog(const std::string& path);
+    // Presentation only; never part of plan identity or persisted run options.
+    void ConfigureOutput(const std::string& directory, bool verbose);
+    void CloseOutput();
+    void Detail(const std::string& message);
+    std::string OutputDirectory();
+    std::string Seconds(double seconds);
+
+    class TPhase {
+    public:
+        explicit TPhase(std::string name);
+        ~TPhase();
+        void Status(int status) { Status_ = status; }
+    private:
+        std::string Name_, Previous_;
+        std::chrono::steady_clock::time_point Start_;
+        int Exceptions_, Status_ = 0;
+    };
 
     // Strings.
     bool StartsWith(std::string_view text, std::string_view prefix);
@@ -146,6 +164,9 @@ namespace NPchUpdate {
         std::function<void(std::string_view)> OnStdout;
         std::string StdoutFile;
         std::string StderrFile;
+        // Stream live commands to a persistent log with a concise console view.
+        // Unconfigured callers retain their original stdout/stderr behavior.
+        std::string OutputLabel;
     };
 
     struct TRunResult {

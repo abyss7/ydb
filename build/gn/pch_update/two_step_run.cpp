@@ -8,6 +8,8 @@
 #include "trace.h"
 
 #include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
 
 #include <sys/file.h>
 #include <sys/resource.h>
@@ -67,10 +69,12 @@ namespace NPchUpdate::NTwoStep {
             "  --target T          repeat for each target (default: all, tests)\n"
             "  --main-ref REF --gn PATH --ninja PATH\n"
             "  --analysis-jobs N    parallel analysis jobs (default: min(24, CPUs))\n"
+            "  --verbose           show selection details and full child output (presentation only)\n"
             "  --sample PERCENT     share of whole GN PCH-owner targets measured (10..100,\n"
             "                       default 100); PCHs and required generator tools always built\n"
             "pch_update self-test\n"
-            "Measurement compilers run uncached. Interrupted builds retain validated observations.\n"
+            "Measurement compilers run uncached. An interrupted measurement phase restarts in full.\n"
+            "Reports survive cleanup under BASELINE/pch-report/; latest.txt points to this run.\n"
             "Apply keeps a recoverable backup and restores it when GN validation fails.\n";
 
         int64_t Now() {
@@ -145,6 +149,88 @@ namespace NPchUpdate::NTwoStep {
             if (mode == "global") { return 1; }
             if (mode == "incremental") { return 0.1; }
             Fail("--mode must be global or incremental: " + mode);
+        }
+
+        // Observers only: diagnostic failures cannot invalidate a plan or undo an installation.
+        template <class F> void Diagnostic(F&& fn) {
+            try { fn(); }
+            catch (const std::exception& e) { Log("warning: diagnostics unavailable: " + std::string(e.what())); }
+        }
+
+        std::string PhaseName(const TSnapshot& s) { return s.Corrected ? "corrected" : "initial"; }
+
+        std::string ReportRoot(const TSnapshot& s) {
+            return OutputDirectory().empty() ? JoinPath(s.Baseline, "pch-report") : OutputDirectory();
+        }
+
+        std::string JsonText(const std::string& text) {
+            rapidjson::StringBuffer buffer;
+            rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+            writer.String(text.data(), text.size());
+            return buffer.GetString();
+        }
+
+        std::map<std::string, std::string> TargetReasons(const std::string& path) {
+            std::map<std::string, std::string> result;
+            std::string text;
+            if (!TryReadFile(path, &text)) { return result; }
+            for (auto line : Split(text, '\n')) {
+                if (line.empty() || line.front() == '#') { continue; }
+                const auto row = Split(line, '\t');
+                if (row.size() >= 2 && row[0] != "target") { result[std::string(row[0])] = std::string(row[1]); }
+            }
+            return result;
+        }
+
+        void PublishReports(const TSnapshot& s) {
+            Diagnostic([&] {
+                if (s.Baseline.empty()) { return; }
+                const auto destination = JoinPath(ReportRoot(s), PhaseName(s));
+                for (const char* name : {"summary.tsv", "summary.txt", "summary.json", "assignments.tsv", "target-members.tsv",
+                     "selection-targets.tsv", "selection-choices.tsv", "selection-widths.tsv", "selection-candidates.tsv", "compatibility.tsv",
+                     "compatibility-targets.tsv", "calibration.tsv", "calibration.txt", "calibration-parameters.tsv", "sampling.tsv", "disk-budget.tsv",
+                     "initial-errors.tsv", "initial-action-errors.tsv", "measurement.tsv", "measurement.txt", "measurement.json",
+                     "target-errors.tsv", "action-errors.tsv", "assignment-changes.tsv"}) {
+                    std::string text;
+                    if (TryReadFile(JoinPath(s.Directory, name), &text)) { WriteFile(JoinPath(destination, name), text); }
+                }
+                std::string text;
+                if (TryReadFile(JoinPath(s.Directory, "summary.txt"), &text)) {
+                    std::string measured;
+                    TryReadFile(JoinPath(s.Directory, "measurement.txt"), &measured);
+                    WriteFile(JoinPath(ReportRoot(s), "summary.txt"), text + "\n" + measured);
+                }
+                if (TryReadFile(JoinPath(s.Directory, "summary.json"), &text)) { WriteFile(JoinPath(ReportRoot(s), "summary.json"), text); }
+                WriteFile(JoinPath(ReportRoot(s), "README.txt"),
+                    "Reports are observations, never selector inputs. initial/ and corrected/ are independent plans.\n"
+                    "summary: model predictions; measurement: validated sample; final-result: installation/build outcome.\n"
+                    "phases.tsv: phase, status, wall_seconds (one row per attempt; logs append across retries).\n"
+                    "assignments.tsv: final compact PCH IDs; selection-targets: before compatibility; compatibility-targets: ID mapping.\n"
+                    "selection-choices.tsv: bounded shortlist; IDs local to width before disk pruning, not all possible headers.\n"
+                    "selection-candidates.tsv maps those IDs to root headers, parents and compiler classes.\n"
+                    "no-candidate: none in this shortlist; no-estimated-benefit: none beats no-PCH target cost.\n"
+                    "calibration-control: initial target deliberately left without PCH; disk-budget: selected leaf removed by FitDisk.\n"
+                    "no-layout-improvement: seed won global objective; retained-initial-plan: correction retained initial seed.\n"
+                    "compatibility-fallback/rejected: target moved to an ancestor/no PCH; see compatibility.tsv and retained probe logs.\n"
+                    "Historical checkpoints may lack reasons; unavailable is not a guessed rejection cause.\n"
+                    "GB=1000000000 bytes; disk budget covers resident PCH artifacts, not the complete build directory.\n"
+                    "Sample percentage applies to whole owner targets; every PCH and prerequisite tool is built.\n"
+                    "Work sums are not wall time. WAPE=sum(abs(predicted-actual))/sum(actual).\n"
+                    "Holdout MAE is mean absolute error of aggregate target compile seconds, not target wall time.\n"
+                    "Plans have different samples; comparing their measured walls does not establish a speedup.\n"
+                    "The final GN build checks integration/linking; tests are built, not executed.\n");
+            });
+        }
+
+        std::string KeepProbeLog(const TSnapshot& s, const std::string& path) {
+            std::string retained = path;
+            Diagnostic([&] {
+                if (s.Baseline.empty()) { return; }
+                const auto destination = JoinPath(ReportRoot(s), PhaseName(s) + "/logs/compatibility/" + HashHex(path) + ".log");
+                WriteFile(destination, ReadFile(path));
+                retained = destination;
+            });
+            return retained;
         }
 
         struct TProfileOptions {
@@ -1379,8 +1465,13 @@ namespace NPchUpdate::NTwoStep {
                      << "\n# required_compilations\t" << compilers
                      << "\n# required_commands\t" << commands << "\n# full_commands\t" << full << '\n';
             WriteFile(JoinPath(s.Directory, "sampling.tsv"), sampling.str());
-            Log(Format("measurement sample %d%%: %zu/%zu targets, %zu selected compilations, %zu including prerequisites; %zu/%zu commands",
-                       s.Sample, size_t(selectedTargets), d.Targets.size(), selectedCompilers, compilers, commands, full));
+            Report(Format("  Measurement sample: %d%% of owner targets\n"
+                          "    Selected targets: %zu / %zu; selected C++ files: %zu\n"
+                          "    PCH builds: %zu; calibration actions: %zu\n"
+                          "    C++ incl. prerequisites: %zu; total commands: %zu / %zu\n"
+                          "    All PCHs and required tools are built; sample percentage is not a build-time fraction.",
+                          s.Sample, size_t(selectedTargets), d.Targets.size(), selectedCompilers, l.Pchs.size(), s.Measured.size(),
+                          compilers, commands, full));
             WriteFile(JoinPath(build, "measured.ninja"), ninja);
             s.Inputs.emplace_back(JoinPath(build, "measured.ninja"), DigestFile(JoinPath(build, "measured.ninja")));
             s.Inputs.emplace_back(JoinPath(build, "args.gn"), DigestFile(JoinPath(build, "args.gn")));
@@ -1862,11 +1953,18 @@ namespace NPchUpdate::NTwoStep {
             std::vector<std::string> rows(layout.Pchs.size());
             std::mutex reportMutex;
             size_t completed = 0;
-            Log(Format("compatibility: checking %zu PCHs, %zu workers; cache %s",
-                       layout.Pchs.size(), jobs, RealPath(cacheRoot).c_str()));
+            const auto compatibilityStart = Now();
+            Log(Format("compatibility: %zu PCHs; %zu workers (ceiling %d, RAM %.2f GB, max predicted action %.2f GB)",
+                       layout.Pchs.size(), jobs, s.Data.Resources.Workers, s.Data.Resources.Ram / 1e9, memory / 1e9));
+            Detail("compatibility cache: " + RealPath(cacheRoot));
             ParallelPchs(layout.Pchs, jobs, [&](size_t g) {
                 const auto& pch = layout.Pchs[g];
-                if (pch.Parent >= 0 && !built[pch.Parent]) { return; }
+                if (pch.Parent >= 0 && !built[pch.Parent]) {
+                    std::lock_guard<std::mutex> lock(reportMutex);
+                    rows[g] = Format("pch\t%zu\t%zu\t-1\tparent group %d failed; child probe skipped\n", g, g, pch.Parent);
+                    Progress(Format("compatibility PCH %zu/%zu: skipped (parent rejected)", ++completed, layout.Pchs.size()));
+                    return;
+                }
                 std::ostringstream row;
                 auto argv = flags.at(pch.Representative);
                 const auto header = PchHeader(s.Data, pch);
@@ -1885,7 +1983,7 @@ namespace NPchUpdate::NTwoStep {
                 built[g] = cache.Probe(keys[g], s.Baseline, argv, header);
                 if (built[g]) { inputs[s.Data.Actions.size() + g] = probeInputs(keys[g]); }
                 row << "pch\t" << g << "\t" << g << "\t" << (built[g] ? int(g) : -1)
-                       << "\t" << JoinPath(dir, "compiler.log") << '\n';
+                       << "\t" << (built[g] ? "" : KeepProbeLog(s, JoinPath(dir, "compiler.log"))) << '\n';
                 if (built[g] && int(g) >= layout.Bases) {
                     auto& link = linkProbes[g];
                     link = ProbeLeafLink(cache, s.Baseline, flags.at(pch.Representative), artifacts[g], keys[g]);
@@ -1896,7 +1994,7 @@ namespace NPchUpdate::NTwoStep {
                         Unique(all);
                     }
                     row << "pch-link\t" << g << '\t' << g << '\t' << (link.Ok ? int(g) : -1)
-                           << '\t' << JoinPath(cache.Directory(link.Key), "compiler.log") << '\n';
+                           << '\t' << (link.Ok ? "" : KeepProbeLog(s, JoinPath(cache.Directory(link.Key), "compiler.log"))) << '\n';
                 }
                 {
                     std::lock_guard<std::mutex> lock(reportMutex);
@@ -1905,13 +2003,17 @@ namespace NPchUpdate::NTwoStep {
                     report << reportHeader;
                     for (const auto& text : rows) { report << text; }
                     WriteFile(JoinPath(s.Directory, "compatibility.tsv"), report.str());
-                    Progress(Format("compatibility PCH %zu/%zu: %s (group %zu)",
-                                    ++completed, layout.Pchs.size(), built[g] ? "OK" : "rejected", g));
+                    Progress(Format("compatibility PCH %zu/%zu: %s (group %zu), elapsed %s",
+                                    ++completed, layout.Pchs.size(), built[g] ? "OK" : "rejected", g,
+                                    Seconds((Now() - compatibilityStart) / 1e9).c_str()));
                 }
                 if (!built[g] && s.Corrected && int(g) < layout.Bases) {
                     Fail("frozen base failed compatibility checking; see " + JoinPath(dir, "compiler.log"));
                 }
             });
+            report.str("");
+            report << reportHeader;
+            for (const auto& text : rows) { report << text; }
             for (const auto& link : linkProbes) {
                 if (link.Ok) { linkNeeds.insert(link.Needs.begin(), link.Needs.end()); }
             }
@@ -1935,7 +2037,7 @@ namespace NPchUpdate::NTwoStep {
                     if (g < layout.Bases || !built[g]) { continue; }
                     const auto& link = linkProbes[g];
                     linkErrors[t][g] = link.Ok ? LinkDiagnostic(TargetLinkAvailability(s, int(t), link.Needs, providers))
-                        : "PCH link probe failed: " + JoinPath(cache.Directory(link.Key), "compiler.log");
+                        : "PCH link probe failed: " + KeepProbeLog(s, JoinPath(cache.Directory(link.Key), "compiler.log"));
                 }
             }
             const auto original = layout.Assignment;
@@ -1957,11 +2059,12 @@ namespace NPchUpdate::NTwoStep {
                     const auto log = JoinPath(cache.Directory(key), "compiler.log");
                     bool ok = cache.Probe(key, s.Baseline, argv);
                     if (ok) { inputs[s.Data.Files[f].Action] = probeInputs(key); }
-                    if (!ok) { diagnostics[f] += (diagnostics[f].empty() ? "" : ";") + log; }
+                    if (!ok) { diagnostics[f] += (diagnostics[f].empty() ? "" : ";") + KeepProbeLog(s, log); }
                     if (g < 0 && !ok) { Fail("compatibility failed without PCH: " + s.Data.Files[f].Source + "; see " + log); }
                     auto count = ++done;
                     if (count % 100 == 0) {
-                        Progress(Format("compatibility: %zu file probes, cache hits %zu", count, cache.Hits.load()));
+                        Progress(Format("compatibility: %zu file probes (incl. fallbacks), cache hits %zu, elapsed %s",
+                            count, cache.Hits.load(), Seconds((Now() - compatibilityStart) / 1e9).c_str()));
                     }
                     return ok;
             });
@@ -1976,7 +2079,24 @@ namespace NPchUpdate::NTwoStep {
                 report << '\n';
             }
             WriteFile(JoinPath(s.Directory, "compatibility.tsv"), report.str());
+            const auto compatibleAssignments = layout.Assignment;
             const auto remap = PruneCompatible(layout, s.Corrected);
+            Diagnostic([&] {
+                std::ostringstream targets;
+                targets << "target\treason\tselected_leaf\tcompatible_leaf_before_compaction\tfinal_leaf\tdiagnostics\n";
+                for (size_t t = 0; t < s.Data.Targets.size(); ++t) {
+                    const std::string reason = original[t] == compatibleAssignments[t] ? "unchanged" :
+                        compatibleAssignments[t] < 0 ? "compatibility-rejected" : "compatibility-fallback";
+                    targets << s.Data.Targets[t].Label << '\t' << reason << '\t' << original[t] << '\t'
+                            << compatibleAssignments[t] << '\t' << layout.Assignment[t] << '\t';
+                    if (original[t] >= 0 && !built[original[t]]) { targets << "selected PCH or its parent did not compile; "; }
+                    for (int f : s.Data.Targets[t].Files) {
+                        if (!diagnostics[f].empty()) { targets << s.Data.Files[f].Source << ':' << diagnostics[f] << ';'; }
+                    }
+                    targets << '\n';
+                }
+                WriteFile(JoinPath(s.Directory, "compatibility-targets.tsv"), targets.str());
+            });
             for (size_t g = 0; g < remap.size(); ++g) {
                 if (remap[g] >= 0 && remap[g] != int(g)) {
                     inputs[s.Data.Actions.size() + remap[g]] = std::move(inputs[s.Data.Actions.size() + g]);
@@ -1991,8 +2111,11 @@ namespace NPchUpdate::NTwoStep {
                     if (frozenInputs.insert(absolute).second) { s.Inputs.emplace_back(absolute, DigestFile(absolute)); }
                 }
             }
-            Log(Format("compatibility complete: %zu target assignments changed, %zu PCHs retained, %zu cache hits, %zu compiler runs",
-                 changed, layout.Pchs.size(), cache.Hits.load(), cache.Runs.load()));
+            const auto hits = cache.Hits.load(), runs = cache.Runs.load();
+            Log(Format("compatibility complete: %zu target assignments changed; %zu PCHs retained; %zu/%zu probe cache hits, "
+                       "%zu compiler invocations; %s", changed, layout.Pchs.size(), hits, hits + runs, runs,
+                       Seconds((Now() - compatibilityStart) / 1e9).c_str()));
+            PublishReports(s);
             return inputs;
         }
 
@@ -2061,9 +2184,14 @@ namespace NPchUpdate::NTwoStep {
             }
             WriteFile(JoinPath(s.Directory, "predictions.tsv"), ledger.str());
             std::ostringstream assignments;
-            assignments << "target\tclass\tleaf\tcompilations\tpredicted_compile_seconds\tconstraint\n";
+            assignments << "target\tclass\tleaf\tcompilations\tpredicted_compile_seconds\tconstraint\tselection_reason\tcompatibility\n";
             std::ostringstream members;
             members << "target\tsource\toutput\tclass\n";
+            const auto selectionReasons = TargetReasons(JoinPath(s.Directory, "selection-targets.tsv"));
+            const auto compatibilityReasons = TargetReasons(JoinPath(s.Directory, "compatibility-targets.tsv"));
+            std::map<std::string, size_t> reasons;
+            size_t assignedTargets = 0, assignedFiles = 0;
+            double coveredWork = 0, allWork = 0;
             for (size_t t = 0; t < s.Data.Targets.size(); ++t) {
                 const auto& target = s.Data.Targets[t];
                 double work = 0;
@@ -2071,14 +2199,63 @@ namespace NPchUpdate::NTwoStep {
                     const auto& file = s.Data.Files[f];
                     work += s.Prediction.Actions[file.Action].Time;
                     members << target.Label << '\t' << file.Source << '\t' << s.Data.Actions[file.Action].Output << '\t' << file.Class << '\n';
+                    allWork += s.Data.Actions[file.Action].Time;
+                    if (s.Layout.Assignment[t] >= 0) { coveredWork += s.Data.Actions[file.Action].Time; }
                 }
+                const auto selection = selectionReasons.find(target.Label), compatibility = compatibilityReasons.find(target.Label);
+                const std::string selectedReason = selection == selectionReasons.end() ? "unavailable-in-checkpoint" : selection->second;
+                const std::string checkedReason = compatibility == compatibilityReasons.end() ? "unavailable-in-checkpoint" : compatibility->second;
+                const bool assigned = s.Layout.Assignment[t] >= 0;
+                assignedTargets += assigned;
+                if (assigned) { assignedFiles += target.Files.size(); }
+                ++reasons[checkedReason != "unchanged" && checkedReason != "unavailable-in-checkpoint" ? checkedReason :
+                    assigned ? "assigned" : !target.PchEligible ? "no-global-pch-hook" : target.Class < 0 ? "mixed-compiler-classes" : selectedReason];
                 assignments << target.Label << '\t' << target.Class << '\t' << s.Layout.Assignment[t] << '\t'
                             << target.Files.size() << '\t' << work << '\t'
-                            << (!target.PchEligible ? "no-global-pch-hook" : target.Class < 0 ? "mixed-compiler-classes" : "") << '\n';
+                            << (!target.PchEligible ? "no-global-pch-hook" : target.Class < 0 ? "mixed-compiler-classes" : "")
+                            << '\t' << selectedReason << '\t' << checkedReason << '\n';
             }
             WriteFile(JoinPath(s.Directory, "assignments.tsv"), assignments.str());
             WriteFile(JoinPath(s.Directory, "target-members.tsv"), members.str());
-            Report(out.str());
+            double pchBytes = 0;
+            for (double bytes : s.Prediction.PchBytes) { pchBytes += bytes; }
+            std::ostringstream human;
+            human << (s.Corrected ? "Corrected" : "Initial") << " plan — prediction\n"
+                  << Format("  PCHs: %zu (%d bases + %zu deltas); predicted disk %.3f / %.3f GB\n",
+                      s.Layout.Pchs.size(), s.Layout.Bases, s.Layout.Pchs.size() - s.Layout.Bases, pchBytes / 1e9, s.Data.Resources.Disk / 1e9)
+                  << Format("  Coverage: %zu/%zu owner targets (%.1f%%), %zu/%zu C++ files (%.1f%%)\n",
+                      assignedTargets, s.Data.Targets.size(), 100.0 * assignedTargets / std::max(size_t(1), s.Data.Targets.size()),
+                      assignedFiles, s.Data.Files.size(), 100.0 * assignedFiles / std::max(size_t(1), s.Data.Files.size()))
+                  << Format("  Covered baseline compile work: %.1f%% (sum of action times, not wall time)\n", 100 * coveredWork / std::max(1e-9, allWork))
+                  << "  Predicted cold: " << Seconds(s.Prediction.Cold) << "; incremental: " << Seconds(s.Prediction.Incremental) << '\n'
+                  << "  Objective: " << Seconds(s.Prediction.Objective)
+                  << Format(" (%.1f%% cold + %.1f%% incremental)\n", 100 * s.Data.Q, 100 * (1 - s.Data.Q))
+                  << Format("  Build resource model: %d workers, %.2f GB RAM\n", s.Data.Resources.Workers, s.Data.Resources.Ram / 1e9)
+                  << "  Target decisions:";
+            for (const auto& [reason, count] : reasons) { human << ' ' << reason << '=' << count; }
+            human << "\n  Owner targets combine inherited helper compilations; their count differs from GN manifest targets.\n"
+                  << "  Disk budget covers resident PCHs, not the whole build directory. GB = 1,000,000,000 bytes.\n"
+                  << "  Predictions model the sampled history; a full-build speedup has not been measured.\n";
+            human << (s.Corrected ? "  Calibrated where identifiable; other parameters retain priors (see calibration.tsv).\n" :
+                "  Initial PCH size, RSS and load costs are priors; measurements follow.\n");
+            Diagnostic([&] {
+                WriteFile(JoinPath(s.Directory, "summary.txt"), human.str());
+                std::ostringstream json;
+                json << std::setprecision(17) << "{\"schema\":1,\"kind\":\"prediction\",\"phase\":" << JsonText(PhaseName(s))
+                     << ",\"nonce\":" << JsonText(s.Nonce) << ",\"source_tree\":" << JsonText(s.Root)
+                     << ",\"tree_identity\":" << JsonText(s.Tree) << ",\"tool_identity\":" << JsonText(s.Tool)
+                     << ",\"cold_seconds\":" << s.Prediction.Cold << ",\"incremental_seconds\":" << s.Prediction.Incremental
+                     << ",\"objective_seconds\":" << s.Prediction.Objective << ",\"q\":" << s.Data.Q
+                     << ",\"pchs\":" << s.Layout.Pchs.size() << ",\"bases\":" << s.Layout.Bases
+                     << ",\"assigned_targets\":" << assignedTargets << ",\"targets\":" << s.Data.Targets.size()
+                     << ",\"assigned_cpp_files\":" << assignedFiles << ",\"cpp_files\":" << s.Data.Files.size()
+                     << ",\"predicted_pch_bytes\":" << pchBytes << ",\"pch_budget_bytes\":" << s.Data.Resources.Disk
+                     << ",\"sample_percent\":" << s.Sample << ",\"measured_speedup\":null}\n";
+                WriteFile(JoinPath(s.Directory, "summary.json"), json.str());
+            });
+            Report(human.str());
+            Detail(out.str());
+            PublishReports(s);
         }
 
         TSnapshot LoadPlan(const std::string& path) {
@@ -2109,17 +2286,35 @@ namespace NPchUpdate::NTwoStep {
                 if (saved && saved->Key == key) {
                     Log("selection: reusing saved layout from " + path);
                     WriteFileIfChanged(report, saved->DiskReport);
+                    std::string diagnosticKey;
+                    TryReadFile(JoinPath(output, "selection-diagnostics.key"), &diagnosticKey);
+                    if (diagnosticKey != key) {
+                        Log("selection reasons unavailable in this checkpoint; keeping the saved layout");
+                        Diagnostic([&] {
+                            for (const char* name : {"selection-targets.tsv", "selection-choices.tsv", "selection-widths.tsv", "selection-candidates.tsv"}) {
+                                WriteFile(JoinPath(output, name), "# unavailable for this checkpoint\n");
+                            }
+                        });
+                    }
                     return std::move(saved->Layout);
                 }
                 if (saved) { Log("selection inputs changed; recomputing layout"); }
             }
             std::vector<TDiskAlternative> alternatives;
-            auto layout = compute ? compute() : Select(s.Data, calibration, frozen, &alternatives, analysisJobs);
+            TSelectionDiagnostics diagnostics;
+            auto layout = compute ? compute() : Select(s.Data, calibration, frozen, &alternatives, analysisJobs, &diagnostics);
             TSelectionCheckpoint saved{key, layout, DiskBudgetReport(s.Data, alternatives, frozen != nullptr)};
             // Publish before compatibility/graph emission, either of which can
             // be interrupted long after the expensive selector has finished.
             WriteFile(path, Encode(saved));
             WriteFileIfChanged(report, saved.DiskReport);
+            Diagnostic([&] {
+                WriteFile(JoinPath(output, "selection-targets.tsv"), diagnostics.Targets);
+                WriteFile(JoinPath(output, "selection-choices.tsv"), diagnostics.Choices);
+                WriteFile(JoinPath(output, "selection-widths.tsv"), diagnostics.Widths);
+                WriteFile(JoinPath(output, "selection-candidates.tsv"), diagnostics.Candidates);
+                WriteFile(JoinPath(output, "selection-diagnostics.key"), key);
+            });
             return layout;
         }
 
@@ -2147,7 +2342,7 @@ namespace NPchUpdate::NTwoStep {
             ValidateIdentity(s);
             Summary(s);
             WriteFile(JoinPath(output, "snapshot.bin"), Encode(s));
-            Report("next: " + ShellJoin({SelfExe(), "--baseline", s.Baseline, "--correct"}));
+            Detail("prediction snapshot: " + output);
             return 0;
         }
 
@@ -2192,8 +2387,13 @@ namespace NPchUpdate::NTwoStep {
                     }
                 } catch (const TError&) { complete = false; }
             }
-            if (complete) { return 0; }
-            Log("starting the entire MEASURE phase from scratch; keeping the selected plan");
+            if (complete) {
+                Log(PhaseName(s) + " measurement: reusing completed, validated observations (" + Seconds((run.End - run.Start) / 1e9) + ")");
+                return 0;
+            }
+            Log(PhaseName(s) + " measurement: " + (Exists(recordPath) ?
+                "restarting the whole phase: previous attempt incomplete or outputs/telemetry changed; keeping the selected plan" :
+                "starting the first attempt; compiler actions run uncached"));
             run.Nonce = s.Nonce;
             run.Token = HashHex(s.Nonce + std::to_string(Now()) + std::to_string(getpid()));
             run.Snapshot = snapshot;
@@ -2214,11 +2414,15 @@ namespace NPchUpdate::NTwoStep {
             TRunOptions options;
             options.CaptureStdout = options.CaptureStderr = false;
             options.Env = {"PCH_UPDATE_RUN=" + run.Token};
+            options.OutputLabel = PhaseName(s) + "-measurement";
             run.Status = Run({s.Ninja, "-C", JoinPath(s.Directory, "build"), "-f", "measured.ninja", "-j",
                               std::to_string(s.Data.Resources.Workers), "_pch_verify"}, options).ExitCode;
             run.End = Now();
             WriteFile(recordPath, Encode(run));
             ValidateIdentity(s);
+            Report("  " + PhaseName(s) + " measurement " + (run.Status ? "failed" : "completed") + ": " +
+                   Seconds((run.End - run.Start) / 1e9) + " wall time (sample plus prerequisites)");
+            if (run.Status) { Log("retry the same command to repeat this entire measurement phase; the selected plan is retained"); }
             return run.Status;
         }
 
@@ -2304,6 +2508,104 @@ namespace NPchUpdate::NTwoStep {
             report = errors.str();
             return result;
         }
+
+        void MeasurementSummary(const TSnapshot& s, const std::vector<TObservation>& observations,
+                                const std::string& targetErrors, const std::string& actionErrors) {
+            Diagnostic([&] {
+                const auto run = Decode<TRunRecord>(ReadFile(JoinPath(s.Directory, "run.bin")));
+                size_t actions = 0, targets = 0, files = 0;
+                double cpu = 0, work = 0, predicted = 0, pchBytes = 0, maxRss = 0, error = 0, targetWork = 0;
+                for (size_t i = 0; i < observations.size(); ++i) {
+                    const auto& o = observations[i];
+                    if (o.Time <= 0) { continue; }
+                    ++actions;
+                    work += o.Time; cpu += o.Cpu; predicted += s.Prediction.Actions[i].Time;
+                    maxRss = std::max(maxRss, o.Memory);
+                    if (i >= s.Data.Actions.size()) { pchBytes += o.Bytes; }
+                }
+                for (const auto& target : s.Data.Targets) {
+                    bool complete = true;
+                    double actual = 0, estimate = 0;
+                    for (int f : target.Files) {
+                        const int a = s.Data.Files[f].Action;
+                        complete &= observations[a].Time > 0;
+                        actual += observations[a].Time;
+                        estimate += s.Prediction.Actions[a].Time;
+                    }
+                    if (!complete) { continue; }
+                    ++targets; files += target.Files.size();
+                    error += std::abs(estimate - actual); targetWork += actual;
+                }
+                const double wall = (run.End - run.Start) / 1e9;
+                const std::string wape = targetWork > 0 ? Format("%.1f%%", 100 * error / targetWork) : "unavailable";
+                std::ostringstream human;
+                human << (s.Corrected ? "Corrected" : "Initial") << " sample — validated measurements\n"
+                      << "  Wall (sample + prerequisites): " << Seconds(wall) << '\n'
+                      << Format("  Observed calibration actions: %zu; complete targets: %zu; C++ files: %zu\n", actions, targets, files)
+                      << "  Calibration action work: " << Seconds(work) << " measured / " << Seconds(predicted) << " predicted\n"
+                      << "  Calibration CPU sum: " << Seconds(cpu) << "; target compile-work WAPE: " << wape << '\n'
+                      << Format("  PCH artifacts: %.3f / %.3f GB; largest observed action RSS: %.2f GB\n", pchBytes / 1e9,
+                          s.Data.Resources.Disk / 1e9, maxRss / 1e9)
+                      << "  Work/CPU sums are not build wall time; largest action RSS is not peak total RAM.\n";
+                if (s.Sample < 100) { human << "  Full cold-build time remains a prediction. Initial/corrected samples differ.\n"; }
+                WriteFile(JoinPath(s.Directory, "measurement.txt"), human.str());
+                auto normalizedTargets = targetErrors, normalizedActions = actionErrors;
+                Replace(normalizedTargets, "# initial_target_WAPE", "# target_WAPE");
+                Replace(normalizedActions, "# initial_action_WAPE", "# action_WAPE");
+                WriteFile(JoinPath(s.Directory, "target-errors.tsv"), normalizedTargets);
+                WriteFile(JoinPath(s.Directory, "action-errors.tsv"), normalizedActions);
+                std::ostringstream values;
+                values << std::setprecision(17) << "wall_seconds\t" << wall << "\nactions\t" << actions
+                       << "\ncomplete_targets\t" << targets << "\ncpp_files\t" << files << "\naction_work_seconds\t" << work
+                       << "\npredicted_action_work_seconds\t" << predicted << "\ncpu_seconds\t" << cpu
+                       << "\npch_bytes\t" << pchBytes << "\nmax_action_rss_bytes\t" << maxRss << "\ntarget_WAPE\t"
+                       << (targetWork > 0 ? Format("%.17g", error / targetWork) : "unavailable") << '\n';
+                WriteFile(JoinPath(s.Directory, "measurement.tsv"), values.str());
+                std::ostringstream json;
+                json << std::setprecision(17) << "{\"schema\":1,\"phase\":" << JsonText(PhaseName(s))
+                     << ",\"kind\":\"validated-sample\",\"sample_percent\":" << s.Sample
+                     << ",\"wall_seconds\":" << wall << ",\"actions\":" << actions << ",\"complete_targets\":" << targets
+                     << ",\"cpp_files\":" << files << ",\"action_work_seconds\":" << work << ",\"cpu_seconds\":" << cpu
+                     << ",\"pch_bytes\":" << pchBytes << ",\"max_action_rss_bytes\":" << maxRss
+                     << ",\"target_wape\":" << (targetWork > 0 ? Format("%.17g", error / targetWork) : "null") << "}\n";
+                WriteFile(JoinPath(s.Directory, "measurement.json"), json.str());
+                Report(human.str());
+                PublishReports(s);
+            });
+        }
+
+        void CalibrationSummary(const TSnapshot& s, const TCalibration& calibration) {
+            Diagnostic([&] {
+                size_t identified = 0, combined = 0, priors = 0, training = 0, held = 0;
+                double error = 0;
+                for (auto line : Split(calibration.Report, '\n')) {
+                    const auto row = Split(line, '\t');
+                    if (row.size() < 5 || row[0] == "class" || StartsWith(row[0], "#")) { continue; }
+                    identified += row[1] == "identified"; combined += row[1] == "combined-only"; priors += row[1] == "prior-only";
+                    training += std::stoull(std::string(row[2]));
+                    const auto n = std::stoull(std::string(row[3]));
+                    held += n;
+                    if (n && row[4] != "unavailable") { error += n * std::stod(std::string(row[4])); }
+                }
+                const auto text = Format("Calibration: %zu compiler classes identified, %zu combined-only, %zu prior-only\n"
+                    "  Training targets: %zu; holdout targets: %zu; holdout target-work MAE: %s\n"
+                    "  Combined-only fits net savings; prior-only cannot identify consumer costs. Details: calibration.tsv\n",
+                    identified, combined, priors, training, held, held ? Seconds(error / held).c_str() : "unavailable");
+                WriteFile(JoinPath(s.Directory, "calibration.txt"), text);
+                std::ostringstream parameters;
+                parameters << "class\tidentified\tbaseline_scale\tsaved_scale\tload_scale\tresidual_seconds\tbase_build_scale\tdelta_build_scale"
+                           << "\tsize_scale\tpch_memory_scale\tconsumer_memory_scale\n" << std::setprecision(17);
+                for (size_t cls = 0; cls < calibration.Classes.size(); ++cls) {
+                    const auto& c = calibration.Classes[cls];
+                    parameters << cls << '\t' << c.Identified << '\t' << c.Baseline << '\t' << c.Saved << '\t' << c.Load << '\t'
+                               << c.Residual << '\t' << c.BaseBuild << '\t' << c.DeltaBuild << '\t' << c.Size << '\t'
+                               << c.Memory << '\t' << c.ConsumerMemory << '\n';
+                }
+                WriteFile(JoinPath(s.Directory, "calibration-parameters.tsv"), parameters.str());
+                Report(text);
+            });
+        }
+
         int CorrectPlan(TSnapshot& s, const std::string& plan, const std::string& output, const std::string& workDir,
                         size_t analysisJobs = 1) {
             if (s.Corrected) { Fail("correction is one step; start a new predict cycle to change the base"); }
@@ -2311,6 +2613,7 @@ namespace NPchUpdate::NTwoStep {
             ValidateIdentity(s);
             std::string errors, actionErrors;
             auto observations = ReadObservations(s, errors, actionErrors);
+            MeasurementSummary(s, observations, errors, actionErrors);
             auto calibration = Calibrate(s.Data, s.Layout, s.Prediction, observations);
             if (!Exists(output)) { NewDirectory(output, s.Root, s.Baseline); }
             auto layout = SelectCheckpoint(s, output, calibration, &s.Layout, {}, analysisJobs);
@@ -2326,9 +2629,38 @@ namespace NPchUpdate::NTwoStep {
             WriteFile(JoinPath(output, "initial-errors.tsv"), errors);
             WriteFile(JoinPath(output, "initial-action-errors.tsv"), actionErrors);
             WriteFile(JoinPath(output, "calibration.tsv"), calibration.Report);
+            CalibrationSummary(s, calibration);
             Summary(s);
             WriteFile(JoinPath(output, "snapshot.bin"), Encode(s));
-            Report("corrected prediction: " + output);
+            Detail("corrected prediction snapshot: " + output);
+            Diagnostic([&] {
+                const auto initial = LoadPlan(plan);
+                size_t gained = 0, lost = 0, changed = 0;
+                std::ostringstream changes;
+                changes << "target\tinitial_leaf\tcorrected_leaf\tchange\n";
+                auto samePch = [&](auto&& self, int a, int b) -> bool {
+                    if (a < 0 || b < 0) { return a == b; }
+                    const auto& x = initial.Layout.Pchs[a];
+                    const auto& y = s.Layout.Pchs[b];
+                    return x.Class == y.Class && x.Roots == y.Roots && x.Units == y.Units && self(self, x.Parent, y.Parent);
+                };
+                for (size_t t = 0; t < s.Data.Targets.size(); ++t) {
+                    const int a = initial.Layout.Assignment[t], b = s.Layout.Assignment[t];
+                    gained += a < 0 && b >= 0; lost += a >= 0 && b < 0;
+                    const bool different = !samePch(samePch, a, b);
+                    changed += a >= 0 && b >= 0 && different;
+                    changes << s.Data.Targets[t].Label << '\t' << a << '\t' << b << '\t'
+                            << (a < 0 && b >= 0 ? "gained" : a >= 0 && b < 0 ? "lost" : different ? "changed-pch" : "unchanged") << '\n';
+                }
+                WriteFile(JoinPath(output, "assignment-changes.tsv"), changes.str());
+                Report(Format("  Initial → corrected: %zu → %zu PCHs; targets gained PCH: %zu, lost PCH: %zu, changed PCH contents: %zu",
+                    initial.Layout.Pchs.size(), s.Layout.Pchs.size(), gained, lost, changed));
+                if (initial.Prediction.Objective > 0) {
+                    Report(Format("  Objective forecast change: %+.2f%%; model and layout both changed — not a measured speedup.",
+                        100 * (s.Prediction.Objective / initial.Prediction.Objective - 1)));
+                }
+                PublishReports(s);
+            });
             return 0;
         }
 
@@ -3191,6 +3523,7 @@ namespace NPchUpdate::NTwoStep {
             TRunOptions run;
             run.Cwd = root;
             run.CaptureStdout = run.CaptureStderr = false;
+            run.OutputLabel = "gn-build";
             return run;
         }
 
@@ -3309,7 +3642,7 @@ namespace NPchUpdate::NTwoStep {
                 RunChecked(command, LiveRun(state.Root));
             }
             const auto resources = WorkflowResources(state);
-            Report(Format("baseline resources: -j %d (worker ceiling %d), RAM %.3f GB, action reservation %.3f GB",
+            Report(Format("  Baseline resources: -j %d (worker ceiling %d), RAM %.2f GB, estimated action reservation %.2f GB",
                           resources.BaselineWorkers, resources.Workers, resources.Ram / 1e9, resources.ActionMemory / 1e9));
             std::vector<std::string> command = {ninja, "-C", baseline, "-j", std::to_string(resources.BaselineWorkers)};
             const auto targets = WorkflowTargets(state);
@@ -3393,7 +3726,8 @@ namespace NPchUpdate::NTwoStep {
             const auto garbage = state + ".cleanup";
             if (Exists(state)) { std::filesystem::rename(state, garbage); }
             RemoveTree(garbage);
-            Report("PCH workflow complete; temporary state removed");
+            Report("PCH workflow complete; temporary build state removed.");
+            if (!OutputDirectory().empty()) { Report("Report and logs: " + OutputDirectory()); }
         }
 
         void RequireWorkflowIdle(const std::string& cycle) {
@@ -3653,6 +3987,7 @@ namespace NPchUpdate::NTwoStep {
             if (!s.Corrected || !Verified(s)) { Fail("run --correct before --apply"); }
             std::string errors, actionErrors;
             const auto observations = ReadObservations(s, errors, actionErrors);
+            MeasurementSummary(s, observations, errors, actionErrors);
             double bytes = 0;
             for (size_t g = 0; g < s.Layout.Pchs.size(); ++g) { bytes += observations.at(s.Data.Actions.size() + g).Bytes; }
             if (bytes > s.Data.Resources.Disk) { Fail("measured PCH size exceeds the disk budget"); }
@@ -3691,6 +4026,18 @@ namespace NPchUpdate::NTwoStep {
                 WriteFile(JoinPath(cycle, "applied.tree"), TreeIdentity(s.Root) + "\n");
                 FinishInstallation(s.Root, cycle);
                 Report("applied and built GN global PCH groups: " + current);
+                Diagnostic([&] {
+                    PublishReports(s);
+                    const auto text = Format("Installed %zu PCHs; measured PCH artifacts %.3f / %.3f GB.\n",
+                        s.Layout.Pchs.size(), bytes / 1e9, s.Data.Resources.Disk / 1e9) +
+                        "Full GN build and linking: passed. Tests were built, not executed.\n"
+                        "A speedup over the baseline or previous PCH layout has not been measured.\nInstalled groups: " + current + "\n";
+                    Report(text);
+                    WriteFile(JoinPath(ReportRoot(s), "summary.txt"), ReadFile(JoinPath(ReportRoot(s), "summary.txt")) + "\n" + text);
+                    WriteFile(JoinPath(ReportRoot(s), "final-result.json"), "{\"schema\":1,\"status\":\"applied-and-built\",\"pchs\":" +
+                        std::to_string(s.Layout.Pchs.size()) + ",\"measured_pch_bytes\":" + Format("%.17g", bytes) +
+                        ",\"tests_executed\":false,\"measured_speedup\":null,\"installed_groups\":" + JsonText(current) + "}\n");
+                });
                 return 0;
             } catch (...) {
                 RecoverApply(s.Root, cycle);
@@ -3824,6 +4171,30 @@ namespace NPchUpdate::NTwoStep {
             auto decoded = Decode<TWorkflow>(Encode(request));
             check(decoded.Root == request.Root && decoded.Options == request.Options, "persist parameters and target lists");
             auto dir = MakeTempDir(getenv("TMPDIR") ? getenv("TMPDIR") : "/place/vartmp/opencode", "pch-resume-");
+            {
+                const auto reports = JoinPath(dir, "output-test");
+                ConfigureOutput(reports, false);
+                TRunOptions run;
+                run.OutputLabel = "stream-test";
+                const auto failed = Run({"/bin/sh", "-c", "printf 'ordinary output\\nwarning: fixture\\n' ; printf 'FAILED: fixture\\nerror: fixture' >&2; exit 7"}, run);
+                check(failed.ExitCode == 7 && failed.Stderr.find("error: fixture") != std::string::npos,
+                      "logged child preserves exit status and unterminated stderr diagnostics");
+                const auto silent = Run({"/bin/sh", "-c", "printf 'ordinary failure without a severity prefix'; exit 9"}, run);
+                check(silent.ExitCode == 9 && silent.Stderr.find("ordinary failure") != std::string::npos,
+                      "nonstandard failures retain a diagnostic tail");
+                size_t childLogs = 0;
+                for (const auto& entry : std::filesystem::directory_iterator(JoinPath(reports, "logs"))) {
+                    if (entry.path().filename() == "run.log") { continue; }
+                    ++childLogs;
+                    check(!ReadFile(entry.path().string()).empty(), "child log preserves full output");
+                }
+                check(childLogs == 2, "child logs are distinct within one attempt");
+                CloseOutput();
+                ConfigureOutput(reports, true);
+                check(Run({"/bin/sh", "-c", "printf 'verbose output\\n'"}, run).ExitCode == 0,
+                      "verbose changes presentation only");
+                CloseOutput();
+            }
             if (const char* compiler = getenv("PCH_UPDATE_TEST_CXX"); compiler && *compiler) {
                 LinkPreflightSelfTest(dir, Program(compiler, {}, false));
             }
@@ -4025,7 +4396,7 @@ source_set("pch_group_0_compile") {
                     c.Nonce = s.Nonce;
                     if (i == 1) {
                         c.Command = "if test -f released; then printf resumed > output1; else "
-                                    "printf ready > ready.pipe; cat release.pipe > output1; touch released; fi";
+                                     "printf ready > ready.pipe; cat release.pipe > output1; touch released; printf 'child survived controller\\n'; fi";
                     }
                     auto bytes = Encode(c);
                     WriteFile(JoinPath(s.Directory, "actions/" + std::to_string(i) + ".bin"), bytes);
@@ -4046,7 +4417,10 @@ source_set("pch_group_0_compile") {
                     // Ninja in it so the same SIGINT reaches both processes.
                     if (interrupt == SIGINT && setpgid(0, 0) != 0) { _exit(98); }
                     signal(SIGINT, SIG_DFL);
-                    try { _exit(Verify(s)); } catch (...) { _exit(99); }
+                    try {
+                        ConfigureOutput(JoinPath(s.Directory, "interruption-report"), false);
+                        _exit(Verify(s));
+                    } catch (...) { _exit(99); }
                 }
                 int readyFd = open(readyPipe.c_str(), O_RDONLY);
                 char message[5];
@@ -4069,6 +4443,14 @@ source_set("pch_group_0_compile") {
                 }
                 check(flock(lockFd, LOCK_EX) == 0, "wait for Ninja and measurement children to exit");
                 close(lockFd);
+                if (interrupt == SIGKILL) {
+                    bool retained = false;
+                    for (const auto& entry : std::filesystem::directory_iterator(JoinPath(s.Directory, "interruption-report/logs"))) {
+                        if (entry.path().filename() == "run.log") { continue; }
+                        retained |= ReadFile(entry.path().string()).find("child survived controller") != std::string::npos;
+                    }
+                    check(retained, "orphaned Ninja writes its log after controller SIGKILL without SIGPIPE");
+                }
                 check(!BuildRunning(JoinPath(s.Directory, "build")), "interrupted measurement leaves no running Ninja");
                 WriteFile(JoinPath(s.Directory, "build/released"), "ready\n");
                 check(Verify(s) == 0 && first != ReadFile(JoinPath(s.Directory, "observations/0.bin")) &&
@@ -4155,10 +4537,12 @@ source_set("pch_group_0_compile") {
             return result;
         }
         std::string stage, baseline;
+        bool verbose = false;
         std::map<std::string, std::vector<std::string>> supplied;
         const std::set<std::string> allowed = {"--disk", "--mode", "--q", "--sample", "--workers", "--ram-gb",
             "--bandwidth-gbps", "--action-memory-gb", "--analysis-jobs", "--main-ref", "--target", "--gn", "--ninja"};
         for (size_t i = 0; i < args.size(); ++i) {
+            if (args[i] == "--verbose") { verbose = true; continue; }
             if (args[i] == "--predict" || args[i] == "--correct" || args[i] == "--apply") {
                 if (!stage.empty()) { Fail("choose one of --predict, --correct, --apply, or none for the full cycle"); }
                 stage = args[i];
@@ -4206,6 +4590,21 @@ source_set("pch_group_0_compile") {
         }
         if (!workflow.Root.empty() && workflow.Root != root) { Fail("saved workflow belongs to " + workflow.Root); }
         workflow.Root = root;
+        struct TOutputScope { ~TOutputScope() { CloseOutput(); } } outputScope;
+        auto configureReport = [&](bool fresh) { Diagnostic([&] {
+            const auto reportPointer = JoinPath(state, "report.path");
+            auto directory = ReadPointer(reportPointer);
+            const auto reports = JoinPath(baseline, "pch-report");
+            if (fresh || directory.empty() || !Under(directory, reports)) {
+                directory = JoinPath(reports, "run-" + std::to_string(Now()) + "-" + std::to_string(getpid()));
+            }
+            ConfigureOutput(directory, verbose);
+            WriteFile(reportPointer, directory + "\n");
+            WriteFile(JoinPath(reports, "latest.txt"), directory + "\n");
+            Detail("command: " + ShellJoin(args));
+            Report("PCH update: " + (stage.empty() ? std::string("full workflow") : stage.substr(2)) + "\nReport: " + directory);
+        }); };
+        configureReport(false);
         if (!workflow.Cycle.empty()) {
             if (!Under(workflow.Cycle, state) || workflow.Cycle == state) { Fail("workflow directory is outside its scratch state"); }
             RequireWorkflowIdle(workflow.Cycle);
@@ -4242,6 +4641,7 @@ source_set("pch_group_0_compile") {
             workflow.Cycle = JoinPath(state, "current");
         }
         if (changed) {
+            configureReport(true);
             bool extraction = false;
             for (const char* key : {"--main-ref", "--target", "--gn", "--ninja"}) {
                 auto a = before.find(key);
@@ -4259,30 +4659,52 @@ source_set("pch_group_0_compile") {
             catch (const TError& error) {
                 if (stage == "--correct" || stage == "--apply") { Fail(std::string(error.what()) + "; run --predict first"); }
                 Log("prediction inputs changed: " + std::string(error.what()));
+                configureReport(true);
                 RestartWorkflow(state, {workflow, false, false});
             }
         }
         if (!ready) {
             if (stage == "--correct" || stage == "--apply") { Fail("run --predict first"); }
-            PrepareBaseline(workflow, baseline);
+            {
+                TPhase phase("[1/7] Prepare baseline");
+                PrepareBaseline(workflow, baseline);
+            }
             std::vector<std::string> command = {"predict", "--baseline", baseline, "--output", initial};
             for (const auto& [key, values] : workflow.Options) {
                 for (const auto& value : values) { command.insert(command.end(), {key, value}); }
             }
+            TPhase phase("[2/7] Analyze, select and check initial PCHs");
             int status = StepCommand(command, Exists(JoinPath(initial, "settings.changed")));
+            phase.Status(status);
             if (status) { return status; }
+        } else {
+            Log("[1–2/7] Reusing validated initial plan; baseline preparation and selection skipped");
         }
-        if (stage == "--predict") { Report("prediction ready: " + initial); return 0; }
+        if (stage == "--predict") {
+            Diagnostic([&] { PublishReports(LoadPlan(initial)); });
+            Report("Prediction ready. Next: " + ShellJoin({SelfExe(), "--baseline", baseline, "--correct"}));
+            return 0;
+        }
         if (stage != "--apply") {
             auto s = LoadPlan(initial);
             int status = 0;
             if (!Exists(JoinPath(corrected, "snapshot.bin"))) {
-                status = Verify(s);
-                if (status) { return status; }
-                status = CorrectPlan(s, initial, corrected, CacheDirectory(JoinPath(state, "cache")),
-                                     WorkflowResources(workflow).AnalysisJobs);
-                if (status) { return status; }
+                {
+                    TPhase phase("[3/7] Measure initial plan");
+                    status = Verify(s);
+                    phase.Status(status);
+                    if (status) { return status; }
+                }
+                {
+                    TPhase phase("[4/7] Calibrate, select and check corrected PCHs");
+                    status = CorrectPlan(s, initial, corrected, CacheDirectory(JoinPath(state, "cache")),
+                                         WorkflowResources(workflow).AnalysisJobs);
+                    phase.Status(status);
+                    if (status) { return status; }
+                }
                 s = LoadPlan(initial);
+            } else {
+                Log("[3–4/7] Reusing completed correction");
             }
             auto c = LoadPlan(corrected);
             if (c.Nonce != HashHex(s.Nonce + "corrected")) { Fail("corrected plan belongs to another cycle"); }
@@ -4291,14 +4713,34 @@ source_set("pch_group_0_compile") {
             // Compatibility is complete for both plans. No later stage needs
             // these duplicate PCHs or per-translation-unit dependency records.
             RemoveTree(JoinPath(state, "cache/compatibility-v1"));
-            status = Verify(c);
-            if (status) { return status; }
-            if (stage == "--correct") { Report("correction verified: " + corrected); return 0; }
+            {
+                TPhase phase("[5/7] Measure corrected plan");
+                status = Verify(c);
+                phase.Status(status);
+                if (status) { return status; }
+            }
+            if (stage == "--correct") {
+                Diagnostic([&] {
+                    std::string errors, actions;
+                    const auto observations = ReadObservations(c, errors, actions);
+                    MeasurementSummary(c, observations, errors, actions);
+                });
+                Report("Correction measured. Next: " + ShellJoin({SelfExe(), "--baseline", baseline, "--apply"}));
+                return 0;
+            }
         }
         if (!Exists(JoinPath(corrected, "snapshot.bin"))) { Fail("run --correct first"); }
         auto s = LoadPlan(corrected);
-        const int status = ApplyGroups(s, workflow.Cycle);
-        if (!status) { DiscardWorkflow(state); }
+        int status;
+        {
+            TPhase phase("[6/7] Install PCHs and validate with a full GN build");
+            status = ApplyGroups(s, workflow.Cycle);
+            phase.Status(status);
+        }
+        if (!status) {
+            TPhase phase("[7/7] Final report and cleanup");
+            DiscardWorkflow(state);
+        }
         return status;
     }
 } // namespace NPchUpdate::NTwoStep

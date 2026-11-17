@@ -44,6 +44,51 @@ repeat the same invocation to continue. There is exactly one correction.
 
 Only one stage flag may be supplied. Stage prerequisites are explicit: a standalone
 `--correct` needs a completed prediction; `--apply` needs a verified correction.
+
+### Console and persistent diagnostics
+
+The console names the seven workflow phases, reports their elapsed wall time,
+and distinguishes new, reused and restarted measurements. A first measurement
+is not a restart; an incomplete measurement is still repeated in full.
+`--verbose` shows selection widths and full child output. It is presentation-only:
+it is not stored among model options and does not invalidate checkpoints.
+Ordinary child output goes to persistent logs; warnings and failures remain visible.
+Progress is throttled on both terminals and redirected output. Ninja progress
+counts executed commands, whereas requested cached results count all inputs.
+
+`BASELINE/pch-report/latest.txt` points to the report directory for the latest run.
+Retries append logs to the same directory. Successful cleanup removes scratch
+builds, not reports. Earlier run reports are retained. The directory contains:
+
+* `summary.txt`, `summary.json`: latest prediction, explicitly not measured speedup.
+* `initial/`, `corrected/`: separate prediction, sample measurements, target/action
+  errors, assignments, compatibility, sampling and disk-budget tables.
+* `selection-targets.tsv`: reason per target in the chosen pre-compatibility plan.
+  Reasons include calibration control, missing hook, mixed flags, no candidate in
+  the bounded shortlist, no estimated target benefit, disk eviction, or retaining
+  the seed because no candidate improved the global objective.
+* `selection-choices.tsv`, `selection-widths.tsv`: considered shortlist costs and
+  grouping alternatives. Candidate IDs are local to each width before pruning.
+  These are weighted work estimates, not CPU or build wall times.
+  `selection-candidates.tsv` maps candidate IDs to root headers and parent chains.
+* `compatibility-targets.tsv`: assignment mapping through fallback and final ID
+  compaction; rejected compiler probe logs are retained alongside the reports.
+* `corrected/assignment-changes.tsv`, `calibration.tsv`: initial/corrected assignment
+  changes, parameter identifiability, training/holdout coverage and error.
+  `calibration-parameters.tsv` contains the fitted/prior coefficients themselves.
+* `phases.tsv`, `logs/`: phase status/duration and complete child output per attempt.
+* `final-result.json`: successful installation and full GN build outcome. Building
+  test binaries does not execute tests. `README.txt` explains units and reasons.
+
+Measurement reports distinguish sample wall time, summed action/CPU time, actual
+PCH bytes, and largest individual action RSS (not aggregate peak RAM). Target WAPE
+is `sum(abs(predicted-actual))/sum(actual)` over complete observed targets; holdout
+MAE is the mean absolute error of target compile work. Initial and corrected plans
+can sample different targets, so their measured walls are not a speedup comparison.
+`q` weights predicted cold/incremental wall times. The disk budget is for resident
+PCH artifacts only. GB is decimal. Historical checkpoints without detailed selection
+reasons remain usable; missing reasons are reported as unavailable, never inferred.
+
 Paths and parameters are stored automatically; no `--output`, `--plan`,
 `--analysis` or `--export` arguments exist. Retries inherit settings while the run
 is unfinished. After successful application, all temporary state and settings are

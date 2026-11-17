@@ -229,6 +229,13 @@ shared_library("provider") { sources = [ "provider.cpp" ] }
         print("PASS:", phase, "retains allowed PCH and rejects denied at final link", flush=True)
 
     check_plan("initial")
+    initial_snapshot = (cycle / "initial/snapshot.bin").read_bytes()
+    initial_selection = (cycle / "initial/selection.bin").read_bytes()
+    report = Path((baseline / "pch-report/latest.txt").read_text().strip())
+    run(common + ["--predict", "--verbose"])
+    assert (cycle / "initial/snapshot.bin").read_bytes() == initial_snapshot
+    assert (cycle / "initial/selection.bin").read_bytes() == initial_selection
+    assert Path((baseline / "pch-report/latest.txt").read_text().strip()) == report
     run(common + ["--correct"])
     check_plan("corrected")
     run(common + ["--apply"])
@@ -238,6 +245,32 @@ shared_library("provider") { sources = [ "provider.cpp" ] }
     assert len(allowed) == 2 and all("-include-pch" in row["command"] for row in allowed), allowed
     assert len(denied) == 2 and all("-include-pch" not in row["command"] for row in denied), denied
     assert not (baseline / ".pch_update").exists(), "successful workflow left disposable state"
+    assert report.is_dir(), "successful cleanup removed the persistent report"
+    final = json.loads((report / "final-result.json").read_text())
+    assert final["status"] == "applied-and-built" and final["measured_pch_bytes"] > 0, final
+    assert final["measured_speedup"] is None and not final["tests_executed"], final
+    for phase in ("initial", "corrected"):
+        saved = report / phase
+        prediction = json.loads((saved / "summary.json").read_text())
+        measured = json.loads((saved / "measurement.json").read_text())
+        assert prediction["kind"] == "prediction" and prediction["measured_speedup"] is None
+        assert measured["kind"] == "validated-sample" and measured["actions"] > 0
+        assert measured["wall_seconds"] > 0 and measured["pch_bytes"] > 0
+        with (saved / "assignments.tsv").open() as rows:
+            assignments = {row["target"]: row for row in csv.DictReader(rows, delimiter="\t")}
+        assert assignments["//:denied"]["compatibility"] == "compatibility-rejected", assignments
+        assert assignments["//:allowed"]["selection_reason"] in ("selected", "retained-initial-plan"), assignments
+        for name in ("selection-targets.tsv", "selection-choices.tsv", "selection-widths.tsv", "selection-candidates.tsv", "compatibility-targets.tsv",
+                     "target-errors.tsv", "action-errors.tsv", "sampling.tsv", "disk-budget.tsv"):
+            assert (saved / name).is_file(), (phase, name)
+        assert "header.h" in (saved / "selection-candidates.tsv").read_text()
+    assert (report / "corrected/calibration.tsv").is_file()
+    assert (report / "corrected/calibration-parameters.tsv").is_file()
+    assert (report / "corrected/assignment-changes.tsv").is_file()
+    phases = (report / "phases.tsv").read_text()
+    assert all("[%d/7]" % n in phases for n in range(1, 8)), phases
+    assert len(list((report / "logs").glob("*.log"))) > 3
+    print("PASS: persistent reports, measured/predicted separation, target reasons and verbose/checkpoint invariance", flush=True)
     print("PASS: real GN TOC, extraction, selection, fallback, correction, PCH export and final executable links/runs", flush=True)
     log.close()
     shutil.rmtree(scratch)

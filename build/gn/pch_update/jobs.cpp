@@ -345,14 +345,15 @@ namespace NPchUpdate {
         TRunOptions options;
         options.CaptureStdout = false;
         options.CaptureStderr = false;
+        options.OutputLabel = what;
         std::vector<std::string> argv = {Ninja_, "-C", Dir_, "-j", std::to_string(Jobs_), "-k", "0"};
-        if (isatty(STDOUT_FILENO)) {
+        if (isatty(STDOUT_FILENO) || !OutputDirectory().empty()) {
             options.Env.push_back("NINJA_STATUS=[" + what + " %f/%t] ");
         } else {
             argv.push_back("--quiet");
         }
         argv.push_back("want");
-        Log(Format("%s: %zu jobs", what.c_str(), results.size()));
+        Log(Format("%s: %zu requested results; Ninja progress counts only stale jobs executed", what.c_str(), results.size()));
         TRunResult run = Run(argv, options);
         if (run.ExitCode != 0) {
             Fail(Format("%s: ninja of %s failed with %d", what.c_str(), Dir_.c_str(), run.ExitCode));

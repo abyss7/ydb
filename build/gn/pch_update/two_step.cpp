@@ -665,8 +665,9 @@ namespace NPchUpdate::NTwoStep {
     }
 
     TLayout Select(const TData& d, const TCalibration& c, const TLayout* frozen,
-                   std::vector<TDiskAlternative>* diskAlternatives, size_t analysisJobs) {
+                   std::vector<TDiskAlternative>* diskAlternatives, size_t analysisJobs, TSelectionDiagnostics* diagnostics) {
         if (diskAlternatives) { diskAlternatives->clear(); }
+        if (diagnostics) { *diagnostics = {}; }
         int selectedWidth = -1;
         ValidateTargets(d);
         std::map<int, std::vector<int>> closures;
@@ -707,6 +708,23 @@ namespace NPchUpdate::NTwoStep {
         struct TCandidate {
             TLayout Layout;
             std::vector<TDiskAlternative> Alternatives;
+            std::vector<std::string> Reasons;
+            std::vector<int> BeforeDisk;
+            std::string Choices;
+            std::string Pchs;
+        };
+        auto describePchs = [&](int width, const TLayout& layout) {
+            std::ostringstream out;
+            for (size_t g = 0; g < layout.Pchs.size(); ++g) {
+                const auto& p = layout.Pchs[g];
+                out << width << '\t' << g << '\t' << p.Class << '\t' << p.Parent << '\t' << p.Units.size() << '\t';
+                for (size_t r = 0; r < p.Roots.size(); ++r) {
+                    if (r) { out << ';'; }
+                    out << d.Units[p.Roots[r]].Include;
+                }
+                out << '\n';
+            }
+            return out.str();
         };
         std::vector<TCandidate> candidates(widths.size());
         ParallelFor(widths.size(), analysisJobs, [&](size_t i) {
@@ -717,6 +735,15 @@ namespace NPchUpdate::NTwoStep {
             auto& candidateClosures = analysisJobs > 1 ? localClosures : closures;
             auto& candidate = candidates[i].Layout;
             candidate = bases;
+            auto& observed = candidates[i];
+            std::ostringstream choicesReport;
+            choicesReport.precision(17);
+            if (diagnostics) {
+                for (const auto& target : d.Targets) {
+                    observed.Reasons.push_back(!target.PchEligible ? "no-global-pch-hook" :
+                        target.Class < 0 ? "mixed-compiler-classes" : "no-candidate");
+                }
+            }
             for (int cls = 0; cls < d.Classes; ++cls) {
                 int parent = -1;
                 for (int g = 0; g < bases.Bases; ++g) {
@@ -780,6 +807,7 @@ namespace NPchUpdate::NTwoStep {
                         return total;
                     };
                     double cost = targetCost(-1);
+                    const double withoutPch = cost;
                     // Nearby target partitions plus the base form a bounded
                     // assignment shortlist; never split a target at a boundary.
                     std::vector<int> choices;
@@ -792,14 +820,32 @@ namespace NPchUpdate::NTwoStep {
                     }
                     for (int g : choices) {
                         double value = targetCost(g);
+                        if (diagnostics) {
+                            choicesReport << width << '\t' << d.Targets[t].Label << '\t' << g << '\t'
+                                << withoutPch << '\t' << value << '\t' << (value < cost && (frozen || t % 10 != 0)) << '\n';
+                        }
                         if (value < cost && (frozen || t % 10 != 0)) {
                             cost = value;
                             candidate.Assignment[t] = int(g);
                         }
                     }
+                    if (diagnostics) {
+                        observed.Reasons[t] = !frozen && t % 10 == 0 ? "calibration-control" :
+                            candidate.Assignment[t] >= 0 ? "selected" : choices.empty() ? "no-candidate" : "no-estimated-benefit";
+                    }
                 }
             }
+            if (diagnostics) {
+                observed.BeforeDisk = candidate.Assignment;
+                observed.Choices = choicesReport.str();
+                observed.Pchs = describePchs(width, candidate);
+            }
             FitDisk(d, candidate, c, frozen != nullptr, width, diskAlternatives ? &candidates[i].Alternatives : nullptr);
+            if (diagnostics) {
+                for (size_t t = 0; t < d.Targets.size(); ++t) {
+                    if (observed.BeforeDisk[t] >= 0 && candidate.Assignment[t] < 0) { observed.Reasons[t] = "disk-budget"; }
+                }
+            }
         });
         // Reuse the full analysis budget for scenario scoring after grouping;
         // never multiply a width pool by nested scenario pools. Only one full
@@ -815,10 +861,16 @@ namespace NPchUpdate::NTwoStep {
             }
             auto prediction = Predict(d, candidate, c, analysisJobs);
             double value = prediction.Objective;
-            Log(Format("selection width=%d: %d bases, %zu PCHs, %.3f GB, objective %.3f s%s",
+            Detail(Format("selection width=%d: %d bases, %zu PCHs, %.3f GB, objective %.3f s%s",
                 width, candidate.Bases, candidate.Pchs.size(),
                 std::accumulate(prediction.PchBytes.begin(), prediction.PchBytes.end(), 0.0) / 1e9,
                 value, prediction.Feasible ? "" : " (infeasible)"));
+            if (diagnostics) {
+                diagnostics->Widths += Format("%d\t%d\t%zu\t%.17g\t%.17g\t%d\n", width, candidate.Bases, candidate.Pchs.size(),
+                    std::accumulate(prediction.PchBytes.begin(), prediction.PchBytes.end(), 0.0), value, int(prediction.Feasible));
+                diagnostics->Choices += candidates[i].Choices;
+                diagnostics->Candidates += candidates[i].Pchs;
+            }
             if (value < score) {
                 score = value;
                 selectedWidth = width;
@@ -830,6 +882,44 @@ namespace NPchUpdate::NTwoStep {
         }
         if (diskAlternatives) {
             for (auto& option : *diskAlternatives) { option.Selected = option.Width == selectedWidth; }
+        }
+        if (diagnostics) {
+            std::ostringstream targets;
+            targets << "# selected_width=" << selectedWidth << " (-1: retained seed layout)\n"
+                    << "target\treason\tbefore_disk_leaf\tselected_leaf\n";
+            for (size_t t = 0; t < d.Targets.size(); ++t) {
+                std::string reason;
+                int beforeDisk = -1;
+                if (selectedWidth >= 0) {
+                    const auto i = size_t(std::find(widths.begin(), widths.end(), selectedWidth) - widths.begin());
+                    reason = candidates[i].Reasons[t];
+                    beforeDisk = candidates[i].BeforeDisk[t];
+                } else {
+                    reason = !d.Targets[t].PchEligible ? "no-global-pch-hook" : d.Targets[t].Class < 0 ? "mixed-compiler-classes" :
+                        frozen ? "retained-initial-plan" : "no-layout-improvement";
+                }
+                targets << d.Targets[t].Label << '\t' << reason << '\t' << beforeDisk << '\t' << best.Assignment[t] << '\n';
+            }
+            diagnostics->Targets = targets.str();
+            diagnostics->Choices = "# Weighted action-time estimates, not CPU or build wall time. IDs are local to each width before disk pruning.\n"
+                "# improved_at_visit is an intermediate greedy decision, not final selection. Unlisted headers/partitions were not scored here.\n"
+                "width\ttarget\tcandidate_leaf\twithout_pch_work_seconds\twith_pch_work_seconds\timproved_at_visit\n" + diagnostics->Choices;
+            diagnostics->Widths = "# selected_width=" + std::to_string(selectedWidth) +
+                "\nwidth\tbases\tpchs\tpch_bytes\tobjective_seconds\tfeasible\n" + diagnostics->Widths;
+            if (selectedWidth < 0) { diagnostics->Candidates += describePchs(-1, best); }
+            diagnostics->Candidates = "# IDs are local to each width before disk pruning; width -1 describes a retained seed.\n"
+                "width\tcandidate_leaf\tclass\tparent\tclosure_units\troot_headers\n" + diagnostics->Candidates;
+        }
+        Log(selectedWidth >= 0 ? Format("selection: grouping width %d chosen; %zu PCHs before compatibility", selectedWidth, best.Pchs.size()) :
+            std::string("selection: seed layout retained; no candidate improved the global objective"));
+        if (diskAlternatives) {
+            for (const auto& option : *diskAlternatives) {
+                if (!option.Selected) { continue; }
+                Log(Format("disk alternative before compatibility: %.3f GB budget could restore %zu target assignments; "
+                    "estimated weighted work saving %.1f s (not build wall time); see disk-budget.tsv",
+                    option.RequiredBudget / 1e9, option.Targets.size(), option.SavedWork));
+                break;
+            }
         }
         return best;
     }
