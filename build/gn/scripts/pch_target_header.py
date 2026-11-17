@@ -1,6 +1,6 @@
 """The precompiled header of a gn target (pch_targets of
 //build/gn/pch/per_target/targets.gni) from the clang traces of a build with
-time_trace = true: the headers most of its C++ files parse themselves -- not
+time_trace = "json", "lz4" or "zstd": the headers most of its C++ files parse themselves -- not
 loaded from a PCH -- written as //build/gn/pch/per_target/<dir>/<name>.h.
 
 A header is taken when at least --share of the target's files parse it and it
@@ -18,6 +18,8 @@ import json
 import os
 import re
 import sys
+
+from compile_time_traces import find_trace, open_trace
 
 _ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 _BUILD_RE = re.compile(r"^build (\S+\.o): \S*cxx ")
@@ -46,7 +48,7 @@ def spelling(path, build_dir):
 
 def headers(trace, build_dir):
     """{header spelling: (parent spelling or None, start)} of one file."""
-    with open(trace, encoding="utf-8") as f:
+    with open_trace(trace) as f:
         events = json.load(f).get("traceEvents", [])
     src = sorted(((e["ts"], 0 if e["ph"] == "e" else 1, e.get("args", {}).get("detail", ""))
                   for e in events if e.get("name") == "Source" and e.get("ph") in ("b", "e")),
@@ -77,8 +79,8 @@ def main():
     for label in args.labels:
         per_file = []
         for obj in objects(args.build_dir, label):
-            trace = os.path.join(args.build_dir, obj[:-len(".o")] + ".json")
-            if os.path.exists(trace):
+            trace = find_trace(os.path.join(args.build_dir, obj[:-len(".o")] + ".json"))
+            if trace:
                 per_file.append(headers(trace, args.build_dir))
         if not per_file:
             sys.exit("pch_target_header: no traces of %s" % label)

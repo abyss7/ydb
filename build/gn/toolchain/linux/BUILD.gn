@@ -31,9 +31,7 @@ template("clang_toolchain") {
     sysroot = "--sysroot=$_ya_cache/tools/v4/243881345"
 
     _abs_root = string_replace(string_replace(rebase_path("//.") + "/", "/./", "/"), "//", "/")
-    _abs_build = string_replace(string_replace(rebase_path(root_build_dir) + "/", "/./", "/"), "//", "/")
-    _rel_root = string_replace(rebase_path("//.", root_build_dir) + "/", "/./", "/")
-    _relative_deps = rebase_path("//build/gn/scripts/relative_deps.sh", root_build_dir)
+    _post_compile = rebase_path("//build/gn/scripts/post_compile.py", root_build_dir)
 
     tool("stamp") {
       command = "touch {{output}}"
@@ -57,7 +55,7 @@ template("clang_toolchain") {
     }
 
     tool("cc") {
-      command_launcher = cc_wrapper
+      command_launcher = "python3 \"$_post_compile\" \"$_abs_root\" --time-trace=$time_trace $cc_wrapper --"
       depfile = "{{output}}.d"
       command = "$cc $sysroot -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}"
       depsformat = "gcc"
@@ -69,7 +67,7 @@ template("clang_toolchain") {
     }
 
     tool("cxx") {
-      command_launcher = "sh $_relative_deps $_abs_build $_abs_root $_rel_root $cc_wrapper"
+      command_launcher = "python3 \"$_post_compile\" \"$_abs_root\" --time-trace=$time_trace $cc_wrapper --"
       precompiled_header_type = "gcc"
       depfile = "{{output}}.d"
       command = "$cxx $sysroot -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"

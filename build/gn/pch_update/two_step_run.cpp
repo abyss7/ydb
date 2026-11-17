@@ -2,6 +2,7 @@
 #include "common.h"
 #include "ninja.h"
 #include "steps.h"
+#include "trace.h"
 
 #include <rapidjson/document.h>
 
@@ -630,7 +631,7 @@ namespace NPchUpdate::NTwoStep {
             for (const auto& file : s.Data.Files) {
                 auto object = JoinPath(s.Baseline, s.Data.Actions.at(file.Action).Output);
                 auto dot = object.rfind('.');
-                auto trace = object.substr(0, dot) + ".json";
+                auto trace = FindTrace(object.substr(0, dot) + ".json");
                 for (const auto& path : {object, trace}) {
                     stamp.Str(path);
                     bool exists = Exists(path);

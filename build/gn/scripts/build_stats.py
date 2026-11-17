@@ -19,7 +19,7 @@ baseline   per-TU durations and dependencies of a build without PCH (another bui
 
 Data: <out>/.ninja_log (wall time of every command), <out>/.ninja_deps (dependencies),
 the ninja manifest (graph, gn target of every command), clang -ftime-trace files of the TUs
-(with `time_trace = true` in args.gn: header parse times, for `pch`).
+(with `time_trace = "json"`, `"lz4"` or `"zstd"` in args.gn: header parse times, for `pch`).
 
 The last run is the entries of .ninja_log the previous `record` didn't see (ninja appends;
 when the log is recompacted, an entry is recognized by its times and command hash). ninja

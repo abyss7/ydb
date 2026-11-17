@@ -20,6 +20,9 @@ template("clang_toolchain") {
 
     lib_switch = "-l"
 
+    _abs_root = rebase_path("//.")
+    _post_compile = rebase_path("//build/gn/scripts/post_compile.py", root_build_dir)
+
     tool("stamp") {
       command = "touch {{output}}"
       description = "STAMP {{output}}"
@@ -31,6 +34,7 @@ template("clang_toolchain") {
     }
 
     tool("asm") {
+      command_launcher = "python3 \"$_post_compile\" \"$_abs_root\" --time-trace=$time_trace --"
       depfile = "{{output}}.d"
       command = "$cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}"
       depsformat = "gcc"
@@ -41,6 +45,7 @@ template("clang_toolchain") {
     }
 
     tool("cc") {
+      command_launcher = "python3 \"$_post_compile\" \"$_abs_root\" --time-trace=$time_trace --"
       depfile = "{{output}}.d"
       command = "$cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}"
       depsformat = "gcc"
@@ -51,6 +56,7 @@ template("clang_toolchain") {
     }
 
     tool("cxx") {
+      command_launcher = "python3 \"$_post_compile\" \"$_abs_root\" --time-trace=$time_trace --"
       depfile = "{{output}}.d"
       command = "$cxx -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
       depsformat = "gcc"

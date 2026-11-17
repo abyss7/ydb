@@ -20,7 +20,12 @@ executable("pch_update") {
         "write.cpp",
     ]
     # Executable defaults already provide platform_deps and libcxx.
-    deps += [ "//contrib/libs/rapidjson" ]
+    deps += [
+        "//contrib/libs/lz4",
+        "//contrib/libs/rapidjson",
+        "//contrib/libs/zlib",
+        "//contrib/libs/zstd",
+    ]
     configs -= [
         "//build/gn/config:std_string",
         "//build/gn/config:ydb_embedded_nbs",

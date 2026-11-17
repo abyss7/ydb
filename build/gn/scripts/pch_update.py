@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Checks that a build dir is fit for estimating precompiled headers
 (//build/gn/pch) from its clang time traces -- a build of this source tree
-with pch_mode = "none" and time_trace = true, up to date for --targets,
+with pch_mode = "none" and time_trace = "json", "lz4" or "zstd", up to date for --targets,
 nothing building there, a trace and a .ninja_log entry for every C++ object
 built -- then reads the traces: the time of the C++ compiles, how much of it
 is parsing headers, the headers costing most and whether the PCH of
@@ -219,8 +219,9 @@ def check(args):
     pch_mode = gn_args.get("pch_mode", '"none"')
     if pch_mode != '"none"':
         errors.append("args.gn: pch_mode = %s, a build without PCH is needed (\"none\")" % pch_mode)
-    if gn_args.get("time_trace") != "true":
-        errors.append("args.gn: time_trace = %s, true is needed" % gn_args.get("time_trace", "false (default)"))
+    if gn_args.get("time_trace") not in ('"json"', '"lz4"', '"zstd"'):
+        errors.append('args.gn: time_trace = %s, "json", "lz4" or "zstd" is needed' %
+                      gn_args.get("time_trace", '"none" (default)'))
 
     busy = running_ninja(build_dir)
     if busy:
@@ -318,7 +319,7 @@ def check(args):
                           stdout=subprocess.PIPE, universal_newlines=True).stdout.strip()
     targets = set(e.target for e in cxx)
     print("baseline %s, source tree %s at %s" % (build_dir, _ROOT, head))
-    print("  args.gn:          pch_mode = %s, time_trace = %s" % (pch_mode, gn_args.get("time_trace", "false")))
+    print("  args.gn:          pch_mode = %s, time_trace = %s" % (pch_mode, gn_args.get("time_trace", '"none"')))
     print("  ninja -n:         %s" % (
         "the ninja files are stale" if stale else
         "%d commands to run for %s, %d of them C++" % (len(commands), " ".join(args.targets), len(to_compile))))
@@ -3808,7 +3809,7 @@ _PER_TARGET_STEP = "-per-target"
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("--baseline", required=True, help="build dir with pch_mode = \"none\", time_trace = true")
+    ap.add_argument("--baseline", required=True, help='build dir with pch_mode = "none", time_trace = "json", "lz4" or "zstd"')
     ap.add_argument("--targets", nargs="+", default=["all", "tests"], help="what was built there")
     ap.add_argument("--max-missing-traces", type=float, default=0.01,
                     help="share of the C++ objects built that may lack a trace")

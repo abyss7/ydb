@@ -1136,8 +1136,10 @@ namespace NPchUpdate {
         if (pchMode && !(pchMode->Kind == TGnValue::String && pchMode->Text == "none")) {
             errors.push_back("args.gn: pch_mode = " + pchModeText + ", a build without PCH is needed (\"none\")");
         }
-        if (!timeTrace || timeTrace->Kind != TGnValue::Bool || !timeTrace->BoolValue) {
-            errors.push_back("args.gn: time_trace = " + GnValueText(timeTrace, "false (default)") + ", true is needed");
+        if (!timeTrace || timeTrace->Kind != TGnValue::String ||
+            (timeTrace->Text != "json" && timeTrace->Text != "lz4" && timeTrace->Text != "zstd")) {
+            errors.push_back("args.gn: time_trace = " + GnValueText(timeTrace, "\"none\" (default)") +
+                             ", \"json\", \"lz4\" or \"zstd\" is needed");
         }
 
         std::vector<int> busy = RunningNinja(buildDir);
@@ -1257,7 +1259,7 @@ namespace NPchUpdate {
             int64_t size = 0;
             objBuilt[i] = StatFile(JoinPath(buildDir, edges[cxx[i]].Outputs[0]), &info.ObjMtime, &size);
             if (!info.Trace.empty()) {
-                info.Trace = NormPath(JoinPath(buildDir, info.Trace));
+                info.Trace = FindTrace(NormPath(JoinPath(buildDir, info.Trace)));
                 traceFound[i] = StatFile(info.Trace, &info.TraceMtime, &info.TraceSize);
             }
         });
@@ -1379,7 +1381,7 @@ namespace NPchUpdate {
         size_t cxxCount = cxx.size();
         size_t notBuiltTargets = notBuilt.size();
         Report(Format("baseline %s, source tree %s at %s", buildDir.c_str(), facts.Root.c_str(), head.c_str()));
-        Report(Format("  args.gn:          pch_mode = %s, time_trace = %s", pchModeText.c_str(), GnValueText(timeTrace, "false").c_str()));
+        Report(Format("  args.gn:          pch_mode = %s, time_trace = %s", pchModeText.c_str(), GnValueText(timeTrace, "\"none\"").c_str()));
         Report("  dirty check:      " +
                (stale ? std::string("the ninja files are stale")
                       : Format("%zu commands to run for %s, %zu of them C++", commands.size(), targetsText.c_str(), toCompile.size())));

@@ -99,7 +99,7 @@ lower-level caches. `--output` overrides the cycle directory; `--work-dir`
 overrides the cache location.
 
 The baseline must be complete and current, with `pch_mode = "none"` and
-`time_trace = true`. New output directories must not exist and must be outside
+`time_trace = "json"`, `"lz4"` or `"zstd"`. New output directories must not exist and must be outside
 the source tree; inside the baseline only `.pch_update/` descendants are allowed.
 Use `--target NAME` repeatedly to change the default
 `all tests` workload. `--q` is the cold-build fraction; with no history, use

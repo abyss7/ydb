@@ -38,9 +38,10 @@ declare_args() {
   # (zstd needs gdb >= 13, system gdb 9 understands only zlib)
   debug_compression = "zstd"
 
-  # clang -ftime-trace for every C/C++ object: <object>.json next to <object>.o,
-  # aggregated by build/gn/scripts/build_time_report.py
-  time_trace = false
+  # clang time traces next to each object, read by build_time_report.py and pch_update:
+  # "none", "json", "lz4" (fast, needs lz4 CLI), "zstd" (denser, needs zstd CLI).
+  # Compression finishes in the compile job; its time is included in .ninja_log.
+  time_trace = "none"
 
   # events shorter than this (in microseconds) are not recorded
   time_trace_granularity = 500
@@ -82,6 +83,9 @@ assert(build_type == "debug" || build_type == "relwithdebinfo" || build_type == 
 assert(debug_compression == "zstd" || debug_compression == "zlib" || debug_compression == "none",
        "unknown debug_compression specified: ${debug_compression}")
 
+assert(time_trace == "none" || time_trace == "json" || time_trace == "lz4" || time_trace == "zstd",
+       "time_trace must be a string: none, json, lz4 or zstd (replace true with json, false with none)")
+
 assert(compiler == "clang",
        "unknown compiler specified: ${compiler}")
 
@@ -108,7 +112,7 @@ _default_configs = [
 if (host_cpu == "x64") {
   _default_configs += [ "//build/gn/config:cpu_baseline" ]
 }
-if (time_trace) {
+if (time_trace != "none") {
   _default_configs += [ "//build/gn/config:time_trace" ]
 }
 

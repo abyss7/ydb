@@ -4,7 +4,7 @@
 Build with clang time traces first:
 
     # args.gn
-    time_trace = true
+    time_trace = "zstd"
 
     ninja -C <out> -j<N> <targets>
     python3 build/gn/scripts/build_time_report.py <out> [-o <report dir>]
@@ -13,7 +13,7 @@ Sources of data:
   * <out>/.ninja_log   - wall time of every command (compile, link, codegen actions);
   * <out>/.ninja_deps  - header dependencies of every object;
   * <out>/**/*.ninja   - build graph, rules, gn target of every command;
-  * <out>/obj/**/*.json - clang -ftime-trace of every object (gzipped *.json.gz are read too).
+  * <out>/obj/**/*.json[.lz4|.zst|.gz] - clang -ftime-trace of every object.
 
 Report (<report dir>/report.md plus CSV tables with full data):
   * overview: time by kind of command, clang frontend/backend split;
@@ -35,13 +35,14 @@ import argparse
 import array
 import collections
 import csv
-import gzip
 import json
 import multiprocessing
 import os
 import re
 import struct
 import sys
+
+from compile_time_traces import find_trace, open_trace
 
 
 # =============================================================================
@@ -417,9 +418,7 @@ def _init_worker(paths):
 
 
 def _open_trace(path):
-    if path.endswith(".gz"):
-        return gzip.open(path, "rt")
-    return open(path)
+    return open_trace(path)
 
 
 def load_trace(job):
@@ -528,10 +527,7 @@ class HeaderTable(object):
 
 def trace_path_for(build_dir, obj):
     base = os.path.join(build_dir, obj[:-2] if obj.endswith(".o") else obj)
-    for candidate in (base + ".json.gz", base + ".json"):
-        if os.path.exists(candidate):
-            return candidate
-    return None
+    return find_trace(base + ".json")
 
 
 # =============================================================================

@@ -4,7 +4,12 @@
 #include <rapidjson/memorystream.h>
 #include <rapidjson/reader.h>
 
+#include <lz4frame.h>
+#include <zlib.h>
+#include <zstd.h>
+
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <limits>
 #include <tuple>
@@ -14,6 +19,103 @@ namespace NPchUpdate {
 
     namespace {
         constexpr uint64_t TRACE_SUMMARY_FORMAT = 1;
+
+        // Map only compressed bytes; feed the SAX parser from a bounded buffer.
+        // These are standard frames produced by the lz4/zstd/gzip CLI tools.
+        class TCompressedTraceStream {
+        public:
+            using Ch = char;
+
+            explicit TCompressedTraceStream(const std::string& path)
+                : File_(path)
+                , Input_(File_.Data())
+            {
+                if (EndsWith(path, ".lz4")) {
+                    auto code = LZ4F_createDecompressionContext(&Lz4_, LZ4F_VERSION);
+                    if (LZ4F_isError(code)) { Fail(LZ4F_getErrorName(code)); }
+                } else if (EndsWith(path, ".zst")) {
+                    Zstd_ = ZSTD_createDStream();
+                    if (!Zstd_) { Fail("cannot allocate zstd decoder"); }
+                } else {
+                    if (inflateInit2(&Gzip_, 15 + 16) != Z_OK) { Fail("cannot initialize gzip decoder"); }
+                    HasGzip_ = true;
+                }
+            }
+
+            ~TCompressedTraceStream() {
+                if (Lz4_) { LZ4F_freeDecompressionContext(Lz4_); }
+                if (Zstd_) { ZSTD_freeDStream(Zstd_); }
+                if (HasGzip_) { inflateEnd(&Gzip_); }
+            }
+
+            TCompressedTraceStream(const TCompressedTraceStream&) = delete;
+            TCompressedTraceStream& operator=(const TCompressedTraceStream&) = delete;
+
+            Ch Peek() {
+                if (Position_ == Size_) { Fill(); }
+                return Position_ == Size_ ? '\0' : Buffer_[Position_];
+            }
+            Ch Take() {
+                Ch ch = Peek();
+                if (Position_ != Size_) { ++Position_; ++Taken_; }
+                return ch;
+            }
+            size_t Tell() const { return Taken_; }
+            Ch* PutBegin() { Fail("read-only trace stream"); }
+            void Put(Ch) { Fail("read-only trace stream"); }
+            void Flush() { Fail("read-only trace stream"); }
+            size_t PutEnd(Ch*) { Fail("read-only trace stream"); }
+
+        private:
+            void Fill() {
+                Position_ = Size_ = 0;
+                while (!Done_ && Size_ == 0) {
+                    size_t consumed = Input_.size(), produced = Buffer_.size();
+                    bool ended = false;
+                    if (Lz4_) {
+                        auto code = LZ4F_decompress(Lz4_, Buffer_.data(), &produced,
+                                                    Input_.data(), &consumed, nullptr);
+                        if (LZ4F_isError(code)) { Fail(LZ4F_getErrorName(code)); }
+                        ended = code == 0;
+                    } else if (Zstd_) {
+                        ZSTD_inBuffer in{Input_.data(), Input_.size(), 0};
+                        ZSTD_outBuffer out{Buffer_.data(), Buffer_.size(), 0};
+                        auto code = ZSTD_decompressStream(Zstd_, &out, &in);
+                        if (ZSTD_isError(code)) { Fail(ZSTD_getErrorName(code)); }
+                        consumed = in.pos;
+                        produced = out.pos;
+                        ended = code == 0;
+                    } else {
+                        consumed = std::min(Input_.size(), size_t(std::numeric_limits<uInt>::max()));
+                        Gzip_.next_in = reinterpret_cast<Bytef*>(const_cast<char*>(Input_.data()));
+                        Gzip_.avail_in = consumed;
+                        Gzip_.next_out = reinterpret_cast<Bytef*>(Buffer_.data());
+                        Gzip_.avail_out = produced;
+                        int code = inflate(&Gzip_, Z_NO_FLUSH);
+                        if (code != Z_OK && code != Z_STREAM_END && code != Z_BUF_ERROR) {
+                            Fail(Gzip_.msg ? Gzip_.msg : "invalid gzip frame");
+                        }
+                        consumed -= Gzip_.avail_in;
+                        produced -= Gzip_.avail_out;
+                        ended = code == Z_STREAM_END;
+                        if (ended && inflateReset2(&Gzip_, 15 + 16) != Z_OK) { Fail("cannot reset gzip decoder"); }
+                    }
+                    Input_.remove_prefix(consumed);
+                    Size_ = produced;
+                    Done_ = ended && Input_.empty();
+                    if (!Done_ && consumed == 0 && produced == 0) { Fail("truncated compressed trace"); }
+                }
+            }
+
+            TMappedFile File_;
+            std::string_view Input_;
+            std::array<char, 65536> Buffer_;
+            size_t Position_ = 0, Size_ = 0, Taken_ = 0;
+            LZ4F_dctx* Lz4_ = nullptr;
+            ZSTD_DStream* Zstd_ = nullptr;
+            z_stream Gzip_{};
+            bool HasGzip_ = false, Done_ = false;
+        };
 
         // The depths of the trace: { "traceEvents": [ { ..., "args": { "detail": ... } } ] }.
         constexpr int ROOT_DEPTH = 1;
@@ -304,9 +406,9 @@ namespace NPchUpdate {
         return out;
     }
 
-    bool SummarizeTrace(std::string_view json, TTraceSummary* out, std::string* error) {
+    template <class TStream>
+    bool SummarizeTraceStream(TStream& stream, TTraceSummary* out, std::string* error) {
         TTraceHandler handler;
-        rapidjson::MemoryStream stream(json.data(), json.size());
         rapidjson::Reader reader;
         rapidjson::ParseResult result = reader.Parse<rapidjson::kParseDefaultFlags>(stream, handler);
         if (result.IsError()) {
@@ -359,6 +461,39 @@ namespace NPchUpdate {
         summary.Unbalanced = handler.Unbalanced;
         *out = std::move(summary);
         return true;
+    }
+
+    bool SummarizeTrace(std::string_view json, TTraceSummary* out, std::string* error) {
+        rapidjson::MemoryStream stream(json.data(), json.size());
+        return SummarizeTraceStream(stream, out, error);
+    }
+
+    std::string FindTrace(const std::string& jsonPath) {
+        std::string result = jsonPath;
+        int64_t newest = -1;
+        for (const char* suffix : {"", ".lz4", ".zst", ".gz"}) {
+            auto candidate = jsonPath + suffix;
+            auto stamp = MtimeNs(candidate);
+            if (stamp > newest) {
+                newest = stamp;
+                result = std::move(candidate);
+            }
+        }
+        return result;
+    }
+
+    bool SummarizeTraceFile(const std::string& path, TTraceSummary* out, std::string* error) {
+        try {
+            if (EndsWith(path, ".lz4") || EndsWith(path, ".zst") || EndsWith(path, ".gz")) {
+                TCompressedTraceStream stream(path);
+                return SummarizeTraceStream(stream, out, error);
+            }
+            TMappedFile file(path);
+            return SummarizeTrace(file.Data(), out, error);
+        } catch (const TError& e) {
+            *error = path + ": " + e.what();
+            return false;
+        }
     }
 
 } // namespace NPchUpdate

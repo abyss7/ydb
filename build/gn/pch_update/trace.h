@@ -35,4 +35,9 @@ namespace NPchUpdate {
     // False with `error` set for a file that is no trace.
     bool SummarizeTrace(std::string_view json, TTraceSummary* out, std::string* error);
 
+    // Newest of JSON/.lz4/.zst/.gz, JSON on a tie; the original path if missing.
+    std::string FindTrace(const std::string& jsonPath);
+    // Streaming decompression, including frame/checksum validation.
+    bool SummarizeTraceFile(const std::string& path, TTraceSummary* out, std::string* error);
+
 } // namespace NPchUpdate

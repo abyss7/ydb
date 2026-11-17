@@ -168,10 +168,7 @@ namespace NPchUpdate {
             }
             TTraceResult out;
             std::string error;
-            {
-                TMappedFile file(args[0]);
-                out.Ok = SummarizeTrace(file.Data(), &out.Summary, &error);
-            }
+            out.Ok = SummarizeTraceFile(args[0], &out.Summary, &error);
             out.Error = error;
             SaveResult(result, out);
         }
@@ -201,8 +198,7 @@ namespace NPchUpdate {
             if (out.Compile.ExitCode == 0) {
                 TTraceSummary summary;
                 std::string error;
-                TMappedFile file(trace);
-                if (!SummarizeTrace(file.Data(), &summary, &error)) {
+                if (!SummarizeTraceFile(FindTrace(trace), &summary, &error)) {
                     Fail("header: the trace of " + source + ": " + error);
                 }
                 for (const auto& [a, b] : summary.Edges) {
