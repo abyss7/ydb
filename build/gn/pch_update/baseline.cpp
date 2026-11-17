@@ -1131,7 +1131,7 @@ namespace NPchUpdate {
         }
         facts.BuildDir = buildDir;
 
-        Log("reading the ninja manifest...");
+        Detail("reading the Ninja manifest...");
         facts.Manifest = std::make_unique<TNinjaManifest>(buildDir);
         const TNinjaManifest& manifest = *facts.Manifest;
         const auto& edges = manifest.Edges();
@@ -1184,7 +1184,7 @@ namespace NPchUpdate {
         bool stale = false;
         std::vector<int32_t> commands;
         {
-            Log("the dirty check of " + targetsText + "...");
+            Detail("checking whether " + targetsText + " need rebuilding...");
             TDirtyScan scan(manifest, buildDir, ninjaLog, hasDeps ? ReadNinjaDepsLog(depsPath) : TNinjaDepsLog());
             if (scan.Has("build.ninja")) {
                 stale = !scan.Wanted({"build.ninja"}).empty();
@@ -1211,7 +1211,7 @@ namespace NPchUpdate {
         job.Inputs = {argsGn};
         job.Restat = true;
         std::string gnResult = work.Add(job);
-        Log("gn gen of the args of the baseline...");
+        Detail("reading GN metadata with baseline arguments...");
         work.Build({gnResult}, "gn");
         TakeLabels(LoadGnResult(gnResult), facts);
         auto labelOf = [&](size_t e) -> const std::string* {
@@ -1400,7 +1400,7 @@ namespace NPchUpdate {
         Report("  dirty check:      " +
                (stale ? std::string("the ninja files are stale")
                       : Format("%zu commands to run for %s, %zu of them C++", commands.size(), targetsText.c_str(), toCompile.size())));
-        Report(Format("  manifest:         %zu targets, %zu of them with C++: %zu C++ files, with PCH %zu", facts.OutputsOfLabel.size(),
+        Report(Format("  manifest:         %zu GN targets, %zu with C++ (before PCH-owner grouping): %zu C++ files, with PCH %zu", facts.OutputsOfLabel.size(),
                       labels.size(), cxxCount, withPch));
         Report(Format("  built:            %zu of %zu C++ files; all files of %zu of %zu targets", built, cxxCount,
                       labels.size() - notBuiltTargets, labels.size()));
@@ -1409,7 +1409,7 @@ namespace NPchUpdate {
                       double(traceBytes) / 1e9, staleTraces.size()));
         Report(Format("  .ninja_log:       %zu of %zu built; %s", built - noLog.size(), built,
                       ninjaLog.Runs == 1 ? Format("1 ninja run of %.1f min", double(ninjaLog.LastRunSpanMs) / 60000.0).c_str()
-                                         : Format("%zu ninja runs, no build time", ninjaLog.Runs).c_str()));
+                                          : Format("%zu Ninja runs; a single full-build wall time is unavailable (per-action timings remain usable)", ninjaLog.Runs).c_str()));
         for (const std::string& w : warnings) {
             Report("WARNING: " + w);
         }

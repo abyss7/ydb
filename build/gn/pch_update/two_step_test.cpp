@@ -294,9 +294,23 @@ namespace NPchUpdate::NTwoStep {
                 return std::tie(a.Width, a.Step, a.Selected, a.Pchs, a.Targets, a.BaseBytes, a.AddedBytes,
                                 a.TotalBytes, a.RequiredBudget, a.SavedWork, a.TotalSavedWork);
             };
-            for (size_t jobs : {2, 4, 7}) {
+            std::string targetDiagnostics, choiceDiagnostics, widthDiagnostics, candidateDiagnostics;
+            for (size_t jobs : {1, 2, 4, 7}) {
                 std::vector<TDiskAlternative> actual;
-                auto parallel = Select(d, calibration, frozen, &actual, jobs);
+                TSelectionDiagnostics diagnostics;
+                auto parallel = Select(d, calibration, frozen, &actual, jobs, &diagnostics);
+                if (jobs == 1) {
+                    targetDiagnostics = diagnostics.Targets;
+                    choiceDiagnostics = diagnostics.Choices;
+                    widthDiagnostics = diagnostics.Widths;
+                    candidateDiagnostics = diagnostics.Candidates;
+                } else {
+                    Check(targetDiagnostics == diagnostics.Targets && choiceDiagnostics == diagnostics.Choices &&
+                          widthDiagnostics == diagnostics.Widths && candidateDiagnostics == diagnostics.Candidates,
+                          "selection observer is deterministic across analysis concurrency");
+                }
+                Check(!diagnostics.Targets.empty() && !diagnostics.Choices.empty() && !diagnostics.Widths.empty(),
+                      "selection observer produces target, shortlist and width reports");
                 Check(serial.Bases == parallel.Bases && serial.Assignment == parallel.Assignment &&
                       serial.Pchs.size() == parallel.Pchs.size(), "parallel widths preserve the winning layout and target assignment");
                 for (size_t g = 0; g < serial.Pchs.size(); ++g) {

@@ -4,12 +4,16 @@
 #include <atomic>
 #include <cerrno>
 #include <chrono>
+#include <cctype>
+#include <cmath>
+#include <condition_variable>
 #include <climits>
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <exception>
+#include <fstream>
 #include <ctime>
 #include <mutex>
 #include <thread>
@@ -32,6 +36,10 @@ namespace NPchUpdate {
         std::mutex LogMutex;
         FILE* RunLog = nullptr;
         bool ProgressShown = false;
+        std::string ReportDirectory, ActivePhase;
+        bool VerboseOutput = true;
+        std::chrono::steady_clock::time_point LastProgress;
+        std::atomic<size_t> ChildLogNumber{0};
 
         bool ProgressTerminal() {
             static const bool terminal = isatty(STDERR_FILENO) != 0;
@@ -98,6 +106,64 @@ namespace NPchUpdate {
         }
     }
 
+    void Detail(const std::string& message) {
+        if (VerboseOutput) { Log(message); return; }
+        std::lock_guard<std::mutex> lock(LogMutex);
+        if (RunLog) {
+            fprintf(RunLog, "pch_update: %s\n", message.c_str());
+            fflush(RunLog);
+        }
+    }
+
+    std::string Seconds(double seconds) {
+        if (seconds < 60) { return Format("%.1f s", seconds); }
+        if (seconds < 3600) { return Format("%d min %.1f s", int(seconds / 60), std::fmod(seconds, 60.0)); }
+        return Format("%d h %d min %.1f s", int(seconds / 3600), int(seconds / 60) % 60, std::fmod(seconds, 60.0));
+    }
+
+    std::string OutputDirectory() { return ReportDirectory; }
+
+    void ConfigureOutput(const std::string& directory, bool verbose) {
+        CloseOutput();
+        ReportDirectory = directory;
+        VerboseOutput = verbose;
+        MakeDirs(JoinPath(directory, "logs"));
+        OpenRunLog(JoinPath(directory, "logs/run.log"));
+        Detail("--- invocation ---");
+    }
+
+    void CloseOutput() {
+        std::lock_guard<std::mutex> lock(LogMutex);
+        FinishProgress();
+        if (RunLog) { fclose(RunLog); RunLog = nullptr; }
+        ReportDirectory.clear();
+        ActivePhase.clear();
+        VerboseOutput = true;
+    }
+
+    TPhase::TPhase(std::string name)
+        : Name_(std::move(name)), Previous_(ActivePhase), Start_(std::chrono::steady_clock::now()),
+          Exceptions_(std::uncaught_exceptions())
+    {
+        ActivePhase = Name_;
+        Report("\n" + Name_);
+    }
+
+    TPhase::~TPhase() {
+        // Diagnostics must not replace the original failure during unwinding.
+        try {
+            const bool failed = Status_ != 0 || std::uncaught_exceptions() > Exceptions_;
+            const double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - Start_).count();
+            Report("  " + Name_ + (failed ? " — FAILED, " : " — done, ") + Seconds(elapsed));
+            if (!ReportDirectory.empty()) {
+                std::ofstream out(JoinPath(ReportDirectory, "phases.tsv"), std::ios::app);
+                out << Name_ << '\t' << (failed ? "failed" : "ok") << '\t' << elapsed << '\n';
+                if (failed) { Report("  Logs: " + JoinPath(ReportDirectory, "logs")); }
+            }
+            ActivePhase = Previous_;
+        } catch (...) { }
+    }
+
     // One line that keeps being overwritten on a terminal, like Ninja status.
     // Redirected output keeps a line per update so logs stay complete.
     void Progress(const std::string& message) {
@@ -107,6 +173,9 @@ namespace NPchUpdate {
             fflush(RunLog);
         }
         std::string line = "pch_update: " + message;
+        const auto now = std::chrono::steady_clock::now();
+        if (!VerboseOutput && now - LastProgress < std::chrono::seconds(2)) { return; }
+        LastProgress = now;
         if (!ProgressTerminal()) {
             fprintf(stderr, "%s\n", line.c_str());
             fflush(stderr);
@@ -646,6 +715,111 @@ namespace NPchUpdate {
     TRunResult Run(const std::vector<std::string>& argv, const TRunOptions& options) {
         if (argv.empty()) {
             Fail("run: no command");
+        }
+        if (!options.OutputLabel.empty() && !ReportDirectory.empty()) {
+            std::string label;
+            for (unsigned char c : options.OutputLabel) { label += std::isalnum(c) ? char(c) : '-'; }
+            // Exclusive filename creation also preserves logs across retries.
+            std::string path;
+            int fd;
+            do {
+                path = JoinPath(ReportDirectory, "logs/" + Format("%04zu-", ++ChildLogNumber) + label + ".log");
+                fd = open(path.c_str(), O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, 0644);
+            } while (fd < 0 && errno == EEXIST);
+            if (fd < 0) { Fail(ErrnoText("open " + path)); }
+            close(fd);
+            Detail("command log: " + path + "\n$ " + ShellJoin(argv));
+            std::string pending, tail;
+            size_t warnings = 0;
+            bool failure = false;
+            const auto start = std::chrono::steady_clock::now();
+            auto line = [&](const std::string& text) {
+                const bool warning = text.find("warning:") != std::string::npos;
+                warnings += warning;
+                failure |= text.find("FAILED:") != std::string::npos || text.find("error:") != std::string::npos ||
+                           text.find("ninja: build stopped") != std::string::npos;
+                if (VerboseOutput || warning || failure) { Report(text); }
+                else if (StartsWith(text, "[") || text == "ninja: no work to do.") {
+                    Progress(options.OutputLabel + ": " + text + " (" +
+                        Seconds(std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count()) + ")");
+                }
+            };
+            auto captured = options;
+            captured.OutputLabel.clear();
+            captured.CaptureStdout = captured.CaptureStderr = false;
+            captured.MergeStderr = true;
+            captured.StdoutFile = path;
+            captured.StderrFile.clear();
+            captured.OnStdout = {};
+            auto consume = [&](std::string_view chunk) {
+                tail.append(chunk);
+                if (tail.size() > 4096) { tail.erase(0, tail.size() - 4096); }
+                for (char c : chunk) {
+                    if (c == '\n' || c == '\r') {
+                        if (!pending.empty()) { line(pending); pending.clear(); }
+                    } else {
+                        pending += c;
+                        if (pending.size() >= 16384) { line(pending); pending.clear(); }
+                    }
+                }
+            };
+            // Children write directly to a regular file, not a controller-owned
+            // pipe. Killing the controller must not SIGPIPE Ninja or its children;
+            // they still own the workflow lock and can finish their current work.
+            const int readerFd = open(path.c_str(), O_RDONLY | O_CLOEXEC);
+            if (readerFd < 0) { Fail(ErrnoText("read " + path)); }
+            std::mutex readerMutex;
+            std::condition_variable readerChanged;
+            bool finished = false;
+            std::exception_ptr readerError;
+            std::thread reader([&] {
+                try {
+                    char buffer[1 << 16];
+                    auto heartbeat = start;
+                    while (true) {
+                        const ssize_t n = read(readerFd, buffer, sizeof(buffer));
+                        if (n > 0) { consume(std::string_view(buffer, n)); continue; }
+                        if (n < 0 && errno == EINTR) { continue; }
+                        std::unique_lock<std::mutex> lock(readerMutex);
+                        if (finished) {
+                            // Read again after observing completion: the last
+                            // write could have raced with the EOF above.
+                            lock.unlock();
+                            const ssize_t last = read(readerFd, buffer, sizeof(buffer));
+                            if (last > 0) { consume(std::string_view(buffer, last)); continue; }
+                            break;
+                        }
+                        readerChanged.wait_for(lock, std::chrono::milliseconds(100), [&] { return finished; });
+                        lock.unlock();
+                        const auto now = std::chrono::steady_clock::now();
+                        if (now - heartbeat >= std::chrono::seconds(10)) {
+                            Progress(options.OutputLabel + ": running, elapsed " + Seconds(std::chrono::duration<double>(now - start).count()));
+                            heartbeat = now;
+                        }
+                    }
+                    if (!pending.empty()) { line(pending); }
+                } catch (...) { readerError = std::current_exception(); }
+                close(readerFd);
+            });
+            auto stopReader = [&] {
+                { std::lock_guard<std::mutex> lock(readerMutex); finished = true; }
+                readerChanged.notify_one();
+                reader.join();
+            };
+            TRunResult result;
+            try { result = Run(argv, captured); }
+            catch (...) { stopReader(); throw; }
+            stopReader();
+            if (readerError) { Log("warning: live output reader failed; complete child output remains in " + path); }
+            std::ofstream log(path, std::ios::app);
+            log << "\nexit=" << result.ExitCode << " warning_lines=" << warnings << '\n';
+            if (warnings) { Log(Format("%s: %zu warning lines; full output: %s", options.OutputLabel.c_str(), warnings, path.c_str())); }
+            if (result.ExitCode) {
+                if (!failure && !VerboseOutput) { Report(tail); }
+                result.Stderr = tail + "\nFull output: " + path;
+                Log(Format("%s failed (exit %d); full output: %s", options.OutputLabel.c_str(), result.ExitCode, path.c_str()));
+            }
+            return result;
         }
         int outPipe[2] = {-1, -1};
         int errPipe[2] = {-1, -1};
