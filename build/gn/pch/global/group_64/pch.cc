@@ -1,0 +1,14 @@
+#pragma once
+#include <string>
+#include <locale>
+#include <algorithm>
+#include <__vector/vector.h>
+#include <bitset>
+#include <__ostream/basic_ostream.h>
+#include <istream>
+#include "contrib/libs/poco/Net/include/Poco/Net/SocketAddress.h"
+#include <sstream>
+#include "contrib/libs/poco/Net/include/Poco/Net/Socket.h"
+#include <__memory/shared_ptr.h>
+#include <__memory/ranges_uninitialized_algorithms.h>
+#include <__memory/inout_ptr.h>

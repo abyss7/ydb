@@ -1,0 +1,16 @@
+#pragma once
+#include <string>
+#include "contrib/libs/llvm16/include/llvm/Support/Error.h"
+#include <locale>
+#include "contrib/libs/llvm16/include/llvm/Support/Alignment.h"
+#include "contrib/libs/llvm16/include/llvm/Support/SourceMgr.h"
+#include <__format/extended_grapheme_cluster_table.h>
+#include "contrib/libs/llvm16/include/llvm/Support/JSON.h"
+#include <__format/format_functions.h>
+#include "contrib/libs/llvm16/include/llvm/Support/FileSystem.h"
+#include "contrib/libs/llvm16/include/llvm/ADT/BitVector.h"
+#include "contrib/libs/llvm16/include/llvm/Support/CommandLine.h"
+#include "contrib/libs/llvm16/include/llvm/ADT/APFloat.h"
+#include "contrib/libs/llvm16/include/llvm/Support/Threading.h"
+#include <condition_variable>
+#include "contrib/libs/llvm16/include/llvm/Support/Mutex.h"

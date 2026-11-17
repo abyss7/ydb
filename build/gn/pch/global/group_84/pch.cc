@@ -1,0 +1,11 @@
+#pragma once
+#include "ydb/core/protos/config.pb.h"
+#include "ydb/core/protos/flat_scheme_op.pb.h"
+#include "ydb/core/protos/blobstorage.pb.h"
+#include "ydb/core/protos/blobstorage_config.pb.h"
+#include "ydb/core/protos/pqconfig.pb.h"
+#include "ydb/core/protos/console_config.pb.h"
+#include "ydb/core/protos/sys_view.pb.h"
+#include "ydb/core/protos/hive.pb.h"
+#include "ydb/core/mind/hive/hive_impl.h"
+#include "ydb/library/actors/interconnect/interconnect.h"

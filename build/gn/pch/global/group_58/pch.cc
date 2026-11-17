@@ -1,0 +1,12 @@
+#pragma once
+#include <string>
+#include <locale>
+#include "contrib/libs/aws-sdk-cpp/aws-cpp-sdk-core/include/aws/core/http/HttpRequest.h"
+#include <__format/format_functions.h>
+#include <__chrono/formatter.h>
+#include <variant>
+#include "contrib/libs/aws-sdk-cpp/aws-cpp-sdk-core/include/aws/core/endpoint/AWSEndpoint.h"
+#include <unordered_set>
+#include "contrib/libs/aws-sdk-cpp/aws-cpp-sdk-core/include/aws/core/auth/signer/AWSAuthV4Signer.h"
+#include "contrib/libs/aws-sdk-cpp/aws-cpp-sdk-core/include/aws/core/AmazonWebServiceRequest.h"
+#include "contrib/libs/aws-sdk-cpp/aws-cpp-sdk-s3/include/aws/s3/S3Request.h"
