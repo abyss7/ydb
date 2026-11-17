@@ -7,6 +7,7 @@ SRCS(
 # gn: interface headers events.h result.h
 
 PEERDIR(
+    library/cpp/json
     ydb/core/kqp/query_data
     ydb/core/kqp/common/simple
     yql/essentials/public/issue

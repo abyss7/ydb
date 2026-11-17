@@ -10,6 +10,8 @@
 #include <ydb/core/tx/columnshard/transactions/locks/read_finished.h>
 #include <ydb/core/tx/columnshard/transactions/locks/read_start.h>
 
+#include <ydb/library/actors/core/log.h>
+
 namespace NKikimr::NOlap::NReader::NCommon {
 
 TConclusionStatus TReadMetadata::Init(const NColumnShard::TColumnShard* owner, const TReadDescription& read, const EReaderClass readerClass) {
@@ -69,7 +71,7 @@ TConclusionStatus TReadMetadata::Init(const NColumnShard::TColumnShard* owner, c
             for (const TPortionInfo::TConstPtr& p : conflictingPortions) {
                 // add maybe conflicting writes
                 if (!p->IsCommitted()) {
-                    AFL_VERIFY(p->GetPortionType() == EPortionType::Written);
+                    YDB_LOG_VERIFY(p->GetPortionType() == EPortionType::Written);
                     auto* written = static_cast<const TWrittenPortionInfo*>(p.get());
                     auto writeId = written->GetInsertWriteId();
                     auto op = opManager.GetOperationByInsertWriteIdVerified(writeId);

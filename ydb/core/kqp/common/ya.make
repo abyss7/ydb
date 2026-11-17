@@ -8,6 +8,8 @@ SRCS(
     kqp_batch_operations.cpp
     kqp_event_ids.h
     kqp_event_impl.cpp
+    kqp_expr_helpers.cpp
+    kqp_expr_helpers.h
     kqp_lwtrace_probes.cpp
     kqp_lwtrace_probes.h
     kqp_resolve.cpp
@@ -29,6 +31,7 @@ SRCS(
 # gn: types headers kqp_types.h
 
 PEERDIR(
+    ydb/core/kqp/common/compile_cache
     library/cpp/json/writer
     library/cpp/lwtrace
     library/cpp/protobuf/json
@@ -71,6 +74,7 @@ END()
 
 RECURSE(
     compilation
+    compile_cache
     events
     result_set_format
     simple

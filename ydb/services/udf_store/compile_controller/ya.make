@@ -19,7 +19,7 @@ SRCS(
 
 PEERDIR(
     ydb/core/base
-    ydb/core/cms/console
+    ydb/core/cms/console/events
     ydb/core/engine/minikql
     ydb/core/grpc_services
     ydb/core/protos

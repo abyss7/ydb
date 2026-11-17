@@ -24,6 +24,7 @@ SRCS(
 
 PEERDIR(
     ydb/core/kqp/common
+    ydb/core/kqp/common/compile_cache
     ydb/core/kqp/opt/cbo
     ydb/core/kqp/opt/cbo/solver
     ydb/core/kqp/opt/logical
@@ -31,7 +32,11 @@ PEERDIR(
     ydb/core/kqp/opt/physical
     ydb/core/kqp/opt/physical/effects
     ydb/core/kqp/opt/rbo
+    ydb/core/kqp/provider
+    ydb/core/kqp/query_plan
     ydb/core/kqp/tracing
+    ydb/library/formats/arrow/protos
+    ydb/library/json_index
     ydb/library/mkql_proto
     ydb/library/yql/dq/common
     ydb/library/yql/dq/opt
@@ -39,9 +44,6 @@ PEERDIR(
     ydb/library/yql/providers/s3/expr_nodes
     ydb/library/yql/providers/s3/statistics
     ydb/library/yql/utils/plan
-    ydb/core/kqp/provider
-    ydb/library/formats/arrow/protos
-    ydb/library/json_index
     yql/essentials/providers/common/mkql
     yql/essentials/core/services
     yql/essentials/types/uuid

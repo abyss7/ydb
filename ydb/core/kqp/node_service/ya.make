@@ -12,11 +12,10 @@ PEERDIR(
     ydb/core/actorlib_impl
     ydb/core/base
     contrib/libs/tcmalloc/malloc_extension
-    ydb/core/cms/console
+    ydb/core/cms/console/events
     ydb/core/kqp/common
     ydb/core/kqp/compute_actor
     ydb/core/kqp/counters
-    ydb/core/mind
     ydb/core/protos
     ydb/core/tablet
     ydb/library/yql/dq/actors/compute

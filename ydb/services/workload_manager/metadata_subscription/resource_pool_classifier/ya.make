@@ -11,7 +11,7 @@ SRCS(
 )
 
 PEERDIR(
-    ydb/core/cms/console
+    ydb/core/cms/console/events
     ydb/core/grpc_services
     ydb/services/workload_manager/actors
     ydb/core/protos

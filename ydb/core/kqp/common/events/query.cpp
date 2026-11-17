@@ -1,9 +1,18 @@
 #include "query.h"
 
+#include <ydb/core/kqp/common/simple/mvcc_version.h>
 #include <ydb/core/protos/kqp_stats.pb.h>
 #include <ydb/library/actors/core/actorsystem.h>
 
 namespace NKikimr::NKqp::NPrivateEvents {
+
+TMaybe<TString> TEvQueryRequest::GetMvccVersion() const {
+    if (RequestCtx) {
+        return RequestCtx->GetPeerMetaValues(YDB_MVCC_VERSION_HEADER);
+    }
+    const auto& request = Record.GetRequest();
+    return request.HasMvccVersion() ? TMaybe<TString>(request.GetMvccVersion()) : Nothing();
+}
 
 void TEvQueryRequest::SetClientLostAction(TActorId actorId, NActors::TActorSystem* as) {
     if (RequestCtx) {
@@ -33,6 +42,10 @@ void TEvQueryRequest::PrepareRemote() const {
 
         if (auto requestType = RequestCtx->GetRequestType()) {
             Record.SetRequestType(requestType.GetRef());
+        }
+
+        if (auto mvccVersion = GetMvccVersion()) {
+            Record.MutableRequest()->SetMvccVersion(*mvccVersion);
         }
 
         if (TxControl) {

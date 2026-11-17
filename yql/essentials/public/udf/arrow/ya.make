@@ -16,6 +16,9 @@ SRCS(
     block_type_helper.cpp
     memory_pool.cpp
     ../udf_value_utils.h
+    block_io_buffer.cpp
+    defs.cpp
+    dispatch_traits.cpp
 )
 
 PEERDIR(

@@ -486,6 +486,7 @@ public:
     bool SysViewsRosterUpdateStarted = false;
     bool LocalIndexMigrationStarted = false;
     TActorId LocalIndexMigratorId;
+    TActorId IndexShadowDataRepairerId;
 
     TSet<TPathId> CleanDroppedPathsCandidates;
     TSet<TPathId> CleanDroppedSubDomainsCandidates;
@@ -1130,6 +1131,7 @@ public:
         TVector<ui64> ImportsIds;
         TVector<TPathId> CdcStreamScans;
         TVector<TPathId> TablesToClean;
+        TVector<TPathId> TablesWithShadowData;
         TDeque<TPathId> BlockStoreVolumesToClean;
         TVector<TPathId> RestoreTablesToUnmark;
         TVector<ui64> IncrementalBackupIds;
@@ -1142,6 +1144,8 @@ public:
     void CollectSysViewUpdates(const TActorContext& ctx);
 
     void CollectLocalIndexMigrations(const TActorContext& ctx);
+
+    void StartIndexShadowDataRepair(const TActorContext& ctx, TVector<TPathId>&& paths);
 
     void ActivateAfterInitialization(const TActorContext& ctx, TActivationOpts&& opts);
 
@@ -1776,6 +1780,7 @@ public:
     THashMap<TTxId, std::pair<ui64, ui32>> TxIdToImport;
     THashSet<TActorId> RunningImportSchemeGetters;
     THashSet<TActorId> RunningImportSchemeQueryExecutors;
+    THashSet<TActorId> RunningImportKesusRestorers;
 
     void FromXxportInfo(NKikimrImport::TImport& exprt, const TImportInfo& importInfo);
     void AddImport(const TImportInfo::TPtr& importInfo);
@@ -1815,6 +1820,7 @@ public:
     NTabletFlatExecutor::ITransaction* CreateTxProgressImport(TEvPrivate::TEvImportSchemeReady::TPtr& ev);
     NTabletFlatExecutor::ITransaction* CreateTxProgressImport(TEvPrivate::TEvImportSchemaMappingReady::TPtr& ev);
     NTabletFlatExecutor::ITransaction* CreateTxProgressImport(TEvPrivate::TEvImportSchemeQueryResult::TPtr& ev);
+    NTabletFlatExecutor::ITransaction* CreateTxProgressImport(TEvPrivate::TEvImportKesusResult::TPtr& ev);
     NTabletFlatExecutor::ITransaction* CreateTxProgressImport(TEvTxAllocatorClient::TEvAllocateResult::TPtr& ev);
     NTabletFlatExecutor::ITransaction* CreateTxProgressImport(TEvSchemeShard::TEvModifySchemeTransactionResult::TPtr& ev);
     NTabletFlatExecutor::ITransaction* CreateTxProgressImport(TEvIndexBuilder::TEvCreateResponse::TPtr& ev);
@@ -1829,6 +1835,7 @@ public:
     void Handle(TEvPrivate::TEvImportSchemeReady::TPtr& ev, const TActorContext& ctx);
     void Handle(TEvPrivate::TEvImportSchemaMappingReady::TPtr& ev, const TActorContext& ctx);
     void Handle(TEvPrivate::TEvImportSchemeQueryResult::TPtr& ev, const TActorContext& ctx);
+    void Handle(TEvPrivate::TEvImportKesusResult::TPtr& ev, const TActorContext& ctx);
 
     void ResumeImports(const TVector<ui64>& ids, const TActorContext& ctx);
     // } // NImport
