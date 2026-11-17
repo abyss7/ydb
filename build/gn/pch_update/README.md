@@ -320,20 +320,17 @@ is not target wall time: wall predictions still use the complete scheduled DAG.
 ## Building
 
 The binary is an ordinary GN target, `//build/gn/pch_update:pch_update`, reachable
-from the root `group("all")`. To reuse an existing GN build directory after
-switching worktrees, regenerate its graph against the new source root before
-building the tool:
+from the root `group("all")`. Build and run tools in this worktree's ordinary
+`out/gn` directory. From the source root:
 
 ```sh
-gn gen ~/b/gn-tools --root="$PWD" --script-executable=python3.9
-ninja -C ~/b/gn-tools build/gn/pch_update:pch_update
+ninja -C out/gn build/gn/pch_update:pch_update
+./out/gn/pch_update --baseline /path/to/no-pch-build --disk 16G
 ```
 
-The executable is written to the build directory root: `~/b/gn-tools/pch_update`.
-The existing `args.gn` is preserved. Regenerating a *different* build directory
-against this tree requires its own GN invocation; the no-PCH baseline is not
-modified by the tool build. Adding the tool to `group("all")` changes the source
-tree identity, so existing analysis checkpoints must be regenerated.
+The executable is `out/gn/pch_update`, alongside its shared libraries. Use this
+copy for commands, self-tests and integration tests. The no-PCH baseline is a
+separate input and is not modified by the tool build.
 
 ## Artifacts
 
