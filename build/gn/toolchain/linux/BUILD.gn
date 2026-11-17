@@ -32,6 +32,12 @@ template("clang_toolchain") {
 
     _abs_root = string_replace(string_replace(rebase_path("//.") + "/", "/./", "/"), "//", "/")
     _post_compile = rebase_path("//build/gn/scripts/post_compile.py", root_build_dir)
+    _pch_launcher_args = ""
+    if (pch_mode == "global") {
+      # Clang reads relocatable PCH imports from cwd, not from -isysroot.
+      # Rebase path arguments before running from the source/relocation root.
+      _pch_launcher_args = "--global-pch"
+    }
 
     tool("stamp") {
       command = "touch {{output}}"
@@ -67,7 +73,7 @@ template("clang_toolchain") {
     }
 
     tool("cxx") {
-      command_launcher = "python3 \"$_post_compile\" \"$_abs_root\" --time-trace=$time_trace $cc_wrapper --"
+      command_launcher = "python3 \"$_post_compile\" \"$_abs_root\" $_pch_launcher_args --time-trace=$time_trace $cc_wrapper --"
       precompiled_header_type = "gcc"
       depfile = "{{output}}.d"
       command = "$cxx $sysroot -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"

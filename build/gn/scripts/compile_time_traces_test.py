@@ -36,7 +36,7 @@ class TraceTest(unittest.TestCase):
         self.trace = str(self.build / "a.json")
 
     def compile(self, format, extra=(), pch=False, check=True):
-        command = [sys.executable, LAUNCHER, str(self.root),
+        command = [sys.executable, LAUNCHER, str(self.root), "--global-pch",
                    "--time-trace=" + format, "--", CLANG]
         if format != "none":
             command += ["-ftime-trace", "-ftime-trace-granularity=0"]
@@ -69,7 +69,7 @@ class TraceTest(unittest.TestCase):
         with compile_time_traces.open_trace(self.trace + ".zst") as stream:
             self.assertIn("traceEvents", json.load(stream))
 
-    def test_pch_and_explicit_trace_path(self):
+    def test_pch_cwd_and_explicit_trace_path(self):
         for extra, name in (((), "a.json"), (("-ftime-trace=explicit.json",), "explicit.json"),
                             (("-ftime-trace=traces/",), "traces/a.json"),
                             (("-dumpdir", "traces/"), "traces/a.json")):

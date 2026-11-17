@@ -3341,9 +3341,10 @@ PCH_DIR = "build/gn/pch"
 PCH_PER_TARGET_DIR = PCH_DIR + "/per_target"
 PCH_GLOBAL_DIR = PCH_DIR + "/global"
 PCH_TARGETS = PCH_PER_TARGET_DIR + "/targets.gni"   # pch_mode "per_target": the PCH of //<dir>:<name> is <dir>/<name>.h
-PCH_GROUPS = PCH_GLOBAL_DIR + "/groups.gni"         # pch_mode "global": the PCH of group <name> is <name>/pch.h, pch.cc
+PCH_GROUPS = PCH_GLOBAL_DIR + "/groups.gni"         # pch_mode "global": the PCH of group <name> is <name>/pch.cc
 _PCH_LIST_RE = re.compile(r'\bpch_targets\s*=\s*\[([^\]]*)\]')
-_PCH_GROUP_RE = re.compile(r'\bname\s*=\s*"([^"]+)"\s*targets\s*=\s*\[([^\]]*)\]')
+_PCH_GROUP_RE = re.compile(r'\bname\s*=\s*"([^"]+)"\s*(?:parent\s*=\s*"[^"]+"\s*)?'
+                           r'targets\s*=\s*\[([^\]]*)\]')
 _QUOTED_LABEL_RE = re.compile(r'"(//[^"]+)"')
 
 
@@ -3351,8 +3352,8 @@ def stale_pch(root, rendered):
     """[(mode, label or file, why)] of build/gn/pch, both PCH modes at once (the
     mode is chosen per build dir, in args.gn): a target of pch_targets or an
     exact target of a group there is no more (folded into another one,
-    renamed), a target or a group with no header, or a file of build/gn/pch no
-    mode uses -- the PCH would silently not apply."""
+    renamed), a target with no header or a group with no source, or a file of
+    build/gn/pch no mode uses -- the PCH would silently not apply."""
     out, wanted, files = [], set(), {}
 
     def missing_target(label):
@@ -3373,8 +3374,7 @@ def stale_pch(root, rendered):
             out.append(("per_target", label, "no such target"))
         need("per_target", label, os.path.join(PCH_PER_TARGET_DIR, d, name + ".h"))
     for group, targets in _PCH_GROUP_RE.findall(read_text(os.path.join(root, PCH_GROUPS)) or ""):
-        for f in ("pch.h", "pch.cc"):
-            need("global", "group " + group, os.path.join(PCH_GLOBAL_DIR, group, f))
+        need("global", "group " + group, os.path.join(PCH_GLOBAL_DIR, group, "pch.cc"))
         for label in _QUOTED_LABEL_RE.findall(targets):
             if "*" not in label and missing_target(label):
                 out.append(("global", label, "no such target (group %s)" % group))
