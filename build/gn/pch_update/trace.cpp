@@ -18,7 +18,7 @@
 namespace NPchUpdate {
 
     namespace {
-        constexpr uint64_t TRACE_SUMMARY_FORMAT = 1;
+        constexpr uint64_t TRACE_SUMMARY_FORMAT = 2;
 
         // Map only compressed bytes; feed the SAX parser from a bounded buffer.
         // These are standard frames produced by the lz4/zstd/gzip CLI tools.
@@ -135,7 +135,9 @@ namespace NPchUpdate {
         public:
             bool StartObject() {
                 ++Depth_;
-                if (Depth_ == EVENT_DEPTH && InEvents_) {
+                if (Depth_ == ROOT_DEPTH + 1 && Key_ == EKey::Distclang) {
+                    InUsage_ = true;
+                } else if (Depth_ == EVENT_DEPTH && InEvents_) {
                     Event_.Ph.clear();
                     Event_.Name.clear();
                     Event_.Detail.clear();
@@ -149,6 +151,9 @@ namespace NPchUpdate {
             }
 
             bool EndObject(rapidjson::SizeType) {
+                if (Depth_ == ROOT_DEPTH + 1) {
+                    InUsage_ = false;
+                }
                 if (Depth_ == EVENT_DEPTH && InEvent_) {
                     AddEvent();
                     InEvent_ = false;
@@ -186,6 +191,18 @@ namespace NPchUpdate {
                 if (Depth_ == ROOT_DEPTH) {
                     if (key == "traceEvents") {
                         Key_ = EKey::TraceEvents;
+                    } else if (key == "distclang") {
+                        Key_ = EKey::Distclang;
+                        HasUsage_ = true;
+                        Usage_.fill(-1);
+                    }
+                } else if (Depth_ == ROOT_DEPTH + 1 && InUsage_) {
+                    if (key == "version") { Key_ = EKey::Version; }
+                    else if (key == "execution_wall_us") { Key_ = EKey::Wall; }
+                    else if (key == "cpu_user_us") { Key_ = EKey::User; }
+                    else if (key == "cpu_system_us") { Key_ = EKey::System; }
+                    if (Key_ >= EKey::Version && Key_ <= EKey::System) {
+                        Usage_[size_t(Key_) - size_t(EKey::Version)] = -1;
                     }
                 } else if (Depth_ == EVENT_DEPTH && InEvent_) {
                     if (key == "ph") {
@@ -234,10 +251,16 @@ namespace NPchUpdate {
             }
 
             bool Uint64(uint64_t value) {
+                if (Depth_ == ROOT_DEPTH + 1 && InUsage_ && value > uint64_t(std::numeric_limits<int64_t>::max())) {
+                    return Default();
+                }
                 return Number(int64_t(std::min<uint64_t>(value, std::numeric_limits<int64_t>::max())));
             }
 
             bool Double(double value) {
+                if (Depth_ == ROOT_DEPTH + 1 && InUsage_) {
+                    return Default();
+                }
                 if (!std::isfinite(value)) {
                     return Number(0);
                 }
@@ -249,9 +272,27 @@ namespace NPchUpdate {
                 return true;
             }
 
+            std::string TimingStatus() const {
+                if (!HasUsage_) { return "missing"; }
+                if (Usage_[0] < 0) { return "invalid"; }
+                if (Usage_[0] != 1) { return "unsupported"; }
+                if (Usage_[1] <= 0 || Usage_[2] < 0 || Usage_[3] < 0 ||
+                    Usage_[2] > std::numeric_limits<int64_t>::max() - Usage_[3] ||
+                    Usage_[2] + Usage_[3] == 0) {
+                    return "invalid";
+                }
+                return "distclang";
+            }
+
+            int64_t Numerator() const { return std::min(Usage_[1], Usage_[2] + Usage_[3]); }
+            int64_t Denominator() const { return Usage_[1]; }
+
         private:
             bool Number(int64_t value) {
-                if (Depth_ == EVENT_DEPTH && InEvent_) {
+                if (Depth_ == ROOT_DEPTH + 1 && InUsage_ &&
+                    Key_ >= EKey::Version && Key_ <= EKey::System) {
+                    Usage_[size_t(Key_) - size_t(EKey::Version)] = value;
+                } else if (Depth_ == EVENT_DEPTH && InEvent_) {
                     if (Key_ == EKey::Ts) {
                         Event_.Ts = value;
                     } else if (Key_ == EKey::Dur) {
@@ -266,6 +307,7 @@ namespace NPchUpdate {
                 Names.clear();
                 Occurrences.clear();
                 Execute = 0;
+                ExecuteTs = TotalExecuteTs = TotalFrontendTs = 0;
                 TotalExecute = 0;
                 HasTotalExecute = false;
                 TotalFrontend = 0;
@@ -300,12 +342,17 @@ namespace NPchUpdate {
                         std::string_view total = std::string_view(e.Name).substr(6);
                         if (total == "ExecuteCompiler") {
                             TotalExecute = e.Dur;
+                            TotalExecuteTs = e.Ts;
                             HasTotalExecute = true;
                         } else if (total == "Frontend") {
                             TotalFrontend = e.Dur;
+                            TotalFrontendTs = e.Ts;
                         }
                     } else if (e.Name == "ExecuteCompiler") {
-                        Execute = std::max(Execute, e.Dur);
+                        if (e.Dur > Execute) {
+                            Execute = e.Dur;
+                            ExecuteTs = e.Ts;
+                        }
                     } else if (e.Name == "Source") {
                         AddSource(e.Detail, e.Ts, e.Dur);
                     }
@@ -322,6 +369,11 @@ namespace NPchUpdate {
                 Dur,
                 Args,
                 Detail,
+                Distclang,
+                Version,
+                Wall,
+                User,
+                System,
             };
 
             struct TEvent {
@@ -341,6 +393,7 @@ namespace NPchUpdate {
             bool HasTotalExecute = false;
             int64_t TotalFrontend = 0;
             int64_t Unbalanced = 0;
+            int64_t ExecuteTs = 0, TotalExecuteTs = 0, TotalFrontendTs = 0;
 
         private:
             int Depth_ = 0;
@@ -348,6 +401,9 @@ namespace NPchUpdate {
             bool InEvents_ = false;
             bool InEvent_ = false;
             bool InArgs_ = false;
+            bool InUsage_ = false, HasUsage_ = false;
+            // version, execution wall, user CPU, system CPU; queue is not execution.
+            std::array<int64_t, 4> Usage_{{-1, -1, -1, -1}};
             TEvent Event_;
             std::unordered_map<std::string, uint32_t> Index_;
             // (ts, detail) of the Source begins not ended yet.
@@ -373,6 +429,11 @@ namespace NPchUpdate {
         out.I64(Execute);
         out.I64(Frontend);
         out.I64(Unbalanced);
+        out.I64(WallExecute);
+        out.I64(WallFrontend);
+        out.Str(TimingStatus);
+        out.I64(TimingNumerator);
+        out.I64(TimingDenominator);
     }
 
     TTraceSummary TTraceSummary::Load(TBinReader& in) {
@@ -403,6 +464,11 @@ namespace NPchUpdate {
         out.Execute = in.I64();
         out.Frontend = in.I64();
         out.Unbalanced = in.I64();
+        out.WallExecute = in.I64();
+        out.WallFrontend = in.I64();
+        out.TimingStatus = in.Str();
+        out.TimingNumerator = in.I64();
+        out.TimingDenominator = in.I64();
         return out;
     }
 
@@ -420,6 +486,26 @@ namespace NPchUpdate {
             return false;
         }
 
+        TTraceSummary summary;
+        summary.TimingStatus = handler.TimingStatus();
+        if (summary.TimingStatus == "distclang") {
+            summary.TimingNumerator = handler.Numerator();
+            summary.TimingDenominator = handler.Denominator();
+        }
+        const auto scale = [&](int64_t value) -> int64_t {
+            // Exact rational rounding, matching trace_timing.py without overflow.
+            __int128 v = value;
+            const bool negative = v < 0;
+            if (negative) { v = -v; }
+            v = (v * summary.TimingNumerator + summary.TimingDenominator / 2) / summary.TimingDenominator;
+            return int64_t(negative ? -v : v);
+        };
+        for (auto& o : handler.Occurrences) {
+            const int64_t end = scale(o.Ts + o.Dur);
+            o.Ts = scale(o.Ts);
+            o.Dur = end - o.Ts;
+        }
+
         // As summarize_trace() of pch_update.py: the Source events in the
         // order of the nesting, the outer before the inner.
         std::vector<TOccurrence>& occurrences = handler.Occurrences;
@@ -427,7 +513,6 @@ namespace NPchUpdate {
             return std::make_tuple(a.Ts, -a.Dur) < std::make_tuple(b.Ts, -b.Dur);
         });
 
-        TTraceSummary summary;
         summary.Names = std::move(handler.Names);
         summary.Parse.assign(summary.Names.size(), 0);
         summary.Own.assign(summary.Names.size(), 0);
@@ -456,8 +541,11 @@ namespace NPchUpdate {
         std::sort(summary.Edges.begin(), summary.Edges.end());
         summary.Edges.erase(std::unique(summary.Edges.begin(), summary.Edges.end()), summary.Edges.end());
 
-        summary.Execute = handler.HasTotalExecute ? handler.TotalExecute : handler.Execute;
-        summary.Frontend = handler.TotalFrontend;
+        summary.WallExecute = handler.HasTotalExecute ? handler.TotalExecute : handler.Execute;
+        summary.WallFrontend = handler.TotalFrontend;
+        const int64_t executeTs = handler.HasTotalExecute ? handler.TotalExecuteTs : handler.ExecuteTs;
+        summary.Execute = scale(executeTs + summary.WallExecute) - scale(executeTs);
+        summary.Frontend = scale(handler.TotalFrontendTs + summary.WallFrontend) - scale(handler.TotalFrontendTs);
         summary.Unbalanced = handler.Unbalanced;
         *out = std::move(summary);
         return true;

@@ -33,6 +33,7 @@ import argparse
 import array
 import collections
 import datetime
+import json
 import multiprocessing
 import os
 import re
@@ -98,6 +99,9 @@ CREATE TABLE IF NOT EXISTS nopch (          -- the last compile of a TU without 
     output TEXT PRIMARY KEY, dur_ms INTEGER, run INTEGER, deps BLOB);
 CREATE TABLE IF NOT EXISTS traces (         -- header parse events of a TU compile without PCH
     run INTEGER, output TEXT, target TEXT, compile_us INTEGER, headers BLOB,
+    PRIMARY KEY (run, output));
+CREATE TABLE IF NOT EXISTS trace_timing (   -- provenance; older trace rows are raw wall time
+    run INTEGER, output TEXT, data TEXT,
     PRIMARY KEY (run, output));
 CREATE TABLE IF NOT EXISTS ya (
     id INTEGER PRIMARY KEY, main_commit TEXT, kind TEXT, wall_ms INTEGER, cpu_ms INTEGER,
@@ -637,6 +641,7 @@ def record(args):
     if not args.no_traces:
         traces = load_traces(build_dir, paths, cmds, args.jobs)
         trows = []
+        timing_rows = []
         for c in cmds:
             t = traces.get(c["output"])
             if t is None:
@@ -650,7 +655,13 @@ def record(args):
             blob = zlib.compress(array.array("q", [v for k in keep for v in
                                                    (db.name_id(names[a_ids[k]]), a_ts[k], a_dur[k])]).tobytes())
             trows.append((run, c["output"], c["target"], t["totals"].get("ExecuteCompiler", 0), blob))
+            timing_rows.append((run, c["output"], json.dumps(
+                {"timing": t["timing"], "raw_totals": t["raw_totals"]}, sort_keys=True)))
         db.c.executemany("INSERT OR REPLACE INTO traces VALUES (?,?,?,?,?)", trows)
+        db.c.executemany("INSERT OR REPLACE INTO trace_timing VALUES (?,?,?)", timing_rows)
+        coverage = collections.Counter(t["timing"]["status"] for t in traces.values())
+        log("trace timing (distclang = proportional CPU-active; others = wall): %s" %
+            ", ".join("%s=%d" % item for item in sorted(coverage.items())))
 
     # what the next record compares with
     latest = {}
@@ -967,10 +978,16 @@ def pch_candidates(args):
     for run, n in db.c.execute("SELECT run, name FROM causes WHERE direct = 1 AND run IN (%s)" % ",".join(map(str, runs))):
         changed[run].add(n)
 
+    timing_coverage = collections.Counter()
+
     def latest_trace(o):
-        row = db.c.execute("SELECT headers FROM traces WHERE output = ? ORDER BY run DESC LIMIT 1", (o,)).fetchone()
+        row = db.c.execute(
+            "SELECT t.headers, m.data FROM traces t LEFT JOIN trace_timing m"
+            " ON m.run = t.run AND m.output = t.output"
+            " WHERE t.output = ? ORDER BY t.run DESC LIMIT 1", (o,)).fetchone()
         if row is None:
             return None
+        timing_coverage[json.loads(row[1])["timing"]["status"] if row[1] else "legacy-wall"] += 1
         a = unpack(row[0], "q")
         tu = TraceTU()
         tu.h_ids = a[0::3]
@@ -1037,6 +1054,8 @@ def pch_candidates(args):
                     roots[t.h_ids[i]] += t.h_dur[i]
             rows.append((net, target, len(outs), runs_with, saved, lost, roots.most_common(args.roots)))
     rows.sort(reverse=True)
+    print("Trace timing (distclang = proportional CPU-active; others = wall): %s" %
+          ", ".join("%s=%d" % item for item in sorted(timing_coverage.items())))
     print("PCH candidates over %d runs (%s), coverage %.0f%%, load cost %.2f:" % (
         len(runs), "all" if not args.last else "last %d" % args.last, 100 * args.coverage, args.load_cost))
     for net, target, n, rw, saved, lost, roots in rows[:args.top]:

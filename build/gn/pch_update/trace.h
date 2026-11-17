@@ -25,6 +25,13 @@ namespace NPchUpdate {
         int64_t Outer = 0;
         int64_t Execute = 0;
         int64_t Frontend = 0;
+        // Original clang durations, for provenance and comparison with Ninja.
+        int64_t WallExecute = 0;
+        int64_t WallFrontend = 0;
+        // Proportional CPU-active clock, not phase-local CPU measurements.
+        std::string TimingStatus = "missing";
+        int64_t TimingNumerator = 1;
+        int64_t TimingDenominator = 1;
         // Source begins without an end and ends without a begin.
         int64_t Unbalanced = 0;
 

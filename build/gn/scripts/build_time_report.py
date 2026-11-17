@@ -43,6 +43,7 @@ import struct
 import sys
 
 from compile_time_traces import find_trace, open_trace
+from trace_timing import normalized_events, trace_timing
 
 
 # =============================================================================
@@ -426,10 +427,17 @@ def load_trace(job):
     obj, trace_path = job
     try:
         with _open_trace(trace_path) as f:
-            events = json.load(f)["traceEvents"]
+            data = json.load(f)
+            events = data["traceEvents"]
     except Exception as e:
         return obj, None, str(e)
 
+    timing = trace_timing(data)
+    raw_totals = {e["name"][6:]: e.get("dur", 0) for e in events
+                  if e.get("ph") == "X" and e.get("name", "").startswith("Total ")}
+    raw_totals.setdefault("ExecuteCompiler", max(
+        (e.get("dur", 0) for e in events
+         if e.get("ph") == "X" and e.get("name") == "ExecuteCompiler"), default=0))
     totals = {}
     header_names = []
     header_index = {}
@@ -455,7 +463,7 @@ def load_trace(job):
     # the latest begin
     source_begins = []
     orphan_ends = 0
-    for e in events:
+    for e in normalized_events(data, timing):
         ph = e.get("ph")
         if ph == "b" and e.get("name") == "Source":
             source_begins.append((e["ts"], e.get("args", {}).get("detail", "")))
@@ -500,6 +508,8 @@ def load_trace(job):
 
     return obj, {
         "totals": totals,
+        "raw_totals": raw_totals,
+        "timing": timing,
         "headers": (header_names, h_ids.tobytes(), h_ts.tobytes(), h_dur.tobytes()),
         "families": dict((k, tuple(v)) for k, v in families.items()),
         "details": top_details,
@@ -509,7 +519,8 @@ def load_trace(job):
 
 
 class TU(object):
-    __slots__ = ("obj", "target", "rule", "flags", "wall", "totals", "h_ids", "h_ts", "h_dur")
+    __slots__ = ("obj", "target", "rule", "flags", "wall", "totals", "h_ids", "h_ts", "h_dur",
+                 "raw_totals", "timing")
 
 
 class HeaderTable(object):
@@ -783,6 +794,8 @@ def main():
             tu.flags = sys.intern(edge_command(edges[edge_idx], rules))
             tu.wall = durations[edge_idx]
             tu.totals = summary["totals"]
+            tu.raw_totals = summary["raw_totals"]
+            tu.timing = summary["timing"]
             names, ids_b, ts_b, dur_b = summary["headers"]
             local = array.array("i")
             local.frombytes(ids_b)
@@ -819,8 +832,25 @@ def main():
     out.append("Build dir: `%s`, source root: `%s`." % (build_dir, paths.source_root))
     out.append("")
     out.append("All clang event times are inclusive: nested events are counted in their parents, "
-               "so rows of one table overlap. `wall` is the time from .ninja_log, clang times are wall-clock "
-               "inside the compiler process; both depend on machine load, compare builds made with the same -j.")
+               "so rows of one table overlap. `wall` is the original time from .ninja_log. "
+               "With valid distclang v1 metadata, clang times are proportional CPU-active estimates: "
+               "min(1, (cpu_user_us + cpu_system_us) / execution_wall_us). Queue wait is excluded. "
+               "This does not locate stalls within individual phases. Other traces retain wall-clock times.")
+    coverage = collections.Counter(t.timing["status"] for t in tus)
+    out.append("Trace timing coverage: %s. Raw clang total: %s; analyzed total: %s. "
+               "Per-object factors and raw timings: `trace_timing.csv`." % (
+                   ", ".join("%s=%d" % item for item in sorted(coverage.items())),
+                   fmt_h(sum(t.raw_totals.get("ExecuteCompiler", 0) for t in tus)),
+                   fmt_h(sum(t.totals.get("ExecuteCompiler", 0) for t in tus))))
+    write_csv(report_dir, "trace_timing.csv",
+              ["object", "status", "factor", "raw_clang_s", "analyzed_clang_s",
+               "execution_wall_us", "cpu_user_us", "cpu_system_us", "queue_wait_us"],
+              [(t.obj, t.timing["status"], t.timing["scale"],
+                t.raw_totals.get("ExecuteCompiler", 0) / 1e6,
+                t.totals.get("ExecuteCompiler", 0) / 1e6,
+                *[(t.timing["distclang"] if isinstance(t.timing["distclang"], dict) else {}).get(k, "")
+                  for k in ("execution_wall_us", "cpu_user_us", "cpu_system_us", "queue_wait_us")])
+               for t in tus])
     out.append("")
 
     # ---- overview

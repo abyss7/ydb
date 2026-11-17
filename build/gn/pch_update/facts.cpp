@@ -232,6 +232,8 @@ namespace NPchUpdate {
             int32_t First = -1;
             int64_t Outer = 0;
             int64_t Execute = 0;
+            int64_t WallExecute = 0;
+            std::string TimingStatus;
             int64_t Frontend = 0;
             bool Unbalanced = false;
             // Of each header the PCH it is in: one of its includes or nested in one.
@@ -290,6 +292,8 @@ namespace NPchUpdate {
             out.First = s.First >= 0 ? idOf[s.First] : -1;
             out.Outer = s.Outer;
             out.Execute = s.Execute;
+            out.WallExecute = s.WallExecute;
+            out.TimingStatus = s.TimingStatus;
             out.Frontend = s.Frontend;
             out.Unbalanced = s.Unbalanced != 0;
 
@@ -758,6 +762,8 @@ namespace NPchUpdate {
         TProblems problems;
         std::vector<std::set<int32_t>> inPch;
         int64_t execute = 0;
+        int64_t wallExecute = 0;
+        std::map<std::string, size_t> timingCoverage;
         int64_t outer = 0;
         Log(Format("reading %zu traces with %zu threads...", traced.size(), Threads()));
         std::vector<TTraceFacts> chunk;
@@ -787,6 +793,8 @@ namespace NPchUpdate {
                 facts.HeaderUs.push_back(t.Outer);
                 facts.EdgeOf.push_back(facts.Manifest->Producer(obj));
                 execute += t.Execute;
+                wallExecute += t.WallExecute;
+                ++timingCoverage[t.TimingStatus];
                 outer += t.Outer;
 
                 std::vector<int32_t> ids(t.Names.size());
@@ -821,7 +829,7 @@ namespace NPchUpdate {
                 if (double(t.Outer) > double(t.Frontend) * 1.01 + 1000 || double(t.Frontend) > double(t.Execute) * 1.01 + 1000) {
                     problems["files: headers longer than Frontend or Frontend longer than ExecuteCompiler"].push_back(obj);
                 }
-                if (ninjaMs >= 0 && double(t.Execute) / 1000.0 > double(ninjaMs) * 1.05 + 100) {
+                if (ninjaMs >= 0 && double(t.WallExecute) / 1000.0 > double(ninjaMs) * 1.05 + 100) {
                     problems["files: clang longer than the ninja command (a trace of another compile?)"].push_back(obj);
                 }
                 if (facts.DepsOfFile.back().empty()) {
@@ -850,6 +858,11 @@ namespace NPchUpdate {
         }
 
         Report(Format("traces:           %zu of %zu read", facts.Objs.size(), traced.size()));
+        Report(Format("raw clang wall:   %s; analyzed %s", Hours(double(wallExecute)).c_str(), Hours(double(execute)).c_str()));
+        for (const auto& [status, count] : timingCoverage) {
+            Report(Format("trace timing:     %s=%zu (%s)", status.c_str(), count,
+                          status == "distclang" ? "proportional CPU-active estimate" : "wall"));
+        }
         ReportProblems(problems, false);
         Report(Format("C++ compile:      %s, headers %s (%.0f%%)", Hours(double(execute)).c_str(), Hours(double(outer)).c_str(),
                       100.0 * double(outer) / double(std::max<int64_t>(execute, 1))));

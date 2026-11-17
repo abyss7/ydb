@@ -436,6 +436,8 @@ def summarize_trace(job):
     return obj, {"names": names, "parse": parse, "own": own, "edges": sorted(edges),
                  "in_pch": in_pch, "outer": outer, "first": first,
                  "execute": totals.get("ExecuteCompiler", 0), "frontend": totals.get("Frontend", 0),
+                 "raw_execute": data["raw_totals"].get("ExecuteCompiler", 0),
+                 "timing": data["timing"],
                  "unbalanced": data["source_unbalanced"]}, None
 
 
@@ -490,13 +492,14 @@ def traces(args, base):
     base.update(paths=paths, deps=deps, dep_names=dep_names, compile_us={}, header_us={},
                 objs=objs, header_names=header_names, header_files=header_files,
                 header_own=header_own, header_parse=header_parse, header_edges=header_edges,
-                first_header={})
+                first_header={}, trace_timing={}, raw_compile_us={})
 
     problems = collections.defaultdict(list)    # what -> examples
     parse = collections.Counter()               # header -> us over all files
     files = collections.Counter()               # header -> files
     in_pch = collections.defaultdict(set)
     execute = outer = 0
+    timing_coverage = collections.Counter()
     read = 0
     log("reading %d traces with %d processes..." % (len(traced), args.jobs))
     pool = multiprocessing.Pool(args.jobs, initializer=_init_trace_worker, initargs=(paths, roots))
@@ -509,6 +512,9 @@ def traces(args, base):
             continue
         read += 1
         execute += t["execute"]
+        timing_coverage[t["timing"]["status"]] += 1
+        base["trace_timing"][obj] = t["timing"]
+        base["raw_compile_us"][obj] = t["raw_execute"]
         base["compile_us"][obj] = t["execute"]
         base["header_us"][obj] = t["outer"]
         outer += t["outer"]
@@ -538,7 +544,7 @@ def traces(args, base):
             problems["files: Source events without a pair"].append(obj)
         if t["outer"] > t["frontend"] * 1.01 + 1000 or t["frontend"] > t["execute"] * 1.01 + 1000:
             problems["files: headers longer than Frontend or Frontend longer than ExecuteCompiler"].append(obj)
-        if t["execute"] / 1000.0 > ninja_ms[obj] * 1.05 + 100:
+        if t["raw_execute"] / 1000.0 > ninja_ms[obj] * 1.05 + 100:
             problems["files: clang longer than the ninja command (a trace of another compile?)"].append(obj)
         own = set(dep_names[k] for k in deps.get(obj, ()))
         if not own:
@@ -553,6 +559,8 @@ def traces(args, base):
             problems["headers: neither in the source tree, the build dir, the sysroot nor the compiler"].append(name)
 
     print("traces:           %d of %d read" % (read, len(traced)))
+    print("trace timing:     %s (distclang = proportional CPU-active estimate; others = wall)"
+          % ", ".join("%s=%d" % item for item in sorted(timing_coverage.items())))
     print("problems:         %d" % sum(len(v) for v in problems.values()))
     for what, examples in sorted(problems.items()):
         print("  %d %s, e.g. %s" % (len(examples), what, examples[0]))
@@ -3652,7 +3660,7 @@ def target_pch_as_written(base, commands, compiled, took):
 # the state between runs
 # =============================================================================
 
-_STATE_VERSION = 3              # of what the steps leave in `base`: older states are not taken
+_STATE_VERSION = 4              # distclang-normalized trace times and raw timing provenance
 _KEEP_LOGS = 10
 
 
