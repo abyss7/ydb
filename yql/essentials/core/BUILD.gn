@@ -14,7 +14,7 @@ library("core") {
     "//yql/essentials/ast",
     # "//yql/essentials/core/cbo",
     "//yql/essentials/core/credentials",
-    # "//yql/essentials/core/expr_nodes",
+    "//yql/essentials/core/expr_nodes",
     "//yql/essentials/core/file_storage",
     "//yql/essentials/core/histogram",
     "//yql/essentials/core/issue",

@@ -1,5 +1,6 @@
 group("all") {
     deps = [
+        "//build/gn/pch_update",
         "//ydb/apps/bridge_skipper",
         "//ydb/apps/etcd_proxy",
         "//ydb/apps/ydb",

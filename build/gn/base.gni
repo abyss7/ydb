@@ -190,11 +190,16 @@ template("serialize_enums") {
                 "MIN_UDF_ABI_VERSION_PATCH=${_abi[2]}",
             ]
         }
-        if (pch_mode == "global" && current_toolchain == default_toolchain &&
+        if (current_toolchain == default_toolchain &&
             !label_matches(_owner, enum_serialization_pch_exclude)) {
-            foreach(_group, pch_groups) {
-                if (label_matches(_owner, _group.targets)) {
-                    deps += [ "//build/gn/pch/global:pch_${_group.name}" ]
+            metadata = {
+                global_pch_owner = [ _owner ]
+            }
+            if (pch_mode == "global") {
+                foreach(_group, pch_groups) {
+                    if (label_matches(_owner, _group.targets)) {
+                        deps += [ "//build/gn/pch/global:pch_${_group.name}" ]
+                    }
                 }
             }
         }
@@ -436,13 +441,18 @@ template("library") {
         # the precompiled header of the group of the target
         # (//build/gn/pch/global/groups.gni): C++ only, the default toolchain only
         # (see tool_toolchain)
-        if (pch_mode == "global" && current_toolchain == default_toolchain && defined(sources) &&
+        if (current_toolchain == default_toolchain && defined(sources) &&
             filter_include(sources, [ "*.cpp", "*.cc", "*.cxx" ]) != []) {
             _pch_label = get_label_info(":$target_name", "label_no_toolchain")
-            not_needed([ "_pch_label" ])
-            foreach(_group, pch_groups) {
-                if (label_matches(_pch_label, _group.targets)) {
-                    deps += [ "//build/gn/pch/global:pch_${_group.name}" ]
+            if (!defined(metadata)) {
+                metadata = {}
+            }
+            metadata.global_pch_owner = [ _pch_label ]
+            if (pch_mode == "global") {
+                foreach(_group, pch_groups) {
+                    if (label_matches(_pch_label, _group.targets)) {
+                        deps += [ "//build/gn/pch/global:pch_${_group.name}" ]
+                    }
                 }
             }
         }

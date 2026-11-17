@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <map>
 #include <string>
@@ -47,12 +48,21 @@ namespace NPchUpdate::NTwoStep {
         int Class = -1;
         std::string Source;
         std::vector<std::pair<int, double>> Own;
+        int Target = -1;
+    };
+
+    struct TTarget {
+        std::string Label; // GN PCH owner, including helpers inheriting its config
+        int Class = -1; // mixed compiler classes: keep the entire target without PCH
+        std::vector<int> Files;
+        bool PchEligible = true; // all members receive this owner's PCH in GN
     };
 
     struct TData {
         std::vector<TAction> Actions;
         std::vector<TUnit> Units;
         std::vector<TFile> Files;
+        std::vector<TTarget> Targets;
         int Classes = 0;
         int Scenarios = 0;
         double Q = 0;
@@ -71,7 +81,7 @@ namespace NPchUpdate::NTwoStep {
     struct TLayout {
         std::vector<TPch> Pchs; // bases first, then deltas
         int Bases = 0;
-        std::vector<int> Assignment; // file -> leaf, -1 means no PCH
+        std::vector<int> Assignment; // target -> leaf, -1 means no PCH
     };
 
     struct TCoefficients {
@@ -116,12 +126,34 @@ namespace NPchUpdate::NTwoStep {
         std::string Report;
     };
 
+    // One cumulative restoration step for a particular pre-compatibility
+    // grouping width. These are FitDisk work estimates, not CPU or wall time.
+    struct TDiskAlternative {
+        int Width = 0;
+        int Step = 0;
+        bool Selected = false; // this width won at the original budget
+        std::vector<int> Pchs; // IDs before budget pruning, parents first
+        std::vector<std::string> Targets;
+        double BaseBytes = 0;
+        double AddedBytes = 0;
+        double TotalBytes = 0;
+        double RequiredBudget = 0;
+        double SavedWork = 0;
+        double TotalSavedWork = 0;
+    };
+
     // Returns infinity on resource infeasibility; malformed graphs are errors.
+    void GroupTargets(TData& data, const std::vector<std::string>& owners);
+    void ValidateTargets(const TData& data);
     double Makespan(const std::vector<TAction>& actions, const TResources& resources,
                     const std::vector<char>& dirty = {});
     std::vector<char> Invalidate(const std::vector<TAction>& actions, int scenario);
-    TPrediction Predict(const TData& data, const TLayout& layout, const TCalibration& calibration);
-    TLayout Select(const TData& data, const TCalibration& calibration, const TLayout* frozen = nullptr);
+    // Analysis concurrency is execution-only: it does not change modeled build
+    // resources, snapshot identity or deterministic reduction order.
+    TPrediction Predict(const TData& data, const TLayout& layout, const TCalibration& calibration,
+                        size_t analysisJobs = 1);
+    TLayout Select(const TData& data, const TCalibration& calibration, const TLayout* frozen = nullptr,
+                   std::vector<TDiskAlternative>* diskAlternatives = nullptr, size_t analysisJobs = 1);
     TCalibration Calibrate(const TData& data, const TLayout& layout, const TPrediction& prediction,
                            const std::vector<TObservation>& observations);
 
