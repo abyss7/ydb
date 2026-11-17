@@ -2,7 +2,11 @@
 #include <util/stream/output.h>
 #include <util/string/builder.h>
 #include <util/system/src_location.h>
+#ifdef GN_CODEGEN_DESCRIPTORS
+#include <build/gn/codegen/descriptor_set.h>
+#else
 #include <ydb/core/protos/feature_flags.pb.h>
+#endif
 #include <google/protobuf/descriptor.pb.h>
 
 #include <jinja2cpp/template_env.h>
@@ -10,6 +14,7 @@
 #include <jinja2cpp/value.h>
 #include <jinja2cpp/reflected_value.h>
 #include <cstdint>
+#include <deque>
 #include <string>
 #include <vector>
 
@@ -91,10 +96,22 @@ namespace jinja2 {
 } // namespace jinja2
 
 int main(int argc, char** argv) {
+#ifdef GN_CODEGEN_DESCRIPTORS
+    constexpr int firstTemplate = 2;
+    if (argc < 4 || (argc - firstTemplate) % 2 != 0) {
+        Cerr << "Usage: " << argv[0] << " DESCRIPTORS INPUT OUTPUT ..." << Endl;
+        return 1;
+    }
+    NGnCodegen::TDescriptorSet descriptors({argv[1]});
+    const auto* d = descriptors.FindMessage("NKikimrConfig.TFeatureFlags");
+#else
+    constexpr int firstTemplate = 1;
     if (argc < 3) {
         Cerr << "Usage: " << argv[0] << " INPUT OUTPUT ..." << Endl;
         return 1;
     }
+    const auto* d = NKikimrConfig::TFeatureFlags::descriptor();
+#endif
 
     std::deque<TSlot> slots;
     std::deque<TField> fields;
@@ -104,7 +121,6 @@ int main(int argc, char** argv) {
     TSlot* slot = nullptr;
     int currentBits = 0;
 
-    const auto* d = NKikimrConfig::TFeatureFlags::descriptor();
     for (int fieldIndex = 0; fieldIndex < d->field_count(); ++fieldIndex) {
         const auto* protoField = d->field(fieldIndex);
         if (protoField->type() != google::protobuf::FieldDescriptor::TYPE_BOOL) {
@@ -127,7 +143,11 @@ int main(int argc, char** argv) {
         if (protoField->default_value_bool()) {
             field->DefaultValue = field->ValueMask;
         }
+#ifdef GN_CODEGEN_DESCRIPTORS
+        field->IsRuntime = !descriptors.GetBoolOption(*protoField, "NKikimrConfig.RequireRestart");
+#else
         field->IsRuntime = !protoField->options().GetExtension(NKikimrConfig::RequireRestart);
+#endif
 
         slot->Fields.push_back(field);
         slot->DefaultValue |= field->DefaultValue;
@@ -141,7 +161,7 @@ int main(int argc, char** argv) {
     env.AddGlobal("slots", jinja2::Reflect(jinjaSlots));
     env.AddGlobal("fields", jinja2::Reflect(jinjaFields));
 
-    for (int i = 1; i < argc; i += 2) {
+    for (int i = firstTemplate; i < argc; i += 2) {
         if (!(i + 1 < argc)) {
             Cerr << "ERROR: missing output for " << argv[i] << Endl;
             return 1;

@@ -1,8 +1,14 @@
+#ifdef GN_CODEGEN_DESCRIPTORS
+#include <build/gn/codegen/descriptor_set.h>
+#else
 #include <ydb/core/protos/config.pb.h>
 #include <ydb/core/protos/tablet.pb.h>
+#endif
 
+#include <util/generic/algorithm.h>
 #include <util/generic/maybe.h>
 #include <util/generic/vector.h>
+#include <util/generic/yexception.h>
 #include <util/stream/file.h>
 #include <util/stream/output.h>
 #include <util/string/builder.h>
@@ -19,6 +25,8 @@
 #include <jinja2cpp/reflected_value.h>
 
 #include <cstdint>
+#include <deque>
+#include <functional>
 #include <string>
 #include <vector>
 #include <optional>
@@ -91,6 +99,13 @@ namespace jinja2 {
 } // namespace jinja2
 
 struct TCodeGenContext {
+#ifdef GN_CODEGEN_DESCRIPTORS
+    explicit TCodeGenContext(NGnCodegen::TDescriptorSet& descriptors)
+        : Descriptors(descriptors)
+    {}
+
+    NGnCodegen::TDescriptorSet& Descriptors;
+#endif
     std::deque<TImmediateControlsClass> ControlClasses;
     std::deque<TImmediateControl> Controls;
     std::vector<const TImmediateControlsClass*> JinjaControlClasses;
@@ -114,12 +129,40 @@ const TImmediateControl* CodeGenControl(const ::google::protobuf::FieldDescripto
         .FullPath = fullPath,
         .HtmlName = fullPath
     };
+#ifdef GN_CODEGEN_DESCRIPTORS
+    const auto* extension = context.Descriptors.FindExtension("NKikimrConfig.ControlOptions");
+    const auto options = context.Descriptors.ReadFieldOptions(protoControl);
+    Y_ENSURE(extension->containing_type() == options->GetDescriptor() &&
+        extension->cpp_type() == google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE &&
+        !extension->is_repeated());
+    if (options->GetReflection()->HasField(*options, extension)) {
+        const auto& controlOptions = options->GetReflection()->GetMessage(*options, extension);
+        const auto readValue = [&](const char* name, bool isSigned) -> TMaybe<uint64_t> {
+            const auto* field = controlOptions.GetDescriptor()->FindFieldByName(name);
+            Y_ENSURE(field && !field->is_repeated());
+            Y_ENSURE(field->cpp_type() == (isSigned
+                ? google::protobuf::FieldDescriptor::CPPTYPE_INT64
+                : google::protobuf::FieldDescriptor::CPPTYPE_UINT64));
+            const auto* reflection = controlOptions.GetReflection();
+            if (!reflection->HasField(controlOptions, field)) {
+                return Nothing();
+            }
+            return isSigned
+                ? static_cast<uint64_t>(reflection->GetInt64(controlOptions, field))
+                : reflection->GetUInt64(controlOptions, field);
+        };
+        control.MaxValue = readValue("MaxValue", false);
+        control.MinValue = readValue("MinValue", true);
+        control.DefaultValue = readValue("DefaultValue", false);
+    }
+#else
     if (protoControl.options().HasExtension(NKikimrConfig::ControlOptions)) {
         const auto& controlOptions = protoControl.options().GetExtension(NKikimrConfig::ControlOptions);
         control.MaxValue = (controlOptions.HasMaxValue()) ? controlOptions.GetMaxValue() : TMaybe<uint64_t>{};
         control.MinValue = (controlOptions.HasMinValue()) ? controlOptions.GetMinValue() : TMaybe<uint64_t>{};
         control.DefaultValue = (controlOptions.HasDefaultValue()) ? controlOptions.GetDefaultValue() : TMaybe<uint64_t>{};
     }
+#endif
     auto* res = &context.Controls.emplace_back(std::move(control));
     context.JinjaControls.push_back(res);
     return res;
@@ -151,7 +194,12 @@ const TImmediateControlsClass* CodeGenClassImpl(
 static const TString RequestConfigsClassName = "TImmediateRequestConfigControls";
 
 const TImmediateControlsClass* CodeGenRequestConfigsForService(const TString& serviceName, TCodeGenContext& context) {
+#ifdef GN_CODEGEN_DESCRIPTORS
+    const auto* protoClassDescriptor = context.Descriptors.FindMessage(
+        "NKikimrConfig.TImmediateControlsConfig.TGRpcControls.TRequestConfig");
+#else
     auto protoClassDescriptor = NKikimrConfig::TImmediateControlsConfig_TGRpcControls_TRequestConfig::descriptor();
+#endif
     for (int fieldIndex = 0; fieldIndex < protoClassDescriptor->field_count(); ++fieldIndex) {
         const auto* innerField = protoClassDescriptor->field(fieldIndex);
         auto control = *CodeGenControl(*innerField, TVector<TString>{"GRpcControls", "RequestConfigs"}, context);
@@ -234,7 +282,12 @@ void CodeGenRequestConfigsInner(TCodeGenContext& context) {
         .Name = "RequestConfigs",
         .ClassName = RequestConfigsClassName
     };
+#ifdef GN_CODEGEN_DESCRIPTORS
+    const auto* protoClassDescriptor = context.Descriptors.FindMessage(
+        "NKikimrConfig.TImmediateControlsConfig.TGRpcControls.TRequestConfig");
+#else
     auto protoClassDescriptor = NKikimrConfig::TImmediateControlsConfig_TGRpcControls_TRequestConfig::descriptor();
+#endif
     controlClass.ProtoConfigClassName = GetConfigFullName(protoClassDescriptor->full_name());
 
     CodeGenClassImpl(
@@ -248,12 +301,24 @@ void CodeGenRequestConfigsInner(TCodeGenContext& context) {
 }
 
 void CodeGenControlsForTablets(TCodeGenContext& context) {
+#ifdef GN_CODEGEN_DESCRIPTORS
+    const auto* tabletTypesDescr = context.Descriptors.FindMessage("NKikimrTabletBase.TTabletTypes");
+#else
     auto tabletTypesDescr = NKikimrTabletBase::TTabletTypes::descriptor();
+#endif
     Y_ENSURE(tabletTypesDescr->enum_type_count() == 1);
     auto enumDescr = tabletTypesDescr->enum_type(0);
+#ifdef GN_CODEGEN_DESCRIPTORS
+    const auto* userTypeStart = enumDescr->FindValueByName("UserTypeStart");
+    Y_ENSURE(userTypeStart);
+#endif
     for (int enumIndex = 0; enumIndex < enumDescr->value_count(); ++enumIndex) {
         auto enumValue = enumDescr->value(enumIndex);
+#ifdef GN_CODEGEN_DESCRIPTORS
+        if (enumValue->number() == userTypeStart->number()) {
+#else
         if (enumValue->number() == NKikimrTabletBase::TTabletTypes::UserTypeStart) {
+#endif
             break;
         }
         TImmediateControl control {
@@ -317,6 +382,17 @@ void CodeGenBlobStorageNonConfigControls(TCodeGenContext& context) {
 }
 
 int main(int argc, char** argv) {
+#ifdef GN_CODEGEN_DESCRIPTORS
+    constexpr int firstTemplate = 3;
+    if (argc < 5 || (argc - firstTemplate) % 2 != 0) {
+        Cerr << "Usage: " << argv[0] << " CONFIG_DESCRIPTORS TABLET_DESCRIPTORS INPUT OUTPUT ..." << Endl;
+        return 1;
+    }
+    NGnCodegen::TDescriptorSet descriptors({argv[1], argv[2]});
+    TCodeGenContext codeGenContext(descriptors);
+    const auto* d = descriptors.FindMessage("NKikimrConfig.TImmediateControlsConfig");
+#else
+    constexpr int firstTemplate = 1;
     if (argc < 3) {
         Cerr << "Usage: " << argv[0] << " INPUT OUTPUT ..." << Endl;
         return 1;
@@ -326,6 +402,7 @@ int main(int argc, char** argv) {
 
 
     const auto* d = NKikimrConfig::TImmediateControlsConfig::descriptor();
+#endif
     for (int fieldIndex = 0; fieldIndex < d->field_count(); ++fieldIndex) {
         const auto* protoField = d->field(fieldIndex);
         if (protoField->type() != ::google::protobuf::FieldDescriptor::TYPE_MESSAGE) {
@@ -344,7 +421,7 @@ int main(int argc, char** argv) {
     env.AddGlobal("root_control_classes", jinja2::Reflect(codeGenContext.JinjaRootControlClasses));
     env.AddGlobal("controls", jinja2::Reflect(codeGenContext.JinjaControls));
 
-    for (int i = 1; i < argc; i += 2) {
+    for (int i = firstTemplate; i < argc; i += 2) {
         if (!(i + 1 < argc)) {
             Cerr << "ERROR: missing output for " << argv[i] << Endl;
             return 1;
