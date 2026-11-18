@@ -4327,19 +4327,23 @@ def render_root_groups(text, labels, test_only=frozenset(), drop=frozenset()):
         m = re.search(r'^group\("%s"\)\s*\{' % name, text, re.M)
         return m, (_block_end(text, m.end()) if m else len(text))
 
-    olds = {}
+    wanted = {}
+    disabled = {}
+    active = {}
     for name, _ in ROOT_GROUPS:
         m, end = find(name)
-        if m:
-            olds[name] = re.findall(r'"(//[^"]+)"', text[m.end():end])
-    wanted = {name: {_short_label(l) for l in olds.get(name, []) + labels.get(name, [])} - drop
-              for name, _ in ROOT_GROUPS}
+        body = text[m.end():end] if m else ""
+        active[name] = {_short_label(l) for l in re.findall(r'"(//[^"]+)"', re.sub(r'#[^\n]*', '', body))}
+        # A commented dependency is still a member, but regeneration must not enable it.
+        disabled[name] = {_short_label(l) for l in re.findall(r'^[ \t]*#[ \t]*"(//[^"]+)"', body, re.M)} - active[name]
+        wanted[name] = (active[name] | disabled[name] | {_short_label(l) for l in labels.get(name, [])}) - drop
     for name, testonly in ROOT_GROUPS:
         if not testonly:
             moved = wanted[name] & test_only
             wanted[name] -= moved
             for other_name, other_testonly in ROOT_GROUPS:
                 if other_testonly:
+                    disabled[other_name] |= (moved & disabled[name]) - active[other_name]
                     wanted[other_name] |= moved
                     break
     for name, testonly in ROOT_GROUPS:
@@ -4352,7 +4356,7 @@ def render_root_groups(text, labels, test_only=frozenset(), drop=frozenset()):
         if testonly:
             block.append("    testonly = true")
         block.append("    deps = [")
-        block += ['        "%s",' % l for l in new]
+        block += ['        %s"%s",' % ("# " if l in disabled[name] else "", l) for l in new]
         block += ["    ]", "}"]
         sep = "" if m or not text or text.endswith("\n\n") else ("\n" if text.endswith("\n") else "\n\n")
         text = text[:start] + sep + "\n".join(block) + ("" if m else "\n") + text[end:]

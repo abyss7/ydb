@@ -39,7 +39,7 @@ library("testlib") {
     # "//ydb/core/tablet_flat",
     "//ydb/core/testlib/actors",
     "//ydb/core/testlib/basics",
-    # "//ydb/core/testlib/tablet_helpers",
+    "//ydb/core/testlib/tablet_helpers",
     # "//ydb/core/tx",
     # "//ydb/core/tx/datashard",
     # "//ydb/core/tx/replication/service",

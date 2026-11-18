@@ -28,7 +28,7 @@ library("basics") {
     # "//library/cpp/testing/unittest",  # peerdir only
     # "//ydb/core/blobstorage",  # peerdir only
     "//ydb/core/blobstorage/subsystem",
-    # "//ydb/core/blobstorage/subsystem/mock",
+    "//ydb/core/blobstorage/subsystem/mock",
     "//ydb/core/client/server",
     "//ydb/core/cms/console",
     "//ydb/core/control",

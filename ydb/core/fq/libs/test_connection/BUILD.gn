@@ -1,7 +1,7 @@
 library("events") {
   public_deps = [
     "//ydb/core/fq/libs/control_plane_config:events",
-    # "//ydb/core/fq/libs/control_plane_storage/events",
+    "//ydb/core/fq/libs/control_plane_storage/events",
     # "//ydb/core/fq/libs/events",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",

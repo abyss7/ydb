@@ -18,6 +18,7 @@ SRCS(
 
 PEERDIR(
     library/cpp/xml/document
+    ydb/core/kqp/query_plan
     ydb/core/kqp/ut/common
     yql/essentials/public/udf/service/exception_policy
     yql/essentials/sql/pg

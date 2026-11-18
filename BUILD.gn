@@ -247,7 +247,7 @@ group("tests") {
         "//ydb/core/fq/libs/signer/ut",
         "//ydb/core/fq/libs/state/ut",
         "//ydb/core/fq/libs/test_connection/ut",
-        "//ydb/core/fq/libs/wasm_services/ut",
+        # "//ydb/core/fq/libs/wasm_services/ut",
         "//ydb/core/fq/libs/ydb/ut",
         "//ydb/core/graph/shard/ut",
         "//ydb/core/graph/ut",

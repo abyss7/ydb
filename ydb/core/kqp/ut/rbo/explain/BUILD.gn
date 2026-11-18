@@ -14,6 +14,7 @@ unittest_executable("explain") {
     "//ydb/core/kqp/opt/rbo",
     "//ydb/core/kqp/provider",
     "//ydb/core/kqp/query_data",
+    "//ydb/core/kqp/query_plan",
     "//ydb/core/kqp/ut/common",
     "//ydb/core/kqp/ut/olap/helpers",
     "//ydb/core/statistics:ut_common",

@@ -2,9 +2,9 @@ library("tablet_helpers") {
   testonly = true
 
   public_deps = [
-    # "//ydb/core/base",
+    "//ydb/core/base",
     # "//ydb/core/testlib",
-    # "//ydb/core/testlib/basics",
+    "//ydb/core/testlib/basics",
   ]
 
   deps = [
