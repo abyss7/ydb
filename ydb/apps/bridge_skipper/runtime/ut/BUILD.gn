@@ -4,6 +4,7 @@ unittest_executable("ut") {
     "//library/cpp/json",
     "//library/cpp/logger",
     "//library/cpp/testing/unittest",
+    "//ydb/apps/bridge_skipper/http",
     "//ydb/apps/bridge_skipper/runtime",
     "//ydb/library/actors/core",
     "//ydb/library/actors/testlib",

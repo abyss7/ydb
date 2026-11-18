@@ -44,7 +44,7 @@ void TColumnShard::TransactionToAbort(const ui64 lockId) {
         lock->SetNeedsAborting();
         TWriteGate::TWritesOfLock writes = GetWriteGate().ExtractWritesOfLock(lockId);
         for (const TWriteTask& task : writes.WaitingForCompaction) {
-            task.Abort(this, "transaction is aborted", ActorContext(), NKikimrDataEvents::TEvWriteResult::STATUS_LOCKS_BROKEN);
+            AbortWriteTask(task, "transaction is aborted", ActorContext(), NKikimrDataEvents::TEvWriteResult::STATUS_LOCKS_BROKEN);
         }
         for (const NOlap::TEvPassWriteGate::TPtr& ev : writes.WaitingForLoadedPortions) {
             FailStartedWrite(*ev->Get(), NKikimrDataEvents::TEvWriteResult::STATUS_LOCKS_BROKEN, "transaction is aborted", ActorContext());

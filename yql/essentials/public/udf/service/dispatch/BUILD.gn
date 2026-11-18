@@ -1,0 +1,3 @@
+library("dispatch") {
+  sources = [ "udf_service_dispatch.cpp" ]
+}

@@ -7,6 +7,7 @@ library("udf") {
     # "//yql/essentials/public/langver",
     "//yql/essentials/public/types",
     "//yql/essentials/public/udf/abi_version_check",
+    # "//yql/essentials/public/udf/arrow",
     # "//yql/essentials/utils",
   ]
 
@@ -18,16 +19,25 @@ library("udf") {
     "udf_data_type.cpp",
     "udf_helpers.cpp",
     "udf_log.cpp",
+    "udf_pg_type_description.cpp",
+    "udf_ptr.cpp",
     "udf_registrator.cpp",
     "udf_static_registry.cpp",
     "udf_string.cpp",
+    "udf_string_ref.cpp",
+    "udf_terminator.cpp",
     "udf_type_builder.cpp",
     "udf_type_inspection.cpp",
+    "udf_type_ops.cpp",
     "udf_type_printer.cpp",
+    "udf_type_size_check.cpp",
     "udf_types.cpp",
+    "udf_ut_helpers.cpp",
     "udf_validate.cpp",
     "udf_value.cpp",
     "udf_value_builder.cpp",
+    "udf_value_utils.cpp",
+    "udf_version.cpp",
   ]
 
   link_slot_interface = "YqlServicePolicy"

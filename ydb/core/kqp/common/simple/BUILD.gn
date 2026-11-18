@@ -10,7 +10,6 @@ library("simple") {
     "//ydb/library/aclib",
     # "//ydb/library/actors/core",
     "//ydb/public/api/protos",
-    # "//yql/essentials/ast",
     "//yql/essentials/core/pg_settings",
   ]
 
@@ -22,6 +21,7 @@ library("simple") {
     "//library/cpp/uri",
     # "//ydb/library/yql/dq/actors",  # peerdir only
     "//ydb/public/sdk/cpp/src/library/operation_id/protos",
+    # "//yql/essentials/ast",  # peerdir only
   ]
 
   sources = [

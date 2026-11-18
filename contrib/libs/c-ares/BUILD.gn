@@ -16,7 +16,6 @@ config("private_config") {
 library("c-ares") {
     deps = [
         "//contrib/libs/libc_compat",
-        "//library/cpp/deprecated/atomic",
     ]
 
     sources = [
@@ -59,7 +58,7 @@ library("c-ares") {
         "src/lib/ares_timeout.c",
         "src/lib/ares_update_servers.c",
         "src/lib/ares_version.c",
-        "src/lib/atomic.cpp",
+        "src/lib/atomic.c",
         "src/lib/dsa/ares_array.c",
         "src/lib/dsa/ares_htable_asvp.c",
         "src/lib/dsa/ares_htable_dict.c",

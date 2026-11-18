@@ -6,7 +6,6 @@ SRCS(
     manager.cpp
     events.cpp  # gn: events
     write_gate.cpp
-    write_task.cpp
 )
 # gn: events headers events.h
 

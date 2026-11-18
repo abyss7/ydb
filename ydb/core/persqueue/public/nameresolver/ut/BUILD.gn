@@ -1,6 +1,7 @@
 unittest_executable("ut") {
   deps = [
     "//library/cpp/testing/unittest",
+    "//ydb/core/base",
     "//ydb/core/persqueue/public/nameresolver",
     "//ydb/core/protos",
     "//ydb/core/testlib",

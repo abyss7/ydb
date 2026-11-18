@@ -1,9 +1,13 @@
 unittest_executable("ut_replication") {
   deps = [
     "//ydb/core/protos",
+    "//ydb/core/protos/schemeshard",
+    "//ydb/core/testlib/actors",
+    "//ydb/core/tx/datashard",
     "//ydb/core/tx/replication/controller",
     "//ydb/core/tx/schemeshard",  # peerdir only
     "//ydb/core/tx/schemeshard/ut_helpers",
+    "//ydb/core/tx/tx_proxy:public",
     "//ydb/core/ydb_convert",
     "//ydb/public/api/protos",
     "//ydb/public/lib/ydb_cli/dump/util",

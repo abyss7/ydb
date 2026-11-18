@@ -1,0 +1,16 @@
+gtest_executable("ut") {
+  deps = [
+    "//contrib/libs/grpc",
+    "//library/cpp/testing/gtest",
+    "//ydb/public/api/grpc",
+    "//ydb/public/sdk/cpp/src/client/draft",
+    "//ydb/public/sdk/cpp/src/client/driver",  # peerdir only
+    "//ydb/public/sdk/cpp/src/client/export",
+    "//ydb/public/sdk/cpp/src/client/operation",
+    "//ydb/public/sdk/cpp/src/client/table",  # peerdir only
+  ]
+
+  sources = [ "operation_ut.cpp" ]
+
+  link_select = [ "allocator=tcmalloc" ]
+}

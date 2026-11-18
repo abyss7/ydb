@@ -18,6 +18,7 @@ unittest_executable("ut") {
     "//ydb/core/testlib/pg",  # peerdir only
     "//ydb/core/wrappers",
     "//ydb/core/ydb_convert",
+    "//ydb/library/actors/core",
     "//ydb/library/testlib/common",
     "//ydb/public/lib/ydb_cli/dump/util",
     "//ydb/public/sdk/cpp/src/client/draft",

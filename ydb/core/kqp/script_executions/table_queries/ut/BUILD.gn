@@ -5,7 +5,7 @@ unittest_executable("ut") {
     "//library/cpp/protobuf/interop",
     "//library/cpp/testing/unittest",
     "//ydb/core/base",
-    "//ydb/core/cms/console",
+    "//ydb/core/cms/console/events",
     "//ydb/core/formats/arrow",
     "//ydb/core/kqp/script_executions/common",
     "//ydb/core/kqp/script_executions/finalization",

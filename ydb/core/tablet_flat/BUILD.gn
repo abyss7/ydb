@@ -1,7 +1,9 @@
 library("tablet_flat") {
   public_deps = [
     # "//contrib/libs/openssl",
+    "//contrib/libs/zstd",
     "//library/cpp/blockcodecs",
+    # "//library/cpp/blockcodecs/core",
     # "//library/cpp/containers/absl",
     # "//library/cpp/containers/stack_vector",
     # "//library/cpp/lwtrace",
@@ -17,6 +19,7 @@ library("tablet_flat") {
     "//ydb/core/tablet_flat/protos",
     "//ydb/core/util",
     # "//ydb/library/actors/core",
+    # "//ydb/library/actors/prof",
     "//ydb/library/actors/util",
     "//ydb/library/actors/wilson",
     "//ydb/library/services",
@@ -40,7 +43,6 @@ library("tablet_flat") {
     "//ydb/core/io_formats/json",
     "//ydb/core/scheme/protos",
     # "//ydb/library/actors/interconnect",
-    # "//ydb/library/actors/prof",
     # "//ydb/library/mkql_proto/protos",  # peerdir only
     # "//yql/essentials/parser/pg_wrapper/interface/type_desc",
     "//yql/essentials/types/binary_json",
@@ -58,6 +60,8 @@ library("tablet_flat") {
     "flat_comp.cpp",
     "flat_comp_create.cpp",
     "flat_comp_gen.cpp",
+    "flat_compaction_context.cpp",
+    "flat_compaction_keyspace.cpp",
     "flat_database.cpp",
     "flat_dbase_apply.cpp",
     "flat_dbase_scheme.cpp",

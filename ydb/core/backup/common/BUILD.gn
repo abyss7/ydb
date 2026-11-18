@@ -19,6 +19,7 @@ library("common") {
     "feature_flags.cpp",
     "fields_wrappers.cpp",
     "metadata.cpp",
+    "omit_backup.cpp",
   ]
 
   serialize_enum_headers = [ "metadata.h" ]

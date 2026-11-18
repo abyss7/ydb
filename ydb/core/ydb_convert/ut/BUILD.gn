@@ -22,6 +22,7 @@ unittest_executable("ut") {
     "//ydb/core/ydb_convert/table_description_ut.cpp",
     "//ydb/core/ydb_convert/table_settings_ut.cpp",
     "//ydb/core/ydb_convert/ydb_convert_ut.cpp",
+    "kesus_description_ut.cpp",
     "replication_description_ut.cpp",
     "topic_description_ut.cpp",
   ]

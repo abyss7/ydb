@@ -1,5 +1,8 @@
 unittest_executable("ut_race") {
-  deps = [ "//ydb/core/blobstorage/ut_blobstorage/lib" ]
+  deps = [
+    "//ydb/core/blobstorage/base",
+    "//ydb/core/blobstorage/ut_blobstorage/lib",
+  ]
 
   sources = [ "//ydb/core/blobstorage/ut_blobstorage/race.cpp" ]
 

@@ -16,5 +16,6 @@ library("provider") {
   sources = [
     "yql_data_provider_impl.cpp",
     "yql_provider.cpp",
+    "yql_provider_names.cpp",
   ]
 }

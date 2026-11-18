@@ -4,6 +4,7 @@ unittest_executable("ut") {
     "//library/cpp/logger",
     "//library/cpp/testing/hook",
     "//library/cpp/testing/unittest",
+    "//library/cpp/threading/future",
     "//library/cpp/unified_agent_client",  # peerdir only
     "//ydb/core/base",
     "//ydb/core/blobstorage/base",

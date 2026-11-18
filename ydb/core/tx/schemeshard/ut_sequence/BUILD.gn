@@ -3,11 +3,13 @@ unittest_executable("ut_sequence") {
     "//library/cpp/getopt",  # peerdir only
     "//library/cpp/regex/pcre",  # peerdir only
     "//library/cpp/svnversion",  # peerdir only
+    "//ydb/core/base",
     "//ydb/core/grpc_services/local_rpc",
+    "//ydb/core/protos",
     "//ydb/core/testlib/default",  # peerdir only
     "//ydb/core/tx",  # peerdir only
     "//ydb/core/tx/columnshard",  # peerdir only
-    "//ydb/core/tx/datashard",  # peerdir only
+    "//ydb/core/tx/datashard",
     "//ydb/core/tx/datashard/ut_common",
     "//ydb/core/tx/schemeshard",  # peerdir only
     "//ydb/core/tx/schemeshard/ut_helpers",

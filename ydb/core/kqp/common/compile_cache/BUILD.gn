@@ -1,0 +1,5 @@
+group("compile_cache") {
+  public_deps = [
+    # "//ydb/core/scheme",
+  ]
+}

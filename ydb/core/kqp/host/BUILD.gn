@@ -21,6 +21,7 @@ library("host") {
     # "//ydb/core/formats/arrow/accessor/common",
     "//ydb/core/grpc_services",
     # "//ydb/core/kqp/common",
+    # "//ydb/core/kqp/common/compile_cache",  # peerdir only
     # "//ydb/core/kqp/gateway/utils",  # peerdir only
     "//ydb/core/kqp/opt",
     # "//ydb/core/kqp/opt/cbo/solver",
@@ -64,7 +65,6 @@ library("host") {
     "//yql/essentials/core/services:pipeline",
     # "//yql/essentials/core/type_ann",
     "//yql/essentials/minikql/invoke_builtins",
-    # "//yql/essentials/parser/pg_wrapper/interface",  # peerdir only
     "//yql/essentials/providers/common/arrow_resolve",
     "//yql/essentials/providers/common/codec",
     "//yql/essentials/providers/common/mkql",
@@ -97,6 +97,7 @@ library("host") {
 library("transform") {
   public_deps = [
     # "//library/cpp/json",
+    # "//ydb/core/kqp/common/compile_cache",
     "//ydb/core/kqp/provider",
     "//ydb/core/protos",
     # "//ydb/library/actors/core",

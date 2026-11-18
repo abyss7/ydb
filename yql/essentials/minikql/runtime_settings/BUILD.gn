@@ -18,6 +18,7 @@ library("runtime_settings") {
     "runtime_settings.cpp",
     "runtime_settings_configuration.cpp",
     "runtime_settings_hash.cpp",
+    "runtime_settings_reflection.cpp",
     "runtime_settings_serialization.cpp",
   ]
 }

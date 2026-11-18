@@ -6,7 +6,6 @@ library("join_perf") {
   deps = [
     # "//contrib/libs/apache/arrow",
     # "//library/cpp/json",
-    # "//library/cpp/threading/future",
     "//ydb/library/yql/dq/comp_nodes",
     "//ydb/library/yql/dq/comp_nodes/ut/utils",
     "//yql/essentials/minikql/computation",

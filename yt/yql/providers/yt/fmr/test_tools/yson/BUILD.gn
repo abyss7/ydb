@@ -1,7 +1,0 @@
-library("yson") {
-  public_deps = [
-    # "//library/cpp/yson",
-  ]
-
-  sources = [ "yql_yt_yson_helpers.cpp" ]
-}

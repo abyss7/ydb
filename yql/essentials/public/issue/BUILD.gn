@@ -14,8 +14,10 @@ library("issue") {
 
   sources = [
     "yql_issue.cpp",
+    "yql_issue_id.cpp",
     "yql_issue_manager.cpp",
     "yql_issue_message.cpp",
+    "yql_issue_message_impl.cpp",
     "yql_issue_utils.cpp",
     "yql_warning.cpp",
   ]

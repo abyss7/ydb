@@ -5,13 +5,18 @@ library("alloc") {
     "//yql/essentials/parser/pg_wrapper/interface",
     "//yql/essentials/public/udf",
     # "//yql/essentials/public/udf/sanitizer_utils",
+    "//yql/essentials/public/udf/service/dispatch",
   ]
 
-  deps = [ "//contrib/libs/apache/arrow" ]
+  deps = [
+    ":terminator",
+    "//contrib/libs/apache/arrow",
+  ]
 
   sources = [
     "mkql_alloc.cpp",
     "mkql_mem_info.cpp",
+    "mkql_udf_service.cpp",
   ]
 
   link_slot_module_interfaces = [ "minikql_codegen" ]
@@ -27,6 +32,7 @@ library("minikql") {
     "//library/cpp/type_info/tz",
     "//yql/essentials/core/sql_types",
     # "//yql/essentials/minikql/aligned_page_pool",
+    # "//yql/essentials/minikql/comp_nodes",
     "//yql/essentials/minikql/runtime_settings",
     # "//yql/essentials/parser/pg_wrapper/interface",
     "//yql/essentials/public/decimal",
@@ -55,6 +61,7 @@ library("minikql") {
     "//yql/essentials/minikql/dom",
     "//yql/essentials/parser/pg_catalog",
     # "//yql/essentials/public/issue",  # peerdir only
+    # "//yql/essentials/public/udf/service/dispatch",  # peerdir only
     "//yql/essentials/types/binary_json",
     "//yql/essentials/types/dynumber",
     "//yql/essentials/types/uuid",
@@ -63,9 +70,12 @@ library("minikql") {
 
   sources = [
     "compact_hash.cpp",
+    "defs.cpp",
     "mkql_block_map_join_utils.cpp",
     "mkql_bridge_mode.cpp",
     "mkql_buffer.cpp",
+    "mkql_core_win_frames_collector.cpp",
+    "mkql_core_window_frames_collector_params_deserializer.cpp",
     "mkql_date_scaler.cpp",
     "mkql_function_metadata.cpp",
     "mkql_function_registry.cpp",
@@ -75,15 +85,23 @@ library("minikql") {
     "mkql_node_printer.cpp",
     "mkql_node_serialization.cpp",
     "mkql_node_visitor.cpp",
+    "mkql_numeric_cast.cpp",
     "mkql_opt_literal.cpp",
     "mkql_program_builder.cpp",
     "mkql_rh_hash_utils.cpp",
     "mkql_runtime_version.cpp",
+    "mkql_safe_arithmetic_ops.cpp",
+    "mkql_saturated_math.cpp",
     "mkql_stats_registry.cpp",
     "mkql_string_util.cpp",
     "mkql_type_builder.cpp",
+    "mkql_type_helper.cpp",
     "mkql_type_ops.cpp",
     "mkql_unboxed_value_stream.cpp",
+    "mkql_utils.cpp",
+    "mkql_watermark.cpp",
+    "mkql_window_comparator_bounds.cpp",
+    "mkql_window_defs.cpp",
     "pack_num.cpp",
     "primes.cpp",
     "watermark_tracker.cpp",

@@ -23,5 +23,6 @@ library("provider") {
     "yql_pg_datasource_type_ann.cpp",
     "yql_pg_dq_integration.cpp",
     "yql_pg_provider.cpp",
+    "yql_pg_provider_impl.cpp",
   ]
 }

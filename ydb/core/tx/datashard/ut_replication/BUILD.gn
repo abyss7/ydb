@@ -3,6 +3,7 @@ unittest_executable("ut_replication") {
     "//library/cpp/getopt",  # peerdir only
     "//library/cpp/regex/pcre",  # peerdir only
     "//library/cpp/svnversion",  # peerdir only
+    "//ydb/core/base",
     "//ydb/core/grpc_services/local_rpc",
     "//ydb/core/kqp/ut/common",  # peerdir only
     "//ydb/core/protos/schemeshard",
@@ -11,6 +12,7 @@ unittest_executable("ut_replication") {
     "//ydb/core/tx",  # peerdir only
     "//ydb/core/tx/datashard",
     "//ydb/core/tx/datashard/ut_common",
+    "//ydb/core/tx/sequenceproxy:public",
     "//ydb/core/tx/tx_proxy:public",
     "//ydb/library/ut",
     "//ydb/public/lib/yson_value",  # peerdir only

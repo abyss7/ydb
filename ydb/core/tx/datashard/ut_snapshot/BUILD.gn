@@ -7,6 +7,9 @@ unittest_executable("ut_snapshot") {
     "//ydb/core/grpc_services/local_rpc",
     "//ydb/core/kqp/ut/common",
     "//ydb/core/mind",
+    "//ydb/core/mind/hive",
+    "//ydb/core/protos",
+    "//ydb/core/tablet",
     "//ydb/core/testlib/actors",
     "//ydb/core/testlib/default",  # peerdir only
     "//ydb/core/tx",  # peerdir only
@@ -22,7 +25,10 @@ unittest_executable("ut_snapshot") {
     "//yql/essentials/public/udf/service/exception_policy",  # peerdir only
   ]
 
-  sources = [ "//ydb/core/tx/datashard/datashard_ut_snapshot.cpp" ]
+  sources = [
+    "//ydb/core/tx/datashard/datashard_ut_snapshot.cpp",
+    "//ydb/core/tx/datashard/datashard_ut_snapshot_retention.cpp",
+  ]
 
   include_dirs = [ "//ydb/core/tx/datashard" ]
 

@@ -1,2 +1,3 @@
-group("sanitizer_utils") {
+library("sanitizer_utils") {
+  sources = [ "sanitizer_utils.cpp" ]
 }

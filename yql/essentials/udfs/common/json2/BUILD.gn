@@ -13,5 +13,15 @@ library("json2") {
     "//yql/essentials/types/binary_json/dom",  # peerdir only
   ]
 
-  sources = [ "json2_udf.cpp" ]
+  sources = [
+    "as_json_node.cpp",
+    "compile_path.cpp",
+    "json2_udf.cpp",
+    "parse.cpp",
+    "resource.cpp",
+    "serialize.cpp",
+    "sql_exists.cpp",
+    "sql_query.cpp",
+    "sql_value.cpp",
+  ]
 }

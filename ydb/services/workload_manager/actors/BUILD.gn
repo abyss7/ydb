@@ -12,6 +12,7 @@ library("actors") {
 
   deps = [
     "//ydb/core/base",
+    # "//ydb/core/cms/console/events",  # peerdir only
     "//ydb/core/kqp/common/events",
     # "//ydb/core/kqp/common/simple",
     # "//ydb/core/tx/tx_proxy",  # peerdir only

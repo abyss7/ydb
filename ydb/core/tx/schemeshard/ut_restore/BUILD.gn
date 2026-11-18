@@ -2,6 +2,7 @@ unittest_executable("ut_restore") {
   deps = [
     "//contrib/libs/apache/arrow",  # peerdir only
     "//contrib/libs/double-conversion",
+    "//contrib/libs/protobuf",
     "//contrib/libs/zstd",
     "//library/cpp/json",
     "//library/cpp/streams/zstd",
@@ -9,6 +10,7 @@ unittest_executable("ut_restore") {
     "//library/cpp/testing/hook",
     "//ydb/core/backup/common",
     "//ydb/core/base",
+    "//ydb/core/kesus/tablet",
     "//ydb/core/kqp/ut/common",
     "//ydb/core/metering",
     "//ydb/core/protos",

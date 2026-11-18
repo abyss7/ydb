@@ -1,0 +1,7 @@
+library("consumers") {
+  public_deps = [
+    # "//library/cpp/monlib/metrics",
+  ]
+
+  sources = [ "collecting_consumer.cpp" ]
+}

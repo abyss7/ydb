@@ -89,6 +89,7 @@ TRIVIAL_MACROS = MODULE_MACROS | {
     "NO_PLATFORM",   # no libc/libc++ deps in ya: GN adds none to a library anyway
     "INCLUDE_ONCE", "NO_LTO",   # no LTO in GN; INCLUDE_ONCE: of an INCLUDE, already resolved
     "FILES",   # files to export (ya's FILES): nothing to build
+    "LDFLAGS",
 }
 
 # SRC_<kind>(file flags...): a source compiled with flags GN gives every
@@ -3348,6 +3349,66 @@ _PCH_GROUP_RE = re.compile(r'\bname\s*=\s*"([^"]+)"\s*(?:parent\s*=\s*"[^"]+"\s*
 _QUOTED_LABEL_RE = re.compile(r'"(//[^"]+)"')
 
 
+def prune_global_pch(root, mods, generated, external):
+    """Plan removal of missing source headers from flat global PCH include lists.
+
+    No Git or build artifacts are needed. Generated headers and directories
+    whose outputs we do not model (keep/contrib/unknown modules) are preserved.
+    Returns {repo-relative pch.cc: text}, [(pch.cc, removed header)].
+    """
+    changes, removed, missing = {}, [], {}
+    base = os.path.join(root, PCH_GLOBAL_DIR)
+    if not os.path.isdir(base):
+        return changes, removed
+
+    def missing_source(header):
+        if header in missing:
+            return missing[header]
+        missing[header] = False
+        parts = header.split("/")
+        if len(parts) < 2 or any(p in ("", ".", "..") for p in parts) \
+                or not re.fullmatch(r"[A-Za-z0-9_./+-]+", header):
+            return False
+        if os.path.exists(os.path.join(root, header)) or header in generated:
+            return False
+        # These outputs may be provided by GN templates rather than ya OUT.
+        if any(p in ("gen", "generated") for p in parts) \
+                or header.endswith((".pb.h", ".pb.validate.h", ".gen.h", ".decl.inl.h",
+                                    "_generated.h", "_enum_serialization.h")):
+            return False
+        directory = os.path.dirname(header)
+        while directory:
+            if external.is_external(directory):
+                return False
+            if directory in mods:
+                # Unknown macro/template outputs must not be mistaken for deletions.
+                missing[header] = mods[directory].kind in MODULE_MACROS
+                return missing[header]
+            directory = os.path.dirname(directory)
+        return False
+
+    include = re.compile(r'^[ \t]*#[ \t]*include[ \t]+"([^"\n]+)"[ \t]*(?://[^\n]*)?\r?\n?$')
+    for group in sorted(os.listdir(base)):
+        rel = os.path.join(PCH_GLOBAL_DIR, group, "pch.cc")
+        text = read_text(os.path.join(root, rel))
+        if text is None:
+            continue
+        # pch_update emits flat lists. Leave hand-written conditional lists alone.
+        if re.search(r"^[ \t]*#[ \t]*(?:if|ifdef|ifndef|elif|else|endif)\b|/\*", text, re.M):
+            continue
+        kept = []
+        for line in text.splitlines(keepends=True):
+            match = include.fullmatch(line)
+            if match and missing_source(match.group(1)):
+                removed.append((rel, match.group(1)))
+            else:
+                kept.append(line)
+        updated = "".join(kept)
+        if updated != text:
+            changes[rel] = updated
+    return changes, removed
+
+
 def stale_pch(root, rendered):
     """[(mode, label or file, why)] of build/gn/pch, both PCH modes at once (the
     mode is chosen per build dir, in args.gn): a target of pch_targets or an
@@ -3956,6 +4017,7 @@ class Report:
         self.link_select_missing = []    # (program or test, slot): its interface, no provider, no default
         self.slot_defaults_bad = []      # (dir or slot, why): a broken `# gn: default provider`
         self.pch_stale = []            # (mode, label or file, why), see stale_pch
+        self.pch_pruned = []           # (global pch.cc, missing source header)
         self.pruned = []               # labels --prune-root-groups dropped from the root BUILD.gn
         self.sink_no_target = []       # (program or test, dep on a module of no GN target: commented)
 
@@ -4038,6 +4100,10 @@ class Report:
             print("\nERROR: PCH of build/gn/pch that applies to nothing (%s, %s):" % (PCH_TARGETS, PCH_GROUPS), file=o)
             for mode, x, why in self.pch_stale:
                 print("  %-10s %-58s %s" % (mode, x, why), file=o)
+        if self.pch_pruned:
+            print("\nmissing source-header includes pruned from global PCH (planned in --dry-run):", file=o)
+            for path, header in self.pch_pruned:
+                print("  %s: %s" % (path, header), file=o)
         if self.link_select_conflicts:
             print("\nERROR: several providers of a link slot in the PEERDIR closure (ya fails too; none selected):", file=o)
             for d, slot, values in self.link_select_conflicts:
@@ -4951,6 +5017,10 @@ def main():
                 path.append(x)
             report.test_only_programs.append((d, path))
     report.pch_stale = stale_pch(root, rendered)
+    pch_changes, report.pch_pruned = prune_global_pch(root, mods, resolver.generated, external)
+    if args.dry_run:
+        for path, text in sorted(pch_changes.items()):
+            print("# ----- %s -----\n%s" % (path, text))
     for host, text in sorted(rendered.items()):
         report.generated.append(host)
         if args.dry_run:
@@ -4959,6 +5029,8 @@ def main():
         cache = os.path.join(os.path.abspath(args.build_dir), RENDER_CACHE) if args.build_dir else None
         write_buildgns(root, {os.path.join(root, host, "BUILD.gn"): text
                               for host, text in rendered.items()}, args.no_format, cache)
+        for path, text in sorted(pch_changes.items()):
+            write_if_changed(os.path.join(root, path), text)
 
     # the include-side half's own BUILD.gn is stale once its src module is written
     stale_aliases = {d for d, t in resolver.aliases.items()

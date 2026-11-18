@@ -10,5 +10,6 @@ library("antlr4") {
   sources = [
     "depth_limiting_listener.cpp",
     "error_listener.cpp",
+    "lexer_tokens_collector.cpp",
   ]
 }

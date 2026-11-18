@@ -9,7 +9,8 @@
 
 namespace NKikimr::NOlap {
 
-void IBlobsGCAction::OnCompleteTxAfterCleaning(NColumnShard::TColumnShard& self, const std::shared_ptr<IBlobsGCAction>& taskAction) {
+void IBlobsGCAction::OnCompleteTxAfterCleaning(NColumnShard::TColumnShard& self, const std::shared_ptr<IBlobsGCAction>& taskAction,
+    TFunctionRef<void(ui32)> onFirstGC) {
     if (!AbortedFlag) {
         YDB_LOG_CREATE_CONTEXT(
             {"tabletId", self.TabletID()});
@@ -27,7 +28,7 @@ void IBlobsGCAction::OnCompleteTxAfterCleaning(NColumnShard::TColumnShard& self,
         }
         Counters->OnGCFinished(sumBytesRemove, blobsCount);
 
-        if (!DoOnCompleteTxAfterCleaning(self, taskAction)) {
+        if (!DoOnCompleteTxAfterCleaning(onFirstGC)) {
             return;
         }
         OnFinished();

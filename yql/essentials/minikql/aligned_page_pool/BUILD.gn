@@ -9,6 +9,10 @@ library("aligned_page_pool") {
   sources = [
     "//yql/essentials/minikql/aligned_page_pool.cpp",
     "//yql/essentials/minikql/fake_mmap.cpp",
+    "//yql/essentials/minikql/frozen_page.cpp",
+    "//yql/essentials/minikql/global_page_pool.cpp",
+    "//yql/essentials/minikql/global_pools.cpp",
+    "//yql/essentials/minikql/page_pool_constants.cpp",
     "//yql/essentials/minikql/system_mmap.cpp",
     "//yql/essentials/minikql/tracked_mmap.cpp",
   ]

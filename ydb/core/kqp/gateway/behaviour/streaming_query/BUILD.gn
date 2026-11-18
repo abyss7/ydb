@@ -12,7 +12,7 @@ library("streaming_query") {
     "//library/cpp/protobuf/json",
     # "//library/cpp/retry",
     # "//ydb/core/base",
-    # "//ydb/core/cms/console",
+    # "//ydb/core/cms/console/events",
     # "//ydb/core/fq/libs/checkpoint_storage",  # peerdir only
     # "//ydb/core/fq/libs/checkpoint_storage/events",
     "//ydb/core/kqp/common",

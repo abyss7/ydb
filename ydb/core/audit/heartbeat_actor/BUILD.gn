@@ -3,6 +3,7 @@ library("heartbeat_actor") {
     "//ydb/core/audit",
     "//ydb/core/audit/audit_config",
     "//ydb/library/actors/core",
+    "//ydb/library/actors/interconnect/address",
     "//ydb/library/yverify_stream",
   ]
 

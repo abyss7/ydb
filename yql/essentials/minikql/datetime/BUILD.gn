@@ -4,5 +4,8 @@ library("datetime") {
     "//yql/essentials/public/udf",
   ]
 
-  sources = [ "datetime.cpp" ]
+  sources = [
+    "datetime.cpp",
+    "datetime64.cpp",
+  ]
 }

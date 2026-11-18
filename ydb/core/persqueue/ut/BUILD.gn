@@ -105,6 +105,7 @@ unittest_executable("ut") {
     "//ydb/core/metering",
     "//ydb/core/mon",
     "//ydb/core/persqueue/common",
+    "//ydb/core/persqueue/pqtablet/blob",
     "//ydb/core/persqueue/pqtablet/common",
     "//ydb/core/persqueue/pqtablet/quota",
     "//ydb/core/persqueue/public",

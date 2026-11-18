@@ -1,6 +1,7 @@
 unittest_executable("ut_worker") {
   deps = [
     "//library/cpp/testing/unittest",
+    "//ydb/core/testlib/actors",
     "//ydb/core/tx/replication/common",
     "//ydb/core/tx/replication/service",
     "//ydb/core/tx/replication/ut_helpers",
@@ -8,6 +9,7 @@ unittest_executable("ut_worker") {
     "//ydb/library/actors/core",
     "//ydb/public/sdk/cpp/src/client/table",
     "//ydb/public/sdk/cpp/src/client/topic",
+    "//ydb/services/persqueue_v1/actors",
   ]
 
   sources = [ "//ydb/core/tx/replication/service/worker_ut.cpp" ]

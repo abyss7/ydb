@@ -15,6 +15,7 @@ unittest_executable("olap") {
     "//ydb/core/kqp/ut/olap/helpers",
     "//ydb/core/statistics:ut_common",
     "//ydb/core/tx/columnshard",
+    "//ydb/core/tx/columnshard/engines/scheme",
     "//ydb/core/tx/columnshard/hooks/testing",
     "//ydb/core/tx/datashard",
     "//ydb/core/tx/datashard/ut_common",
@@ -25,7 +26,9 @@ unittest_executable("olap") {
     "//ydb/library/ut",
     "//ydb/public/lib/ut_helpers",
     "//ydb/public/lib/ydb_cli/common",
+    "//ydb/public/lib/yson_value",
     "//ydb/public/sdk/cpp/src/client/result",
+    "//yql/essentials/ast",
     "//yql/essentials/core/pg_settings",
     "//yql/essentials/parser/pg_catalog",
     "//yql/essentials/parser/pg_wrapper",  # peerdir only
@@ -38,6 +41,7 @@ unittest_executable("olap") {
   sources = [
     "kqp_rbo_olap_distinct_ut.cpp",
     "kqp_rbo_olap_ut.cpp",
+    "olap_json_ilike_ut.cpp",
   ]
 
   include_dirs = [

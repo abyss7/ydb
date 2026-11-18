@@ -1,0 +1,39 @@
+unittest_executable("statistics") {
+  public_deps = [
+    "//library/cpp/json",
+    "//ydb/core/statistics:ut_common",
+    "//ydb/public/sdk/cpp/src/client/query",
+  ]
+
+  deps = [
+    "//library/cpp/testing/common",
+    "//ydb/core/kqp",  # peerdir only
+    "//ydb/core/kqp/ut/common",
+    "//ydb/core/kqp/ut/rbo/statistics/helpers",  # peerdir only
+    "//yql/essentials/core/minsketch",
+    "//yql/essentials/parser/pg_wrapper",  # peerdir only
+    "//yql/essentials/sql/pg",  # peerdir only
+  ]
+
+  data_deps = [ "//ydb/apps/ydb" ]
+
+  sources = [ "kqp_rbo_statistics_ut.cpp" ]
+
+  include_dirs = [
+    "//ydb/core/kqp",  # peerdir only
+  ]
+
+  data = [ "data/" ]
+
+  link_select = [
+    "YqlServicePolicy=exception_policy",
+    "allocator=tcmalloc",
+    "minikql_codegen=llvm16",
+    "retro_spans=spans",
+    "topic_rpc=persqueue_v1",
+    "wasm=engine",
+    "yql_pg_runtime=pg_wrapper",
+    "yql_pg_sql_translator=pg",
+    "yt_codegen=llvm16",
+  ]
+}

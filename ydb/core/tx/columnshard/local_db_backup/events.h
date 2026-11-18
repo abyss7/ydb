@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ydb/core/tablet_flat/flat_dbase_scheme.h>
-#include <ydb/core/tx/columnshard/columnshard.h>
+#include <ydb/core/tx/columnshard/columnshard_ev_ids.h>
 
 #include <ydb/library/actors/core/event_local.h>
 

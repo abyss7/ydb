@@ -22,9 +22,8 @@ library("node_service") {
     "//library/cpp/monlib/service/pages",
     # "//ydb/core/actorlib_impl",
     "//ydb/core/base",
-    # "//ydb/core/cms/console",
+    # "//ydb/core/cms/console/events",
     # "//ydb/core/kqp/common/shutdown",
-    # "//ydb/core/mind",  # peerdir only
     # "//ydb/core/mon",
     # "//ydb/core/tablet",  # peerdir only
     "//ydb/library/actors/async",

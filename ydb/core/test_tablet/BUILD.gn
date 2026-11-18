@@ -4,7 +4,7 @@ library("test_tablet") {
     # "//library/cpp/json",
     "//ydb/core/keyvalue",
     "//ydb/core/protos",
-    # "//ydb/core/tablet_flat",
+    "//ydb/core/tablet_flat",
     # "//ydb/core/util",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect/poller",

@@ -27,6 +27,7 @@ linked_executable("ydbd") {
     "//ydb/library/yql/udfs/common/hybrid_search",  # peerdir only
     "//ydb/library/yql/udfs/common/knn",  # peerdir only
     "//ydb/library/yql/udfs/common/roaring",  # peerdir only
+    "//ydb/library/yql/udfs/digest",  # peerdir only
     "//ydb/library/yql/udfs/statistics_internal",  # peerdir only
     "//yql/essentials/parser/pg_wrapper",  # peerdir only
     "//yql/essentials/parser/pg_wrapper/interface",
@@ -38,7 +39,6 @@ linked_executable("ydbd") {
     "//yql/essentials/udfs/common/hyperloglog",  # peerdir only
     "//yql/essentials/udfs/common/hyperscan",  # peerdir only
     "//yql/essentials/udfs/common/ip_base",  # peerdir only
-    "//yql/essentials/udfs/common/json",  # peerdir only
     "//yql/essentials/udfs/common/json2",  # peerdir only
     "//yql/essentials/udfs/common/math",  # peerdir only
     "//yql/essentials/udfs/common/pire",  # peerdir only

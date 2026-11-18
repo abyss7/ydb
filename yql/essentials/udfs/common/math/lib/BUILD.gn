@@ -1,3 +1,6 @@
 library("lib") {
-  sources = [ "erfinv.cpp" ]
+  sources = [
+    "erfinv.cpp",
+    "round.cpp",
+  ]
 }

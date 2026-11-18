@@ -1,0 +1,17 @@
+unittest_executable("login") {
+  deps = [
+    "//contrib/libs/grpc",
+    "//contrib/libs/jwt-cpp",  # peerdir only
+    "//library/cpp/testing/common",
+    "//library/cpp/testing/unittest",
+    "//ydb/public/api/grpc",
+    "//ydb/public/sdk/cpp/src/client/common_client",  # peerdir only
+    "//ydb/public/sdk/cpp/src/client/common_client/impl",
+    "//ydb/public/sdk/cpp/src/client/driver",
+    "//ydb/public/sdk/cpp/src/client/types/credentials/login",  # peerdir only
+  ]
+
+  sources = [ "login_ut.cpp" ]
+
+  link_select = [ "allocator=tcmalloc" ]
+}

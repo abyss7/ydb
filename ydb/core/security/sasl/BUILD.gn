@@ -1,9 +1,12 @@
 library("sasl") {
   public_deps = [
     "//ydb/core/base",
+    "//ydb/core/tx/scheme_cache",
+    # "//ydb/core/tx/schemeshard",
     "//ydb/library/actors/core",
     "//ydb/library/login/password_checker",
     "//ydb/library/login/protos",
+    "//ydb/library/login/sasl",
     "//yql/essentials/public/issue",
   ]
 
@@ -16,10 +19,7 @@ library("sasl") {
     "//ydb/core/security",
     "//ydb/core/security/ldap_auth_provider",
     "//ydb/core/tablet",  # peerdir only
-    "//ydb/core/tx/scheme_cache",
-    # "//ydb/core/tx/schemeshard",
     "//ydb/library/login/hashes_checker",
-    "//ydb/library/login/sasl",
     "//ydb/library/services",
     "//ydb/library/ydb_issue",  # peerdir only
     "//ydb/library/ydb_issue/proto",  # peerdir only

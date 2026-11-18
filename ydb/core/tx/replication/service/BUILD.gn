@@ -16,6 +16,8 @@ library("service") {
 
   deps = [
     # "//contrib/libs/rapidjson",
+    # "//contrib/libs/zstd",
+    "//library/cpp/openssl/crypto",
     # "//library/cpp/string_utils/base64",
     # "//ydb/core/fq/libs/row_dispatcher/events",  # peerdir only
     "//ydb/core/fq/libs/row_dispatcher/purecalc_compilation",

@@ -1,5 +1,6 @@
 import os
 import tempfile
+import types
 import unittest
 from unittest.mock import patch
 
@@ -9,6 +10,58 @@ import yamake2gn
 def read(path):
     with open(path) as f:
         return f.read()
+
+
+class GlobalPchPruneTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = self.tmp.name
+        self.mods = {"src": types.SimpleNamespace(kind="LIBRARY")}
+        self.generated = {"src/output.h": "src"}
+        self.external = yamake2gn.ExternalTargets(self.root)
+        self.pch = "build/gn/pch/global/group_1/pch.cc"
+
+    def put(self, path, text):
+        full = os.path.join(self.root, path)
+        os.makedirs(os.path.dirname(full), exist_ok=True)
+        with open(full, "w") as f:
+            f.write(text)
+
+    def plan(self):
+        return yamake2gn.prune_global_pch(self.root, self.mods, self.generated, self.external)
+
+    def test_deleted_and_moved_headers_are_removed_without_replacement(self):
+        self.put("src/current.h", "")
+        self.put("src/new/moved.h", "")
+        original = '#pragma once\n#include "src/old.h"\n#include "src/moved.h"\n#include "src/current.h"\n'
+        self.put(self.pch, original)
+        per_target = "build/gn/pch/per_target/src/src.h"
+        self.put(per_target, '#include "src/old.h"\n')
+        changes, removed = self.plan()
+        self.assertEqual(changes[self.pch], '#pragma once\n#include "src/current.h"\n')
+        self.assertEqual(removed, [(self.pch, "src/old.h"), (self.pch, "src/moved.h")])
+        # Planning (also used by dry-run) never mutates either mode.
+        self.assertEqual(read(os.path.join(self.root, self.pch)), original)
+        self.assertEqual(read(os.path.join(self.root, per_target)), '#include "src/old.h"\n')
+        for path, text in changes.items():
+            yamake2gn.write_if_changed(os.path.join(self.root, path), text)
+        self.assertEqual(self.plan(), ({}, []))
+
+    def test_generated_and_unmodelled_headers_survive_without_build_dir(self):
+        self.put("src/custom/BUILD.gn", '# yamake2gn: keep\n')
+        headers = ["src/output.h", "src/message.pb.h", "src/nodes.gen.h",
+                   "src/generated/plain.h", "src/custom/plain.h", "unknown/plain.h",
+                   "contrib/lib/plain.h", "../relative.h", "/absolute.h", "pch.h"]
+        text = "".join('#include "%s"\n' % h for h in headers) + "#include <vector>\n"
+        self.put(self.pch, text)
+        self.assertEqual(self.plan(), ({}, []))
+
+    def test_conditional_or_commented_lists_are_not_rewritten(self):
+        for text in ('#if 0\n#include "src/old.h"\n#endif\n',
+                     '/*\n#include "src/old.h"\n*/\n'):
+            self.put(self.pch, text)
+            self.assertEqual(self.plan(), ({}, []))
 
 
 class TreeScanTest(unittest.TestCase):

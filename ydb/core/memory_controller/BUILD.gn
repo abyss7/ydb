@@ -12,13 +12,12 @@ library("memory_controller") {
     # "//contrib/libs/apache/arrow",
     # "//contrib/libs/tcmalloc",
     "//contrib/libs/tcmalloc:malloc_extension",  # peerdir only
-    # "//ydb/core/cms/console",
+    # "//ydb/core/cms/console/events",
     # "//ydb/core/node_whiteboard",
     # "//ydb/core/tablet",
     # "//ydb/core/tablet_flat",
     # "//ydb/core/tx/columnshard",
-    "//ydb/core/tx/columnshard/data_accessor/cache_policy",
-    # "//ydb/core/tx/columnshard/engines/storage/optimizer/abstract",
+    "//ydb/core/tx/columnshard/engines/storage/optimizer/abstract",
     "//ydb/library/services",
     # "//yql/essentials/minikql",  # peerdir only
     # "//yql/essentials/minikql/aligned_page_pool",

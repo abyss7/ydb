@@ -8,8 +8,8 @@ expand_template("gen") {
 
     substitutions = [
         "PC_FROM_UCONTEXT=uc_mcontext.gregs[REG_RIP]",
-        "YT_VERSION_MAJOR=26",
-        "YT_VERSION_MINOR=3",
+        "YT_VERSION_MAJOR=27",
+        "YT_VERSION_MINOR=1",
         "YT_VERSION_PATCH=0",
         "QT_VERSION_MAJOR=0",
         "QT_VERSION_MINOR=5",

@@ -9,6 +9,7 @@ library("metadata_subscription") {
   deps = [
     # "//library/cpp/digest/md5",  # peerdir only
     # "//ydb/core/keyvalue",  # peerdir only
+    "//ydb/core/protos",
     # "//ydb/core/tx/scheme_cache",  # peerdir only
     # "//ydb/library/aclib",  # peerdir only
     # "//ydb/library/actors/core",  # peerdir only

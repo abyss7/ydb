@@ -1,3 +1,25 @@
+library("erase_rows") {
+  public_deps = [
+    # ":tx_proxy",
+    "//ydb/core/util",
+  ]
+
+  deps = [
+    ":public",
+    "//ydb/core/actorlib_impl",
+    "//ydb/core/base",
+    "//ydb/core/protos",
+    "//ydb/core/scheme",
+    # "//ydb/core/tx/datashard",
+    "//ydb/core/tx/scheme_cache",
+    "//ydb/library/actors/core",
+    "//ydb/library/ydb_issue",
+    "//ydb/public/api/protos",
+  ]
+
+  sources = [ "erase_rows.cpp" ]
+}
+
 library("public") {
   public_deps = [
     # ":tx_proxy",
@@ -47,6 +69,7 @@ library("read_table") {
 
 library("tx_proxy") {
   public_deps = [
+    ":erase_rows",
     ":public",
     ":read_table",
     ":upload_rows",
@@ -66,6 +89,7 @@ library("tx_proxy") {
     # "//ydb/core/io_formats/arrow/scheme",  # peerdir only
     "//ydb/core/kqp/common",
     # "//ydb/core/kqp/executer_actor",
+    # "//ydb/core/kqp/predictor",  # peerdir only
     "//ydb/core/protos/schemeshard",
     # "//ydb/core/scheme",
     "//ydb/core/security/sasl",
@@ -139,7 +163,7 @@ library("upload_rows") {
   deps = [
     ":public",
     "//contrib/libs/apache/arrow",
-    "//ydb/core/kqp/query_data",
+    "//ydb/core/kqp/predictor",
     # "//ydb/core/tx/columnshard",
     "//ydb/core/tx/data_events",
     # "//ydb/core/tx/schemeshard",

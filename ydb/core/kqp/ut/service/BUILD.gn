@@ -15,7 +15,6 @@ unittest_executable("service") {
     "//ydb/core/kqp/compile_service",
     "//ydb/core/kqp/counters",
     "//ydb/core/kqp/node_service",
-    "//ydb/core/kqp/provider",
     "//ydb/core/kqp/session_actor",
     "//ydb/core/kqp/ut/common",
     "//ydb/core/testlib",

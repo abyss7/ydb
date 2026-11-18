@@ -40,6 +40,7 @@ library("common") {
     # "//ydb/core/tx/datashard",
     # "//ydb/core/tx/schemeshard",
     # "//ydb/core/tx/tx_proxy:public",
+    "//ydb/library/yql/udfs/digest",  # peerdir only
     # "//ydb/public/sdk/cpp/src/client/proto",
     # "//ydb/public/sdk/cpp/src/client/topic",  # peerdir only
     # "//yql/essentials/core",

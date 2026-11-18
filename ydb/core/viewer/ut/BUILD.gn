@@ -6,9 +6,13 @@ unittest_executable("ut") {
     "//library/cpp/json",
     "//library/cpp/monlib/service",
     "//library/cpp/string_utils/quote",
+    "//library/cpp/testing/common",
     "//library/cpp/testing/unittest",
+    "//ydb/core/base",
     "//ydb/core/blobstorage/base",
     "//ydb/core/kqp/common",
+    "//ydb/core/kqp/common/events",
+    "//ydb/core/kqp/script_executions/common",
     "//ydb/core/mon",  # peerdir only
     "//ydb/core/mon:ut_utils",
     "//ydb/core/node_whiteboard",
@@ -39,6 +43,7 @@ unittest_executable("ut") {
     "//ydb/core/viewer/viewer_subscriptions_ut.cpp",
     "//ydb/core/viewer/viewer_ut.cpp",
     "ut_utils.cpp",
+    "viewer_query_ut.cpp",
   ]
 
   include_dirs = [ "//ydb/core/viewer" ]

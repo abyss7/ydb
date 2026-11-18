@@ -1,0 +1,21 @@
+library("table_digest") {
+  testonly = true
+
+  public_deps = [
+    "//ydb/core/scheme",
+    # "//ydb/core/scheme_types",
+    "//ydb/library/table_digest",
+  ]
+
+  deps = [
+    "//contrib/libs/openssl",
+    # "//yql/essentials/minikql",
+    "//yql/essentials/minikql/computation",
+    # "//yql/essentials/minikql:alloc",
+    # "//yql/essentials/public/decimal",
+    # "//yql/essentials/public/udf",
+    "//yql/essentials/types/binary_json",  # peerdir only
+  ]
+
+  sources = [ "table_digest.cpp" ]
+}

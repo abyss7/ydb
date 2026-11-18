@@ -627,23 +627,23 @@ void TColumnShard::Handle(NEvents::TDataEvents::TEvWrite::TPtr& ev, const TActor
 void TColumnShard::DrainWriteQueue(const TActorContext& ctx, const bool isRetryWakeup) {
     TWriteGate::TDrainedWrites drained = GetWriteGate().DrainWriteQueue(ctx, isRetryWakeup);
     for (const TWriteTask& task : drained.TableDropped) {
-        task.Abort(this, "table is dropped", ctx, NKikimrDataEvents::TEvWriteResult::STATUS_SCHEME_CHANGED);
+        AbortWriteTask(task, "table is dropped", ctx, NKikimrDataEvents::TEvWriteResult::STATUS_SCHEME_CHANGED);
     }
     for (const TWriteTask& task : drained.LockAborted) {
-        task.Abort(this, "transaction is aborted", ctx, NKikimrDataEvents::TEvWriteResult::STATUS_LOCKS_BROKEN);
+        AbortWriteTask(task, "transaction is aborted", ctx, NKikimrDataEvents::TEvWriteResult::STATUS_LOCKS_BROKEN);
     }
     for (const auto& [task, overload] : drained.TimedOut) {
         if (overload != EOverloadStatus::None) {
-            task.FailByOverload(this, overload, ctx);
+            FailWriteTaskByOverload(task, overload, ctx);
         } else {
-            task.Abort(this, "timeout", ctx, NKikimrDataEvents::TEvWriteResult::STATUS_OVERLOADED);
+            AbortWriteTask(task, "timeout", ctx, NKikimrDataEvents::TEvWriteResult::STATUS_OVERLOADED);
         }
     }
     for (const NOlap::TEvPassWriteGate::TPtr& ev : drained.TimedOutWaitingForLoadedPortions) {
         FailStartedWrite(*ev->Get(), NKikimrDataEvents::TEvWriteResult::STATUS_OVERLOADED, "timeout", ctx);
     }
     for (const TWriteTask& task : drained.ToStart) {
-        task.Execute(this, ctx);
+        ExecuteWriteTask(task, ctx);
     }
 }
 

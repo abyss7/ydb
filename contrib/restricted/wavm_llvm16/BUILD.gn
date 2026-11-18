@@ -1,0 +1,5 @@
+# yamake2gn: keep
+
+group("wavm_llvm16") {
+  public_deps = [ "Lib" ]
+}

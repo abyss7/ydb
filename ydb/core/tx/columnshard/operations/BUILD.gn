@@ -1,6 +1,7 @@
 library("batch_builder") {
   public_deps = [
     # ":common",
+    "//ydb/core/formats/arrow",
     # "//ydb/core/tx/columnshard",
     # "//ydb/core/tx/columnshard/common",
     # "//ydb/core/tx/columnshard/counters",
@@ -11,7 +12,6 @@ library("batch_builder") {
 
   deps = [
     ":slice_builder",
-    "//ydb/core/formats/arrow",
     # "//ydb/core/scheme",
     "//ydb/core/tx/columnshard/data_reader",
     "//ydb/core/tx/columnshard/engines/predicate",  # peerdir only
@@ -65,16 +65,21 @@ library("events") {
 
 library("operations") {
   public_deps = [
+    ":batch_builder",
     ":common",
     ":events",
+    # "//library/cpp/lwtrace",
     "//ydb/core/protos",
     # "//ydb/core/tablet_flat",
     # "//ydb/core/tx/columnshard/common",
+    # "//ydb/core/tx/columnshard/counters",
     "//ydb/core/tx/columnshard/engines",
     # "//ydb/core/tx/columnshard/engines/portions",
     # "//ydb/core/tx/columnshard/engines/scheme",
+    # "//ydb/core/tx/columnshard/overload_manager",
     # "//ydb/core/tx/columnshard/transactions/locks",
     "//ydb/core/tx/data_events",
+    # "//ydb/core/tx/data_events/common",
     # "//ydb/core/tx/locks",
     # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
@@ -82,19 +87,19 @@ library("operations") {
   ]
 
   deps = [
-    ":batch_builder",
     ":slice_builder",  # peerdir only
-    # "//library/cpp/lwtrace",
     "//ydb/core/base",
     # "//ydb/core/tx/columnshard",
     # "//ydb/core/tx/columnshard/blobs_action",
     # "//ydb/core/tx/columnshard/blobs_action/abstract",
-    # "//ydb/core/tx/columnshard/data_reader",  # peerdir only
+    "//ydb/core/tx/columnshard/data_reader",  # peerdir only
     # "//ydb/core/tx/columnshard/engines/writer",
+    "//ydb/core/tx/columnshard/tracing",  # peerdir only
     # "//ydb/core/tx/conveyor/usage",
     "//ydb/core/tx/conveyor_composite/usage",
     "//ydb/core/tx/time_cast",  # peerdir only
     # "//ydb/library/actors/struct_log",
+    # "//ydb/library/formats/arrow",
     # "//ydb/services/metadata",  # peerdir only
   ]
 
@@ -102,6 +107,7 @@ library("operations") {
     "manager.cpp",
     "write.cpp",
     "write_data.cpp",
+    "write_gate.cpp",
   ]
 }
 

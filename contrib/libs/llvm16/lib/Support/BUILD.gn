@@ -2,6 +2,7 @@ contrib_library("Support") {
     deps = [
         "//contrib/libs/llvm16/lib/Demangle",
         "//contrib/libs/zlib",
+        "//contrib/libs/zstd",
     ]
 
     sources = [

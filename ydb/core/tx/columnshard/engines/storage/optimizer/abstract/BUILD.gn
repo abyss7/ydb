@@ -4,6 +4,7 @@ library("abstract") {
     # "//contrib/libs/apache/arrow",
     # "//ydb/core/base",
     # "//ydb/core/formats/arrow",
+    "//ydb/core/protos",
     # "//ydb/core/tx/columnshard/common",
     "//ydb/core/tx/columnshard/counters",
     # "//ydb/library/accessor",
@@ -14,7 +15,6 @@ library("abstract") {
   ]
 
   deps = [
-    "//ydb/core/protos",
     # "//ydb/core/tx/columnshard/engines/changes/abstract",
     # "//ydb/core/tx/columnshard/engines/portions",
   ]

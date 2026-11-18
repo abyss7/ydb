@@ -1,18 +1,24 @@
 library("local_db_backup") {
+  public_deps = [
+    "//ydb/core/tablet_flat",
+    "//ydb/core/tx/columnshard:ev_ids",
+    "//ydb/library/actors/core",
+  ]
+
   deps = [
     # "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-s3",  # peerdir only
+    "//library/cpp/html/pcdata",
     # "//library/cpp/json",
-    # "//library/cpp/protobuf/json",
+    "//library/cpp/protobuf/json",
     # "//ydb/core/base",
     "//ydb/core/protos",
-    # "//ydb/core/tablet_flat",
-    # "//ydb/core/tx/columnshard",
-    # "//ydb/core/wrappers",
-    # "//ydb/library/actors/core",
+    "//ydb/core/wrappers",
+    "//ydb/library/actors/protos",
     "//ydb/library/services",
   ]
 
   sources = [
+    "backup_actor.cpp",
     "page.cpp",
     "writer.cpp",
   ]

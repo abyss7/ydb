@@ -1,0 +1,17 @@
+# yamake2gn: keep -- SIZE is run metadata; retain the AVX2 compile flags.
+
+if (host_cpu == "x64" && host_os == "linux") {
+  config("add_columns_private_config") {
+    cflags = [ "-mavx2" ]
+  }
+
+  linked_executable("add_columns") {
+    deps = [ "//ydb/library/yql/dq/comp_nodes/hash_join_utils/simd" ]
+
+    sources = [ "main.cpp" ]
+
+    link_select = [ "allocator=tcmalloc" ]
+
+    configs = [ ":add_columns_private_config" ]
+  }
+}

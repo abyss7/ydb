@@ -9,6 +9,7 @@ unittest_executable("ut") {
     "//library/cpp/svnversion",  # peerdir only
     "//library/cpp/testing/unittest",
     "//ydb/core/base",
+    "//ydb/core/blobstorage/base",
     "//ydb/core/cms/console",
     "//ydb/core/config/init",
     "//ydb/core/driver_lib/run",
@@ -45,6 +46,7 @@ unittest_executable("ut") {
     "//ydb/core/tablet/tablet_pipe_ut.cpp",
     "//ydb/core/tablet/tablet_pipecache_ut.cpp",
     "//ydb/core/tablet/tablet_req_blockbs_ut.cpp",
+    "//ydb/core/tablet/tablet_req_rebuildhistory_ut.cpp",
     "//ydb/core/tablet/tablet_resolver_ut.cpp",
     "//ydb/core/tablet/tablet_state_ut.cpp",
   ]

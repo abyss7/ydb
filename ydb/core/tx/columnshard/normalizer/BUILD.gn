@@ -47,6 +47,8 @@ library("tablet") {
   ]
 
   deps = [
+    # "//library/cpp/json",
+    # "//library/cpp/string_utils/base64",
     "//ydb/core/protos",
     # "//ydb/core/tx/columnshard/blobs_action",
   ]
@@ -54,6 +56,7 @@ library("tablet") {
   sources = [
     "tablet/broken_txs.cpp",
     "tablet/clean_orphaned_operations.cpp",
+    "tablet/clean_stale_backup_transactions.cpp",
     "tablet/gc_counters.cpp",
   ]
 }

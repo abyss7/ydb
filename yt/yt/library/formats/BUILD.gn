@@ -13,6 +13,7 @@ library("formats") {
     # "//library/cpp/skiff",
     # "//library/cpp/string_utils/base64",
     # "//library/cpp/yt/coding",
+    # "//library/cpp/yt/containers",
     # "//library/cpp/yt/memory",
     # "//library/cpp/yt/string",
     # "//yt/yt/core/yaml",

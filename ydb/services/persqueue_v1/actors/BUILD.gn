@@ -48,6 +48,7 @@ library("actors") {
     "//ydb/core/persqueue/public/metrics",
     "//ydb/core/persqueue/public/reset_offset",
     "//ydb/core/persqueue/public/write_meta",
+    "//ydb/core/persqueue/public/write_sessions_quoter",
     # "//ydb/core/ydb_convert",
     # "//ydb/library/persqueue",
     # "//ydb/public/lib/base",

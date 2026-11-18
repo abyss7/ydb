@@ -2,6 +2,11 @@ unittest_executable("ut") {
   deps = [
     "//library/cpp/http/misc",
     "//library/cpp/http/simple",
+    "//library/cpp/json",
+    "//library/cpp/monlib/consumers",
+    "//library/cpp/monlib/dynamic_counters",
+    "//library/cpp/monlib/encode/spack",
+    "//library/cpp/monlib/metrics",
     "//library/cpp/testing/unittest",
     "//ydb/core/base",
     "//ydb/core/client/server",

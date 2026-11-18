@@ -18,7 +18,6 @@ library("combiner_perf") {
     # "//contrib/libs/llvm16/lib/Transforms/ObjCARC",  # peerdir only
     # "//library/cpp/containers/absl",
     "//library/cpp/testing/unittest",
-    # "//library/cpp/threading/future",
     "//ydb/core/kqp/runtime",  # peerdir only
     # "//ydb/core/kqp/runtime/common",
     "//ydb/library/yql/dq/comp_nodes",

@@ -1,6 +1,7 @@
 unittest_executable("discovery") {
   deps = [
     "//library/cpp/testing/unittest",
+    "//ydb/core/blobstorage/base",
     "//ydb/core/discovery",
     "//ydb/core/kqp/ut/common",
     "//ydb/public/api/grpc",

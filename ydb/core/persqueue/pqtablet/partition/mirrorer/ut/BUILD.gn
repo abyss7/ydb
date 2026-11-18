@@ -2,6 +2,8 @@ unittest_executable("ut") {
   deps = [
     "//library/cpp/string_utils/base64",
     "//library/cpp/testing/unittest",
+    "//ydb/core/base",
+    "//ydb/core/kqp/common/events",
     "//ydb/core/persqueue/common/proxy",
     "//ydb/core/persqueue/events",
     "//ydb/core/persqueue/pqtablet/partition/mirrorer",
@@ -9,13 +11,18 @@ unittest_executable("ut") {
     "//ydb/core/tablet",
     "//ydb/core/testlib/basics",
     "//ydb/core/testlib/default",  # peerdir only
+    "//ydb/core/tx/scheme_cache",
     "//ydb/library/persqueue/topic_parser",
     "//ydb/public/lib/base",
     "//ydb/public/sdk/cpp/src/client/topic",
     "//ydb/public/sdk/cpp/src/library/kafka",
+    "//ydb/services/scheme_secret",
   ]
 
-  sources = [ "mirrorer_actor_ut.cpp" ]
+  sources = [
+    "mirrorer_actor_ut.cpp",
+    "mirrorer_credentials_ut.cpp",
+  ]
 
   include_dirs = [ "//ydb/core/persqueue/pqtablet/partition/mirrorer" ]
 

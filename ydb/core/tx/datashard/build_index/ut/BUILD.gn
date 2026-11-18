@@ -6,8 +6,12 @@ unittest_executable("ut") {
     "//library/cpp/testing/unittest",
     "//ydb/core/base",
     "//ydb/core/grpc_services/local_rpc",
+    "//ydb/core/kqp/common/events",
+    "//ydb/core/kqp/common/simple",
+    "//ydb/core/kqp/runtime",
     "//ydb/core/kqp/ut/common",  # peerdir only
     "//ydb/core/protos",
+    "//ydb/core/protos/schemeshard",
     "//ydb/core/scheme",
     "//ydb/core/testlib",
     "//ydb/core/testlib/actors",
@@ -28,6 +32,7 @@ unittest_executable("ut") {
   ]
 
   sources = [
+    "ut_delta_kmeans.cpp",
     "ut_filter_kmeans.cpp",
     "ut_fulltext.cpp",
     "ut_fulltext_dict.cpp",
@@ -38,7 +43,9 @@ unittest_executable("ut") {
     "ut_reshuffle_kmeans.cpp",
     "ut_sample_k.cpp",
     "ut_secondary_index.cpp",
+    "ut_table_range_reader.cpp",
     "ut_unique_index.cpp",
+    "ut_vector_resolve_actor.cpp",
   ]
 
   include_dirs = [ "//ydb/core/tx/datashard" ]

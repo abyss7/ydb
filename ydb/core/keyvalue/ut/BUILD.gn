@@ -22,7 +22,10 @@ unittest_executable("ut") {
 
   include_dirs = [ "//ydb/core/keyvalue" ]
 
-  serialize_enum_headers = [ "keyvalue_move_data_test_enums.h" ]
+  serialize_enum_headers = [
+    "keyvalue_move_data_test_enums.h",
+    "keyvalue_test_enums.h",
+  ]
 
   link_select = [
     "YqlServicePolicy=exception_policy",

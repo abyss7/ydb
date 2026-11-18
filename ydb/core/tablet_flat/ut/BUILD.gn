@@ -14,6 +14,7 @@ library("ut_resources") {
 unittest_executable("ut") {
   deps = [
     ":ut_resources",
+    "//contrib/libs/zstd",
     "//library/cpp/digest/crc32c",
     "//library/cpp/json",
     "//library/cpp/monlib/service",
@@ -69,8 +70,11 @@ unittest_executable("ut") {
     "ut_charge.cpp",
     "ut_comp_gen.cpp",
     "ut_compaction.cpp",
+    "ut_compaction_context.cpp",
     "ut_compaction_fulltext.cpp",
+    "ut_compaction_levels.cpp",
     "ut_compaction_multi.cpp",
+    "ut_compaction_outputs.cpp",
     "ut_datetime.cpp",
     "ut_db_iface.cpp",
     "ut_db_mon.cpp",
@@ -93,6 +97,7 @@ unittest_executable("ut") {
     "ut_rowlocks.cpp",
     "ut_sausage.cpp",
     "ut_scan_delta.cpp",
+    "ut_scan_source.cpp",
     "ut_screen.cpp",
     "ut_self.cpp",
     "ut_shared_sausagecache.cpp",

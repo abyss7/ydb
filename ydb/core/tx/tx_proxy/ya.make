@@ -21,8 +21,9 @@ SRCS(
     upload_rows_counters.cpp  # gn: upload_rows
     upload_rows_common_impl.cpp  # gn: upload_rows
     upload_rows.cpp  # gn: upload_rows
-    erase_rows.cpp
+    erase_rows.cpp  # gn: erase_rows
 )
+# gn: erase_rows headers erase_rows.h
 # gn: public headers mon.h proxy.h
 # gn: read_table headers read_table_impl.h
 # gn: upload_rows headers long_tx_write_flow_control.h upload_rows.h upload_rows_common_impl.h upload_rows_counters.h
@@ -64,6 +65,7 @@ PEERDIR(
     ydb/library/mkql_proto/protos
     ydb/public/lib/base
 )
+# gn: erase_rows peerdir ydb/core/tx/tx_proxy:public
 # gn: read_table peerdir ydb/core/tx/tx_proxy:public
 # gn: upload_rows peerdir ydb/core/tx/tx_proxy:public
 

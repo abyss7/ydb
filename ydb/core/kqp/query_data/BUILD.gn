@@ -1,6 +1,7 @@
 library("query_data") {
   public_deps = [
     "//ydb/core/kqp/common/simple",
+    "//ydb/core/kqp/predictor",
     "//ydb/core/protos",
     # "//ydb/core/scheme",
     # "//ydb/library/accessor",
@@ -13,7 +14,7 @@ library("query_data") {
     # "//ydb/core/base",
     "//ydb/core/kqp/common",
     "//ydb/core/kqp/common/result_set_format",  # peerdir only
-    # "//ydb/core/kqp/expr_nodes",
+    # "//ydb/core/kqp/expr_nodes",  # peerdir only
     "//ydb/core/kqp/provider",
     "//ydb/core/protos/schemeshard",
     # "//ydb/library/actors/core",
@@ -22,13 +23,12 @@ library("query_data") {
     # "//ydb/public/api/grpc/draft",  # peerdir only
     # "//ydb/public/sdk/cpp/src/library/operation_id/protos",  # peerdir only
     "//yql/essentials/core",
-    # "//yql/essentials/core/expr_nodes",
     # "//yql/essentials/minikql",
     # "//yql/essentials/providers/result/expr_nodes",  # peerdir only
   ]
 
   sources = [
-    "kqp_predictor.cpp",
     "kqp_prepared_query.cpp",
+    "kqp_request_predictor.cpp",
   ]
 }

@@ -1,0 +1,32 @@
+library("unittests_resources") {
+  resources = [
+    {
+      path = "clock_fixture/clock.wasm"
+      key = "/clock.wasm"
+    },
+  ]
+}
+
+gtest_executable("unittests") {
+  deps = [
+    ":unittests_resources",
+    "//contrib/restricted/wavm_llvm16",
+    "//contrib/restricted/wavm_llvm16/Lib",
+    "//library/cpp/resource",
+    "//library/cpp/testing/gtest",
+    "//ydb/library/wasm/api",
+    "//ydb/library/wasm/engine",
+  ]
+
+  sources = [
+    "clock_ut.cpp",
+    "disable_system_libraries.cpp",
+    "linking_ut.cpp",
+    "wasm_ut.cpp",
+  ]
+
+  link_select = [
+    "allocator=tcmalloc",
+    "wasm=engine",
+  ]
+}

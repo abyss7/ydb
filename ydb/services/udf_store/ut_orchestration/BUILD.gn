@@ -1,25 +1,32 @@
 unittest_executable("ut_orchestration") {
   deps = [
+    "//library/cpp/json",
     "//library/cpp/testing/unittest",
     "//ydb/core/base",
     "//ydb/core/cms/console",
+    "//ydb/core/kqp/common",
     "//ydb/core/testlib",
     "//ydb/core/testlib/basics",
     "//ydb/core/testlib/default",  # peerdir only
     "//ydb/core/tx/scheme_cache",
     "//ydb/services/metadata/abstract",
+    "//ydb/services/metadata/request:interface",
     "//ydb/services/udf_store",
     "//ydb/services/udf_store/compile_controller",
     "//ydb/services/udf_store/compile_controller:events",
     "//ydb/services/udf_store/compile_controller:protos",  # peerdir only
     "//ydb/services/udf_store/metadata_subscription",
+    "//ydb/services/udf_store/wasm",
     "//yql/essentials/minikql",
+    "//yql/essentials/minikql/invoke_builtins",
+    "//yql/essentials/public/udf",
   ]
 
   sources = [
     "chunk_read_ut.cpp",
     "compile_controller_ut.cpp",
     "dinode_client_ut.cpp",
+    "service_module_load_ut.cpp",
   ]
 
   include_dirs = [ "//ydb/services/udf_store/compile_controller" ]

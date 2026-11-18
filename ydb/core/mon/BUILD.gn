@@ -26,6 +26,7 @@ library("mon") {
   public_deps = [
     # "//library/cpp/cgiparam",
     "//library/cpp/monlib/dynamic_counters",
+    # "//library/cpp/monlib/metrics",
     "//library/cpp/monlib/service",
     # "//library/cpp/monlib/service/pages",
     # "//library/cpp/monlib/service/pages/resources",
@@ -43,7 +44,9 @@ library("mon") {
     "//library/cpp/json",
     # "//library/cpp/lwtrace",
     "//library/cpp/lwtrace/mon",
-    # "//library/cpp/monlib/metrics",
+    # "//library/cpp/monlib/encode",
+    "//library/cpp/monlib/encode/json",
+    "//library/cpp/monlib/encode/spack",
     "//library/cpp/protobuf/json",
     # "//library/cpp/string_utils/url",  # peerdir only
     "//ydb/core/grpc_services/base",
@@ -59,6 +62,7 @@ library("mon") {
   ]
 
   sources = [
+    "counters_memonly.cpp",
     "crossref.cpp",
     "mon.cpp",
   ]

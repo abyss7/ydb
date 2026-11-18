@@ -4,6 +4,7 @@ library("common") {
     "//contrib/libs/openssl",
     # "//contrib/libs/protobuf",
     "//library/cpp/lwtrace",
+    # "//library/cpp/monlib/dynamic_counters",
     "//library/cpp/string_utils/base64",
     "//ydb/core/base",
     "//ydb/core/control/lib",
@@ -44,6 +45,7 @@ library("common") {
     "//library/cpp/json",  # peerdir only
     "//library/cpp/protobuf/json",  # peerdir only
     # "//library/cpp/threading/hot_swap",
+    # "//ydb/core/kqp/common/compile_cache",  # peerdir only
     # "//ydb/core/kqp/script_executions/common",  # peerdir only
     "//ydb/core/kqp/topics",  # peerdir only
     # "//ydb/core/tx/datashard:range_ops",
@@ -68,6 +70,7 @@ library("common") {
     "kqp.cpp",
     "kqp_batch_operations.cpp",
     "kqp_event_impl.cpp",
+    "kqp_expr_helpers.cpp",
     "kqp_lwtrace_probes.cpp",
     "kqp_resolve.cpp",
     "kqp_row_builder.cpp",

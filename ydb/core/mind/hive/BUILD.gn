@@ -2,6 +2,8 @@ library("hive") {
   public_deps = [
     # "//library/cpp/containers/absl",
     # "//library/cpp/containers/ring_buffer",
+    # "//library/cpp/json",
+    # "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/base",
     "//ydb/core/blobstorage/base",
     # "//ydb/core/cms/console",
@@ -24,8 +26,6 @@ library("hive") {
     # "//contrib/libs/protobuf",
     "//library/cpp/digest/md5",
     "//library/cpp/html/pcdata",
-    # "//library/cpp/json",
-    # "//library/cpp/monlib/dynamic_counters",  # peerdir only
     # "//library/cpp/monlib/service/pages",
     "//library/cpp/protobuf/json",
     # "//library/cpp/random_provider",
@@ -35,6 +35,7 @@ library("hive") {
     "//ydb/library/aclib",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/yverify_stream",
+    # "//yql/essentials/public/issue",
   ]
 
   sources = [
@@ -53,6 +54,7 @@ library("hive") {
     "leader_tablet_info.cpp",
     "monitoring.cpp",
     "move_data_actor.cpp",
+    "named_resources.cpp",
     "node_info.cpp",
     "reassign_actor.cpp",
     "sequencer.cpp",
@@ -81,6 +83,7 @@ library("hive") {
     "tx__process_pending_operations.cpp",
     "tx__reassign_groups.cpp",
     "tx__reassign_groups_on_decommit.cpp",
+    "tx__reassign_tablets.cpp",
     "tx__register_node.cpp",
     "tx__release_tablets.cpp",
     "tx__release_tablets_reply.cpp",

@@ -3,7 +3,7 @@ library("service") {
     # "//library/cpp/cache",
     # "//ydb/core/base",
     # "//ydb/core/tx/general_cache/source",
-    # "//ydb/core/tx/general_cache/usage",
+    "//ydb/core/tx/general_cache/usage",
     # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
     # "//ydb/library/signals",
@@ -16,6 +16,7 @@ library("service") {
   sources = [
     "counters.cpp",
     "manager.cpp",
+    "request_queues.cpp",
     "service.cpp",
   ]
 }

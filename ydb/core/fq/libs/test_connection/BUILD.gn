@@ -41,6 +41,7 @@ library("test_connection") {
     # "//ydb/core/fq/libs/config",
     "//ydb/core/fq/libs/control_plane_storage",
     # "//ydb/core/mon",
+    "//ydb/library/protobuf_printer",
     "//ydb/library/security",
     "//ydb/library/yql/providers/pq/gateway/native",
     "//ydb/library/yql/providers/s3/provider",

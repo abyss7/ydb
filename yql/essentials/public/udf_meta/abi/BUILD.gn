@@ -1,2 +1,3 @@
-group("abi") {
+library("abi") {
+  sources = [ "udf_meta.cpp" ]
 }

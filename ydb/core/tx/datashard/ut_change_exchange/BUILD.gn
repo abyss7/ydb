@@ -12,12 +12,14 @@ unittest_executable("ut_change_exchange") {
     "//ydb/core/kqp/ut/common",  # peerdir only
     "//ydb/core/persqueue/events",
     "//ydb/core/persqueue/public/write_meta",
+    "//ydb/core/persqueue/writer",
     "//ydb/core/protos/schemeshard",
     "//ydb/core/tablet",
     "//ydb/core/tablet_flat",
     "//ydb/core/testlib/actors",
     "//ydb/core/testlib/pg",  # peerdir only
     "//ydb/core/tx",  # peerdir only
+    "//ydb/core/tx/cdc_aggregator/public",
     "//ydb/core/tx/datashard",
     "//ydb/core/tx/datashard/ut_common",
     "//ydb/core/tx/scheme_board",
@@ -30,6 +32,7 @@ unittest_executable("ut_change_exchange") {
     "//ydb/public/sdk/cpp/src/client/datastreams",
     "//ydb/public/sdk/cpp/src/client/persqueue_public",
     "//ydb/public/sdk/cpp/src/client/result",
+    "//ydb/public/sdk/cpp/src/client/table",
     "//ydb/public/sdk/cpp/src/client/topic",
     "//ydb/public/sdk/cpp/src/library/operation_id",
     "//yql/essentials/public/udf/service/exception_policy",  # peerdir only

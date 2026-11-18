@@ -1,0 +1,17 @@
+# yamake2gn: keep -- expression node generation and its C++ library.
+
+import("//yql/essentials/core/expr_nodes_gen/gen.gni")
+
+generate_expr_nodes("gen") {
+  sources = [ "yql_clickhouse_expr_nodes.json" ]
+}
+
+library("expr_nodes") {
+  public_deps = [
+    ":gen",
+    "//yql/essentials/core/expr_nodes",
+    "//yql/essentials/providers/common/provider",
+  ]
+
+  sources = [ "yql_clickhouse_expr_nodes.cpp" ]
+}

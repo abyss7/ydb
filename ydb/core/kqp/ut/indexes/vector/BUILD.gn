@@ -12,6 +12,7 @@ unittest_executable("vector") {
     "//ydb/core/protos/schemeshard",
     "//ydb/core/testlib/actors",
     "//ydb/core/tx/datashard",
+    "//ydb/core/tx/scheme_cache",
     "//ydb/core/tx/schemeshard",
     "//ydb/library/yql/providers/common/http_gateway",  # peerdir only
     "//ydb/library/yql/udfs/common/knn",  # peerdir only

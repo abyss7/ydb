@@ -2,7 +2,16 @@
 
 import("//yql/essentials/core/expr_nodes_gen/gen.gni")
 
-generate_expr_nodes("dqs_expr_nodes") {
-    sources = [ "dqs_expr_nodes.json" ]
-    node_namespace = "NDq"
+generate_expr_nodes("gen") {
+  sources = [ "dqs_expr_nodes.json" ]
+  node_namespace = "NDq"
+}
+
+library("dqs_expr_nodes") {
+  public_deps = [
+    ":gen",
+    "//yql/essentials/core/expr_nodes",
+  ]
+
+  sources = [ "dqs_expr_nodes.cpp" ]
 }

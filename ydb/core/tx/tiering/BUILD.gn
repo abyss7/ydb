@@ -14,7 +14,6 @@ library("tiering") {
   deps = [
     # "//library/cpp/json",  # peerdir only
     # "//library/cpp/retry",
-    # "//ydb/core/blobstorage",  # peerdir only
     "//ydb/core/protos",
     # "//ydb/core/tablet_flat/protos",  # peerdir only
     # "//ydb/core/tx/columnshard",

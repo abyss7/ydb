@@ -11,7 +11,7 @@ library("processor") {
     "//ydb/core/grpc_services/counters",
     "//ydb/core/kqp/counters",
     "//ydb/core/protos",
-    # "//ydb/core/sys_view/common",
+    "//ydb/core/sys_view/common",
     "//ydb/core/sys_view/service",
     "//ydb/core/tablet",
     # "//ydb/core/tablet:memory_tags",

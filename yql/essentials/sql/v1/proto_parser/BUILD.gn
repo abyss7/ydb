@@ -1,6 +1,7 @@
 library("proto_parser") {
   public_deps = [
     # "//contrib/libs/protobuf",
+    # "//yql/essentials/parser/lexer_common",
     "//yql/essentials/parser/proto_ast",
     "//yql/essentials/parser/proto_ast/gen/v1_proto_split_antlr4",
     # "//yql/essentials/public/issue",

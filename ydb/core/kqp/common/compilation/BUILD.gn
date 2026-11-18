@@ -2,6 +2,7 @@ library("compilation") {
   public_deps = [ ":interface" ]
 
   deps = [
+    # "//library/cpp/json",
     "//ydb/core/kqp/common/simple",  # peerdir only
     # "//ydb/core/kqp/query_data",  # peerdir only
     # "//ydb/core/util",
@@ -16,6 +17,7 @@ library("compilation") {
 
 group("interface") {
   public_deps = [
+    # "//library/cpp/json",
     # "//library/cpp/lwtrace",
     # "//ydb/core/kqp/common",
     "//ydb/core/kqp/common/simple",

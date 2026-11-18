@@ -1,6 +1,7 @@
 library("wasm") {
   public_deps = [
     "//ydb/library/wasm/api",
+    "//ydb/public/lib/udf/service_manifest",
     # "//ydb/services/udf_store/wasm/abi",
     "//yql/essentials/minikql:alloc",
     "//yql/essentials/public/udf",

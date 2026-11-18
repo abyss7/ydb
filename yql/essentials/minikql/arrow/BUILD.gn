@@ -11,7 +11,9 @@ library("arrow") {
   ]
 
   sources = [
+    "arrow_defs.cpp",
     "arrow_util.cpp",
+    "mkql_bit_utils.cpp",
     "mkql_functions.cpp",
   ]
 }

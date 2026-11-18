@@ -1,5 +1,13 @@
 ==================== yamake2gn report: accepted problems
 
+ERROR: PCH of build/gn/pch that applies to nothing (build/gn/pch/per_target/targets.gni, build/gn/pch/global/groups.gni):
+  per_target //ydb/core/tx/columnshard/maintenance/cut_history/ut:ut no file build/gn/pch/per_target/ydb/core/tx/columnshard/maintenance/cut_history/ut/ut.h
+  unused build/gn/pch/per_target/ydb/core/tx/columnshard/ut_cut_history/ut_cut_history.h in no PCH mode
+
+ERROR: programs and tests depending on a module of no GN target (the dep is commented, the link fails):
+  ydb/core/fq/libs/wasm_services/ut //ydb/udfs/wasm/echo/contract
+  ydb/core/fq/libs/wasm_services/ut //ydb/udfs/wasm/profile/contract
+
 skipped (non-trivial):
   library/cpp/digest/argonish/internal/proxies/avx2 SRC_C_AVX2
   ydb/apps/bridge_skipper/acceptance/lib PY3_LIBRARY,PY_SRCS
@@ -17,11 +25,9 @@ skipped (non-trivial):
   ydb/library/benchmarks/gen_queries PY3_PROGRAM,PY_SRCS
   ydb/library/benchmarks/report PY3_LIBRARY,PY_SRCS
   ydb/library/benchmarks/template PY3_LIBRARY,PY_SRCS
-  ydb/library/wasm/unittests LDFLAGS
+  ydb/library/wasm/unittests/clock_fixture BUILD_ONLY_IF,DLL
   ydb/library/yaml_config/tools/simple_json_diff PY3_PROGRAM,PY_SRCS
-  ydb/library/yql/dq/comp_nodes/hash_join_utils/simd/exec/add_columns SIZE
   ydb/library/yql/dq/comp_nodes/ut/join_perf/bin TAG
-  ydb/library/yql/providers/clickhouse/expr_nodes RUN_PROGRAM
   ydb/library/yql/providers/generic/connector/tests/common_test_cases PY3_LIBRARY,PY_SRCS,STYLE_PYTHON
   ydb/library/yql/providers/generic/connector/tests/utils PY3_LIBRARY,PY_SRCS,STYLE_PYTHON
   ydb/library/yql/providers/generic/connector/tests/utils/clients PY3_LIBRARY,PY_SRCS,STYLE_PYTHON
@@ -40,7 +46,7 @@ skipped (non-trivial):
   ydb/public/tools/lib/cmds PY23_LIBRARY,PY_SRCS
   ydb/public/tools/local_ydb PY3_PROGRAM,PY_SRCS
   ydb/public/tools/ydb_recipe PY3_PROGRAM,PY_SRCS
-  ydb/services/ydb/backup_ut LDFLAGS
+  ydb/services/udf_store/wasm/async_runtime/fixture BUILD_ONLY_IF,DLL,EXPORT_ALL_DYNAMIC_SYMBOLS,LD_PLUGIN
   ydb/tests/datashard/lib PY3_LIBRARY,PY_SRCS
   ydb/tests/fq/generic/utils PY3_LIBRARY,PY_SRCS,STYLE_PYTHON
   ydb/tests/fq/streaming_common PY3_LIBRARY,PY_SRCS,STYLE_PYTHON
@@ -49,20 +55,23 @@ skipped (non-trivial):
   ydb/tests/fq/streaming_common/vm_metadata_emulator/bin PY3_PROGRAM,PY_SRCS,STYLE_PYTHON
   ydb/tests/fq/streaming_common/vm_metadata_emulator/recipe PY3_PROGRAM,PY_SRCS,STYLE_PYTHON
   ydb/tests/fq/tools PY3_LIBRARY,PY_SRCS,STYLE_PYTHON
+  ydb/tests/functional/sdk/cpp/path_aliasing ELSE,ELSEIF,ENDIF,IF,SET
   ydb/tests/functional/sdk/cpp/path_aliasing/recipe PY3_PROGRAM,PY_SRCS
+  ydb/tests/functional/sdk/cpp/relative_database ELSE,ELSEIF,ENDIF,IF,SET
   ydb/tests/functional/sdk/cpp/relative_database/recipe PY3_PROGRAM,PY_SRCS
   ydb/tests/functional/secrets/lib PY3_LIBRARY,PY_SRCS
   ydb/tests/functional/security/lib PY3_LIBRARY,PY_SRCS
+  ydb/tests/functional/snapshot_retention_with_load/runner PY3_PROGRAM,PY_SRCS
   ydb/tests/functional/tpc/lib PY3_LIBRARY,PY_SRCS
-  ydb/tests/functional/udf_store/examples/add BUILD_ONLY_IF,DLL,LDFLAGS,LD_PLUGIN,NO_LIBC,NO_RUNTIME,STRIP
-  ydb/tests/functional/udf_store/examples/ctx BUILD_ONLY_IF,DLL,EXPORT_ALL_DYNAMIC_SYMBOLS,LDFLAGS,LD_PLUGIN,STRIP
-  ydb/tests/functional/udf_store/examples/helpers BUILD_ONLY_IF,DLL,LDFLAGS,LD_PLUGIN,NO_LIBC,NO_RUNTIME,STRIP
-  ydb/tests/functional/udf_store/examples/md5 BUILD_ONLY_IF,DLL,EXPORT_ALL_DYNAMIC_SYMBOLS,LDFLAGS,LD_PLUGIN,STRIP
-  ydb/tests/functional/udf_store/examples/oob BUILD_ONLY_IF,DLL,EXPORT_ALL_DYNAMIC_SYMBOLS,LDFLAGS,LD_PLUGIN
-  ydb/tests/functional/udf_store/examples/prefix BUILD_ONLY_IF,DLL,EXPORT_ALL_DYNAMIC_SYMBOLS,LDFLAGS,LD_PLUGIN,STRIP
-  ydb/tests/functional/udf_store/examples/sdk BUILD_ONLY_IF,DLL,EXPORT_ALL_DYNAMIC_SYMBOLS,LDFLAGS,NO_LIBC,NO_RUNTIME,WHOLE_ARCHIVE
-  ydb/tests/functional/udf_store/examples/throw BUILD_ONLY_IF,DLL,EXPORT_ALL_DYNAMIC_SYMBOLS,LDFLAGS,LD_PLUGIN
-  ydb/tests/functional/udf_store/examples/with_helpers BUILD_ONLY_IF,DLL,EXPORT_ALL_DYNAMIC_SYMBOLS,LDFLAGS,LD_PLUGIN,STRIP
+  ydb/tests/functional/udf_store/examples/add BUILD_ONLY_IF,DLL,LD_PLUGIN,NO_LIBC,NO_RUNTIME,STRIP
+  ydb/tests/functional/udf_store/examples/ctx BUILD_ONLY_IF,DLL,EXPORT_ALL_DYNAMIC_SYMBOLS,LD_PLUGIN,STRIP
+  ydb/tests/functional/udf_store/examples/helpers BUILD_ONLY_IF,DLL,LD_PLUGIN,NO_LIBC,NO_RUNTIME,STRIP
+  ydb/tests/functional/udf_store/examples/md5 BUILD_ONLY_IF,DLL,EXPORT_ALL_DYNAMIC_SYMBOLS,LD_PLUGIN,STRIP
+  ydb/tests/functional/udf_store/examples/oob BUILD_ONLY_IF,DLL,EXPORT_ALL_DYNAMIC_SYMBOLS,LD_PLUGIN
+  ydb/tests/functional/udf_store/examples/prefix BUILD_ONLY_IF,DLL,EXPORT_ALL_DYNAMIC_SYMBOLS,LD_PLUGIN,STRIP
+  ydb/tests/functional/udf_store/examples/sdk BUILD_ONLY_IF,DLL,EXPORT_ALL_DYNAMIC_SYMBOLS,NO_LIBC,NO_RUNTIME,WHOLE_ARCHIVE
+  ydb/tests/functional/udf_store/examples/throw BUILD_ONLY_IF,DLL,EXPORT_ALL_DYNAMIC_SYMBOLS,LD_PLUGIN
+  ydb/tests/functional/udf_store/examples/with_helpers BUILD_ONLY_IF,DLL,EXPORT_ALL_DYNAMIC_SYMBOLS,LD_PLUGIN,STRIP
   ydb/tests/functional/udf_store/lib PY3_LIBRARY,PY_SRCS,STYLE_PYTHON
   ydb/tests/functional/udf_store/upload_udf DEPENDS,NO_CHECK_IMPORTS,PY3_PROGRAM,PY_SRCS,STYLE_PYTHON
   ydb/tests/functional/ydb_cli/ai_interactive DECLARE_IN_DIRS,RUN_PROGRAM
@@ -156,4 +165,6 @@ skipped (non-trivial):
   ydb/tools/ydb_bench BUNDLE,PY3_PROGRAM,PY_SRCS,RESOURCE<ydb_bench/build_type=${BUILD_TYPE}>,RUN_PROGRAM
   ydb/tools/ydbd_slice PY3_LIBRARY,PY_SRCS
   ydb/tools/ydbd_slice/bin PY3_PROGRAM,PY_MAIN
+  ydb/udfs/wasm/echo/contract RUN_PYTHON3,SET
+  ydb/udfs/wasm/profile/contract RUN_PYTHON3,SET
   yql/essentials/udfs/common/math/ir LLVM_BC,USE_LLVM_BC16

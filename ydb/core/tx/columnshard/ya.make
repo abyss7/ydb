@@ -17,6 +17,7 @@ SRCS(
     columnshard__scan.cpp
     columnshard__tx_abort.cpp
     columnshard__write.cpp
+    columnshard__write_task.cpp
     columnshard__write_index.cpp
     columnshard_impl.cpp
     columnshard_local_db_backup.cpp

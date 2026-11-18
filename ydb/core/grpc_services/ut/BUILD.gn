@@ -5,6 +5,7 @@ unittest_executable("ut") {
     "//library/cpp/regex/pcre",  # peerdir only
     "//library/cpp/svnversion",  # peerdir only
     "//library/cpp/testing/unittest",
+    "//ydb/core/base",
     "//ydb/core/blobstorage/base",
     "//ydb/core/blobstorage/nodewarden",
     "//ydb/core/client/scheme_cache_lib",  # peerdir only
@@ -14,8 +15,10 @@ unittest_executable("ut") {
     "//ydb/core/grpc_services/local_rpc",
     "//ydb/core/protos",
     "//ydb/core/scheme",
+    "//ydb/core/tablet",
     "//ydb/core/testlib/basics",
     "//ydb/core/testlib/default",  # peerdir only
+    "//ydb/core/tx/scheme_board",
     "//ydb/core/tx/schemeshard",
     "//ydb/core/tx/tx_proxy:public",
     "//ydb/public/api/protos",

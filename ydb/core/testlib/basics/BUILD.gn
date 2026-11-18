@@ -9,9 +9,11 @@ library("basics") {
     "//ydb/core/blobstorage/dsproxy/mock",
     "//ydb/core/blobstorage/nodewarden",
     "//ydb/core/blobstorage/pdisk",
+    # "//ydb/core/blobstorage/subsystem/interface",
     # "//ydb/core/formats",
     "//ydb/core/protos",
     # "//ydb/core/scheme",
+    # "//ydb/core/tablet",
     "//ydb/core/tablet_flat",
     "//ydb/core/testlib/actors",
     # "//ydb/core/tx/datashard",
@@ -25,6 +27,8 @@ library("basics") {
     # "//library/cpp/regex/pcre",  # peerdir only
     # "//library/cpp/testing/unittest",  # peerdir only
     # "//ydb/core/blobstorage",  # peerdir only
+    "//ydb/core/blobstorage/subsystem",
+    # "//ydb/core/blobstorage/subsystem/mock",
     "//ydb/core/client/server",
     "//ydb/core/cms/console",
     "//ydb/core/control",
@@ -35,15 +39,15 @@ library("basics") {
     "//ydb/core/statistics/service",  # peerdir only
     "//ydb/core/statistics/service:service_id",
     "//ydb/core/sys_view/service",
-    # "//ydb/core/tablet",
     # "//ydb/core/tx",
     "//ydb/core/tx/columnshard",
     "//ydb/core/tx/columnshard/column_fetching",
     "//ydb/core/tx/columnshard/data_accessor/cache_policy",
     # "//ydb/core/tx/general_cache",  # peerdir only
-    # "//ydb/core/tx/general_cache/service",
+    "//ydb/core/tx/general_cache/service",
     "//ydb/core/tx/scheme_board",
     # "//ydb/core/tx/scheme_cache",
+    # "//ydb/library/actors/core",
     "//ydb/library/actors/dnsresolver",
     # "//ydb/library/actors/interconnect/rdma",
     # "//ydb/services/kesus",  # peerdir only
@@ -59,6 +63,11 @@ library("basics") {
 
   sources = [
     "appdata.cpp",
+    "core/appdata.cpp",
+    "core/helpers.cpp",
+    "core/runtime.cpp",
+    "core/services.cpp",
+    "core/setup.cpp",
     "helpers.cpp",
     "runtime.cpp",
     "services.cpp",

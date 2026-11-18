@@ -12,6 +12,7 @@ unittest_executable("with_offset_ranges_mode_ut") {
     "//ydb/public/sdk/cpp/src/client/persqueue_public",
     "//ydb/public/sdk/cpp/src/client/persqueue_public/impl",
     "//ydb/public/sdk/cpp/src/client/persqueue_public/ut/ut_utils",
+    "//ydb/public/sdk/cpp/src/client/topic",
     "//ydb/public/sdk/cpp/src/client/topic/impl",
     "//ydb/public/sdk/cpp/tests/integration/topic/utils",
   ]

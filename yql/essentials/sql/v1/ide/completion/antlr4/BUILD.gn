@@ -6,5 +6,11 @@ library("antlr4") {
     # "//yql/essentials/sql/v1/ide/completion/text",
   ]
 
-  sources = [ "vocabulary.cpp" ]
+  sources = [
+    "c3i.cpp",
+    "c3t.cpp",
+    "defs.cpp",
+    "pipeline.cpp",
+    "vocabulary.cpp",
+  ]
 }

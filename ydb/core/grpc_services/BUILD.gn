@@ -79,7 +79,7 @@ library("grpc_services") {
     # "//ydb/core/kqp/compute_actor:events",
     # "//ydb/core/kqp/executer_actor",
     "//ydb/core/kqp/executer_actor:shards_resolver",
-    "//ydb/core/kqp/opt",
+    "//ydb/core/kqp/query_plan",
     # "//ydb/core/kqp/script_executions/common",  # peerdir only
     # "//ydb/core/local_indexes/bloom",
     # "//ydb/core/mind",
@@ -169,7 +169,9 @@ library("grpc_services") {
     "rpc_begin_transaction.cpp",
     "rpc_bistream_ping.cpp",
     "rpc_bridge.cpp",
+    "rpc_bridge_get_cluster_state.cpp",
     "rpc_bridge_mode.cpp",
+    "rpc_bridge_storage.cpp",
     "rpc_calls.cpp",
     "rpc_cancel_operation.cpp",
     "rpc_cluster_state.cpp",

@@ -1,0 +1,8 @@
+library("table_digest") {
+  public_deps = [
+    "//library/cpp/json",
+    "//yql/essentials/types/binary_json",
+  ]
+
+  sources = [ "aggregate.cpp" ]
+}

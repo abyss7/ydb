@@ -9,6 +9,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 import follow
+import follow_bench
 from follow import Follower, Git, State, Stop
 
 
@@ -313,6 +314,70 @@ class FollowHistoryTest(unittest.TestCase):
         rec = [r for r in f.state.records() if r["upstream"] == tip and r["status"] == "done"][0]
         self.assertEqual((rec["mode"], rec["skipped"]), ("only-head", 2))
         self.assertIsNone(f.current())
+
+
+class TargetTest(unittest.TestCase):
+    def test_root_targets_do_not_select_ninja_all(self):
+        replies = [types.SimpleNamespace(returncode=0, stdout=x + "\n", stderr="")
+                   for x in ("//:all", "//:tests")]
+        with patch.object(follow.subprocess, "run", side_effect=replies) as run:
+            labels = follow.gn_targets("/src", "/out", follow.DEFAULT_TARGETS)
+        self.assertEqual(follow.ninja_targets(labels), [":all", ":tests"])
+        self.assertEqual([c.args[0][3] for c in run.call_args_list], ["//:all", "//:tests"])
+
+    def test_bare_names_are_passed_to_gn_unchanged(self):
+        replies = [types.SimpleNamespace(returncode=0, stdout=x + "\n", stderr="")
+                   for x in ("//all:all", "//tests:tests")]
+        with patch.object(follow.subprocess, "run", side_effect=replies) as run:
+            labels = follow.gn_targets("/src", "/out", ["all", "tests"])
+        self.assertEqual([c.args[0][3] for c in run.call_args_list], ["all", "tests"])
+        self.assertEqual(follow.ninja_targets(labels), ["all:all", "tests:tests"])
+
+    def test_directory_targets_are_resolved_by_gn(self):
+        reply = types.SimpleNamespace(returncode=0, stdout="//ydb/apps/ydbd:ydbd\n", stderr="")
+        with patch.object(follow.subprocess, "run", return_value=reply) as run:
+            labels = follow.gn_targets("/src", "/out", ["ydb/apps/ydbd"], {"X": "1"}, "python3.9")
+        self.assertEqual(follow.ninja_targets(labels), ["ydb/apps/ydbd:ydbd"])
+        self.assertEqual(run.call_args.args[0],
+                         ["gn", "ls", "/out", "ydb/apps/ydbd", "--as=label", "--default-toolchain",
+                          "--script-executable=python3.9"])
+        self.assertEqual(run.call_args.kwargs["cwd"], "/src")
+        self.assertEqual(run.call_args.kwargs["env"], {"X": "1"})
+
+    def test_missing_ambiguous_and_nondefault_targets_are_rejected(self):
+        for output in ("", "//a:a\n//b:b\n", "//a:b(//toolchain:host)\n"):
+            reply = types.SimpleNamespace(returncode=0, stdout=output, stderr="")
+            with self.subTest(output=output), patch.object(follow.subprocess, "run", return_value=reply):
+                with self.assertRaises(ValueError):
+                    follow.gn_targets("/src", "/out", ["query"])
+
+    def test_gn_errors_are_reported_without_fallback(self):
+        reply = types.SimpleNamespace(returncode=1, stdout="ERROR Dependency cycle", stderr="")
+        with patch.object(follow.subprocess, "run", return_value=reply):
+            with self.assertRaisesRegex(ValueError, "Dependency cycle"):
+                follow.gn_targets("/src", "/out", ["all"])
+
+    def test_build_passes_explicit_alias_to_autofix(self):
+        with tempfile.TemporaryDirectory() as root:
+            f = object.__new__(Follower)
+            f.root, f.out = root, os.path.join(root, "out")
+            f.args = types.SimpleNamespace(python=sys.executable, jobs=None, targets=["all"],
+                                          script_executable="python3.9")
+            f.env = {}
+            f.state = types.SimpleNamespace(blocked=os.path.join(root, "blocked"))
+            f.progress = types.SimpleNamespace(stage=lambda *a, **kw: contextlib.nullcontext())
+            f.say, f.last_seconds, f.sh = Mock(), Mock(return_value=0), Mock(return_value=(0, 0))
+            with patch.object(follow, "gn_targets", return_value=["//:all"]) as resolve:
+                f.build(root, {"seconds": {}})
+            resolve.assert_called_once_with(root, f.out, ["all"], {}, "python3.9")
+            self.assertEqual(f.sh.call_args.args[0][-1], ":all")
+
+    def test_bench_expands_normalized_root_groups_for_ya(self):
+        with tempfile.TemporaryDirectory() as root:
+            follow.write_text(os.path.join(root, "BUILD.gn"),
+                              'group("all") {\n  deps = [\n    "//app:main",\n  ]\n}\n')
+            self.assertEqual(follow_bench.target_labels(root, ["//:all"]), ["//app:main"])
+            self.assertEqual(follow_bench.target_labels(root, ["//other:all"]), ["//other:all"])
 
 
 class ConfigTest(unittest.TestCase):

@@ -1,5 +1,7 @@
-group("random_data_generator") {
-  deps = [
-    # "//library/cpp/random_provider",  # peerdir only
+library("random_data_generator") {
+  public_deps = [
+    # "//library/cpp/random_provider",
   ]
+
+  sources = [ "random_data_generator.cpp" ]
 }

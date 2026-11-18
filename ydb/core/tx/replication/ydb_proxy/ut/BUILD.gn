@@ -1,6 +1,7 @@
 unittest_executable("ut") {
   deps = [
     "//library/cpp/testing/unittest",
+    "//ydb/core/security/sasl",
     "//ydb/core/tx/replication/ut_helpers",
     "//ydb/core/tx/replication/ydb_proxy",
     "//ydb/core/tx/replication/ydb_proxy/local_proxy",  # peerdir only

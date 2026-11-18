@@ -1,0 +1,18 @@
+library("query_plan") {
+  public_deps = [
+    # "//library/cpp/json",
+  ]
+
+  deps = [
+    # "//library/cpp/protobuf/json",
+    "//ydb/core/protos",
+    "//ydb/library/actors/core",
+    "//ydb/library/yql/dq/actors/protos",
+    "//yql/essentials/utils/log",
+  ]
+
+  sources = [
+    "query_plan.cpp",
+    "rbo_plan.cpp",
+  ]
+}

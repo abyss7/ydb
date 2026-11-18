@@ -1,5 +1,6 @@
 #pragma once
 #include "blob.h"
+#include "columnshard_ev_ids.h"
 #include "defs.h"
 
 #include "common/snapshot.h"
@@ -60,53 +61,6 @@ inline Ydb::StatusIds::StatusCode ConvertToYdbStatus(NKikimrTxColumnShard::EResu
 }   // namespace NColumnShard
 
 namespace TEvColumnShard {
-enum EEv {
-    EvProposeTransaction = EventSpaceBegin(TKikimrEvents::ES_TX_COLUMNSHARD),
-    EvCancelTransactionProposal,
-    EvProposeTransactionResult,
-    EvNotifyTxCompletion,
-    EvNotifyTxCompletionResult,
-    EvReadBlobRanges,
-    EvReadBlobRangesResult,
-    EvCheckPlannedTransaction,
-
-    EvWrite = EvProposeTransaction + 256,
-    EvRead,
-    EvWriteResult,
-    EvReadResult,
-
-    EvDeleteSharedBlobs,
-    EvDeleteSharedBlobsFinished,
-
-    EvDataSharingProposeFromInitiator,
-    EvDataSharingConfirmFromInitiator,
-    EvDataSharingAckFinishFromInitiator,
-    EvDataSharingStartToSource,
-    EvDataSharingSendDataFromSource,
-    EvDataSharingAckDataToSource,
-    EvDataSharingFinishedFromSource,
-    EvDataSharingAckFinishToSource,
-    EvDataSharingCheckStatusFromInitiator,
-    EvDataSharingCheckStatusResult,
-    EvApplyLinksModification,
-    EvApplyLinksModificationFinished,
-    EvInternalScan,
-
-    EvOverloadReady,
-    EvOverloadUnsubscribe,
-
-    // local DB backup actor <-> tablet, see local_db_backup/events.h
-    EvLocalDbBackupStart,
-    EvLocalDbBackupStarted,
-    EvLocalDbBackupCancel,
-    EvLocalDbBackupProgress,
-
-    EvFindEmptyHistoryIntervalsScanFinished,
-
-    EvEnd
-};
-
-static_assert(EvEnd < EventSpaceEnd(TKikimrEvents::ES_TX_COLUMNSHARD), "expect EvEnd < EventSpaceEnd(TKikimrEvents::ES_TX_COLUMNSHARD)");
 
 struct TEvInternalScan: public TEventLocal<TEvInternalScan, EvInternalScan> {
 private:

@@ -10,5 +10,11 @@ library("layers") {
     "//yql/essentials/utils/fetch",
   ]
 
-  sources = [ "layers.cpp" ]
+  sources = [
+    "layers.cpp",
+    "layers_fwd.cpp",
+    "layers_integration.cpp",
+    "remote_layer_provider.cpp",
+    "utils.cpp",
+  ]
 }

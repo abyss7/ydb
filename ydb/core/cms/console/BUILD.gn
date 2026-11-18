@@ -5,6 +5,7 @@ library("console") {
     "//ydb/core/actorlib_impl",
     "//ydb/core/base",
     "//ydb/core/blobstorage/base",
+    "//ydb/core/cms/console/events",
     "//ydb/core/cms/console/util",
     "//ydb/core/cms/console/validators",
     "//ydb/core/config/init",
@@ -21,6 +22,7 @@ library("console") {
     "//ydb/library/aclib",
     # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
+    "//ydb/library/actors/protos",
     # "//ydb/library/grpc/server",
     "//ydb/library/services",
     # "//ydb/library/yverify_stream",
@@ -36,8 +38,6 @@ library("console") {
     # "//library/cpp/monlib/service/pages",
     # "//library/cpp/protobuf/json",
     "//ydb/core/audit",
-    # "//ydb/core/blobstorage",  # peerdir only
-    # "//ydb/core/blobstorage/groupinfo",  # peerdir only
     "//ydb/core/config/validation",
     "//ydb/core/mon",
     # "//ydb/core/node_whiteboard",

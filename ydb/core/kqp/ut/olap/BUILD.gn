@@ -74,6 +74,8 @@ unittest_executable("olap") {
     "//ydb/core/kqp",  # peerdir only
   ]
 
+  serialize_enum_headers = [ "tiering_test_enums.h" ]
+
   link_select = [
     "YqlServicePolicy=exception_policy",
     "allocator=tcmalloc",

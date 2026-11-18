@@ -3,5 +3,8 @@ library("dynumber") {
     # "//library/cpp/containers/stack_vector",
   ]
 
-  sources = [ "dynumber.cpp" ]
+  sources = [
+    "cast.cpp",
+    "dynumber.cpp",
+  ]
 }

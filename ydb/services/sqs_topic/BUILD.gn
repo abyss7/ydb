@@ -1,5 +1,6 @@
 library("sqs_topic") {
   public_deps = [
+    # "//contrib/libs/protobuf",
     # "//ydb/core/client/server",
     "//ydb/core/grpc_services",
     # "//ydb/core/metering",
@@ -13,7 +14,6 @@ library("sqs_topic") {
   ]
 
   deps = [
-    # "//contrib/libs/protobuf",
     "//library/cpp/digest/md5",
     # "//library/cpp/json",
     "//library/cpp/openssl/crypto",
@@ -28,6 +28,7 @@ library("sqs_topic") {
     "//ydb/core/persqueue/public/metrics",
     "//ydb/core/persqueue/public/ru_quoter",
     # "//ydb/core/persqueue/public/schema",
+    # "//ydb/core/persqueue/public:utils",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/util",
     "//ydb/core/ymq/attributes",

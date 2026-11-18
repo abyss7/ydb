@@ -1,0 +1,8 @@
+library("service_manifest") {
+  deps = [
+    "//library/cpp/json",
+    "//ydb/public/lib/udf/manifest",
+  ]
+
+  sources = [ "manifest.cpp" ]
+}

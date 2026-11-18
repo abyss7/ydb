@@ -29,6 +29,7 @@ unittest_executable("ut") {
     "//ydb/public/sdk/cpp/src/client/topic/ut/ut_utils:test_setup",
     "//ydb/public/sdk/cpp/src/client/types/credentials",
     "//ydb/public/sdk/cpp/src/client/types/status",
+    "//ydb/services/scheme_secret",
   ]
 
   sources = [

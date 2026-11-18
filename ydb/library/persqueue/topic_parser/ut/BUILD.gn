@@ -3,6 +3,8 @@ unittest_executable("ut") {
     "//library/cpp/getopt",  # peerdir only
     "//library/cpp/svnversion",  # peerdir only
     "//library/cpp/testing/unittest",
+    "//ydb/core/testlib",
+    "//ydb/core/testlib/default",  # peerdir only
     "//ydb/library/persqueue/topic_parser",
   ]
 
@@ -11,14 +13,14 @@ unittest_executable("ut") {
   include_dirs = [ "//ydb/library/persqueue/topic_parser" ]
 
   link_select = [
-    "YqlServicePolicy=stub",
+    "YqlServicePolicy=exception_policy",
     "allocator=tcmalloc",
-    "minikql_codegen=no_llvm",
+    "minikql_codegen=llvm16",
     "retro_spans=spans",
     "topic_rpc=persqueue_v1",
-    "wasm=wasm_default",
+    "wasm=engine",
     "yql_pg_runtime=pg_dummy",
     "yql_pg_sql_translator=pg_dummy",
-    "yt_codegen=no_llvm",
+    "yt_codegen=llvm16",
   ]
 }

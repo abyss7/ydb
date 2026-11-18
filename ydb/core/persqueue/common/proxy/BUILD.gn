@@ -10,8 +10,16 @@ library("proxy") {
   ]
 
   deps = [
+    # "//ydb/core/base",
+    # "//ydb/core/kqp/common/events",
+    "//ydb/core/persqueue/events",
     # "//ydb/core/persqueue/public",  # peerdir only
+    # "//ydb/core/tx/scheme_cache",
+    "//ydb/services/scheme_secret",
   ]
 
-  sources = [ "actor_persqueue_client_iface.cpp" ]
+  sources = [
+    "actor_persqueue_client_iface.cpp",
+    "mirror_credentials.cpp",
+  ]
 }

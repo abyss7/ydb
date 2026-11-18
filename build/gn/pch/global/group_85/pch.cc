@@ -116,7 +116,6 @@
 #include "yql/essentials/protos/clickhouse.pb.h"
 #include "ydb/core/cms/console/configs_dispatcher.h"
 #include "ydb/core/tx/replication/controller/public_events.h"
-#include "ydb/core/kqp/common/simple/query_ast.h"
 #include "ydb/core/formats/arrow/accessor/abstract/common.h"
 #include "ydb/core/tx/data_events/common/modification_type.h"
 #include "ydb/core/scheme/scheme_types_proto.h"

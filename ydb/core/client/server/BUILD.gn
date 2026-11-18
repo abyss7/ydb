@@ -47,11 +47,9 @@ library("server") {
     "//ydb/core/grpc_services",
     # "//ydb/core/jaeger_tracing",
     # "//ydb/core/keyvalue",  # peerdir only
-    # "//ydb/core/kqp/common",
     # "//ydb/core/load_test/common",
     # "//ydb/core/mind",
     # "//ydb/core/node_whiteboard",
-    # "//ydb/core/persqueue",  # peerdir only
     # "//ydb/core/persqueue/public",
     # "//ydb/core/persqueue/public/cluster_tracker",
     # "//ydb/core/persqueue/writer",  # peerdir only

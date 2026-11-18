@@ -13,6 +13,7 @@ library("interconnect") {
     "//ydb/library/actors/interconnect/retro_tracing",
     "//ydb/library/actors/prof",
     "//ydb/library/actors/protos",
+    # "//ydb/library/actors/struct_log",
     "//ydb/library/actors/util",
     "//ydb/library/actors/wilson",
   ]

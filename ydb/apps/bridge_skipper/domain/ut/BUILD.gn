@@ -23,6 +23,7 @@ unittest_executable("ut") {
     "fixtures/bsc_red.pbtxt",
     "fixtures/fallback_grey.pbtxt",
     "fixtures/fallback_red.pbtxt",
+    "fixtures/real_fallback_primary_pdisk_error.pbtxt",
     "fixtures/stage2.pbtxt",
     "fixtures/truncated.pbtxt",
     "fixtures/unattributed.pbtxt",

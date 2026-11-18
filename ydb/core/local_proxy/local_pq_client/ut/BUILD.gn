@@ -1,6 +1,8 @@
 unittest_executable("ut") {
   deps = [
     "//library/cpp/testing/unittest",
+    "//ydb/core/base",
+    "//ydb/core/cms/console/events",
     "//ydb/core/kqp/ut/common",
     "//ydb/core/local_proxy/local_pq_client",
     "//ydb/library/aclib",

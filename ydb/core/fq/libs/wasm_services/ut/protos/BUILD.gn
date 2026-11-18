@@ -1,0 +1,7 @@
+protobuf_library("protos") {
+  public_deps = [ "//ydb/udfs/wasm/profile/proto/schema" ]
+
+  sources = [ "mock.proto" ]
+
+  generate_grpc_services = true
+}

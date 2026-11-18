@@ -3,6 +3,7 @@ unittest_executable("ut_move_pdisk") {
     "//ydb/core/blobstorage/base",
     "//ydb/core/blobstorage/nodewarden",
     "//ydb/core/blobstorage/ut_blobstorage/lib",
+    "//ydb/core/sys_view/common",
   ]
 
   sources = [ "//ydb/core/blobstorage/ut_blobstorage/move_pdisk.cpp" ]

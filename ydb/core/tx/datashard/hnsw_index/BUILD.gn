@@ -1,0 +1,18 @@
+library("hnsw_index") {
+  public_deps = [
+    "//ydb/core/base",
+    # "//ydb/core/scheme",
+    # "//ydb/library/actors/core",
+    "//ydb/public/api/protos",
+  ]
+
+  deps = [
+    "//ydb/library/nmslib",
+    # "//ydb/library/yql/udfs/common/knn",
+  ]
+
+  sources = [
+    "hnsw_index.cpp",
+    "hnsw_memory_tracker.cpp",
+  ]
+}

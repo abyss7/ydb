@@ -8,10 +8,8 @@ library("syncer") {
   deps = [
     "//ydb/core/base",
     "//ydb/core/blobstorage/base",
-
     # "//ydb/core/blobstorage/nodewarden",
     "//ydb/core/util",
-
     # "//ydb/library/actors/core",
   ]
 

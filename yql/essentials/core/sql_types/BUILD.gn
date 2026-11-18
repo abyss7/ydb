@@ -6,9 +6,19 @@ library("sql_types") {
   ]
 
   sources = [
+    "block.cpp",
+    "hopping.cpp",
     "match_recognize.cpp",
     "normalize_name.cpp",
     "simple_types.cpp",
+    "sort_order.cpp",
+    "time_order_recover.cpp",
+    "window_direction.cpp",
+    "window_frame_bounds.cpp",
+    "window_frames_collector_params.cpp",
+    "window_number_and_direction.cpp",
+    "yql_atom_enums.cpp",
+    "yql_callable_names.cpp",
   ]
 
   serialize_enum_headers = [

@@ -13,7 +13,7 @@ library("gateway") {
   deps = [
     # "//ydb/core/actorlib_impl",  # peerdir only
     # "//ydb/core/base",
-    # "//ydb/core/cms/console",
+    # "//ydb/core/cms/console/events",
     # "//ydb/core/engine",
     # "//ydb/core/external_sources",
     # "//ydb/core/grpc_services/local_rpc",

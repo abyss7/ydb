@@ -1,0 +1,8 @@
+library("intervals") {
+  public_deps = [
+    "//ydb/core/base",
+    "//ydb/core/tx/columnshard/engines/portions",
+  ]
+
+  sources = [ "intervals.cpp" ]
+}

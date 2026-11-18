@@ -12,6 +12,7 @@ library("dom") {
   ]
 
   sources = [
+    "convert.cpp",
     "hash.cpp",
     "json.cpp",
     "make.cpp",

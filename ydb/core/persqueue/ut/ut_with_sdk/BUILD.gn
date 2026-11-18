@@ -5,6 +5,7 @@ unittest_executable("ut_with_sdk") {
     "//library/cpp/svnversion",  # peerdir only
     "//library/cpp/testing/unittest",
     "//library/cpp/threading/future",
+    "//library/cpp/time_provider",
     "//ydb/core/persqueue",  # peerdir only
     "//ydb/core/persqueue/common/proxy",
     "//ydb/core/persqueue/events",
@@ -20,6 +21,7 @@ unittest_executable("ut_with_sdk") {
     "//ydb/public/api/grpc",
     "//ydb/public/api/grpc/draft",
     "//ydb/public/sdk/cpp/src/client/persqueue_public/ut/ut_utils",
+    "//ydb/public/sdk/cpp/src/client/persqueue_public:include",
     "//ydb/public/sdk/cpp/src/client/query",
     "//ydb/public/sdk/cpp/src/client/topic",
     "//ydb/public/sdk/cpp/src/client/topic/ut/ut_utils",  # peerdir only
@@ -37,6 +39,7 @@ unittest_executable("ut_with_sdk") {
     "topic_replication_ut.cpp",
     "topic_timestamp_ut.cpp",
     "topic_ut.cpp",
+    "write_sessions_quoter_ut.cpp",
   ]
 
   include_dirs = [

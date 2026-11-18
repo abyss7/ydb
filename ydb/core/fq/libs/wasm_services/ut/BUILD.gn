@@ -1,0 +1,69 @@
+library("ut_resources") {
+  resources = [
+    {
+      path = "//ydb/udfs/wasm/profile/ut/data/profile.wasm"
+      key = "/fq_transport_coroutine.wasm"
+    },
+    {
+      path = "//ydb/udfs/wasm/echo/ut/data/echo.wasm"
+      key = "/echo_service.wasm"
+    },
+    {
+      path = "//ydb/udfs/wasm/profile/manifest.json"
+      key = "/ydb/udfs/wasm/profile/manifest.json"
+    },
+    {
+      path = "//ydb/udfs/wasm/echo/manifest.json"
+      key = "/ydb/udfs/wasm/echo/manifest.json"
+    },
+  ]
+}
+
+unittest_executable("ut") {
+  deps = [
+    ":ut_resources",
+    "//contrib/libs/grpc",
+    "//contrib/libs/protobuf",
+    "//library/cpp/http/server",
+    "//library/cpp/json",
+    "//library/cpp/lwtrace/protos",  # peerdir only
+    "//library/cpp/resource",
+    "//library/cpp/testing/common",
+    "//library/cpp/testing/unittest",
+    "//ydb/core/fq/libs/wasm_services",
+    "//ydb/core/fq/libs/wasm_services/manifest",
+    "//ydb/core/fq/libs/wasm_services/ut/protos",
+    "//ydb/core/security/certificate_check/test_utils",
+    "//ydb/library/actors/core",
+    "//ydb/library/actors/http",
+    "//ydb/library/actors/testlib",
+    "//ydb/library/services",  # peerdir only
+    "//ydb/library/wasm/api",
+    "//ydb/library/wasm/engine",  # peerdir only
+    "//ydb/services/udf_store/wasm",
+    # "//ydb/udfs/wasm/echo/contract",  # no target
+    # "//ydb/udfs/wasm/profile/contract",  # no target
+    "//ydb/udfs/wasm/profile/proto/schema",
+    "//yql/essentials/public/udf/service/exception_policy",  # peerdir only
+    "//yql/essentials/sql/pg_dummy",  # peerdir only
+  ]
+
+  sources = [
+    "manifest_ut.cpp",
+    "metrics_ut.cpp",
+    "modules_ut.cpp",
+    "transport_ut.cpp",
+  ]
+
+  link_select = [
+    "YqlServicePolicy=exception_policy",
+    "allocator=tcmalloc",
+    "minikql_codegen=no_llvm",
+    "retro_spans=spans",
+    "topic_rpc=persqueue_v1",
+    "wasm=engine",
+    "yql_pg_runtime=pg_dummy",
+    "yql_pg_sql_translator=pg_dummy",
+    "yt_codegen=no_llvm",
+  ]
+}

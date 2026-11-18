@@ -17,6 +17,7 @@ library("provider") {
     ]
 
     deps = [
+        "//library/cpp/resource",
         "//ydb/core/docapi",
         "//ydb/core/external_sources",
         "//ydb/core/fq/libs/result_formatter",
@@ -33,6 +34,7 @@ library("provider") {
         "//ydb/core/ydb_convert",
         "//ydb/library/actors/core",
         "//ydb/library/mkql_proto",
+        "//ydb/library/table_digest",
         "//ydb/library/yql/dq/common",
         "//ydb/library/yql/dq/constraints",
         "//ydb/library/yql/dq/expr_nodes",
@@ -99,6 +101,13 @@ library("provider") {
         "yql_kikimr_settings.cpp",
         "yql_kikimr_type_ann_pg.cpp",
         "yql_kikimr_type_ann.cpp",
+    ]
+
+    resources = [
+        {
+            path = "//ydb/library/yql/udfs/digest/aggregate.sql"
+            key = "/lib/ydb/digest.sql"
+        },
     ]
 
     serialize_enum_headers = [

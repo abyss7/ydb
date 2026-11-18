@@ -34,6 +34,7 @@ library("ast") {
     "yql_expr_builder.cpp",
     "yql_expr_types.cpp",
     "yql_gc_nodes.cpp",
+    "yql_pos_handle.cpp",
     "yql_type_string.cpp",
   ]
 }

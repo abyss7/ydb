@@ -1,0 +1,10 @@
+library("events") {
+  public_deps = [
+    "//ydb/core/base",
+    "//ydb/core/protos",
+    # "//ydb/library/yverify_stream",
+    "//ydb/public/api/protos",
+  ]
+
+  sources = [ "console.cpp" ]
+}

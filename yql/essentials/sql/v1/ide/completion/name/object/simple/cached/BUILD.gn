@@ -5,5 +5,8 @@ library("cached") {
     # "//yql/essentials/utils/meta",
   ]
 
-  sources = [ "schema.cpp" ]
+  sources = [
+    "key.cpp",
+    "schema.cpp",
+  ]
 }

@@ -1,11 +1,8 @@
 library("full") {
-  public_deps = [
-    # "//yt/yql/providers/yt/lib/access_provider",
-    "//yt/yql/providers/yt/lib/access_provider/proto",
-  ]
-
   deps = [
+    # "//yt/yql/providers/yt/lib/access_provider",
     # "//yt/yql/providers/yt/lib/access_provider/dummy",
+    "//yt/yql/providers/yt/lib/access_provider/proto",
   ]
 
   sources = [ "yt_access_provider_dummy.cpp" ]

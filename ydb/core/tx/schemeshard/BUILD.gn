@@ -40,7 +40,7 @@ library("schemeshard") {
     # "//ydb/core/engine",
     "//ydb/core/external_sources",
     # "//ydb/core/filestore/core",
-    # "//ydb/core/kesus/tablet",
+    "//ydb/core/kesus/tablet",
     # "//ydb/core/metering",
     # "//ydb/core/persqueue/events",
     "//ydb/core/persqueue/public/partition_key_range",
@@ -84,6 +84,7 @@ library("schemeshard") {
   ]
 
   deps = [
+    # "//contrib/libs/zstd",
     # "//library/cpp/containers/top_keeper",
     # "//library/cpp/html/pcdata",
     # "//library/cpp/int128",
@@ -228,6 +229,7 @@ library("schemeshard") {
     "schemeshard__describe_scheme.cpp",
     "schemeshard__find_subdomain_path_id.cpp",
     "schemeshard__fix_bad_paths.cpp",
+    "schemeshard__index_shadow_data_repair.cpp",
     "schemeshard__init.cpp",
     "schemeshard__init_populator.cpp",
     "schemeshard__init_root.cpp",
@@ -337,6 +339,7 @@ library("schemeshard") {
     "schemeshard__operation_move_table.cpp",
     "schemeshard__operation_move_tables.cpp",
     "schemeshard__operation_part.cpp",
+    "schemeshard__operation_repair_index_shadow_data.cpp",
     "schemeshard__operation_restore_backup_collection.cpp",
     "schemeshard__operation_rmdir.cpp",
     "schemeshard__operation_rotate_cdc_stream.cpp",
@@ -405,6 +408,7 @@ library("schemeshard") {
     "schemeshard_import_flow_proposals.cpp",
     "schemeshard_import_getters.cpp",
     "schemeshard_import_helpers.cpp",
+    "schemeshard_import_kesus_restorer.cpp",
     "schemeshard_import_scheme_query_executor.cpp",
     "schemeshard_incremental_restore_scan.cpp",
     "schemeshard_info_types.cpp",

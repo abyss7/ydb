@@ -10,6 +10,7 @@ library("http") {
     # "//library/cpp/json",
     "//library/cpp/string_utils/base64",
     # "//library/cpp/yson/node",
+    # "//library/cpp/yt/misc",
     # "//yt/cpp/mapreduce/client",
     "//yt/cpp/mapreduce/common",
     "//yt/cpp/mapreduce/interface/logging",
@@ -20,6 +21,7 @@ library("http") {
   sources = [
     "abortable_http_response.cpp",
     "context.cpp",
+    "framing.cpp",
     "helpers.cpp",
     "host_manager.cpp",
     "http.cpp",

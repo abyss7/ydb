@@ -42,7 +42,7 @@ library("runtime") {
     "//library/cpp/regex/pire",  # peerdir only
     "//library/cpp/threading/hot_swap",
     "//ydb/core/actorlib_impl",
-    # "//ydb/core/cms/console",
+    # "//ydb/core/cms/console/events",
     # "//ydb/core/engine",
     # "//ydb/core/formats",  # peerdir only
     "//ydb/core/kqp/common",

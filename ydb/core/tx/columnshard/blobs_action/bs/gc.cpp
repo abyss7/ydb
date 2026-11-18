@@ -21,10 +21,10 @@ void TGCTask::DoOnExecuteTxAfterCleaning(NColumnShard::TColumnShard& /*self*/, T
     Manager->OnGCFinishedOnExecute(CollectGenStepInFlight, dbBlobs);
 }
 
-bool TGCTask::DoOnCompleteTxAfterCleaning(NColumnShard::TColumnShard& self, const std::shared_ptr<IBlobsGCAction>& /*taskAction*/) {
+bool TGCTask::DoOnCompleteTxAfterCleaning(TFunctionRef<void(ui32)> onFirstGC) {
     Manager->OnGCFinishedOnComplete(CollectGenStepInFlight);
     if (FirstGC && CollectGenStepInFlight) {
-        self.OnFirstGC(CollectGenStepInFlight->Generation(), TActivationContext::AsActorContext());
+        onFirstGC(CollectGenStepInFlight->Generation());
     }
     return true;
 }

@@ -64,7 +64,7 @@ SRCS(
     primes.h
     watermark_tracker.cpp
     watermark_tracker.h
-    mkql_udf_service.cpp
+    mkql_udf_service.cpp  # gn: alloc
     defs.cpp
     mkql_core_win_frames_collector.cpp
     mkql_core_win_frames_collector.h
@@ -85,7 +85,7 @@ SRCS(
     mkql_window_defs.cpp
     mkql_window_defs.h
 )
-# gn: alloc headers mkql_alloc.h mkql_mem_info.h
+# gn: alloc headers mkql_alloc.h mkql_mem_info.h mkql_udf_service.h
 # gn: terminator headers mkql_terminator.h
 
 PEERDIR(

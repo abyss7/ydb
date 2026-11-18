@@ -1,0 +1,20 @@
+library("cut_history") {
+  public_deps = [
+    "//ydb/core/protos",
+    # "//ydb/core/tx/columnshard/common",
+    "//ydb/core/tx/columnshard/maintenance/cut_history/intervals",
+    "//ydb/core/tx/columnshard:ev_ids",
+    "//ydb/library/actors/core",
+  ]
+
+  deps = [
+    # "//ydb/core/tablet_flat",  # peerdir only
+    # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/columnshard/counters",  # peerdir only
+    "//ydb/core/tx/columnshard/data_accessor/cache_policy",
+    # "//ydb/core/tx/columnshard/engines",
+    # "//ydb/core/tx/general_cache/usage",  # peerdir only
+  ]
+
+  sources = [ "find_empty_history_intervals.cpp" ]
+}

@@ -6,6 +6,7 @@ unittest_executable("ut") {
     "//contrib/libs/poco/Net",
     "//contrib/libs/poco/NetSSL_OpenSSL",
     "//library/cpp/json",
+    "//library/cpp/monlib/consumers",
     "//library/cpp/resource",
     "//library/cpp/testing/unittest",
     "//ydb/core/security/certificate_check/test_utils",

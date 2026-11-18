@@ -1,6 +1,6 @@
 library("portions") {
   public_deps = [
-    # "//contrib/libs/apache/arrow",
+    "//contrib/libs/apache/arrow",
     # "//ydb/core/formats/arrow",
     # "//ydb/core/formats/arrow/accessor/common",
     "//ydb/core/formats/arrow/accessor/composite_serial",

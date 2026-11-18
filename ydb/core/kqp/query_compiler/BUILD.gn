@@ -13,6 +13,7 @@ library("query_compiler") {
     # "//ydb/core/base",
     # "//ydb/core/formats",  # peerdir only
     # "//ydb/core/formats/arrow",
+    "//ydb/core/kqp/predictor",
     "//ydb/core/kqp/query_data",
     "//ydb/core/kqp/tracing",
     # "//ydb/core/scheme",

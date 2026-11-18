@@ -1,5 +1,6 @@
 unittest_executable("ut_base") {
   deps = [
+    "//contrib/libs/zstd",
     "//library/cpp/getopt",  # peerdir only
     "//library/cpp/regex/pcre",  # peerdir only
     "//library/cpp/svnversion",  # peerdir only

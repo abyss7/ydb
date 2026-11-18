@@ -1,9 +1,9 @@
-group("proto_ast") {
+library("proto_ast") {
   public_deps = [
     # "//contrib/libs/protobuf",
     "//yql/essentials/parser/common",
     # "//yql/essentials/parser/lexer_common",
-    # "//yql/essentials/parser/proto_ast/antlr4",
-    # "//yql/essentials/parser/proto_ast/collect_issues",
   ]
+
+  sources = [ "common.cpp" ]
 }

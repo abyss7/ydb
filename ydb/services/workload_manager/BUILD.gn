@@ -17,7 +17,7 @@ library("workload_manager") {
 
   deps = [
     # "//contrib/libs/protobuf",
-    # "//ydb/core/cms/console",  # peerdir only
+    # "//ydb/core/cms/console/events",  # peerdir only
     "//ydb/core/kqp/query_data",
     # "//ydb/core/mind",  # peerdir only
     "//ydb/library/yql/providers/pq/common",

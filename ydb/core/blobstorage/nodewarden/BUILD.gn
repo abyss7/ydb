@@ -14,6 +14,7 @@ library("nodewarden") {
     # "//ydb/core/blobstorage/groupinfo",
     "//ydb/core/blobstorage/incrhuge",
     "//ydb/core/blobstorage/pdisk",
+    "//ydb/core/blobstorage/syncer",
     # "//ydb/core/blobstorage/vdisk/common",
     # "//ydb/core/cms/console",
     "//ydb/core/mind/bscontroller:group_mapper",
@@ -38,7 +39,6 @@ library("nodewarden") {
     "//ydb/core/audit",
     # "//ydb/core/blob_depot",
     "//ydb/core/blob_depot/agent",
-    "//ydb/core/blobstorage/bridge/syncer",
     # "//ydb/core/blobstorage/common",
     "//ydb/core/blobstorage/ddisk",
     "//ydb/core/blobstorage/vdisk",
@@ -100,6 +100,7 @@ library("nodewarden") {
     "node_warden_resource.cpp",
     "node_warden_scrub.cpp",
     "node_warden_stat_aggr.cpp",
+    "node_warden_syncer.cpp",
     "node_warden_vdisk.cpp",
   ]
 

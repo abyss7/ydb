@@ -1,6 +1,7 @@
 unittest_executable("protocol") {
   deps = [
     "//contrib/libs/apache/arrow",
+    "//contrib/libs/openssl",
     "//contrib/libs/protobuf",
     "//library/cpp/digest/md5",
     "//library/cpp/json",
@@ -16,6 +17,7 @@ unittest_executable("protocol") {
     "//ydb/core/persqueue/public/schema",  # peerdir only
     "//ydb/core/persqueue/ut/common",  # peerdir only
     "//ydb/core/protos/schemeshard",
+    "//ydb/core/raw_socket",
     "//ydb/core/security/certificate_check/test_utils",
     "//ydb/core/testlib",
     "//ydb/core/testlib/actors",  # peerdir only
@@ -45,6 +47,7 @@ unittest_executable("protocol") {
     "//ydb/core/kafka_proxy/ut/test_server.cpp",
     "//ydb/core/kafka_proxy/ut/ut_auth.cpp",
     "//ydb/core/kafka_proxy/ut/ut_authz.cpp",
+    "//ydb/core/kafka_proxy/ut/ut_mtls.cpp",
     "//ydb/core/kafka_proxy/ut/ut_protocol.cpp",
   ]
 

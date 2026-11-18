@@ -18,6 +18,8 @@ library("log") {
     "format.cpp",
     "fwd_backend.cpp",
     "log.cpp",
+    "log_component.cpp",
+    "log_level.cpp",
     "profile.cpp",
     "tls_backend.cpp",
   ]

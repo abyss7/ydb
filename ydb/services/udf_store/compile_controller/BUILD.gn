@@ -7,7 +7,7 @@ library("compile_controller") {
 
   deps = [
     ":protos",  # peerdir only
-    # "//ydb/core/cms/console",
+    # "//ydb/core/cms/console/events",
     "//ydb/core/engine/minikql",
     "//ydb/core/grpc_services",  # peerdir only
     "//ydb/core/protos",

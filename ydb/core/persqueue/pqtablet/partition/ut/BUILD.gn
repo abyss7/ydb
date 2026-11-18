@@ -4,6 +4,8 @@ gtest_executable("ut") {
     "//ydb/core/persqueue",
     "//ydb/core/persqueue/common",
     "//ydb/core/protos",
+    "//yql/essentials/public/udf/service/exception_policy",  # peerdir only
+    "//yql/essentials/sql/pg_dummy",  # peerdir only
   ]
 
   sources = [
@@ -12,9 +14,9 @@ gtest_executable("ut") {
   ]
 
   link_select = [
-    "YqlServicePolicy=stub",
+    "YqlServicePolicy=exception_policy",
     "allocator=tcmalloc",
-    "minikql_codegen=no_llvm",
+    "minikql_codegen=llvm16",
     "retro_spans=spans",
     "topic_rpc=persqueue_v1",
     "wasm=wasm_default",

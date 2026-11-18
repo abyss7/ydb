@@ -2,6 +2,7 @@ unittest_executable("ut_import_s3_engine") {
   deps = [
     "//contrib/libs/apache/arrow",
     "//contrib/libs/zstd",
+    "//library/cpp/string_utils/quote",
     "//library/cpp/testing/common",
     "//library/cpp/testing/unittest",
     "//ydb/core/backup/common",

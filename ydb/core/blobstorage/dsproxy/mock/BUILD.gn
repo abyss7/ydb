@@ -2,14 +2,11 @@ library("mock") {
   public_deps = [
     "//ydb/core/base",
     # "//ydb/core/blobstorage",
-    # "//ydb/core/blobstorage/pdisk",
+    # "//ydb/core/blobstorage/base",
     "//ydb/core/protos",
   ]
 
-  deps = [
-    # "//ydb/core/blobstorage/base",
-    "//ydb/core/util",
-  ]
+  deps = [ "//ydb/core/util" ]
 
   sources = [ "dsproxy_mock.cpp" ]
 }

@@ -10,7 +10,9 @@ library("tablet") {
     "//ydb/core/grpc_services",
     "//ydb/core/protos",
     # "//ydb/core/tablet",
+    # "//ydb/core/tx/scheme_cache",
     # "//ydb/library/mkql_proto",
+    # "//ydb/public/sdk/cpp/src/library/operation_id",
     # "//yql/essentials/minikql",
     # "//yql/essentials/minikql/computation",
     # "//yql/essentials/minikql:alloc",
@@ -19,6 +21,7 @@ library("tablet") {
   sources = [
     "rpc_change_schema.cpp",
     "rpc_execute_mkql.cpp",
+    "rpc_reassign_tablets.cpp",
     "rpc_restart_tablet.cpp",
   ]
 }

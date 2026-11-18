@@ -7,7 +7,10 @@ unittest_executable("ut") {
     "//ydb/library/actors/core",
   ]
 
-  sources = [ "session_id_ut.cpp" ]
+  sources = [
+    "mvcc_version_ut.cpp",
+    "session_id_ut.cpp",
+  ]
 
   link_select = [
     "YqlServicePolicy=stub",

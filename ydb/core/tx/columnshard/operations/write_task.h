@@ -12,6 +12,8 @@ class TColumnShard;
 class TArrowData;
 
 class TWriteTask: public TMoveOnly {
+    friend class TColumnShard;
+
 private:
     std::shared_ptr<TArrowData> ArrowData;
     NOlap::ISnapshotSchema::TPtr Schema;
@@ -84,11 +86,6 @@ public:
     const TMonotonic& GetCreatedMonotonic() const {
         return Created;
     }
-
-    bool Execute(TColumnShard* owner, const TActorContext& ctx) const;
-    void Abort(TColumnShard* owner, const TString& reason, const TActorContext& ctx,
-        const NKikimrDataEvents::TEvWriteResult::EStatus& status = NKikimrDataEvents::TEvWriteResult::STATUS_INTERNAL_ERROR) const;
-    void FailByOverload(TColumnShard* owner, const EOverloadStatus overloadStatus, const TActorContext& ctx) const;
 };
 
 }   // namespace NKikimr::NColumnShard

@@ -5,5 +5,8 @@ library("common") {
     "//yql/essentials/core/issue",  # peerdir only
   ]
 
-  sources = [ "error.cpp" ]
+  sources = [
+    "error.cpp",
+    "issue.cpp",
+  ]
 }

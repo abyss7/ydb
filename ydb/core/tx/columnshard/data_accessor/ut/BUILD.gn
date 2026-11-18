@@ -3,8 +3,10 @@ unittest_executable("ut") {
     "//contrib/libs/apache/arrow",
     "//library/cpp/testing/unittest",
     "//ydb/core/formats/arrow",
+    "//ydb/core/protos",
     "//ydb/core/testlib",  # peerdir only
     "//ydb/core/tx/columnshard",  # peerdir only
+    "//ydb/core/tx/columnshard/blobs_action/counters",
     "//ydb/core/tx/columnshard/common",
     "//ydb/core/tx/columnshard/data_accessor",
     "//ydb/core/tx/columnshard/data_accessor/cache_policy",
@@ -20,7 +22,10 @@ unittest_executable("ut") {
     "//yql/essentials/sql/pg_dummy",  # peerdir only
   ]
 
-  sources = [ "ut_manager.cpp" ]
+  sources = [
+    "ut_cache_consumers.cpp",
+    "ut_manager.cpp",
+  ]
 
   include_dirs = [ "//ydb/core/tx/columnshard/data_accessor" ]
 

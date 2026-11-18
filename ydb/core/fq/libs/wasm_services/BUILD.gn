@@ -1,0 +1,20 @@
+library("wasm_services") {
+  public_deps = [
+    "//contrib/libs/grpc",
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//library/cpp/time_provider",
+    "//ydb/services/udf_store/wasm",
+  ]
+
+  deps = [
+    "//contrib/libs/curl",
+    "//ydb/library/actors/core",
+  ]
+
+  sources = [
+    "grpc_readiness.cpp",
+    "metrics.cpp",
+    "readiness.cpp",
+    "transport.cpp",
+  ]
+}

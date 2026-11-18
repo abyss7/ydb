@@ -7,6 +7,7 @@ unittest_executable("ut_write") {
     "//ydb/core/grpc_services/local_rpc",
     "//ydb/core/kqp/ut/common",  # peerdir only
     "//ydb/core/protos",
+    "//ydb/core/protos/schemeshard",
     "//ydb/core/testlib",
     "//ydb/core/testlib/actors",
     "//ydb/core/testlib/default",  # peerdir only
@@ -15,6 +16,7 @@ unittest_executable("ut_write") {
     "//ydb/core/tx/datashard",
     "//ydb/core/tx/datashard/ut_common",
     "//ydb/core/tx/long_tx_service/public",
+    "//ydb/core/tx/tx_proxy:public",
     "//ydb/library/services",
     "//ydb/library/ut",
     "//ydb/public/lib/yson_value",  # peerdir only

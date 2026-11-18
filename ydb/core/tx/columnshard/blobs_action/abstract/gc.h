@@ -7,6 +7,7 @@
 
 #include <ydb/library/actors/core/log.h>
 
+#include <util/generic/function_ref.h>
 #include <util/generic/string.h>
 
 namespace NKikimr::NColumnShard {
@@ -30,7 +31,7 @@ protected:
     bool FinishedFlag = false;
 
     virtual void DoOnExecuteTxAfterCleaning(NColumnShard::TColumnShard& self, TBlobManagerDb& dbBlobs) = 0;
-    virtual bool DoOnCompleteTxAfterCleaning(NColumnShard::TColumnShard& self, const std::shared_ptr<IBlobsGCAction>& taskAction) = 0;
+    virtual bool DoOnCompleteTxAfterCleaning(TFunctionRef<void(ui32)> onFirstGC) = 0;
 
     virtual void DoOnExecuteTxBeforeCleaning(NColumnShard::TColumnShard& self, TBlobManagerDb& dbBlobs) = 0;
     virtual bool DoOnCompleteTxBeforeCleaning(NColumnShard::TColumnShard& self, const std::shared_ptr<IBlobsGCAction>& taskAction) = 0;
@@ -44,7 +45,8 @@ public:
     }
 
     void OnExecuteTxAfterCleaning(NColumnShard::TColumnShard& self, TBlobManagerDb& dbBlobs);
-    void OnCompleteTxAfterCleaning(NColumnShard::TColumnShard& self, const std::shared_ptr<IBlobsGCAction>& taskAction);
+    void OnCompleteTxAfterCleaning(NColumnShard::TColumnShard& self, const std::shared_ptr<IBlobsGCAction>& taskAction,
+        TFunctionRef<void(ui32)> onFirstGC);
 
     void OnExecuteTxBeforeCleaning(NColumnShard::TColumnShard& self, TBlobManagerDb& dbBlobs);
     void OnCompleteTxBeforeCleaning(NColumnShard::TColumnShard& self, const std::shared_ptr<IBlobsGCAction>& taskAction);

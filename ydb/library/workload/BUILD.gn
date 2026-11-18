@@ -266,6 +266,7 @@ group("workload") {
     ":query",  # peerdir only
     # "//ydb/library/workload/abstract",  # peerdir only
     # "//ydb/library/workload/benchmark_base",
+    # "//ydb/library/workload/imdb",
     "//ydb/library/workload/kv",  # peerdir only
     "//ydb/library/workload/stock",  # peerdir only
     # "//ydb/library/workload/tpc_base",

@@ -36,6 +36,7 @@ PEERDIR(
     ydb/core/kqp/gateway/local_rpc
     ydb/core/kqp/predictor
     ydb/core/kqp/query_compiler
+    ydb/core/kqp/query_data
     ydb/core/kqp/rm_service
     ydb/core/kqp/topics
     ydb/core/kqp/tracing

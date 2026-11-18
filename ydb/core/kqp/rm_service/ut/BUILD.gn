@@ -3,7 +3,7 @@ unittest_executable("ut") {
     "//library/cpp/testing/unittest",
     "//library/cpp/threading/local_executor",
     "//ydb/core/base",
-    "//ydb/core/cms/console",
+    "//ydb/core/cms/console/events",
     "//ydb/core/kqp/common/simple",
     "//ydb/core/kqp/node_service",
     "//ydb/core/kqp/rm_service",
@@ -13,6 +13,7 @@ unittest_executable("ut") {
     "//ydb/core/testlib",
     "//ydb/library/actors/core",
     "//ydb/library/actors/interconnect",
+    "//ydb/library/actors/struct_log",
     "//yql/essentials/sql/pg_dummy",  # peerdir only
   ]
 

@@ -7,6 +7,7 @@ library("facade") {
     # "//yql/essentials/core/credentials",
     # "//yql/essentials/core/file_storage",
     # "//yql/essentials/core/layers",
+    "//yql/essentials/core/project_settings",
     # "//yql/essentials/core/qplayer/storage/interface",
     "//yql/essentials/core/services",
     "//yql/essentials/core/services:pipeline",

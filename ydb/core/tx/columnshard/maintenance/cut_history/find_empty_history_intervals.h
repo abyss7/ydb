@@ -3,10 +3,11 @@
 #include "intervals/intervals.h"
 
 #include <ydb/core/protos/config.pb.h>
-#include <ydb/core/tx/columnshard/columnshard.h>
+#include <ydb/core/tx/columnshard/columnshard_ev_ids.h>
 #include <ydb/core/tx/columnshard/common/path_id.h>
 
 #include <ydb/library/actors/core/actorid.h>
+#include <ydb/library/actors/core/event_local.h>
 
 #include <util/datetime/base.h>
 

@@ -23,6 +23,7 @@ unittest_executable("ut") {
     "//ydb/public/sdk/cpp/src/client/driver",  # peerdir only
     "//ydb/public/sdk/cpp/src/client/impl/internal/logger",
     "//ydb/public/sdk/cpp/src/client/persqueue_public/ut/ut_utils",  # peerdir only
+    "//ydb/public/sdk/cpp/src/client/topic",
     "//ydb/public/sdk/cpp/src/client/topic/codecs",  # peerdir only
     "//ydb/public/sdk/cpp/src/client/topic/impl",
     "//ydb/public/sdk/cpp/tests/integration/topic/utils",

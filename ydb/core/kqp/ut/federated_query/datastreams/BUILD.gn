@@ -8,7 +8,7 @@ unittest_executable("datastreams") {
     "//library/cpp/testing/unittest",
     "//library/cpp/threading/local_executor",  # peerdir only
     "//ydb/core/base",
-    "//ydb/core/cms/console",
+    "//ydb/core/cms/console/events",
     "//ydb/core/fq/libs/checkpoint_storage/events",
     "//ydb/core/fq/libs/checkpoint_storage/proto",
     "//ydb/core/fq/libs/checkpointing_common",

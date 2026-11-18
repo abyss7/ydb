@@ -31,7 +31,7 @@ from the local cache (its evlog).
     follow_bench.py --root <bench work tree> --out <bench build dir>
                     --ya-out <ya output dir> --commit <rev> --result <json>
                     [--ya-cache-root DIR] [--ya-cache-size 120GiB] [--order ninja,ya]
-                    [--targets all tests] [--ya-dirs DIR ... [--warm]]
+                    [--targets //:all //:tests] [--ya-dirs DIR ... [--warm]]
                     [--env NAME=VALUE ...] [--max-load X] [--full]
 
 --full: the first build of a series (warms the caches; the same measurements).
@@ -50,9 +50,8 @@ import subprocess
 import sys
 import time
 
-from follow import set_link_pool_size
+from follow import DEFAULT_TARGETS, gn_targets, ninja_targets, set_link_pool_size
 
-DEFAULT_TARGETS = ["all", "tests"]
 STATUS_RE = re.compile(r"^\[(\d+)/(\d+)\] ")
 
 
@@ -86,14 +85,15 @@ def git(root, *args):
 # ---- targets --------------------------------------------------------------------
 
 def target_labels(root, targets):
-    """The labels listed in the groups of the root BUILD.gn named by the ninja
-    targets; a target of no such group stands for itself (a dir or dir:name)."""
+    """Expand root GN groups for ya; other GN targets stand for themselves."""
     with open(os.path.join(root, "BUILD.gn")) as f:
         text = f.read()
     labels = []
-    for name in targets:
-        m = re.search(r'^group\("%s"\)\s*\{(.*?)^\}' % re.escape(name), text, re.S | re.M)
-        labels += re.findall(r'^\s*"(//[^"]+)"', m.group(1), re.M) if m else ["//" + name]
+    for label in targets:
+        directory, name = label[2:].split(":")
+        m = re.search(r'^group\("%s"\)\s*\{(.*?)^\}' % re.escape(name), text, re.S | re.M) \
+            if not directory else None
+        labels += re.findall(r'^\s*"(//[^"]+)"', m.group(1), re.M) if m else [label]
     return labels
 
 
@@ -153,13 +153,18 @@ def run_ninja(args, env, log_dir, name="bench_ninja"):
     res["gen"] = round(time.time() - t, 1)
     if rc != 0:
         return dict(res, rc=rc, failed="gn gen")
+    try:
+        targets = gn_targets(args.root, args.out, args.targets, env, args.script_executable)
+    except ValueError as e:
+        say(str(e))
+        return dict(res, rc=1, failed="GN targets")
     ninja_log = os.path.join(args.out, ".ninja_log")
     offset = os.path.getsize(ninja_log) if os.path.exists(ninja_log) else 0
     dc0, c0, t = dc_stats(), cpu_busy(), time.time()
     log = os.path.join(log_dir, name + ".log")
     with open(log, "w") as f:
         rc = subprocess.run(["ninja", "-C", args.out] + (["-j", str(args.jobs)] if args.jobs else [])
-                            + args.targets, stdout=f, stderr=subprocess.STDOUT,
+                            + ninja_targets(targets), stdout=f, stderr=subprocess.STDOUT,
                             env=dict(env, NINJA_STATUS="[%f/%t] ")).returncode
     res.update(rc=rc, wall=round(time.time() - t, 1), cpu=round(cpu_busy() - c0))
     actions = 0
@@ -297,7 +302,8 @@ def main():
     ap.add_argument("--ya-cache-size", help="ya make --cache-size, e.g. 100GiB (default: ya's)")
     ap.add_argument("--ya-build", default="relwithdebinfo")
     ap.add_argument("--order", default="ninja,ya")
-    ap.add_argument("--targets", nargs="+", default=DEFAULT_TARGETS, help="of ninja")
+    ap.add_argument("--targets", nargs="+", default=DEFAULT_TARGETS,
+                    help="GN targets resolved by gn ls (default: %s)" % " ".join(DEFAULT_TARGETS))
     ap.add_argument("--ya-dirs", nargs="+", help="of ya make (default: the dirs of --targets)")
     ap.add_argument("--warm", action="store_true",
                     help="ninja (--targets) and ya (--ya-dirs) build the previous commit first")
@@ -355,7 +361,14 @@ def main():
     load = wait_idle(args.max_load if args.max_load is not None else nproc * 0.05, args.idle_timeout)
     result = {"commit": git(args.root, "rev-parse", "HEAD"), "from": prev, "full": args.full, "order": order,
               "env": args.env, "host": {"host": platform.node(), "nproc": nproc, "load": load}}
-    dirs = args.ya_dirs or ya_dirs(args.root, target_labels(args.root, args.targets))
+    if args.ya_dirs:
+        dirs = args.ya_dirs
+    else:
+        try:
+            labels = gn_targets(args.root, args.out, args.targets, env, args.script_executable)
+        except ValueError as e:
+            ap.error("--targets: %s" % e)
+        dirs = ya_dirs(args.root, target_labels(args.root, labels))
     missing = [d for d in dirs if not os.path.exists(os.path.join(args.root, d, "ya.make"))]
     dirs = [d for d in dirs if d not in missing]
     result.update(ya_dirs=dirs, ya_missing=missing, ya_warm=warm, ninja_warm=ninja_warm)

@@ -8,7 +8,7 @@ library("resource_pool_classifier") {
   deps = [
     # "//library/cpp/json",
     # "//ydb/core/base",
-    "//ydb/core/cms/console",
+    # "//ydb/core/cms/console/events",
     "//ydb/core/grpc_services",  # peerdir only
     "//ydb/core/protos",
     "//ydb/library/query_actor",

@@ -10,6 +10,7 @@ library("common") {
     # "//library/cpp/time_provider",
     "//ydb/core/base",
     "//ydb/core/blobstorage/base",
+    # "//ydb/core/blobstorage/contracts",
     "//ydb/core/blobstorage/groupinfo",
     "//ydb/core/blobstorage/pdisk",
     # "//ydb/core/blobstorage/storagepoolmon",

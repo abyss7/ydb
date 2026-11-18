@@ -1,5 +1,6 @@
 unittest_executable("ut_dst_creator") {
   deps = [
+    "//contrib/libs/zstd",
     "//library/cpp/testing/unittest",
     "//ydb/core/protos/schemeshard",
     "//ydb/core/tx/replication/controller",
@@ -7,6 +8,7 @@ unittest_executable("ut_dst_creator") {
     "//ydb/core/tx/replication/ut_helpers",
     "//ydb/core/tx/replication/ydb_proxy",
     "//ydb/library/actors/core",
+    "//ydb/public/sdk/cpp/src/client/table",
   ]
 
   sources = [ "//ydb/core/tx/replication/controller/dst_creator_ut.cpp" ]

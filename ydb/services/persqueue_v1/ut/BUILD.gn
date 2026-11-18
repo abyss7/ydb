@@ -20,6 +20,7 @@ unittest_executable("ut") {
     "//ydb/core/protos",
     "//ydb/core/tablet",
     "//ydb/core/testlib",
+    "//ydb/core/testlib/basics",
     "//ydb/core/testlib/default",  # peerdir only
     "//ydb/library/aclib",
     "//ydb/library/persqueue",
@@ -58,6 +59,7 @@ unittest_executable("ut") {
     "functions_executor_wrapper.cpp",
     "persqueue_v1_gaps_ut.cpp",
     "rate_limiter_test_setup.cpp",
+    "read_init_auth_actor_ut.cpp",
     "read_session_multi_topic_ut.cpp",
     "topic_deferred_publish_ut.cpp",
     "topic_service_ut.cpp",

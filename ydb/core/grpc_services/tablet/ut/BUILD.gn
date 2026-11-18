@@ -5,11 +5,15 @@ unittest_executable("ut") {
     "//ydb/core/grpc_services/tablet",
     "//ydb/core/testlib",
     "//ydb/core/testlib/default",  # peerdir only
+    "//ydb/core/tx/scheme_cache",
+    "//ydb/public/api/protos",
+    "//ydb/public/sdk/cpp/src/library/operation_id",
   ]
 
   sources = [
     "//ydb/core/grpc_services/tablet/rpc_change_schema_ut.cpp",
     "//ydb/core/grpc_services/tablet/rpc_execute_mkql_ut.cpp",
+    "//ydb/core/grpc_services/tablet/rpc_reassign_tablets_ut.cpp",
     "//ydb/core/grpc_services/tablet/rpc_restart_tablet_ut.cpp",
   ]
 

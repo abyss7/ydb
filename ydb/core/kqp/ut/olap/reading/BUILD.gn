@@ -11,6 +11,7 @@ unittest_executable("reading") {
     "//ydb/core/tx/columnshard/blobs_action/common",
     "//ydb/core/tx/columnshard/hooks/testing",
     "//ydb/core/tx/columnshard/test_helper",  # peerdir only
+    "//ydb/core/tx/datashard",
     "//ydb/core/wrappers",
     "//yql/essentials/sql/pg_dummy",  # peerdir only
   ]
@@ -18,6 +19,7 @@ unittest_executable("reading") {
   sources = [
     "limit_ut.cpp",
     "simple_reader_ut.cpp",
+    "sorted_read_ut.cpp",
     "sparsed_ut.cpp",
   ]
 

@@ -4,7 +4,7 @@ library("provider") {
     # "//library/cpp/random_provider",  # peerdir only
     # "//library/cpp/time_provider",  # peerdir only
     # "//ydb/library/yql/dq/expr_nodes",
-    # "//ydb/library/yql/providers/clickhouse/expr_nodes",
+    "//ydb/library/yql/providers/clickhouse/expr_nodes",
     "//ydb/library/yql/providers/clickhouse/proto",
     # "//ydb/library/yql/providers/common/db_id_async_resolver",
     # "//ydb/library/yql/providers/common/http_gateway",

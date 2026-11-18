@@ -8,9 +8,14 @@ library("cache_policy") {
   ]
 
   deps = [
+    "//ydb/core/protos",
     # "//ydb/core/tx/columnshard",
+    # "//ydb/core/tx/columnshard/blobs_action/counters",
     # "//ydb/core/tx/columnshard/data_accessor/abstract",
   ]
 
-  sources = [ "policy.cpp" ]
+  sources = [
+    "consumers.cpp",
+    "policy.cpp",
+  ]
 }

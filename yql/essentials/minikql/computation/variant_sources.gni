@@ -2,6 +2,7 @@
 
 variant_sources = [
   "//yql/essentials/minikql/computation/mkql_computation_node_codegen.cpp",
+  "//yql/essentials/minikql/computation/mkql_computation_node_codegen_common.cpp",
   "//yql/essentials/minikql/computation/mkql_computation_node_graph.cpp",
   "//yql/essentials/minikql/computation/mkql_computation_node_graph_saveload.cpp",
   "//yql/essentials/minikql/computation/mkql_computation_node_holders_codegen.cpp",

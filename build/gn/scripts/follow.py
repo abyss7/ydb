@@ -162,7 +162,7 @@ EXIT = {kind: code for kind, (code, _) in STOP_KINDS.items()}
 HINTS = {kind: hint for kind, (_, hint) in STOP_KINDS.items()}
 
 DEFAULT_GEN_ARGS = "--as-target --recurse --prune-root-groups ydb"
-DEFAULT_TARGETS = ["all", "tests"]
+DEFAULT_TARGETS = ["//:all", "//:tests"]
 DEFAULT_YA_DIRS = ["ydb/apps/ydbd", "ydb/apps/ydb"]
 
 # what the hand-written BUILD.gn of contrib and of `keep` modules list
@@ -180,6 +180,32 @@ YA_CONFIG_OTHER = ("build/conf/ts/", "build/conf/java", "build/conf/go", "build/
 INFO = (("ya", "ya"), ("ya.conf", "ya"), ("build/scripts/", "build scripts"))
 # a commit touching only these builds nothing
 NO_BUILD = (".github/", "ydb/docs/")
+
+
+def gn_targets(root, out, targets, env=None, script_executable=None):
+    """Ask GN for exact labels, passing every user-supplied target unchanged."""
+    labels = []
+    for target in targets:
+        cmd = ["gn", "ls", out, target, "--as=label", "--default-toolchain"]
+        if script_executable:
+            cmd.append("--script-executable=" + script_executable)
+        r = subprocess.run(cmd, cwd=root, env=env, stdout=subprocess.PIPE,
+                           stderr=subprocess.PIPE, universal_newlines=True)
+        found = r.stdout.splitlines()
+        if r.returncode:
+            raise ValueError("GN could not resolve %r:\n%s" % (target, (r.stdout + r.stderr)[-4000:]))
+        if len(found) != 1 or not found[0].startswith("//") or ":" not in found[0]:
+            raise ValueError("expected one GN target for %r, got %d matches" % (target, len(found)))
+        if "(" in found[0]:
+            raise ValueError("target %r is not in the default toolchain; no unqualified Ninja alias" % target)
+        if found[0] not in labels:
+            labels.append(found[0])
+    return labels
+
+
+def ninja_targets(labels):
+    """GN's canonical default-toolchain labels, expressed as Ninja aliases."""
+    return [label[2:] for label in labels]
 
 
 def read_text(path):
@@ -1008,12 +1034,17 @@ class Follower:
         self.say("  gn gen: %s" % fmt_seconds(s))
 
     def build(self, step, rec):
+        try:
+            targets = gn_targets(self.root, self.out, self.args.targets, self.env,
+                                 self.args.script_executable)
+        except ValueError as e:
+            raise Stop("gn-gen", str(e))
         summary = os.path.join(step, "autofix.json")
         cmd = [self.args.python, os.path.join(SCRIPTS, "autofix.py"),
                "--root", self.root, "--out", self.out, "--log-dir", os.path.join(step, "autofix"),
                "--blocked", self.state.blocked, "--summary", summary] \
-            + (["-j", str(self.args.jobs)] if self.args.jobs else []) + self.args.targets
-        self.say("  build: autofix.py %s" % " ".join(self.args.targets))
+            + (["-j", str(self.args.jobs)] if self.args.jobs else []) + ninja_targets(targets)
+        self.say("  build: autofix.py %s" % " ".join(ninja_targets(targets)))
         with self.progress.stage("  build", AutofixProbe(os.path.join(step, "autofix")),
                                  last=self.last_seconds("build")):
             rc, s = self.sh(cmd, os.path.join(step, "autofix.log"))
@@ -1555,7 +1586,9 @@ def main():
     c.add_argument("--nice", type=int, metavar="N",
                    help="niceness of the run and every command it starts (default: %d, 0: off)"
                         % CONFIG_DEFAULTS["nice"])
-    c.add_argument("--targets", nargs="+", help="default: %s" % " ".join(DEFAULT_TARGETS))
+    c.add_argument("--targets", nargs="+",
+                   help="GN targets resolved by gn ls (default: %s)"
+                        % " ".join(DEFAULT_TARGETS))
     c.add_argument("--gen-args", help="of yamake2gn.py (default: %s)" % DEFAULT_GEN_ARGS)
     c.add_argument("--push", metavar="REMOTE", help="push the branch after every step")
     c.add_argument("--bench-root", help="the bench work tree (a worktree of this repo): measure every step")
@@ -1569,7 +1602,8 @@ def main():
     c.add_argument("--no-select", action="store_const", const=True, help="ya builds only --ya-dirs")
     c.add_argument("--bench-env", action="append", metavar="NAME=VALUE",
                    help="for gn gen and ninja of the bench, e.g. its compiler cache tag (repeatable)")
-    c.add_argument("--bench-targets", nargs="+", help="of the bench, ninja and ya (default: --targets)")
+    c.add_argument("--bench-targets", nargs="+",
+                   help="GN labels of the bench, ninja and ya (default: --targets)")
     args = ap.parse_args()
 
     top = subprocess.run(["git", "-C", args.root or os.getcwd(), "rev-parse", "--show-toplevel",

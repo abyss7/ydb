@@ -25,7 +25,6 @@ library("translation") {
   deps = [
     # "//library/cpp/containers/stack_vector",
     # "//library/cpp/json",  # peerdir only
-    # "//library/cpp/protobuf/util",
     # "//library/cpp/yson/node",
     "//yql/essentials/core/issue",  # peerdir only
     "//yql/essentials/core/spark_meta",
@@ -37,7 +36,9 @@ library("translation") {
 
   sources = [
     "aggregation.cpp",
+    "antlr_token.cpp",
     "builtin.cpp",
+    "checksum.cpp",
     "context.cpp",
     "ddl_backup.cpp",
     "ddl_identity.cpp",
@@ -64,6 +65,8 @@ library("translation") {
     "source.cpp",
     "sql.cpp",
     "sql_call_expr.cpp",
+    "sql_call_param.cpp",
+    "sql_checksum.cpp",
     "sql_ddl_backup.cpp",
     "sql_ddl_identity.cpp",
     "sql_ddl_resource_pool.cpp",
@@ -73,6 +76,7 @@ library("translation") {
     "sql_ddl_topic.cpp",
     "sql_ddl_transfer.cpp",
     "sql_expression.cpp",
+    "sql_flatten.cpp",
     "sql_group_by.cpp",
     "sql_into_tables.cpp",
     "sql_match_recognize.cpp",

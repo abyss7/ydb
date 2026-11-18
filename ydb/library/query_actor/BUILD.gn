@@ -2,6 +2,7 @@ library("query_actor") {
   public_deps = [
     # "//library/cpp/retry",
     # "//library/cpp/threading/future",
+    # "//ydb/core/base",
     "//ydb/core/grpc_services/local_rpc",
     # "//ydb/library/actors/core",
     "//ydb/public/api/protos",
@@ -15,8 +16,8 @@ library("query_actor") {
   deps = [
     # "//contrib/libs/protobuf",
     "//library/cpp/protobuf/interop",
-    # "//ydb/core/base",
     "//ydb/core/grpc_services",
+    # "//ydb/core/kqp/common/simple",
   ]
 
   sources = [ "query_actor.cpp" ]

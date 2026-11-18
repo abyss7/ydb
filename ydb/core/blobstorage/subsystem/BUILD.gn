@@ -1,10 +1,13 @@
 library("subsystem") {
+  public_deps = [
+    "//ydb/core/blobstorage/subsystem/interface",
+    "//ydb/library/actors/core",
+  ]
+
   deps = [
     # "//ydb/core/base",  # peerdir only
     # "//ydb/core/base/services",
     "//ydb/core/blobstorage/nodewarden",
-    # "//ydb/core/blobstorage/subsystem/interface",
-    "//ydb/library/actors/core",
   ]
 
   sources = [ "subsystem.cpp" ]

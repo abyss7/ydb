@@ -1,0 +1,46 @@
+library("digest_resources") {
+  resources = [
+    {
+      path = "//ydb/library/yql/udfs/digest/aggregate.sql"
+      key = "digest_factory.sql"
+    },
+  ]
+}
+
+unittest_executable("digest") {
+  deps = [
+    ":digest_resources",
+    "//contrib/libs/openssl",
+    "//library/cpp/resource",
+    "//ydb/core/kqp",  # peerdir only
+    "//ydb/core/kqp/ut/common",
+    "//ydb/core/scheme/table_digest",
+    "//ydb/library/table_digest",
+    "//ydb/library/yql/udfs/digest",  # peerdir only
+    "//yql/essentials/sql/pg_dummy",  # peerdir only
+    "//yql/essentials/types/binary_json",
+    "//yql/essentials/types/dynumber",
+    "//yql/essentials/udfs/common/digest",  # peerdir only
+  ]
+
+  sources = [
+    "digest_ut.cpp",
+    "native_yql_ut.cpp",
+  ]
+
+  include_dirs = [
+    "//ydb/core/kqp",  # peerdir only
+  ]
+
+  link_select = [
+    "YqlServicePolicy=exception_policy",
+    "allocator=tcmalloc",
+    "minikql_codegen=llvm16",
+    "retro_spans=spans",
+    "topic_rpc=persqueue_v1",
+    "wasm=engine",
+    "yql_pg_runtime=pg_dummy",
+    "yql_pg_sql_translator=pg_dummy",
+    "yt_codegen=llvm16",
+  ]
+}

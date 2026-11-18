@@ -13,6 +13,7 @@ library("extract_predicate") {
   ]
 
   sources = [
+    "extract_predicate.cpp",
     "extract_predicate_dbg.cpp",
     "extract_predicate_impl.cpp",
   ]

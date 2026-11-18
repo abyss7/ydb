@@ -14,7 +14,7 @@ library("mediator") {
   deps = [
     # "//library/cpp/time_provider",
     "//ydb/core/engine/minikql",
-    # "//ydb/core/tx/coordinator",
+    "//ydb/core/tx/coordinator",
     # "//ydb/library/actors/core",
     "//ydb/library/services",
   ]

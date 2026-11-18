@@ -5,7 +5,7 @@ library("pqrb") {
     "//ydb/core/base",
     # "//ydb/core/engine/minikql",
     "//ydb/core/persqueue/common",
-    # "//ydb/core/persqueue/common/proxy",
+    "//ydb/core/persqueue/common/proxy",
     # "//ydb/core/persqueue/events",
     "//ydb/core/persqueue/events/internal/protos",
     "//ydb/core/persqueue/public",

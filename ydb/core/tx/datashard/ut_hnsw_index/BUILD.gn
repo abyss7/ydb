@@ -1,0 +1,30 @@
+unittest_executable("ut_hnsw_index") {
+  deps = [
+    "//library/cpp/testing/unittest",
+    "//ydb/core/base",
+    "//ydb/core/tx/datashard/hnsw_index",
+    "//ydb/library/nmslib",
+    "//ydb/library/yql/udfs/common/knn",
+    "//ydb/public/api/protos",
+    "//yql/essentials/public/decimal",  # peerdir only
+    "//yql/essentials/public/udf/service/exception_policy",  # peerdir only
+    "//yql/essentials/sql/pg_dummy",  # peerdir only
+  ]
+
+  sources = [
+    "hnsw_index_ut.cpp",
+    "hnsw_memory_tracker_ut.cpp",
+  ]
+
+  link_select = [
+    "YqlServicePolicy=exception_policy",
+    "allocator=tcmalloc",
+    "minikql_codegen=no_llvm",
+    "retro_spans=spans",
+    "topic_rpc=persqueue_v1",
+    "wasm=wasm_default",
+    "yql_pg_runtime=pg_dummy",
+    "yql_pg_sql_translator=pg_dummy",
+    "yt_codegen=no_llvm",
+  ]
+}

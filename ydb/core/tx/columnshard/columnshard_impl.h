@@ -282,7 +282,6 @@ class TColumnShard: public TActor<TColumnShard>, public NTabletFlatExecutor::TTa
     friend class NLoading::TSpecialValuesInitializer;
     friend class NLoading::TTablesManagerInitializer;
     friend class NLoading::TTiersManagerInitializer;
-    friend class TWriteTask;
 
     class TTxProgressTx;
     class TTxProposeCancel;
@@ -456,6 +455,9 @@ public:
     }
 
 private:
+    bool ExecuteWriteTask(const TWriteTask& task, const TActorContext& ctx);
+    void AbortWriteTask(const TWriteTask& task, const TString& reason, const TActorContext& ctx, const NKikimrDataEvents::TEvWriteResult::EStatus& status);
+    void FailWriteTaskByOverload(const TWriteTask& task, EOverloadStatus overloadStatus, const TActorContext& ctx);
     void DrainWriteQueue(const TActorContext& ctx, const bool isRetryWakeup = false);
     void FailStartedWrite(const NOlap::TEvPassWriteGate& batch, const NKikimrDataEvents::TEvWriteResult::EStatus status, const TString& reason,
         const TActorContext& ctx);

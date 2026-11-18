@@ -11,6 +11,7 @@ library("backtrace") {
     "backtrace_lib.cpp",
     "backtrace_linux.cpp",
     "symbolize.cpp",
+    "symbolizer.cpp",
     "symbolizer_linux.cpp",
   ]
 }

@@ -17,7 +17,7 @@ library("volume") {
     # "//library/cpp/lwtrace",  # peerdir only
     # "//library/cpp/monlib/service/pages",  # peerdir only
     # "//library/cpp/protobuf/util",  # peerdir only
-    # "//ydb/core/mind",  # peerdir only
+    "//ydb/core/mind",  # peerdir only
     # "//ydb/core/nbs/cloud/blockstore/libs/service",  # peerdir only
     # "//ydb/core/node_whiteboard",
     # "//ydb/core/scheme",  # peerdir only

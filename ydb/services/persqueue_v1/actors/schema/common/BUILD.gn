@@ -2,6 +2,11 @@ library("common") {
   public_deps = [
     "//ydb/core/base",
     "//ydb/core/grpc_services",
+    # "//ydb/core/persqueue/public:utils",
+  ]
+
+  deps = [
+    # "//ydb/core/persqueue/public",  # peerdir only
   ]
 
   sources = [ "grpc_proxy_actor.cpp" ]

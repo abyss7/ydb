@@ -11,6 +11,7 @@ library("commands") {
     "//library/cpp/protobuf/json",
     "//library/cpp/protobuf/util",
     # "//library/cpp/threading/future",
+    "//ydb/library/workload/imdb",  # peerdir only
     "//ydb/public/api/protos",
     "//ydb/public/lib/fq",
     # "//ydb/public/lib/json_value",

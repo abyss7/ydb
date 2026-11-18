@@ -46,6 +46,7 @@ library("persqueue") {
     # "//ydb/core/persqueue/public/list_topics",  # peerdir only
     "//ydb/core/persqueue/public/metrics",
     "//ydb/core/persqueue/public/write_meta",
+    "//ydb/core/persqueue/public/write_sessions_quoter",
     "//ydb/core/persqueue/writer",
     # "//ydb/core/quoter/public",
     # "//ydb/core/scheme",

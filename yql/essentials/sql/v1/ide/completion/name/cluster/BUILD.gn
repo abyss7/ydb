@@ -1,6 +1,7 @@
-group("cluster") {
+library("cluster") {
   public_deps = [
     # "//library/cpp/threading/future",
-    # "//yql/essentials/sql/v1/ide/completion/name/cluster/static",
   ]
+
+  sources = [ "discovery.cpp" ]
 }

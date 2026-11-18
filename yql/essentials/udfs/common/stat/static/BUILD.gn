@@ -4,7 +4,10 @@ library("static") {
     "//yql/essentials/public/udf",
   ]
 
-  sources = [ "static_udf.cpp" ]
+  sources = [
+    "stat_udf.cpp",
+    "static_udf.cpp",
+  ]
 
   yql_abi_version = "2.28.0"
 }

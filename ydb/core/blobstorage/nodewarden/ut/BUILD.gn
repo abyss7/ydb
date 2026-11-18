@@ -19,6 +19,7 @@ unittest_executable("ut") {
     "//ydb/core/testlib",
     "//ydb/core/testlib/actors",
     "//ydb/core/testlib/default",  # peerdir only
+    "//ydb/core/tx/scheme_board",
     "//ydb/core/util",
     "//ydb/core/util/actorsys_test",
     "//ydb/library/actors/async",

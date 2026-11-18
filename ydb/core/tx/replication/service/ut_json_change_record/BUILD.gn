@@ -1,5 +1,6 @@
 unittest_executable("ut_json_change_record") {
   deps = [
+    "//contrib/libs/zstd",
     "//library/cpp/json",
     "//library/cpp/json/yson",
     "//library/cpp/string_utils/base64",

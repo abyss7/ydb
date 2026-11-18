@@ -1,11 +1,14 @@
 unittest_executable("ut_cdc_stream") {
   deps = [
+    "//contrib/libs/protobuf",
     "//library/cpp/json",
+    "//ydb/core/base",
     "//ydb/core/metering",
     "//ydb/core/testlib/actors",
     "//ydb/core/testlib/default",  # peerdir only
     "//ydb/core/tx/schemeshard",
     "//ydb/core/tx/schemeshard/ut_helpers",
+    "//ydb/public/lib/value",
   ]
 
   sources = [ "ut_cdc_stream.cpp" ]

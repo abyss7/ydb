@@ -1,0 +1,3 @@
+protobuf_library("schema") {
+  sources = [ "profile.proto" ]
+}

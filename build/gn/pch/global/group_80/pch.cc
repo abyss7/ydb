@@ -97,7 +97,7 @@
 #include "ydb/core/grpc_services/local_grpc/local_grpc.h"
 #include "ydb/core/protos/sys_view_types.pb.h"
 #include "ydb/core/tablet_flat/flat_exec_seat.h"
-#include "ydb/core/kqp/query_data/kqp_predictor.h"
+#include "ydb/core/kqp/predictor/kqp_predictor.h"
 #include "ydb/services/metadata/abstract/parsing.h"
 #include "ydb/core/tx/datashard/change_exchange.h"
 #include "ydb/core/tx/datashard/scan_common.h"

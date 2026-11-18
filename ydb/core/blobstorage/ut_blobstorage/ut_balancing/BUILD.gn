@@ -2,6 +2,7 @@ unittest_executable("ut_balancing") {
   deps = [
     "//library/cpp/iterator",
     "//ydb/core/blobstorage/ut_blobstorage/lib",
+    "//ydb/core/blobstorage/vdisk/repl",
     "//ydb/core/util",
   ]
 

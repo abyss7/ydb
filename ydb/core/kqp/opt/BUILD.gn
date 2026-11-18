@@ -6,6 +6,7 @@ library("helpers") {
   public_deps = [
     # "//library/cpp/json",
     "//ydb/core/kqp/common",
+    # "//ydb/core/kqp/common/compile_cache",
     # "//ydb/core/kqp/expr_nodes",
     # "//ydb/core/kqp/gateway/actors",
     "//ydb/core/kqp/opt/cbo",
@@ -39,6 +40,7 @@ library("opt") {
     "//ydb/core/kqp/common",
     # "//ydb/core/kqp/expr_nodes",
     "//ydb/core/kqp/provider",
+    "//ydb/core/kqp/query_plan",
     "//yql/essentials/core",
   ]
 
@@ -47,6 +49,7 @@ library("opt") {
     # "//library/cpp/json",
     "//library/cpp/protobuf/json",
     # "//ydb/core/base",
+    # "//ydb/core/kqp/common/compile_cache",  # peerdir only
     "//ydb/core/kqp/gateway/actors",
     # "//ydb/core/kqp/gateway:interface",
     # "//ydb/core/kqp/opt/cbo",

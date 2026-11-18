@@ -6,6 +6,7 @@ unittest_executable("ut") {
     "//library/cpp/testing/unittest",
     "//ydb/core/base",
     "//ydb/core/protos",
+    "//ydb/core/testlib",
     "//ydb/core/testlib/actors",
     "//ydb/core/testlib/default",  # peerdir only
     "//ydb/core/tx/scheme_cache",
@@ -14,7 +15,10 @@ unittest_executable("ut") {
     "//ydb/services/sqs_topic/queue_url",
   ]
 
-  sources = [ "utils_ut.cpp" ]
+  sources = [
+    "consumer_attributes_ut.cpp",
+    "utils_ut.cpp",
+  ]
 
   link_select = [
     "YqlServicePolicy=exception_policy",

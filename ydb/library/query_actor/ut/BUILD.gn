@@ -2,13 +2,29 @@ unittest_executable("ut") {
   deps = [
     "//library/cpp/testing/unittest",
     "//library/cpp/threading/future",
+    "//ydb/core/base",
+    "//ydb/core/grpc_services",
+    "//ydb/core/kqp/common",
+    "//ydb/core/kqp/common/simple",
+    "//ydb/core/kqp/compute_actor",
+    "//ydb/core/kqp/node_service",
+    "//ydb/core/kqp/rm_service",
+    "//ydb/core/kqp/ut/common",
     "//ydb/core/testlib",
+    "//ydb/core/testlib/actors",
+    "//ydb/core/tx/datashard",
+    "//ydb/library/actors/core",
     "//ydb/library/query_actor",
+    "//ydb/library/yql/dq/actors/compute",
     "//ydb/public/sdk/cpp/src/client/result",
     "//yql/essentials/sql/pg_dummy",  # peerdir only
   ]
 
-  sources = [ "//ydb/library/query_actor/query_actor_ut.cpp" ]
+  sources = [
+    "//ydb/library/query_actor/query_actor_ut.cpp",
+    "checksum_table_ut.cpp",
+    "mvcc_version_ut.cpp",
+  ]
 
   include_dirs = [ "//ydb/library/query_actor" ]
 

@@ -1,0 +1,10 @@
+library("digest") {
+  deps = [
+    "//ydb/library/table_digest",
+    "//yql/essentials/public/udf",
+    # "//yql/essentials/public/udf/support",  # peerdir only
+    "//yql/essentials/types/binary_json",  # peerdir only
+  ]
+
+  sources = [ "udf.cpp" ]
+}

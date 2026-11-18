@@ -3,6 +3,7 @@ unittest_executable("ut") {
     "//contrib/libs/grpc",
     "//library/cpp/logger",
     "//library/cpp/testing/unittest",
+    "//library/cpp/threading/future",
     "//ydb/core/blobstorage/base",
     "//ydb/core/protos",
     "//ydb/core/tablet",

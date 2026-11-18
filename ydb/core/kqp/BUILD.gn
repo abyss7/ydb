@@ -19,7 +19,7 @@ library("kqp") {
     # "//ydb/core/kqp/host",  # peerdir only
     # "//ydb/core/kqp/node_service",  # peerdir only
     # "//ydb/core/kqp/opt",  # peerdir only
-    # "//ydb/core/kqp/provider",  # peerdir only
+    "//ydb/core/kqp/provider",  # peerdir only
     # "//ydb/core/kqp/proxy_service",  # peerdir only
     # "//ydb/core/kqp/query_compiler",  # peerdir only
     # "//ydb/core/kqp/rm_service",  # peerdir only

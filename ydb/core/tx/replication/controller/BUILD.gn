@@ -21,10 +21,12 @@ library("controller") {
   ]
 
   deps = [
+    # "//contrib/libs/zstd",
     "//library/cpp/html/pcdata",
     # "//library/cpp/json",
     # "//library/cpp/monlib/service/pages",
     "//library/cpp/protobuf/interop",
+    # "//ydb/core/backup/common",
     # "//ydb/core/cms/console",
     "//ydb/core/engine/minikql",
     # "//ydb/core/kqp/common/events",
@@ -38,6 +40,7 @@ library("controller") {
     "//ydb/core/ydb_convert",
     "//ydb/library/naming_conventions",
     "//ydb/public/api/protos",
+    # "//ydb/public/sdk/cpp/src/client/proto",
     # "//ydb/services/metadata",
     "//ydb/services/metadata/secret",
     "//ydb/services/scheme_secret",

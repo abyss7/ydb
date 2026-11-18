@@ -33,6 +33,7 @@ library("type_ann") {
     "type_ann_core.cpp",
     "type_ann_dict.cpp",
     "type_ann_expr.cpp",
+    "type_ann_impl.cpp",
     "type_ann_join.cpp",
     "type_ann_list.cpp",
     "type_ann_match_recognize.cpp",
@@ -42,5 +43,7 @@ library("type_ann") {
     "type_ann_types.cpp",
     "type_ann_wide.cpp",
     "type_ann_yql.cpp",
+    "type_ann_yql_aggregation.cpp",
+    "type_ann_yql_flatten.cpp",
   ]
 }

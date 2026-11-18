@@ -1,0 +1,39 @@
+unittest_executable("ut") {
+  deps = [
+    "//contrib/libs/grpc",
+    "//library/cpp/testing/common",
+    "//library/cpp/testing/unittest",
+    "//ydb/library/workload/abstract",
+    "//ydb/library/workload/imdb",
+    "//ydb/public/api/grpc",
+    "//ydb/public/lib/ydb_cli/import",  # peerdir only
+    "//ydb/public/sdk/cpp/src/client/driver",
+    "//ydb/public/sdk/cpp/src/client/query",
+    "//yql/essentials/public/udf/service/exception_policy",  # peerdir only
+    "//yql/essentials/sql",  # peerdir only
+    "//yql/essentials/sql/pg_dummy",  # peerdir only
+    "//yql/essentials/sql/v1/lexer/antlr4",
+    "//yql/essentials/sql/v1/proto_parser/antlr4",
+    "//yql/essentials/sql/v1/translation",
+  ]
+
+  sources = [
+    "imdb_ut.cpp",
+    "import_ut.cpp",
+    "post_import_ut.cpp",
+  ]
+
+  include_dirs = [ "//ydb/library/workload/imdb" ]
+
+  link_select = [
+    "YqlServicePolicy=exception_policy",
+    "allocator=tcmalloc",
+    "minikql_codegen=no_llvm",
+    "retro_spans=spans",
+    "topic_rpc=persqueue_v1",
+    "wasm=wasm_default",
+    "yql_pg_runtime=pg_dummy",
+    "yql_pg_sql_translator=pg_dummy",
+    "yt_codegen=no_llvm",
+  ]
+}

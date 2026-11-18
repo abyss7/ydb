@@ -13,6 +13,7 @@ unittest_executable("ut") {
   sources = [
     "//ydb/core/blobstorage/vdisk/repl/blobstorage_hullreplwritesst_ut.cpp",
     "//ydb/core/blobstorage/vdisk/repl/blobstorage_replrecoverymachine_ut.cpp",
+    "blobstorage_repl_eta_ut.cpp",
   ]
 
   include_dirs = [ "//ydb/core/blobstorage/vdisk/repl" ]

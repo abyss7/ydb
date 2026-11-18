@@ -6,6 +6,7 @@ unittest_executable("ut_bscontroller") {
     "//ydb/core/blobstorage",  # peerdir only
     "//ydb/core/blobstorage/base",
     "//ydb/core/blobstorage/dsproxy/mock",
+    "//ydb/core/blobstorage/syncer",
     "//ydb/core/mind/bscontroller",
     "//ydb/core/mind/bscontroller:group_mapper",
     "//ydb/core/protos",
