@@ -14,7 +14,7 @@ library("private_client") {
   deps = [
     # "//library/cpp/protobuf/json",  # peerdir only
     # "//ydb/core/fq/libs/control_plane_config",
-    # "//ydb/core/fq/libs/control_plane_config:events",
+    "//ydb/core/fq/libs/control_plane_config:events",
     "//ydb/core/fq/libs/control_plane_config:service_id",  # peerdir only
     # "//ydb/core/fq/libs/control_plane_storage/events",
     "//ydb/core/fq/libs/control_plane_storage:service_id",

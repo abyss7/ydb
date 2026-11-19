@@ -43,7 +43,7 @@ library("provider") {
     "//yql/essentials/providers/common/provider",
     "//yql/essentials/providers/common/schema/expr",
     "//yql/essentials/providers/common/transform",
-    # "//yql/essentials/providers/result/expr_nodes",
+    "//yql/essentials/providers/result/expr_nodes",
     # "//yql/essentials/public/udf",
     "//yt/yql/providers/ytflow/expr_nodes",
     "//yt/yql/providers/ytflow/integration/interface",

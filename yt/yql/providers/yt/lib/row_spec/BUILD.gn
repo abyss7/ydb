@@ -15,7 +15,7 @@ library("row_spec") {
     "//yql/essentials/providers/common/schema",
     "//yql/essentials/utils/log",
     # "//yt/yql/providers/yt/common",
-    # "//yt/yql/providers/yt/expr_nodes",
+    "//yt/yql/providers/yt/expr_nodes",
     "//yt/yql/providers/yt/lib/schema",
   ]
 

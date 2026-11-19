@@ -3,7 +3,7 @@ library("cache") {
     # "//ydb/core/base",
     # "//ydb/core/keyvalue",
     "//ydb/core/persqueue/common",
-    # "//ydb/core/persqueue/events",
+    "//ydb/core/persqueue/events",
     # "//ydb/core/persqueue/pqtablet/blob",
     # "//ydb/library/actors/core",
   ]

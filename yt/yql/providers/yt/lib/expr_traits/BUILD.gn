@@ -10,7 +10,7 @@ library("expr_traits") {
     # "//yql/essentials/providers/common/provider",
     "//yql/essentials/utils/log",
     # "//yt/yql/providers/yt/common",
-    # "//yt/yql/providers/yt/expr_nodes",
+    "//yt/yql/providers/yt/expr_nodes",
   ]
 
   sources = [ "yql_expr_traits.cpp" ]

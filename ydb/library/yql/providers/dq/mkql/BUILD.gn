@@ -1,6 +1,6 @@
 library("mkql") {
   public_deps = [
-    # "//ydb/library/yql/providers/dq/expr_nodes",
+    "//ydb/library/yql/providers/dq/expr_nodes",
     # "//yql/essentials/ast",
     "//yql/essentials/core",
     # "//yql/essentials/minikql",
@@ -9,7 +9,7 @@ library("mkql") {
 
   deps = [
     # "//library/cpp/json",
-    # "//ydb/library/yql/dq/expr_nodes",
+    "//ydb/library/yql/dq/expr_nodes",
     "//yql/essentials/core/dq_integration",
   ]
 

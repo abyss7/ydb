@@ -30,7 +30,7 @@ library("mlp") {
     # "//ydb/core/persqueue/public:utils",
     "//ydb/core/persqueue/writer",
     # "//ydb/core/ymq/actor",
-    # "//ydb/core/ymq/proto",  # peerdir only
+    "//ydb/core/ymq/proto",  # peerdir only
     # "//ydb/library/persqueue/counter_time_keeper",
     # "//ydb/library/persqueue/topic_parser",  # peerdir only
     # "//ydb/public/lib/base",

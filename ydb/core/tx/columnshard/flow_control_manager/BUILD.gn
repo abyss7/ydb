@@ -14,7 +14,7 @@ library("flow_control_manager") {
 
   deps = [
     "//ydb/core/tablet",  # peerdir only
-    # "//ydb/core/tx/data_events",  # peerdir only
+    "//ydb/core/tx/data_events",  # peerdir only
     "//ydb/public/api/protos",
   ]
 

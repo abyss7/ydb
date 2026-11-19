@@ -13,7 +13,7 @@ library("keyvalue") {
     # "//ydb/library/actors/wilson",
     "//ydb/library/services",
     # "//ydb/library/wilson_ids",
-    # "//ydb/public/lib/base",
+    "//ydb/public/lib/base",
   ]
 
   deps = [

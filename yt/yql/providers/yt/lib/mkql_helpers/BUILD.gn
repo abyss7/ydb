@@ -3,7 +3,7 @@ library("mkql_helpers") {
 
   deps = [
     "//yql/essentials/ast",
-    # "//yql/essentials/core",
+    "//yql/essentials/core",
     # "//yql/essentials/utils",
   ]
 

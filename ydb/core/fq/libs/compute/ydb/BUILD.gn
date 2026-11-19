@@ -9,7 +9,7 @@ library("events") {
     # "//ydb/public/sdk/cpp/src/client/query",
     # "//ydb/public/sdk/cpp/src/client/types",
     # "//ydb/public/sdk/cpp/src/client/types/operation",
-    # "//yql/essentials/public/issue",
+    "//yql/essentials/public/issue",
   ]
 
   deps = [

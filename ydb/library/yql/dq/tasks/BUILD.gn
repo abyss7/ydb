@@ -3,7 +3,7 @@ library("tasks") {
     # "//ydb/library/accessor",
     # "//ydb/library/actors/core",
     # "//ydb/library/yql/dq/common",
-    # "//ydb/library/yql/dq/expr_nodes",
+    "//ydb/library/yql/dq/expr_nodes",
     # "//ydb/library/yql/dq/opt",
     "//ydb/library/yql/dq/proto",
     # "//ydb/library/yql/dq/type_ann",

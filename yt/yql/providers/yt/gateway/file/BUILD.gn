@@ -32,7 +32,7 @@ library("file") {
     "//yql/essentials/providers/common/provider",
     # "//yql/essentials/providers/common/schema/expr",
     "//yql/essentials/providers/common/schema/mkql",
-    # "//yql/essentials/providers/result/expr_nodes",
+    "//yql/essentials/providers/result/expr_nodes",
     # "//yql/essentials/utils",
     "//yql/essentials/utils/threading",
     "//yt/cpp/mapreduce/common",

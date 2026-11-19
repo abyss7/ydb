@@ -6,7 +6,7 @@ library("server") {
     "//ydb/core/base",
     # "//ydb/core/grpc_services/base",
     # "//ydb/core/mon",
-    # "//ydb/core/persqueue/events",
+    "//ydb/core/persqueue/events",
     "//ydb/core/protos",
     "//ydb/core/tablet",
     # "//ydb/core/tx/scheme_cache",

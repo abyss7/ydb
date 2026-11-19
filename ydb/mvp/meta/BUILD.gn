@@ -25,7 +25,7 @@ library("meta") {
     "//library/cpp/string_utils/quote",
     "//library/cpp/string_utils/url",
     "//library/cpp/uri",
-    # "//ydb/core/ydb_convert",
+    "//ydb/core/ydb_convert",
     # "//ydb/library/aclib/protos",  # peerdir only
     # "//ydb/library/actors/interconnect/poller",
     "//ydb/library/actors/protos",

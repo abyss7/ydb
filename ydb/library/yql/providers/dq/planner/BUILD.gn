@@ -13,7 +13,7 @@ library("planner") {
   deps = [
     # "//ydb/library/yql/dq/opt",
     "//ydb/library/yql/dq/type_ann",
-    # "//ydb/library/yql/providers/dq/expr_nodes",
+    "//ydb/library/yql/providers/dq/expr_nodes",
     "//ydb/library/yql/providers/dq/mkql",
     # "//ydb/library/yql/providers/dq/opt",
     # "//yql/essentials/core/dq_integration",

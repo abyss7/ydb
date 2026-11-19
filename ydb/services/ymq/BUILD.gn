@@ -11,7 +11,7 @@ library("ymq") {
   deps = [
     # "//ydb/core/base",
     # "//ydb/core/mind",  # peerdir only
-    # "//ydb/core/persqueue",
+    "//ydb/core/persqueue",
     # "//ydb/core/persqueue/public",
     # "//ydb/core/persqueue/public/write_meta",
     "//ydb/core/protos",

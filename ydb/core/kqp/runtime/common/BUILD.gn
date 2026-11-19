@@ -11,7 +11,7 @@ library("common") {
 
   deps = [
     # "//ydb/core/base",
-    # "//ydb/core/kqp/common",
+    "//ydb/core/kqp/common",
     # "//yql/essentials/minikql",
   ]
 

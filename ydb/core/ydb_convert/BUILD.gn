@@ -43,7 +43,7 @@ library("ydb_convert") {
     # "//yql/essentials/core/expr_nodes",
     # "//yql/essentials/minikql",
     "//yql/essentials/minikql/dom",
-    # "//yql/essentials/providers/result/expr_nodes",  # peerdir only
+    "//yql/essentials/providers/result/expr_nodes",  # peerdir only
     "//yql/essentials/public/issue",
     # "//yql/essentials/public/udf",
     "//yql/essentials/types/binary_json",

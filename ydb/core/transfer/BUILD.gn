@@ -2,7 +2,7 @@ library("transfer") {
   public_deps = [
     "//library/cpp/yson/node",
     # "//ydb/core/base",
-    # "//ydb/core/fq/libs/row_dispatcher/events",
+    "//ydb/core/fq/libs/row_dispatcher/events",
     "//ydb/core/kqp/runtime",
     "//ydb/core/protos",
     # "//ydb/core/scheme_types",

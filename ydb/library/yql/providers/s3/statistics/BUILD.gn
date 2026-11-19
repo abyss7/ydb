@@ -1,6 +1,6 @@
 library("statistics") {
   public_deps = [
-    # "//ydb/library/yql/providers/dq/expr_nodes",
+    "//ydb/library/yql/providers/dq/expr_nodes",
     "//yql/essentials/core",
   ]
 

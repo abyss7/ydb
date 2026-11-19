@@ -14,7 +14,7 @@ library("streaming_query") {
     # "//ydb/core/base",
     # "//ydb/core/cms/console/events",
     # "//ydb/core/fq/libs/checkpoint_storage",  # peerdir only
-    # "//ydb/core/fq/libs/checkpoint_storage/events",
+    "//ydb/core/fq/libs/checkpoint_storage/events",
     "//ydb/core/kqp/common",
     # "//ydb/core/kqp/common/events",
     # "//ydb/core/kqp/common/simple",

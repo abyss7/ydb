@@ -11,8 +11,8 @@ library("provider") {
   deps = [
     # "//library/cpp/json",
     # "//library/cpp/threading/future",
-    # "//ydb/library/yql/dq/expr_nodes",
-    # "//ydb/library/yql/providers/dq/expr_nodes",
+    "//ydb/library/yql/dq/expr_nodes",
+    "//ydb/library/yql/providers/dq/expr_nodes",
     "//ydb/library/yql/providers/dq/mkql",
     # "//ydb/library/yql/providers/native",
     # "//ydb/library/yql/providers/ydb_external/common",
