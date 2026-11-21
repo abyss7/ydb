@@ -6,6 +6,7 @@
 
 #include <util/stream/format.h>
 #include <util/stream/str.h>
+#include <util/string/cast.h>
 
 #include <util/system/compiler.h>
 
@@ -99,7 +100,7 @@ void OutputCreateBranchCommitVersion(TStringBuf branch, TStringStream& out)
         commit = GetCommitHash();
         commit = TruncateCommitHash(commit);
     } else {
-        commit = "r" + ToString(svnRevision);
+        commit = "r" + ::ToString(svnRevision);
     }
 
     std::string buildUser = GetProgramBuildUser();

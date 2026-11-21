@@ -1051,8 +1051,6 @@ private:
     TExpression FilterExpr;
 };
 
-bool TestAndExtractEqualityPredicate(TExprNode::TPtr pred, TExprNode::TPtr& leftArg, TExprNode::TPtr& rightArg);
-
 // Equality semantics travel with the ID pair through every join rewrite.
 struct TJoinKey {
     TInfoUnitId first;

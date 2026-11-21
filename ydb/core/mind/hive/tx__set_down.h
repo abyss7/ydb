@@ -1,3 +1,5 @@
+#pragma once
+
 #include "hive_impl.h"
 
 namespace NKikimr::NHive {

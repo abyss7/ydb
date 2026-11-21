@@ -2939,8 +2939,8 @@ public:
                 const ui32 localTid = TableInfo.LocalTid;
                 const ui32 vectorColumnTag = record.GetColumns(topK.GetColumn());
                 auto requested = topK.GetSettings();
-                if (NKMeans::NeedsVectorSettingsAutoSelect(requested)) {
-                    NKMeans::AutoSelectVectorSettings(requested, topK.GetTargetVector());
+                if (NKikimr::NKMeans::NeedsVectorSettingsAutoSelect(requested)) {
+                    NKikimr::NKMeans::AutoSelectVectorSettings(requested, topK.GetTargetVector());
                 }
                 TPathId selected;
                 Ydb::Table::VectorIndexSettings hnswSettings;

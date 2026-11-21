@@ -1,4 +1,5 @@
 #include <ydb/core/kqp/opt/cbo/solver/kqp_opt_predicate_selectivity.h>
+#include <ydb/core/kqp/opt/rbo/kqp_rbo_lookup_join.h>
 #include <ydb/core/kqp/opt/rbo/kqp_rbo_rules.h>
 #include <ydb/core/kqp/opt/rbo/kqp_rbo_statistics.h>
 #include <ydb/core/kqp/opt/rbo/kqp_rbo_utils.h>
@@ -441,17 +442,6 @@ TVector<TString> BuildIndexReadColumns(const TVector<TString>& pkColumns, const 
         }
     }
     return result;
-}
-
-TExprNode::TPtr BuildTableCallable(const TKikimrTableMetadata& meta, TPositionHandle pos, TExprContext& ctx) {
-    // clang-format off
-    return Build<TKqpTable>(ctx, pos)
-        .Path().Build(meta.Name)
-        .PathId().Build(meta.PathId.ToString())
-        .SysView().Build(meta.SysView)
-        .Version().Build(meta.SchemaVersion)
-    .Done().Ptr();
-    // clang-format on
 }
 
 } // anonymous namespace

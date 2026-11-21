@@ -9,6 +9,7 @@
 #include <util/generic/size_literals.h>
 #include <util/stream/file.h>
 #include <util/stream/input.h>
+#include <util/string/cast.h>
 #include <util/system/backtrace.h>
 #include <util/system/env.h>
 #include <util/system/file.h>
@@ -19,6 +20,7 @@
 
 #include <stdio.h>
 #include <signal.h>
+#include <type_traits>
 
 #if defined(_win_)
 #include <io.h>
@@ -467,8 +469,9 @@ public:
         }
 
         template <class T>
+            requires std::is_arithmetic_v<T>
         TTag& Attribute(TStringBuf name, const T& value) {
-            return Attribute(name, TStringBuf(ToString(value)));
+            return Attribute(name, TStringBuf(::ToString(value)));
         }
 
         TTag& Attribute(TStringBuf name, const TStringBuf& value) {

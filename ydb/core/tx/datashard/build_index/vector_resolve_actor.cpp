@@ -76,7 +76,7 @@ public:
         , LogPrefix(TStringBuilder() << "VectorResolveActor, level table: " << Settings.LevelTablePath)
     {
         TString error;
-        Clusters = NKMeans::CreateClusters(Settings.IndexSettings, 0, error);
+        Clusters = NKikimr::NKMeans::CreateClusters(Settings.IndexSettings, 0, error);
         if (!Clusters) {
             InitError = error;
         }
@@ -352,7 +352,7 @@ private:
         }
 
         // The prefix table sequence is configured to produce values above 2^63,
-        // i.e. with the posting parent flag set (see NKMeans::IdColumnSequence).
+        // i.e. with the posting parent flag set (see NTableIndex::NKMeans::IdColumnSequence).
         request.PrefixRoots[index] = static_cast<TClusterId>(static_cast<ui64>(ev->Get()->Value));
         request.NewPrefixes.push_back({request.DistinctPrefixes[index], *request.PrefixRoots[index]});
 
@@ -431,7 +431,7 @@ private:
 
             if (OverlapClusters > 1) {
                 for (auto& rowClusters : request.NextClusters) {
-                    NKMeans::FilterOverlapRows(rowClusters, OverlapClusters, OverlapRatio);
+                    NKikimr::NKMeans::FilterOverlapRows(rowClusters, OverlapClusters, OverlapRatio);
                 }
             }
 
@@ -719,7 +719,7 @@ private:
     const double OverlapRatio;
     const TString LogPrefix;
 
-    std::unique_ptr<NKMeans::IClusters> Clusters;
+    std::unique_ptr<NKikimr::NKMeans::IClusters> Clusters;
     TString InitError;
 
     NKqp::TEvKqp::IVectorIndexLevelsCachePtr LevelsCache;
