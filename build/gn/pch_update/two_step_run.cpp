@@ -1250,9 +1250,55 @@ namespace NPchUpdate::NTwoStep {
             for (const auto& path : fingerprint) { s.Inputs.emplace_back(path, DigestFile(path)); }
         }
 
+        // The include layers of the former GroupInputs in groups.cpp: system
+        // (sysroot/libc++), contrib, util/library, project sources, generated.
+        // A project header included before a system header it shadows can
+        // poison macro state for everything included after it; the selector's
+        // mass order ignores that.
+        int HeaderLayer(const TData& data, int unit) {
+            // Start above every real layer so generated-only units land at 4;
+            // an empty header list (units of synthetic tests without
+            // extraction) stays project-level.
+            int rank = data.Units[unit].Headers.empty() ? 3 : 4;
+            for (const auto& name : data.Units[unit].Headers) {
+                rank = std::min(rank, StartsWith(name, LIBCXX) || StartsWith(name, "<sysroot>") || IsAbs(name) ? 0
+                    : StartsWith(name, "contrib/")                                                  ? 1
+                    : StartsWith(name, "util/") || StartsWith(name, "library/")                     ? 2
+                    : StartsWith(name, "<out>")                                                     ? 4
+                                                                                                   : 3);
+            }
+            return rank;
+        }
+
+        std::vector<int> LayeredRoots(const TData& data, const TPch& pch) {
+            auto roots = pch.Roots;
+            std::stable_sort(roots.begin(), roots.end(), [&](int a, int b) {
+                return HeaderLayer(data, a) < HeaderLayer(data, b);
+            });
+            return roots;
+        }
+
+        // Transitive closure of the given roots, sorted; the units a PCH built
+        // from exactly these roots contains beyond its parent's units.
+        std::vector<int> UnitClosure(const TData& data, const std::vector<int>& roots) {
+            std::vector<char> seen(data.Units.size());
+            std::vector<int> stack(roots.begin(), roots.end()), result;
+            while (!stack.empty()) {
+                int u = stack.back();
+                stack.pop_back();
+                if (u < 0 || size_t(u) >= seen.size()) { Fail("invalid unit in a PCH closure"); }
+                if (seen[u]) { continue; }
+                seen[u] = true;
+                result.push_back(u);
+                stack.insert(stack.end(), data.Units[u].Children.begin(), data.Units[u].Children.end());
+            }
+            Unique(result);
+            return result;
+        }
+
         std::string PchHeader(const TData& data, const TPch& pch) {
             std::string header = "#pragma once\n";
-            for (int root : pch.Roots) { header += "#include " + data.Units[root].Include + "\n"; }
+            for (int root : LayeredRoots(data, pch)) { header += "#include " + data.Units[root].Include + "\n"; }
             return header;
         }
 
@@ -2113,8 +2159,11 @@ namespace NPchUpdate::NTwoStep {
             Log(Format("compatibility: %zu PCHs; %zu workers (ceiling %d, RAM %.2f GB, max predicted action %.2f GB)",
                        layout.Pchs.size(), jobs, s.Data.Resources.Workers, s.Data.Resources.Ram / 1e9, memory / 1e9));
             Detail("compatibility cache: " + RealPath(cacheRoot));
+            // Roots dropped by bisection per PCH, for reporting and for the
+            // children of a reduced parent (their stored Units must shrink too).
+            std::vector<std::vector<int>> reduced(layout.Pchs.size());
             ParallelPchs(layout.Pchs, jobs, [&](size_t g) {
-                const auto& pch = layout.Pchs[g];
+                auto& pch = layout.Pchs[g];
                 if (pch.Parent >= 0 && !built[pch.Parent]) {
                     std::lock_guard<std::mutex> lock(reportMutex);
                     rows[g] = Format("pch\t%zu\t%zu\t-1\tparent group %d failed; child probe skipped\n", g, g, pch.Parent);
@@ -2123,23 +2172,122 @@ namespace NPchUpdate::NTwoStep {
                 }
                 std::ostringstream row;
                 auto argv = flags.at(pch.Representative);
-                const auto header = PchHeader(s.Data, pch);
-                TBinWriter key;
-                key.Str(identity);
-                key.Str(cache.Digest(argv.front()));
-                key.Str(ShellJoin(argv));
-                key.Str(header);
-                key.Str(pch.Parent < 0 ? "" : keys[pch.Parent]);
-                keys[g] = "pch-" + HashHex(key.Data());
-                const auto dir = cache.Directory(keys[g]);
-                artifacts[g] = JoinPath(dir, "output.pch");
-                if (pch.Parent >= 0) { argv.insert(argv.end(), {"-include-pch", artifacts[pch.Parent]}); }
-                argv.insert(argv.end(), {"-x", "c++-header", JoinPath(dir, "input.h"), "-o", artifacts[g]});
-                built[g] = cache.Probe(keys[g], s.Baseline, argv, header, Run, {},
-                    pch.Parent < 0 ? std::vector<std::string>{} : std::vector<std::string>{artifacts[pch.Parent]});
-                if (built[g]) { inputs[s.Data.Actions.size() + g] = probeInputs(keys[g]); }
-                row << "pch\t" << g << "\t" << g << "\t" << (built[g] ? int(g) : -1)
-                       << "\t" << (built[g] ? "" : KeepProbeLog(s, JoinPath(dir, "compiler.log"))) << '\n';
+                const auto parentKey = pch.Parent < 0 ? std::string() : keys[pch.Parent];
+                auto probePch = [&](const std::vector<int>& roots) {
+                    TPch candidate = pch;
+                    candidate.Roots = roots;
+                    const auto header = PchHeader(s.Data, candidate);
+                    TBinWriter key;
+                    key.Str(identity);
+                    key.Str(cache.Digest(argv.front()));
+                    key.Str(ShellJoin(argv));
+                    key.Str(header);
+                    key.Str(parentKey);
+                    keys[g] = "pch-" + HashHex(key.Data());
+                    const auto dir = cache.Directory(keys[g]);
+                    artifacts[g] = JoinPath(dir, "output.pch");
+                    auto command = argv;
+                    if (pch.Parent >= 0) { command.insert(command.end(), {"-include-pch", artifacts[pch.Parent]}); }
+                    command.insert(command.end(), {"-x", "c++-header", JoinPath(dir, "input.h"), "-o", artifacts[g]});
+                    return cache.Probe(keys[g], s.Baseline, command, header, Run, {},
+                        pch.Parent < 0 ? std::vector<std::string>{} : std::vector<std::string>{artifacts[pch.Parent]});
+                };
+                auto roots = LayeredRoots(s.Data, pch);
+                // The key of the last failed probe: the compatibility cache is
+                // deleted after correction, so the failing compiler log has to
+                // be retained separately from the (possibly successful) final
+                // probe of the surviving root set.
+                std::string failedKey;
+                auto tryProbe = [&](const std::vector<int>& probeRoots) {
+                    bool ok = probePch(probeRoots);
+                    if (!ok) {
+                        failedKey = keys[g];
+                    }
+                    return ok;
+                };
+                built[g] = tryProbe(roots);
+                if (!built[g] && roots.size() > 1 && !(s.Corrected && int(g) < layout.Bases)) {
+                    // A single incompatible root must not void the whole
+                    // family: a rejected base resets its class's every delta
+                    // to NONE. Find the smallest failing prefix of the layered
+                    // include order, drop that root and retry the remainder,
+                    // as the old TBisect search in checks.cpp did. Invariant:
+                    // the prefix of length lo - 1 has already compiled, so lo
+                    // is never reset — the budget is not spent re-proving it.
+                    auto kept = roots;
+                    size_t lo = 1;
+                    int budget = int(4 + 4 * std::log2(double(roots.size())));
+                    while (!built[g] && kept.size() > 1 && budget > 0) {
+                        size_t hi = kept.size();
+                        while (lo < hi && budget > 0) {
+                            size_t mid = lo + (hi - lo) / 2;
+                            --budget;
+                            if (tryProbe(std::vector<int>(kept.begin(), kept.begin() + mid))) {
+                                lo = mid + 1;
+                            } else {
+                                hi = mid;
+                            }
+                        }
+                        if (lo != hi) { break; } // probe budget exhausted mid-search
+                        reduced[g].push_back(kept[lo - 1]);
+                        kept.erase(kept.begin() + (lo - 1));
+                        --budget;
+                        built[g] = tryProbe(kept);
+                    }
+                    if (!built[g] && lo > 1 && lo - 1 <= kept.size()) {
+                        // However the search stopped — out of budget, be that
+                        // mid-search or on a failed full retry — the prefix of
+                        // lo - 1 roots has compiled: fall back to it instead of
+                        // rejecting the PCH (and with a base, its whole class);
+                        // an unprofitable survivor is evicted by the regular
+                        // disk/payback pricing later.
+                        for (size_t k = lo - 1; k < kept.size(); ++k) {
+                            reduced[g].push_back(kept[k]);
+                        }
+                        kept.resize(lo - 1);
+                        built[g] = tryProbe(kept);
+                    }
+                }
+                if (built[g]) {
+                    const bool selfReduced = !reduced[g].empty();
+                    const bool parentReduced = pch.Parent >= 0 && !reduced[pch.Parent].empty();
+                    if (selfReduced || parentReduced) {
+                        // Store the surviving contents: closure of the kept
+                        // roots on top of the parent's current units, so the
+                        // model prices exactly what the artifact serializes.
+                        if (selfReduced) {
+                            pch.Roots.erase(std::remove_if(pch.Roots.begin(), pch.Roots.end(), [&](int r) {
+                                return std::find(reduced[g].begin(), reduced[g].end(), r) != reduced[g].end();
+                            }), pch.Roots.end());
+                        }
+                        pch.Units = UnitClosure(s.Data, pch.Roots);
+                        if (pch.Parent >= 0) {
+                            const auto& inherited = layout.Pchs[pch.Parent].Units;
+                            pch.Units.insert(pch.Units.end(), inherited.begin(), inherited.end());
+                            Unique(pch.Units);
+                        }
+                    }
+                    inputs[s.Data.Actions.size() + g] = probeInputs(keys[g]);
+                }
+                {
+                    std::string note;
+                    if (!reduced[g].empty()) {
+                        std::vector<std::string> dropped;
+                        for (int r : reduced[g]) { dropped.push_back(s.Data.Units[r].Include); }
+                        note = Format("bisected: dropped %zu root(s) (%s)", reduced[g].size(), Join(dropped, " ").c_str());
+                        if (built[g] && !failedKey.empty()) {
+                            // Why a root was dropped must stay explainable after
+                            // the compatibility cache is cleaned up.
+                            note += "; last failing probe: " + KeepProbeLog(s, JoinPath(cache.Directory(failedKey), "compiler.log"));
+                        }
+                    }
+                    // Report the last failing probe's log, not the key of the
+                    // final (possibly successful) prefix probe.
+                    const std::string& logKey = !built[g] && !failedKey.empty() ? failedKey : keys[g];
+                    row << "pch\t" << g << "\t" << g << "\t" << (built[g] ? int(g) : -1)
+                        << "\t" << (built[g] ? note : KeepProbeLog(s, JoinPath(cache.Directory(logKey), "compiler.log"))
+                            + (note.empty() ? "" : "; " + note)) << '\n';
+                }
                 if (built[g] && int(g) >= layout.Bases) {
                     auto& link = linkProbes[g];
                     link = ProbeLeafLink(cache, s.Baseline, flags.at(pch.Representative), artifacts[g], keys[g]);
@@ -2164,7 +2312,7 @@ namespace NPchUpdate::NTwoStep {
                                     Seconds((Now() - compatibilityStart) / 1e9).c_str()));
                 }
                 if (!built[g] && s.Corrected && int(g) < layout.Bases) {
-                    Fail("frozen base failed compatibility checking; see " + JoinPath(dir, "compiler.log"));
+                    Fail("frozen base failed compatibility checking; see " + JoinPath(cache.Directory(keys[g]), "compiler.log"));
                 }
             });
             report.str("");
@@ -3711,8 +3859,16 @@ namespace NPchUpdate::NTwoStep {
             facts.Root = s.Root;
             if (!CheckBaseline(options, tools, work, facts)) { return 1; }
             s.Tree = TreeIdentity(facts.Root);
-            if (!ReadTraces(options, work, facts) ||
-                !ReadHistory(options, facts) || !FlagClasses(options, facts) || !HeaderFacts(options, work, facts)) {
+            if (!ReadTraces(options, work, facts) || !ReadHistory(options, facts)) {
+                return 1;
+            }
+            // A GN owner whose files span several flag classes is legal here:
+            // GroupTargets keeps the whole target without a PCH (class -1)
+            // instead of failing the run. FlagClasses still fills the class
+            // tables and reports the split; its return value only matters to
+            // pipelines that cannot represent mixed owners.
+            FlagClasses(options, facts);
+            if (!HeaderFacts(options, work, facts)) {
                 return 1;
             }
             s.Root = facts.Root;
@@ -4296,6 +4452,36 @@ namespace NPchUpdate::NTwoStep {
             }
         }
 
+        // All five include layers, in the order the emitted PCH header uses.
+        void LayerOrderSelfTest() {
+            auto check = [](bool ok, const std::string& text) { if (!ok) { Fail("layer self-test: " + text); } };
+            TData data;
+            data.Units.resize(7);
+            data.Units[0].Include = "<vector>";
+            data.Units[0].Headers = {"contrib/libs/cxxsupp/libcxx/include/vector"};
+            data.Units[1].Include = "<sysheader.h>";
+            data.Units[1].Headers = {"<sysroot>/usr/include/sysheader.h"};
+            data.Units[2].Include = "<contrib/lib.h>";
+            data.Units[2].Headers = {"contrib/libs/some/lib.h"};
+            data.Units[3].Include = "\"util/directory/directory.h\"";
+            data.Units[3].Headers = {"util/directory/directory.h"};
+            data.Units[4].Include = "\"library/cpp/string_utils/generic.h\"";
+            data.Units[4].Headers = {"library/cpp/string_utils/generic.h"};
+            data.Units[5].Include = "\"ydb/core/base/row.h\"";
+            data.Units[5].Headers = {"ydb/core/base/row.h"};
+            data.Units[6].Include = "\"gen/protos/foo.pb.h\"";
+            data.Units[6].Headers = {"<out>/gen/protos/foo.pb.h"};
+            TPch pch;
+            pch.Roots = {6, 5, 4, 3, 2, 1, 0}; // deliberately shuffled, generated first
+            check(LayeredRoots(data, pch) == std::vector<int>({1, 0, 2, 4, 3, 5, 6}),
+                  "sysroot/libc++, contrib, util/library, project and generated roots are included in layer order");
+            const auto header = PchHeader(data, pch);
+            check(header.find("#include <vector>") != std::string::npos &&
+                  header.find("#include <vector>") < header.find("\"ydb/core/base/row.h\"") &&
+                  header.find("\"ydb/core/base/row.h\"") < header.find("\"gen/protos/foo.pb.h\""),
+                  "the generated root is included last, after project headers");
+        }
+
         void LinkPreflightSelfTest(const std::string& parent, const std::string& compiler) {
             auto check = [](bool ok, const std::string& message) { if (!ok) { Fail("link self-test: " + message); } };
             TSnapshot s;
@@ -4310,11 +4496,13 @@ namespace NPchUpdate::NTwoStep {
             s.Data.Resources.Ram = s.Data.Resources.Disk = s.Data.Resources.Bandwidth = 1e9;
             const auto base = JoinPath(s.Baseline, "base.h");
             const auto leaf = JoinPath(s.Baseline, "leaf.h");
+            const auto broken = JoinPath(s.Baseline, "broken.h");
             WriteFile(base, "#pragma once\nstruct Base {};\n");
             WriteFile(leaf, "#pragma once\nextern int Provided();\nstatic const int Registration = Provided();\n");
-            s.Data.Units.resize(2);
-            for (int u = 0; u < 2; ++u) {
-                s.Data.Units[u].Include = "\"" + (u ? leaf : base) + "\"";
+            WriteFile(broken, "#pragma once\n#error broken root\n");
+            s.Data.Units.resize(3);
+            for (int u = 0; u < 3; ++u) {
+                s.Data.Units[u].Include = "\"" + (u == 0 ? base : u == 1 ? leaf : broken) + "\"";
                 s.Data.Units[u].Parse = .01;
                 s.Data.Units[u].Bytes = 100;
                 s.Data.Units[u].Stable = true;
@@ -4333,7 +4521,7 @@ namespace NPchUpdate::NTwoStep {
                 auto argv = flags;
                 argv.insert(argv.end(), {"-c", source, "-o", output});
                 RunChecked(argv, run);
-                if (f) { commands << ','; }
+                commands << (f ? "," : "");
                 commands << "{\"directory\":" << std::quoted(s.Baseline) << ",\"file\":" << std::quoted(source)
                          << ",\"command\":" << std::quoted(ShellJoin(argv)) << '}';
                 TAction action;
@@ -4341,11 +4529,30 @@ namespace NPchUpdate::NTwoStep {
                 action.Time = 1;
                 action.Memory = 1e6;
                 s.Data.Actions.push_back(action);
-                s.Data.Files.push_back({f, 0, source, {{0, .01}, {1, .01}}});
+                s.Data.Files.push_back({f, 0, source, {{0, .01}, {1, .01}, {2, .01}}});
+            }
+            // A base-only owner keeps the whole family expensive to evict, so
+            // under a tight budget the real leaf is the cheapest group to drop
+            // regardless of the toolchain's base-to-delta artifact size ratio.
+            {
+                const auto source = JoinPath(s.Baseline, "file3.cpp");
+                const auto output = "file3.o";
+                WriteFile(source, "int Function3() { return 1; }\n");
+                auto argv = flags;
+                argv.insert(argv.end(), {"-c", source, "-o", output});
+                RunChecked(argv, run);
+                commands << ",{\"directory\":" << std::quoted(s.Baseline) << ",\"file\":" << std::quoted(source)
+                         << ",\"command\":" << std::quoted(ShellJoin(argv)) << '}';
+                TAction action;
+                action.Output = output;
+                action.Time = 1;
+                action.Memory = 1e6;
+                s.Data.Actions.push_back(action);
+                s.Data.Files.push_back({3, 0, source, {{0, .5}}});
             }
             commands << "]";
             WriteFile(JoinPath(s.Baseline, "compile_commands.json"), commands.str());
-            GroupTargets(s.Data, {"//allowed:owner", "//allowed:owner", "//missing:owner"});
+            GroupTargets(s.Data, {"//allowed:owner", "//allowed:owner", "//missing:owner", "//baseonly:owner"});
             const auto provider = JoinPath(s.Baseline, "provider.cpp");
             auto buildProvider = [&](const std::string& text) {
                 WriteFile(provider, text);
@@ -4358,26 +4565,35 @@ namespace NPchUpdate::NTwoStep {
             WriteFile(JoinPath(s.Baseline, "build.ninja"),
                 "rule cxx\n  command = unused\nrule link\n  command = unused\nrule solink\n  command = unused\n"
                 "build file0.o: cxx file0.cpp\nbuild file1.o: cxx file1.cpp\nbuild file2.o: cxx file2.cpp\n"
+                "build file3.o: cxx file3.cpp\n"
                 "build provider.so provider.so.TOC: solink provider.cpp\n"
                 "build allowed: link file0.o | provider.so.TOC\nbuild helper: link file1.o | provider.so.TOC\n"
                 "build missing: link file2.o\n");
             TNinjaManifest manifest(s.Baseline);
-            s.LinkInputs = CollectLinkInputs(manifest, {{"file0.o", "file0.o"}, {"file1.o", "file1.o"}, {"file2.o", "file2.o"}});
+            s.LinkInputs = CollectLinkInputs(manifest,
+                {{"file0.o", "file0.o"}, {"file1.o", "file1.o"}, {"file2.o", "file2.o"}, {"file3.o", "file3.o"}});
             TLayout candidate;
             candidate.Bases = 1;
             candidate.Pchs.resize(2);
             for (auto& pch : candidate.Pchs) { pch.Class = pch.Representative = 0; }
-            candidate.Pchs[0].Roots = candidate.Pchs[0].Units = {0};
+            candidate.Pchs[0].Roots = candidate.Pchs[0].Units = {0, 2}; // the base carries a broken root
             candidate.Pchs[1].Roots = {1};
-            candidate.Pchs[1].Units = {0, 1};
+            candidate.Pchs[1].Units = {0, 1, 2};
             candidate.Pchs[1].Parent = 0;
-            candidate.Assignment = {1, 1};
+            candidate.Assignment = {1, 0, 1}; // allowed, baseonly, missing
             s.Layout = candidate;
             const auto cache = JoinPath(parent, "link-cache");
             std::vector<uint64_t> measured;
             Preflight(s, cache, {}, 1, &measured);
-            check(s.Layout.Assignment == std::vector<int>({1, 0}),
+            check(s.Layout.Assignment == std::vector<int>({1, 0, 0}),
                   "real leaf is kept only by the owner whose every final link has the provider");
+            check(s.Layout.Pchs.size() == 2 && s.Layout.Pchs[0].Roots == std::vector<int>({0}),
+                  "bisecting a failing base drops the broken root and keeps the base alive");
+            check(std::find(s.Layout.Pchs[0].Units.begin(), s.Layout.Pchs[0].Units.end(), 2) == s.Layout.Pchs[0].Units.end() &&
+                  std::find(s.Layout.Pchs[1].Units.begin(), s.Layout.Pchs[1].Units.end(), 2) == s.Layout.Pchs[1].Units.end(),
+                  "the broken unit disappears from the base and from the delta built on it");
+            check(ReadFile(JoinPath(s.Directory, "compatibility.tsv")).find("bisected: dropped 1 root") != std::string::npos,
+                  "bisecting a failing base is reported with the dropped root");
             check(ReadFile(JoinPath(s.Directory, "compatibility.tsv")).find("missing: no known provider") != std::string::npos,
                   "target fallback explains the failing final link");
             check(measured.size() == 2 && measured[0] && measured[1], "both real artifact sizes are available");
@@ -4385,7 +4601,7 @@ namespace NPchUpdate::NTwoStep {
             s.Data.Resources.Disk = measured[0];
             s.Layout = candidate;
             Preflight(s, cache);
-            check(s.Layout.Assignment == std::vector<int>({0, 0}) && s.Layout.Pchs.size() == 1 &&
+            check(s.Layout.Assignment == std::vector<int>({0, 0, 0}) && s.Layout.Pchs.size() == 1 &&
                   ReadFile(JoinPath(s.Directory, "disk-budget.tsv")).find("retained_bytes=" + std::to_string(measured[0])) != std::string::npos,
                   "one real measured base fits exactly; evict the real leaf and verify the owner's parent");
             s.Data.Resources.Disk = fullBudget;
@@ -4393,13 +4609,13 @@ namespace NPchUpdate::NTwoStep {
             auto helper = s.LinkInputs.Targets.at("file1.o").front();
             s.LinkInputs.Lines[helper].Inputs.erase("provider.so");
             Preflight(s, cache);
-            check(s.Layout.Assignment == std::vector<int>({0, 0}),
+            check(s.Layout.Assignment == std::vector<int>({0, 0, 0}),
                   "one helper's missing provider moves the whole owner to its parent");
             s.LinkInputs.Lines[helper].Inputs.insert("provider.so");
             s.LinkInputs.Targets.erase("file1.o");
             s.Layout = candidate;
             Preflight(s, cache);
-            check(s.Layout.Assignment == std::vector<int>({0, 0}) &&
+            check(s.Layout.Assignment == std::vector<int>({0, 0, 0}) &&
                   ReadFile(JoinPath(s.Directory, "compatibility.tsv")).find("unknown final links") != std::string::npos,
                   "missing helper link metadata is not accepted as success");
             s.LinkInputs.Targets["file1.o"] = {helper};
@@ -4408,14 +4624,14 @@ namespace NPchUpdate::NTwoStep {
             check(identity != BaselineIdentity(s), "changed library invalidates baseline identity without a Ninja log update");
             s.Layout = candidate;
             Preflight(s, cache);
-            check(s.Layout.Assignment == std::vector<int>({0, 0}) &&
+            check(s.Layout.Assignment == std::vector<int>({0, 0, 0}) &&
                   ReadFile(JoinPath(s.Directory, "compatibility.tsv")).find("unknown provider") != std::string::npos,
                   "provider cache notices replaced artifacts and rejects unknown symbols");
             candidate.Bases = 0;
             candidate.Pchs.erase(candidate.Pchs.begin());
             candidate.Pchs[0].Parent = -1;
             candidate.Pchs[0].Units = candidate.Pchs[0].Roots = {1};
-            candidate.Assignment = {0, 0};
+            candidate.Assignment = {0, 0, 0};
             s.Layout = candidate;
             bool invalidHierarchy = false;
             try { Preflight(s, cache); } catch (const TError&) { invalidHierarchy = true; }
@@ -4424,6 +4640,7 @@ namespace NPchUpdate::NTwoStep {
         }
 
         void WorkflowSelfTest() {
+            LayerOrderSelfTest();
             auto check = [](bool ok, const std::string& text) { if (!ok) { Fail("workflow self-test: " + text); } };
             TWorkflow request;
             request.Root = "/source";

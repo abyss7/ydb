@@ -249,7 +249,14 @@ remain part of the model.
 Before freezing any initial or corrected prediction, `predict`, `replan` and
 `correct` run a **compatibility preflight** against the completed baseline:
 
-1. Compile each selected PCH chain with its exact compiler class.
+1. Compile each selected PCH chain with its exact compiler class. The PCH
+   header includes the roots in layer order (sysroot/libc++, contrib,
+   util/library, project sources, generated), not selector mass order. A
+   chain that fails to compile is bisected by its roots — the smallest
+   breaking prefix of that order is dropped and the remainder retried — so
+   one incompatible header no longer voids a whole delta or, with it, the
+   base family and every sibling delta. Frozen corrected bases are never
+   reduced; their failure aborts correction.
 2. Check every C++ member of each assigned target with `-fsyntax-only` and its PCH.
 3. If any member fails, move the **whole target** to the parent PCH and recheck
    every member, then try all members without PCH. Only a universally successful

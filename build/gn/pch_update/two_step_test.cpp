@@ -663,6 +663,95 @@ namespace NPchUpdate::NTwoStep {
                   split.Assignment[2] >= 0 && split.Assignment[3] < 0,
                   "an enum source_set with different flags does not veto its consumer's PCH");
         }
+        // A commit shared by several roots invalidates the PCH once: the
+        // second root must not pay the extra-rebuild penalty again, and the
+        // penalty must use the accelerated consumer time of the PCH that
+        // already includes both roots. A root whose fresh commits would
+        // reprice rebuilds of the whole accepted body stays out.
+        void CoChangedRoots() {
+            for (int second : {0, 1}) {
+                auto d = Data();
+                d.Resources.Workers = 1;
+                d.Q = 0;
+                d.Scenarios = 2;
+                d.Units.resize(2);
+                for (int u = 0; u < 2; ++u) {
+                    d.Units[u].Include = "<unit" + std::to_string(u) + ">";
+                    d.Units[u].Stable = true;
+                    d.Units[u].Parse = u ? 1 : 5;
+                    d.Units[u].Bytes = 1;
+                    // second=0: one commit touches both roots (its extra
+                    // rebuild is already paid at the first); second=1: a fresh
+                    // consumer commit that also doubles the PCH rebuild rate,
+                    // repricing the rebuilds of the whole accepted body.
+                    d.Units[u].Changes = {u ? second : 0};
+                }
+                for (int f = 0; f < 4; ++f) {
+                    TAction a;
+                    a.Time = 10; // own parse times below stay below it
+                    a.Memory = 1e6;
+                    a.Changes = {1}; // consumers rebuild on their own commit only
+                    d.Actions.push_back(a);
+                    d.Files.push_back({f, 0, std::to_string(f), {{0, 7}, {1, 1.5}}});
+                }
+                TestTargets(d);
+                auto selected = Select(d, {});
+                Check(!selected.Pchs.empty() &&
+                          selected.Pchs[0].Roots == (second == 0 ? std::vector<int>({0, 1}) : std::vector<int>({0})),
+                      second == 0 ? "an already-paying commit keeps the co-changed root"
+                                  : "a fresh churning root cannot reprice the whole accepted body");
+            }
+        }
+
+        // The base shared with a held-out delta stays in the artifact fits:
+        // the holdout scores consumer time only, and each class has one base.
+        void HeldOutParentCalibration() {
+            auto d = Data();
+            d.Units.resize(3);
+            for (int u = 0; u < 3; ++u) {
+                d.Units[u].Include = "<unit" + std::to_string(u) + ">";
+                d.Units[u].Parse = 2;
+                d.Units[u].Bytes = 1;
+                d.Units[u].Stable = true;
+            }
+            TLayout layout;
+            layout.Bases = 1;
+            TPch base;
+            base.Class = 0;
+            base.Representative = 0;
+            base.Roots = base.Units = {0};
+            layout.Pchs.push_back(base);
+            for (int g = 1; g <= 2; ++g) {
+                TPch delta;
+                delta.Class = 0;
+                delta.Parent = 0;
+                delta.Representative = g;
+                delta.Roots = {g};
+                delta.Units = {0, g};
+                layout.Pchs.push_back(delta);
+            }
+            for (int t = 0; t < 3; ++t) {
+                TAction a;
+                a.Time = 10;
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                d.Files.push_back({int(d.Actions.size()) - 1, 0, std::to_string(t), {{t, 3}}});
+            }
+            TestTargets(d);
+            layout.Assignment = {0, 1, 2};
+            auto prediction = Predict(d, layout, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            for (size_t i = 0; i < obs.size(); ++i) {
+                obs[i].Time = prediction.Actions[i].Time;
+                obs[i].Memory = prediction.Actions[i].Memory;
+                if (i >= d.Actions.size()) { obs[i].Bytes = prediction.PchBytes[i - d.Actions.size()]; }
+            }
+            obs[d.Actions.size()].Time = 2 * d.Units[0].Parse;
+            auto fit = Calibrate(d, layout, prediction, obs);
+            Near(fit.Classes[0].BaseBuild, 2, "the shared base calibrates BaseBuild despite the held-out delta");
+            Check(fit.Report.find("unmeasured") == std::string::npos,
+                  "the base build observation is not reported as unmeasured");
+        }
     } // namespace
 
     int SelfTest() {
@@ -677,6 +766,8 @@ namespace NPchUpdate::NTwoStep {
         SharedBaseDiskDiagnostics();
         AbsoluteSystemRoot();
         Calibration();
+        CoChangedRoots();
+        HeldOutParentCalibration();
         AtomicTargets();
         IoSelfTest();
         Report("two-step self-tests: OK");

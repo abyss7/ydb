@@ -196,6 +196,53 @@ namespace NPchUpdate::NTwoStep {
             for (int u : p.Units) {
                 selected[u] = true;
             }
+            // Commits already invalidating the PCH under construction: the
+            // parent closure plus every accepted root. A commit touching
+            // several related headers is paid once, at the first of them,
+            // not once per header (as TSelection::Hit in model.cpp did).
+            std::set<int> invalidating;
+            for (int u : p.Units) {
+                invalidating.insert(d.Units[u].Changes.begin(), d.Units[u].Changes.end());
+            }
+            // Consumer and build state under the PCH built so far, priced as
+            // TWorkCosts does: an extra compile runs with this PCH — its full
+            // load and every saving, the candidate's own closure included —
+            // and a fresh commit forces a rebuild of the whole accepted body,
+            // not only of the new root.
+            const double parentParse = base ? Parse(d, base->Units) : 0;
+            const double buildScale = base ? c.DeltaBuild : c.BaseBuild;
+            double loadSoFar = parentParse;
+            auto buildCost = [&](double work, size_t changes) {
+                double frequency = d.Q + (1 - d.Q) * double(changes) / std::max(1, d.Scenarios);
+                return frequency * std::max(.001, (work - parentParse) * buildScale + parentParse * .02);
+            };
+            double buildCostSoFar = buildCost(loadSoFar, invalidating.size());
+            // Reverse index over the local file list: an evaluation and an
+            // acceptance touch only the files that actually parse the closure
+            // units of the root at hand, never the whole Own table.
+            const int fileCount = int(files.size());
+            std::vector<std::vector<std::pair<int, double>>> unitFiles(d.Units.size());
+            std::vector<double> savedSoFar(fileCount);
+            for (int i = 0; i < fileCount; ++i) {
+                double saved = 0;
+                for (auto [u, own] : d.Files[files[i]].Own) {
+                    unitFiles[u].emplace_back(i, own);
+                    if (selected[u]) {
+                        saved += own;
+                    }
+                }
+                savedSoFar[i] = saved;
+            }
+            std::vector<double> deltaSaved(fileCount);
+            std::vector<char> touched(fileCount);
+            std::vector<int> touchedFiles;
+            auto clearDelta = [&] {
+                for (int i : touchedFiles) {
+                    touched[i] = 0;
+                    deltaSaved[i] = 0;
+                }
+                touchedFiles.clear();
+            };
             for (int root : candidates) {
                 if (selected[root]) {
                     continue;
@@ -207,7 +254,7 @@ namespace NPchUpdate::NTwoStep {
                 const auto& closure = cached->second;
                 bool valid = true;
                 double work = 0, gain = 0;
-                std::set<int> changes;
+                std::set<int> fresh; // commits that would newly invalidate the PCH
                 for (int u : closure) {
                     // Shared bases stay conservative. Specialized leaves may
                     // require libraries: Preflight checks the actual PCH against
@@ -216,22 +263,49 @@ namespace NPchUpdate::NTwoStep {
                     if (!selected[u]) {
                         work += d.Units[u].Parse;
                         gain += c.Saved * mass[u];
-                        changes.insert(d.Units[u].Changes.begin(), d.Units[u].Changes.end());
+                        for (int k : d.Units[u].Changes) {
+                            if (!invalidating.count(k)) {
+                                fresh.insert(k);
+                            }
+                        }
                     }
                 }
                 if (!valid) {
                     continue;
                 }
-                double frequency = d.Q + (1 - d.Q) * double(changes.size()) / std::max(1, d.Scenarios);
-                gain -= work * (base ? c.DeltaBuild : c.BaseBuild) * frequency;
-                for (int f : files) {
-                    const auto& a = d.Actions[d.Files[f].Action];
+                for (int u : closure) {
+                    if (selected[u]) {
+                        continue;
+                    }
+                    for (auto [i, own] : unitFiles[u]) {
+                        if (!touched[i]) {
+                            touched[i] = 1;
+                            touchedFiles.push_back(i);
+                        }
+                        deltaSaved[i] += own;
+                    }
+                }
+                // TWorkCosts::Build of the artifact with this root minus the
+                // build cost already carried: fresh commits reprice the whole
+                // accepted body, and the parent is re-read on every rebuild.
+                const double nextBuild = buildCost(loadSoFar + work, invalidating.size() + fresh.size());
+                gain -= nextBuild - buildCostSoFar;
+                for (int i = 0; i < fileCount; ++i) {
+                    const auto& a = d.Actions[d.Files[files[i]].Action];
                     double consumerFrequency = d.Q + (1 - d.Q) * double(a.Changes.size()) / std::max(1, d.Scenarios);
                     gain -= c.Load * work * consumerFrequency;
-                    for (int k : changes) {
+                    int extra = 0;
+                    for (int k : fresh) {
                         if (!std::binary_search(a.Changes.begin(), a.Changes.end(), k)) {
-                            gain -= (1 - d.Q) * a.Time / std::max(1, d.Scenarios);
+                            ++extra;
                         }
+                    }
+                    if (extra) {
+                        // Extra compiles parse this PCH, the candidate's
+                        // closure included: charge the accelerated consumer
+                        // time, not the bare no-PCH action time.
+                        gain -= (1 - d.Q) * extra / std::max(1, d.Scenarios) *
+                            Consumer(a, savedSoFar[i] + deltaSaved[i], loadSoFar + work, c);
                     }
                 }
                 if (gain > 0) {
@@ -242,7 +316,14 @@ namespace NPchUpdate::NTwoStep {
                             p.Units.push_back(u);
                         }
                     }
+                    invalidating.insert(fresh.begin(), fresh.end());
+                    loadSoFar += work;
+                    buildCostSoFar = nextBuild;
+                    for (int i : touchedFiles) {
+                        savedSoFar[i] += deltaSaved[i];
+                    }
                 }
+                clearDelta();
             }
             Unique(p.Units);
             return p;
@@ -1274,17 +1355,15 @@ namespace NPchUpdate::NTwoStep {
                 }
             }
             // Entire leaf groups are held out, including their artifact metrics.
-            // Parent artifacts shared with a holdout are also excluded from fit.
+            // Their parents stay in the artifact fits: those fits never predict
+            // holdout consumer time (the holdout error uses Consumer only),
+            // while each class has a single base (groups[0]); excluding it
+            // would leave BaseBuild and Size unmeasured for every class with
+            // at least two deltas.
             std::set<int> held;
             if (groups.size() >= 3) {
                 for (size_t i = 2; i < groups.size(); i += 3) {
                     held.insert(groups[i]);
-                }
-            }
-            std::set<int> excluded = held;
-            for (int g : held) {
-                if (l.Pchs[g].Parent >= 0) {
-                    excluded.insert(l.Pchs[g].Parent);
                 }
             }
             std::vector<double> controls, baseBuild, deltaBuild, memory, consumerMemory, combined;
@@ -1299,7 +1378,7 @@ namespace NPchUpdate::NTwoStep {
             }
             c.Baseline = Ratio(controls);
             for (int g : groups) {
-                if (excluded.count(g)) {
+                if (held.count(g)) {
                     continue;
                 }
                 const auto& obs = observations[d.Actions.size() + g];
