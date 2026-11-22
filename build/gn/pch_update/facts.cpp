@@ -1,4 +1,3 @@
-#include "gni.h"
 #include "jobs.h"
 #include "ninja.h"
 #include "steps.h"
@@ -62,10 +61,6 @@ namespace NPchUpdate {
             }
             size_t end = text.find_last_not_of(" \t\r\n");
             return std::string(text.substr(begin, end - begin + 1));
-        }
-
-        std::string FirstLine(std::string_view text) {
-            return std::string(text.substr(0, text.find('\n')));
         }
 
         // Problems found: what -> examples, in the order found.
@@ -650,29 +645,6 @@ namespace NPchUpdate {
             return out;
         }
 
-        // The target whose PCH the files of a target take: the one of its
-        // enum serialization for <target>_enum_objs (serialize_enums,
-        // //build/gn/base.gni) but for enum_serialization_pch_exclude.
-        std::string PchOwner(const std::string& label, const std::vector<std::string>& exclude) {
-            size_t colon = label.find(':');
-            std::string_view name = colon == std::string::npos ? std::string_view() : std::string_view(label).substr(colon + 1);
-            if (!EndsWith(name, ENUM_OBJS)) {
-                return label;
-            }
-            std::string owner = label.substr(0, label.size() - ENUM_OBJS.size());
-            return LabelMatches(owner, exclude) ? label : owner;
-        }
-
-        std::vector<std::string> EnumExclude(const TFacts& facts) {
-            std::string text;
-            if (!TryReadFile(JoinPath(facts.Root, ENUM_EXCLUDE_GNI), &text)) {
-                return {};
-            }
-            auto values = ParseGnFile(text);
-            const TGnValue* value = FindGnValue(values, "enum_serialization_pch_exclude");
-            return value ? value->Strings() : std::vector<std::string>();
-        }
-
     } // namespace
 
     // =========================================================================
@@ -1057,7 +1029,6 @@ namespace NPchUpdate {
     // =========================================================================
 
     bool FlagClasses(const TOptions& options, TFacts& facts) {
-        std::vector<std::string> exclude = EnumExclude(facts);
         size_t n = facts.Objs.size();
         std::vector<TCompileFlags> parsed(n);
         facts.ArgvOf.assign(n, {});
@@ -1083,7 +1054,6 @@ namespace NPchUpdate {
         std::map<std::string, std::set<int32_t>> targetClasses;
         std::vector<int32_t> firstClass(n);
         facts.TargetOf.assign(n, 0);
-        facts.LabelOf.assign(n, 0);
         facts.DefinesOf.assign(n, {});
         facts.IncludeDirsOf.assign(n, {});
         for (size_t f = 0; f < n; ++f) {
@@ -1099,8 +1069,7 @@ namespace NPchUpdate {
             firstClass[f] = it->second;
             filesOf[it->second].push_back(int32_t(f));
             targetClasses[label->second].insert(it->second);
-            facts.LabelOf[f] = facts.Target(label->second);
-            facts.TargetOf[f] = facts.Target(PchOwner(label->second, exclude));
+            facts.TargetOf[f] = facts.Target(label->second);
             facts.DefinesOf[f] = std::move(parsed[f].Defines);
             facts.IncludeDirsOf[f] = std::move(parsed[f].IncludeDirs);
         }
@@ -1278,7 +1247,6 @@ namespace NPchUpdate {
         size_t learned = 0;
         size_t linkFailed = 0;
         size_t needing = 0;
-        std::string example;
         for (size_t i = 0; i < candidates.size(); ++i) {
             int32_t h = candidates[i];
             THeaderResult& r = loaded[i];
@@ -1290,11 +1258,6 @@ namespace NPchUpdate {
                 }
                 needing += r.Unresolved.empty() ? 0 : 1;
                 facts.NeedsOfHeader[h] = std::move(r.Unresolved);
-            } else if (example.empty()) {
-                std::string error = FirstLine(r.Compile.FirstError());
-                if (!error.empty()) {
-                    example = Display(facts.HeaderNames[h]) + ": " + error;
-                }
             }
             for (const auto& [including, included] : r.Edges) {
                 auto a = facts.HeaderId.find(facts.Paths.Normalize(including));
@@ -1307,9 +1270,9 @@ namespace NPchUpdate {
             }
         }
         Report(Format("headers alone:    %zu of %zu compile (parsed %s+ in 2+ files): done before %zu, compiled %zu; "
-                      "includes learned %zu%s",
+                      "includes learned %zu",
                       ok, candidates.size(), Duration(double(HEADER_MIN_PARSE)).c_str(), before, candidates.size() - before,
-                      learned, example.empty() ? "" : ("; e.g. " + example).c_str()));
+                      learned));
         Report(Format("  linked alone: %zu need symbols of the libraries, %zu fail to link", needing, linkFailed));
         Report(Format("  the rest in a PCH only with a header including them: %zu of %zu", nHeaders - ok, nHeaders));
         return true;

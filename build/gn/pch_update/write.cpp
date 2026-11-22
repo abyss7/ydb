@@ -717,7 +717,7 @@ namespace NPchUpdate {
                 return nullptr;
             };
 
-            const std::vector<int32_t>& labelOf = facts.LabelOf.size() == facts.Objs.size() ? facts.LabelOf : facts.TargetOf;
+            const auto& labelOf = facts.TargetOf;
             std::unordered_map<int32_t, std::string> files;                                   // file -> target of its PCH
             std::map<std::string, std::vector<std::pair<std::string, std::string>>> notFirst;  // target -> (file, the -include before its PCH)
             gen.ForCompiles(fileEdges, [&](size_t e, TCompile& c) {

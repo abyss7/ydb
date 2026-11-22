@@ -235,9 +235,8 @@ namespace NPchUpdate {
         THasher hasher;
         hasher.Field(int64_t(JOBS_VERSION));
         hasher.Field(job.Kind);
-        // GN results now carry template-declared PCH ownership. Preserve all
-        // expensive trace/header cache keys while invalidating this schema only.
-        if (job.Kind == "gn") { hasher.Field("global-pch-owner-1"); }
+        // GN results carry explicit action outputs as well as PCH ownership.
+        if (job.Kind == "gn") { hasher.Field("declared-action-outputs-1"); }
         if (job.Kind == "trace") { hasher.Field("distclang-timing-1"); }
         hasher.Field(int64_t(job.Args.size()));
         for (const std::string& arg : job.Args) {

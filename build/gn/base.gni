@@ -74,16 +74,11 @@ template("expand_template") {
 # source_set `<target_name>_enum_objs`, which the target takes to `deps`
 # (library(), linked_executable(): `serialize_enum_headers`). Compiled with
 # the flags of the target -- its deps, public_deps, configs, public_configs,
-# defines, include_dirs, cflags*, yql_abi_version -- and the shared
-# precompiled header of the target, but for enum_serialization_pch_exclude
-# (//build/gn/pch/global/enum_serialization.gni): there the .cpp defines
-# specializations of Out<>, FromStringImpl<>... the PCH has instantiated
-# already.
+# defines, include_dirs, cflags*, yql_abi_version. The source_set has its
+# own global PCH assignment, independent of the target that links it.
 template("serialize_enums") {
     _enum = "${target_name}_enum"
     _enum_include = "${target_name}_enum_include"
-    _owner = get_label_info(":$target_name", "label_no_toolchain")
-    not_needed([ "_owner" ])
 
     # The headers of the target's own dir: generated next to them, at their
     # gen dir. A header of another dir (a variant module serializing the
@@ -190,15 +185,17 @@ template("serialize_enums") {
                 "MIN_UDF_ABI_VERSION_PATCH=${_abi[2]}",
             ]
         }
-        if (current_toolchain == default_toolchain &&
-            !label_matches(_owner, enum_serialization_pch_exclude)) {
-            metadata = {
-                global_pch_owner = [ _owner ]
-            }
-            if (pch_mode == "global") {
-                foreach(_group, pch_groups) {
-                    if (label_matches(_owner, _group.targets)) {
-                        deps += [ "//build/gn/pch/global:pch_${_group.name}" ]
+        if (current_toolchain == default_toolchain) {
+            _pch_label = get_label_info(":$target_name", "label_no_toolchain")
+            if (!label_matches(_pch_label, enum_serialization_pch_exclude)) {
+                metadata = {
+                    global_pch_owner = [ _pch_label ]
+                }
+                if (pch_mode == "global") {
+                    foreach(_group, pch_groups) {
+                        if (label_matches(_pch_label, _group.targets)) {
+                            deps += [ "//build/gn/pch/global:pch_${_group.name}" ]
+                        }
                     }
                 }
             }

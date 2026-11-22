@@ -114,7 +114,7 @@ namespace NPchUpdate {
             std::vector<char> inPart(core.NFiles, 0);
             for (int32_t t = 0; t < int32_t(core.FilesOf.size()); ++t) {
                 const std::string& label = facts.TargetNames[t];
-                if (core.FilesOf[t].empty() || IsEnumObjs(label) || world.HasUtil(label)) {
+                if (core.FilesOf[t].empty() || (plan.PerTarget && IsEnumObjs(label)) || world.HasUtil(label)) {
                     continue;
                 }
                 plan.Contrib.insert(t);
@@ -146,17 +146,16 @@ namespace NPchUpdate {
         int32_t TargetsWithFiles(const TModelCore& core, const TFacts& facts) {
             int32_t n = 0;
             for (int32_t t = 0; t < int32_t(core.FilesOf.size()); ++t) {
-                n += !core.FilesOf[t].empty() && !IsEnumObjs(facts.TargetNames[t]);
+                n += !core.FilesOf[t].empty() && facts.GlobalPchOwner.count(facts.TargetNames[t]);
             }
             return n;
         }
 
-        // The targets of the files of a class, by name; the enum serialization
-        // of enum_serialization_pch_exclude (its own target) left out.
-        std::vector<int32_t> ClassTargets(const TFacts& facts, int32_t n) {
+        std::vector<int32_t> ClassTargets(const TFacts& facts, int32_t n, bool perTarget) {
             std::set<int32_t> set;
             for (int32_t f : facts.Classes[n]) {
-                if (!IsEnumObjs(facts.TargetNames[facts.TargetOf[f]])) {
+                const auto& label = facts.TargetNames[facts.TargetOf[f]];
+                if (perTarget ? !IsEnumObjs(label) : facts.GlobalPchOwner.count(label) != 0) {
                     set.insert(facts.TargetOf[f]);
                 }
             }
@@ -243,17 +242,13 @@ namespace NPchUpdate {
         plan.Groups.clear();
         if (options.PerTarget) {
             Log("selecting the PCH of each target...");
-            // the enum serialization has no PCH in this mode: the source_set of
-            // serialize_enums takes no precompiled_header; its files are of a
-            // target of their own, not of the one whose PCH they take in "global"
-            facts.TargetOf = facts.LabelOf;
             plan.Core = BuildModel(facts, 0);
             plan.Model = TModel(plan.Core, Q_PER_TARGET);
             NoUtil(facts, plan);
             std::vector<char> banned = ContribBanned(plan);
             int64_t considered = 0;
             for (int32_t n = 0; n < int32_t(facts.Classes.size()); ++n) {
-                for (int32_t target : ClassTargets(facts, n)) {
+                for (int32_t target : ClassTargets(facts, n, true)) {
                     ++considered;
                     auto sel = TargetSelection(plan.Model, target, plan.Contrib.count(target) ? &banned : nullptr);
                     if (sel) {
@@ -278,7 +273,7 @@ namespace NPchUpdate {
                       options.MaxGroupFiles ? Format("parts of the dir tree of at most %d files", options.MaxGroupFiles).c_str()
                                             : "no limit of files"));
         for (int32_t n = 0; n < int32_t(facts.Classes.size()); ++n) {
-            std::vector<int32_t> targets = ClassTargets(facts, n);
+            std::vector<int32_t> targets = ClassTargets(facts, n, false);
             Log(Format("class %d: %zu targets...", n + 1, targets.size()));
             std::vector<int32_t> rest, own;
             for (int32_t t : targets) {

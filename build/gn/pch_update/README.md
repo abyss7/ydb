@@ -6,8 +6,8 @@ installs the groups in the ordinary GN global-PCH build. The base contents and c
 classes remain fixed during correction. This is a bounded two-step workflow,
 not a convergence guarantee.
 
-The assignment unit is a **GN PCH-owner target**, including generated enum
-helpers that inherit its configuration. Every C++ compilation of that owner
+The assignment unit is the **GN target that compiles the object**. A generated
+enum `source_set` is a separate target from its consumer. Every C++ compilation of one target
 uses the same leaf (or none). Candidate partitions, expected-work comparisons,
 control selection, verification sampling, calibration rows and compatibility
 fallbacks operate on whole targets. Individual compilation timings and the real
@@ -16,7 +16,7 @@ An owner with mixed exact compiler classes stays entirely without PCH; it is
 reported as `mixed-compiler-classes`, never split into source-level assignments.
 Targets whose GN templates lack a global PCH hook remain unassigned and are
 reported as `no-global-pch-hook`. Eligibility comes from `global_pch_owner`
-metadata in the real GN graph, including enum helpers inheriting an owner's PCH.
+metadata in the real GN graph; each hook names its own compile target.
 
 ```sh
 pch_update --baseline /path/to/no-pch-build --disk 16G
@@ -48,8 +48,7 @@ Only one stage flag may be supplied. Stage prerequisites are explicit: a standal
 ### Console and persistent diagnostics
 
 The console names the seven workflow phases, reports their elapsed wall time,
-and distinguishes new, reused and restarted measurements. A first measurement
-is not a restart; an incomplete measurement is still repeated in full.
+and distinguishes first attempts, completed samples and partial resumes.
 `--verbose` shows selection widths and full child output. It is presentation-only:
 it is not stored among model options and does not invalidate checkpoints.
 Ordinary child output goes to persistent logs; warnings and failures remain visible.
@@ -84,7 +83,8 @@ Measurement reports distinguish sample wall time, summed action/CPU time, actual
 PCH bytes, and largest individual action RSS (not aggregate peak RAM). Target WAPE
 is `sum(abs(predicted-actual))/sum(actual)` over complete observed targets; holdout
 MAE is the mean absolute error of target compile work. Initial and corrected plans
-can sample different targets, so their measured walls are not a speedup comparison.
+measure the same object panel, but their PCHs and prerequisites can differ;
+sample wall times are not a full-build speedup comparison.
 `q` weights predicted cold/incremental wall times. The disk budget is for resident
 PCH artifacts only. GB is decimal. Historical checkpoints without detailed selection
 reasons remain usable; missing reasons are reported as unavailable, never inferred.
@@ -104,7 +104,7 @@ removed. The next weekly run starts fresh and needs `--disk` again.
 | `--bandwidth-gbps` | 1 GB/s |
 | `--action-memory-gb` | 1 GB unmeasured-action RSS prior |
 | `--analysis-jobs` | min(24, CPU count); analysis compiler jobs, grouping candidates and prediction scenarios |
-| `--sample` | `100`: share of whole PCH-owner targets that `verify` measures (`10`..`100`); all their C++ members, all PCHs and required generator tools are built |
+| `--sample` | Measurement only (`--correct` or the correction phase of a full run): percent of C++ objects (`10`..`100`, default `100`); all PCHs and required generator tools are built |
 | `--target` | `all` and `tests`; repeat to override |
 
 PCH compatibility builds and leaf-link probes run concurrently as their parent
@@ -182,12 +182,14 @@ Analysis is saved before selection/emission. Completed selection is saved as
 both the initial and corrected plan. A retry reuses it when the tool, model,
 calibration and frozen-base inputs match. Resolved resource defaults stay frozen
 when resuming an incomplete plan. Interrupted selection or correction also
-reuses successful compatibility probes. A failed or interrupted MEASURE restarts
-the entire affected phase: all measured outputs and telemetry are discarded and
-a new measurement identity is created. The selected plan and Ninja graph are
-retained. Missing or invalid telemetry also restarts the whole phase. Completed
-phases with intact outputs and telemetry are reused while the run is unfinished.
-Elapsed wall time and calibration observations belong to one successful attempt.
+reuses successful compatibility probes. Retry `--correct` after a failure or
+interruption. Within each frozen measurement phase, successful per-action
+records and outputs are checked against the command, plan and attempt before
+reuse. Missing or damaged measurements are rebuilt; Ninja schedules their
+dependents and unfinished work. Each retry gets its own invocation token.
+The calibration report counts reused/new observations. A resumed phase has
+no continuous sample wall time (`wall_seconds: null` in JSON); each attempt
+still has an elapsed time in the log.
 Source/tool changes that invalidate a frozen measurement require recomputation;
 resuming does not bypass input fingerprints.
 
@@ -209,12 +211,32 @@ interrupted cleanup without rebuilding or reinstalling anything. The baseline
 itself and the installed source-tree PCH groups remain. A later invocation with
 `--disk` starts a new run rather than recalling the previous one.
 
-Selection removes unused artifacts and prunes low-benefit leaf groups to fit
-the PCH disk budget before scoring the complete graph. Frozen bases survive
-correction, including when they lose all consumers. Artifact size is predicted
-from the header source bytes a PCH serializes (one prior, refitted from the
-first verification), not from parse time: a PCH stores declarations once,
-whatever the number of files parsing them.
+Selection compares grouping widths at the requested `--disk` budget using
+estimated artifact bytes. It can evict a delta to its base/NONE, or in `initial`
+drop an entire base and its remaining children to NONE. Each eviction competes
+on marginal work lost per freed byte; a shared base is charged only once.
+Only the winning width gets a probe reserve: the same selection is fitted to
+**2 × `--disk`** in estimated bytes before compatibility (fixed factor).
+`selection-widths.tsv` reports the widths at 1× and the separate winner's probe
+count and bytes at 2×. A compiler class has at most one
+safe stable base; without a base it cannot produce deltas. Each compiling target
+uses NONE, the base, or the base plus one child. Before scoring each width and
+before invoking Clang, reprice candidates on their **assigned GN targets**.
+A delta must save more weighted consumer work over the better of base/NONE
+than its own build costs. Otherwise its owners take that fallback. A family
+must then pay for its base and surviving children versus NONE. During correction
+the frozen base is mandatory even with no consumers; its cost cancels on both
+sides. Cycle-induced reassignments repeat the test. `selection-payback.tsv`
+records modeled parse savings, load, extra compiles, build and net seconds for
+both decisions (delta and family rows overlap; do not add them).
+After building and checking the
+winning candidates, preflight fits `--disk` using actual PCH file sizes. This
+measured pass can likewise evict entire initial families or individual children
+(accounting for saved build cost). On delta eviction each owner moves atomically to its cheaper compatible
+base or NONE. This is a greedy work estimate, not an optimum for build wall time.
+Corrected bases are frozen; if mandatory bases alone exceed the cap, planning
+fails. Temporary probe storage can exceed the final cap. Scheduling of the
+retained plan uses probe artifact bytes; `--apply` rechecks the MEASURE bytes.
 Absolute-path includes are not injected as PCH roots: directly including a
 sysroot header can lose Clang's system-header classification and break consumer
 compilation. Such headers remain eligible as transitive dependencies of roots
@@ -241,12 +263,14 @@ make a consumer ambiguous (for example `llvm::Module` in `Minidump.cpp`).
 group IDs refer to the candidate before unused groups are compacted.
 
 Successful probes and PCH artifacts are cached under
-`BASELINE/.pch_update/cache/compatibility-v1`; `--work-dir DIR` changes the cache
-location for all three planning commands. Entries are scoped to the validated
-analysis inputs, compiler, flags, include order, parent artifact and relevant
-environment. Depfile fingerprints additionally cover newly exposed headers.
-Any analysis-input change invalidates that analysis's probe keys; selector-only
-changes reuse unchanged probes. Missing artifacts and corrupt records are
+`BASELINE/.pch_update/cache/compatibility-v2`; `--work-dir DIR` changes the cache
+location for all three planning commands. Before preflight builds new PCHs it
+removes older-format compatibility directories under the cache lock, including
+the mixed `compatibility-v1` cache. Each entry is scoped to its compiler,
+flags, include order, working paths and relevant environment. Reuse validates
+the recorded depfile inputs and any explicitly consumed PCH artifact. A change
+to an unrelated translation unit does not invalidate these probes. Plan and
+baseline validation still cover the full analysis. Missing artifacts and corrupt records are
 recomputed. Results are written atomically after successful completion, so a
 later failure can be retried with `replan` into a new output directory. Failed
 and interrupted probes are not cached as successes.
@@ -265,7 +289,7 @@ moved into `.pch_update/` without rewriting their contents if their old paths
 are retained as symlink aliases. A migrated cache's `.path-alias` file records
 its old absolute path; the tool validates that it resolves to the same physical
 directory and preserves it in compiler commands/cache keys. Both the analysis
-cache and its `compatibility-v1/` subdirectory need this marker. Old paths then
+cache and its current versioned compatibility subdirectory need this marker. Old paths then
 contain only links, while all artifacts live in the baseline. Keep those aliases
 while the migrated entries are in use. Newly created caches need no aliases.
 
@@ -274,14 +298,24 @@ compiler commands and explicit per-action observations. Worker/pool limits are
 enforced by Ninja; the runner reserves predicted RAM and PCH I/O bandwidth
 across processes. `--disk` limits resident PCH artifacts, rather than total
 build-directory size. Memory reservations are estimates, not OS memory limits.
-Each measurement attempt has its own identity. A failed or interrupted run is
-repeated in full under a new identity; calibration is allowed only after every
+Each measurement attempt has its own identity. A retry validates earlier
+observations from the same frozen plan; calibration is allowed only after every
 required measurement has completed successfully and passed output validation.
 
-`--sample PERCENT` (10..100, default 100) makes verification build only a share
-of the targets. Selection is deterministic per plan and GN owner label, independent
-of target size: every PCH build plus **all C++ compilations** of a pseudo-random
-share of targets. Sampling changes prerequisites, not the selected compiler
+After `--predict`, run `pch_update --baseline B --correct --sample 20` to
+measure 20% of the modeled C++ objects (rounded up). The first correction
+freezes the percentage and the object panel; omit `--sample` on resume.
+Prediction does not emit the measurement graph. Give each compiling GN target
+one slot, including no-PCH controls. If not all fit, take targets in descending
+order of summed baseline compile seconds. Allocate extra slots by file count
+(largest `files / (slots + 1)` first, up to all files; ties by GN label).
+Within each target, sort objects by baseline compile seconds, split them into
+equal-count strata (within one object), and select one per stratum with
+probability proportional to its baseline compile seconds. The draw is keyed
+by the initial plan nonce and object output. Corrected measurement reads the
+exact panel back from the initial snapshot, regardless of PCH reassignment.
+`sampling.tsv` marks these compiles as `target-stratum`. Every PCH is built.
+Sampling changes prerequisites, not the selected compiler
 commands or PCH assignments. For sampled compilation, GN's target-wide order-only
 dependencies are replaced by generated inputs recorded in the frozen baseline's
 `.ninja_deps`, supplemented by inputs from successful compatibility probes with
@@ -292,13 +326,13 @@ Generators still compile and link their tools and libraries as needed; only
 unnecessary target-wide ordering is removed from compilation. Therefore 20%
 does not promise a fivefold speedup: all PCHs and their required tools still
 have to be built. `sampling.tsv` and the `measurement sample` log line report
-selected targets, their compilations and the actual prerequisite closure, including links.
+selected objects, their targets and the actual prerequisite closure, including links.
 At 100%, the full GN ordering is preserved.
 
 Calibration uses the selected observations, keeping mandatory extra tool builds
-out of the random sample. Calibration sums features and timings per complete
-target; partially observed targets contribute neither controls nor training or
-holdout rows. Unmeasured actions keep the model estimate; `correct` reports
+out of the sample. Calibration aggregates features and timings over the same
+observed objects in each target. Whole-target errors and holdout target MAE
+require complete targets. Unmeasured actions keep the model estimate; `correct` reports
 coverage in `calibration.tsv` (`# measured_actions`, `# measured_targets`).
 With a sampled run `cold_seconds` is a prediction rather than a measured full
 build; `summary.tsv` says so.
@@ -339,15 +373,11 @@ separate input and is not modified by the tool build.
 - `selection.bin`: completed layout keyed by selector inputs, reusable even
   when compatibility checking or build emission has not finished yet; also
   retains disk-budget diagnostics so a retry can restore a missing report.
-- `disk-budget.tsv`: predicted restoration of evicted PCHs up to **2x** the
-  configured disk budget. Each grouping width has its own cumulative sequence;
-  missing parents are included once and oversized packages are skipped.
-  Columns show added MB, total occupied MB, the required budget increase,
-  restored targets and the estimated step/cumulative work savings. MB means
-  1,000,000 bytes. Estimates reuse `FitDisk` scores: they are neither measured
-  CPU seconds nor predicted build wall time, and precede compatibility checks.
-  `selected_at_original_budget` identifies the width chosen at the original
-  budget. Sequences of different widths must not be added together.
+- `disk-budget.tsv`: pending until preflight, then the measured candidate,
+  base, budget and retained bytes and the actual eviction order. Each
+  row reports the eviction kind (`delta` or `family`), pre-compaction group ID,
+  freed bytes, estimated marginal work loss,
+  and counts of targets reassigned to its parent or NONE.
 - `BASELINE/pch-disk-budget.tsv`: latest completed prediction phase's copy of
   the report above; survives successful cleanup of `.pch_update/`. A corrected
   prediction replaces the initial report. No extra compilations are performed

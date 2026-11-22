@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <map>
 #include <string>
 #include <utility>
@@ -120,27 +121,21 @@ namespace NPchUpdate::NTwoStep {
 
     struct TCalibration {
         std::vector<TCoefficients> Classes;
+        // Initial base IDs survive correction. Also check their identity before
+        // using the observation: an unrelated layout can reuse the same ID.
+        std::vector<std::pair<TPch, double>> MeasuredBases;
         // Non-PCH actions measured in S0, reusable when scoring S1.
         std::vector<double> ActionTime;
         std::vector<double> ActionMemory;
         std::string Report;
     };
 
-    // One cumulative restoration step for a particular pre-compatibility
-    // grouping width. These are FitDisk work estimates, not CPU or wall time.
-    struct TDiskAlternative {
-        int Width = 0;
-        int Step = 0;
-        bool Selected = false; // this width won at the original budget
-        std::vector<int> Pchs; // IDs before budget pruning, parents first
-        std::vector<std::string> Targets;
-        double BaseBytes = 0;
-        double AddedBytes = 0;
-        double TotalBytes = 0;
-        double RequiredBudget = 0;
-        double SavedWork = 0;
-        double TotalSavedWork = 0;
-    };
+    // Use verified artifact sizes. Keep original IDs until the caller remaps
+    // both the layout and the generated prerequisites of each surviving action.
+    std::string FitMeasuredDisk(const TData& data, TLayout& layout, const TCalibration& calibration,
+                                const std::vector<uint64_t>& bytes, bool frozen,
+                                const std::function<bool(int target, int parent)>& compatible);
+    std::vector<int> CompactLayout(TLayout& layout, bool keepBases);
 
     // Returns infinity on resource infeasibility; malformed graphs are errors.
     // Optional observer: no model/checkpoint fields and no additional scoring.
@@ -148,6 +143,7 @@ namespace NPchUpdate::NTwoStep {
         std::string Targets; // winning width, one decision per owner
         std::string Choices; // shortlist costs, IDs local to each width before pruning
         std::string Candidates; // roots/parents for those local IDs
+        std::string Payback; // marginal delta and whole-family work on assigned targets
         std::string Widths;
     };
 
@@ -159,9 +155,12 @@ namespace NPchUpdate::NTwoStep {
     // Analysis concurrency is execution-only: it does not change modeled build
     // resources, snapshot identity or deterministic reduction order.
     TPrediction Predict(const TData& data, const TLayout& layout, const TCalibration& calibration,
-                        size_t analysisJobs = 1);
+                        size_t analysisJobs = 1, const std::vector<uint64_t>& measuredBytes = {});
+    // Score a fixed set of PCHs, repairing cyclic GN target assignments in place.
+    TPrediction ScoreCandidate(const TData& data, TLayout& layout, const TCalibration& calibration,
+                               size_t analysisJobs, int width);
     TLayout Select(const TData& data, const TCalibration& calibration, const TLayout* frozen = nullptr,
-                   std::vector<TDiskAlternative>* diskAlternatives = nullptr, size_t analysisJobs = 1,
+                   size_t analysisJobs = 1,
                    TSelectionDiagnostics* diagnostics = nullptr);
     TCalibration Calibrate(const TData& data, const TLayout& layout, const TPrediction& prediction,
                            const std::vector<TObservation>& observations);

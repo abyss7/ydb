@@ -68,7 +68,8 @@ def main():
     proxy.write_text("#!" + sys.executable + "\n" +
         "import json, os, pathlib, subprocess, sys\n"
         "args = sys.argv[1:]\n"
-        "subprocess.run([" + repr(ninja) + "] + args, check=True)\n"
+        "lock = os.environ.get('PCH_UPDATE_VERIFY_LOCK_FD')\n"
+        "subprocess.run([" + repr(ninja) + "] + args, check=True, pass_fds=(int(lock),) if lock else ())\n"
         "if '-C' in args and '-t' not in args and '-n' not in args:\n"
         "    build = pathlib.Path(args[args.index('-C') + 1])\n"
         "    if build.name == 'global':\n"
@@ -96,6 +97,7 @@ foreach(kind, [ "source_set", "shared_library", "executable" ]) {
     production = (source / "build/gn/toolchain/linux/BUILD.gn").read_text()
     solink = production.split('    tool("solink") {', 1)[1].split('\n    tool("link") {', 1)[0]
     write("toolchain/BUILD.gn", '''pool("compile_pool") { depth = 2 }
+pool("link_pool") { depth = 2 }
 toolchain("clang") {
   ld = "%s -fuse-ld=lld"
   sysroot = ""
@@ -124,6 +126,7 @@ toolchain("clang") {
     write("build/gn/scripts/pch_check.py", (source / "build/gn/scripts/pch_check.py").read_text())
     write("contrib/libs/cxxsupp/libcxx/BUILD.gn", 'group("libcxx") {}\n')
     write("provider.cpp", 'extern "C" int Provided() { return 7; }\n')
+    write("base.h", "#pragma once\nstruct Common {};\n")
     write("header.h", '''#pragma once
 #ifndef SKIP_REGISTRATION
 extern "C" int Provided();
@@ -146,7 +149,7 @@ shared_library("provider") { sources = [ "provider.cpp" ] }
         consumers.update(files)
         for i, path in enumerate(files):
             write(path, ("#define SKIP_REGISTRATION\n" if name == "denied" else "") +
-                  '#include "header.h"\n' +
+                  '#include "base.h"\n#include "header.h"\n' +
                   ("int main() { return 0; }\n" if i == 0 else "int Size() { return sizeof(Value); }\n"))
         build += '''executable("%s") {
   sources = %s
@@ -167,7 +170,9 @@ shared_library("provider") { sources = [ "provider.cpp" ] }
     # User-authorized fixture-only commit; no references to the working repo's
     # index/history, no global configuration, no hooks or signing.
     run(["git", "init", "--quiet"])
-    run(["git", "add", "."])
+    # Keep the generated fixture base outside the one simulated history event;
+    # a header changed in that event is deliberately ineligible as a stable base.
+    run(["git", "add", ".", ":!base.h"])
     run(["git", "-c", "user.name=PCH fixture", "-c", "user.email=pch-fixture@invalid",
          "-c", "core.hooksPath=/dev/null", "-c", "commit.gpgsign=false", "commit", "--quiet", "-m", "Fixture"])
     run([gn, "gen", baseline, "--root=" + str(root), "--script-executable=" + sys.executable,
@@ -181,7 +186,8 @@ shared_library("provider") { sources = [ "provider.cpp" ] }
         run([baseline / name], cwd=baseline)
 
     # Deterministic model INPUTS, not measured performance: each of six source
-    # files spends 10s in header.h out of 12s total. No expensive C++ needed.
+    # files spends 6s in base.h and 10s in header.h (both exceed the aggregate
+    # 30s header-probe threshold). No expensive C++ needed.
     objects = set()
     for row in json.loads((baseline / "compile_commands.json").read_text()):
         name = Path(row["file"]).name
@@ -192,10 +198,12 @@ shared_library("provider") { sources = [ "provider.cpp" ] }
         objects.add(obj)
         trace = baseline / (obj[:-2] + ".json")
         trace.write_text(json.dumps({"traceEvents": [
-            {"pid": 1, "tid": 1, "ph": "X", "name": "Source", "ts": 1000, "dur": 10000000,
+            {"pid": 1, "tid": 1, "ph": "X", "name": "Source", "ts": 0, "dur": 6000000,
+             "args": {"detail": "../source/base.h"}},
+            {"pid": 1, "tid": 1, "ph": "X", "name": "Source", "ts": 6000000, "dur": 10000000,
              "args": {"detail": "../source/header.h"}},
-            {"pid": 1, "tid": 1, "ph": "X", "name": "ExecuteCompiler", "ts": 0, "dur": 12000000},
-            {"pid": 1, "tid": 1, "ph": "X", "name": "Total Frontend", "ts": 0, "dur": 11000000},
+            {"pid": 1, "tid": 1, "ph": "X", "name": "ExecuteCompiler", "ts": 0, "dur": 18000000},
+            {"pid": 1, "tid": 1, "ph": "X", "name": "Total Frontend", "ts": 0, "dur": 17000000},
         ]}))
     assert len(objects) == 6, objects
     ninja_log = baseline / ".ninja_log"
@@ -203,13 +211,13 @@ shared_library("provider") { sources = [ "provider.cpp" ] }
     for line in ninja_log.read_text().splitlines():
         fields = line.split("\t")
         if len(fields) == 5 and fields[3] in objects:
-            fields[1] = str(int(fields[0]) + 12000)
+            fields[1] = str(int(fields[0]) + 18000)
         rows.append("\t".join(fields))
     ninja_log.write_text("\n".join(rows) + "\n")
-    print("fixture costs: six TUs, 10s header/12s compile (synthetic model input)", flush=True)
+    print("fixture costs: six TUs, 6s base + 10s leaf / 18s compile (synthetic model input)", flush=True)
 
     common = [binary, "--baseline", baseline, "--gn", gn, "--ninja", proxy]
-    run(common + ["--predict", "--disk", "1G", "--q", "1", "--sample", "100", "--main-ref", "HEAD",
+    run(common + ["--predict", "--disk", "1G", "--q", "1", "--main-ref", "HEAD",
                   "--workers", "2", "--analysis-jobs", "2", "--ram-gb", "2", "--action-memory-gb", "0.5"])
     cycle = baseline / ".pch_update/current"
 
@@ -218,14 +226,15 @@ shared_library("provider") { sources = [ "provider.cpp" ] }
         with (plan / "assignments.tsv").open() as rows:
             assignments = {row["target"]: row for row in csv.DictReader(rows, delimiter="\t")}
         assert int(assignments["//:allowed"]["leaf"]) >= 0, assignments
-        assert int(assignments["//:denied"]["leaf"]) == -1, assignments
+        assert 0 <= int(assignments["//:denied"]["leaf"]) < int(assignments["//:allowed"]["leaf"]), assignments
         with (plan / "compatibility.tsv").open() as rows:
             checks = list(csv.DictReader(rows, delimiter="\t"))
         denied = next(row for row in checks if row["kind"] == "target" and row["target_or_group"] == "//:denied")
-        assert int(denied["old_leaf"]) >= 0 and int(denied["new_leaf_before_compaction"]) == -1, denied
+        assert int(denied["old_leaf"]) > int(denied["new_leaf_before_compaction"]) >= 0, denied
         assert "no known provider" in denied["diagnostics"] and "denied" in denied["diagnostics"], denied
         assert any(row["kind"] == "pch-link" and int(row["new_leaf_before_compaction"]) >= 0 for row in checks), checks
-        assert any("header.h" in p.read_text() for p in (plan / "build/pch").glob("*.h")), "selected PCH lost its tested header"
+        if phase == "corrected":
+            assert any("header.h" in p.read_text() for p in (plan / "build/pch").glob("*.h")), "selected PCH lost its tested header"
         print("PASS:", phase, "retains allowed PCH and rejects denied at final link", flush=True)
 
     check_plan("initial")
@@ -236,34 +245,43 @@ shared_library("provider") { sources = [ "provider.cpp" ] }
     assert (cycle / "initial/snapshot.bin").read_bytes() == initial_snapshot
     assert (cycle / "initial/selection.bin").read_bytes() == initial_selection
     assert Path((baseline / "pch-report/latest.txt").read_text().strip()) == report
-    run(common + ["--correct"])
+    assert not (cycle / "initial/build/measured.ninja").exists()
+    run(common + ["--correct", "--sample", "20"])
     check_plan("corrected")
     run(common + ["--apply"])
     commands = json.loads(applied.read_text())
     allowed = [row for row in commands if Path(row["file"]).name.startswith("allowed")]
     denied = [row for row in commands if Path(row["file"]).name.startswith("denied")]
     assert len(allowed) == 2 and all("-include-pch" in row["command"] for row in allowed), allowed
-    assert len(denied) == 2 and all("-include-pch" not in row["command"] for row in denied), denied
+    assert len(denied) == 2 and all("-include-pch" in row["command"] for row in denied), denied
     assert not (baseline / ".pch_update").exists(), "successful workflow left disposable state"
     assert report.is_dir(), "successful cleanup removed the persistent report"
     final = json.loads((report / "final-result.json").read_text())
     assert final["status"] == "applied-and-built" and final["measured_pch_bytes"] > 0, final
     assert final["measured_speedup"] is None and not final["tests_executed"], final
+    panels = []
     for phase in ("initial", "corrected"):
         saved = report / phase
         prediction = json.loads((saved / "summary.json").read_text())
         measured = json.loads((saved / "measurement.json").read_text())
         assert prediction["kind"] == "prediction" and prediction["measured_speedup"] is None
+        assert prediction["sample_percent"] == measured["sample_percent"] == 20
+        with (saved / "sampling.tsv").open() as rows:
+            sample = list(csv.DictReader((line for line in rows if not line.startswith("#")), delimiter="\t"))
+        panel = {row["output"] for row in sample if row["kind"] == "compile" and row["role"] == "sample"}
+        assert panel and panel == {row["output"] for row in sample if row["sample_reason"] == "target-stratum"}, sample
+        panels.append(panel)
         assert measured["kind"] == "validated-sample" and measured["actions"] > 0
         assert measured["wall_seconds"] > 0 and measured["pch_bytes"] > 0
         with (saved / "assignments.tsv").open() as rows:
             assignments = {row["target"]: row for row in csv.DictReader(rows, delimiter="\t")}
-        assert assignments["//:denied"]["compatibility"] == "compatibility-rejected", assignments
+        assert assignments["//:denied"]["compatibility"] == "compatibility-fallback", assignments
         assert assignments["//:allowed"]["selection_reason"] in ("selected", "retained-initial-plan"), assignments
         for name in ("selection-targets.tsv", "selection-choices.tsv", "selection-widths.tsv", "selection-candidates.tsv", "compatibility-targets.tsv",
                      "target-errors.tsv", "action-errors.tsv", "sampling.tsv", "disk-budget.tsv"):
             assert (saved / name).is_file(), (phase, name)
         assert "header.h" in (saved / "selection-candidates.tsv").read_text()
+    assert panels[0] == panels[1], panels
     assert (report / "corrected/calibration.tsv").is_file()
     assert (report / "corrected/calibration-parameters.tsv").is_file()
     assert (report / "corrected/assignment-changes.tsv").is_file()

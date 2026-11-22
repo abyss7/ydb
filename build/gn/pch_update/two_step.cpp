@@ -13,6 +13,12 @@ namespace NPchUpdate::NTwoStep {
     namespace {
         constexpr double INF = std::numeric_limits<double>::infinity();
 
+        struct TDependencyCycle : TError {
+            TDependencyCycle(const std::string& message, std::vector<int> nodes)
+                : TError(message), Nodes(std::move(nodes)) {}
+            std::vector<int> Nodes; // closed path, in dependency order
+        };
+
         template <class T>
         void Unique(std::vector<T>& v) {
             std::sort(v.begin(), v.end());
@@ -48,7 +54,23 @@ namespace NPchUpdate::NTwoStep {
                 }
             }
             if (order.size() != actions.size()) {
-                Fail("scheduler: dependency cycle (possibly a PCH depending on its consumer)");
+                // Every unresolved action still depends on an unresolved action.
+                // Follow those edges, then discard the prefix leading into the cycle.
+                int node = int(std::find_if(count.begin(), count.end(), [](int n) { return n > 0; }) - count.begin());
+                std::vector<int> path, position(actions.size(), -1);
+                while (position[node] < 0) {
+                    position[node] = int(path.size());
+                    path.push_back(node);
+                    const auto& deps = actions[node].Dependencies;
+                    node = *std::find_if(deps.begin(), deps.end(), [&](int dep) { return count[dep] > 0; });
+                }
+                std::ostringstream message;
+                message << "scheduler: dependency cycle (each action depends on the next):";
+                path.push_back(node);
+                for (size_t i = position[node]; i < path.size(); ++i) {
+                    message << "\n  [" << path[i] << "] " << actions[path[i]].Output;
+                }
+                throw TDependencyCycle(message.str(), {path.begin() + position[node], path.end()});
             }
             return order;
         }
@@ -101,6 +123,19 @@ namespace NPchUpdate::NTwoStep {
 
         TCoefficients Coeff(const TCalibration& c, int cls) {
             return size_t(cls) < c.Classes.size() ? c.Classes[cls] : TCoefficients();
+        }
+
+        double ArtifactBytes(const TData& d, const TLayout& layout, size_t g, const TCalibration& calibration) {
+            const auto& p = layout.Pchs[g];
+            if (int(g) < layout.Bases && p.Parent < 0 && g < calibration.MeasuredBases.size()) {
+                const auto& [base, bytes] = calibration.MeasuredBases[g];
+                if (bytes > 0 && base.Class == p.Class && base.Representative == p.Representative &&
+                    base.Roots == p.Roots && base.Units == p.Units) {
+                    return bytes;
+                }
+            }
+            const double parent = p.Parent < 0 ? 0 : Volume(d, layout.Pchs[p.Parent].Units);
+            return std::max(1.0, (Volume(d, p.Units) - parent) * Coeff(calibration, p.Class).Size);
         }
 
         double Consumer(const TAction& a, double saved, double load, const TCoefficients& c) {
@@ -213,117 +248,144 @@ namespace NPchUpdate::NTwoStep {
             return p;
         }
 
-        // Admit useful subtrees instead of rejecting the entire shortlist when
-        // the aggregate artifacts exceed the disk budget. Prune leaves first;
-        // a parent becomes removable only after its last child is removed.
-        void FitDisk(const TData& d, TLayout& layout, const TCalibration& calibration, bool frozen,
-                     int width, std::vector<TDiskAlternative>* alternatives) {
-            const int count = int(layout.Pchs.size());
-            std::vector<double> bytes(count), work(count), gain(count);
-            std::vector<std::set<int>> changes(count);
-            std::vector<int> children(count), consumers(count);
-            std::vector<char> keep(count, true);
-            std::vector<int> removed;
-            double disk = 0;
-            for (int g = 0; g < count; ++g) {
-                const auto& p = layout.Pchs[g];
-                auto c = Coeff(calibration, p.Class);
-                work[g] = Parse(d, p.Units);
-                double parent = p.Parent < 0 ? 0 : work[p.Parent];
-                double parentBytes = p.Parent < 0 ? 0 : Volume(d, layout.Pchs[p.Parent].Units);
-                if (p.Parent >= 0) { ++children[p.Parent]; }
-                bytes[g] = std::max(1.0, (Volume(d, p.Units) - parentBytes) * c.Size);
-                disk += bytes[g];
-                for (int u : p.Units) {
-                    changes[g].insert(d.Units[u].Changes.begin(), d.Units[u].Changes.end());
-                }
-                double frequency = d.Q + (1 - d.Q) * double(changes[g].size()) / std::max(1, d.Scenarios);
-                gain[g] = -frequency * ((work[g] - parent) * (p.Parent < 0 ? c.BaseBuild : c.DeltaBuild) + parent * 0.02);
+        // Shared by selection and disk eviction. Costs are expected action-work
+        // seconds: every consumer, PCH load and extra invalidation is included.
+        struct TConsumerBalance {
+            double ParseSaved = 0, Load = 0, ExtraCompiles = 0;
+            double Net() const { return ParseSaved - Load - ExtraCompiles; }
+            void Add(const TConsumerBalance& other, double sign = 1) {
+                ParseSaved += sign * other.ParseSaved;
+                Load += sign * other.Load;
+                ExtraCompiles += sign * other.ExtraCompiles;
             }
-            for (size_t f = 0; f < d.Files.size(); ++f) {
-                int g = layout.Assignment[d.Files[f].Target];
-                if (g < 0) { continue; }
-                ++consumers[g];
-                const auto& a = d.Actions[d.Files[f].Action];
-                auto c = Coeff(calibration, d.Files[f].Class);
-                double frequency = d.Q + (1 - d.Q) * double(a.Changes.size()) / std::max(1, d.Scenarios);
-                double extra = 0;
-                for (int k : changes[g]) {
-                    extra += !std::binary_search(a.Changes.begin(), a.Changes.end(), k);
-                }
-                double withPch = Consumer(a, Saved(d.Files[f], layout.Pchs[g].Units), work[g], c);
-                gain[g] += Consumer(a, 0, 0, c) * frequency - withPch *
-                    (frequency + (1 - d.Q) * extra / std::max(1, d.Scenarios));
-            }
-            using TEntry = std::pair<double, int>;
-            std::priority_queue<TEntry, std::vector<TEntry>, std::greater<TEntry>> leaves;
-            auto enqueue = [&](int g) {
-                if (!children[g] && !(frozen && g < layout.Bases)) {
-                    leaves.emplace(consumers[g] ? gain[g] / bytes[g] : -INF, g);
-                }
-            };
-            for (int g = 0; g < count; ++g) { enqueue(g); }
-            while (!leaves.empty()) {
-                int g = leaves.top().second;
-                leaves.pop();
-                if (consumers[g] && disk <= d.Resources.Disk) { break; }
-                keep[g] = false;
-                if (alternatives) { removed.push_back(g); }
-                disk -= bytes[g];
-                int parent = layout.Pchs[g].Parent;
-                if (parent >= 0 && !--children[parent]) { enqueue(parent); }
-            }
-            if (alternatives) {
-                // Replay removals backwards without changing the selected plan.
-                // A useful group brings all missing ancestors with it. Skip a
-                // package that would exceed 2x rather than proposing a partial
-                // chain or charging a shared parent again in a later step.
-                auto restored = keep;
-                double expandedDisk = disk, savedWork = 0;
-                int step = 0;
-                std::vector<std::vector<int>> targets(count);
-                for (size_t t = 0; t < layout.Assignment.size(); ++t) {
-                    int g = layout.Assignment[t];
-                    if (g >= 0) { targets[g].push_back(int(t)); }
-                }
-                for (auto it = removed.rbegin(); it != removed.rend(); ++it) {
-                    int g = *it;
-                    if (restored[g] || !consumers[g]) { continue; }
-                    TDiskAlternative option;
-                    option.Width = width;
-                    option.BaseBytes = disk;
-                    for (int h = g; h >= 0 && !restored[h]; h = layout.Pchs[h].Parent) {
-                        option.Pchs.push_back(h);
-                        option.AddedBytes += bytes[h];
-                        option.SavedWork += gain[h];
-                        for (int t : targets[h]) { option.Targets.push_back(d.Targets[t].Label); }
+        };
+
+        struct TWorkCosts {
+            const TData& D;
+            const TLayout& L;
+            const TCalibration& C;
+            std::map<int, std::pair<double, std::set<int>>> Features;
+
+            const auto& Feature(int g) {
+                auto [it, inserted] = Features.try_emplace(g);
+                if (inserted && g >= 0) {
+                    it->second.first = Parse(D, L.Pchs[g].Units);
+                    for (int u : L.Pchs[g].Units) {
+                        it->second.second.insert(D.Units[u].Changes.begin(), D.Units[u].Changes.end());
                     }
-                    option.TotalBytes = expandedDisk + option.AddedBytes;
-                    option.RequiredBudget = std::max(d.Resources.Disk, option.TotalBytes);
-                    if (option.RequiredBudget > 2 * d.Resources.Disk) { continue; }
-                    std::reverse(option.Pchs.begin(), option.Pchs.end());
-                    for (int h : option.Pchs) { restored[h] = true; }
-                    expandedDisk = option.TotalBytes;
-                    savedWork += option.SavedWork;
-                    option.TotalSavedWork = savedWork;
-                    option.Step = ++step;
-                    alternatives->push_back(std::move(option));
+                }
+                return it->second;
+            }
+            double Target(int t, int g, TConsumerBalance* balance = nullptr) {
+                const auto& [load, changes] = Feature(g);
+                const auto c = Coeff(C, D.Targets[t].Class);
+                const double increment = (1 - D.Q) / std::max(1, D.Scenarios);
+                double total = 0;
+                for (int f : D.Targets[t].Files) {
+                    const auto& file = D.Files[f];
+                    const auto& a = D.Actions[file.Action];
+                    const double baselineFrequency = D.Q + increment * a.Changes.size();
+                    double frequency = baselineFrequency;
+                    for (int k : changes) {
+                        if (!std::binary_search(a.Changes.begin(), a.Changes.end(), k)) { frequency += increment; }
+                    }
+                    double saved = g < 0 ? 0 : Saved(file, L.Pchs[g].Units);
+                    double withLoad = Consumer(a, saved, load, c);
+                    total += frequency * withLoad;
+                    if (balance) {
+                        // Apply the same calibrated floor/slowdown rules as the selector.
+                        double withoutLoad = Consumer(a, saved, 0, c);
+                        balance->ParseSaved += baselineFrequency * (Consumer(a, 0, 0, c) - withoutLoad);
+                        balance->Load += baselineFrequency * (withLoad - withoutLoad);
+                        balance->ExtraCompiles += (frequency - baselineFrequency) * withLoad;
+                    }
+                }
+                return total;
+            }
+            double Build(int g) {
+                const auto& [work, changes] = Feature(g);
+                const int parentId = L.Pchs[g].Parent;
+                const double parent = Feature(parentId).first;
+                const auto c = Coeff(C, L.Pchs[g].Class);
+                return (D.Q + (1 - D.Q) * changes.size() / std::max(1, D.Scenarios)) *
+                    std::max(.001, (work - parent) * (parentId < 0 ? c.BaseBuild : c.DeltaBuild) + parent * .02);
+            }
+        };
+
+        // Price a delta against each assigned owner's better fallback. Only
+        // surviving children contribute to the subsequent family-vs-NONE test.
+        void CheckPayback(const TData& d, TLayout& l, const TCalibration& c, bool frozen,
+                          int width, int pass, const std::vector<int>& ids,
+                          std::vector<std::string>* reasons, std::ostream* report) {
+            TWorkCosts costs{d, l, c, {}};
+            struct TGroup {
+                std::vector<int> Owners;
+                TConsumerBalance Relative, VsNone, Fallback;
+                double ChildBuild = 0;
+            };
+            std::vector<TGroup> groups(l.Pchs.size());
+            std::vector<int> fallback(d.Targets.size(), -1);
+            for (size_t t = 0; t < l.Assignment.size(); ++t) {
+                int g = l.Assignment[t];
+                if (g < 0) { continue; }
+                auto& group = groups[g];
+                group.Owners.push_back(t);
+                TConsumerBalance benefit, base;
+                costs.Target(t, g, &benefit);
+                group.VsNone.Add(benefit);
+                int parent = l.Pchs[g].Parent;
+                if (parent >= 0) {
+                    costs.Target(t, parent, &base);
+                    if (base.Net() > 0) {
+                        fallback[t] = parent;
+                        group.Fallback.Add(base);
+                    }
                 }
             }
-            std::vector<int> remap(count, -1);
-            std::vector<TPch> kept;
-            int bases = 0;
-            for (int g = 0; g < count; ++g) {
-                if (!keep[g]) { continue; }
-                remap[g] = int(kept.size());
-                auto p = std::move(layout.Pchs[g]);
-                if (p.Parent >= 0) { p.Parent = remap[p.Parent]; }
-                kept.push_back(std::move(p));
-                bases += g < layout.Bases;
+            auto admit = [&](int g, const TConsumerBalance& benefit, double build, double mandatory) {
+                double net = benefit.Net() - (build - mandatory);
+                if (report) {
+                    *report << width << '\t' << pass << '\t' << (g < l.Bases ? "family" : "delta") << '\t'
+                            << ids[g] << '\t' << groups[g].Owners.size() << '\t' << benefit.ParseSaved << '\t'
+                            << benefit.Load << '\t' << benefit.ExtraCompiles << '\t' << build << '\t' << mandatory
+                            << '\t' << net << '\t' << (net > 0 ? "keep" : "drop-assignments") << '\n';
+                }
+                return net > 0;
+            };
+            auto assign = [&](int t, int g, const char* reason) {
+                l.Assignment[t] = g;
+                if (reasons) { reasons->at(t) = reason; }
+            };
+            for (int g = l.Bases; g < int(groups.size()); ++g) {
+                auto& child = groups[g];
+                if (child.Owners.empty()) { continue; }
+                int parent = l.Pchs[g].Parent;
+                auto& family = groups.at(parent);
+                auto marginal = child.VsNone;
+                marginal.Add(child.Fallback, -1);
+                const double build = costs.Build(g);
+                if (admit(g, marginal, build, 0)) {
+                    family.ChildBuild += build;
+                    family.VsNone.Add(child.VsNone);
+                    family.Owners.insert(family.Owners.end(), child.Owners.begin(), child.Owners.end());
+                } else {
+                    family.VsNone.Add(child.Fallback);
+                    for (int t : child.Owners) {
+                        assign(t, fallback[t], fallback[t] < 0 ? "delta-payback-none" : "delta-payback-parent");
+                        if (fallback[t] >= 0) { family.Owners.push_back(t); }
+                    }
+                }
             }
-            for (int& g : layout.Assignment) { if (g >= 0) { g = remap[g]; } }
-            layout.Pchs = std::move(kept);
-            layout.Bases = bases;
+            for (int g = 0; g < l.Bases; ++g) {
+                auto& family = groups[g];
+                if (family.Owners.empty() && !frozen) { continue; }
+                double base = costs.Build(g);
+                // Frozen bases are built even under NONE. Report their cost
+                // but charge only avoidable builds for the admission decision.
+                if (!admit(g, family.VsNone, base + family.ChildBuild, frozen ? base : 0)) {
+                    for (int t : family.Owners) { assign(t, -1, "family-no-payback"); }
+                }
+            }
         }
 
         double Ratio(const std::vector<double>& values, double fallback = 1) {
@@ -569,8 +631,159 @@ namespace NPchUpdate::NTwoStep {
         }
     }
 
-    TPrediction Predict(const TData& d, const TLayout& l, const TCalibration& calibration, size_t analysisJobs) {
+    std::vector<int> CompactLayout(TLayout& layout, bool frozen) {
+        std::vector<char> keep(layout.Pchs.size());
+        if (frozen) { std::fill(keep.begin(), keep.begin() + layout.Bases, true); }
+        for (int g : layout.Assignment) {
+            for (; g >= 0 && !keep[g]; g = layout.Pchs[g].Parent) { keep[g] = true; }
+        }
+        std::vector<int> remap(keep.size(), -1);
+        std::vector<TPch> pchs;
+        int bases = 0;
+        for (size_t g = 0; g < keep.size(); ++g) {
+            if (!keep[g]) { continue; }
+            auto pch = std::move(layout.Pchs[g]);
+            remap[g] = int(pchs.size());
+            if (pch.Parent >= 0) { pch.Parent = remap[pch.Parent]; }
+            pchs.push_back(std::move(pch));
+            bases += int(g) < layout.Bases;
+        }
+        for (int& g : layout.Assignment) { if (g >= 0) { g = remap[g]; } }
+        layout.Pchs = std::move(pchs);
+        layout.Bases = bases;
+        return remap;
+    }
+
+    namespace {
+    constexpr unsigned ProbeBudgetFactor = 2;
+
+    // Same eviction path at the forecast and measured boundaries. A family
+    // competes at its total marginal loss/bytes, including its base just once.
+    void FitDisk(const TData& d, TLayout& l, const TCalibration& c,
+                 const std::vector<uint64_t>& bytes, double budget, bool frozen,
+                 const std::function<bool(int, int)>& compatible, std::ostream* report) {
+        if (bytes.size() != l.Pchs.size()) { Fail("missing PCH artifact sizes"); }
+        std::vector<std::vector<int>> owners(bytes.size());
+        std::vector<std::vector<int>> children(l.Bases);
+        std::vector<char> used(bytes.size());
+        if (frozen) { std::fill_n(used.begin(), l.Bases, true); }
+        for (size_t t = 0; t < l.Assignment.size(); ++t) {
+            int g = l.Assignment[t];
+            if (g < 0) { continue; }
+            owners.at(g).push_back(t);
+            used[g] = true;
+            if (g >= l.Bases) { used.at(l.Pchs[g].Parent) = true; }
+        }
+        uint64_t total = 0, bases = 0;
+        for (size_t g = 0; g < bytes.size(); ++g) {
+            if (!used[g]) { continue; }
+            if (!bytes[g]) { Fail("no size for retained PCH " + std::to_string(g)); }
+            total += bytes[g];
+            if (int(g) < l.Bases) { bases += bytes[g]; }
+            else { children.at(l.Pchs[g].Parent).push_back(int(g)); }
+        }
+        if (frozen && bases > budget) {
+            Fail(Format("frozen bases alone require %.0f bytes; disk budget %.0f bytes", double(bases), budget));
+        }
+        if (report) {
+            *report << "# measured preflight PCH bytes; IDs before compaction; weighted action seconds, not wall time\n"
+                    << "# candidate_bytes=" << total << " base_bytes=" << bases << " budget_bytes=" << uint64_t(budget)
+                    << "\nkind\tgroup\tbytes\tloss_work_seconds\tto_parent\tto_none\n";
+        }
+        TWorkCosts costs{d, l, c, {}};
+        std::vector<int> fallback(l.Assignment.size(), -1);
+        std::vector<double> fallbackGain(l.Assignment.size()), loss(bytes.size());
+        std::vector<uint64_t> freed = bytes;
+        std::vector<char> verified(bytes.size(), !compatible);
+        using TEntry = std::pair<double, int>;
+        std::set<TEntry> order;
+        auto entry = [&](int g) -> TEntry { return {loss[g] / freed[g], g}; };
+        for (int g = 0; g < int(bytes.size()); ++g) {
+            if (!used[g]) { continue; }
+            const int parent = l.Pchs[g].Parent;
+            double vsNone = -costs.Build(g), vsParent = vsNone;
+            for (int t : owners[g]) {
+                double none = costs.Target(t, -1), current = costs.Target(t, g);
+                vsNone += none - current;
+                if (parent >= 0) {
+                    fallbackGain[t] = std::max(0., none - costs.Target(t, parent));
+                    if (fallbackGain[t] > 0) { fallback[t] = parent; }
+                    vsParent += none - current - fallbackGain[t];
+                }
+            }
+            if (parent < 0) { loss[g] = vsNone; }
+            else {
+                loss[g] = vsParent;
+                loss[parent] += vsNone;
+                freed[parent] += bytes[g];
+            }
+        }
+        for (int g = 0; g < int(bytes.size()); ++g) {
+            if (used[g] && (!frozen || g >= l.Bases)) { order.insert(entry(g)); }
+        }
+        while (!order.empty()) {
+            auto [value, g] = *order.begin();
+            if (total <= budget && value > 0) { break; }
+            order.erase(order.begin());
+            const int parent = l.Pchs[g].Parent;
+            if (parent >= 0 && !verified[g]) {
+                // A failed probe only increases the leaf eviction loss. Its
+                // family's alternative is NONE and is independent of this probe.
+                verified[g] = true;
+                for (int t : owners[g]) {
+                    if (fallback[t] >= 0 && !compatible(t, parent)) {
+                        fallback[t] = -1;
+                        loss[g] += fallbackGain[t];
+                    }
+                }
+                order.insert(entry(g));
+                continue;
+            }
+            int parentCount = 0;
+            size_t noneCount = 0;
+            if (parent < 0) {
+                auto drop = [&](int h) {
+                    for (int t : owners[h]) { l.Assignment[t] = -1; ++noneCount; }
+                    used[h] = false;
+                };
+                for (int h : children[g]) {
+                    if (used[h]) { order.erase(entry(h)); drop(h); }
+                }
+                drop(g);
+            } else {
+                if (!frozen) { order.erase(entry(parent)); }
+                for (int t : owners[g]) {
+                    l.Assignment[t] = fallback[t];
+                    if (fallback[t] >= 0) { ++parentCount; owners[parent].push_back(t); }
+                    else { ++noneCount; }
+                }
+                used[g] = false;
+                freed[parent] -= bytes[g];
+                loss[parent] -= loss[g];
+                if (!frozen) { order.insert(entry(parent)); }
+            }
+            total -= freed[g];
+            if (report) {
+                *report << (parent < 0 ? "family" : "delta") << '\t' << g << '\t' << freed[g] << '\t'
+                        << loss[g] << '\t' << parentCount << '\t' << noneCount << '\n';
+            }
+        }
+        if (total > budget) { Fail("cannot fit retained PCHs in the disk budget"); }
+    }
+    } // namespace
+
+    std::string FitMeasuredDisk(const TData& d, TLayout& l, const TCalibration& c,
+                                const std::vector<uint64_t>& bytes, bool frozen,
+                                const std::function<bool(int, int)>& compatible) {
+        std::ostringstream report;
+        FitDisk(d, l, c, bytes, d.Resources.Disk, frozen, compatible, &report);
+        return report.str();
+    }
+
+    TPrediction Predict(const TData& d, const TLayout& l, const TCalibration& calibration, size_t analysisJobs,
+                        const std::vector<uint64_t>& measuredBytes) {
         ValidateTargets(d);
+        if (!measuredBytes.empty() && measuredBytes.size() != l.Pchs.size()) { Fail("incomplete measured PCH sizes"); }
         if (l.Assignment.size() != d.Targets.size()) {
             Fail("prediction: assignment size mismatch");
         }
@@ -592,14 +805,12 @@ namespace NPchUpdate::NTwoStep {
             auto c = Coeff(calibration, h.Class);
             double total = Parse(d, h.Units);
             double parent = h.Parent >= 0 ? Parse(d, l.Pchs[h.Parent].Units) : 0;
-            double volume = Volume(d, h.Units);
-            double parentVolume = h.Parent >= 0 ? Volume(d, l.Pchs[h.Parent].Units) : 0;
             TAction a;
             a.Output = "pch/" + std::to_string(g) + ".pch";
             // Consumer load fits do not identify the compiler's PCH-to-PCH load
             // cost. Keep that prior separate, including in combined-only fits.
             a.Time = std::max(0.001, (total - parent) * (h.Parent < 0 ? c.BaseBuild : c.DeltaBuild) + parent * 0.02);
-            double bytes = std::max(1.0, (volume - parentVolume) * c.Size);
+            double bytes = measuredBytes.empty() ? ArtifactBytes(d, l, g, calibration) : measuredBytes[g];
             p.PchBytes.push_back(bytes);
             a.Io = bytes;
             if (h.Parent >= 0) {
@@ -643,7 +854,7 @@ namespace NPchUpdate::NTwoStep {
             }
             a.Time = Consumer(d.Actions[file.Action], p.Saved[f], p.Load[f], c);
         }
-        if (disk > d.Resources.Disk) {
+        if (!measuredBytes.empty() && disk > d.Resources.Disk) {
             p.Objective = INF;
             return p;
         }
@@ -664,9 +875,81 @@ namespace NPchUpdate::NTwoStep {
         return p;
     }
 
+    TPrediction ScoreCandidate(const TData& d, TLayout& layout, const TCalibration& c, size_t jobs, int width) {
+        // Keep all artifacts (including frozen bases), roots, class IDs and
+        // parents fixed. Only assignments on consumer -> PCH edges may move.
+        for (;;) {
+            try {
+                return Predict(d, layout, c, jobs);
+            } catch (const TDependencyCycle& cycle) {
+                Log(Format("selection width=%d: %s", width, cycle.what()));
+                const int offset = int(d.Actions.size());
+                std::map<int, int> edges; // consumer action -> assigned PCH on this cycle
+                for (size_t i = 1; i < cycle.Nodes.size(); ++i) {
+                    if (cycle.Nodes[i-1] < offset && cycle.Nodes[i] >= offset) {
+                        edges.emplace(cycle.Nodes[i-1], cycle.Nodes[i] - offset);
+                    }
+                }
+                std::set<int> targets;
+                for (const auto& f : d.Files) {
+                    auto it = edges.find(f.Action);
+                    if (it != edges.end() && it->second == layout.Assignment[f.Target]) {
+                        targets.insert(f.Target);
+                    }
+                }
+                if (targets.empty()) { throw; } // Not repairable by changing a consumer assignment.
+
+                int bestTarget = -1, bestGroup = -1, provisional = -1;
+                double cheapestLoss = INF;
+                TPrediction best;
+                for (int t : targets) {
+                    const int old = layout.Assignment[t];
+                    for (int g = layout.Pchs[old].Parent;; g = layout.Pchs[g].Parent) {
+                        auto trial = layout;
+                        trial.Assignment[t] = g;
+                        try {
+                            auto p = Predict(d, trial, c, jobs);
+                            Detail(Format("  %s PCH %d -> %d: objective %.3f s",
+                                          d.Targets[t].Label.c_str(), old, g, p.Objective));
+                            if (bestTarget < 0 || p.Objective < best.Objective) {
+                                bestTarget = t;
+                                bestGroup = g;
+                                best = std::move(p);
+                            }
+                        } catch (const TDependencyCycle&) {
+                            Detail(Format("  %s PCH %d -> %d: still cyclic", d.Targets[t].Label.c_str(), old, g));
+                        }
+                        if (g < 0) { break; }
+                    }
+                    // Several cycles may preclude scoring any single move.
+                    // Drop one witnessed edge with the least estimated consumer
+                    // benefit, then diagnose the remaining graph. Each such
+                    // step removes one assignment permanently, so it terminates.
+                    const auto& leaf = layout.Pchs[old];
+                    const auto coeff = Coeff(c, leaf.Class);
+                    const double load = Parse(d, leaf.Units);
+                    double loss = 0;
+                    for (int i : d.Targets[t].Files) {
+                        const auto& f = d.Files[i];
+                        const auto& a = d.Actions[f.Action];
+                        const double freq = d.Q + (1 - d.Q) * a.Changes.size() / std::max(1, d.Scenarios);
+                        loss += freq * (Consumer(a, 0, 0, coeff) - Consumer(a, Saved(f, leaf.Units), load, coeff));
+                    }
+                    if (provisional < 0 || loss < cheapestLoss) { provisional = t; cheapestLoss = loss; }
+                }
+                const int t = bestTarget >= 0 ? bestTarget : provisional;
+                const int g = bestTarget >= 0 ? bestGroup : -1;
+                Log(Format("selection width=%d: cycle repair %s PCH %d -> %d (%s)", width,
+                           d.Targets[t].Label.c_str(), layout.Assignment[t], g,
+                           bestTarget >= 0 ? "best acyclic local move" : "multiple cycles; least estimated loss on witnessed cycle"));
+                layout.Assignment[t] = g;
+                if (bestTarget >= 0) { return best; }
+            }
+        }
+    }
+
     TLayout Select(const TData& d, const TCalibration& c, const TLayout* frozen,
-                   std::vector<TDiskAlternative>* diskAlternatives, size_t analysisJobs, TSelectionDiagnostics* diagnostics) {
-        if (diskAlternatives) { diskAlternatives->clear(); }
+                   size_t analysisJobs, TSelectionDiagnostics* diagnostics) {
         if (diagnostics) { *diagnostics = {}; }
         int selectedWidth = -1;
         ValidateTargets(d);
@@ -703,11 +986,54 @@ namespace NPchUpdate::NTwoStep {
         if (!frozen) {
             best.Assignment.assign(d.Targets.size(), -1);
         }
-        double score = Predict(d, best, c, analysisJobs).Objective;
+        // Recheck if cycle repair demotes an owner: the proof for the old
+        // consumer set no longer holds. Keep report IDs in the width's namespace.
+        auto scoreAssigned = [&](TLayout& l, int width, std::vector<std::string>& reasons, unsigned factor) {
+            std::vector<int> ids(l.Pchs.size());
+            std::iota(ids.begin(), ids.end(), 0);
+            std::ostringstream payback;
+            payback.precision(17);
+            for (int pass = 1;; ++pass) {
+                CheckPayback(d, l, c, frozen != nullptr, width, pass, ids, diagnostics ? &reasons : nullptr,
+                             diagnostics && factor == 1 ? &payback : nullptr);
+                std::vector<uint64_t> estimates;
+                for (size_t g = 0; g < l.Pchs.size(); ++g) {
+                    estimates.push_back(uint64_t(std::ceil(ArtifactBytes(d, l, g, c))));
+                }
+                const auto beforeFit = l.Assignment;
+                FitDisk(d, l, c, estimates, factor * d.Resources.Disk, frozen != nullptr, {}, nullptr);
+                if (diagnostics) {
+                    for (size_t t = 0; t < reasons.size(); ++t) {
+                        if (l.Assignment[t] != beforeFit[t]) {
+                            reasons[t] = l.Assignment[t] < 0 ? "disk-budget" : "disk-parent";
+                        }
+                    }
+                }
+                const auto remap = CompactLayout(l, frozen != nullptr);
+                std::vector<int> kept(l.Pchs.size());
+                for (size_t g = 0; g < remap.size(); ++g) { if (remap[g] >= 0) { kept[remap[g]] = ids[g]; } }
+                ids = std::move(kept);
+                const auto before = l.Assignment;
+                auto prediction = ScoreCandidate(d, l, c, analysisJobs, width);
+                if (before == l.Assignment) {
+                    if (diagnostics) { diagnostics->Payback += payback.str(); }
+                    return prediction;
+                }
+                if (diagnostics) {
+                    for (size_t t = 0; t < before.size(); ++t) {
+                        if (before[t] != l.Assignment[t]) {
+                            reasons[t] = l.Assignment[t] < 0 ? "cycle-no-pch" : "cycle-fallback";
+                        }
+                    }
+                }
+            }
+        };
+        std::vector<std::string> seedReasons(d.Targets.size());
+        const auto seedAssignment = best.Assignment;
+        double score = scoreAssigned(best, -1, seedReasons, 1).Objective;
         const std::vector<int> widths = {0, 32, 128, 512};
         struct TCandidate {
             TLayout Layout;
-            std::vector<TDiskAlternative> Alternatives;
             std::vector<std::string> Reasons;
             std::vector<int> BeforeDisk;
             std::string Choices;
@@ -735,6 +1061,7 @@ namespace NPchUpdate::NTwoStep {
             auto& candidateClosures = analysisJobs > 1 ? localClosures : closures;
             auto& candidate = candidates[i].Layout;
             candidate = bases;
+            TWorkCosts costs{d, candidate, c, {}};
             auto& observed = candidates[i];
             std::ostringstream choicesReport;
             choicesReport.precision(17);
@@ -751,6 +1078,7 @@ namespace NPchUpdate::NTwoStep {
                         parent = g;
                     }
                 }
+                if (parent < 0) { continue; }
                 auto targets = classes[cls];
                 std::stable_sort(targets.begin(), targets.end(), [&](int a, int b) {
                     return d.Targets[a].Label < d.Targets[b].Label;
@@ -759,53 +1087,17 @@ namespace NPchUpdate::NTwoStep {
                 if (width) {
                     for (size_t begin = 0; begin < targets.size(); begin += width) {
                         std::vector<int> group(targets.begin() + begin, targets.begin() + std::min(targets.size(), begin + width));
-                        auto p = Pick(d, c, cls, filesOf(group), parent < 0 ? nullptr : &bases.Pchs[parent], false, candidateClosures);
+                        auto p = Pick(d, c, cls, filesOf(group), &bases.Pchs[parent], false, candidateClosures);
                         chunks.push_back(p.Roots.empty() ? -1 : int(candidate.Pchs.size()));
                         if (!p.Roots.empty()) {
                             p.Parent = parent;
-                            // A delta without a base is still a single-level PCH;
-                            // it is not promoted to a frozen base in correction.
                             candidate.Pchs.push_back(std::move(p));
                         }
                     }
                 }
-                auto coeff = Coeff(c, cls);
-                std::map<int, std::pair<double, std::set<int>>> features;
-                auto feature = [&](int g) -> const std::pair<double, std::set<int>>& {
-                    auto [it, added] = features.try_emplace(g);
-                    if (added) {
-                        const auto& p = candidate.Pchs[g];
-                        it->second.first = Parse(d, p.Units);
-                        for (int u : p.Units) {
-                            it->second.second.insert(d.Units[u].Changes.begin(), d.Units[u].Changes.end());
-                        }
-                    }
-                    return it->second;
-                };
                 for (size_t position = 0; position < targets.size(); ++position) {
                     int t = targets[position];
-                    // Sum expected work, including every member's PCH load and
-                    // extra invalidations. No individual TU can opt out.
-                    auto targetCost = [&](int g) {
-                        double total = 0;
-                        for (int f : d.Targets[t].Files) {
-                            const auto& a = d.Actions[d.Files[f].Action];
-                            double frequency = d.Q + (1 - d.Q) * double(a.Changes.size()) / std::max(1, d.Scenarios);
-                            double saved = 0, load = 0;
-                            if (g >= 0) {
-                                const auto& features = feature(g);
-                                load = features.first;
-                                saved = Saved(d.Files[f], candidate.Pchs[g].Units);
-                                for (int k : features.second) {
-                                    if (!std::binary_search(a.Changes.begin(), a.Changes.end(), k)) {
-                                        frequency += (1 - d.Q) / std::max(1, d.Scenarios);
-                                    }
-                                }
-                            }
-                            total += Consumer(a, saved, load, coeff) * frequency;
-                        }
-                        return total;
-                    };
+                    auto targetCost = [&](int g) { return costs.Target(t, g); };
                     double cost = targetCost(-1);
                     const double withoutPch = cost;
                     // Nearby target partitions plus the base form a bounded
@@ -840,12 +1132,6 @@ namespace NPchUpdate::NTwoStep {
                 observed.Choices = choicesReport.str();
                 observed.Pchs = describePchs(width, candidate);
             }
-            FitDisk(d, candidate, c, frozen != nullptr, width, diskAlternatives ? &candidates[i].Alternatives : nullptr);
-            if (diagnostics) {
-                for (size_t t = 0; t < d.Targets.size(); ++t) {
-                    if (observed.BeforeDisk[t] >= 0 && candidate.Assignment[t] < 0) { observed.Reasons[t] = "disk-budget"; }
-                }
-            }
         });
         // Reuse the full analysis budget for scenario scoring after grouping;
         // never multiply a width pool by nested scenario pools. Only one full
@@ -853,13 +1139,14 @@ namespace NPchUpdate::NTwoStep {
         // to retain tie-breaking, diagnostics and progress output determinism.
         for (size_t i = 0; i < widths.size(); ++i) {
             const int width = widths[i];
-            auto& candidate = candidates[i].Layout;
-            if (diskAlternatives) {
-                for (auto& alternative : candidates[i].Alternatives) {
-                    diskAlternatives->push_back(std::move(alternative));
-                }
+            auto candidate = candidates[i].Layout; // retain raw winner for the reserve pass
+            auto reasons = candidates[i].Reasons;
+            TPrediction prediction;
+            try {
+                prediction = scoreAssigned(candidate, width, reasons, 1);
+            } catch (const TError& error) {
+                Fail(Format("selection width=%d: %s", width, error.what()));
             }
-            auto prediction = Predict(d, candidate, c, analysisJobs);
             double value = prediction.Objective;
             Detail(Format("selection width=%d: %d bases, %zu PCHs, %.3f GB, objective %.3f s%s",
                 width, candidate.Bases, candidate.Pchs.size(),
@@ -875,13 +1162,27 @@ namespace NPchUpdate::NTwoStep {
                 score = value;
                 selectedWidth = width;
                 best = std::move(candidate);
+                seedReasons = std::move(reasons);
             }
         }
         if (!std::isfinite(score)) {
             Fail("no layout fits the worker/pool/RAM/disk constraints");
         }
-        if (diskAlternatives) {
-            for (auto& option : *diskAlternatives) { option.Selected = option.Width == selectedWidth; }
+        const auto primaryGroups = best.Pchs.size();
+        const auto primaryBytes = [&](const TLayout& l) {
+            double bytes = 0;
+            for (size_t g = 0; g < l.Pchs.size(); ++g) { bytes += ArtifactBytes(d, l, g, c); }
+            return bytes;
+        };
+        const double scoredBytes = primaryBytes(best);
+        if (selectedWidth >= 0 || frozen) {
+            const auto i = std::find(widths.begin(), widths.end(), selectedWidth) - widths.begin();
+            auto reserve = selectedWidth >= 0 ? candidates[i].Layout : *frozen;
+            auto reasons = selectedWidth >= 0 ? candidates[i].Reasons : std::vector<std::string>(d.Targets.size());
+            if (scoreAssigned(reserve, selectedWidth, reasons, ProbeBudgetFactor).Feasible) {
+                best = std::move(reserve);
+                seedReasons = std::move(reasons);
+            }
         }
         if (diagnostics) {
             std::ostringstream targets;
@@ -892,10 +1193,11 @@ namespace NPchUpdate::NTwoStep {
                 int beforeDisk = -1;
                 if (selectedWidth >= 0) {
                     const auto i = size_t(std::find(widths.begin(), widths.end(), selectedWidth) - widths.begin());
-                    reason = candidates[i].Reasons[t];
+                    reason = seedReasons[t];
                     beforeDisk = candidates[i].BeforeDisk[t];
                 } else {
-                    reason = !d.Targets[t].PchEligible ? "no-global-pch-hook" : d.Targets[t].Class < 0 ? "mixed-compiler-classes" :
+                    beforeDisk = seedAssignment[t];
+                    reason = !seedReasons[t].empty() ? seedReasons[t] : !d.Targets[t].PchEligible ? "no-global-pch-hook" : d.Targets[t].Class < 0 ? "mixed-compiler-classes" :
                         frozen ? "retained-initial-plan" : "no-layout-improvement";
                 }
                 targets << d.Targets[t].Label << '\t' << reason << '\t' << beforeDisk << '\t' << best.Assignment[t] << '\n';
@@ -905,22 +1207,21 @@ namespace NPchUpdate::NTwoStep {
                 "# improved_at_visit is an intermediate greedy decision, not final selection. Unlisted headers/partitions were not scored here.\n"
                 "width\ttarget\tcandidate_leaf\twithout_pch_work_seconds\twith_pch_work_seconds\timproved_at_visit\n" + diagnostics->Choices;
             diagnostics->Widths = "# selected_width=" + std::to_string(selectedWidth) +
+                Format("\n# scored_budget_bytes=%.0f scored_pchs=%zu scored_bytes=%.0f probe_budget_bytes=%.0f probe_pchs=%zu probe_bytes=%.0f",
+                       d.Resources.Disk, primaryGroups, scoredBytes, ProbeBudgetFactor * d.Resources.Disk, best.Pchs.size(), primaryBytes(best)) +
                 "\nwidth\tbases\tpchs\tpch_bytes\tobjective_seconds\tfeasible\n" + diagnostics->Widths;
-            if (selectedWidth < 0) { diagnostics->Candidates += describePchs(-1, best); }
+            if (frozen) { diagnostics->Candidates += describePchs(-1, *frozen); }
+            diagnostics->Payback = "# selected_width=" + std::to_string(selectedWidth) +
+                "; predicted weighted action-work seconds; IDs match selection-candidates.tsv; net excludes mandatory builds\n"
+                "width\tpass\tkind\tcandidate_leaf\tassigned_targets\tparse_saved_s\tload_s\textra_compile_s\tbuild_s\tmandatory_build_s\tnet_s\tdecision\n" +
+                diagnostics->Payback;
             diagnostics->Candidates = "# IDs are local to each width before disk pruning; width -1 describes a retained seed.\n"
                 "width\tcandidate_leaf\tclass\tparent\tclosure_units\troot_headers\n" + diagnostics->Candidates;
         }
-        Log(selectedWidth >= 0 ? Format("selection: grouping width %d chosen; %zu PCHs before compatibility", selectedWidth, best.Pchs.size()) :
-            std::string("selection: seed layout retained; no candidate improved the global objective"));
-        if (diskAlternatives) {
-            for (const auto& option : *diskAlternatives) {
-                if (!option.Selected) { continue; }
-                Log(Format("disk alternative before compatibility: %.3f GB budget could restore %zu target assignments; "
-                    "estimated weighted work saving %.1f s (not build wall time); see disk-budget.tsv",
-                    option.RequiredBudget / 1e9, option.Targets.size(), option.SavedWork));
-                break;
-            }
-        }
+        Log(Format("selection: %s; %zu PCHs at %.3f / %.3f GB for scoring; %zu at %.3f / %.3f GB for probes (estimated)",
+                   selectedWidth < 0 ? "seed retained" : ("width " + std::to_string(selectedWidth)).c_str(),
+                   primaryGroups, scoredBytes / 1e9, d.Resources.Disk / 1e9,
+                   best.Pchs.size(), primaryBytes(best) / 1e9, ProbeBudgetFactor * d.Resources.Disk / 1e9));
         return best;
     }
 
@@ -932,6 +1233,10 @@ namespace NPchUpdate::NTwoStep {
             Fail("calibration: incomplete observations");
         }
         TCalibration out;
+        for (int g = 0; g < l.Bases; ++g) {
+            const auto& obs = observations.at(d.Actions.size() + g);
+            out.MeasuredBases.emplace_back(l.Pchs.at(g), obs.Time > 0 ? obs.Bytes : 0.0);
+        }
         out.Classes.resize(d.Classes);
         for (size_t i = 0; i < d.Actions.size(); ++i) {
             // A sampled verification leaves unmeasured actions at zero: keep
@@ -943,7 +1248,7 @@ namespace NPchUpdate::NTwoStep {
         std::ostringstream report;
         report << "class\tstatus\ttraining_targets\tholdout_targets\tholdout_target_MAE_s\tbase_build\tdelta_build\tsize\tmemory\n";
         struct TTargetObservation {
-            bool Complete = true;
+            size_t Count = 0;
             double Baseline = 0, Time = 0, Saved = 0, Load = 0, Memory = 0;
         };
         std::vector<TTargetObservation> targets(d.Targets.size());
@@ -951,7 +1256,8 @@ namespace NPchUpdate::NTwoStep {
             auto& target = targets[t];
             for (int f : d.Targets[t].Files) {
                 const auto& obs = observations[d.Files[f].Action];
-                target.Complete &= obs.Time > 0;
+                if (obs.Time <= 0) { continue; }
+                ++target.Count;
                 target.Baseline += d.Actions[d.Files[f].Action].Time;
                 target.Time += obs.Time;
                 target.Saved += p.Saved[f];
@@ -986,7 +1292,7 @@ namespace NPchUpdate::NTwoStep {
             for (size_t t = 0; t < d.Targets.size(); ++t) {
                 if (d.Targets[t].Class == cls && l.Assignment[t] < 0) {
                     const auto& target = targets[t];
-                    if (target.Complete && target.Baseline > 0) {
+                    if (target.Count && target.Baseline > 0) {
                         controls.push_back(target.Time / target.Baseline);
                     }
                 }
@@ -1026,13 +1332,13 @@ namespace NPchUpdate::NTwoStep {
             for (size_t t = 0; t < d.Targets.size(); ++t) {
                 int g = l.Assignment[t];
                 const auto& target = targets[t];
-                if (d.Targets[t].Class != cls || g < 0 || held.count(g) || !target.Complete) {
+                if (d.Targets[t].Class != cls || g < 0 || held.count(g) || !target.Count) {
                     continue;
                 }
                 training.insert(int(t));
                 double bytes = p.PchBytes[g];
                 if (l.Pchs[g].Parent >= 0) { bytes += p.PchBytes[l.Pchs[g].Parent]; }
-                const double count = d.Targets[t].Files.size();
+                const double count = target.Count;
                 consumerMemory.push_back(target.Memory / (count * (d.ActionMemory + bytes)));
                 double y = target.Time - c.Baseline * target.Baseline;
                 // Residual remains per compiler action in Predict; the target
@@ -1069,7 +1375,7 @@ namespace NPchUpdate::NTwoStep {
             double error = 0;
             size_t n = 0;
             for (size_t t = 0; t < d.Targets.size(); ++t) {
-                if (d.Targets[t].Class == cls && held.count(l.Assignment[t]) && targets[t].Complete) {
+                if (d.Targets[t].Class == cls && held.count(l.Assignment[t]) && targets[t].Count == d.Targets[t].Files.size()) {
                     double value = 0;
                     for (int f : d.Targets[t].Files) {
                         value += Consumer(d.Actions[d.Files[f].Action], p.Saved[f], p.Load[f], c);
@@ -1096,7 +1402,7 @@ namespace NPchUpdate::NTwoStep {
             report << "# measured_actions\t" << measured << '\t' << observations.size() << '\n';
         }
         size_t complete = 0;
-        for (const auto& target : targets) { complete += target.Complete; }
+        for (size_t t = 0; t < targets.size(); ++t) { complete += targets[t].Count == d.Targets[t].Files.size(); }
         report << "# measured_targets\t" << complete << '\t' << d.Targets.size() << '\n';
         out.Report = report.str();
         return out;

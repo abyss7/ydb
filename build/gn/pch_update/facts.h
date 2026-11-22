@@ -23,7 +23,6 @@ namespace NPchUpdate {
     inline constexpr std::string_view PER_TARGET_DIR = "build/gn/pch/per_target";
     inline constexpr std::string_view GROUPS_GNI = "build/gn/pch/global/groups.gni";
     inline constexpr std::string_view TARGETS_GNI = "build/gn/pch/per_target/targets.gni";
-    inline constexpr std::string_view ENUM_EXCLUDE_GNI = "build/gn/pch/global/enum_serialization.gni";
     inline constexpr std::string_view PCH_FLAGS_GNI = "build/gn/pch/global/pch_flags.gni";
     inline constexpr std::string_view WRITTEN = "written by build/gn/pch_update";
 
@@ -125,11 +124,9 @@ namespace NPchUpdate {
         std::vector<std::vector<int32_t>> Classes;
         std::vector<std::vector<std::string>> ClassFlags;
         std::vector<int32_t> ClassOf;
-        // Per file: the target whose PCH it takes, its -D/-U, include dirs
+        // Per file: the GN target that compiles its object, its -D/-U, include dirs
         // (option, dir), source, the compile as the checks run it.
         std::vector<int32_t> TargetOf;
-        // Per file: its own target (of a <target>_enum_objs file: that one).
-        std::vector<int32_t> LabelOf;
         std::vector<std::string> TargetNames;
         std::unordered_map<std::string, int32_t> TargetId;
         std::vector<std::vector<std::string>> DefinesOf;

@@ -116,10 +116,16 @@ namespace NPchUpdate::NTwoStep {
             graph[0].Memory = 21;
             Check(!std::isfinite(Makespan(graph, r)), "oversized action rejected");
             graph[0].Memory = 6;
+            graph[0].Output = "unrelated-consumer";
+            graph[1].Output = "generator.o";
+            graph[2].Output = "pch/3.pch";
             graph[0].Dependencies = {2};
-            bool cycle = false;
-            try { Makespan(graph, r); } catch (const TError&) { cycle = true; }
-            Check(cycle, "dependency cycle rejected");
+            graph[1].Dependencies = {2};
+            graph[2].Dependencies = {1};
+            std::string cycle;
+            try { Makespan(graph, r); } catch (const TError& error) { cycle = error.what(); }
+            Check(cycle.find("[2] pch/3.pch\n  [1] generator.o\n  [2] pch/3.pch") != std::string::npos &&
+                  cycle.find("unrelated-consumer") == std::string::npos, "report the closed dependency cycle only");
         }
 
         void Invalidation() {
@@ -240,6 +246,37 @@ namespace NPchUpdate::NTwoStep {
                   "profitable library-dependent leaves reach target-aware compatibility instead of global rejection");
         }
 
+        void CycleRepair() {
+            auto d = Data();
+            d.Resources.Workers = 1;
+            d.Units.resize(2);
+            d.Units[0].Parse = d.Units[1].Parse = 4;
+            d.Units[1].Producers = {0};
+            d.Actions.resize(3);
+            for (int i = 0; i < 3; ++i) {
+                d.Actions[i].Time = 20;
+                d.Files.push_back({i, 0, std::to_string(i), {{0, 4}, {1, 4}}});
+            }
+            GroupTargets(d, {"//a:generator", "//a:generator", "//b:consumer"});
+            TLayout l;
+            l.Bases = 1;
+            l.Pchs = {{0, -1, 0, {0}, {0}}, {0, 0, 0, {1}, {0, 1}}};
+            l.Assignment = {1, 1};
+            auto p = ScoreCandidate(d, l, {}, 1, 32);
+            Check(p.Feasible && l.Assignment == std::vector<int>{0, 1} && l.Pchs.size() == 2,
+                  "generator target uses profitable safe parent, other target keeps delta");
+            d.Units[0].Producers = {0};
+            l.Assignment = {1, 1};
+            p = ScoreCandidate(d, l, {}, 1, 32);
+            Check(p.Feasible && l.Assignment == std::vector<int>{-1, 1},
+                  "cyclic parent forces NONE only on generator target");
+            d.Units[0].Producers.push_back(2);
+            l.Assignment = {1, 1};
+            p = ScoreCandidate(d, l, {}, 1, 32);
+            Check(p.Feasible && l.Assignment == std::vector<int>{-1, -1},
+                  "independent cyclic consumers require successive repairs");
+        }
+
         void FrozenBase() {
             auto d = Data();
             d.Units.resize(2);
@@ -282,23 +319,82 @@ namespace NPchUpdate::NTwoStep {
             auto dirty = Invalidate(p.Actions, 0);
             Check(!dirty[d.Actions.size()], "delta edit does not invalidate stable base");
             Check(dirty[d.Actions.size() + 1], "delta edit invalidates delta artifact");
+
+            auto initialPrediction = Predict(d, initial, {});
+            std::vector<TObservation> obs(initialPrediction.Actions.size());
+            obs.back().Time = 1;
+            obs.back().Bytes = 99; // even the capped class estimate is only 3 * 20
+            auto fit = Calibrate(d, initial, initialPrediction, obs);
+            auto measured = Predict(d, corrected, fit);
+            Near(measured.PchBytes[0], 99, "frozen base uses its measured size");
+            Near(measured.PchBytes[1], 4 * fit.Classes[0].Size, "delta still uses the class estimate");
+            Near(measured.Actions[d.Actions.size() + 1].Io, 99 + measured.PchBytes[1], "delta reads the measured base");
+            auto changed = corrected;
+            changed.Pchs[0].Roots = {1};
+            Near(Predict(d, changed, fit).PchBytes[0], 3 * fit.Classes[0].Size, "different base cannot reuse measured size");
+            d.Resources.Disk = 1;
+            bool frozenOverBudget = false;
+            try { Select(d, fit, &initial); } catch (const TError&) { frozenOverBudget = true; }
+            Check(frozenOverBudget, "a frozen base must fit the final scoring budget, not just the probe allowance");
+            auto refused = corrected;
+            d.Resources.Disk = 100;
+            FitMeasuredDisk(d, refused, {}, {99, 2}, true, [](int, int) { return false; });
+            for (size_t t = 0; t < refused.Assignment.size(); ++t) {
+                if (corrected.Assignment[t] == 1) { Check(refused.Assignment[t] == -1, "incompatible fallback uses NONE"); }
+            }
+            FitMeasuredDisk(d, corrected, {}, {99, 2}, true, [](int, int) { return true; });
+            auto remap = CompactLayout(corrected, true);
+            Check(remap == std::vector<int>({0,-1}) && corrected.Assignment == initial.Assignment,
+                  "an over-budget measured delta falls back atomically to its profitable base");
+            bool tooLarge = false;
+            try { FitMeasuredDisk(d, corrected, {}, {101}, true, [](int, int) { return true; }); }
+            catch (const TError&) { tooLarge = true; }
+            Check(tooLarge, "fail explicitly when mandatory measured bases exceed the budget");
+        }
+
+        void AssignedPayback() {
+            auto d = Data();
+            d.Resources.Workers = 1;
+            d.Units.resize(2);
+            d.Units[0].Stable = true;
+            d.Units[0].Include = "<base>";
+            d.Units[0].Parse = 4;
+            d.Units[1].Include = "<child>";
+            d.Units[1].Parse = 5;
+            d.Actions.resize(3);
+            d.Files.resize(3);
+            for (int i = 0; i < 3; ++i) {
+                d.Actions[i].Time = 20;
+                d.Files[i].Action = i;
+                d.Files[i].Class = 0;
+                // t0 helps design both headers but is a no-PCH calibration control.
+                d.Files[i].Own = {{0, i ? 3.0 : 4.0}, {1, i ? 2.5 : 5.0}};
+            }
+            TestTargets(d);
+            TSelectionDiagnostics diag;
+            auto baseOnly = Select(d, {}, nullptr, 1, &diag);
+            Check(baseOnly.Pchs.size() == 1 && baseOnly.Assignment == std::vector<int>({-1, 0, 0}) &&
+                  diag.Payback.find("\tdelta\t1\t2\t") != std::string::npos &&
+                  diag.Payback.find("\tdrop-assignments\n") != std::string::npos,
+                  "delta cannot use the control's parsing savings to pay for its build");
+            for (int i : {1,2}) { d.Files[i].Own = {{0, 1}, {1, 3}}; }
+            auto none = Select(d, {});
+            Check(none.Pchs.empty(), "profitable child does not cover the cost of the whole family");
+            for (int i : {1,2}) { d.Files[i].Own = {{0, 1}, {1, 4}}; }
+            auto family = Select(d, {});
+            Check(family.Pchs.size() == 2 && family.Assignment == std::vector<int>({-1, 1, 1}),
+                  "a base with no direct consumers is paid for once by its descendants");
         }
 
         TLayout CheckParallelSelection(const TData& d, const TCalibration& calibration = {}, const TLayout* frozen = nullptr) {
-            std::vector<TDiskAlternative> expected;
-            auto serial = Select(d, calibration, frozen, &expected, 1);
+            auto serial = Select(d, calibration, frozen, 1);
             auto pchFields = [](const TPch& p) {
                 return std::tie(p.Class, p.Parent, p.Representative, p.Roots, p.Units);
             };
-            auto alternativeFields = [](const TDiskAlternative& a) {
-                return std::tie(a.Width, a.Step, a.Selected, a.Pchs, a.Targets, a.BaseBytes, a.AddedBytes,
-                                a.TotalBytes, a.RequiredBudget, a.SavedWork, a.TotalSavedWork);
-            };
             std::string targetDiagnostics, choiceDiagnostics, widthDiagnostics, candidateDiagnostics;
             for (size_t jobs : {1, 2, 4, 7}) {
-                std::vector<TDiskAlternative> actual;
                 TSelectionDiagnostics diagnostics;
-                auto parallel = Select(d, calibration, frozen, &actual, jobs, &diagnostics);
+                auto parallel = Select(d, calibration, frozen, jobs, &diagnostics);
                 if (jobs == 1) {
                     targetDiagnostics = diagnostics.Targets;
                     choiceDiagnostics = diagnostics.Choices;
@@ -317,88 +413,14 @@ namespace NPchUpdate::NTwoStep {
                     Check(pchFields(serial.Pchs[g]) == pchFields(parallel.Pchs[g]),
                           "parallel widths preserve exact PCH contents, IDs, parents and representatives");
                 }
-                Check(expected.size() == actual.size(), "parallel widths preserve all disk alternatives");
-                for (size_t i = 0; i < expected.size(); ++i) {
-                    Check(alternativeFields(expected[i]) == alternativeFields(actual[i]),
-                          "parallel width diagnostics retain exact values, ordering and tie winner");
-                }
+
             }
             return serial;
         }
 
-        void DiskBudgetSelection() {
-            auto d = Data();
-            d.Classes = 2;
-            d.Resources.Disk = 4.2e6;
-            d.Units.resize(2);
-            for (int cls = 0; cls < 2; ++cls) {
-                d.Units[cls].Include = "<base" + std::to_string(cls) + ">";
-                d.Units[cls].Stable = true;
-                d.Units[cls].Parse = 3;
-                d.Units[cls].Bytes = 1e6;
-                for (int i = 0; i < 8; ++i) {
-                    TAction a;
-                    a.Time = 10;
-                    a.Memory = 1e6;
-                    TFile f;
-                    f.Action = int(d.Actions.size());
-                    f.Class = cls;
-                    f.Source = std::to_string(f.Action);
-                    f.Own = {{cls, cls ? 2.0 : 6.0}};
-                    d.Actions.push_back(a);
-                    d.Files.push_back(f);
-                }
-            }
-            TestTargets(d, 2);
-            TLayout none;
-            none.Assignment.assign(d.Targets.size(), -1);
-            std::vector<TDiskAlternative> alternatives;
-            auto selected = Select(d, {}, nullptr, &alternatives);
-            Check(selected.Bases == 1 && selected.Pchs.size() == 1 && selected.Pchs[0].Class == 0,
-                  "disk budget keeps the profitable subset instead of rejecting all bases");
-            CheckParallelSelection(d);
-            auto same = Select(d, {});
-            Check(same.Assignment == selected.Assignment && same.Pchs.size() == selected.Pchs.size(),
-                  "collecting expansion diagnostics does not change selection");
-            auto baseOption = std::find_if(alternatives.begin(), alternatives.end(), [](const auto& a) { return a.Width == 0; });
-            Check(baseOption != alternatives.end() && baseOption->Selected && baseOption->Step == 1 &&
-                  baseOption->Targets.size() == 4, "report identifies the winning width and restored target owners");
-            Near(baseOption->AddedBytes, 3.9e6, "diagnostic restores the excluded PCH bytes");
-            Near(baseOption->RequiredBudget, 7.8e6, "new budget includes already retained artifacts");
-            Near(baseOption->RequiredBudget - d.Resources.Disk, 3.6e6,
-                 "required budget increase accounts for existing free space");
-            Near(baseOption->SavedWork, 12.52, "work estimate includes all consumers and the PCH build cost");
-            auto p = Predict(d, selected, {});
-            Check(p.Feasible && p.Objective < Predict(d, none, {}).Objective,
-                  "disk-constrained subset improves the complete graph");
-            auto corrected = Select(d, {}, &selected);
-            Check(corrected.Bases == 1 && corrected.Pchs[0].Roots == selected.Pchs[0].Roots,
-                  "budget pruning preserves the frozen base");
-            CheckParallelSelection(d, {}, &selected);
-            // A measured slowdown may remove consumers, but cannot discard the
-            // frozen base artifact merely because it becomes unused.
-            TCalibration slow;
-            slow.Classes.resize(2);
-            slow.Classes[0].Saved = -1;
-            auto unused = Select(d, slow, &selected);
-            Check(unused.Bases == 1 && unused.Pchs[0].Roots == selected.Pchs[0].Roots,
-                  "an unused frozen base survives correction");
-            d.Resources.Disk = 1.95e6;
-            Select(d, {}, nullptr, &alternatives);
-            CheckParallelSelection(d);
-            Check(!alternatives.empty(), "a restoration exactly at twice the budget is reported");
-            for (const auto& option : alternatives) {
-                Near(option.RequiredBudget, 2 * d.Resources.Disk, "inclusive 2x diagnostic boundary");
-                Check(!option.Selected, "no width is marked selected when all candidates only tie the incumbent");
-            }
-            d.Resources.Disk -= 1;
-            Select(d, {}, nullptr, &alternatives);
-            Check(alternatives.empty(), "packages exceeding twice the budget are omitted, not partially restored");
-        }
-
         void SharedBaseDiskDiagnostics() {
             auto d = Data();
-            d.Resources.Disk = 6e6;
+            d.Resources.Disk = 8e6;
             d.Units.resize(3);
             for (int u = 0; u < 3; ++u) {
                 d.Units[u].Include = "<header" + std::to_string(u) + ">";
@@ -414,22 +436,26 @@ namespace NPchUpdate::NTwoStep {
                 d.Files.push_back({f, 0, std::to_string(f), {{0, 3}, {f < 32 ? 1 : 2, 4}}});
             }
             TestTargets(d);
-            std::vector<TDiskAlternative> alternatives;
-            Select(d, {}, nullptr, &alternatives);
-            std::vector<TDiskAlternative> chain;
-            for (const auto& option : alternatives) {
-                Check(option.RequiredBudget <= 2 * d.Resources.Disk, "all reported variants respect the 2x bound");
-                if (option.Width == 32) { chain.push_back(option); }
+            TSelectionDiagnostics diag;
+            auto full = Select(d, {}, nullptr, 1, &diag);
+            Check(full.Bases == 1 && full.Pchs.size() == 3 &&
+                  diag.Widths.find("scored_budget_bytes=8000000 scored_pchs=2 scored_bytes=7800000 probe_budget_bytes=16000000 probe_pchs=3 probe_bytes=11700000") != std::string::npos,
+                  "width scored with one delta at 1x; winner probes both deltas within 2x, charging the base only once");
+            auto before = full.Assignment;
+            auto families = full;
+            d.Resources.Disk = 500000;
+            auto evictions = FitMeasuredDisk(d, families, {}, {1000000, 1000000, 5000000}, false, [](int, int) { return true; });
+            CompactLayout(families, false);
+            Check(families.Pchs.empty() && evictions.find("\nfamily\t0\t") != std::string::npos,
+                  "oversized initial base can be evicted with all remaining owners on measured sizes");
+            d.Resources.Disk = 6e6;
+            FitMeasuredDisk(d, full, {}, {1000000, 1000000, 5000000}, false, [](int, int) { return true; });
+            for (size_t t = 0; t < before.size(); ++t) {
+                Check(full.Assignment[t] == (before[t] == 2 ? 0 : before[t]), "evict lowest marginal seconds per measured byte");
             }
-            Check(chain.size() == 2 && chain[0].Pchs.size() == 2 && chain[1].Pchs.size() == 1,
-                  "first restored leaf brings its missing base; the next reuses it");
-            Check(chain[0].Pchs[0] == 0 && chain[0].Step == 1 && chain[1].Step == 2,
-                  "restored dependencies precede children and steps are cumulative within a width");
-            Near(chain[0].AddedBytes, 7.8e6, "first package includes the shared base");
-            Near(chain[1].AddedBytes, 3.9e6, "shared base is not charged twice");
-            Near(chain[1].TotalBytes, 11.7e6, "cumulative bytes include both leaves and one base");
-            Near(chain[1].TotalSavedWork, chain[0].SavedWork + chain[1].SavedWork,
-                  "cumulative work counts each restored artifact once");
+            d.Units[0].Stable = false;
+            Check(Select(d, {}).Pchs.empty(), "class without a safe stable base cannot create standalone deltas");
+            d.Units[0].Stable = true;
             d.Resources.Disk = 9e6;
             d.Q = .3;
             d.Scenarios = 5;
@@ -533,10 +559,10 @@ namespace NPchUpdate::NTwoStep {
             partial[0].Time *= 100;
             partial[0].Memory *= 100;
             auto changedPartial = Calibrate(d, layout, prediction, partial);
-            Near(changedPartial.Classes[0].Saved, partialFit.Classes[0].Saved,
-                 "a partially measured target contributes no training rows");
-            Near(changedPartial.Classes[0].ConsumerMemory, partialFit.Classes[0].ConsumerMemory,
-                 "partial target RSS cannot leak into calibration");
+            Check(changedPartial.Classes[0].Saved != partialFit.Classes[0].Saved ||
+                  changedPartial.Classes[0].Identified != partialFit.Classes[0].Identified ||
+                  changedPartial.Classes[0].Load != partialFit.Classes[0].Load,
+                  "observed members of partially measured targets contribute to calibration");
             // A sampled verification measures only part of the graph: the fit
             // must use what it has, and the rest keeps the model's own time.
             std::vector<TObservation> sampled = obs;
@@ -630,6 +656,12 @@ namespace NPchUpdate::NTwoStep {
             rejected = false;
             try { Select(d, {}); } catch (const TError&) { rejected = true; }
             Check(rejected, "missing target members are never silently ignored");
+            labels.back() = "//c:winning_enum_objs";
+            GroupTargets(d, labels);
+            auto split = Select(d, {});
+            Check(d.Targets.size() == 4 && d.Targets[2].Class == 0 && d.Targets[3].Class == 1 &&
+                  split.Assignment[2] >= 0 && split.Assignment[3] < 0,
+                  "an enum source_set with different flags does not veto its consumer's PCH");
         }
     } // namespace
 
@@ -639,8 +671,9 @@ namespace NPchUpdate::NTwoStep {
         Scheduling();
         Invalidation();
         LibraryDependentLeaves();
+        CycleRepair();
         FrozenBase();
-        DiskBudgetSelection();
+        AssignedPayback();
         SharedBaseDiskDiagnostics();
         AbsoluteSystemRoot();
         Calibration();

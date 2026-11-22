@@ -113,7 +113,6 @@ _HISTORY_WEEKS = 4
 _TOP_CHANGED = 10
 _TOP_CLASSES = 10
 _ENUM_OBJS = "_enum_objs"
-_enum_exclude = None
 # flags of a compile that don't make another flag class (the ones with a value
 # as one token: -Ifoo, -Wfoo...; FLAG_ARGS are followed by their value)
 _NOT_CLASS_PREFIXES = ("-I", "-W", "-D", "-U", "-ftime-trace")
@@ -772,21 +771,6 @@ def check_argv(command, compiler, source, obj):
     return out
 
 
-def pch_owner(label):
-    """The target whose PCH the files of a target take: the one of its enum
-    serialization for <target>_enum_objs (serialize_enums, //build/gn/base.gni)
-    but for enum_serialization_pch_exclude."""
-    global _enum_exclude
-    d, _, name = label.partition(":")
-    if not name.endswith(_ENUM_OBJS):
-        return label
-    owner = "%s:%s" % (d, name[:-len(_ENUM_OBJS)])
-    if _enum_exclude is None:
-        _enum_exclude = [p for _, ps in gni_lists(os.path.join(_ROOT, _ENUM_EXCLUDE_GNI), "enum_serialization_pch_exclude")
-                         for p in ps]
-    return label if label_matches(owner, _enum_exclude) else owner
-
-
 def flag_classes(args, base):
     compile_us, header_us = base["compile_us"], base["header_us"]
     rules = base["rules"]
@@ -803,7 +787,7 @@ def flag_classes(args, base):
         argv_of[obj] = check_argv(command, compiler, e.inputs[0], obj)
         by_class[flags].append(obj)
         target_classes[e.target].add(flags)
-        target_of[obj] = pch_owner(e.target)
+        target_of[obj] = e.target
         defines_of[obj] = defines
         include_dirs_of[obj] = include_dirs
         source_of[obj] = e.inputs[0]
@@ -1589,7 +1573,7 @@ def no_util(base, m):
             d = os.path.dirname(d)
         return bool(owners) and all(has_util(o) for o in owners)
 
-    contrib = set(t for t in m["files_of"] if not t.endswith(_ENUM_OBJS) and not has_util(t))
+    contrib = set(t for t in m["files_of"] if not has_util(t))
     files = set(f for t in contrib for f in m["files_of"][t])
     names = base["header_names"]
     banned = set(h for u, hs in enumerate(m["headers"]) if not files.intersection(m["files"][u])
@@ -1610,15 +1594,15 @@ def groups(args, base):
     base.update(contrib=contrib, contrib_bans=contrib_bans)
     banned = banned_units(m, set(m["comp"][h] for h in contrib_bans))
     print("%-18s%d of %d targets without //util, headers banned for them %d" % (
-        "contrib:", len(contrib), sum(1 for t in m["files_of"] if not t.endswith(_ENUM_OBJS)), len(contrib_bans)))
+        "contrib:", len(contrib), len(m["files_of"]), len(contrib_bans)))
 
     print("%-18sq = %g, %s" % ("groups:", m["q"], "parts of the dir tree of at most %d files" % m["max_group_files"]
                                   if m["max_group_files"] else "no limit of files"))
 
+    excluded = [p for _, ps in gni_lists(os.path.join(_ROOT, _ENUM_EXCLUDE_GNI), "enum_serialization_pch_exclude") for p in ps]
     found = []                                  # (class, selection)
     for n, class_objs in enumerate(base["classes"], 1):
-        # the enum serialization of enum_serialization_pch_exclude: no PCH
-        targets = sorted(set(target_of[o] for o in class_objs if not target_of[o].endswith(_ENUM_OBJS)))
+        targets = sorted({target_of[o] for o in class_objs if not label_matches(target_of[o], excluded)})
         log("class %d: %d targets..." % (n, len(targets)))
         found.extend((n, sel) for sel in class_groups(m, [t for t in targets if t not in contrib]))
         own = [t for t in targets if t in contrib]
@@ -1711,14 +1695,7 @@ def target_selection(m, target, banned=None):
 def per_target_groups(args, base):
     """--per-target: a group of each target gaining from a PCH of its own."""
     log("selecting the PCH of each target...")
-    # the enum serialization (<target>_enum_objs) has no PCH in this mode: the
-    # source_set of serialize_enums takes no precompiled_header; its files are
-    # of a target of their own, not of the one whose PCH they take in "global"
     target_of = base["target_of"]
-    for obj, target in target_of.items():
-        prefix = os.path.basename(obj).partition(".")[0]
-        if prefix.endswith(_ENUM_OBJS):
-            target_of[obj] = "%s:%s" % (target.partition(":")[0], prefix)
     m = build_model(base)
     contrib, contrib_bans = no_util(base, m)
     base.update(contrib=contrib, contrib_bans=contrib_bans, per_target=True)

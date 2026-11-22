@@ -90,7 +90,8 @@ set_defaults("source_set") {
     assert "injected deployment failure" in checker
     write("build/gn/scripts/pch_check.py", checker)
     write("generate.py", 'import pathlib, sys\np = pathlib.Path(sys.argv[1])\np.parent.mkdir(parents=True, exist_ok=True)\np.write_text("#pragma once\\nstruct Generated {};\\n")\n')
-    write("heavy.h", '#pragma once\n#include "generated.h"\n' + "\n".join(
+    # A stable heavy base plus a generated dependency outside that base.
+    write("heavy.h", '#pragma once\n' + "\n".join(
         "struct Type%d { int value[%d]; };" % (i, i % 13 + 1) for i in range(150000)))
     build = '''action("generate") {
   visibility = [ ":fixture_codegen" ]
@@ -118,7 +119,7 @@ config("common") {
         for f in range(12):
             name = "file%d_%d.cpp" % (t, f)
             files.append(name)
-            write(name, '#include "heavy.h"\nint f%d_%d() { return sizeof(Type9999); }\n' % (t, f))
+            write(name, '#include "heavy.h"\n#include "generated.h"\nint f%d_%d() { return sizeof(Type9999); }\n' % (t, f))
         build += '''source_set("%s") {
   sources = %s
   deps = [ ":fixture_codegen" ]
@@ -140,7 +141,8 @@ config("common") {
     run(common + ["--apply"], expected=1)
     run(common + ["--predict", "--correct"], expected=1)
     run(common + ["--plan", "unused"], expected=1)
-    run(common + ["--predict", "--disk", "1G", "--q", "1", "--sample", "100", "--main-ref", "HEAD", "--workers", "2",
+    run(common + ["--predict", "--sample", "20"], expected=1)
+    run(common + ["--predict", "--disk", "1G", "--q", "1", "--main-ref", "HEAD", "--workers", "2",
                   "--ram-gb", "2", "--action-memory-gb", "1.1"])
     state = baseline / ".pch_update"
     snapshots = list(state.glob("current/initial/snapshot.bin"))
@@ -175,7 +177,9 @@ config("common") {
     assert (initial / "selection.bin").read_bytes() == chosen
     corrected = cycle / "corrected"
     (corrected / "compatibility.tsv").mkdir(parents=True)
-    run(common + ["--correct"], expected=1)
+    run(common + ["--correct", "--sample", "20"], expected=1)
+    assert "sample_percent\t20\n" in (initial / "summary.tsv").read_text()
+    run(common + ["--correct", "--sample", "50"], expected=1)
     chosen = (corrected / "selection.bin").read_bytes()
     reused(common + ["--correct"], expected=1)
     (corrected / "compatibility.tsv").rmdir()
@@ -186,7 +190,7 @@ config("common") {
     measured = {p.name: p.read_bytes() for p in (corrected / "observations").glob("*.bin")}
     run(common + ["--correct"])
     assert measured == {p.name: p.read_bytes() for p in (corrected / "observations").glob("*.bin")}
-    assert not (state / "cache/compatibility-v1").exists()
+    assert not (state / "cache/compatibility-v2").exists()
     assert not list((initial / "build").rglob("*.o")), "initial objects survived calibration"
     assert not (state / "modes").exists(), "mode-specific saved runs must not be created"
     invocations = [json.loads(line) for line in ninja_calls.read_text().splitlines()]

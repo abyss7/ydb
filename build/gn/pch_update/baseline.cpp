@@ -24,7 +24,7 @@ namespace NPchUpdate {
 
     namespace {
 
-        constexpr uint64_t GN_RESULT_TAG = 0x70636875'676e7301ull + JOBS_VERSION;
+        constexpr uint64_t GN_RESULT_TAG = 0x70636875'676e7302ull + JOBS_VERSION;
         constexpr size_t THREADS = 8;
         // A trace is written right after its object; older than it by more is of another compile.
         constexpr int64_t TRACE_SLACK_NS = 60'000'000'000;
@@ -43,6 +43,7 @@ namespace NPchUpdate {
             std::string Type;
             std::vector<std::string> Deps;
             std::vector<std::string> Outputs;
+            std::vector<std::string> DeclaredOutputs;
             std::string PchOwner;
         };
 
@@ -55,6 +56,7 @@ namespace NPchUpdate {
                 out.Str(t.Type);
                 out.StrList(t.Deps);
                 out.StrList(t.Outputs);
+                out.StrList(t.DeclaredOutputs);
                 out.Str(t.PchOwner);
             }
             WriteFileIfChanged(path, out.Data());
@@ -72,6 +74,7 @@ namespace NPchUpdate {
                 t.Type = in.Str();
                 t.Deps = in.StrList();
                 t.Outputs = in.StrList();
+                t.DeclaredOutputs = in.StrList();
                 t.PchOwner = in.Str();
             }
             return targets;
@@ -894,8 +897,14 @@ namespace NPchUpdate {
                 }
             }
             std::set<std::pair<std::string_view, int32_t>> inputOf;
+            std::set<std::pair<std::string_view, int32_t>> declaredBy;
             if (!multi.empty()) {
                 for (size_t i = 0; i < targets.size(); ++i) {
+                    for (const auto& p : targets[i].DeclaredOutputs) {
+                        if (multi.count(p)) {
+                            declaredBy.emplace(p, int32_t(i));
+                        }
+                    }
                     std::unordered_set<int64_t> seen;
                     for (const std::string& q : targets[i].Outputs) {
                         int64_t e = manifest.Producer(q);
@@ -920,8 +929,14 @@ namespace NPchUpdate {
                 int32_t owner = labels[0];
                 if (labels.size() > 1) {
                     owner = -1;
+                    // A consumer's .inputdeps can list the producer's output,
+                    // making both labels look like consumers. GN's explicit
+                    // action outputs identify the writer without that heuristic.
+                    bool hasDeclaration = std::any_of(labels.begin(), labels.end(), [&](int32_t i) {
+                        return declaredBy.count({p, i});
+                    });
                     for (int32_t i : labels) {
-                        if (inputOf.count({p, i})) {
+                        if (hasDeclaration ? !declaredBy.count({p, i}) : inputOf.count({p, i})) {
                             continue;
                         }
                         if (owner >= 0) {
@@ -1064,6 +1079,17 @@ namespace NPchUpdate {
                         target.Type = JsonString(type->value);
                     }
                     target.Deps = JsonStrings(t->value, "deps");
+                    if (target.Type == "action" || target.Type == "action_foreach" || target.Type == "copy") {
+                        for (const auto& output : JsonStrings(t->value, "outputs")) {
+                            if (StartsWith(output, "//")) {
+                                target.DeclaredOutputs.push_back(RelPath(JoinPath(root, output.substr(2)), out));
+                            } else if (IsAbs(output)) {
+                                target.DeclaredOutputs.push_back(RelPath(output, out));
+                            } else {
+                                target.DeclaredOutputs.push_back(NormPath(output));
+                            }
+                        }
+                    }
                     auto metadata = t->value.FindMember("metadata");
                     if (metadata != t->value.MemberEnd() && metadata->value.IsObject()) {
                         auto owners = JsonStrings(metadata->value, "global_pch_owner");
@@ -1402,7 +1428,7 @@ namespace NPchUpdate {
         Report("  dirty check:      " +
                (stale ? std::string("the ninja files are stale")
                       : Format("%zu commands to run for %s, %zu of them C++", commands.size(), targetsText.c_str(), toCompile.size())));
-        Report(Format("  manifest:         %zu GN targets, %zu with C++ (before PCH-owner grouping): %zu C++ files, with PCH %zu", facts.OutputsOfLabel.size(),
+        Report(Format("  manifest:         %zu GN targets, %zu with C++: %zu C++ files, with PCH %zu", facts.OutputsOfLabel.size(),
                       labels.size(), cxxCount, withPch));
         Report(Format("  built:            %zu of %zu C++ files; all files of %zu of %zu targets", built, cxxCount,
                       labels.size() - notBuiltTargets, labels.size()));
