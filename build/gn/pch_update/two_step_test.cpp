@@ -374,8 +374,8 @@ namespace NPchUpdate::NTwoStep {
             TSelectionDiagnostics diag;
             auto baseOnly = Select(d, {}, nullptr, 1, &diag);
             Check(baseOnly.Pchs.size() == 1 && baseOnly.Assignment == std::vector<int>({-1, 0, 0}) &&
-                  diag.Payback.find("\tdelta\t1\t2\t") != std::string::npos &&
-                  diag.Payback.find("\tdrop-assignments\n") != std::string::npos,
+                  diag.Payback.find("\tfamily\t0\t2\t") != std::string::npos &&
+                  diag.Payback.find("\tdelta\t") == std::string::npos,
                   "delta cannot use the control's parsing savings to pay for its build");
             for (int i : {1,2}) { d.Files[i].Own = {{0, 1}, {1, 3}}; }
             auto none = Select(d, {});
@@ -703,6 +703,72 @@ namespace NPchUpdate::NTwoStep {
             }
         }
 
+        // A delta over a non-empty base is priced with the base's own savings
+        // and re-read cost already carried, and a small frequently-changing
+        // root does not join a large stable body the delta has already
+        // accepted: doubling the body's rebuild rate costs more than the root
+        // saves, exactly as TWorkCosts::Build prices the finished artifact.
+        void PhysicalDeltaCosts() {
+            auto d = Data();
+            d.Q = 0;
+            d.Scenarios = 4;
+            d.Units.resize(4);
+            d.Units[0].Include = "<base_header>";
+            d.Units[0].Stable = true; // base material only
+            d.Units[0].Parse = 1;
+            d.Units[0].Bytes = 1;
+            d.Units[0].Changes = {0};
+            d.Units[1].Include = "<churny>";
+            d.Units[1].Parse = 0.5;
+            d.Units[1].Bytes = 1;
+            d.Units[1].Changes = {2};
+            d.Units[2].Include = "<feature>";
+            d.Units[2].Parse = 2;
+            d.Units[2].Bytes = 1;
+            d.Units[2].Changes = {0};
+            d.Units[3].Include = "<stable_body>";
+            d.Units[3].Parse = 20;
+            d.Units[3].Bytes = 1;
+            d.Units[3].Changes = {0};
+            const int targets = 40;
+            std::vector<std::string> owners;
+            for (int i = 0; i < targets; ++i) {
+                const bool featureSide = i % 2;
+                TAction a;
+                a.Time = 10; // own parse times below stay below it
+                a.Memory = 1e6;
+                // Commit 2 is a consumer commit too: the churny root costs no
+                // extra compiles, only the doubled rebuild rate of the body.
+                a.Changes = {0, 2, 3};
+                d.Actions.push_back(a);
+                std::vector<std::pair<int, double>> own{{0, 2}};
+                if (featureSide) {
+                    own.emplace_back(2, 2.5);
+                } else {
+                    own.emplace_back(3, 6.5);
+                    own.emplace_back(1, 0.3);
+                }
+                d.Files.push_back({i, 0, std::to_string(i), std::move(own)});
+                owners.push_back("//x" + std::string(i < 10 ? "0" : "") + std::to_string(i));
+            }
+            GroupTargets(d, owners);
+            auto selected = Select(d, {});
+            Check(selected.Pchs.size() == 3 && selected.Pchs[0].Roots == std::vector<int>({0}) &&
+                      selected.Pchs[1].Parent == 0 && selected.Pchs[1].Roots == std::vector<int>({3}) &&
+                      selected.Pchs[2].Parent == 0 && selected.Pchs[2].Roots == std::vector<int>({2}),
+                  "a stable body and a stable feature form deltas over the non-empty base");
+            for (const auto& pch : selected.Pchs) {
+                Check(std::find(pch.Roots.begin(), pch.Roots.end(), 1) == pch.Roots.end(),
+                      "a churning root that would double the body's rebuild rate stays out");
+            }
+            std::vector<int> expected(targets);
+            for (int t = 0; t < targets; ++t) {
+                expected[t] = t % 10 == 0 ? -1 : t % 2 ? 2 : 1;
+            }
+            Check(selected.Assignment == expected,
+                  "feature owners take the delta, the others the base, controls stay bare");
+        }
+
         // The base shared with a held-out delta stays in the artifact fits:
         // the holdout scores consumer time only, and each class has one base.
         void HeldOutParentCalibration() {
@@ -752,6 +818,319 @@ namespace NPchUpdate::NTwoStep {
             Check(fit.Report.find("unmeasured") == std::string::npos,
                   "the base build observation is not reported as unmeasured");
         }
+        // The disk price trims a fat low-density tail from a base instead of
+        // losing the whole family to an all-or-nothing eviction.
+        void DiskPricedTrimming() {
+            auto d = Data();
+            d.Units.resize(2);
+            d.Units[0].Include = "<dense>";
+            d.Units[0].Stable = true;
+            d.Units[0].Parse = 1;
+            d.Units[0].Bytes = 1e6;
+            d.Units[1].Include = "<fat>";
+            d.Units[1].Stable = true;
+            d.Units[1].Parse = 1;
+            d.Units[1].Bytes = 100e6;
+            for (int f = 0; f < 4; ++f) {
+                TAction a;
+                a.Time = 50;
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                d.Files.push_back({f, 0, std::to_string(f), {{0, 30}, {1, 2}}});
+            }
+            TestTargets(d);
+            d.Resources.Disk = 8e6; // fits the dense root, not the fat tail
+            auto selected = Select(d, {});
+            Check(selected.Pchs.size() == 1 && selected.Pchs[0].Roots == std::vector<int>({0}),
+                  "a disk-priced candidate keeps the dense prefix and drops the fat tail");
+            Check(selected.Assignment == std::vector<int>({-1, 0, 0, 0}),
+                  "trimmed base still serves every owner except the calibration control");
+        }
+
+        // Owners with the same heavy-header profile share one delta even when
+        // their labels sort far apart: interleaved strangers do not split the
+        // profile into chunks, and a mixed delta loses to the false-rebuild
+        // penalties of members it does not fit.
+        void ClusteredAcrossAlphabet() {
+            auto d = Data();
+            d.Q = 0;
+            d.Scenarios = 2;
+            d.Units.resize(3);
+            d.Units[0].Include = "<base>";
+            d.Units[0].Stable = true;
+            d.Units[0].Parse = 1;
+            d.Units[0].Bytes = 1;
+            d.Units[1].Include = "<feature_a>";
+            d.Units[1].Parse = 2;
+            d.Units[1].Bytes = 1;
+            d.Units[1].Changes = {0};
+            d.Units[2].Include = "<feature_b>";
+            d.Units[2].Parse = 2;
+            d.Units[2].Bytes = 1;
+            d.Units[2].Changes = {1};
+            // Labels alternate profiles across the whole alphabet; an owner
+            // rebuilds exactly on its own feature's commit.
+            const int targets = 36;
+            std::vector<std::string> owners;
+            for (int i = 0; i < targets; ++i) {
+                const int unit = i % 2 ? 2 : 1;
+                TAction a;
+                a.Time = 100;
+                a.Memory = 1e6;
+                a.Changes = {unit - 1};
+                d.Actions.push_back(a);
+                d.Files.push_back({i, 0, std::to_string(i), {{0, 1}, {unit, 30}}});
+                owners.push_back("//x" + std::string(i < 10 ? "0" : "") + std::to_string(i));
+            }
+            GroupTargets(d, owners);
+            auto selected = Select(d, {});
+            Check(selected.Pchs.size() == 3 &&
+                  selected.Pchs[1].Roots == std::vector<int>({1}) &&
+                  selected.Pchs[2].Roots == std::vector<int>({2}),
+                  "profile clustering yields one delta per heavy-header profile, not label-chunk duplicates");
+            std::vector<int> expected(targets);
+            for (int t = 0; t < targets; ++t) {
+                expected[t] = t % 10 == 0 ? -1 : t % 2 ? 2 : 1;
+            }
+            Check(selected.Assignment == expected,
+                  "owners land on the delta matching their profile");
+        }
+
+        // A near-duplicate delta evicts into its sibling, and the unique
+        // specialized delta survives the same budget cut.
+        void SiblingFallbackEviction() {
+            auto d = Data();
+            d.Units.resize(3);
+            d.Units[0].Include = "<base>";
+            d.Units[0].Stable = true;
+            d.Units[0].Parse = 1;
+            d.Units[0].Bytes = 1;
+            d.Units[1].Include = "<shared_feature>";
+            d.Units[1].Parse = 2;
+            d.Units[1].Bytes = 1;
+            d.Units[2].Include = "<unique_feature>";
+            d.Units[2].Parse = 4;
+            d.Units[2].Bytes = 2;
+            const int unit[] = {1, 1, 1, 1, 2, 2};
+            const char* owners[] = {"//dup:a", "//dup:a", "//dup:b", "//dup:b", "//unique:u", "//unique:u"};
+            std::vector<std::string> labels;
+            for (int f = 0; f < 6; ++f) {
+                TAction a;
+                a.Time = 50;
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                d.Files.push_back({f, 0, std::to_string(f), {{0, 1}, {unit[f], unit[f] == 1 ? 10 : 9}}});
+                labels.push_back(owners[f]);
+            }
+            GroupTargets(d, labels);
+            TLayout layout;
+            layout.Bases = 1;
+            TPch base;
+            base.Class = 0;
+            base.Representative = 0;
+            base.Roots = base.Units = {0};
+            layout.Pchs.push_back(base);
+            for (int g : {1, 2, 3}) {
+                TPch delta;
+                delta.Class = 0;
+                delta.Parent = 0;
+                delta.Representative = g == 3 ? 4 : g - 1;
+                delta.Roots = {g == 3 ? 2 : 1};
+                delta.Units = {0, g == 3 ? 2 : 1};
+                layout.Pchs.push_back(delta);
+            }
+            layout.Assignment = {1, 2, 3}; // dup:a -> delta A, dup:b -> delta B, unique -> delta C
+            d.Resources.Disk = 13; // base(4) + two of the three deltas (3,3,6)
+            auto merged = layout;
+            auto report = FitMeasuredDisk(d, merged, {}, {4, 3, 3, 6}, false, [](int, int) { return true; });
+            CompactLayout(merged, false);
+            Check(merged.Assignment == std::vector<int>({1, 1, 2}) && merged.Pchs.size() == 3 &&
+                  report.find("\ndelta\t1\t") != std::string::npos,
+                  "a near-duplicate delta merges into its sibling; the unique delta survives");
+        }
+        // A sibling fallback never crosses compiler classes: a delta of
+        // another class may share the same roots, but its PCH cannot serve
+        // these files, and an assignment to it would fail prediction.
+        void CrossClassSiblings() {
+            auto d = Data();
+            d.Classes = 2;
+            d.Units.resize(3);
+            d.Units[0].Include = "<base0>";
+            d.Units[0].Stable = true;
+            d.Units[0].Parse = 1;
+            d.Units[0].Bytes = 1;
+            d.Units[1].Include = "<base1>";
+            d.Units[1].Stable = true;
+            d.Units[1].Parse = 1;
+            d.Units[1].Bytes = 1;
+            d.Units[2].Include = "<shared>";
+            d.Units[2].Parse = 2;
+            d.Units[2].Bytes = 2;
+            std::vector<std::string> owners;
+            for (int f = 0; f < 4; ++f) {
+                const int cls = f / 2;
+                TAction a;
+                a.Time = 50;
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                // A well-covered base keeps both families more expensive to
+                // evict per byte than their deltas.
+                d.Files.push_back({f, cls, std::to_string(f), {{cls, 8}, {2, 10}}});
+                owners.push_back(cls ? "//cls1:t" + std::to_string(f) : "//cls0:t" + std::to_string(f));
+            }
+            GroupTargets(d, owners);
+            TLayout layout;
+            layout.Bases = 2;
+            for (int b = 0; b < 2; ++b) {
+                TPch base;
+                base.Class = b;
+                base.Representative = 2 * b;
+                base.Roots = base.Units = {b};
+                layout.Pchs.push_back(base);
+            }
+            for (int g = 0; g < 2; ++g) {
+                TPch delta;
+                delta.Class = g;
+                delta.Parent = g;
+                delta.Representative = 2 * g + 1;
+                delta.Roots = {2};
+                delta.Units = {g, 2};
+                layout.Pchs.push_back(delta);
+            }
+            layout.Assignment = {2, 2, 3, 3};
+            d.Resources.Disk = 12; // base0+delta0+base1 fit; the class-1 delta does not
+            auto merged = layout;
+            FitMeasuredDisk(d, merged, {}, {4, 4, 3, 6}, false, [](int, int) { return true; });
+            CompactLayout(merged, false);
+            Check(merged.Assignment == std::vector<int>({2, 2, 1, 1}) && merged.Pchs.size() == 3,
+                  "an evicted delta falls back inside its own compiler class");
+            bool compatible = true;
+            try { Predict(d, merged, {}); } catch (const TError&) { compatible = false; }
+            Check(compatible, "no cross-class assignment survives disk eviction");
+        }
+
+        // Duplicate deltas merge at payback: the weaker copy is priced against
+        // its still-open sibling, hands its owners over and disappears —
+        // instead of both being admitted against the base alone.
+        void DuplicateDeltaMerge() {
+            auto d = Data();
+            d.Units.resize(2);
+            d.Units[0].Include = "<base>";
+            d.Units[0].Stable = true;
+            d.Units[0].Parse = 1;
+            d.Units[0].Bytes = 1;
+            d.Units[1].Include = "<feature>";
+            d.Units[1].Parse = 2;
+            d.Units[1].Bytes = 1;
+            for (int f = 0; f < 6; ++f) {
+                TAction a;
+                a.Time = 10;
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                d.Files.push_back({f, 0, std::to_string(f), {{0, 1}, {1, 6}}});
+            }
+            TestTargets(d);
+            TLayout frozen;
+            frozen.Bases = 1;
+            TPch base;
+            base.Class = 0;
+            base.Representative = 0;
+            base.Roots = base.Units = {0};
+            frozen.Pchs.push_back(base);
+            for (int g = 0; g < 2; ++g) {
+                TPch delta;
+                delta.Class = 0;
+                delta.Parent = 0;
+                delta.Representative = g;
+                delta.Roots = {1};
+                delta.Units = {0, 1};
+                frozen.Pchs.push_back(delta);
+            }
+            frozen.Assignment = {1, 1, 1, 2, 2, 2};
+            TSelectionDiagnostics diag;
+            auto selected = Select(d, {}, &frozen, 1, &diag);
+            Check(selected.Pchs.size() == 2 && selected.Assignment == std::vector<int>(6, 1),
+                  "a duplicate delta hands its owners to its sibling and disappears");
+            Check(diag.Targets.find("delta-payback-sibling") != std::string::npos,
+                  "the weaker duplicate is priced against its open sibling, not the base");
+        }
+
+        // The per-evaluation scratch (deltaSaved) must never leak into an
+        // acceptance: the last candidate evaluated while seeding the queue
+        // used to leave its savings behind, and the first accepted root folded
+        // them instead of its own — crediting files with a header the PCH does
+        // not hold and flattering the extra-compile penalty of later roots.
+        void PickScratchIsolation() {
+            auto d = Data();
+            d.Q = .5;
+            d.Scenarios = 2;
+            d.Units.resize(3);
+            for (int u = 0; u < 3; ++u) {
+                d.Units[u].Include = "<unit" + std::to_string(u) + ">";
+                d.Units[u].Stable = true;
+                d.Units[u].Bytes = 1;
+            }
+            d.Units[0].Parse = 1; // accepted first: the densest root
+            d.Units[1].Parse = 1;
+            d.Units[1].Changes = {0}; // extra compiles for every consumer
+            d.Units[2].Parse = 60; // far too expensive to build: always rejected
+            for (int f = 0; f < 4; ++f) {
+                TAction a;
+                a.Time = 10;
+                a.Memory = 1e6;
+                a.Changes = {1}; // consumers rebuild on scenario 1 only
+                d.Actions.push_back(a);
+                // own: 2 for the cheap roots, 9 for the expensive last one.
+                d.Files.push_back({f, 0, std::to_string(f), {{0, 2}, {1, 2}, {2, 9}}});
+            }
+            TestTargets(d);
+            auto selected = Select(d, {});
+            Check(selected.Pchs.size() == 1 && selected.Pchs[0].Roots == std::vector<int>({0}),
+                  "an accepted root folds only its own savings; another root's extra compiles stay fully priced");
+        }
+
+        // A delta rooted at an umbrella header must be found by targets that
+        // parse only the nested headers it transitively serializes.
+        void UmbrellaRootSibling() {
+            auto d = Data();
+            d.Units.resize(3);
+            d.Units[0].Include = "<base>";
+            d.Units[0].Stable = true;
+            d.Units[0].Parse = 1;
+            d.Units[0].Bytes = 1;
+            d.Units[1].Include = ""; // nested header: never an injected root
+            d.Units[1].Parse = 5;
+            d.Units[1].Bytes = 1;
+            d.Units[2].Include = "<umbrella>";
+            d.Units[2].Children = {1};
+            d.Units[2].Parse = 0.5;
+            d.Units[2].Bytes = 1;
+            const int targets = 30;
+            std::vector<std::string> owners;
+            for (int i = 0; i < targets; ++i) {
+                TAction a;
+                a.Time = 10;
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                // Five owners include the umbrella directly; the rest parse
+                // only the nested header it pulls in.
+                std::vector<std::pair<int, double>> own{{0, 1}, {1, 8}};
+                if (i < 5) {
+                    own.emplace_back(2, 0.5);
+                }
+                d.Files.push_back({i, 0, std::to_string(i), std::move(own)});
+                owners.push_back("//x" + std::string(i < 10 ? "0" : "") + std::to_string(i));
+            }
+            GroupTargets(d, owners);
+            auto selected = Select(d, {});
+            Check(selected.Pchs.size() == 2 && selected.Pchs[1].Roots == std::vector<int>({2}) &&
+                      selected.Pchs[1].Units == std::vector<int>({0, 1, 2}),
+                  "the umbrella root serializes the nested header transitively");
+            for (size_t t = 0; t < selected.Assignment.size(); ++t) {
+                Check(selected.Assignment[t] == (t % 10 == 0 ? -1 : 1),
+                      "targets parsing only the nested header still find the umbrella delta");
+            }
+        }
     } // namespace
 
     int SelfTest() {
@@ -767,7 +1146,15 @@ namespace NPchUpdate::NTwoStep {
         AbsoluteSystemRoot();
         Calibration();
         CoChangedRoots();
+        PhysicalDeltaCosts();
         HeldOutParentCalibration();
+        DiskPricedTrimming();
+        ClusteredAcrossAlphabet();
+        SiblingFallbackEviction();
+        CrossClassSiblings();
+        DuplicateDeltaMerge();
+        UmbrellaRootSibling();
+        PickScratchIsolation();
         AtomicTargets();
         IoSelfTest();
         Report("two-step self-tests: OK");

@@ -2,7 +2,9 @@
 #include "common.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
+#include <cstdint>
 #include <limits>
 #include <numeric>
 #include <queue>
@@ -148,9 +150,15 @@ namespace NPchUpdate::NTwoStep {
 
         // Fast local surrogate. Full graph simulations are reserved for the
         // layout shortlist below; no worker-count multiplier on PCH readiness.
+        // diskPrice (lambda) is the marginal consumer seconds one resident PCH
+        // byte must pay for: roots are admitted only at a gain that stays
+        // positive net of that price, and Roots leave in acceptance order,
+        // which approximates descending benefit per serialized byte, so the
+        // tail can be trimmed wholesale under disk pressure (matryoshka).
         TPch Pick(const TData& d, const TCalibration& calibration, int cls,
                   const std::vector<int>& files, const TPch* base, bool stable,
-                  std::map<int, std::vector<int>>& closures) {
+                  std::map<int, std::vector<int>>& closures, double diskPrice = 0,
+                  std::vector<double>* densities = nullptr) {
             TPch p;
             p.Class = cls;
             if (files.empty()) { return p; }
@@ -186,12 +194,6 @@ namespace NPchUpdate::NTwoStep {
                     candidates.push_back(int(u));
                 }
             }
-            std::stable_sort(candidates.begin(), candidates.end(), [&](int a, int b) {
-                return mass[a] > mass[b];
-            });
-            // TODO: investigate and document why the former 128-candidate
-            // limit was chosen, including measured selection cost and quality.
-            // Leave the search uncapped until that limit can be justified.
             std::vector<char> selected(d.Units.size());
             for (int u : p.Units) {
                 selected[u] = true;
@@ -243,59 +245,59 @@ namespace NPchUpdate::NTwoStep {
                 }
                 touchedFiles.clear();
             };
-            for (int root : candidates) {
-                if (selected[root]) {
-                    continue;
-                }
+            // Full marginal evaluation of one root against the current state.
+            struct TEval {
+                bool Valid = true;
+                double Work = 0, Gain = 0, Bytes = 0, BuildCost = 0;
+                std::set<int> Fresh; // commits that would newly invalidate the PCH
+            };
+            auto artifactBytes = [&](const TEval& e) { return std::max(1.0, c.Size * e.Bytes); };
+            auto evaluate = [&](int root) {
+                clearDelta();
                 auto [cached, added] = closures.try_emplace(root);
                 if (added) {
                     cached->second = Closure(d, {root});
                 }
                 const auto& closure = cached->second;
-                bool valid = true;
-                double work = 0, gain = 0;
-                std::set<int> fresh; // commits that would newly invalidate the PCH
+                TEval e;
                 for (int u : closure) {
                     // Shared bases stay conservative. Specialized leaves may
                     // require libraries: Preflight checks the actual PCH against
                     // every final link of each assigned owner before accepting it.
-                    valid &= !stable || (d.Units[u].Safe && d.Units[u].Stable);
+                    e.Valid &= !stable || (d.Units[u].Safe && d.Units[u].Stable);
                     if (!selected[u]) {
-                        work += d.Units[u].Parse;
-                        gain += c.Saved * mass[u];
+                        e.Work += d.Units[u].Parse;
+                        e.Gain += c.Saved * mass[u];
+                        e.Bytes += d.Units[u].Bytes;
                         for (int k : d.Units[u].Changes) {
                             if (!invalidating.count(k)) {
-                                fresh.insert(k);
+                                e.Fresh.insert(k);
                             }
                         }
-                    }
-                }
-                if (!valid) {
-                    continue;
-                }
-                for (int u : closure) {
-                    if (selected[u]) {
-                        continue;
-                    }
-                    for (auto [i, own] : unitFiles[u]) {
-                        if (!touched[i]) {
-                            touched[i] = 1;
-                            touchedFiles.push_back(i);
+                        for (auto [i, own] : unitFiles[u]) {
+                            if (!touched[i]) {
+                                touched[i] = 1;
+                                touchedFiles.push_back(i);
+                            }
+                            deltaSaved[i] += own;
                         }
-                        deltaSaved[i] += own;
                     }
+                }
+                if (!e.Valid) {
+                    clearDelta();
+                    return e;
                 }
                 // TWorkCosts::Build of the artifact with this root minus the
                 // build cost already carried: fresh commits reprice the whole
                 // accepted body, and the parent is re-read on every rebuild.
-                const double nextBuild = buildCost(loadSoFar + work, invalidating.size() + fresh.size());
-                gain -= nextBuild - buildCostSoFar;
+                e.BuildCost = buildCost(loadSoFar + e.Work, invalidating.size() + e.Fresh.size());
+                e.Gain -= e.BuildCost - buildCostSoFar;
                 for (int i = 0; i < fileCount; ++i) {
                     const auto& a = d.Actions[d.Files[files[i]].Action];
                     double consumerFrequency = d.Q + (1 - d.Q) * double(a.Changes.size()) / std::max(1, d.Scenarios);
-                    gain -= c.Load * work * consumerFrequency;
+                    e.Gain -= c.Load * e.Work * consumerFrequency;
                     int extra = 0;
-                    for (int k : fresh) {
+                    for (int k : e.Fresh) {
                         if (!std::binary_search(a.Changes.begin(), a.Changes.end(), k)) {
                             ++extra;
                         }
@@ -304,26 +306,87 @@ namespace NPchUpdate::NTwoStep {
                         // Extra compiles parse this PCH, the candidate's
                         // closure included: charge the accelerated consumer
                         // time, not the bare no-PCH action time.
-                        gain -= (1 - d.Q) * extra / std::max(1, d.Scenarios) *
-                            Consumer(a, savedSoFar[i] + deltaSaved[i], loadSoFar + work, c);
+                        e.Gain -= (1 - d.Q) * extra / std::max(1, d.Scenarios) *
+                            Consumer(a, savedSoFar[i] + deltaSaved[i], loadSoFar + e.Work, c);
                     }
                 }
-                if (gain > 0) {
-                    p.Roots.push_back(root);
-                    for (int u : closure) {
-                        if (!selected[u]) {
-                            selected[u] = true;
-                            p.Units.push_back(u);
+                // The scratch buffers belong to this evaluation only: a queued
+                // root can be accepted later without a fresh evaluate (its key
+                // still leads the queue), so nothing may outlive this call.
+                clearDelta();
+                return e;
+            };
+            // Lazy greedy queue by benefit per resident byte. Umbrella roots
+            // whose own mass sits in nested non-self-contained headers compete
+            // at their closure value instead of losing to noisy wrappers, and
+            // acceptance follows descending density. Keys go stale whenever an
+            // acceptance changes the shared state; a stale winner is
+            // re-evaluated once and reinserted unless it still leads.
+            struct TKey {
+                double Density = 0;
+                int Root = 0;
+            };
+            auto lowerValue = [](const TKey& a, const TKey& b) {
+                return a.Density != b.Density ? a.Density < b.Density : a.Root > b.Root;
+            };
+            std::priority_queue<TKey, std::vector<TKey>, decltype(lowerValue)> queue(lowerValue);
+            std::vector<TEval> evaluated(d.Units.size());
+            std::vector<int> epochAt(d.Units.size(), -1);
+            int epoch = 0;
+            for (int root : candidates) {
+                auto e = evaluate(root);
+                if (!e.Valid) {
+                    continue;
+                }
+                evaluated[root] = std::move(e);
+                epochAt[root] = epoch;
+                queue.push({evaluated[root].Gain / artifactBytes(evaluated[root]), root});
+            }
+            while (!queue.empty()) {
+                TKey key = queue.top();
+                queue.pop();
+                int root = key.Root;
+                if (selected[root]) {
+                    continue;
+                }
+                if (epochAt[root] != epoch) {
+                    auto fresh = evaluate(root);
+                    evaluated[root] = std::move(fresh);
+                    epochAt[root] = epoch;
+                    double density = evaluated[root].Gain / artifactBytes(evaluated[root]);
+                    if (!queue.empty() && lowerValue({density, root}, queue.top())) {
+                        queue.push({density, root});
+                        continue;
+                    }
+                }
+                const auto& e = evaluated[root];
+                // Admission nets the disk price off the gain: fat low-density
+                // tails stay out of the artifact entirely. This is a continue,
+                // not a break: accepting another root can remove a shared
+                // commit from this root's fresh penalty (supermodularity on
+                // co-changed headers) and raise its density from negative to
+                // positive, so rejected candidates must stay revisitable.
+                if (!(e.Gain > diskPrice * artifactBytes(e))) {
+                    continue;
+                }
+                p.Roots.push_back(root);
+                if (densities) {
+                    densities->push_back(e.Gain / artifactBytes(e));
+                }
+                const auto& closure = closures.at(root);
+                for (int u : closure) {
+                    if (!selected[u]) {
+                        selected[u] = true;
+                        p.Units.push_back(u);
+                        for (auto [i, own] : unitFiles[u]) {
+                            savedSoFar[i] += own;
                         }
                     }
-                    invalidating.insert(fresh.begin(), fresh.end());
-                    loadSoFar += work;
-                    buildCostSoFar = nextBuild;
-                    for (int i : touchedFiles) {
-                        savedSoFar[i] += deltaSaved[i];
-                    }
                 }
-                clearDelta();
+                invalidating.insert(e.Fresh.begin(), e.Fresh.end());
+                loadSoFar += e.Work;
+                buildCostSoFar = e.BuildCost;
+                ++epoch;
             }
             Unique(p.Units);
             return p;
@@ -393,67 +456,376 @@ namespace NPchUpdate::NTwoStep {
             }
         };
 
-        // Price a delta against each assigned owner's better fallback. Only
-        // surviving children contribute to the subsequent family-vs-NONE test.
-        void CheckPayback(const TData& d, TLayout& l, const TCalibration& c, bool frozen,
-                          int width, int pass, const std::vector<int>& ids,
-                          std::vector<std::string>* reasons, std::ostream* report) {
-            TWorkCosts costs{d, l, c, {}};
-            struct TGroup {
-                std::vector<int> Owners;
-                TConsumerBalance Relative, VsNone, Fallback;
-                double ChildBuild = 0;
-            };
-            std::vector<TGroup> groups(l.Pchs.size());
-            std::vector<int> fallback(d.Targets.size(), -1);
-            for (size_t t = 0; t < l.Assignment.size(); ++t) {
-                int g = l.Assignment[t];
-                if (g < 0) { continue; }
-                auto& group = groups[g];
-                group.Owners.push_back(t);
-                TConsumerBalance benefit, base;
-                costs.Target(t, g, &benefit);
-                group.VsNone.Add(benefit);
-                int parent = l.Pchs[g].Parent;
-                if (parent >= 0) {
-                    costs.Target(t, parent, &base);
-                    if (base.Net() > 0) {
-                        fallback[t] = parent;
-                        group.Fallback.Add(base);
+        // Residual parse profile of one owner over units its class base does
+        // not already serialize: the signal for clustering owners into deltas
+        // and for finding a target's second-best delta later.
+        using TProfile = std::vector<std::pair<int, double>>; // unit ascending
+
+        TProfile ResidualProfile(const TData& d, int t, const std::vector<char>& inBase) {
+            std::map<int, double> acc;
+            for (int f : d.Targets[t].Files) {
+                double frequency = d.Q + (1 - d.Q) *
+                    double(d.Actions[d.Files[f].Action].Changes.size()) / std::max(1, d.Scenarios);
+                for (auto [u, own] : d.Files[f].Own) {
+                    if (!inBase[u] && own > 0) {
+                        acc[u] += own * frequency;
                     }
                 }
             }
-            auto admit = [&](int g, const TConsumerBalance& benefit, double build, double mandatory) {
-                double net = benefit.Net() - (build - mandatory);
-                if (report) {
-                    *report << width << '\t' << pass << '\t' << (g < l.Bases ? "family" : "delta") << '\t'
-                            << ids[g] << '\t' << groups[g].Owners.size() << '\t' << benefit.ParseSaved << '\t'
-                            << benefit.Load << '\t' << benefit.ExtraCompiles << '\t' << build << '\t' << mandatory
-                            << '\t' << net << '\t' << (net > 0 ? "keep" : "drop-assignments") << '\n';
+            TProfile profile;
+            for (const auto& [u, m] : acc) {
+                if (m > 0) {
+                    profile.emplace_back(u, m);
                 }
-                return net > 0;
+            }
+            return profile;
+        }
+
+        // unit -> deltas of the layout whose own content (everything their
+        // closure adds beyond their parent base) contains it. Indexing the
+        // full own units, not only the injected roots, matters for umbrella
+        // roots: a delta rooted at actors_all.h still serializes actor.h
+        // transitively, and a target spending its parse time on actor.h must
+        // find that delta.
+        std::map<int, std::vector<int>> UnitPostings(const TLayout& l) {
+            std::map<int, std::vector<int>> postings;
+            for (size_t g = size_t(l.Bases); g < l.Pchs.size(); ++g) {
+                const auto& units = l.Pchs[g].Units;
+                const auto& parentUnits = l.Pchs[l.Pchs[g].Parent].Units;
+                for (size_t i = 0, j = 0; i < units.size(); ++i) {
+                    while (j < parentUnits.size() && parentUnits[j] < units[i]) {
+                        ++j;
+                    }
+                    if (j < parentUnits.size() && parentUnits[j] == units[i]) {
+                        continue; // already serialized by the parent base
+                    }
+                    postings[units[i]].push_back(int(g));
+                }
+            }
+            return postings;
+        }
+
+        // Deltas of one compiler class overlapping a residual profile, most
+        // shared mass first: candidates to absorb a target when its own leaf
+        // is evicted or rejected, instead of falling all the way to the base
+        // or NONE. Never crosses compiler classes: a PCH of another class
+        // cannot serve these files.
+        std::vector<int> SiblingDeltas(const TLayout& l, const std::map<int, std::vector<int>>& postings,
+                                       int cls, const TProfile& profile, int exclude, int limit) {
+            std::map<int, double> overlap;
+            for (const auto& [u, m] : profile) {
+                auto it = postings.find(u);
+                if (it == postings.end()) {
+                    continue;
+                }
+                for (int g : it->second) {
+                    if (g != exclude && l.Pchs[g].Class == cls) {
+                        overlap[g] += m;
+                    }
+                }
+            }
+            std::vector<std::pair<double, int>> ranked;
+            for (const auto& [g, m] : overlap) {
+                if (m > 0) {
+                    ranked.emplace_back(m, g);
+                }
+            }
+            std::sort(ranked.begin(), ranked.end(), [](const auto& a, const auto& b) {
+                return a.first != b.first ? a.first > b.first : a.second < b.second;
+            });
+            std::vector<int> result;
+            for (const auto& entry : ranked) {
+                if (int(result.size()) >= limit) {
+                    break;
+                }
+                result.push_back(entry.second);
+            }
+            return result;
+        }
+
+        // Initial clustering of owner residual profiles for one class:
+        // bucketed L2-normalized signatures plus deterministic farthest-point
+        // seeding on a subsample. The cluster count is only an upper bound of
+        // the width scale — the EM rounds in Select move members across
+        // deltas freely, letting dense shared subsystems and rare specialized
+        // ones take clusters of very different sizes.
+        std::vector<int> ClusterProfiles(const std::vector<TProfile>& profiles, size_t k) {
+            constexpr size_t BUCKETS = 64;
+            const size_t n = profiles.size();
+            std::vector<int> cluster(n, -1);
+            if (!n || !k) {
+                return cluster;
+            }
+            std::vector<std::array<double, BUCKETS>> signatures(n);
+            std::vector<double> norm(n);
+            for (size_t i = 0; i < n; ++i) {
+                auto& signature = signatures[i];
+                double square = 0;
+                for (const auto& [u, m] : profiles[i]) {
+                    signature[(uint64_t(u) * 0x9E3779B97F4A7C15ULL) >> 58] += m;
+                    square += m * m;
+                }
+                norm[i] = std::sqrt(square);
+                if (norm[i] > 0) {
+                    for (auto& value : signature) {
+                        value /= norm[i];
+                    }
+                }
+            }
+            const size_t wanted = std::max<size_t>(256, 2 * std::min(k, n));
+            // Even steps over the non-empty profiles only: a fixed index stride
+            // would undersample whenever empty profiles (owners fully covered
+            // by their base) interleave.
+            std::vector<size_t> nonEmpty;
+            for (size_t i = 0; i < n; ++i) {
+                if (norm[i] > 0) {
+                    nonEmpty.push_back(i);
+                }
+            }
+            const size_t take = std::min(wanted, nonEmpty.size());
+            std::vector<size_t> sample;
+            for (size_t j = 0; j < take; ++j) {
+                sample.push_back(nonEmpty[j * nonEmpty.size() / take]);
+            }
+            if (sample.empty()) {
+                return cluster;
+            }
+            auto similarity = [&](size_t a, size_t b) {
+                const auto& x = signatures[a];
+                const auto& y = signatures[b];
+                double dot = 0;
+                for (size_t h = 0; h < BUCKETS; ++h) {
+                    dot += x[h] * y[h];
+                }
+                return dot;
+            };
+            std::vector<size_t> seeds;
+            size_t first = 0;
+            for (size_t j = 1; j < sample.size(); ++j) {
+                if (norm[sample[j]] > norm[sample[first]]) {
+                    first = j;
+                }
+            }
+            seeds.push_back(first);
+            std::vector<double> nearest(sample.size(), -2);
+            for (size_t j = 0; j < sample.size(); ++j) {
+                nearest[j] = similarity(sample[j], sample[first]);
+            }
+            std::vector<char> seeded(sample.size());
+            seeded[first] = 1;
+            while (seeds.size() < std::min(k, n) && seeds.size() < sample.size()) {
+                size_t next = sample.size();
+                for (size_t j = 0; j < sample.size(); ++j) {
+                    if (!seeded[j] && (next == sample.size() || nearest[j] < nearest[next])) {
+                        next = j;
+                    }
+                }
+                if (next == sample.size()) {
+                    break;
+                }
+                seeded[next] = 1;
+                seeds.push_back(next);
+                for (size_t j = 0; j < sample.size(); ++j) {
+                    if (!seeded[j]) {
+                        nearest[j] = std::max(nearest[j], similarity(sample[j], sample[next]));
+                    }
+                }
+            }
+            for (size_t i = 0; i < n; ++i) {
+                if (norm[i] <= 0) {
+                    continue;
+                }
+                double best = -2;
+                size_t bestSeed = 0;
+                for (size_t s = 0; s < seeds.size(); ++s) {
+                    double dot = similarity(i, sample[seeds[s]]);
+                    if (dot > best) {
+                        best = dot;
+                        bestSeed = s;
+                    }
+                }
+                cluster[i] = int(bestSeed);
+            }
+            return cluster;
+        }
+
+        // Price a delta against each assigned owner's better fallback. Only
+        // surviving children contribute to the subsequent family-vs-NONE test.
+        void CheckPayback(const TData& d, TLayout& l, const TCalibration& c, bool frozen,
+                          const std::string& source, int pass, const std::vector<int>& ids,
+                          std::vector<std::string>* reasons, std::ostream* report) {
+            TWorkCosts costs{d, l, c, {}};
+            struct TGroup {
+                std::vector<int> Owners; // members that keep this family alive
+                TConsumerBalance VsNone;
+                double ChildBuild = 0;
+            };
+            std::vector<TGroup> groups(l.Pchs.size());
+            // Ranked open alternatives per delta owner: the base plus sibling
+            // deltas whose roots overlap the owner's residual profile. A
+            // near-duplicate delta then competes on marginal value only, and a
+            // dropped owner falls to its best surviving sibling instead of all
+            // the way to the base or NONE.
+            struct TAlternative {
+                TConsumerBalance Balance;
+                int Group = -1;
+            };
+            std::vector<std::vector<TAlternative>> alternatives(d.Targets.size());
+            std::map<std::pair<int, int>, TConsumerBalance> balanceOf;
+            auto benefit = [&](int t, int g) {
+                auto [it, added] = balanceOf.try_emplace(std::make_pair(t, g));
+                if (added) {
+                    costs.Target(t, g, &it->second);
+                }
+                return it->second;
+            };
+            const auto postings = UnitPostings(l);
+            std::map<int, std::vector<char>> baseMask;
+            auto maskOf = [&](int base) -> const std::vector<char>& {
+                auto [it, added] = baseMask.emplace(base, d.Units.size());
+                if (added) {
+                    for (int u : l.Pchs[base].Units) {
+                        it->second[u] = 1;
+                    }
+                }
+                return it->second;
+            };
+            for (size_t t = 0; t < l.Assignment.size(); ++t) {
+                int g = l.Assignment[t];
+                if (g < 0) {
+                    continue;
+                }
+                groups[g].Owners.push_back(int(t));
+                groups[g].VsNone.Add(benefit(int(t), g));
+                if (g < l.Bases) {
+                    continue;
+                }
+                const int parent = l.Pchs[g].Parent;
+                std::vector<TAlternative> ranked;
+                auto consider = [&](int candidate) {
+                    TConsumerBalance balance = benefit(int(t), candidate);
+                    if (balance.Net() > 0) {
+                        ranked.push_back({balance, candidate});
+                    }
+                };
+                consider(parent);
+                const auto profile = ResidualProfile(d, int(t), maskOf(parent));
+                for (int sibling : SiblingDeltas(l, postings, d.Targets[t].Class, profile, g, 3)) {
+                    if (sibling >= l.Bases) {
+                        consider(sibling);
+                    }
+                }
+                std::sort(ranked.begin(), ranked.end(), [](const TAlternative& a, const TAlternative& b) {
+                    return a.Balance.Net() != b.Balance.Net() ? a.Balance.Net() > b.Balance.Net() : a.Group < b.Group;
+                });
+                alternatives[t] = std::move(ranked);
+            }
+            // A delta is a live fallback destination while it still has
+            // owners and has not been rejected. Deltas are decided weakest
+            // first (ascending preliminary net over their base), so a weak
+            // duplicate merges into its stronger sibling rather than the other
+            // way around; the sibling is then rechecked on the merged owner
+            // set, and falls back itself only if the union still loses.
+            std::vector<char> open(l.Pchs.size(), false);
+            std::vector<char> kept(l.Pchs.size(), false);
+            for (size_t t = 0; t < l.Assignment.size(); ++t) {
+                int g = l.Assignment[t];
+                if (g >= l.Bases) {
+                    open[g] = true;
+                }
+            }
+            auto bestOpen = [&](int t, int exclude) -> const TAlternative* {
+                for (const auto& alternative : alternatives[t]) {
+                    if (alternative.Group != exclude && (alternative.Group < l.Bases || open[alternative.Group])) {
+                        return &alternative;
+                    }
+                }
+                return nullptr;
+            };
+            auto admit = [&](int g, const TConsumerBalance& net, double build, double mandatory, size_t owners) {
+                double value = net.Net() - (build - mandatory);
+                if (report) {
+                    *report << source << '\t' << pass << '\t' << (g < l.Bases ? "family" : "delta") << '\t'
+                            << ids[g] << '\t' << owners << '\t' << net.ParseSaved << '\t'
+                            << net.Load << '\t' << net.ExtraCompiles << '\t' << build << '\t' << mandatory
+                            << '\t' << value << '\t' << (value > 0 ? "keep" : "drop-assignments") << '\n';
+                }
+                return value > 0;
             };
             auto assign = [&](int t, int g, const char* reason) {
                 l.Assignment[t] = g;
                 if (reasons) { reasons->at(t) = reason; }
             };
-            for (int g = l.Bases; g < int(groups.size()); ++g) {
-                auto& child = groups[g];
-                if (child.Owners.empty()) { continue; }
-                int parent = l.Pchs[g].Parent;
-                auto& family = groups.at(parent);
-                auto marginal = child.VsNone;
-                marginal.Add(child.Fallback, -1);
+            // Preliminary marginal over the base, per initially owned delta.
+            std::vector<std::pair<double, int>> byStrength;
+            for (int g = l.Bases; g < int(l.Pchs.size()); ++g) {
+                if (!open[g]) {
+                    continue; // no owners: never a destination, decided by nobody
+                }
+                const int parent = l.Pchs[g].Parent;
+                TConsumerBalance marginal;
                 const double build = costs.Build(g);
-                if (admit(g, marginal, build, 0)) {
+                for (int t : groups[g].Owners) {
+                    marginal.Add(benefit(t, g));
+                    TConsumerBalance base = benefit(t, parent);
+                    if (base.Net() > 0) {
+                        marginal.Add(base, -1);
+                    }
+                }
+                byStrength.emplace_back(marginal.Net() - build, g);
+            }
+            std::sort(byStrength.begin(), byStrength.end(), [](const auto& a, const auto& b) {
+                return a.first != b.first ? a.first < b.first : a.second < b.second;
+            });
+            for (auto [preliminary, g] : byStrength) {
+                (void)preliminary;
+                std::vector<int> owners;
+                for (size_t t = 0; t < l.Assignment.size(); ++t) {
+                    if (l.Assignment[t] == g) {
+                        owners.push_back(int(t));
+                    }
+                }
+                if (owners.empty()) {
+                    continue;
+                }
+                const int parent = l.Pchs[g].Parent;
+                auto& family = groups[parent];
+                TConsumerBalance vsNone, fallback;
+                for (int t : owners) {
+                    vsNone.Add(benefit(t, g));
+                    if (const TAlternative* alternative = bestOpen(t, g)) {
+                        fallback.Add(alternative->Balance);
+                    }
+                }
+                auto marginal = vsNone;
+                marginal.Add(fallback, -1);
+                const double build = costs.Build(g);
+                if (admit(g, marginal, build, 0, owners.size())) {
+                    kept[g] = true;
                     family.ChildBuild += build;
-                    family.VsNone.Add(child.VsNone);
-                    family.Owners.insert(family.Owners.end(), child.Owners.begin(), child.Owners.end());
+                    family.VsNone.Add(vsNone);
+                    family.Owners.insert(family.Owners.end(), owners.begin(), owners.end());
                 } else {
-                    family.VsNone.Add(child.Fallback);
-                    for (int t : child.Owners) {
-                        assign(t, fallback[t], fallback[t] < 0 ? "delta-payback-none" : "delta-payback-parent");
-                        if (fallback[t] >= 0) { family.Owners.push_back(t); }
+                    open[g] = false; // no longer a fallback destination
+                    for (int t : owners) {
+                        const TAlternative* alternative = bestOpen(t, g);
+                        const int destination = alternative ? alternative->Group : -1;
+                        assign(t, destination, destination < 0 ? "delta-payback-none" :
+                            destination < l.Bases ? "delta-payback-parent" : "delta-payback-sibling");
+                        if (destination < 0) {
+                            continue;
+                        }
+                        if (destination < l.Bases) {
+                            family.VsNone.Add(alternative->Balance);
+                            family.Owners.push_back(t);
+                        } else if (kept[destination]) {
+                            // An already-admitted sibling: fold the member into
+                            // its family now. A pending sibling picks the member
+                            // up at its own admission decision instead.
+                            auto& host = groups[l.Pchs[destination].Parent];
+                            host.VsNone.Add(alternative->Balance);
+                            host.Owners.push_back(t);
+                        }
                     }
                 }
             }
@@ -463,7 +835,7 @@ namespace NPchUpdate::NTwoStep {
                 double base = costs.Build(g);
                 // Frozen bases are built even under NONE. Report their cost
                 // but charge only avoidable builds for the admission decision.
-                if (!admit(g, family.VsNone, base + family.ChildBuild, frozen ? base : 0)) {
+                if (!admit(g, family.VsNone, base + family.ChildBuild, frozen ? base : 0, family.Owners.size())) {
                     for (int t : family.Owners) { assign(t, -1, "family-no-payback"); }
                 }
             }
@@ -740,6 +1112,11 @@ namespace NPchUpdate::NTwoStep {
 
     // Same eviction path at the forecast and measured boundaries. A family
     // competes at its total marginal loss/bytes, including its base just once.
+    // An evicted owner falls to its best still-open alternative — the base or
+    // a surviving sibling delta whose roots overlap its profile — so
+    // near-duplicate deltas merge into one another instead of pushing unique
+    // specialized groups out of the budget. Losses are recomputed lazily as
+    // evictions close alternatives and move owners around.
     void FitDisk(const TData& d, TLayout& l, const TCalibration& c,
                  const std::vector<uint64_t>& bytes, double budget, bool frozen,
                  const std::function<bool(int, int)>& compatible, std::ostream* report) {
@@ -747,21 +1124,28 @@ namespace NPchUpdate::NTwoStep {
         std::vector<std::vector<int>> owners(bytes.size());
         std::vector<std::vector<int>> children(l.Bases);
         std::vector<char> used(bytes.size());
+        std::vector<char> open(bytes.size(), false);
         if (frozen) { std::fill_n(used.begin(), l.Bases, true); }
         for (size_t t = 0; t < l.Assignment.size(); ++t) {
             int g = l.Assignment[t];
             if (g < 0) { continue; }
-            owners.at(g).push_back(t);
+            owners.at(g).push_back(int(t));
             used[g] = true;
+            open[g] = true;
             if (g >= l.Bases) { used.at(l.Pchs[g].Parent) = true; }
         }
+        for (int b = 0; b < l.Bases; ++b) { open[b] = true; }
         uint64_t total = 0, bases = 0;
+        std::vector<uint64_t> freed = bytes;
         for (size_t g = 0; g < bytes.size(); ++g) {
             if (!used[g]) { continue; }
             if (!bytes[g]) { Fail("no size for retained PCH " + std::to_string(g)); }
             total += bytes[g];
             if (int(g) < l.Bases) { bases += bytes[g]; }
-            else { children.at(l.Pchs[g].Parent).push_back(int(g)); }
+            else {
+                children.at(l.Pchs[g].Parent).push_back(int(g));
+                freed[l.Pchs[g].Parent] += bytes[g];
+            }
         }
         if (frozen && bases > budget) {
             Fail(Format("frozen bases alone require %.0f bytes; disk budget %.0f bytes", double(bases), budget));
@@ -769,84 +1153,154 @@ namespace NPchUpdate::NTwoStep {
         if (report) {
             *report << "# measured preflight PCH bytes; IDs before compaction; weighted action seconds, not wall time\n"
                     << "# candidate_bytes=" << total << " base_bytes=" << bases << " budget_bytes=" << uint64_t(budget)
-                    << "\nkind\tgroup\tbytes\tloss_work_seconds\tto_parent\tto_none\n";
+                    << "\nkind\tgroup\tbytes\tloss_work_seconds\tto_fallback\tto_none\n";
         }
         TWorkCosts costs{d, l, c, {}};
-        std::vector<int> fallback(l.Assignment.size(), -1);
-        std::vector<double> fallbackGain(l.Assignment.size()), loss(bytes.size());
-        std::vector<uint64_t> freed = bytes;
+        // Ranked fallback destinations per delta owner: the base plus sibling
+        // deltas sharing its heavy residual headers, by gain versus NONE.
+        struct TFallback {
+            double Gain = 0;
+            int Group = -1;
+        };
+        std::vector<std::vector<TFallback>> alternatives(l.Assignment.size());
+        std::vector<char> ranked(l.Assignment.size(), false);
+        const auto postings = UnitPostings(l);
+        std::vector<std::vector<char>> baseMask(l.Bases);
+        for (int b = 0; b < l.Bases; ++b) {
+            baseMask[b].assign(d.Units.size(), 0);
+            for (int u : l.Pchs[b].Units) { baseMask[b][u] = 1; }
+        }
+        auto fallbacksOf = [&](int t) -> std::vector<TFallback>& {
+            if (ranked[t]) { return alternatives[t]; }
+            ranked[t] = true;
+            const int g = l.Assignment[t];
+            if (g < l.Bases) { return alternatives[t]; } // family eviction drops straight to NONE
+            const int base = l.Pchs[g].Parent;
+            std::vector<TFallback> list;
+            double none = costs.Target(t, -1);
+            auto consider = [&](int candidate) {
+                double gain = none - costs.Target(t, candidate);
+                if (gain > 0) { list.push_back({gain, candidate}); }
+            };
+            consider(base);
+            const auto profile = ResidualProfile(d, t, baseMask[base]);
+            for (int sibling : SiblingDeltas(l, postings, l.Pchs[g].Class, profile, g, 3)) {
+                if (sibling >= l.Bases) { consider(sibling); }
+            }
+            std::sort(list.begin(), list.end(), [](const TFallback& a, const TFallback& b) {
+                return a.Gain != b.Gain ? a.Gain > b.Gain : a.Group < b.Group;
+            });
+            alternatives[t] = std::move(list);
+            return alternatives[t];
+        };
+        int evictions = 0;
+        std::vector<double> loss(bytes.size());
+        std::vector<int> lossAt(bytes.size(), -1);
         std::vector<char> verified(bytes.size(), !compatible);
-        using TEntry = std::pair<double, int>;
-        std::set<TEntry> order;
-        auto entry = [&](int g) -> TEntry { return {loss[g] / freed[g], g}; };
-        for (int g = 0; g < int(bytes.size()); ++g) {
-            if (!used[g]) { continue; }
-            const int parent = l.Pchs[g].Parent;
-            double vsNone = -costs.Build(g), vsParent = vsNone;
-            for (int t : owners[g]) {
-                double none = costs.Target(t, -1), current = costs.Target(t, g);
-                vsNone += none - current;
-                if (parent >= 0) {
-                    fallbackGain[t] = std::max(0., none - costs.Target(t, parent));
-                    if (fallbackGain[t] > 0) { fallback[t] = parent; }
-                    vsParent += none - current - fallbackGain[t];
+        auto bestOpen = [&](int t, int exclude) -> const TFallback* {
+            for (const auto& fallback : fallbacksOf(t)) {
+                if (fallback.Group != exclude && open[fallback.Group]) {
+                    return &fallback;
                 }
             }
-            if (parent < 0) { loss[g] = vsNone; }
-            else {
-                loss[g] = vsParent;
-                loss[parent] += vsNone;
-                freed[parent] += bytes[g];
-            }
-        }
-        for (int g = 0; g < int(bytes.size()); ++g) {
-            if (used[g] && (!frozen || g >= l.Bases)) { order.insert(entry(g)); }
-        }
-        while (!order.empty()) {
-            auto [value, g] = *order.begin();
-            if (total <= budget && value > 0) { break; }
-            order.erase(order.begin());
-            const int parent = l.Pchs[g].Parent;
-            if (parent >= 0 && !verified[g]) {
-                // A failed probe only increases the leaf eviction loss. Its
-                // family's alternative is NONE and is independent of this probe.
-                verified[g] = true;
+            return nullptr;
+        };
+        auto computeLoss = [&](int g) {
+            double value = -costs.Build(g);
+            if (l.Pchs[g].Parent < 0) {
+                // The family drops as one: the base plus every open child,
+                // all of them to NONE.
                 for (int t : owners[g]) {
-                    if (fallback[t] >= 0 && !compatible(t, parent)) {
-                        fallback[t] = -1;
-                        loss[g] += fallbackGain[t];
+                    value += costs.Target(t, -1) - costs.Target(t, g);
+                }
+                for (int h : children[g]) {
+                    if (!used[h]) { continue; }
+                    value -= costs.Build(h);
+                    for (int t : owners[h]) {
+                        value += costs.Target(t, -1) - costs.Target(t, h);
                     }
                 }
+            } else {
+                for (int t : owners[g]) {
+                    value += costs.Target(t, -1) - costs.Target(t, g);
+                    if (const TFallback* fallback = bestOpen(t, g)) {
+                        value -= fallback->Gain;
+                    }
+                }
+            }
+            loss[g] = value;
+            lossAt[g] = evictions;
+        };
+        using TEntry = std::pair<double, int>;
+        std::set<TEntry> order;
+        auto entry = [&](int g) -> TEntry { return {loss[g] / std::max<uint64_t>(freed[g], 1), g}; };
+        for (int g = 0; g < int(bytes.size()); ++g) {
+            if (!used[g] || (frozen && g < l.Bases)) { continue; }
+            computeLoss(g);
+            order.insert(entry(g));
+        }
+        while (!order.empty()) {
+            if (total <= budget && order.begin()->first > 0) { break; }
+            auto [value, g] = *order.begin();
+            order.erase(order.begin());
+            (void)value;
+            const int parent = l.Pchs[g].Parent;
+            if (lossAt[g] != evictions) {
+                computeLoss(g);
                 order.insert(entry(g));
                 continue;
             }
-            int parentCount = 0;
-            size_t noneCount = 0;
+            if (parent >= 0 && !verified[g]) {
+                // Probe pending fallbacks once: a failed compatibility check
+                // removes that destination and only raises this loss.
+                verified[g] = true;
+                for (int t : owners[g]) {
+                    auto& list = fallbacksOf(t);
+                    for (size_t k = 0; k < list.size();) {
+                        if (open[list[k].Group] && !compatible(t, list[k].Group)) {
+                            list.erase(list.begin() + k);
+                        } else {
+                            ++k;
+                        }
+                    }
+                }
+                computeLoss(g);
+                order.insert(entry(g));
+                continue;
+            }
+            size_t fallbackCount = 0, noneCount = 0;
+            ++evictions;
             if (parent < 0) {
                 auto drop = [&](int h) {
                     for (int t : owners[h]) { l.Assignment[t] = -1; ++noneCount; }
                     used[h] = false;
+                    open[h] = false;
                 };
                 for (int h : children[g]) {
                     if (used[h]) { order.erase(entry(h)); drop(h); }
                 }
                 drop(g);
             } else {
-                if (!frozen) { order.erase(entry(parent)); }
-                for (int t : owners[g]) {
-                    l.Assignment[t] = fallback[t];
-                    if (fallback[t] >= 0) { ++parentCount; owners[parent].push_back(t); }
-                    else { ++noneCount; }
-                }
+                open[g] = false;
                 used[g] = false;
+                for (int t : owners[g]) {
+                    const TFallback* fallback = bestOpen(t, g);
+                    const int destination = fallback ? fallback->Group : -1;
+                    l.Assignment[t] = destination;
+                    if (destination >= 0) {
+                        ++fallbackCount;
+                        owners[destination].push_back(t);
+                    } else {
+                        ++noneCount;
+                    }
+                }
+                owners[g].clear();
                 freed[parent] -= bytes[g];
-                loss[parent] -= loss[g];
-                if (!frozen) { order.insert(entry(parent)); }
             }
             total -= freed[g];
             if (report) {
                 *report << (parent < 0 ? "family" : "delta") << '\t' << g << '\t' << freed[g] << '\t'
-                        << loss[g] << '\t' << parentCount << '\t' << noneCount << '\n';
+                        << loss[g] << '\t' << fallbackCount << '\t' << noneCount << '\n';
             }
         }
         if (total > budget) { Fail("cannot fit retained PCHs in the disk budget"); }
@@ -1032,7 +1486,6 @@ namespace NPchUpdate::NTwoStep {
     TLayout Select(const TData& d, const TCalibration& c, const TLayout* frozen,
                    size_t analysisJobs, TSelectionDiagnostics* diagnostics) {
         if (diagnostics) { *diagnostics = {}; }
-        int selectedWidth = -1;
         ValidateTargets(d);
         std::map<int, std::vector<int>> closures;
         std::vector<std::vector<int>> classes(d.Classes);
@@ -1051,12 +1504,13 @@ namespace NPchUpdate::NTwoStep {
         };
         TLayout bases;
         bases.Assignment.assign(d.Targets.size(), -1);
+        std::vector<double> baseDensities;
         if (frozen) {
             bases.Bases = frozen->Bases;
             bases.Pchs.assign(frozen->Pchs.begin(), frozen->Pchs.begin() + frozen->Bases);
         } else {
             for (int cls = 0; cls < d.Classes; ++cls) {
-                auto p = Pick(d, c, cls, filesOf(classes[cls]), nullptr, true, closures);
+                auto p = Pick(d, c, cls, filesOf(classes[cls]), nullptr, true, closures, 0.0, &baseDensities);
                 if (!p.Roots.empty()) {
                     bases.Pchs.push_back(std::move(p));
                 }
@@ -1068,14 +1522,14 @@ namespace NPchUpdate::NTwoStep {
             best.Assignment.assign(d.Targets.size(), -1);
         }
         // Recheck if cycle repair demotes an owner: the proof for the old
-        // consumer set no longer holds. Keep report IDs in the width's namespace.
-        auto scoreAssigned = [&](TLayout& l, int width, std::vector<std::string>& reasons, unsigned factor) {
+        // consumer set no longer holds. Keep report IDs in the candidate's namespace.
+        auto scoreAssigned = [&](TLayout& l, const std::string& source, int width, std::vector<std::string>& reasons, unsigned factor) {
             std::vector<int> ids(l.Pchs.size());
             std::iota(ids.begin(), ids.end(), 0);
             std::ostringstream payback;
             payback.precision(17);
             for (int pass = 1;; ++pass) {
-                CheckPayback(d, l, c, frozen != nullptr, width, pass, ids, diagnostics ? &reasons : nullptr,
+                CheckPayback(d, l, c, frozen != nullptr, source, pass, ids, diagnostics ? &reasons : nullptr,
                              diagnostics && factor == 1 ? &payback : nullptr);
                 std::vector<uint64_t> estimates;
                 for (size_t g = 0; g < l.Pchs.size(); ++g) {
@@ -1086,7 +1540,7 @@ namespace NPchUpdate::NTwoStep {
                 if (diagnostics) {
                     for (size_t t = 0; t < reasons.size(); ++t) {
                         if (l.Assignment[t] != beforeFit[t]) {
-                            reasons[t] = l.Assignment[t] < 0 ? "disk-budget" : "disk-parent";
+                            reasons[t] = l.Assignment[t] < 0 ? "disk-budget" : "disk-fallback";
                         }
                     }
                 }
@@ -1111,7 +1565,7 @@ namespace NPchUpdate::NTwoStep {
         };
         std::vector<std::string> seedReasons(d.Targets.size());
         const auto seedAssignment = best.Assignment;
-        double score = scoreAssigned(best, -1, seedReasons, 1).Objective;
+        double score = scoreAssigned(best, "seed", -1, seedReasons, 1).Objective;
         const std::vector<int> widths = {0, 32, 128, 512};
         struct TCandidate {
             TLayout Layout;
@@ -1120,11 +1574,25 @@ namespace NPchUpdate::NTwoStep {
             std::string Choices;
             std::string Pchs;
         };
-        auto describePchs = [&](int width, const TLayout& layout) {
+        struct TCandidateSpec {
+            int Width = 0;
+            double Lambda = 0;
+        };
+        auto specLabel = [&](const TCandidateSpec& spec) {
+            std::ostringstream out;
+            out.precision(6);
+            out << spec.Width;
+            if (spec.Lambda > 0) {
+                out << "@lambda=" << spec.Lambda;
+            }
+            return out.str();
+        };
+        auto describePchs = [&](const TCandidateSpec& spec, const TLayout& layout) {
+            const auto label = specLabel(spec);
             std::ostringstream out;
             for (size_t g = 0; g < layout.Pchs.size(); ++g) {
                 const auto& p = layout.Pchs[g];
-                out << width << '\t' << g << '\t' << p.Class << '\t' << p.Parent << '\t' << p.Units.size() << '\t';
+                out << label << '\t' << g << '\t' << p.Class << '\t' << p.Parent << '\t' << p.Units.size() << '\t';
                 for (size_t r = 0; r < p.Roots.size(); ++r) {
                     if (r) { out << ';'; }
                     out << d.Units[p.Roots[r]].Include;
@@ -1133,19 +1601,31 @@ namespace NPchUpdate::NTwoStep {
             }
             return out.str();
         };
-        std::vector<TCandidate> candidates(widths.size());
-        ParallelFor(widths.size(), analysisJobs, [&](size_t i) {
-            const int width = widths[i];
-            // A parallel width owns its mutable closure cache. With one worker
-            // keep reusing the cache across widths, as the serial selector did.
-            auto localClosures = analysisJobs > 1 ? closures : decltype(closures){};
-            auto& candidateClosures = analysisJobs > 1 ? localClosures : closures;
-            auto& candidate = candidates[i].Layout;
-            candidate = bases;
-            TWorkCosts costs{d, candidate, c, {}};
-            auto& observed = candidates[i];
+        // One (width, lambda) candidate: cluster each class's owners by their
+        // residual parse profile, pick a delta per cluster, then refine with
+        // expectation/maximization rounds on the true work-cost objective. A
+        // target may end on any delta of its class, not only the partition its
+        // label happens to sort into.
+        auto construct = [&](const TCandidateSpec& spec, TCandidate& observed,
+                             std::map<int, std::vector<int>>& candidateClosures,
+                             std::vector<double>* densities) {
+            TLayout candidate;
+            if (frozen || spec.Lambda == 0) {
+                candidate = bases;
+            } else {
+                // Disk-priced variant: rebuild the bases under the same price.
+                candidate.Assignment.assign(d.Targets.size(), -1);
+                for (int cls = 0; cls < d.Classes; ++cls) {
+                    auto p = Pick(d, c, cls, filesOf(classes[cls]), nullptr, true, candidateClosures, spec.Lambda, densities);
+                    if (!p.Roots.empty()) {
+                        candidate.Pchs.push_back(std::move(p));
+                    }
+                }
+                candidate.Bases = int(candidate.Pchs.size());
+            }
             std::ostringstream choicesReport;
             choicesReport.precision(17);
+            const auto label = specLabel(spec);
             if (diagnostics) {
                 for (const auto& target : d.Targets) {
                     observed.Reasons.push_back(!target.PchEligible ? "no-global-pch-hook" :
@@ -1154,8 +1634,8 @@ namespace NPchUpdate::NTwoStep {
             }
             for (int cls = 0; cls < d.Classes; ++cls) {
                 int parent = -1;
-                for (int g = 0; g < bases.Bases; ++g) {
-                    if (bases.Pchs[g].Class == cls) {
+                for (int g = 0; g < candidate.Bases; ++g) {
+                    if (candidate.Pchs[g].Class == cls) {
                         parent = g;
                     }
                 }
@@ -1164,118 +1644,240 @@ namespace NPchUpdate::NTwoStep {
                 std::stable_sort(targets.begin(), targets.end(), [&](int a, int b) {
                     return d.Targets[a].Label < d.Targets[b].Label;
                 });
-                std::vector<int> chunks;
-                if (width) {
-                    for (size_t begin = 0; begin < targets.size(); begin += width) {
-                        std::vector<int> group(targets.begin() + begin, targets.begin() + std::min(targets.size(), begin + width));
-                        auto p = Pick(d, c, cls, filesOf(group), &bases.Pchs[parent], false, candidateClosures);
-                        chunks.push_back(p.Roots.empty() ? -1 : int(candidate.Pchs.size()));
+                std::vector<char> inBase(d.Units.size());
+                for (int u : candidate.Pchs[parent].Units) { inBase[u] = true; }
+                std::vector<TProfile> profiles(targets.size());
+                for (size_t i = 0; i < targets.size(); ++i) {
+                    profiles[i] = ResidualProfile(d, targets[i], inBase);
+                }
+                const size_t clusters = spec.Width
+                    ? std::min(targets.size(), (targets.size() + size_t(spec.Width) - 1) / size_t(spec.Width))
+                    : 0;
+                std::vector<int> clusterOf = clusters
+                    ? ClusterProfiles(profiles, clusters)
+                    : std::vector<int>(targets.size(), -1);
+                const size_t classStart = candidate.Pchs.size();
+                // Expectation: every target takes the cheapest of NONE, the
+                // base and the deltas whose roots overlap its profile. Only
+                // the final round records diagnostics: an earlier round's
+                // delta IDs die in the next maximization, and the reports must
+                // match selection-candidates.tsv.
+                auto expect = [&](bool record) {
+                    TWorkCosts costs{d, candidate, c, {}};
+                    const auto postings = UnitPostings(candidate);
+                    for (size_t i = 0; i < targets.size(); ++i) {
+                        int t = targets[i];
+                        std::vector<int> choices{parent};
+                        for (int g : SiblingDeltas(candidate, postings, cls, profiles[i], -1, 3)) {
+                            if (candidate.Pchs[g].Class == cls && std::find(choices.begin(), choices.end(), g) == choices.end()) {
+                                choices.push_back(g);
+                            }
+                        }
+                        double cost = costs.Target(t, -1);
+                        const double withoutPch = cost;
+                        const bool allowed = frozen || t % 10 != 0;
+                        candidate.Assignment[t] = -1;
+                        for (int g : choices) {
+                            double value = costs.Target(t, g);
+                            if (diagnostics && record) {
+                                choicesReport << label << '\t' << d.Targets[t].Label << '\t' << g << '\t'
+                                    << withoutPch << '\t' << value << '\t' << (value < cost && allowed) << '\n';
+                            }
+                            if (value < cost && allowed) {
+                                cost = value;
+                                candidate.Assignment[t] = g;
+                            }
+                        }
+                        if (diagnostics && record) {
+                            observed.Reasons[t] = !frozen && t % 10 == 0 ? "calibration-control" :
+                                candidate.Assignment[t] >= 0 ? "selected" : choices.empty() ? "no-candidate" : "no-estimated-benefit";
+                        }
+                    }
+                };
+                // Maximization: rebuild each delta strictly from the files
+                // currently on it; deltas with no members disappear.
+                auto maximize = [&](bool fromClusters) {
+                    std::vector<std::vector<int>> buckets;
+                    if (fromClusters) {
+                        buckets.assign(clusters, {});
+                        for (size_t i = 0; i < targets.size(); ++i) {
+                            if (clusterOf[i] >= 0) {
+                                const auto& members = d.Targets[targets[i]].Files;
+                                auto& files = buckets[clusterOf[i]];
+                                files.insert(files.end(), members.begin(), members.end());
+                            }
+                        }
+                    } else {
+                        std::map<int, std::vector<int>> byDelta;
+                        for (int t : targets) {
+                            int g = candidate.Assignment[t];
+                            if (g >= int(classStart)) {
+                                const auto& members = d.Targets[t].Files;
+                                auto& files = byDelta[g];
+                                files.insert(files.end(), members.begin(), members.end());
+                            }
+                        }
+                        for (auto& [g, files] : byDelta) {
+                            buckets.push_back(std::move(files));
+                        }
+                    }
+                    candidate.Pchs.resize(classStart);
+                    for (const auto& files : buckets) {
+                        if (files.empty()) { continue; }
+                        auto p = Pick(d, c, cls, files, &candidate.Pchs[parent], false, candidateClosures, spec.Lambda, densities);
                         if (!p.Roots.empty()) {
                             p.Parent = parent;
                             candidate.Pchs.push_back(std::move(p));
                         }
                     }
-                }
-                for (size_t position = 0; position < targets.size(); ++position) {
-                    int t = targets[position];
-                    auto targetCost = [&](int g) { return costs.Target(t, g); };
-                    double cost = targetCost(-1);
-                    const double withoutPch = cost;
-                    // Nearby target partitions plus the base form a bounded
-                    // assignment shortlist; never split a target at a boundary.
-                    std::vector<int> choices;
-                    if (parent >= 0) { choices.push_back(parent); }
-                    if (width) {
-                        int chunk = int(position / width);
-                        for (int k = std::max(0, chunk - 1); k <= std::min(int(chunks.size()) - 1, chunk + 1); ++k) {
-                            if (chunks[k] >= 0) { choices.push_back(chunks[k]); }
-                        }
-                    }
-                    for (int g : choices) {
-                        double value = targetCost(g);
-                        if (diagnostics) {
-                            choicesReport << width << '\t' << d.Targets[t].Label << '\t' << g << '\t'
-                                << withoutPch << '\t' << value << '\t' << (value < cost && (frozen || t % 10 != 0)) << '\n';
-                        }
-                        if (value < cost && (frozen || t % 10 != 0)) {
-                            cost = value;
-                            candidate.Assignment[t] = int(g);
-                        }
-                    }
-                    if (diagnostics) {
-                        observed.Reasons[t] = !frozen && t % 10 == 0 ? "calibration-control" :
-                            candidate.Assignment[t] >= 0 ? "selected" : choices.empty() ? "no-candidate" : "no-estimated-benefit";
-                    }
+                };
+                maximize(true);
+                expect(!clusters); // without a second round this one is final
+                if (clusters) {
+                    maximize(false);
+                    expect(true);
                 }
             }
             if (diagnostics) {
                 observed.BeforeDisk = candidate.Assignment;
                 observed.Choices = choicesReport.str();
-                observed.Pchs = describePchs(width, candidate);
+                observed.Pchs = describePchs(spec, candidate);
             }
-        });
-        // Reuse the full analysis budget for scenario scoring after grouping;
-        // never multiply a width pool by nested scenario pools. Only one full
-        // prediction graph is resident at a time. Reduce in the original order
-        // to retain tie-breaking, diagnostics and progress output determinism.
-        for (size_t i = 0; i < widths.size(); ++i) {
-            const int width = widths[i];
+            observed.Layout = std::move(candidate);
+        };
+        std::vector<TCandidateSpec> specs;
+        for (int width : widths) {
+            specs.push_back({width, 0.0});
+        }
+        std::vector<TCandidate> candidates(specs.size());
+        int selectedSpec = -1;
+        auto estimatedBytes = [&](const TLayout& l) {
+            double bytes = 0;
+            for (size_t g = 0; g < l.Pchs.size(); ++g) { bytes += ArtifactBytes(d, l, g, c); }
+            return bytes;
+        };
+        auto scoreOne = [&](size_t i) {
+            const auto label = specLabel(specs[i]);
             auto candidate = candidates[i].Layout; // retain raw winner for the reserve pass
             auto reasons = candidates[i].Reasons;
             TPrediction prediction;
             try {
-                prediction = scoreAssigned(candidate, width, reasons, 1);
+                prediction = scoreAssigned(candidate, label, specs[i].Width, reasons, 1);
             } catch (const TError& error) {
-                Fail(Format("selection width=%d: %s", width, error.what()));
+                Fail(Format("selection %s: %s", label.c_str(), error.what()));
             }
             double value = prediction.Objective;
-            Detail(Format("selection width=%d: %d bases, %zu PCHs, %.3f GB, objective %.3f s%s",
-                width, candidate.Bases, candidate.Pchs.size(),
+            Detail(Format("selection %s: %d bases, %zu PCHs, %.3f GB, objective %.3f s%s",
+                label.c_str(), candidate.Bases, candidate.Pchs.size(),
                 std::accumulate(prediction.PchBytes.begin(), prediction.PchBytes.end(), 0.0) / 1e9,
                 value, prediction.Feasible ? "" : " (infeasible)"));
             if (diagnostics) {
-                diagnostics->Widths += Format("%d\t%d\t%zu\t%.17g\t%.17g\t%d\n", width, candidate.Bases, candidate.Pchs.size(),
+                diagnostics->Widths += label + Format("\t%d\t%zu\t%.17g\t%.17g\t%d\n", candidate.Bases, candidate.Pchs.size(),
                     std::accumulate(prediction.PchBytes.begin(), prediction.PchBytes.end(), 0.0), value, int(prediction.Feasible));
                 diagnostics->Choices += candidates[i].Choices;
                 diagnostics->Candidates += candidates[i].Pchs;
             }
             if (value < score) {
                 score = value;
-                selectedWidth = width;
+                selectedSpec = int(i);
                 best = std::move(candidate);
                 seedReasons = std::move(reasons);
             }
+        };
+        {
+            // Wave one: free-disk candidates at every width. The collected
+            // accept densities feed the disk-price grid of the second wave.
+            std::vector<std::vector<double>> densities(specs.size());
+            ParallelFor(specs.size(), analysisJobs, [&](size_t i) {
+                // A parallel candidate owns its mutable closure cache. With one
+                // worker keep reusing the cache, as the serial selector did.
+                auto localClosures = analysisJobs > 1 ? closures : decltype(closures){};
+                auto& candidateClosures = analysisJobs > 1 ? localClosures : closures;
+                construct(specs[i], candidates[i], candidateClosures, &densities[i]);
+            });
+            std::vector<char> pressured(specs.size());
+            for (size_t i = 0; i < specs.size(); ++i) {
+                scoreOne(i);
+                pressured[i] = estimatedBytes(candidates[i].Layout) > d.Resources.Disk;
+            }
+            // Wave two: disk-priced variants only for the widths whose layout
+            // exceeds the budget. Every lambda grid is personal to its
+            // pressured candidate: base-root densities (collected over the
+            // whole class) and small-cluster delta densities live on very
+            // different scales, so pooling all widths would leave a wide
+            // candidate untrimmed or burn a narrow one to the ground. Each
+            // price shrinks every artifact of that candidate to its dense
+            // prefix instead of evicting whole groups later.
+            auto personalGrid = [&](size_t i) {
+                std::vector<double> pool = densities[i];
+                if (!frozen) {
+                    // The bases are rebuilt under the same price in wave two.
+                    pool.insert(pool.end(), baseDensities.begin(), baseDensities.end());
+                }
+                std::sort(pool.begin(), pool.end(), std::greater<double>());
+                std::vector<double> grid;
+                for (double quantile : {0.4, 0.7, 0.9}) {
+                    if (pool.empty()) { break; }
+                    // A quantile snapped to an accepted root's own density must
+                    // not reject that root by the strict admission inequality.
+                    double lambda = pool[std::min(pool.size() - 1, size_t(double(pool.size()) * quantile))];
+                    if (lambda > 0) {
+                        lambda *= 1 - 1e-9;
+                    }
+                    if (lambda > 0 && (grid.empty() || lambda > grid.back())) {
+                        grid.push_back(lambda);
+                    }
+                }
+                return grid;
+            };
+            const size_t waveOne = specs.size();
+            for (size_t i = 0; i < waveOne; ++i) {
+                if (!pressured[i]) {
+                    continue;
+                }
+                for (double lambda : personalGrid(i)) {
+                    specs.push_back({specs[i].Width, lambda});
+                }
+            }
+            if (specs.size() > candidates.size()) {
+                candidates.resize(specs.size());
+                const size_t first = waveOne;
+                ParallelFor(specs.size() - first, analysisJobs, [&](size_t j) {
+                    auto localClosures = analysisJobs > 1 ? closures : decltype(closures){};
+                    auto& candidateClosures = analysisJobs > 1 ? localClosures : closures;
+                    construct(specs[first + j], candidates[first + j], candidateClosures, nullptr);
+                });
+                for (size_t i = first; i < specs.size(); ++i) {
+                    scoreOne(i);
+                }
+            }
         }
+        const int selectedWidth = selectedSpec >= 0 ? specs[selectedSpec].Width : -1;
         if (!std::isfinite(score)) {
             Fail("no layout fits the worker/pool/RAM/disk constraints");
         }
         const auto primaryGroups = best.Pchs.size();
-        const auto primaryBytes = [&](const TLayout& l) {
-            double bytes = 0;
-            for (size_t g = 0; g < l.Pchs.size(); ++g) { bytes += ArtifactBytes(d, l, g, c); }
-            return bytes;
-        };
-        const double scoredBytes = primaryBytes(best);
-        if (selectedWidth >= 0 || frozen) {
-            const auto i = std::find(widths.begin(), widths.end(), selectedWidth) - widths.begin();
-            auto reserve = selectedWidth >= 0 ? candidates[i].Layout : *frozen;
-            auto reasons = selectedWidth >= 0 ? candidates[i].Reasons : std::vector<std::string>(d.Targets.size());
-            if (scoreAssigned(reserve, selectedWidth, reasons, ProbeBudgetFactor).Feasible) {
+        const double scoredBytes = estimatedBytes(best);
+        if (selectedSpec >= 0 || frozen) {
+            auto reserve = selectedSpec >= 0 ? candidates[selectedSpec].Layout : *frozen;
+            auto reasons = selectedSpec >= 0 ? candidates[selectedSpec].Reasons : std::vector<std::string>(d.Targets.size());
+            if (scoreAssigned(reserve, selectedSpec >= 0 ? specLabel(specs[selectedSpec]) : "frozen",
+                              selectedWidth, reasons, ProbeBudgetFactor).Feasible) {
                 best = std::move(reserve);
                 seedReasons = std::move(reasons);
             }
         }
         if (diagnostics) {
             std::ostringstream targets;
+            const std::string selectedLabel = selectedSpec >= 0 ? specLabel(specs[selectedSpec]) : std::string("-1");
             targets << "# selected_width=" << selectedWidth << " (-1: retained seed layout)\n"
                     << "target\treason\tbefore_disk_leaf\tselected_leaf\n";
             for (size_t t = 0; t < d.Targets.size(); ++t) {
                 std::string reason;
                 int beforeDisk = -1;
-                if (selectedWidth >= 0) {
-                    const auto i = size_t(std::find(widths.begin(), widths.end(), selectedWidth) - widths.begin());
+                if (selectedSpec >= 0) {
                     reason = seedReasons[t];
-                    beforeDisk = candidates[i].BeforeDisk[t];
+                    beforeDisk = candidates[selectedSpec].BeforeDisk[t];
                 } else {
                     beforeDisk = seedAssignment[t];
                     reason = !seedReasons[t].empty() ? seedReasons[t] : !d.Targets[t].PchEligible ? "no-global-pch-hook" : d.Targets[t].Class < 0 ? "mixed-compiler-classes" :
@@ -1284,25 +1886,25 @@ namespace NPchUpdate::NTwoStep {
                 targets << d.Targets[t].Label << '\t' << reason << '\t' << beforeDisk << '\t' << best.Assignment[t] << '\n';
             }
             diagnostics->Targets = targets.str();
-            diagnostics->Choices = "# Weighted action-time estimates, not CPU or build wall time. IDs are local to each width before disk pruning.\n"
+            diagnostics->Choices = "# Weighted action-time estimates, not CPU or build wall time. IDs are local to each candidate before disk pruning.\n"
                 "# improved_at_visit is an intermediate greedy decision, not final selection. Unlisted headers/partitions were not scored here.\n"
                 "width\ttarget\tcandidate_leaf\twithout_pch_work_seconds\twith_pch_work_seconds\timproved_at_visit\n" + diagnostics->Choices;
-            diagnostics->Widths = "# selected_width=" + std::to_string(selectedWidth) +
+            diagnostics->Widths = "# selected_width=" + std::to_string(selectedWidth) + " selected_candidate=" + selectedLabel +
                 Format("\n# scored_budget_bytes=%.0f scored_pchs=%zu scored_bytes=%.0f probe_budget_bytes=%.0f probe_pchs=%zu probe_bytes=%.0f",
-                       d.Resources.Disk, primaryGroups, scoredBytes, ProbeBudgetFactor * d.Resources.Disk, best.Pchs.size(), primaryBytes(best)) +
-                "\nwidth\tbases\tpchs\tpch_bytes\tobjective_seconds\tfeasible\n" + diagnostics->Widths;
-            if (frozen) { diagnostics->Candidates += describePchs(-1, *frozen); }
-            diagnostics->Payback = "# selected_width=" + std::to_string(selectedWidth) +
+                       d.Resources.Disk, primaryGroups, scoredBytes, ProbeBudgetFactor * d.Resources.Disk, best.Pchs.size(), estimatedBytes(best)) +
+                "\nwidth_lambda\tbases\tpchs\tpch_bytes\tobjective_seconds\tfeasible\n" + diagnostics->Widths;
+            if (frozen) { diagnostics->Candidates += describePchs({-1, 0.0}, *frozen); }
+            diagnostics->Payback = "# selected_width=" + std::to_string(selectedWidth) + " selected_candidate=" + selectedLabel +
                 "; predicted weighted action-work seconds; IDs match selection-candidates.tsv; net excludes mandatory builds\n"
                 "width\tpass\tkind\tcandidate_leaf\tassigned_targets\tparse_saved_s\tload_s\textra_compile_s\tbuild_s\tmandatory_build_s\tnet_s\tdecision\n" +
                 diagnostics->Payback;
-            diagnostics->Candidates = "# IDs are local to each width before disk pruning; width -1 describes a retained seed.\n"
+            diagnostics->Candidates = "# IDs are local to each candidate before disk pruning; width -1 describes a retained seed.\n"
                 "width\tcandidate_leaf\tclass\tparent\tclosure_units\troot_headers\n" + diagnostics->Candidates;
         }
         Log(Format("selection: %s; %zu PCHs at %.3f / %.3f GB for scoring; %zu at %.3f / %.3f GB for probes (estimated)",
-                   selectedWidth < 0 ? "seed retained" : ("width " + std::to_string(selectedWidth)).c_str(),
+                   selectedSpec < 0 ? "seed retained" : ("candidate " + specLabel(specs[selectedSpec])).c_str(),
                    primaryGroups, scoredBytes / 1e9, d.Resources.Disk / 1e9,
-                   best.Pchs.size(), primaryBytes(best) / 1e9, ProbeBudgetFactor * d.Resources.Disk / 1e9));
+                   best.Pchs.size(), estimatedBytes(best) / 1e9, ProbeBudgetFactor * d.Resources.Disk / 1e9));
         return best;
     }
 

@@ -273,7 +273,7 @@ namespace NPchUpdate::NTwoStep {
                     "selection-candidates.tsv maps those IDs to root headers, parents and compiler classes.\n"
                     "selection-payback.tsv: predicted parse saving, load, extra compilation, build cost and net work for assigned owners.\n"
                     "no-candidate: none in this shortlist; no-estimated-benefit: none beats no-PCH target cost.\n"
-                    "calibration-control: initial target deliberately left without PCH; disk-parent/disk-budget: measured eviction to base/NONE.\n"
+                    "calibration-control: initial target deliberately left without PCH; disk-fallback/disk-budget: measured eviction to the best open fallback or NONE.\n"
                     "no-layout-improvement: seed won global objective; retained-initial-plan: correction retained initial seed.\n"
                     "compatibility-fallback/rejected: target moved to an ancestor/no PCH; see compatibility.tsv and retained probe logs.\n"
                     "Historical checkpoints may lack reasons; unavailable is not a guessed rejection cause.\n"
@@ -2333,39 +2333,46 @@ namespace NPchUpdate::NTwoStep {
                 TWorkDir symbols(JoinPath(workDir, "link-symbols"), s.Ninja, std::max(1, s.Data.Resources.Workers));
                 LoadLinkProviders(symbols, s.Baseline, libraries, linkNeeds, providers);
             }
-            // Decide once per owner/leaf, then let the existing atomic target
-            // fallback recheck every member against the parent (or no PCH).
+            // Link availability is decided once per owner and leaf — for any
+            // leaf the owner may end on: its own chain, but also the sibling
+            // deltas a later disk eviction can hand it over to. Cached per
+            // (owner, leaf) under a mutex: the members of one owner are
+            // checked in parallel.
             std::vector<std::map<int, std::string>> linkErrors(s.Data.Targets.size());
-            for (size_t t = 0; t < s.Data.Targets.size(); ++t) {
-                for (int g = layout.Assignment[t]; g >= 0; g = layout.Pchs[g].Parent) {
-                    if (g < layout.Bases || !built[g]) { continue; }
+            std::mutex linkMutex;
+            auto linkError = [&](int t, int g) -> const std::string& {
+                static const std::string none;
+                if (g < layout.Bases || !built[g]) { return none; }
+                std::lock_guard<std::mutex> lock(linkMutex);
+                auto [it, added] = linkErrors[t].try_emplace(g);
+                if (added) {
                     const auto& link = linkProbes[g];
-                    linkErrors[t][g] = link.Ok ? LinkDiagnostic(TargetLinkAvailability(s, int(t), link.Needs, providers))
+                    it->second = link.Ok ? LinkDiagnostic(TargetLinkAvailability(s, t, link.Needs, providers))
                         : "PCH link probe failed: " + KeepProbeLog(s, JoinPath(cache.Directory(link.Key), "compiler.log"));
                 }
-            }
+                return it->second;
+            };
             const auto original = layout.Assignment;
             std::vector<std::string> diagnostics(s.Data.Files.size());
             const auto initialHits = cache.Hits.load();
             auto checkFile = [&](int f, int g, bool install) {
-                    const auto& errors = linkErrors[s.Data.Files[f].Target];
-                    auto error = errors.find(g);
-                    if (error != errors.end() && !error->second.empty()) {
-                        diagnostics[f] += (diagnostics[f].empty() ? "" : ";") + error->second;
-                        return false;
-                    }
-                    auto argv = flags[f];
-                    if (g >= 0) { argv.insert(argv.end(), {"-include-pch", artifacts[g]}); }
-                    argv.insert(argv.end(), {"-fsyntax-only", "-Wno-unused-command-line-argument", sources[f]});
-                    const auto key = "tu-" + HashHex(identity + cache.Digest(argv.front()) + ShellJoin(argv));
-                    const auto log = JoinPath(cache.Directory(key), "compiler.log");
-                    std::vector<std::string> inputsToCheck = {sources[f]};
-                    if (g >= 0) { inputsToCheck.push_back(artifacts[g]); }
-                    bool ok = cache.Probe(key, s.Baseline, argv, {}, Run, {}, std::move(inputsToCheck));
-                    if (ok && install) { inputs[s.Data.Files[f].Action] = probeInputs(key); }
-                    if (!ok) { diagnostics[f] += (diagnostics[f].empty() ? "" : ";") + KeepProbeLog(s, log); }
-                    if (g < 0 && !ok) { Fail("compatibility failed without PCH: " + s.Data.Files[f].Source + "; see " + log); }
-                    return ok;
+                const std::string& error = linkError(s.Data.Files[f].Target, g);
+                if (!error.empty()) {
+                    diagnostics[f] += (diagnostics[f].empty() ? "" : ";") + error;
+                    return false;
+                }
+                auto argv = flags[f];
+                if (g >= 0) { argv.insert(argv.end(), {"-include-pch", artifacts[g]}); }
+                argv.insert(argv.end(), {"-fsyntax-only", "-Wno-unused-command-line-argument", sources[f]});
+                const auto key = "tu-" + HashHex(identity + cache.Digest(argv.front()) + ShellJoin(argv));
+                const auto log = JoinPath(cache.Directory(key), "compiler.log");
+                std::vector<std::string> inputsToCheck = {sources[f]};
+                if (g >= 0) { inputsToCheck.push_back(artifacts[g]); }
+                bool ok = cache.Probe(key, s.Baseline, argv, {}, Run, {}, std::move(inputsToCheck));
+                if (ok && install) { inputs[s.Data.Files[f].Action] = probeInputs(key); }
+                if (!ok) { diagnostics[f] += (diagnostics[f].empty() ? "" : ";") + KeepProbeLog(s, log); }
+                if (g < 0 && !ok) { Fail("compatibility failed without PCH: " + s.Data.Files[f].Source + "; see " + log); }
+                return ok;
             };
             CompatibleTargets(s.Data, layout, built, jobs, [&](int f, int g) {
                 return checkFile(f, g, true);
@@ -2425,7 +2432,7 @@ namespace NPchUpdate::NTwoStep {
                 targets << "target\treason\tselected_leaf\tcompatible_leaf_before_compaction\tfinal_leaf\tdiagnostics\n";
                 for (size_t t = 0; t < s.Data.Targets.size(); ++t) {
                     const std::string reason = beforeBudget[t] != compatibleAssignments[t] ?
-                        (compatibleAssignments[t] < 0 ? "disk-budget" : "disk-parent") : original[t] == compatibleAssignments[t] ? "unchanged" :
+                        (compatibleAssignments[t] < 0 ? "disk-budget" : "disk-fallback") : original[t] == compatibleAssignments[t] ? "unchanged" :
                         compatibleAssignments[t] < 0 ? "compatibility-rejected" : "compatibility-fallback";
                     targets << s.Data.Targets[t].Label << '\t' << reason << '\t' << original[t] << '\t'
                             << compatibleAssignments[t] << '\t' << layout.Assignment[t] << '\t';
@@ -4497,12 +4504,14 @@ namespace NPchUpdate::NTwoStep {
             const auto base = JoinPath(s.Baseline, "base.h");
             const auto leaf = JoinPath(s.Baseline, "leaf.h");
             const auto broken = JoinPath(s.Baseline, "broken.h");
+            const auto safeLeaf = JoinPath(s.Baseline, "safe_leaf.h");
             WriteFile(base, "#pragma once\nstruct Base {};\n");
             WriteFile(leaf, "#pragma once\nextern int Provided();\nstatic const int Registration = Provided();\n");
             WriteFile(broken, "#pragma once\n#error broken root\n");
-            s.Data.Units.resize(3);
-            for (int u = 0; u < 3; ++u) {
-                s.Data.Units[u].Include = "\"" + (u == 0 ? base : u == 1 ? leaf : broken) + "\"";
+            WriteFile(safeLeaf, "#pragma once\nstruct SafeLeaf {};\n");
+            s.Data.Units.resize(4);
+            for (int u = 0; u < 4; ++u) {
+                s.Data.Units[u].Include = "\"" + (u == 0 ? base : u == 1 ? leaf : u == 2 ? broken : safeLeaf) + "\"";
                 s.Data.Units[u].Parse = .01;
                 s.Data.Units[u].Bytes = 100;
                 s.Data.Units[u].Stable = true;
@@ -4574,12 +4583,15 @@ namespace NPchUpdate::NTwoStep {
                 {{"file0.o", "file0.o"}, {"file1.o", "file1.o"}, {"file2.o", "file2.o"}, {"file3.o", "file3.o"}});
             TLayout candidate;
             candidate.Bases = 1;
-            candidate.Pchs.resize(2);
+            candidate.Pchs.resize(3);
             for (auto& pch : candidate.Pchs) { pch.Class = pch.Representative = 0; }
             candidate.Pchs[0].Roots = candidate.Pchs[0].Units = {0, 2}; // the base carries a broken root
-            candidate.Pchs[1].Roots = {1};
+            candidate.Pchs[1].Roots = {1}; // needs the provider on every final link
             candidate.Pchs[1].Units = {0, 1, 2};
             candidate.Pchs[1].Parent = 0;
+            candidate.Pchs[2].Roots = {3}; // a sibling leaf without link requirements
+            candidate.Pchs[2].Units = {0, 2, 3};
+            candidate.Pchs[2].Parent = 0;
             candidate.Assignment = {1, 0, 1}; // allowed, baseonly, missing
             s.Layout = candidate;
             const auto cache = JoinPath(parent, "link-cache");
@@ -4597,7 +4609,20 @@ namespace NPchUpdate::NTwoStep {
             check(ReadFile(JoinPath(s.Directory, "compatibility.tsv")).find("missing: no known provider") != std::string::npos,
                   "target fallback explains the failing final link");
             check(measured.size() == 2 && measured[0] && measured[1], "both real artifact sizes are available");
+            // A disk eviction may hand an owner over to a sibling delta: that
+            // leaf's link requirements must be checked for its new owner. The
+            // owner without the provider on its link line may not inherit the
+            // leaf that needs one, and falls back to the base instead.
             auto fullBudget = s.Data.Resources.Disk;
+            s.Data.Resources.Disk = measured[0] + measured[1]; // the base and the provider leaf fit; the safe leaf does not
+            s.Layout = candidate;
+            s.Layout.Assignment[2] = 2; // missing: on the safe leaf
+            Preflight(s, cache);
+            check(s.Layout.Assignment == std::vector<int>({1, 0, 0}) && s.Layout.Pchs.size() == 2,
+                  "a sibling fallback is link-checked for its new owner");
+            check(ReadFile(JoinPath(s.Directory, "compatibility-targets.tsv")).find("no known provider") != std::string::npos,
+                  "the rejected sibling explains the failing final link of its prospective owner");
+            s.Data.Resources.Disk = fullBudget;
             s.Data.Resources.Disk = measured[0];
             s.Layout = candidate;
             Preflight(s, cache);

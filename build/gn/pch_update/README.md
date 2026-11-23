@@ -212,28 +212,45 @@ itself and the installed source-tree PCH groups remain. A later invocation with
 `--disk` starts a new run rather than recalling the previous one.
 
 Selection compares grouping widths at the requested `--disk` budget using
-estimated artifact bytes. It can evict a delta to its base/NONE, or in `initial`
+estimated artifact bytes. Owners of one compiler class are clustered by their
+residual header-parse profile (bucketed signatures, deterministic farthest-point
+seeding) instead of label-alphabet partitions, then refined by two
+expectation/maximization rounds: deltas are re-picked strictly from the files
+actually assigned to them, and each owner takes the cheapest of NONE, the base
+and any delta of its compiler class whose serialized units overlap its profile
+— including deltas whose cluster its label never touched, and deltas rooted at
+an umbrella header that pulls the owner's headers in transitively. A width therefore only bounds the cluster
+count; cluster sizes vary freely. For widths whose layout exceeds the budget
+the selector also builds disk-priced variants (a small lambda grid taken from
+the quantiles of that candidate's own accepted root benefit-per-byte densities):
+every PCH keeps only its dense prefix of roots instead of being evicted
+wholesale later.
+Roots enter a PCH in descending benefit-per-byte order, so these prefixes are
+trimmable tails. Selection can evict a delta to its best open fallback — the
+base or a surviving sibling delta of the same compiler class sharing its heavy
+headers — or in `initial`
 drop an entire base and its remaining children to NONE. Each eviction competes
 on marginal work lost per freed byte; a shared base is charged only once.
 Only the winning width gets a probe reserve: the same selection is fitted to
 **2 × `--disk`** in estimated bytes before compatibility (fixed factor).
-`selection-widths.tsv` reports the widths at 1× and the separate winner's probe
-count and bytes at 2×. A compiler class has at most one
+`selection-widths.tsv` reports the width/lambda candidates at 1× and the
+separate winner's probe count and bytes at 2×. A compiler class has at most one
 safe stable base; without a base it cannot produce deltas. Each compiling target
 uses NONE, the base, or the base plus one child. Before scoring each width and
 before invoking Clang, reprice candidates on their **assigned GN targets**.
-A delta must save more weighted consumer work over the better of base/NONE
-than its own build costs. Otherwise its owners take that fallback. A family
-must then pay for its base and surviving children versus NONE. During correction
-the frozen base is mandatory even with no consumers; its cost cancels on both
-sides. Cycle-induced reassignments repeat the test. `selection-payback.tsv`
-records modeled parse savings, load, extra compiles, build and net seconds for
-both decisions (delta and family rows overlap; do not add them).
-After building and checking the
+A delta must save more weighted consumer work over its best open alternative
+than its own build costs. Otherwise its owners take that alternative.
+A family must then pay for its base and surviving children versus NONE. During
+correction the frozen base is mandatory even with no consumers; its cost
+cancels on both sides. Cycle-induced reassignments repeat the test.
+`selection-payback.tsv` records modeled parse savings, load, extra compiles,
+build and net seconds for both decisions (delta and family rows overlap; do not
+add them). After building and checking the
 winning candidates, preflight fits `--disk` using actual PCH file sizes. This
 measured pass can likewise evict entire initial families or individual children
-(accounting for saved build cost). On delta eviction each owner moves atomically to its cheaper compatible
-base or NONE. This is a greedy work estimate, not an optimum for build wall time.
+(accounting for saved build cost). On delta eviction each owner moves atomically
+to its cheapest compatible open fallback or NONE. This is a greedy work
+estimate, not an optimum for build wall time.
 Corrected bases are frozen; if mandatory bases alone exceed the cap, planning
 fails. Temporary probe storage can exceed the final cap. Scheduling of the
 retained plan uses probe artifact bytes; `--apply` rechecks the MEASURE bytes.
@@ -384,7 +401,8 @@ separate input and is not modified by the tool build.
   base, budget and retained bytes and the actual eviction order. Each
   row reports the eviction kind (`delta` or `family`), pre-compaction group ID,
   freed bytes, estimated marginal work loss,
-  and counts of targets reassigned to its parent or NONE.
+  and counts of targets reassigned to their best open fallback
+  (base or a surviving sibling delta) or NONE.
 - `BASELINE/pch-disk-budget.tsv`: latest completed prediction phase's copy of
   the report above; survives successful cleanup of `.pch_update/`. A corrected
   prediction replaces the initial report. No extra compilations are performed
