@@ -55,7 +55,9 @@ namespace NPchUpdate {
         std::vector<TEdge> Edges_;
     };
 
-    // .ninja_log (v5, v6): the latest entry of each output.
+    // .ninja_log (v5, v6, v7): the latest entry of each output. The row
+    // layout is identical in all three; v7 (ninja 1.13) only replaced the
+    // command hash recipe (MurmurHash64A by rapidhash), see TDirtyScan.
     struct TNinjaLogEntry {
         int64_t StartMs = 0;
         int64_t EndMs = 0;
@@ -69,6 +71,7 @@ namespace NPchUpdate {
         // before starts a new run.
         size_t Runs = 0;
         int64_t LastRunSpanMs = 0;
+        int Version = 0;
     };
 
     TNinjaLog ReadNinjaLog(const std::string& path);

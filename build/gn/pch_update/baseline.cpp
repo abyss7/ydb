@@ -196,6 +196,89 @@ namespace NPchUpdate {
             return h;
         }
 
+        // rapidhash, as BuildLog::LogEntry::HashCommand of ninja 1.13
+        // (.ninja_log v7) replaces the murmur above. Rapid mode (no entropy
+        // protection) and the unrolled loop, which do not change the output;
+        // little-endian reads, as the rest of this build. Based on
+        // 'rapidhash' by Nicolas De Carli (BSD-2), itself based on 'wyhash'
+        // by Wang Yi, as bundled with ninja.
+        uint64_t RapidHash(std::string_view command) {
+            const uint64_t secret[3] = {0x2d358dccaa6c78a5ull, 0x8bb84b93962eacc9ull, 0x4b33a62ed433d4a3ull};
+            auto mix = [](uint64_t* a, uint64_t* b) {
+                unsigned __int128 product = *a;
+                product *= *b;
+                *a = uint64_t(product);
+                *b = uint64_t(product >> 64);
+            };
+            auto combined = [&](uint64_t a, uint64_t b) {
+                mix(&a, &b);
+                return a ^ b;
+            };
+            auto read64 = [](const unsigned char* p) {
+                uint64_t v;
+                memcpy(&v, p, sizeof(v));
+                return v;
+            };
+            auto read32 = [](const unsigned char* p) {
+                uint32_t v;
+                memcpy(&v, p, sizeof(v));
+                return v;
+            };
+            const unsigned char* p = reinterpret_cast<const unsigned char*>(command.data());
+            size_t len = command.size();
+            uint64_t seed = 0xbdd89aa982704029ull;
+            seed ^= combined(seed ^ secret[0], secret[1]) ^ len;
+            uint64_t a, b;
+            if (len <= 16) {
+                if (len >= 4) {
+                    const unsigned char* last = p + len - 4;
+                    a = (uint64_t(read32(p)) << 32) | read32(last);
+                    const uint64_t delta = (len & 24) >> (len >> 3);
+                    b = (uint64_t(read32(p + delta)) << 32) | read32(last - delta);
+                } else if (len > 0) {
+                    a = (uint64_t(p[0]) << 56) | (uint64_t(p[len >> 1]) << 32) | p[len - 1];
+                    b = 0;
+                } else {
+                    a = b = 0;
+                }
+            } else {
+                size_t i = len;
+                if (i > 48) {
+                    uint64_t see1 = seed, see2 = seed;
+                    while (i >= 96) {
+                        seed = combined(read64(p) ^ secret[0], read64(p + 8) ^ seed);
+                        see1 = combined(read64(p + 16) ^ secret[1], read64(p + 24) ^ see1);
+                        see2 = combined(read64(p + 32) ^ secret[2], read64(p + 40) ^ see2);
+                        seed = combined(read64(p + 48) ^ secret[0], read64(p + 56) ^ seed);
+                        see1 = combined(read64(p + 64) ^ secret[1], read64(p + 72) ^ see1);
+                        see2 = combined(read64(p + 80) ^ secret[2], read64(p + 88) ^ see2);
+                        p += 96;
+                        i -= 96;
+                    }
+                    if (i >= 48) {
+                        seed = combined(read64(p) ^ secret[0], read64(p + 8) ^ seed);
+                        see1 = combined(read64(p + 16) ^ secret[1], read64(p + 24) ^ see1);
+                        see2 = combined(read64(p + 32) ^ secret[2], read64(p + 40) ^ see2);
+                        p += 48;
+                        i -= 48;
+                    }
+                    seed ^= see1 ^ see2;
+                }
+                if (i > 16) {
+                    seed = combined(read64(p) ^ secret[2], read64(p + 8) ^ seed ^ secret[1]);
+                    if (i > 32) {
+                        seed = combined(read64(p + 16) ^ secret[2], read64(p + 24) ^ seed);
+                    }
+                }
+                a = read64(p + i - 16);
+                b = read64(p + i - 8);
+            }
+            a ^= secret[1];
+            b ^= seed;
+            mix(&a, &b);
+            return combined(a ^ secret[0] ^ len, b ^ secret[1]);
+        }
+
         // The mtime as RealDiskInterface::Stat of ninja: 0 if missing.
         int64_t NinjaStat(const std::string& path) {
             struct stat st;
@@ -406,7 +489,9 @@ namespace NPchUpdate {
                 if (!rspfile.empty()) {
                     command += ";rspfile=" + rspfile;
                 }
-                s.Hash = HashCommand(command);
+                // ninja 1.13 (.ninja_log v7) hashes commands with rapidhash
+                // instead of murmur; follow whichever recipe wrote the log.
+                s.Hash = Log_.Version >= 7 ? RapidHash(command) : HashCommand(command);
                 if (!Manifest_.Binding(e, "deps").empty()) {
                     int32_t out = s.Out[0];
                     int32_t record = RecordOfNode_[out];

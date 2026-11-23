@@ -1033,11 +1033,15 @@ namespace NPchUpdate {
         if (!StartsWith(header, signature) || !ParseNumber(header.substr(signature.size()), &version)) {
             Fail("unknown .ninja_log format: " + path);
         }
-        if (version != 5 && version != 6) {
+        // Ninja 1.12 bumped the log to v7 without changing the row layout;
+        // ninja 1.13 kept v7 and replaced the command hash recipe (see
+        // TDirtyScan in baseline.cpp): start, end, mtime, output, hash.
+        if (version != 5 && version != 6 && version != 7) {
             Fail(Format("unsupported .ninja_log version %d: %s", version, path.c_str()));
         }
 
         TNinjaLog log;
+        log.Version = version;
         bool started = false;
         int64_t start = 0;
         int64_t prevEnd = 0;
