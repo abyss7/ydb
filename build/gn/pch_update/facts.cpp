@@ -721,6 +721,7 @@ namespace NPchUpdate {
         facts.NinjaMs.clear();
         facts.CompileUs.clear();
         facts.HeaderUs.clear();
+        facts.FrontendUs.clear();
         facts.FirstHeader.clear();
         facts.EdgeOf.clear();
         facts.HeaderNames.clear();
@@ -763,6 +764,7 @@ namespace NPchUpdate {
                 facts.NinjaMs.push_back(std::max<int64_t>(ninjaMs, 0));
                 facts.CompileUs.push_back(t.Execute);
                 facts.HeaderUs.push_back(t.Outer);
+                facts.FrontendUs.push_back(t.Frontend);
                 facts.EdgeOf.push_back(facts.Manifest->Producer(obj));
                 execute += t.Execute;
                 wallExecute += t.WallExecute;

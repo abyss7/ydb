@@ -94,6 +94,8 @@ namespace NPchUpdate {
         std::vector<int64_t> NinjaMs;
         std::vector<int64_t> CompileUs;
         std::vector<int64_t> HeaderUs;
+        // Total Frontend of the trace: CompileUs - FrontendUs is the backend.
+        std::vector<int64_t> FrontendUs;
         std::vector<int32_t> FirstHeader;
         // The edge of the manifest compiling each file.
         std::vector<int64_t> EdgeOf;

@@ -50,6 +50,8 @@ namespace NPchUpdate::NTwoStep {
         std::string Source;
         std::vector<std::pair<int, double>> Own;
         int Target = -1;
+        double Frontend = 0; // baseline trace: frontend seconds, zero if unknown
+        double Outer = 0; // baseline trace: seconds in the outermost includes
     };
 
     struct TTarget {
@@ -83,6 +85,9 @@ namespace NPchUpdate::NTwoStep {
         std::vector<TPch> Pchs; // bases first, then deltas
         int Bases = 0;
         std::vector<int> Assignment; // target -> leaf, -1 means no PCH
+        // Initial plan only: 1 = calibration control without PCH, 2 = control
+        // kept on the base to measure the deltas' marginal value. Empty otherwise.
+        std::vector<char> Controls;
     };
 
     struct TCoefficients {
@@ -95,6 +100,9 @@ namespace NPchUpdate::NTwoStep {
         double Size = 3.9; // PCH bytes per header source byte, calibrated from artifacts
         double Memory = 1;
         double ConsumerMemory = 1;
+        // Extra saved fraction per unit of (Frontend - Outer) / Outer: what
+        // -fpch-instantiate-templates removes from the end of the unit.
+        double Instantiate = 0;
         bool Identified = false;
     };
 
@@ -119,15 +127,38 @@ namespace NPchUpdate::NTwoStep {
         std::string Invocation;
     };
 
+    // A PCH built and measured in S0. Identity is content, never an ID: a
+    // later layout reuses the observation only for the same own units, roots
+    // and parent chain.
+    struct TMeasuredPch {
+        TPch Pch;
+        TPch Parent; // default for a base
+        double Bytes = 0;
+        double Time = 0;
+        double Memory = 0;
+    };
+
     struct TCalibration {
         std::vector<TCoefficients> Classes;
-        // Initial base IDs survive correction. Also check their identity before
-        // using the observation: an unrelated layout can reuse the same ID.
-        std::vector<std::pair<TPch, double>> MeasuredBases;
-        // Non-PCH actions measured in S0, reusable when scoring S1.
+        std::vector<TMeasuredPch> Measured;
+        // Per action. Compilations of measured targets carry the anchored
+        // baseline (the trace time that reproduces the observed S0 compile
+        // under the initial leaf); other actions the observation or the model.
         std::vector<double> ActionTime;
         std::vector<double> ActionMemory;
+        std::vector<double> ActionFloor; // irreducible backend seconds
+        // Saved-time multiplier per target, shrunk toward 1 by the noise of
+        // the class controls and never below zero; 1 for unmeasured targets.
+        std::vector<double> TargetGain;
+        // Per compiler class, per unit: PCH bytes per source byte, build
+        // seconds per parse second (zero: class prior) and saved-time
+        // multiplier (zero: none). Empty tables mean uncalibrated.
+        std::vector<std::vector<double>> UnitSize;
+        std::vector<std::vector<double>> UnitBuild;
+        std::vector<std::vector<double>> UnitGain;
         std::string Report;
+        std::string TargetReport; // per measured PCH target: anchor and multiplier
+        std::string UnitReport; // per calibrated unit: size, build and gain weights
     };
 
     // Use verified artifact sizes. Keep original IDs until the caller remaps
@@ -135,7 +166,7 @@ namespace NPchUpdate::NTwoStep {
     std::string FitMeasuredDisk(const TData& data, TLayout& layout, const TCalibration& calibration,
                                 const std::vector<uint64_t>& bytes, bool frozen,
                                 const std::function<bool(int target, int parent)>& compatible);
-    std::vector<int> CompactLayout(TLayout& layout, bool keepBases);
+    std::vector<int> CompactLayout(TLayout& layout);
 
     // Returns infinity on resource infeasibility; malformed graphs are errors.
     // Optional observer: no model/checkpoint fields and no additional scoring.
@@ -159,9 +190,17 @@ namespace NPchUpdate::NTwoStep {
     // Score a fixed set of PCHs, repairing cyclic GN target assignments in place.
     TPrediction ScoreCandidate(const TData& data, TLayout& layout, const TCalibration& calibration,
                                size_t analysisJobs, int width);
+    // Without `frozen`: bases, deltas and assignments from scratch, with the
+    // calibration controls of TLayout::Controls. With `frozen`: the bases stay
+    // as they are, and a frozen base leaves a candidate as soon as that
+    // candidate is scored without an assigned target or a surviving delta.
     TLayout Select(const TData& data, const TCalibration& calibration, const TLayout* frozen = nullptr,
                    size_t analysisJobs = 1,
                    TSelectionDiagnostics* diagnostics = nullptr);
+    // What a measurement of `layout` teaches the next selection: class
+    // coefficients, every built artifact by content, per-target anchors and
+    // multipliers, per-unit weights. Observations cover every action of
+    // `prediction` (zero time: not measured).
     TCalibration Calibrate(const TData& data, const TLayout& layout, const TPrediction& prediction,
                            const std::vector<TObservation>& observations);
 

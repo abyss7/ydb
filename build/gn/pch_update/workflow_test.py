@@ -47,6 +47,10 @@ def main():
 
     run(["git", "clone", "--shared", "--no-checkout", str(source), str(root)], cwd=scratch)
     run(["git", "sparse-checkout", "set", "--no-cone", "/__pch_workflow_empty__"])
+    # --no-checkout leaves no index, and `git diff HEAD` would then report every
+    # file of the repository as deleted, binaries included. Read the tree into
+    # the index under the sparse patterns, as a real worktree has it.
+    run(["git", "read-tree", "-mu", "HEAD"], cwd=root)
     # The cold-only fixture needs no historical workload. A local shallow
     # boundary avoids scanning the production repository's months of commits.
     head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True)

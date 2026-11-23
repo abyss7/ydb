@@ -3,7 +3,10 @@
 `pch_update` selects compatible base/delta PCH chains, measures the initial build,
 reselects the deltas and their consumers once, measures the corrected build and
 installs the groups in the ordinary GN global-PCH build. The base contents and compiler
-classes remain fixed during correction. This is a bounded two-step workflow,
+classes remain fixed while the correction selects, and what the first measurement
+showed is kept at every level: targets are anchored at their observed compile, the
+class coefficients come from all measured groups, and every built base and delta
+teaches its own header units. This is a bounded two-step workflow,
 not a convergence guarantee.
 
 The assignment unit is the **GN target that compiles the object**. A generated
@@ -73,16 +76,21 @@ builds, not reports. Earlier run reports are retained. The directory contains:
 * `compatibility-targets.tsv`: assignment mapping through fallback and final ID
   compaction; rejected compiler probe logs are retained alongside the reports.
 * `corrected/assignment-changes.tsv`, `calibration.tsv`: initial/corrected assignment
-  changes, parameter identifiability, training/holdout coverage and error.
-  `calibration-parameters.tsv` contains the fitted/prior coefficients themselves.
+  changes, parameter identifiability, training coverage, leave-one-group-out error
+  and the controls, anchors and per-unit tables of each compiler class.
+  `calibration-parameters.tsv` contains the fitted/prior coefficients themselves;
+  `calibration-targets.tsv` the anchor and saved-time multiplier of every measured
+  target with a PCH; `calibration-units.tsv` the header units whose PCH bytes, build
+  seconds or saving a measurement calibrated individually (zero: the class prior).
 * `phases.tsv`, `logs/`: phase status/duration and complete child output per attempt.
 * `final-result.json`: successful installation and full GN build outcome. Building
   test binaries does not execute tests. `README.txt` explains units and reasons.
 
 Measurement reports distinguish sample wall time, summed action/CPU time, actual
 PCH bytes, and largest individual action RSS (not aggregate peak RAM). Target WAPE
-is `sum(abs(predicted-actual))/sum(actual)` over complete observed targets; holdout
-MAE is the mean absolute error of target compile work. Initial and corrected plans
+is `sum(abs(predicted-actual))/sum(actual)` over complete observed targets; the
+calibration MAE is leave-one-group-out cross-validated error of the measured
+members' compile work per target with a PCH. Initial and corrected plans
 measure the same object panel, but their PCHs and prerequisites can differ;
 sample wall times are not a full-build speedup comparison.
 `q` weights predicted cold/incremental wall times. The disk budget is for resident
@@ -136,7 +144,9 @@ BASELINE/.pch_update/
     global/               # ordinary GN validation build
 ```
 
-Worktree and baseline locks serialize the workflow. Source/configuration/tool
+Worktree and baseline locks serialize the workflow. Source identity is HEAD plus the
+working tree's diff against it, hashed as `git diff` streams: a diff of any size is
+never held in memory. Source/configuration/tool
 fingerprints protect frozen measurements. Changing inputs restarts prediction
 when running the full cycle or `--predict`; later stages request `--predict` first.
 Analysis checkpoints and content-addressed compiler probes are reused when their
@@ -236,13 +246,27 @@ Only the winning width gets a probe reserve: the same selection is fitted to
 `selection-widths.tsv` reports the width/lambda candidates at 1× and the
 separate winner's probe count and bytes at 2×. A compiler class has at most one
 safe stable base; without a base it cannot produce deltas. Each compiling target
-uses NONE, the base, or the base plus one child. Before scoring each width and
+uses NONE, the base, or the base plus one child.
+
+The initial plan keeps a three-point control in every compiler class so that the
+correction can be measured: `clamp((⌊√n⌋+1)/2, 1, 6)` owners stay without any PCH
+(`calibration-control`: the compiler's speed on this class against the traces, and
+how much it varies between owners) and, in classes of eight owners or more, as many
+owners that would take a delta stay on the base (`calibration-base-control`: what the
+delta adds over it for an owner that would take one). Both sets are spread evenly
+over the label order, which is independent of an owner's headers, and are measured
+first (see sampling). The counts grow with the square root of the class, so a large
+class gives up a few percent of its coverage instead of a tenth of it. Correction
+has no controls: every owner takes its best measured option. Before scoring each width and
 before invoking Clang, reprice candidates on their **assigned GN targets**.
 A delta must save more weighted consumer work over its best open alternative
 than its own build costs. Otherwise its owners take that alternative.
 A family must then pay for its base and surviving children versus NONE. During
-correction the frozen base is mandatory even with no consumers; its cost
-cancels on both sides. Cycle-induced reassignments repeat the test.
+correction a frozen base is mandatory while it has consumers: its cost cancels on
+both sides. A base without a single assigned target or surviving delta leaves a
+candidate as soon as the candidate is scored, frozen or not: no candidate is
+charged with building it or counted its bytes, it is not exported, and a family
+emptied by an eviction releases its base's bytes at once. Cycle-induced reassignments repeat the test.
 `selection-payback.tsv` records modeled parse savings, load, extra compiles,
 build and net seconds for both decisions (delta and family rows overlap; do not
 add them). After building and checking the
@@ -279,7 +303,10 @@ Before freezing any initial or corrected prediction, `predict`, `replan` and
    every member, then try all members without PCH. Only a universally successful
    fallback is accepted. A no-PCH failure or compiler crash aborts planning.
 4. Remove unused chains and recompute the prediction from the checked layout.
-   Correction preserves every frozen base; failure to compile one aborts it.
+   A frozen base is kept as it is as long as an assigned target or a surviving
+   delta needs it, and failure to compile one aborts correction; one that the
+   compatibility fallbacks or the measured disk fit leave without either goes
+   with the unused chains.
 
 This catches cases where a PCH compiles alone but introduces declarations that
 make a consumer ambiguous (for example `llvm::Module` in `Minidump.cpp`).
@@ -330,9 +357,15 @@ After `--predict`, run `pch_update --baseline B --correct --sample 20` to
 measure 20% of the modeled C++ objects (rounded up). The first correction
 freezes the percentage and the object panel; omit `--sample` on resume.
 Prediction does not emit the measurement graph. Give each compiling GN target
-one slot, including no-PCH controls. If not all fit, take targets in descending
-order of summed baseline compile seconds. Allocate extra slots by file count
-(largest `files / (slots + 1)` first, up to all files; ties by GN label).
+one slot, the calibration controls first (they inform their whole compiler class,
+not only their own anchor). If not all fit, take the remaining targets in descending
+order of summed baseline compile seconds. A control without PCH then takes one extra
+member (the class baseline is read from it); the remaining slots go to the largest
+baseline compile seconds per slot, a control kept on the base taking its turn in
+that queue like any other owner (`work / (slots + 1)` first, up to all files; ties
+by GN label): a target's stratum
+estimate varies with the work it holds, not with the number of its files, so fifty
+generated stubs of 0.2 s no longer draw as many objects as fifty core files of 25 s.
 Within each target, sort objects by baseline compile seconds, split them into
 equal-count strata (within one object), and select one per stratum with
 probability proportional to its baseline compile seconds. The draw is keyed
@@ -354,16 +387,62 @@ selected objects, their targets and the actual prerequisite closure, including l
 At 100%, the full GN ordering is preserved.
 
 Calibration uses the selected observations, keeping mandatory extra tool builds
-out of the sample. Calibration aggregates features and timings over the same
-observed objects in each target. Whole-target errors and holdout target MAE
-require complete targets. Unmeasured actions keep the model estimate; `correct` reports
-coverage in `calibration.tsv` (`# measured_actions`, `# measured_targets`).
+out of the sample, and keeps what the measurement showed at every level:
+
+* **Per target.** The sampled objects of a target are a draw with probability
+  proportional to baseline time from equal-count strata, so each stratum's trace
+  time times the winner's observed-to-trace ratio estimates the stratum without
+  bias (Horvitz–Thompson); unsampled members take their stratum's ratio. Every
+  measured target, controls included, is *anchored* at that estimate: the second
+  selection prices another leaf for it by the headers the leaf adds or removes
+  (`saved`, `load`, the class coefficients), never from its trace, so a stale
+  `distclang` estimate or another machine's load cancels. A no-PCH control is
+  anchored at its measured compile without PCH.
+* **Per class.** The controls give the baseline ratio and, where their trace times
+  spread enough to tell it apart, the per-compile seconds outside the traces.
+  `saved` and `load` are a weighted least-squares fit on the measured targets with
+  a PCH over the data centered by both (no count column to collide with a load
+  shared by every group); each target's equation is normalized by the root of its
+  members' squared trace times, and Huber reweighting keeps a few exceptional
+  targets from dragging the class. A third regressor, the parse saving times
+  `(Frontend - Outer) / Outer` of the member's trace, captures what
+  `-fpch-instantiate-templates` removes outside the includes (`instantiate`); it
+  is accepted only when identified next to the others. Leave-one-group-out error is
+  a diagnostic only: the working coefficients are fitted on every measured group.
+* **Per unit.** Every base and delta S0 built is one observation over its own
+  units. A weak ridge decomposition assigns each unit its PCH bytes per source
+  byte and its build seconds per parse second (a lone group's units move by the
+  same share; units shared by groups split the evidence), so `Pick` sees which
+  headers inflated a delta and the second selection fits `--disk` before
+  compiling. The strata are cut exactly as the draw cut them. An artifact with
+  exactly the units, roots and parent chain S0 built reuses its measured size,
+  build time and RSS outright, and the consumer memory scale is read from the
+  measured artifacts. A leaf that is unusually heavy to deserialize shows in its
+  consumers' residuals below; the load feature itself stays in parse seconds.
+* **Per target again (empirical Bayes).** Each measured target is compared with
+  the compile time the selector computes for it, backend floor included, relative
+  to the parse seconds the PCH saved it. The mean
+  deviation of a leaf over its measured owners, shrunk by their noise, is
+  projected on the leaf's own units; the remainder of each target is shrunk by
+  the controls' spread and the target's sampling noise into a saved-time
+  multiplier (`target_gain`, never below zero). A target measured no faster with
+  its PCH than the controls are without one, beyond that noise, keeps a
+  multiplier of zero: the PCH saved it nothing, so it loses its PCH at the
+  payback test, and its no-PCH time is what S0 measured less the load. A PCH is
+  never credited with slowing a compile beyond that load. One measured far
+  faster than its own parse time predicts keeps a multiplier above one and, with
+  it, its delta.
+
+Compilations whose trace shows the frontend are floored at the backend
+(`ExecuteCompiler - Frontend`), which no PCH removes; others keep a 2% prior.
+Unmeasured actions keep the model estimate; `correct` reports coverage in
+`calibration.tsv` (`# measured_actions`, `# measured_targets`, `anchored_targets`).
 With a sampled run `cold_seconds` is a prediction rather than a measured full
 build; `summary.tsv` says so.
 
 `correct` checks source, tool, configuration, action and output identity before
 using any measurements. It compares the frozen initial ledger with observations,
-holds out entire groups during fitting, reports unidentifiable parameters, and
+reports unidentifiable parameters and cross-validated error, and
 emits a new independent build directory. The corrected configuration remains
 a prediction. It can optionally be measured with `verify --plan` too, but cannot
 be corrected again within this cycle.
@@ -424,8 +503,10 @@ full graph scoring; it is heuristic. Initial size, RSS and loading costs are exp
 priors. Exact compiler flags, macros and include order define compatibility
 classes, so some classes may have too few groups to identify separate costs.
 
-`pch_update self-test` checks scheduling, invalidation, frozen-base refinement,
-calibration rank/holdout isolation, snapshot corruption, measurement restart,
+`pch_update self-test` checks scheduling, invalidation, frozen-base refinement and
+release of emptied families, calibration rank, cross-validation, anchors and
+empirical-Bayes multipliers, per-unit decomposition, sampling by work with control
+priority, streamed tree identity, snapshot corruption, measurement restart,
 missing telemetry and interrupted replacement recovery.
 
 Shared bases require headers without standalone external-symbol requirements.

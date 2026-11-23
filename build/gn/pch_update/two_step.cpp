@@ -127,26 +127,169 @@ namespace NPchUpdate::NTwoStep {
             return size_t(cls) < c.Classes.size() ? c.Classes[cls] : TCoefficients();
         }
 
-        double ArtifactBytes(const TData& d, const TLayout& layout, size_t g, const TCalibration& calibration) {
-            const auto& p = layout.Pchs[g];
-            if (int(g) < layout.Bases && p.Parent < 0 && g < calibration.MeasuredBases.size()) {
-                const auto& [base, bytes] = calibration.MeasuredBases[g];
-                if (bytes > 0 && base.Class == p.Class && base.Representative == p.Representative &&
-                    base.Roots == p.Roots && base.Units == p.Units) {
-                    return bytes;
-                }
-            }
-            const double parent = p.Parent < 0 ? 0 : Volume(d, layout.Pchs[p.Parent].Units);
-            return std::max(1.0, (Volume(d, p.Units) - parent) * Coeff(calibration, p.Class).Size);
-        }
-
-        double Consumer(const TAction& a, double saved, double load, const TCoefficients& c) {
+        // What a PCH takes off a compile under one set of coefficients.
+        double PchGain(double saved, double load, const TCoefficients& c) {
             double gain = c.Saved * saved - c.Load * load;
             // A combined fit showing a slowdown must not turn extra, unused
             // headers into an apparent speedup outside the measured feature mix.
             if (c.Saved < 0) { gain = std::min(0.0, gain); }
-            return std::max(a.Time * 0.02, c.Baseline * a.Time - gain + c.Residual);
+            return gain;
         }
+
+        // Compile time under one set of coefficients. `base` is the compile's
+        // baseline seconds in the model's own scale (the trace, or the anchor
+        // of a measured target), `floor` what no PCH removes: the backend.
+        double Consumer(double base, double floor, double saved, double load, const TCoefficients& c) {
+            return std::max(floor, c.Baseline * base - PchGain(saved, load, c) + c.Residual);
+        }
+
+        // Same compiler class, own units and roots. Flags are the class, so
+        // the representative and the root order do not change the artifact.
+        bool SameContent(const TPch& a, const TPch& b) {
+            if (a.Class != b.Class || a.Units != b.Units) { return false; }
+            auto x = a.Roots, y = b.Roots;
+            Unique(x);
+            Unique(y);
+            return x == y;
+        }
+
+        // The consumer model of one calibration state: class coefficients,
+        // the per-target and per-unit corrections a measurement taught, and
+        // the per-file anchor at the measured point.
+        struct TConsumerModel {
+            const TData& D;
+            const TCalibration& C;
+
+            TConsumerModel(const TData& d, const TCalibration& c) : D(d), C(c) {}
+
+            TCoefficients Coefficients(int cls) const { return Coeff(C, cls); }
+
+            // Irreducible share of a compile, in trace seconds. A known trace
+            // gives the LLVM backend (ExecuteCompiler minus Frontend); without
+            // one, 2% stays the prior.
+            static double Backend(double time, double frontend) {
+                if (frontend > 0 && time > frontend) { return std::max(time - frontend, 0.01 * time); }
+                return 0.02 * time;
+            }
+            double Base(const TFile& f) const {
+                return size_t(f.Action) < C.ActionTime.size() ? C.ActionTime[f.Action] : D.Actions[f.Action].Time;
+            }
+            double Floor(const TFile& f) const {
+                if (size_t(f.Action) < C.ActionFloor.size()) { return C.ActionFloor[f.Action]; }
+                return std::max(0.0, Coefficients(f.Class).Baseline * Backend(D.Actions[f.Action].Time, f.Frontend));
+            }
+            // Semantics and template instantiation outside the outermost
+            // includes, relative to the time spent inside them.
+            static double Templates(const TFile& f) {
+                if (f.Frontend <= 0 || f.Outer <= 0 || f.Frontend <= f.Outer) { return 0; }
+                return std::min((f.Frontend - f.Outer) / f.Outer, 100.0);
+            }
+            double Theta(const TFile& f) const {
+                return std::max(0.0, 1 + Coefficients(f.Class).Instantiate * Templates(f));
+            }
+            // Saved-time multiplier of the file's target (empirical Bayes).
+            double Gain(const TFile& f) const {
+                return f.Target >= 0 && size_t(f.Target) < C.TargetGain.size() ? C.TargetGain[f.Target] : 1.0;
+            }
+            TCoefficients Coefficients(const TFile& f) const {
+                auto c = Coefficients(f.Class);
+                c.Saved *= Gain(f);
+                return c;
+            }
+            double UnitGain(int cls, int u) const {
+                return cls >= 0 && size_t(cls) < C.UnitGain.size() && size_t(u) < C.UnitGain[cls].size() &&
+                       C.UnitGain[cls][u] > 0 ? C.UnitGain[cls][u] : 1.0;
+            }
+            double SizeWeight(int cls, int u) const {
+                return cls >= 0 && size_t(cls) < C.UnitSize.size() && size_t(u) < C.UnitSize[cls].size() &&
+                       C.UnitSize[cls][u] > 0 ? C.UnitSize[cls][u] : Coefficients(cls).Size;
+            }
+            double BuildWeight(int cls, int u, bool base) const {
+                if (cls >= 0 && size_t(cls) < C.UnitBuild.size() && size_t(u) < C.UnitBuild[cls].size() &&
+                    C.UnitBuild[cls][u] > 0) {
+                    return C.UnitBuild[cls][u];
+                }
+                const auto c = Coefficients(cls);
+                return base ? c.BaseBuild : c.DeltaBuild;
+            }
+            // Effective parse saving of a file under a PCH: the units' own
+            // times with their measured multipliers, scaled by what the class
+            // gains beyond the includes. Own entries and units are both
+            // ascending (extraction emits them so): one merge pass.
+            double Saved(const TFile& f, const std::vector<int>& units) const {
+                double sum = 0;
+                size_t j = 0;
+                int previous = -1;
+                for (auto [u, own] : f.Own) {
+                    if (u < previous) { // an unsorted table: search per entry
+                        if (std::binary_search(units.begin(), units.end(), u)) { sum += own * UnitGain(f.Class, u); }
+                        continue;
+                    }
+                    previous = u;
+                    while (j < units.size() && units[j] < u) { ++j; }
+                    if (j == units.size()) { break; }
+                    if (units[j] == u) { sum += own * UnitGain(f.Class, u); }
+                }
+                return Theta(f) * sum;
+            }
+            // Deserialization feature: the parse seconds the PCH holds, the
+            // scale the class fits its load coefficient in. Measured PCH bytes
+            // are not folded in here: a header's bytes per parse second already
+            // grows with its templates, and multiplying the two charges a small
+            // template wrapper dozens of times over. A leaf that is unusually
+            // heavy to deserialize shows in its consumers' residuals, which
+            // the calibration projects on its own units (UnitGain).
+            double Load(const std::vector<int>& units) const {
+                return Parse(D, units);
+            }
+            double Time(const TFile& f, double saved, double load) const {
+                return Consumer(Base(f), Floor(f), saved, load, Coefficients(f));
+            }
+            double Time(const TFile& f, const TCoefficients& c, double saved, double load) const {
+                return Consumer(Base(f), Floor(f), saved, load, c);
+            }
+            // Own units of a PCH: what it serializes beyond its parent.
+            template <class F>
+            void ForOwn(const TPch& p, const std::vector<int>* parent, F&& fn) const {
+                size_t j = 0;
+                for (int u : p.Units) {
+                    while (parent && j < parent->size() && (*parent)[j] < u) { ++j; }
+                    if (parent && j < parent->size() && (*parent)[j] == u) { continue; }
+                    fn(u);
+                }
+            }
+            // The S0 artifact of exactly this content, if the measurement built one.
+            const TMeasuredPch* Measured(const TLayout& l, size_t g) const {
+                const auto& p = l.Pchs[g];
+                const TPch* parent = p.Parent >= 0 ? &l.Pchs[p.Parent] : nullptr;
+                for (const auto& m : C.Measured) {
+                    if (m.Bytes <= 0 || (m.Pch.Parent >= 0) != (parent != nullptr) || !SameContent(m.Pch, p)) { continue; }
+                    if (parent && !SameContent(m.Parent, *parent)) { continue; }
+                    return &m;
+                }
+                return nullptr;
+            }
+            double ArtifactBytes(const TLayout& l, size_t g) const {
+                if (const auto* m = Measured(l, g)) { return m->Bytes; }
+                const auto& p = l.Pchs[g];
+                const std::vector<int>* parent = p.Parent >= 0 ? &l.Pchs[p.Parent].Units : nullptr;
+                double bytes = 0;
+                ForOwn(p, parent, [&](int u) { bytes += D.Units[u].Bytes * SizeWeight(p.Class, u); });
+                return std::max(1.0, bytes);
+            }
+            // Build work of a PCH: its measured seconds when S0 built the same
+            // artifact, otherwise its own units' build weights plus the prior
+            // re-read of the parent (in the class's real seconds).
+            double BuildTime(const TLayout& l, size_t g) const {
+                if (const auto* m = Measured(l, g)) { return std::max(0.001, m->Time); }
+                const auto& p = l.Pchs[g];
+                const std::vector<int>* parent = p.Parent >= 0 ? &l.Pchs[p.Parent].Units : nullptr;
+                double own = 0, reread = 0;
+                ForOwn(p, parent, [&](int u) { own += D.Units[u].Parse * BuildWeight(p.Class, u, p.Parent < 0); });
+                if (parent) { reread = Parse(D, *parent); }
+                return std::max(0.001, own + reread * 0.02 * Coefficients(p.Class).Baseline);
+            }
+        };
 
         // Fast local surrogate. Full graph simulations are reserved for the
         // layout shortlist below; no worker-count multiplier on PCH readiness.
@@ -159,6 +302,7 @@ namespace NPchUpdate::NTwoStep {
                   const std::vector<int>& files, const TPch* base, bool stable,
                   std::map<int, std::vector<int>>& closures, double diskPrice = 0,
                   std::vector<double>* densities = nullptr) {
+            TConsumerModel m{d, calibration};
             TPch p;
             p.Class = cls;
             if (files.empty()) { return p; }
@@ -167,6 +311,16 @@ namespace NPchUpdate::NTwoStep {
                 p.Units = base->Units;
             }
             auto c = Coeff(calibration, cls);
+            // What one unit costs or brings in this class after a
+            // measurement: its real PCH bytes per source byte, its build
+            // seconds per parse second and its saved-time multiplier (the
+            // class priors where uncalibrated).
+            std::vector<double> gainOf(d.Units.size(), 1.0), sizeOf(d.Units.size()), buildOf(d.Units.size());
+            for (size_t u = 0; u < d.Units.size(); ++u) {
+                gainOf[u] = m.UnitGain(cls, int(u));
+                sizeOf[u] = m.SizeWeight(cls, int(u));
+                buildOf[u] = m.BuildWeight(cls, int(u), base == nullptr);
+            }
             std::vector<double> mass(d.Units.size());
             for (int f : files) {
                 double frequency = d.Q + (1 - d.Q) *
@@ -210,30 +364,51 @@ namespace NPchUpdate::NTwoStep {
             // TWorkCosts does: an extra compile runs with this PCH — its full
             // load and every saving, the candidate's own closure included —
             // and a fresh commit forces a rebuild of the whole accepted body,
-            // not only of the new root.
+            // not only of the new root. A measured target's compiles are
+            // anchored at what S0 really took for them.
             const double parentParse = base ? Parse(d, base->Units) : 0;
-            const double buildScale = base ? c.DeltaBuild : c.BaseBuild;
             double loadSoFar = parentParse;
-            auto buildCost = [&](double work, size_t changes) {
+            auto buildCost = [&](double ownBuild, size_t changes) {
                 double frequency = d.Q + (1 - d.Q) * double(changes) / std::max(1, d.Scenarios);
-                return frequency * std::max(.001, (work - parentParse) * buildScale + parentParse * .02);
+                return frequency * std::max(.001, ownBuild + parentParse * .02 * c.Baseline);
             };
-            double buildCostSoFar = buildCost(loadSoFar, invalidating.size());
+            double buildSoFar = 0;
+            double buildCostSoFar = buildCost(buildSoFar, invalidating.size());
             // Reverse index over the local file list: an evaluation and an
             // acceptance touch only the files that actually parse the closure
-            // units of the root at hand, never the whole Own table.
+            // units of the root at hand, never the whole Own table. A posting
+            // carries the member's effective saving from the unit and, with
+            // its target's multiplier and rebuild frequency, its gain.
+            struct TPosting {
+                int File;
+                double Saved, Gain;
+            };
+            struct TMember {
+                double Theta = 0;
+                double Frequency = 0;
+                TCoefficients Coefficients;
+                const TFile* File = nullptr;
+            };
             const int fileCount = int(files.size());
-            std::vector<std::vector<std::pair<int, double>>> unitFiles(d.Units.size());
+            std::vector<std::vector<TPosting>> unitFiles(d.Units.size());
+            std::vector<TMember> member(fileCount);
             std::vector<double> savedSoFar(fileCount);
             for (int i = 0; i < fileCount; ++i) {
-                double saved = 0;
-                for (auto [u, own] : d.Files[files[i]].Own) {
-                    unitFiles[u].emplace_back(i, own);
+                const auto& file = d.Files[files[i]];
+                auto& x = member[i];
+                x.Theta = m.Theta(file);
+                x.Frequency = d.Q + (1 - d.Q) * double(d.Actions[file.Action].Changes.size()) / std::max(1, d.Scenarios);
+                x.Coefficients = m.Coefficients(file);
+                x.File = &file;
+                double eta = m.Gain(file);
+                for (auto [u, own] : file.Own) {
+                    TPosting posting{i, own * gainOf[u], 0};
+                    posting.Gain = posting.Saved * x.Theta * eta * x.Frequency;
+                    unitFiles[u].push_back(posting);
                     if (selected[u]) {
-                        saved += own;
+                        savedSoFar[i] += posting.Saved;
                     }
                 }
-                savedSoFar[i] = saved;
             }
             std::vector<double> deltaSaved(fileCount);
             std::vector<char> touched(fileCount);
@@ -245,13 +420,16 @@ namespace NPchUpdate::NTwoStep {
                 }
                 touchedFiles.clear();
             };
+            const auto consumerTime = [&](const TMember& x, double saved, double load) {
+                return Consumer(m.Base(*x.File), m.Floor(*x.File), x.Theta * saved, load, x.Coefficients);
+            };
             // Full marginal evaluation of one root against the current state.
             struct TEval {
                 bool Valid = true;
-                double Work = 0, Gain = 0, Bytes = 0, BuildCost = 0;
+                double Work = 0, Gain = 0, Bytes = 0, Build = 0, BuildCost = 0;
                 std::set<int> Fresh; // commits that would newly invalidate the PCH
             };
-            auto artifactBytes = [&](const TEval& e) { return std::max(1.0, c.Size * e.Bytes); };
+            auto artifactBytes = [&](const TEval& e) { return std::max(1.0, e.Bytes); };
             auto evaluate = [&](int root) {
                 clearDelta();
                 auto [cached, added] = closures.try_emplace(root);
@@ -267,19 +445,20 @@ namespace NPchUpdate::NTwoStep {
                     e.Valid &= !stable || (d.Units[u].Safe && d.Units[u].Stable);
                     if (!selected[u]) {
                         e.Work += d.Units[u].Parse;
-                        e.Gain += c.Saved * mass[u];
-                        e.Bytes += d.Units[u].Bytes;
+                        e.Build += d.Units[u].Parse * buildOf[u];
+                        e.Bytes += d.Units[u].Bytes * sizeOf[u];
                         for (int k : d.Units[u].Changes) {
                             if (!invalidating.count(k)) {
                                 e.Fresh.insert(k);
                             }
                         }
-                        for (auto [i, own] : unitFiles[u]) {
-                            if (!touched[i]) {
-                                touched[i] = 1;
-                                touchedFiles.push_back(i);
+                        for (const auto& posting : unitFiles[u]) {
+                            e.Gain += c.Saved * posting.Gain;
+                            if (!touched[posting.File]) {
+                                touched[posting.File] = 1;
+                                touchedFiles.push_back(posting.File);
                             }
-                            deltaSaved[i] += own;
+                            deltaSaved[posting.File] += posting.Saved;
                         }
                     }
                 }
@@ -290,12 +469,12 @@ namespace NPchUpdate::NTwoStep {
                 // TWorkCosts::Build of the artifact with this root minus the
                 // build cost already carried: fresh commits reprice the whole
                 // accepted body, and the parent is re-read on every rebuild.
-                e.BuildCost = buildCost(loadSoFar + e.Work, invalidating.size() + e.Fresh.size());
+                e.BuildCost = buildCost(buildSoFar + e.Build, invalidating.size() + e.Fresh.size());
                 e.Gain -= e.BuildCost - buildCostSoFar;
                 for (int i = 0; i < fileCount; ++i) {
+                    const auto& x = member[i];
+                    e.Gain -= c.Load * e.Work * x.Frequency;
                     const auto& a = d.Actions[d.Files[files[i]].Action];
-                    double consumerFrequency = d.Q + (1 - d.Q) * double(a.Changes.size()) / std::max(1, d.Scenarios);
-                    e.Gain -= c.Load * e.Work * consumerFrequency;
                     int extra = 0;
                     for (int k : e.Fresh) {
                         if (!std::binary_search(a.Changes.begin(), a.Changes.end(), k)) {
@@ -307,7 +486,7 @@ namespace NPchUpdate::NTwoStep {
                         // closure included: charge the accelerated consumer
                         // time, not the bare no-PCH action time.
                         e.Gain -= (1 - d.Q) * extra / std::max(1, d.Scenarios) *
-                            Consumer(a, savedSoFar[i] + deltaSaved[i], loadSoFar + e.Work, c);
+                            consumerTime(x, savedSoFar[i] + deltaSaved[i], loadSoFar + e.Work);
                     }
                 }
                 // The scratch buffers belong to this evaluation only: a queued
@@ -378,13 +557,14 @@ namespace NPchUpdate::NTwoStep {
                     if (!selected[u]) {
                         selected[u] = true;
                         p.Units.push_back(u);
-                        for (auto [i, own] : unitFiles[u]) {
-                            savedSoFar[i] += own;
+                        for (const auto& posting : unitFiles[u]) {
+                            savedSoFar[posting.File] += posting.Saved;
                         }
                     }
                 }
                 invalidating.insert(e.Fresh.begin(), e.Fresh.end());
                 loadSoFar += e.Work;
+                buildSoFar += e.Build;
                 buildCostSoFar = e.BuildCost;
                 ++epoch;
             }
@@ -408,12 +588,13 @@ namespace NPchUpdate::NTwoStep {
             const TData& D;
             const TLayout& L;
             const TCalibration& C;
+            TConsumerModel M{D, C};
             std::map<int, std::pair<double, std::set<int>>> Features;
 
             const auto& Feature(int g) {
                 auto [it, inserted] = Features.try_emplace(g);
                 if (inserted && g >= 0) {
-                    it->second.first = Parse(D, L.Pchs[g].Units);
+                    it->second.first = M.Load(L.Pchs[g].Units);
                     for (int u : L.Pchs[g].Units) {
                         it->second.second.insert(D.Units[u].Changes.begin(), D.Units[u].Changes.end());
                     }
@@ -422,7 +603,6 @@ namespace NPchUpdate::NTwoStep {
             }
             double Target(int t, int g, TConsumerBalance* balance = nullptr) {
                 const auto& [load, changes] = Feature(g);
-                const auto c = Coeff(C, D.Targets[t].Class);
                 const double increment = (1 - D.Q) / std::max(1, D.Scenarios);
                 double total = 0;
                 for (int f : D.Targets[t].Files) {
@@ -433,13 +613,15 @@ namespace NPchUpdate::NTwoStep {
                     for (int k : changes) {
                         if (!std::binary_search(a.Changes.begin(), a.Changes.end(), k)) { frequency += increment; }
                     }
-                    double saved = g < 0 ? 0 : Saved(file, L.Pchs[g].Units);
-                    double withLoad = Consumer(a, saved, load, c);
+                    // A measured target is anchored at its observed S0 compile:
+                    // only the headers another leaf adds or removes are modeled.
+                    double saved = g < 0 ? 0 : M.Saved(file, L.Pchs[g].Units);
+                    double withLoad = M.Time(file, saved, load);
                     total += frequency * withLoad;
                     if (balance) {
                         // Apply the same calibrated floor/slowdown rules as the selector.
-                        double withoutLoad = Consumer(a, saved, 0, c);
-                        balance->ParseSaved += baselineFrequency * (Consumer(a, 0, 0, c) - withoutLoad);
+                        double withoutLoad = M.Time(file, saved, 0);
+                        balance->ParseSaved += baselineFrequency * (M.Time(file, 0, 0) - withoutLoad);
                         balance->Load += baselineFrequency * (withLoad - withoutLoad);
                         balance->ExtraCompiles += (frequency - baselineFrequency) * withLoad;
                     }
@@ -448,11 +630,7 @@ namespace NPchUpdate::NTwoStep {
             }
             double Build(int g) {
                 const auto& [work, changes] = Feature(g);
-                const int parentId = L.Pchs[g].Parent;
-                const double parent = Feature(parentId).first;
-                const auto c = Coeff(C, L.Pchs[g].Class);
-                return (D.Q + (1 - D.Q) * changes.size() / std::max(1, D.Scenarios)) *
-                    std::max(.001, (work - parent) * (parentId < 0 ? c.BaseBuild : c.DeltaBuild) + parent * .02);
+                return (D.Q + (1 - D.Q) * changes.size() / std::max(1, D.Scenarios)) * M.BuildTime(L, size_t(g));
             }
         };
 
@@ -654,7 +832,7 @@ namespace NPchUpdate::NTwoStep {
         void CheckPayback(const TData& d, TLayout& l, const TCalibration& c, bool frozen,
                           const std::string& source, int pass, const std::vector<int>& ids,
                           std::vector<std::string>* reasons, std::ostream* report) {
-            TWorkCosts costs{d, l, c, {}};
+            TWorkCosts costs{d, l, c};
             struct TGroup {
                 std::vector<int> Owners; // members that keep this family alive
                 TConsumerBalance VsNone;
@@ -829,9 +1007,11 @@ namespace NPchUpdate::NTwoStep {
                     }
                 }
             }
+            // A family nobody is left on has nothing to decide: its frozen
+            // base is not built for the final plan and frees its bytes.
             for (int g = 0; g < l.Bases; ++g) {
                 auto& family = groups[g];
-                if (family.Owners.empty() && !frozen) { continue; }
+                if (family.Owners.empty()) { continue; }
                 double base = costs.Build(g);
                 // Frozen bases are built even under NONE. Report their cost
                 // but charge only avoidable builds for the admission decision.
@@ -841,61 +1021,111 @@ namespace NPchUpdate::NTwoStep {
             }
         }
 
-        double Ratio(const std::vector<double>& values, double fallback = 1) {
-            if (values.empty()) {
-                return fallback;
+        double Median(std::vector<double> values) {
+            if (values.empty()) { return 0; }
+            auto mid = values.begin() + values.size() / 2;
+            std::nth_element(values.begin(), mid, values.end());
+            if (values.size() % 2 == 0) {
+                auto lo = std::max_element(values.begin(), mid);
+                return (*mid + *lo) / 2;
             }
-            auto sorted = values;
-            std::sort(sorted.begin(), sorted.end());
-            return std::clamp(sorted[sorted.size() / 2], 0.05, 20.0);
+            return *mid;
         }
 
-        // Three scaled regressors, pivoted elimination with a rank threshold.
-        // No ridge term concealing non-identifiability of parse and load.
-        bool Solve(double matrix[3][4], double result[3]) {
-            double scale[3];
-            for (int i = 0; i < 3; ++i) {
-                scale[i] = std::sqrt(matrix[i][i]);
-                if (scale[i] < 1e-9) {
-                    return false;
-                }
+        double Spread(const std::vector<double>& values) {
+            if (values.size() < 2) { return 0; }
+            double mean = std::accumulate(values.begin(), values.end(), 0.0) / values.size();
+            double square = 0;
+            for (double v : values) { square += (v - mean) * (v - mean); }
+            return std::sqrt(square / (values.size() - 1));
+        }
+
+        // Robust class scale: the median of per-observation ratios.
+        double Ratio(const std::vector<double>& values, double fallback = 1, double low = 1e-4) {
+            if (values.empty()) { return fallback; }
+            return std::clamp(Median(values), low, 20.0);
+        }
+
+        // Weighted least squares for one to three scaled regressors, pivoted
+        // elimination with a rank threshold. No ridge term concealing
+        // non-identifiability of parse and load. `matrix` is n x (n+1).
+        bool Solve(std::vector<double>& a, int n, double tolerance, std::vector<double>& result) {
+            const int w = n + 1;
+            std::vector<double> scale(n);
+            for (int i = 0; i < n; ++i) {
+                scale[i] = std::sqrt(std::max(a[size_t(i) * w + i], 0.0));
+                if (scale[i] < 1e-12) { return false; }
             }
-            for (int i = 0; i < 3; ++i) {
-                for (int j = 0; j < 3; ++j) {
-                    matrix[i][j] /= scale[i] * scale[j];
-                }
-                matrix[i][3] /= scale[i];
+            for (int i = 0; i < n; ++i) {
+                for (int j = 0; j < n; ++j) { a[size_t(i) * w + j] /= scale[i] * scale[j]; }
+                a[size_t(i) * w + n] /= scale[i];
             }
-            for (int i = 0; i < 3; ++i) {
+            for (int i = 0; i < n; ++i) {
                 int pivot = i;
-                for (int j = i + 1; j < 3; ++j) {
-                    if (std::abs(matrix[j][i]) > std::abs(matrix[pivot][i])) {
-                        pivot = j;
-                    }
+                for (int j = i + 1; j < n; ++j) {
+                    if (std::abs(a[size_t(j) * w + i]) > std::abs(a[size_t(pivot) * w + i])) { pivot = j; }
                 }
-                if (std::abs(matrix[pivot][i]) < 1e-5) {
-                    return false;
-                }
-                for (int j = 0; j < 4; ++j) {
-                    std::swap(matrix[i][j], matrix[pivot][j]);
-                }
-                double div = matrix[i][i];
-                for (int j = i; j < 4; ++j) {
-                    matrix[i][j] /= div;
-                }
-                for (int row = 0; row < 3; ++row) {
-                    if (row != i) {
-                        double mul = matrix[row][i];
-                        for (int j = i; j < 4; ++j) {
-                            matrix[row][j] -= mul * matrix[i][j];
-                        }
-                    }
+                if (!std::isfinite(a[size_t(pivot) * w + i]) || std::abs(a[size_t(pivot) * w + i]) < tolerance) { return false; }
+                for (int j = 0; j < w; ++j) { std::swap(a[size_t(i) * w + j], a[size_t(pivot) * w + j]); }
+                double div = a[size_t(i) * w + i];
+                for (int j = i; j < w; ++j) { a[size_t(i) * w + j] /= div; }
+                for (int row = 0; row < n; ++row) {
+                    if (row == i) { continue; }
+                    double mul = a[size_t(row) * w + i];
+                    for (int j = i; j < w; ++j) { a[size_t(row) * w + j] -= mul * a[size_t(i) * w + j]; }
                 }
             }
-            for (int i = 0; i < 3; ++i) {
-                result[i] = matrix[i][3] / scale[i];
+            result.resize(n);
+            for (int i = 0; i < n; ++i) {
+                result[i] = a[size_t(i) * w + n] / scale[i];
+                if (!std::isfinite(result[i])) { return false; }
             }
             return true;
+        }
+
+        // A group observation over n units has K[g][g] = sum of squared shares
+        // >= 1/n: this ridge is far below it for any real closure, so
+        // consistent observations are matched exactly and only the
+        // underdetermined directions take the minimum-norm (equal-share)
+        // solution. Contradictory rows share the difference.
+        constexpr double UnitRidge = 1e-9;
+
+        // Unit multipliers (prior 1) fitting group observations
+        // sum_u rows[g][u] * x[u] = targets[g], least squares with a weak ridge
+        // toward the prior. Rows are shares, so one observation over many
+        // units moves all of them by the same share, and units shared by
+        // several groups carry the weighted combination of their evidence.
+        std::map<int, double> Ridge(const std::vector<std::map<int, double>>& rows, const std::vector<double>& targets,
+                                    double gamma) {
+            const size_t n = rows.size();
+            if (!n) { return {}; }
+            std::map<int, std::vector<std::pair<size_t, double>>> postings;
+            for (size_t g = 0; g < n; ++g) {
+                for (const auto& [u, share] : rows[g]) { postings[u].emplace_back(g, share); }
+            }
+            std::vector<double> a(n * (n + 1), 0.0);
+            for (size_t i = 0; i < n; ++i) {
+                double sum = 0;
+                for (const auto& [u, share] : rows[i]) { sum += share; }
+                a[i * (n + 1) + n] = gamma * (sum - targets[i]);
+            }
+            for (const auto& [u, list] : postings) {
+                for (size_t i = 0; i < list.size(); ++i) {
+                    for (size_t j = 0; j < list.size(); ++j) {
+                        a[list[i].first * (n + 1) + list[j].first] += list[i].second * list[j].second;
+                    }
+                }
+            }
+            for (size_t i = 0; i < n; ++i) { a[i * (n + 1) + i] += gamma; }
+            std::vector<double> residual;
+            if (!Solve(a, int(n), 1e-12, residual)) { return {}; }
+            std::map<int, double> x;
+            for (const auto& [u, list] : postings) {
+                double value = 1;
+                for (const auto& [g, share] : list) { value -= share * residual[g] / gamma; }
+                x[u] = value;
+            }
+            return x;
         }
     } // namespace
 
@@ -1084,9 +1314,11 @@ namespace NPchUpdate::NTwoStep {
         }
     }
 
-    std::vector<int> CompactLayout(TLayout& layout, bool frozen) {
+    // Drop every PCH no assignment reaches (a delta, or a base through a kept
+    // delta), frozen or not, and renumber the rest. Returns old index -> new
+    // index, -1 for the dropped ones.
+    std::vector<int> CompactLayout(TLayout& layout) {
         std::vector<char> keep(layout.Pchs.size());
-        if (frozen) { std::fill(keep.begin(), keep.begin() + layout.Bases, true); }
         for (int g : layout.Assignment) {
             for (; g >= 0 && !keep[g]; g = layout.Pchs[g].Parent) { keep[g] = true; }
         }
@@ -1116,7 +1348,10 @@ namespace NPchUpdate::NTwoStep {
     // a surviving sibling delta whose roots overlap its profile — so
     // near-duplicate deltas merge into one another instead of pushing unique
     // specialized groups out of the budget. Losses are recomputed lazily as
-    // evictions close alternatives and move owners around.
+    // evictions close alternatives and move owners around. A base lives by
+    // its consumers: frozen or not, one without an assigned target or a
+    // surviving delta is not part of the final plan and reserves no bytes,
+    // so it cannot evict a useful delta of another compiler class.
     void FitDisk(const TData& d, TLayout& l, const TCalibration& c,
                  const std::vector<uint64_t>& bytes, double budget, bool frozen,
                  const std::function<bool(int, int)>& compatible, std::ostream* report) {
@@ -1125,7 +1360,6 @@ namespace NPchUpdate::NTwoStep {
         std::vector<std::vector<int>> children(l.Bases);
         std::vector<char> used(bytes.size());
         std::vector<char> open(bytes.size(), false);
-        if (frozen) { std::fill_n(used.begin(), l.Bases, true); }
         for (size_t t = 0; t < l.Assignment.size(); ++t) {
             int g = l.Assignment[t];
             if (g < 0) { continue; }
@@ -1155,7 +1389,7 @@ namespace NPchUpdate::NTwoStep {
                     << "# candidate_bytes=" << total << " base_bytes=" << bases << " budget_bytes=" << uint64_t(budget)
                     << "\nkind\tgroup\tbytes\tloss_work_seconds\tto_fallback\tto_none\n";
         }
-        TWorkCosts costs{d, l, c, {}};
+        TWorkCosts costs{d, l, c};
         // Ranked fallback destinations per delta owner: the base plus sibling
         // deltas sharing its heavy residual headers, by gain versus NONE.
         struct TFallback {
@@ -1296,6 +1530,15 @@ namespace NPchUpdate::NTwoStep {
                 }
                 owners[g].clear();
                 freed[parent] -= bytes[g];
+                // The last consumer of a frozen base has left: nothing builds
+                // it for the final plan, so its bytes return to the budget at
+                // once instead of waiting for an eviction that cannot come.
+                if (frozen && owners[parent].empty() &&
+                    std::none_of(children[parent].begin(), children[parent].end(), [&](int h) { return used[h]; })) {
+                    used[parent] = false;
+                    total -= bytes[parent];
+                    if (report) { *report << "release\t" << parent << '\t' << bytes[parent] << "\t0\t0\t0\n"; }
+                }
             }
             total -= freed[g];
             if (report) {
@@ -1330,6 +1573,7 @@ namespace NPchUpdate::NTwoStep {
                 p.Actions[i].Memory = calibration.ActionMemory[i];
             }
         }
+        TConsumerModel m{d, calibration};
         double disk = 0;
         int offset = int(d.Actions.size());
         for (size_t g = 0; g < l.Pchs.size(); ++g) {
@@ -1338,21 +1582,21 @@ namespace NPchUpdate::NTwoStep {
                 Fail("prediction: PCH parent must precede delta");
             }
             auto c = Coeff(calibration, h.Class);
-            double total = Parse(d, h.Units);
-            double parent = h.Parent >= 0 ? Parse(d, l.Pchs[h.Parent].Units) : 0;
             TAction a;
             a.Output = "pch/" + std::to_string(g) + ".pch";
-            // Consumer load fits do not identify the compiler's PCH-to-PCH load
-            // cost. Keep that prior separate, including in combined-only fits.
-            a.Time = std::max(0.001, (total - parent) * (h.Parent < 0 ? c.BaseBuild : c.DeltaBuild) + parent * 0.02);
-            double bytes = measuredBytes.empty() ? ArtifactBytes(d, l, g, calibration) : measuredBytes[g];
+            // The build S0 timed for exactly this artifact, else its units'
+            // build weights plus the prior re-read of the parent. Consumer
+            // load fits do not identify the compiler's PCH-to-PCH load cost.
+            const TMeasuredPch* measured = m.Measured(l, g);
+            a.Time = m.BuildTime(l, g);
+            double bytes = measuredBytes.empty() ? m.ArtifactBytes(l, g) : measuredBytes[g];
             p.PchBytes.push_back(bytes);
             a.Io = bytes;
             if (h.Parent >= 0) {
                 a.Dependencies.push_back(offset + h.Parent);
                 a.Io += p.PchBytes[h.Parent];
             }
-            a.Memory = (d.ActionMemory + a.Io) * c.Memory;
+            a.Memory = measured ? measured->Memory : (d.ActionMemory + a.Io) * c.Memory;
             for (int u : h.Units) {
                 const auto& unit = d.Units[u];
                 a.Dependencies.insert(a.Dependencies.end(), unit.Producers.begin(), unit.Producers.end());
@@ -1380,14 +1624,14 @@ namespace NPchUpdate::NTwoStep {
                 if (h.Class != file.Class) {
                     Fail("prediction: incompatible PCH assignment");
                 }
-                p.Saved[f] = Saved(file, h.Units);
-                p.Load[f] = Parse(d, h.Units);
+                p.Saved[f] = m.Saved(file, h.Units);
+                p.Load[f] = m.Load(h.Units);
                 a.Dependencies.push_back(offset + g);
                 a.DirtyDependencies.push_back(offset + g);
                 a.Io = p.PchBytes[g] + (h.Parent >= 0 ? p.PchBytes[h.Parent] : 0);
                 a.Memory = (d.ActionMemory + a.Io) * c.ConsumerMemory;
             }
-            a.Time = Consumer(d.Actions[file.Action], p.Saved[f], p.Load[f], c);
+            a.Time = m.Time(file, p.Saved[f], p.Load[f]);
         }
         if (!measuredBytes.empty() && disk > d.Resources.Disk) {
             p.Objective = INF;
@@ -1437,6 +1681,7 @@ namespace NPchUpdate::NTwoStep {
                 int bestTarget = -1, bestGroup = -1, provisional = -1;
                 double cheapestLoss = INF;
                 TPrediction best;
+                TConsumerModel model{d, c};
                 for (int t : targets) {
                     const int old = layout.Assignment[t];
                     for (int g = layout.Pchs[old].Parent;; g = layout.Pchs[g].Parent) {
@@ -1461,14 +1706,13 @@ namespace NPchUpdate::NTwoStep {
                     // benefit, then diagnose the remaining graph. Each such
                     // step removes one assignment permanently, so it terminates.
                     const auto& leaf = layout.Pchs[old];
-                    const auto coeff = Coeff(c, leaf.Class);
-                    const double load = Parse(d, leaf.Units);
+                    const double load = model.Load(leaf.Units);
                     double loss = 0;
                     for (int i : d.Targets[t].Files) {
                         const auto& f = d.Files[i];
                         const auto& a = d.Actions[f.Action];
                         const double freq = d.Q + (1 - d.Q) * a.Changes.size() / std::max(1, d.Scenarios);
-                        loss += freq * (Consumer(a, 0, 0, coeff) - Consumer(a, Saved(f, leaf.Units), load, coeff));
+                        loss += freq * (model.Time(f, 0, 0) - model.Time(f, model.Saved(f, leaf.Units), load));
                     }
                     if (provisional < 0 || loss < cheapestLoss) { provisional = t; cheapestLoss = loss; }
                 }
@@ -1532,8 +1776,9 @@ namespace NPchUpdate::NTwoStep {
                 CheckPayback(d, l, c, frozen != nullptr, source, pass, ids, diagnostics ? &reasons : nullptr,
                              diagnostics && factor == 1 ? &payback : nullptr);
                 std::vector<uint64_t> estimates;
+                TConsumerModel model{d, c};
                 for (size_t g = 0; g < l.Pchs.size(); ++g) {
-                    estimates.push_back(uint64_t(std::ceil(ArtifactBytes(d, l, g, c))));
+                    estimates.push_back(uint64_t(std::ceil(model.ArtifactBytes(l, g))));
                 }
                 const auto beforeFit = l.Assignment;
                 FitDisk(d, l, c, estimates, factor * d.Resources.Disk, frozen != nullptr, {}, nullptr);
@@ -1544,7 +1789,11 @@ namespace NPchUpdate::NTwoStep {
                         }
                     }
                 }
-                const auto remap = CompactLayout(l, frozen != nullptr);
+                // Unused groups leave at once, frozen bases included: their
+                // measured records are found by content, so their IDs are free
+                // to move, and a family nobody is left on must not be scored
+                // as built in the makespan or the bytes of any candidate.
+                const auto remap = CompactLayout(l);
                 std::vector<int> kept(l.Pchs.size());
                 for (size_t g = 0; g < remap.size(); ++g) { if (remap[g] >= 0) { kept[remap[g]] = ids[g]; } }
                 ids = std::move(kept);
@@ -1570,6 +1819,7 @@ namespace NPchUpdate::NTwoStep {
         struct TCandidate {
             TLayout Layout;
             std::vector<std::string> Reasons;
+            std::vector<char> Roles; // TLayout::Controls of this candidate
             std::vector<int> BeforeDisk;
             std::string Choices;
             std::string Pchs;
@@ -1626,6 +1876,7 @@ namespace NPchUpdate::NTwoStep {
             std::ostringstream choicesReport;
             choicesReport.precision(17);
             const auto label = specLabel(spec);
+            observed.Roles.assign(d.Targets.size(), 0);
             if (diagnostics) {
                 for (const auto& target : d.Targets) {
                     observed.Reasons.push_back(!target.PchEligible ? "no-global-pch-hook" :
@@ -1657,13 +1908,33 @@ namespace NPchUpdate::NTwoStep {
                     ? ClusterProfiles(profiles, clusters)
                     : std::vector<int>(targets.size(), -1);
                 const size_t classStart = candidate.Pchs.size();
+                // Three-point control of the initial plan. A few owners stay
+                // without PCH (the class baseline: compiler speed, the ratio
+                // of the traces to it and its spread) and as many owners that
+                // would take a delta stay on the base (what a delta adds over
+                // it). Both are spread evenly over the label order, which says
+                // nothing of an owner's headers, and the sample measures them
+                // first. The counts grow with sqrt(n): a large class gives up
+                // a few percent of its coverage, not a tenth of it.
+                std::vector<char> role(targets.size(), 0);
+                if (!frozen) {
+                    const size_t n = targets.size();
+                    const size_t controls = std::clamp((size_t(std::sqrt(double(n))) + 1) / 2, size_t(1), size_t(6));
+                    for (size_t k = 0; k < controls; ++k) {
+                        role[k * n / controls] = 1;
+                        if (n >= 8) {
+                            const size_t at = (2 * k + 1) * n / (2 * controls);
+                            if (!role[at]) { role[at] = 2; }
+                        }
+                    }
+                }
                 // Expectation: every target takes the cheapest of NONE, the
                 // base and the deltas whose roots overlap its profile. Only
                 // the final round records diagnostics: an earlier round's
                 // delta IDs die in the next maximization, and the reports must
                 // match selection-candidates.tsv.
                 auto expect = [&](bool record) {
-                    TWorkCosts costs{d, candidate, c, {}};
+                    TWorkCosts costs{d, candidate, c};
                     const auto postings = UnitPostings(candidate);
                     for (size_t i = 0; i < targets.size(); ++i) {
                         int t = targets[i];
@@ -1675,8 +1946,8 @@ namespace NPchUpdate::NTwoStep {
                         }
                         double cost = costs.Target(t, -1);
                         const double withoutPch = cost;
-                        const bool allowed = frozen || t % 10 != 0;
-                        candidate.Assignment[t] = -1;
+                        const bool allowed = role[i] != 1;
+                        int chosen = -1;
                         for (int g : choices) {
                             double value = costs.Target(t, g);
                             if (diagnostics && record) {
@@ -1685,11 +1956,17 @@ namespace NPchUpdate::NTwoStep {
                             }
                             if (value < cost && allowed) {
                                 cost = value;
-                                candidate.Assignment[t] = g;
+                                chosen = g;
                             }
                         }
+                        // A base control gives up its delta only: on the base it
+                        // measures what the delta adds for an owner that would
+                        // take one.
+                        const bool demoted = role[i] == 2 && chosen >= int(classStart);
+                        candidate.Assignment[t] = demoted ? parent : chosen;
+                        if (role[i] == 1 || demoted) { observed.Roles[t] = role[i]; }
                         if (diagnostics && record) {
-                            observed.Reasons[t] = !frozen && t % 10 == 0 ? "calibration-control" :
+                            observed.Reasons[t] = role[i] == 1 ? "calibration-control" : demoted ? "calibration-base-control" :
                                 candidate.Assignment[t] >= 0 ? "selected" : choices.empty() ? "no-candidate" : "no-estimated-benefit";
                         }
                     }
@@ -1751,9 +2028,10 @@ namespace NPchUpdate::NTwoStep {
         }
         std::vector<TCandidate> candidates(specs.size());
         int selectedSpec = -1;
+        TConsumerModel model{d, c};
         auto estimatedBytes = [&](const TLayout& l) {
             double bytes = 0;
-            for (size_t g = 0; g < l.Pchs.size(); ++g) { bytes += ArtifactBytes(d, l, g, c); }
+            for (size_t g = 0; g < l.Pchs.size(); ++g) { bytes += model.ArtifactBytes(l, g); }
             return bytes;
         };
         auto scoreOne = [&](size_t i) {
@@ -1867,6 +2145,10 @@ namespace NPchUpdate::NTwoStep {
                 seedReasons = std::move(reasons);
             }
         }
+        // Every scored layout was compacted as it was scored, so the reported
+        // groups and bytes are those of the returned plan: a frozen family
+        // without an assigned target or surviving delta left it at once.
+        if (selectedSpec >= 0) { best.Controls = candidates[selectedSpec].Roles; }
         if (diagnostics) {
             std::ostringstream targets;
             const std::string selectedLabel = selectedSpec >= 0 ? specLabel(specs[selectedSpec]) : std::string("-1");
@@ -1908,6 +2190,26 @@ namespace NPchUpdate::NTwoStep {
         return best;
     }
 
+    // What the first measurement teaches the second selection.
+    //
+    // Per target: the sampled objects are a PPS draw of the target's strata
+    // (SampleFiles), so the Horvitz-Thompson estimate of the target's whole
+    // compile under its S0 leaf is unbiased. Every member is anchored at that
+    // point: the model predicts another leaf for it by the headers that leaf
+    // adds or removes, not from its trace. Baseline offsets of a target (old
+    // distclang estimates, another machine's load) cancel identically.
+    //
+    // Per class: the controls (no PCH) give the baseline ratio and residual;
+    // saved/load come from a weighted two-parameter fit of the measured PCH
+    // targets on the centered data (no count column to collinearize with
+    // load), optionally with the template-instantiation feature. Leave-one-
+    // group-out is a diagnostic; the working fit uses every group.
+    //
+    // Per unit: each artifact S0 built is one observation over its own units,
+    // decomposed by a weak ridge into PCH bytes, build seconds and the saved
+    // time its consumers really saw. A target's residual is split by
+    // empirical Bayes into what its leaf's headers explain (projected on the
+    // units) and its own multiplier, both shrunk by the controls' noise.
     TCalibration Calibrate(const TData& d, const TLayout& l, const TPrediction& p,
                            const std::vector<TObservation>& observations) {
         ValidateTargets(d);
@@ -1916,83 +2218,204 @@ namespace NPchUpdate::NTwoStep {
             Fail("calibration: incomplete observations");
         }
         TCalibration out;
-        for (int g = 0; g < l.Bases; ++g) {
-            const auto& obs = observations.at(d.Actions.size() + g);
-            out.MeasuredBases.emplace_back(l.Pchs.at(g), obs.Time > 0 ? obs.Bytes : 0.0);
-        }
-        out.Classes.resize(d.Classes);
-        for (size_t i = 0; i < d.Actions.size(); ++i) {
-            // A sampled verification leaves unmeasured actions at zero: keep
-            // the model's own estimate for them instead of a zero time.
+        const size_t actions = d.Actions.size();
+        std::vector<int> fileOf(actions, -1);
+        for (size_t f = 0; f < d.Files.size(); ++f) { fileOf[d.Files[f].Action] = int(f); }
+        // A sampled verification leaves unmeasured actions at zero: keep the
+        // model's own estimate for them instead of a zero time. Compilations
+        // start from their trace; a measured target's anchor replaces it below.
+        for (size_t i = 0; i < actions; ++i) {
             const bool measured = observations[i].Time > 0;
-            out.ActionTime.push_back(measured ? observations[i].Time : p.Actions[i].Time);
+            out.ActionTime.push_back(fileOf[i] >= 0 ? d.Actions[i].Time : measured ? observations[i].Time : p.Actions[i].Time);
             out.ActionMemory.push_back(measured ? observations[i].Memory : p.Actions[i].Memory);
         }
-        std::ostringstream report;
-        report << "class\tstatus\ttraining_targets\tholdout_targets\tholdout_target_MAE_s\tbase_build\tdelta_build\tsize\tmemory\n";
-        struct TTargetObservation {
-            size_t Count = 0;
-            double Baseline = 0, Time = 0, Saved = 0, Load = 0, Memory = 0;
-        };
-        std::vector<TTargetObservation> targets(d.Targets.size());
-        for (size_t t = 0; t < d.Targets.size(); ++t) {
-            auto& target = targets[t];
-            for (int f : d.Targets[t].Files) {
-                const auto& obs = observations[d.Files[f].Action];
-                if (obs.Time <= 0) { continue; }
-                ++target.Count;
-                target.Baseline += d.Actions[d.Files[f].Action].Time;
-                target.Time += obs.Time;
-                target.Saved += p.Saved[f];
-                target.Load += p.Load[f];
-                target.Memory += obs.Memory;
-            }
+        out.ActionFloor.assign(actions, 0);
+        // Every artifact S0 built, by content identity.
+        std::vector<int> measuredOf(l.Pchs.size(), -1);
+        for (size_t g = 0; g < l.Pchs.size(); ++g) {
+            const auto& obs = observations.at(actions + g);
+            if (obs.Time <= 0 || obs.Bytes <= 0) { continue; } // not measured by a sampled run
+            TMeasuredPch m;
+            m.Pch = l.Pchs[g];
+            m.Parent = l.Pchs[g].Parent >= 0 ? l.Pchs[l.Pchs[g].Parent] : TPch{};
+            m.Bytes = obs.Bytes;
+            m.Time = obs.Time;
+            m.Memory = obs.Memory;
+            measuredOf[g] = int(out.Measured.size());
+            out.Measured.push_back(std::move(m));
         }
-        for (int cls = 0; cls < d.Classes; ++cls) {
-            auto& c = out.Classes[cls];
-            std::vector<int> groups;
-            for (size_t g = 0; g < l.Pchs.size(); ++g) {
-                if (l.Pchs[g].Class == cls) {
-                    groups.push_back(int(g));
+        out.Classes.resize(d.Classes);
+        out.UnitSize.assign(d.Classes, {});
+        out.UnitBuild.assign(d.Classes, {});
+        out.UnitGain.assign(d.Classes, {});
+        out.TargetGain.assign(d.Targets.size(), 1.0);
+        // What the sample says of one target under its S0 leaf.
+        struct TSample {
+            size_t Count = 0; // measured members
+            double Time = 0, Base = 0, Memory = 0; // over the measured members
+            double Estimate = 0; // Horvitz-Thompson seconds of the whole target
+            double Whole = 0; // whole-target trace seconds
+            std::vector<double> Imputed; // per member: seconds under the S0 leaf
+        };
+        std::vector<TSample> samples(d.Targets.size());
+        for (size_t t = 0; t < d.Targets.size(); ++t) {
+            const auto& files = d.Targets[t].Files;
+            auto& s = samples[t];
+            s.Imputed.assign(files.size(), 0);
+            std::vector<char> isMeasured(files.size());
+            for (size_t i = 0; i < files.size(); ++i) {
+                const int action = d.Files[files[i]].Action;
+                s.Whole += d.Actions[action].Time;
+                if (observations[action].Time > 0) {
+                    isMeasured[i] = 1;
+                    ++s.Count;
+                    s.Time += observations[action].Time;
+                    s.Base += d.Actions[action].Time;
+                    s.Memory += observations[action].Memory;
                 }
             }
-            // Entire leaf groups are held out, including their artifact metrics.
-            // Their parents stay in the artifact fits: those fits never predict
-            // holdout consumer time (the holdout error uses Consumer only),
-            // while each class has a single base (groups[0]); excluding it
-            // would leave BaseBuild and Size unmeasured for every class with
-            // at least two deltas.
-            std::set<int> held;
-            if (groups.size() >= 3) {
-                for (size_t i = 2; i < groups.size(); i += 3) {
-                    held.insert(groups[i]);
-                }
-            }
-            std::vector<double> controls, baseBuild, deltaBuild, memory, consumerMemory, combined;
-            double sizeNumerator = 0, sizeDenominator = 0;
-            for (size_t t = 0; t < d.Targets.size(); ++t) {
-                if (d.Targets[t].Class == cls && l.Assignment[t] < 0) {
-                    const auto& target = targets[t];
-                    if (target.Count && target.Baseline > 0) {
-                        controls.push_back(target.Time / target.Baseline);
+            if (!s.Count) { continue; }
+            // The strata of SampleFiles, cut exactly as it cut them: members
+            // by baseline time, Count equal ranges with one draw each, won
+            // with a probability proportional to the baseline time. Such a
+            // draw estimates its stratum's seconds without bias: the
+            // stratum's trace time times the winner's ratio of observed to
+            // trace time.
+            std::vector<size_t> order(files.size());
+            std::iota(order.begin(), order.end(), 0);
+            std::sort(order.begin(), order.end(), [&](size_t a, size_t b) {
+                const auto& x = d.Actions[d.Files[files[a]].Action];
+                const auto& y = d.Actions[d.Files[files[b]].Action];
+                return x.Time != y.Time ? x.Time < y.Time : x.Output < y.Output;
+            });
+            const size_t n = files.size(), k = s.Count;
+            for (size_t j = 0; j < k; ++j) {
+                // floor(j * n / k), not ceil: the same members as the draw's stratum when n is not a multiple of k.
+                const size_t begin = j * n / k, end = (j + 1) * n / k;
+                double observedTime = 0, observedBase = 0;
+                for (size_t i = begin; i < end; ++i) {
+                    const int action = d.Files[files[order[i]]].Action;
+                    if (isMeasured[order[i]]) {
+                        observedTime += observations[action].Time;
+                        observedBase += d.Actions[action].Time;
                     }
                 }
-            }
-            c.Baseline = Ratio(controls);
-            for (int g : groups) {
-                if (held.count(g)) {
-                    continue;
+                const double ratio = observedBase > 0 ? observedTime / observedBase : (s.Base > 0 ? s.Time / s.Base : 1);
+                for (size_t i = begin; i < end; ++i) {
+                    const size_t member = order[i];
+                    const int action = d.Files[files[member]].Action;
+                    s.Imputed[member] = isMeasured[member] ? observations[action].Time : d.Actions[action].Time * ratio;
+                    s.Estimate += s.Imputed[member];
                 }
-                const auto& obs = observations[d.Actions.size() + g];
-                if (obs.Time <= 0) { continue; } // not measured by a sampled run
-                double total = Parse(d, l.Pchs[g].Units);
-                int parent = l.Pchs[g].Parent;
-                double parentParse = parent >= 0 ? Parse(d, l.Pchs[parent].Units) : 0;
-                double own = total - parentParse;
-                double volume = Volume(d, l.Pchs[g].Units);
-                double ownVolume = volume - (parent >= 0 ? Volume(d, l.Pchs[parent].Units) : 0);
-                if (own > 0) {
-                    (parent >= 0 ? deltaBuild : baseBuild).push_back(std::max(0.001, obs.Time - parentParse * c.Load) / own);
+            }
+        }
+        std::ostringstream report;
+        report << "class\tstatus\ttraining_targets\tcv_targets\tcv_target_MAE_s\tbase_build\tdelta_build\tsize\tmemory"
+                  "\tbaseline\tsaved\tload\tresidual\tinstantiate\tcontrols\tcontrol_sigma\tanchored_targets"
+                  "\tunit_size_units\tunit_build_units\tunit_gain_units\n";
+        std::ostringstream targets, units;
+        targets << "# One row per measured target with a PCH. s0_compile_seconds: Horvitz-Thompson estimate of the target's\n"
+                   "# whole compile under its S0 leaf (sampled strata imputed by their observed-to-trace ratio); trace_seconds:\n"
+                   "# the traces' total. gain: the target's saved-time multiplier (1: unmeasured or on the class model).\n"
+                   "target\tclass\ts0_leaf\tmembers\tmeasured\ts0_compile_seconds\ttrace_seconds\tgain\n";
+        units << "# Header units a measurement calibrated individually; a table of the class prior applies to the others.\n"
+                  "# pch_bytes_per_source_byte: 0 keeps the class size scale; build_seconds_per_parse_second: 0 the class build\n"
+                  "# scale; saved_multiplier: 0 none (saving as the class coefficients say), otherwise a factor on the unit's own time.\n"
+                  "unit\tclass\tinclude\tpch_bytes_per_source_byte\tbuild_seconds_per_parse_second\tsaved_multiplier\n";
+        auto nonZero = [](const std::vector<double>& values) {
+            return size_t(std::count_if(values.begin(), values.end(), [](double x) { return x > 0; }));
+        };
+        for (int cls = 0; cls < d.Classes; ++cls) {
+            auto& c = out.Classes[cls];
+            TConsumerModel view{d, out};
+            std::vector<int> controls, users;
+            for (size_t t = 0; t < d.Targets.size(); ++t) {
+                if (d.Targets[t].Class == cls && samples[t].Count) {
+                    (l.Assignment[t] < 0 ? controls : users).push_back(int(t));
+                }
+            }
+            // Controls: the compiler's speed on this class without a PCH.
+            // The ratio of observed to trace seconds is the fallback; with a
+            // spread of trace times the baseline and the per-compile seconds
+            // outside the traces (driver, startup) are one linear model of a
+            // no-PCH compile, fitted on the controls' members. A compile pays
+            // those seconds with and without its PCH, so PCH targets cannot
+            // show them; the controls do.
+            std::vector<double> ratios;
+            for (int t : controls) {
+                if (samples[t].Whole > 0) { ratios.push_back(samples[t].Estimate / samples[t].Whole); }
+            }
+            c.Baseline = Ratio(ratios, 1, 1e-3);
+            c.Residual = 0;
+            {
+                std::vector<double> a(6, 0.0);
+                size_t members = 0;
+                for (int t : controls) {
+                    for (int f : d.Targets[t].Files) {
+                        const int action = d.Files[f].Action;
+                        const double time = d.Actions[action].Time;
+                        if (observations[action].Time <= 0 || !(time > 0)) { continue; }
+                        // y / time = B + R / time: unit weights.
+                        a[0] += 1;
+                        a[1] += 1 / time;
+                        a[2] += observations[action].Time / time;
+                        a[3] += 1 / time;
+                        a[4] += 1 / (time * time);
+                        a[5] += observations[action].Time / (time * time);
+                        ++members;
+                    }
+                }
+                std::vector<double> solution;
+                // The intercept is the seconds of a compile outside its traces
+                // (process and driver startup): never negative. A negative
+                // slope is noise on a fast control; the ratio stands alone.
+                if (members >= 3 && Solve(a, 2, 1e-3, solution) && solution[0] >= 1e-3 && solution[0] <= 20 &&
+                    solution[1] >= 0 && solution[1] <= 1) {
+                    c.Baseline = solution[0];
+                    c.Residual = solution[1];
+                }
+            }
+            // How much a whole control target deviates from that model (a
+            // baseline offset of a target is noise to any PCH measurement on
+            // it) and how much one file deviates from its target (sampling noise).
+            std::vector<double> deviations, fitted;
+            for (int t : controls) {
+                double model = 0;
+                for (int f : d.Targets[t].Files) {
+                    const int action = d.Files[f].Action;
+                    const double expected = c.Baseline * d.Actions[action].Time + c.Residual;
+                    model += expected;
+                    if (observations[action].Time > 0 && expected > 0) {
+                        deviations.push_back(observations[action].Time / expected - 1);
+                    }
+                }
+                if (model > 0) { fitted.push_back(samples[t].Estimate / model); }
+            }
+            const double sigma = fitted.size() >= 2 ? std::clamp(Spread(fitted), 0.02, 2.0) : 0.15;
+            double square = 0;
+            for (double v : deviations) { square += v * v; }
+            const double nu = deviations.empty() ? 0.15 : std::clamp(std::sqrt(square / deviations.size()), 0.02, 1.0);
+            std::vector<double> baseBuild, deltaBuild, memory, consumerMemory;
+            double sizeNumerator = 0, sizeDenominator = 0;
+            std::vector<int> groups;
+            for (size_t g = 0; g < l.Pchs.size(); ++g) {
+                if (l.Pchs[g].Class == cls && measuredOf[g] >= 0) { groups.push_back(int(g)); }
+            }
+            auto own = [&](int g, auto&& fn) {
+                const auto& pch = l.Pchs[g];
+                view.ForOwn(pch, pch.Parent >= 0 ? &l.Pchs[pch.Parent].Units : nullptr, fn);
+            };
+            for (int g : groups) {
+                const auto& obs = out.Measured[measuredOf[g]];
+                const int parent = l.Pchs[g].Parent;
+                const double parentParse = parent >= 0 ? Parse(d, l.Pchs[parent].Units) : 0;
+                const double volume = Volume(d, l.Pchs[g].Units);
+                const double parentVolume = parent >= 0 ? Volume(d, l.Pchs[parent].Units) : 0;
+                const double ownParse = Parse(d, l.Pchs[g].Units) - parentParse;
+                const double ownVolume = volume - parentVolume;
+                if (ownParse > 0) {
+                    (parent >= 0 ? deltaBuild : baseBuild).push_back(
+                        std::max(0.001, obs.Time - parentParse * 0.02 * c.Baseline) / ownParse);
                 }
                 // Artifact bytes add up over the layout, so the ratio is fitted
                 // by total bytes instead of a per-artifact median.
@@ -2008,74 +2431,428 @@ namespace NPchUpdate::NTwoStep {
                 c.Size = std::clamp(sizeNumerator / sizeDenominator, 0.05, 20.0);
             }
             c.Memory = Ratio(memory);
-            double matrix[3][4] = {};
-            std::set<int> training;
-            for (size_t t = 0; t < d.Targets.size(); ++t) {
-                int g = l.Assignment[t];
-                const auto& target = targets[t];
-                if (d.Targets[t].Class != cls || g < 0 || held.count(g) || !target.Count) {
-                    continue;
-                }
-                training.insert(int(t));
-                double bytes = p.PchBytes[g];
-                if (l.Pchs[g].Parent >= 0) { bytes += p.PchBytes[l.Pchs[g].Parent]; }
-                const double count = target.Count;
-                consumerMemory.push_back(target.Memory / (count * (d.ActionMemory + bytes)));
-                double y = target.Time - c.Baseline * target.Baseline;
-                // Residual remains per compiler action in Predict; the target
-                // regression therefore uses member count, not a constant one.
-                double x[3] = {-target.Saved, target.Load, count};
-                for (int i = 0; i < 3; ++i) {
-                    for (int j = 0; j < 3; ++j) {
-                        matrix[i][j] += x[i] * x[j];
+            // Unit decomposition of the same artifacts: which headers made a
+            // group as large and as slow as it was. A group is one observation
+            // over its own units: the ridge moves a lone group's units by the
+            // same share and splits the evidence of units several groups share.
+            {
+                std::vector<std::map<int, double>> sizeRows, buildRows;
+                std::vector<double> sizeTargets, buildTargets;
+                std::map<int, double> buildPrior;
+                for (int g : groups) {
+                    const auto& obs = out.Measured[measuredOf[g]];
+                    const bool isBase = l.Pchs[g].Parent < 0;
+                    const double scale = isBase ? c.BaseBuild : c.DeltaBuild;
+                    double bytes = 0, work = 0;
+                    own(g, [&](int u) { bytes += d.Units[u].Bytes; work += d.Units[u].Parse * scale; });
+                    if (bytes > 0) {
+                        std::map<int, double> row;
+                        own(g, [&](int u) { row[u] = d.Units[u].Bytes / bytes; });
+                        sizeRows.push_back(std::move(row));
+                        sizeTargets.push_back(obs.Bytes / (c.Size * bytes));
                     }
-                    matrix[i][3] += x[i] * y;
+                    const double parentParse = isBase ? 0 : Parse(d, l.Pchs[l.Pchs[g].Parent].Units);
+                    if (work > 0) {
+                        std::map<int, double> row;
+                        own(g, [&](int u) { row[u] = d.Units[u].Parse * scale / work; buildPrior.emplace(u, scale); });
+                        buildRows.push_back(std::move(row));
+                        buildTargets.push_back(std::max(0.001, obs.Time - parentParse * 0.02 * c.Baseline) / work);
+                    }
                 }
-                double gain = target.Saved - 0.02 * target.Load;
-                if (gain > 0.001) {
-                    combined.push_back(-y / gain);
+                const auto sizeX = Ridge(sizeRows, sizeTargets, UnitRidge);
+                const auto buildX = Ridge(buildRows, buildTargets, UnitRidge);
+                if (!sizeX.empty()) {
+                    out.UnitSize[cls].assign(d.Units.size(), 0);
+                    for (const auto& [u, x] : sizeX) { out.UnitSize[cls][u] = c.Size * std::clamp(x, 0.05, 20.0); }
+                }
+                if (!buildX.empty()) {
+                    out.UnitBuild[cls].assign(d.Units.size(), 0);
+                    for (const auto& [u, x] : buildX) {
+                        out.UnitBuild[cls][u] = buildPrior.at(u) * std::clamp(x, 0.01, 100.0);
+                    }
                 }
             }
-            double solution[3];
-            c.Identified = training.size() >= 3 && controls.size() >= 3 && Solve(matrix, solution) &&
-                solution[0] >= 0 && solution[0] <= 3 && solution[1] >= 0 && solution[1] <= 3;
-            if (c.Identified) {
-                // Small-data shrinkage toward the prior, after rank testing.
-                double weight = double(training.size()) / (training.size() + 2);
-                c.Saved = 1 + weight * (solution[0] - 1);
-                c.Load = 0.02 + weight * (solution[1] - 0.02);
-                c.Residual = weight * solution[2];
-            } else if (!combined.empty()) {
+            // One equation per measured target with a PCH, over its measured
+            // members, centered by the controls' baseline and residual.
+            struct TRow {
+                int Target = 0, Group = 0;
+                double Y = 0, Saved = 0, Templates = 0, Load = 0, Weight = 1;
+                std::vector<int> Files;
+            };
+            std::vector<TRow> rows;
+            for (int t : users) {
+                const auto& s = samples[t];
+                const int g = l.Assignment[t];
+                const double load = view.Load(l.Pchs[g].Units);
+                TRow row;
+                row.Target = t;
+                row.Group = g;
+                row.Load = s.Count * load;
+                double square = 0;
+                for (int f : d.Targets[t].Files) {
+                    const int action = d.Files[f].Action;
+                    if (observations[action].Time <= 0) { continue; }
+                    const double saved = Saved(d.Files[f], l.Pchs[g].Units);
+                    row.Y += observations[action].Time - c.Baseline * d.Actions[action].Time - c.Residual;
+                    row.Saved += saved;
+                    row.Templates += saved * TConsumerModel::Templates(d.Files[f]);
+                    square += d.Actions[action].Time * d.Actions[action].Time;
+                    row.Files.push_back(f);
+                }
+                // The noise of a target's sum grows with the root of its
+                // members' squared trace times. Each equation is normalized by
+                // it: twenty short files no longer outweigh two hundred
+                // ordinary ones four hundred times over.
+                row.Weight = square > 0 ? 1 / square : 1;
+                // The artifacts its members really read: the measured ones when S0 built them.
+                auto artifactBytes = [&](int group) {
+                    return measuredOf[group] >= 0 ? out.Measured[measuredOf[group]].Bytes : p.PchBytes[group];
+                };
+                double bytes = artifactBytes(g);
+                if (l.Pchs[g].Parent >= 0) { bytes += artifactBytes(l.Pchs[g].Parent); }
+                consumerMemory.push_back(s.Memory / (s.Count * (d.ActionMemory + bytes)));
+                rows.push_back(std::move(row));
+            }
+            double maxTemplates = 0;
+            for (const auto& file : d.Files) {
+                if (file.Class == cls) { maxTemplates = std::max(maxTemplates, TConsumerModel::Templates(file)); }
+            }
+            struct TFit {
+                double Saved = 1, Load = 0.02, Instantiate = 0;
+                int Status = -2; // 2 with instantiation, 1 saved/load, -1 combined, -2 prior
+            };
+            // Saved and load from the measured targets with a PCH, on data
+            // centered by the controls' baseline and residual. The class
+            // describes the typical target: Huber reweighting keeps a few
+            // exceptional targets (which the empirical Bayes step attributes
+            // individually below) from dragging the coefficients.
+            auto fit = [&](const std::vector<TRow>& data) {
+                const size_t n = data.size();
+                TFit result;
+                auto attempt = [&](bool withTemplates, double tolerance) {
+                    const int k = withTemplates ? 3 : 2;
+                    std::vector<double> x[3];
+                    for (int i = 0; i < k; ++i) { x[i].resize(n); }
+                    for (size_t r = 0; r < n; ++r) {
+                        x[0][r] = -data[r].Saved;
+                        if (withTemplates) {
+                            x[1][r] = -data[r].Templates;
+                            x[2][r] = data[r].Load;
+                        } else {
+                            x[1][r] = data[r].Load;
+                        }
+                        if (!std::isfinite(data[r].Y)) { return false; }
+                        for (int i = 0; i < k; ++i) {
+                            if (!std::isfinite(x[i][r])) { return false; }
+                        }
+                    }
+                    std::vector<double> huber(n, 1.0), solution;
+                    for (int iteration = 0;; ++iteration) {
+                        std::vector<double> a(size_t(k) * (k + 1), 0.0);
+                        for (size_t r = 0; r < n; ++r) {
+                            const double w = data[r].Weight * huber[r];
+                            for (int i = 0; i < k; ++i) {
+                                for (int j = 0; j < k; ++j) { a[size_t(i) * (k + 1) + j] += w * x[i][r] * x[j][r]; }
+                                a[size_t(i) * (k + 1) + k] += w * x[i][r] * data[r].Y;
+                            }
+                        }
+                        if (!Solve(a, k, tolerance, solution)) { return false; }
+                        if (iteration >= 5) { break; }
+                        // Residuals in units of each equation's noise.
+                        std::vector<double> absolute(n);
+                        for (size_t r = 0; r < n; ++r) {
+                            double fitted = 0;
+                            for (int i = 0; i < k; ++i) { fitted += x[i][r] * solution[i]; }
+                            absolute[r] = std::abs((data[r].Y - fitted) * std::sqrt(data[r].Weight));
+                        }
+                        const double scale = 1.4826 * Median(absolute);
+                        if (scale < 1e-9) { break; }
+                        double moved = 0;
+                        for (size_t r = 0; r < n; ++r) {
+                            const double next = std::min(1.0, 1.345 * scale / std::max(absolute[r], 1e-300));
+                            moved += std::abs(next - huber[r]);
+                            huber[r] = next;
+                        }
+                        if (moved < 1e-9) { break; }
+                    }
+                    if (solution[0] < 0 || solution[0] > 3) { return false; }
+                    result.Saved = solution[0];
+                    result.Load = withTemplates ? solution[2] : solution[1];
+                    if (result.Load < 0 || result.Load > 3) { return false; }
+                    result.Instantiate = 0;
+                    if (withTemplates) {
+                        // The extra saving cannot exceed the semantics outside
+                        // the includes, nor flip a header's own saving into a cost.
+                        const double instantiate = solution[0] > 1e-9 ? solution[1] / solution[0] : 0;
+                        if (std::abs(solution[1]) > c.Baseline || instantiate > 5 || instantiate * maxTemplates < -1) { return false; }
+                        result.Instantiate = instantiate;
+                    }
+                    result.Status = withTemplates ? 2 : 1;
+                    return true;
+                };
+                if (n >= 3 && ratios.size() >= 3 && (attempt(true, 0.02) || attempt(false, 1e-3))) {
+                    // Small-data shrinkage toward the prior, after rank testing.
+                    const double weight = double(n) / (n + 2);
+                    result.Saved = 1 + weight * (result.Saved - 1);
+                    result.Load = 0.02 + weight * (result.Load - 0.02);
+                    result.Instantiate *= weight;
+                    return result;
+                }
+                std::vector<double> combined;
+                for (const auto& row : data) {
+                    const double gain = row.Saved - 0.02 * row.Load;
+                    if (gain > 0.001) { combined.push_back(-row.Y / gain); }
+                }
+                if (combined.empty()) { return TFit{}; }
                 // One observable combined saving, not separate load/parse claims.
-                std::sort(combined.begin(), combined.end());
-                double scale = std::clamp(combined[combined.size() / 2], -3.0, 3.0);
-                c.Saved = scale;
-                c.Load = 0.02 * scale;
-            }
-            c.ConsumerMemory = Ratio(consumerMemory);
+                const double scale = std::clamp(Median(combined), -3.0, 3.0);
+                return TFit{scale, 0.02 * scale, 0, -1};
+            };
+            // Leave one group out, a diagnostic only: each measured group is
+            // predicted from all the others. The working coefficients below
+            // are fitted on every measured group and base.
+            std::set<int> rowGroups;
+            for (const auto& row : rows) { rowGroups.insert(row.Group); }
             double error = 0;
-            size_t n = 0;
-            for (size_t t = 0; t < d.Targets.size(); ++t) {
-                if (d.Targets[t].Class == cls && held.count(l.Assignment[t]) && targets[t].Count == d.Targets[t].Files.size()) {
-                    double value = 0;
-                    for (int f : d.Targets[t].Files) {
-                        value += Consumer(d.Actions[d.Files[f].Action], p.Saved[f], p.Load[f], c);
+            size_t cv = 0;
+            std::vector<TRow> training;
+            for (int held : rowGroups) {
+                training.clear();
+                for (const auto& row : rows) {
+                    if (row.Group != held) { training.push_back(row); }
+                }
+                const TFit fold = fit(training);
+                for (const auto& row : rows) {
+                    if (row.Group != held || row.Files.empty()) { continue; }
+                    TCoefficients coefficients = c;
+                    coefficients.Saved = fold.Saved;
+                    coefficients.Load = fold.Load;
+                    coefficients.Instantiate = fold.Instantiate;
+                    double value = 0, actual = 0;
+                    for (int f : row.Files) {
+                        const int action = d.Files[f].Action;
+                        const double saved = Saved(d.Files[f], l.Pchs[row.Group].Units);
+                        const double theta = std::max(0.0, 1 + fold.Instantiate * TConsumerModel::Templates(d.Files[f]));
+                        value += Consumer(d.Actions[action].Time,
+                                          c.Baseline * TConsumerModel::Backend(d.Actions[action].Time, d.Files[f].Frontend),
+                                          theta * saved, row.Load / double(row.Files.size()), coefficients);
+                        actual += observations[action].Time;
                     }
-                    error += std::abs(value - targets[t].Time);
-                    ++n;
+                    error += std::abs(value - actual);
+                    ++cv;
                 }
             }
-            report << cls << '\t' << (c.Identified ? "identified" : combined.empty() ? "prior-only" : "combined-only")
-                   << '\t' << training.size() << '\t' << n << '\t';
-            if (n) {
-                report << error / n;
+            const TFit final = fit(rows);
+            c.Saved = final.Saved;
+            c.Load = final.Load;
+            c.Instantiate = final.Instantiate;
+            c.Identified = final.Status > 0;
+            c.ConsumerMemory = Ratio(consumerMemory);
+            // Each measured PCH target against the class model, relative to
+            // the parse seconds the PCH saved it. Two empirical Bayes steps
+            // separate what the leaf's headers explain from what is the
+            // target's own: the mean deviation of a leaf over its measured
+            // owners, shrunk by their noise, is projected on the leaf's own
+            // units; the remainder of each target's deviation is shrunk by the
+            // controls' spread and the target's sampling noise. A target
+            // measured no faster with its PCH than the controls are without
+            // one, beyond that noise, ends with a multiplier of zero: the PCH
+            // saved it nothing, so it loses the PCH at the payback test, and
+            // its no-PCH time is what S0 measured minus the load it paid. A
+            // PCH is never credited with slowing a compile beyond that load:
+            // the excess of one measurement over the model is far more often
+            // a stale baseline of the target than a negative saving, and
+            // assuming the latter predicts, for a target S0 saw at 28 s, a
+            // no-PCH compile of 18 s. One measured far faster than its own
+            // time predicts keeps a multiplier above one and, with it, its delta.
+            struct TEffect {
+                int Target = 0, Group = 0;
+                double Saved = 0, Delta = 0, Noise = 0, Implied = 1, Remainder = 0;
+                std::vector<int> Files;
+            };
+            std::vector<TEffect> effects;
+            if (c.Saved > 0) {
+                for (const auto& row : rows) {
+                    const auto& s = samples[row.Target];
+                    const int g = row.Group;
+                    const double load = view.Load(l.Pchs[g].Units);
+                    double model = 0, saved = 0;
+                    for (int f : d.Targets[row.Target].Files) {
+                        const int action = d.Files[f].Action;
+                        const double effective = std::max(0.0, 1 + c.Instantiate * TConsumerModel::Templates(d.Files[f])) *
+                            Saved(d.Files[f], l.Pchs[g].Units);
+                        saved += effective;
+                        // The compile time the selector computes for it, the
+                        // backend floor included.
+                        model += Consumer(d.Actions[action].Time,
+                                          c.Baseline * TConsumerModel::Backend(d.Actions[action].Time, d.Files[f].Frontend),
+                                          effective, load, c);
+                    }
+                    const double sav = c.Saved * saved;
+                    // Without saved parse a deviation is not the PCH's doing.
+                    if (!(s.Whole > 0) || sav < 0.02 * c.Baseline * s.Whole) { continue; }
+                    TEffect e;
+                    e.Target = row.Target;
+                    e.Group = g;
+                    e.Saved = saved;
+                    e.Files = row.Files;
+                    e.Delta = (model - s.Estimate) / sav;
+                    const double level = sigma * s.Whole, sample = nu * s.Estimate / std::sqrt(double(s.Count));
+                    e.Noise = (level * level + sample * sample) / (sav * sav);
+                    effects.push_back(std::move(e));
+                }
+            }
+            // Variance of a real effect: what the squared deviations show beyond their noise.
+            auto tauSquare = [](const std::vector<double>& squares, const std::vector<double>& noise) {
+                if (squares.size() < 3) { return 0.25; }
+                double a = 0, b = 0;
+                for (size_t i = 0; i < squares.size(); ++i) { a += squares[i]; b += noise[i]; }
+                return std::max(0.01, a / squares.size() - b / noise.size());
+            };
+            // Group level. A leaf's effect is what its measured owners share;
+            // its evidence is their mean deviation, whose noise is the sum of
+            // theirs over the square of their number.
+            struct TGroupEffect {
+                int Group = 0;
+                double Effect = 0;
+                std::vector<const TEffect*> Members;
+            };
+            std::vector<TGroupEffect> groupEffects;
+            {
+                std::map<int, std::vector<const TEffect*>> byGroup;
+                for (const auto& e : effects) { byGroup[e.Group].push_back(&e); }
+                std::vector<double> squares, noise;
+                for (const auto& [g, members] : byGroup) {
+                    double mean = 0, variance = 0;
+                    for (const auto* e : members) { mean += e->Delta; variance += e->Noise; }
+                    mean /= members.size();
+                    variance /= members.size() * members.size();
+                    groupEffects.push_back({g, 0, members});
+                    squares.push_back(mean * mean);
+                    noise.push_back(variance);
+                    groupEffects.back().Effect = mean;
+                }
+                const double tau = tauSquare(squares, noise);
+                for (size_t i = 0; i < groupEffects.size(); ++i) {
+                    groupEffects[i].Effect = tau / (tau + noise[i]) * groupEffects[i].Effect;
+                }
+            }
+            // The mean effect of each leaf is projected on its own units: the
+            // saved time its owners' files have in them, as shares.
+            if (!groupEffects.empty()) {
+                std::vector<std::map<int, double>> gainRows;
+                std::vector<double> gainTargets;
+                for (const auto& group : groupEffects) {
+                    const int g = group.Group;
+                    const auto& members = group.Members;
+                    std::vector<int> ownUnits;
+                    own(g, [&](int u) { ownUnits.push_back(u); });
+                    std::map<int, double> row;
+                    double total = 0;
+                    for (const auto* e : members) {
+                        for (int f : e->Files) {
+                            const double theta = std::max(0.0, 1 + c.Instantiate * TConsumerModel::Templates(d.Files[f]));
+                            for (auto [u, time] : d.Files[f].Own) {
+                                if (std::binary_search(ownUnits.begin(), ownUnits.end(), u)) {
+                                    row[u] += time * theta;
+                                    total += time * theta;
+                                }
+                            }
+                        }
+                    }
+                    if (total <= 0) { continue; }
+                    for (auto& [u, share] : row) { share /= total; }
+                    gainRows.push_back(std::move(row));
+                    gainTargets.push_back(1 + group.Effect);
+                }
+                const auto gainX = Ridge(gainRows, gainTargets, UnitRidge);
+                if (!gainX.empty()) {
+                    out.UnitGain[cls].assign(d.Units.size(), 0);
+                    for (const auto& [u, x] : gainX) { out.UnitGain[cls][u] = std::clamp(x, 0.0, 3.0); }
+                }
+            }
+            // Target level: what the units already explain of each target's
+            // deviation, and what is left for the target alone.
+            std::vector<double> squares, noise;
+            for (auto& e : effects) {
+                double raw = 0, measured = 0;
+                for (int f : d.Targets[e.Target].Files) {
+                    const double theta = std::max(0.0, 1 + c.Instantiate * TConsumerModel::Templates(d.Files[f]));
+                    raw += theta * Saved(d.Files[f], l.Pchs[e.Group].Units);
+                    measured += view.Saved(d.Files[f], l.Pchs[e.Group].Units);
+                }
+                e.Implied = raw > 0 ? measured / raw : 1;
+                e.Remainder = e.Delta - (e.Implied - 1);
+                squares.push_back(e.Remainder * e.Remainder);
+                noise.push_back(e.Noise);
+            }
+            const double targetTau = tauSquare(squares, noise);
+            for (const auto& e : effects) {
+                // The multiplier applies on top of the units': with the full
+                // weight, target times units reproduces the target's whole
+                // deviation, (1 + delta) times its raw saving.
+                const double weight = targetTau / (targetTau + e.Noise);
+                // At worst the PCH saved this target nothing: never less.
+                const double gain = e.Implied > 1e-9 ? 1 + weight * e.Remainder / e.Implied : 1;
+                out.TargetGain[e.Target] = std::isfinite(gain) ? std::clamp(gain, 0.0, 4.0) : 1.0;
+            }
+            // Anchor every measured target of the class at what S0 really
+            // took for it: the baseline that makes the model reproduce the
+            // observed compile under the S0 leaf. Only the headers another
+            // leaf adds or removes are modeled from here. The backend floor
+            // of a measured file never exceeds its observed time.
+            size_t anchored = 0;
+            for (size_t t = 0; t < d.Targets.size(); ++t) {
+                if (d.Targets[t].Class != cls || !samples[t].Count) { continue; }
+                const auto& s = samples[t];
+                const int g = l.Assignment[t];
+                const double load = g >= 0 ? view.Load(l.Pchs[g].Units) : 0;
+                const auto& files = d.Targets[t].Files;
+                for (size_t i = 0; i < files.size(); ++i) {
+                    const auto& file = d.Files[files[i]];
+                    const double time = std::max(1e-6, s.Imputed[i]);
+                    const auto k = view.Coefficients(file);
+                    const double saved = g >= 0 ? view.Saved(file, l.Pchs[g].Units) : 0;
+                    // The baseline that makes Consumer return the observed time
+                    // on the S0 leaf, slowdown clamp included. The floor is
+                    // never above that time, so the leaf reproduces it exactly.
+                    out.ActionTime[file.Action] = std::max(1e-3, (time + PchGain(saved, load, k) - c.Residual) / c.Baseline);
+                    out.ActionFloor[file.Action] = std::min(
+                        std::max(0.0, c.Baseline * TConsumerModel::Backend(d.Actions[file.Action].Time, file.Frontend)), time);
+                }
+                ++anchored;
+                if (g < 0) { continue; }
+                targets << d.Targets[t].Label << '\t' << cls << '\t' << g << '\t' << files.size() << '\t' << s.Count << '\t'
+                        << s.Estimate << '\t' << s.Whole << '\t' << out.TargetGain[t] << '\n';
+            }
+            // Unmeasured compilations keep their trace time, under the class backend floor.
+            for (size_t f = 0; f < d.Files.size(); ++f) {
+                const int action = d.Files[f].Action;
+                if (d.Files[f].Class != cls || samples[d.Files[f].Target].Count) { continue; }
+                out.ActionTime[action] = d.Actions[action].Time;
+                out.ActionFloor[action] = std::max(0.0, c.Baseline * TConsumerModel::Backend(d.Actions[action].Time, d.Files[f].Frontend));
+            }
+            for (size_t u = 0; u < d.Units.size(); ++u) {
+                const double size = u < out.UnitSize[cls].size() ? out.UnitSize[cls][u] : 0;
+                const double build = u < out.UnitBuild[cls].size() ? out.UnitBuild[cls][u] : 0;
+                const double gain = u < out.UnitGain[cls].size() ? out.UnitGain[cls][u] : 0;
+                if (size <= 0 && build <= 0 && gain <= 0) { continue; }
+                units << u << '\t' << cls << '\t' << d.Units[u].Include << '\t' << size << '\t' << build << '\t' << gain << '\n';
+            }
+            report << cls << '\t' << (final.Status > 0 ? "identified" : final.Status == -1 ? "combined-only" : "prior-only")
+                   << '\t' << rows.size() << '\t' << cv << '\t';
+            if (cv) {
+                report << error / cv;
             } else {
                 report << "unavailable";
             }
             report << '\t' << (baseBuild.empty() ? "unmeasured" : std::to_string(c.BaseBuild))
                    << '\t' << (deltaBuild.empty() ? "unmeasured" : std::to_string(c.DeltaBuild))
                    << '\t' << (sizeDenominator > 0 ? std::to_string(c.Size) : "unmeasured")
-                   << '\t' << (memory.empty() ? "unmeasured" : std::to_string(c.Memory)) << '\n';
+                   << '\t' << (memory.empty() ? "unmeasured" : std::to_string(c.Memory))
+                   << '\t' << c.Baseline << '\t' << c.Saved << '\t' << c.Load << '\t' << c.Residual << '\t' << c.Instantiate
+                   << '\t' << ratios.size() << '\t' << sigma << '\t' << anchored
+                   << '\t' << nonZero(out.UnitSize[cls]) << '\t' << nonZero(out.UnitBuild[cls]) << '\t' << nonZero(out.UnitGain[cls]) << '\n';
         }
         size_t measured = 0;
         for (const auto& o : observations) { measured += o.Time > 0; }
@@ -2083,9 +2860,11 @@ namespace NPchUpdate::NTwoStep {
             report << "# measured_actions\t" << measured << '\t' << observations.size() << '\n';
         }
         size_t complete = 0;
-        for (size_t t = 0; t < targets.size(); ++t) { complete += targets[t].Count == d.Targets[t].Files.size(); }
+        for (size_t t = 0; t < samples.size(); ++t) { complete += samples[t].Count == d.Targets[t].Files.size(); }
         report << "# measured_targets\t" << complete << '\t' << d.Targets.size() << '\n';
         out.Report = report.str();
+        out.TargetReport = targets.str();
+        out.UnitReport = units.str();
         return out;
     }
 } // namespace NPchUpdate::NTwoStep

@@ -330,8 +330,14 @@ namespace NPchUpdate::NTwoStep {
             Near(measured.PchBytes[1], 4 * fit.Classes[0].Size, "delta still uses the class estimate");
             Near(measured.Actions[d.Actions.size() + 1].Io, 99 + measured.PchBytes[1], "delta reads the measured base");
             auto changed = corrected;
-            changed.Pchs[0].Roots = {1};
-            Near(Predict(d, changed, fit).PchBytes[0], 3 * fit.Classes[0].Size, "different base cannot reuse measured size");
+            // Another base serializes other units: it keeps the measured
+            // weight of the unit S0 saw and the class prior for the rest,
+            // never the measured total of a different artifact.
+            changed.Pchs[0].Roots = {0, 1};
+            changed.Pchs[0].Units = {0, 1};
+            Near(fit.UnitSize[0][0] * 3, 99, "the measured bytes of a base land on its own units");
+            Near(Predict(d, changed, fit).PchBytes[0], 3 * fit.UnitSize[0][0] + 4 * fit.Classes[0].Size,
+                 "different base cannot reuse measured size");
             d.Resources.Disk = 1;
             bool frozenOverBudget = false;
             try { Select(d, fit, &initial); } catch (const TError&) { frozenOverBudget = true; }
@@ -343,7 +349,7 @@ namespace NPchUpdate::NTwoStep {
                 if (corrected.Assignment[t] == 1) { Check(refused.Assignment[t] == -1, "incompatible fallback uses NONE"); }
             }
             FitMeasuredDisk(d, corrected, {}, {99, 2}, true, [](int, int) { return true; });
-            auto remap = CompactLayout(corrected, true);
+            auto remap = CompactLayout(corrected);
             Check(remap == std::vector<int>({0,-1}) && corrected.Assignment == initial.Assignment,
                   "an over-budget measured delta falls back atomically to its profitable base");
             bool tooLarge = false;
@@ -445,7 +451,7 @@ namespace NPchUpdate::NTwoStep {
             auto families = full;
             d.Resources.Disk = 500000;
             auto evictions = FitMeasuredDisk(d, families, {}, {1000000, 1000000, 5000000}, false, [](int, int) { return true; });
-            CompactLayout(families, false);
+            CompactLayout(families);
             Check(families.Pchs.empty() && evictions.find("\nfamily\t0\t") != std::string::npos,
                   "oversized initial base can be evicted with all remaining owners on measured sizes");
             d.Resources.Disk = 6e6;
@@ -522,9 +528,11 @@ namespace NPchUpdate::NTwoStep {
                     d.Files.push_back(file);
                 }
             }
+            // Controls of varied trace time: only a spread of them separates a
+            // proportional baseline from per-compile seconds.
             for (int j = 0; j < 4; ++j) {
                 TAction a;
-                a.Time = 20;
+                a.Time = 10.0 * (1 << j);
                 TFile f;
                 f.Action = int(d.Actions.size());
                 f.Class = 0;
@@ -547,12 +555,40 @@ namespace NPchUpdate::NTwoStep {
                 obs[i].Memory = prediction.Actions[i].Memory;
                 if (i >= d.Actions.size()) { obs[i].Bytes = prediction.PchBytes[i - d.Actions.size()]; }
             }
-            for (size_t f = 0; f < d.Files.size(); ++f) {
-                obs[f].Time = layout.Assignment[d.Files[f].Target] < 0 ? 20 : 20 - 1.4 * prediction.Saved[f] + 0.03 * prediction.Load[f] + 0.5;
-            }
+            // A compile's seconds outside the traces (driver, startup) are
+            // paid with and without a PCH alike: the controls carry them too.
+            const auto generate = [&] {
+                for (size_t i = 0; i < obs.size(); ++i) {
+                    obs[i].Time = prediction.Actions[i].Time;
+                    obs[i].Memory = prediction.Actions[i].Memory;
+                    if (i >= d.Actions.size()) { obs[i].Bytes = prediction.PchBytes[i - d.Actions.size()]; }
+                }
+                for (size_t f = 0; f < d.Files.size(); ++f) {
+                    obs[f].Time = layout.Assignment[d.Files[f].Target] < 0 ? d.Actions[d.Files[f].Action].Time + 0.5
+                        : 20 - 1.4 * d.Files[f].Own[0].second + 0.03 * d.Units[layout.Assignment[d.Files[f].Target]].Parse + 0.5;
+                }
+            };
+            auto cvError = [](const TCalibration& fit) {
+                for (auto line : Split(fit.Report, '\n')) {
+                    const auto row = Split(line, '\t');
+                    if (row.size() > 4 && row[0] == "0") { return std::stod(std::string(row[4])); }
+                }
+                return -1.0;
+            };
+            generate();
             auto fit = Calibrate(d, layout, prediction, obs);
-            Check(fit.Classes[0].Identified, "independent parse/load variation identified");
-            Near(fit.Classes[0].Saved, 1 + (8.0 / 10) * 0.4, "target-aggregated rank-tested shrinkage fit");
+            const auto& c = fit.Classes[0];
+            Check(c.Identified, "independent parse/load variation identified");
+            Near(c.Residual, 0.5, "the controls show a compile's seconds outside the traces");
+            Near(c.Baseline, 1, "the controls show the compiler's speed against the traces");
+            // All twelve targets with a PCH train the working fit: the
+            // shrinkage counts every measured group, none is held back.
+            Near(c.Saved, 1 + (12.0 / 14) * 0.4, "full-data rank-tested shrinkage fit");
+            Near(c.Load, 0.02 + (12.0 / 14) * 0.01, "load is fitted next to saved on the centered data");
+            Check(cvError(fit) > 0 && cvError(fit) < 0.2,
+                  "leave-one-group-out scores each group with the shrunk model that never saw it");
+            Check(fit.TargetReport.find("target\tclass\ts0_leaf\tmembers\tmeasured\ts0_compile_seconds") != std::string::npos,
+                  "per-target anchors and multipliers are reported");
             auto partial = obs;
             partial[1] = {};
             auto partialFit = Calibrate(d, layout, prediction, partial);
@@ -564,14 +600,16 @@ namespace NPchUpdate::NTwoStep {
                   changedPartial.Classes[0].Load != partialFit.Classes[0].Load,
                   "observed members of partially measured targets contribute to calibration");
             // A sampled verification measures only part of the graph: the fit
-            // must use what it has, and the rest keeps the model's own time.
+            // uses what it has, and an unmeasured target keeps its trace time.
             std::vector<TObservation> sampled = obs;
             for (size_t f = 0; f < 12; ++f) { sampled[f] = TObservation{}; }
             for (int g : {1, 3, 5}) { sampled[d.Actions.size() + g] = TObservation{}; }
             auto sampledFit = Calibrate(d, layout, prediction, sampled);
-            Check(sampledFit.ActionTime[0] == prediction.Actions[0].Time && sampledFit.ActionMemory[0] == prediction.Actions[0].Memory,
-                  "unmeasured actions keep the model time and memory");
-            Check(sampledFit.ActionTime[24] == obs[24].Time, "measured actions keep the observation");
+            Check(sampledFit.ActionTime[0] == d.Actions[0].Time && sampledFit.ActionMemory[0] == prediction.Actions[0].Memory,
+                  "unmeasured compilations keep their trace time and the model's memory");
+            // A measured control is anchored so that the model reproduces its observation.
+            Near(sampledFit.ActionTime[24] * sampledFit.Classes[0].Baseline + sampledFit.Classes[0].Residual, obs[24].Time,
+                 "a measured control is anchored at its observation");
             Check(sampledFit.Report.find("# measured_actions") != std::string::npos,
                   "sampled calibration reports its coverage");
             std::vector<TObservation> nothing(prediction.Actions.size());
@@ -584,20 +622,36 @@ namespace NPchUpdate::NTwoStep {
                 obs[d.Actions.size() + g].Time *= 100;
             }
             auto changed = Calibrate(d, layout, prediction, obs);
-            Near(changed.Classes[0].Saved, fit.Classes[0].Saved, "held-out consumer data cannot leak into fit");
-            Near(changed.Classes[0].Size, fit.Classes[0].Size, "held-out artifacts cannot leak into fit");
-            Near(changed.Classes[0].ConsumerMemory, fit.Classes[0].ConsumerMemory, "held-out RSS cannot leak into fit");
-            Check(changed.Report != fit.Report, "held-out error responds to changed observations");
-            for (size_t f = 0; f < 24; ++f) {
-                prediction.Saved[f] = prediction.Load[f] * 0.5;
-                obs[f].Time = 22;
-            }
+            Check(changed.Classes[0].Saved != c.Saved && changed.Classes[0].Size != c.Size,
+                  "every measured group and artifact trains the final coefficients");
+            Check(cvError(changed) > 1, "cross-validation scores each group without training on it");
+            // A count column constant on the PCH targets is what used to
+            // collide with a load shared by every group. With the residual on
+            // the controls, one load for all six groups is still identified.
+            for (auto& unit : d.Units) { unit.Parse = 5; }
+            generate();
+            auto shared = Calibrate(d, layout, prediction, obs);
+            Check(shared.Classes[0].Identified && std::abs(shared.Classes[0].Load - c.Load) < 1e-9,
+                  "a load identical for every group is identified without a count column");
+            // Groups 0-4 alone cannot tell saved from load; the sixth can, and
+            // only a fit trained on every group sees it.
+            for (auto& unit : d.Units) { unit.Parse = 5; }
+            for (size_t f = 0; f < 24; ++f) { d.Files[f].Own[0].second = f < 20 ? 0.5 : 2.0; }
+            generate();
+            auto full = Calibrate(d, layout, prediction, obs);
+            Check(full.Classes[0].Identified && std::abs(full.Classes[0].Saved - (1 + (12.0 / 14) * 0.4)) < 1e-9,
+                  "the group that separates saved from load trains the working fit");
+            // Collinear features are not independently identified, and the
+            // combined fit keeps a measured slowdown.
+            for (size_t f = 0; f < 24; ++f) { d.Files[f].Own[0].second = 2.5; }
+            generate();
+            for (size_t f = 0; f < 24; ++f) { obs[f].Time = 22; }
             auto deficient = Calibrate(d, layout, prediction, obs);
             Check(!deficient.Classes[0].Identified, "collinear features are not independently identified");
             Check(deficient.Classes[0].Saved < 0, "combined fallback retains measured slowdowns");
             auto slower = Predict(d, layout, deficient);
             for (size_t f = 0; f < 24; ++f) {
-                Check(slower.Actions[f].Time >= 20, "negative combined fit cannot reward unused PCH bytes");
+                Near(slower.Actions[f].Time, 22, "the anchor reproduces a measured PCH compile under a slowdown fit");
             }
         }
 
@@ -761,12 +815,586 @@ namespace NPchUpdate::NTwoStep {
                 Check(std::find(pch.Roots.begin(), pch.Roots.end(), 1) == pch.Roots.end(),
                       "a churning root that would double the body's rebuild rate stays out");
             }
+            // Forty owners: three controls without PCH and three on the base
+            // by the label order (sqrt(40) rounds to three pairs), the feature
+            // owners on their delta, the others on the base.
             std::vector<int> expected(targets);
             for (int t = 0; t < targets; ++t) {
-                expected[t] = t % 10 == 0 ? -1 : t % 2 ? 2 : 1;
+                const bool bare = t == 0 || t == 13 || t == 26, control = t == 6 || t == 20 || t == 33;
+                expected[t] = bare ? -1 : control ? 0 : t % 2 ? 2 : 1;
             }
             Check(selected.Assignment == expected,
-                  "feature owners take the delta, the others the base, controls stay bare");
+                  "feature owners take the delta, the others the base, controls stay bare or on the base");
+        }
+
+        // The first measurement anchors every target at what S0 really took
+        // for it. The sampled members of a target are a PPS draw of its
+        // strata, so their observed-to-trace ratios impute the unsampled ones
+        // without bias (Horvitz-Thompson). A target measured no faster with
+        // its PCH than the controls are without one loses the PCH at the
+        // correction; one measured far faster keeps it, with a multiplier.
+        void AnchoredTargets() {
+            auto d = Data();
+            d.Resources.Workers = 1;
+            d.Units.resize(2);
+            d.Units[0].Include = "<base>";
+            d.Units[0].Stable = true;
+            d.Units[0].Parse = 4;
+            d.Units[0].Bytes = 1;
+            d.Units[1].Include = "<feature>";
+            d.Units[1].Parse = 6;
+            d.Units[1].Bytes = 1;
+            TLayout initial;
+            initial.Bases = 1;
+            TPch base;
+            base.Class = 0;
+            base.Roots = base.Units = {0};
+            TPch delta;
+            delta.Class = 0;
+            delta.Parent = 0;
+            delta.Roots = {1};
+            delta.Units = {0, 1};
+            initial.Pchs = {base, delta};
+            // t0..t2: controls (t0 has four members, two measured). t3..t5:
+            // ordinary users, exactly on the class model. t6: measured slower
+            // with the PCH than the controls without one. t7: measured at a
+            // tenth of the model. t8: on the delta for its base part only.
+            const double time[] = {22, 20, 20, 10.2, 10.2, 10.2, 21, 1, 16.2};
+            std::vector<std::string> labels;
+            for (int t = 0; t < 9; ++t) {
+                for (int j = 0; j < (t == 0 ? 4 : 2); ++j) {
+                    TAction a;
+                    a.Time = 20;
+                    a.Memory = 1e6;
+                    a.Output = std::to_string(10 * t + j) + ".o";
+                    d.Actions.push_back(a);
+                    const bool whole = t >= 3 && t != 8;
+                    d.Files.push_back({int(d.Actions.size()) - 1, 0, a.Output,
+                                       whole ? std::vector<std::pair<int, double>>{{0, 4}, {1, 6}}
+                                             : std::vector<std::pair<int, double>>{{0, 4}}});
+                    labels.push_back("//t" + std::to_string(t));
+                }
+            }
+            GroupTargets(d, labels);
+            initial.Assignment = {-1, -1, -1, 1, 1, 1, 1, 1, 1};
+            auto prediction = Predict(d, initial, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            for (size_t i = 0; i < obs.size(); ++i) {
+                obs[i].Time = prediction.Actions[i].Time;
+                obs[i].Memory = prediction.Actions[i].Memory;
+                if (i >= d.Actions.size()) { obs[i].Bytes = prediction.PchBytes[i - d.Actions.size()]; }
+            }
+            for (size_t f = 0; f < d.Files.size(); ++f) { obs[f].Time = time[d.Files[f].Target]; }
+            obs[d.Files[1].Action] = {};
+            obs[d.Files[3].Action] = {};
+            auto fit = Calibrate(d, initial, prediction, obs);
+            // Two exceptional targets of six do not drag the class: without
+            // the robust weights the collinear features give 1.15 and 0.28.
+            Check(std::abs(fit.Classes[0].Saved - 1) < 0.05 && std::abs(fit.Classes[0].Load - 0.02) < 0.01,
+                  "a parasite and a super-beneficiary do not drag the class coefficients");
+            // Horvitz-Thompson: both strata of t0 show 1.1, so its unsampled
+            // members are imputed at the observed ratio, 22 s.
+            for (int f : d.Targets[0].Files) {
+                Near(fit.ActionTime[d.Files[f].Action], 22, "unsampled members take their stratum's observed ratio");
+            }
+            Near(fit.ActionFloor[d.Files[0].Action], 0.4, "a file without a frontend trace keeps the 2% prior floor");
+            Check(fit.TargetGain[6] < 0.1 && fit.TargetGain[7] > 1.6,
+                  "a parasite keeps a multiplier at zero, a super-beneficiary one above 1.6");
+            for (int t : {3, 4, 5, 8}) {
+                Check(std::abs(fit.TargetGain[t] - 1) < 0.05, "targets on the class model keep a multiplier of one");
+            }
+            // The anchor reproduces the observed S0 compile under the S0 leaf.
+            auto s0 = Predict(d, initial, fit);
+            for (int t = 0; t < 9; ++t) {
+                for (int f : d.Targets[t].Files) { Near(s0.Actions[d.Files[f].Action].Time, time[t], "anchor reproduces S0"); }
+            }
+            auto corrected = Select(d, fit, &initial);
+            // Controls and t8 parse nothing beyond the base: like every owner
+            // whose residual profile no delta overlaps, they are offered the
+            // base only, now priced against their measured no-PCH time.
+            Check(corrected.Bases == 1 && corrected.Pchs.size() == 2 && corrected.Pchs[1].Roots == std::vector<int>{1} &&
+                  corrected.Assignment == std::vector<int>({0, 0, 0, 1, 1, 1, -1, 1, 0}),
+                  "the correction keeps the PCH for every measured beneficiary, controls included, and drops the parasite");
+            // Anchor and delta: the controls take the base at their observed
+            // no-PCH time minus the calibrated saving; the parasite's no-PCH
+            // time is what S0 measured with the PCH minus next to nothing;
+            // t8 moves from the delta to the base and loses only the delta's
+            // extra load (16.2 - 0.2 + 0.08).
+            const double expected[] = {18.08, 16.08, 16.08, 10.2, 10.2, 10.2, 0, 1, 16.08};
+            auto s1 = Predict(d, corrected, fit);
+            for (size_t f = 0; f < d.Files.size(); ++f) {
+                const int t = d.Files[f].Target;
+                const double actual = s1.Actions[d.Files[f].Action].Time;
+                if (t == 6) {
+                    Check(actual > 20 && actual < 21, "the parasite's anchored no-PCH time is its observed PCH time");
+                } else {
+                    Near(actual, expected[t], "corrected times follow the anchors");
+                }
+            }
+            // A target S0 saw far slower with its PCH than the controls
+            // without one is not credited with a negative saving: its PCH
+            // saved it nothing, and its no-PCH time is what S0 measured less
+            // the load, never less than a plain compile of the class.
+            for (int f : d.Targets[6].Files) { obs[f].Time = 28; }
+            auto slow = Calibrate(d, initial, prediction, obs);
+            Near(slow.TargetGain[6], 0, "a target the PCH did not help keeps a multiplier of zero, not below");
+            auto bare = corrected;
+            bare.Assignment[6] = -1;
+            const double withoutPch = Predict(d, bare, slow).Actions[d.Files[d.Targets[6].Files[0]].Action].Time;
+            Check(withoutPch > 27 && withoutPch < 28.2, "its no-PCH time is what S0 measured, less the load");
+            Check(Select(d, slow, &initial).Assignment[6] == -1, "and it loses its PCH");
+        }
+
+        // Three owners measured at a fifth of what their own parse time
+        // predicts: the mean effect of their leaf is projected on its own
+        // unit, and under a budget that fits one of two deltas the ordinary
+        // one is evicted, not theirs.
+        void SuperBeneficiaryDelta() {
+            auto d = Data();
+            d.Resources.Workers = 1;
+            d.Units.resize(3);
+            for (int u = 0; u < 3; ++u) {
+                d.Units[u].Include = "<unit" + std::to_string(u) + ">";
+                d.Units[u].Stable = true;
+                d.Units[u].Bytes = 1;
+                d.Units[u].Parse = u ? 5 : 4;
+            }
+            TLayout layout;
+            layout.Bases = 1;
+            TPch base;
+            base.Class = 0;
+            base.Roots = base.Units = {0};
+            layout.Pchs = {base};
+            for (int u : {1, 2}) {
+                TPch delta;
+                delta.Class = 0;
+                delta.Parent = 0;
+                delta.Roots = {u};
+                delta.Units = {0, u};
+                layout.Pchs.push_back(delta);
+            }
+            // t0..t2 controls; t3..t6 on delta 1, on the class model; t7..t9
+            // on delta 2, each member measured at 2 s instead of 11.18;
+            // t10..t11 on the base.
+            const int leaf[] = {-1, -1, -1, 1, 1, 1, 1, 2, 2, 2, 0, 0};
+            std::vector<std::string> labels;
+            for (int t = 0; t < 12; ++t) {
+                for (int j = 0; j < 2; ++j) {
+                    TAction a;
+                    a.Time = 20;
+                    a.Memory = 1e6;
+                    d.Actions.push_back(a);
+                    std::vector<std::pair<int, double>> own{{0, 4}};
+                    if (t >= 3 && t <= 9) { own.emplace_back(leaf[t], 5); }
+                    d.Files.push_back({int(d.Actions.size()) - 1, 0, std::to_string(10 * t + j), own});
+                    labels.push_back("//t" + std::string(t < 10 ? "0" : "") + std::to_string(t));
+                }
+            }
+            GroupTargets(d, labels);
+            layout.Assignment = {-1, -1, -1, 1, 1, 1, 1, 2, 2, 2, 0, 0};
+            auto prediction = Predict(d, layout, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            for (size_t i = 0; i < obs.size(); ++i) {
+                obs[i].Time = prediction.Actions[i].Time;
+                obs[i].Memory = prediction.Actions[i].Memory;
+                if (i >= d.Actions.size()) { obs[i].Bytes = prediction.PchBytes[i - d.Actions.size()]; }
+            }
+            for (size_t f = 0; f < d.Files.size(); ++f) {
+                const int t = d.Files[f].Target;
+                if (t >= 7 && t <= 9) { obs[f].Time = 2; }
+            }
+            auto fit = Calibrate(d, layout, prediction, obs);
+            Check(fit.UnitGain[0][2] > 1.8 && std::abs(fit.UnitGain[0][1] - 1) < 0.1 && std::abs(fit.UnitGain[0][0] - 1) < 0.1,
+                  "the mean effect of a leaf lands on its own unit, the other units keep their prior");
+            for (int t = 7; t <= 9; ++t) {
+                // Target times units reproduces the whole deviation: the own
+                // unit carries the leaf's mean effect, the multiplier the part
+                // of the saving that sits in the base units.
+                const double effective = fit.TargetGain[t] * (4 + 5 * fit.UnitGain[0][2]) / 9;
+                Check(std::abs(effective - 2.02) < 0.1 && fit.TargetGain[t] > 1.1,
+                      "target and unit multipliers add up to the measured effect");
+            }
+            d.Resources.Disk = 8.5; // the base and one delta of three bytes
+            auto ordinary = layout;
+            FitMeasuredDisk(d, ordinary, {}, {4, 4, 4}, true, [](int, int) { return true; });
+            CompactLayout(ordinary);
+            Check(ordinary.Assignment == std::vector<int>({-1, -1, -1, 1, 1, 1, 1, 0, 0, 0, 0, 0}) && ordinary.Pchs.size() == 2,
+                  "under the class prior the delta of three owners is the cheaper one to evict");
+            auto measured = layout;
+            auto report = FitMeasuredDisk(d, measured, fit, {4, 4, 4}, true, [](int, int) { return true; });
+            CompactLayout(measured);
+            Check(measured.Assignment == std::vector<int>({-1, -1, -1, 0, 0, 0, 0, 1, 1, 1, 0, 0}) && measured.Pchs.size() == 2 &&
+                  measured.Pchs[1].Roots == std::vector<int>{2} && report.find("\ndelta\t1\t") != std::string::npos,
+                  "a delta of measured super-beneficiaries outbids a larger ordinary one per byte");
+        }
+
+        // A frozen base nobody uses any more is not part of the corrected
+        // plan: it takes no budget and is not exported.
+        void EmptyFrozenFamily() {
+            auto d = Data();
+            d.Resources.Workers = 1;
+            d.Classes = 2;
+            d.Units.resize(2);
+            d.Units[0].Include = "<harmful>";
+            d.Units[0].Stable = true;
+            d.Units[0].Parse = 4;
+            d.Units[0].Bytes = 1;
+            d.Units[1].Include = "<useful>";
+            d.Units[1].Parse = 6;
+            d.Units[1].Bytes = 1;
+            TLayout initial;
+            initial.Bases = 1;
+            TPch base;
+            base.Class = 0;
+            base.Roots = base.Units = {0};
+            initial.Pchs = {base};
+            std::vector<std::string> labels;
+            for (int t = 0; t < 6; ++t) {
+                for (int j = 0; j < 2; ++j) {
+                    TAction a;
+                    a.Time = 20;
+                    a.Memory = 1e6;
+                    d.Actions.push_back(a);
+                    // The last three owners also parse what the second class's delta serializes.
+                    d.Files.push_back({int(d.Actions.size()) - 1, 0, std::to_string(10 * t + j),
+                                       t < 3 ? std::vector<std::pair<int, double>>{{0, 4}}
+                                             : std::vector<std::pair<int, double>>{{0, 4}, {1, 6}}});
+                    labels.push_back("//t" + std::to_string(t));
+                }
+            }
+            GroupTargets(d, labels);
+            initial.Assignment.assign(6, 0);
+            auto prediction = Predict(d, initial, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            for (size_t i = 0; i < obs.size(); ++i) {
+                obs[i].Time = prediction.Actions[i].Time;
+                obs[i].Memory = prediction.Actions[i].Memory;
+                if (i >= d.Actions.size()) { obs[i].Bytes = prediction.PchBytes[i - d.Actions.size()]; }
+            }
+            // Everyone measured slower with the base than without it.
+            for (size_t f = 0; f < d.Files.size(); ++f) { obs[f].Time = 24; }
+            auto fit = Calibrate(d, initial, prediction, obs);
+            TSelectionDiagnostics diag;
+            auto corrected = Select(d, fit, &initial, 1, &diag);
+            Check(corrected.Pchs.empty() && corrected.Bases == 0 && corrected.Assignment == std::vector<int>(6, -1),
+                  "a frozen base without a single beneficiary leaves the corrected plan");
+            // It leaves while the candidates are scored, not afterwards: no
+            // candidate paid for building it, and the reported groups are the plan's.
+            Check(diag.Widths.find("scored_pchs=0 ") != std::string::npos && diag.Widths.find("probe_pchs=0 ") != std::string::npos,
+                  "an emptied frozen family is never scored as built");
+            Check(diag.Widths.find("scored_bytes=0 ") != std::string::npos, "nor counted in the scored bytes");
+
+            // A frozen base of another class is empty: its 500 bytes do not
+            // count against the budget of the family that is alive.
+            d.Classes = 2;
+            TLayout two;
+            two.Bases = 2;
+            two.Pchs.resize(3);
+            two.Pchs[0].Class = 0;
+            two.Pchs[0].Roots = two.Pchs[0].Units = {0};
+            two.Pchs[1].Class = 1;
+            two.Pchs[1].Roots = two.Pchs[1].Units = {0};
+            two.Pchs[2].Class = 1;
+            two.Pchs[2].Parent = 1;
+            two.Pchs[2].Roots = {1};
+            two.Pchs[2].Units = {0, 1};
+            two.Assignment = {-1, -1, -1, 2, 2, 2};
+            for (auto& file : d.Files) { file.Class = file.Target < 3 ? 0 : 1; }
+            GroupTargets(d, labels);
+            d.Resources.Disk = 160;
+            FitMeasuredDisk(d, two, {}, {500, 50, 100}, true, [](int, int) { return true; });
+            CompactLayout(two);
+            Check(two.Pchs.size() == 2 && two.Pchs[0].Roots == std::vector<int>{0} && two.Pchs[0].Class == 1 &&
+                  two.Assignment == std::vector<int>({-1, -1, -1, 1, 1, 1}),
+                  "an empty frozen family reserves no disk and leaves the plan");
+        }
+        // What the PCH removes beyond the includes (-fpch-instantiate-
+        // templates) calibrates on the time a file spends in semantics outside
+        // them: Frontend minus the outermost includes, relative to them.
+        void TemplateInstantiation() {
+            auto d = Data();
+            TLayout layout;
+            for (int g = 0; g < 6; ++g) {
+                TUnit unit;
+                unit.Parse = g + 1;
+                unit.Bytes = 1;
+                d.Units.push_back(unit);
+                TPch pch;
+                pch.Class = 0;
+                pch.Roots = pch.Units = {g};
+                layout.Pchs.push_back(pch);
+                for (int j = 0; j < 4; ++j) {
+                    TAction action;
+                    action.Time = 20;
+                    action.Memory = 1e6;
+                    TFile file;
+                    file.Action = int(d.Actions.size());
+                    file.Class = 0;
+                    file.Own = {{g, 0.5 + 0.1 * j}};
+                    file.Outer = 10;
+                    file.Frontend = 10.0 + g; // g tenths of the include time outside the includes
+                    d.Actions.push_back(action);
+                    d.Files.push_back(file);
+                }
+            }
+            for (int j = 0; j < 4; ++j) {
+                TAction a;
+                a.Time = 10.0 * (1 << j);
+                TFile f;
+                f.Action = int(d.Actions.size());
+                f.Class = 0;
+                d.Actions.push_back(a);
+                d.Files.push_back(f);
+            }
+            std::vector<std::string> owners;
+            for (size_t f = 0; f < d.Files.size(); ++f) {
+                owners.push_back("//test:t" + std::to_string(1000000 + (f < 24 ? f / 2 : f)));
+            }
+            GroupTargets(d, owners);
+            for (const auto& target : d.Targets) {
+                const int f = target.Files.front();
+                layout.Assignment.push_back(f < 24 ? f / 4 : -1);
+            }
+            auto prediction = Predict(d, layout, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            for (size_t i = 0; i < obs.size(); ++i) {
+                obs[i].Time = prediction.Actions[i].Time;
+                obs[i].Memory = prediction.Actions[i].Memory;
+                if (i >= d.Actions.size()) { obs[i].Bytes = prediction.PchBytes[i - d.Actions.size()]; }
+            }
+            for (size_t f = 0; f < d.Files.size(); ++f) {
+                const int g = layout.Assignment[d.Files[f].Target];
+                const double saved = d.Files[f].Own.empty() ? 0 : d.Files[f].Own[0].second;
+                obs[f].Time = g < 0 ? d.Actions[f].Time + 0.5
+                                    : 20 - 1.4 * saved - 0.5 * saved * (d.Files[f].Frontend - d.Files[f].Outer) / d.Files[f].Outer + 0.03 * (g + 1) + 0.5;
+            }
+            auto fit = Calibrate(d, layout, prediction, obs);
+            const auto& c = fit.Classes[0];
+            const double weight = 12.0 / 14;
+            Check(c.Identified, "the instantiation feature is identified next to saved and load");
+            Near(c.Saved, 1 + weight * 0.4, "saved time with the instantiation feature");
+            Near(c.Load, 0.02 + weight * 0.01, "load with the instantiation feature");
+            Near(c.Instantiate, weight * 0.5 / 1.4, "the saving outside the includes calibrates per unit of frontend time beyond them");
+            // What the class learned generalizes: a member of a target S0 never
+            // measured is priced with the same feature, three template-heavy
+            // targets among six keeping their deltas only because of it.
+            auto s0 = Predict(d, layout, fit);
+            for (size_t f = 0; f < 24; ++f) {
+                Near(s0.Actions[f].Time, obs[f].Time, "the anchor reproduces S0 with the feature");
+            }
+        }
+
+        // A trace that shows the frontend leaves the backend as the floor of
+        // a compile: no PCH removes the LLVM work of a member.
+        void BackendFloor() {
+            auto d = Data();
+            d.Units.resize(1);
+            d.Units[0].Parse = 100;
+            d.Units[0].Include = "<all>";
+            d.Units[0].Stable = true;
+            TAction a;
+            a.Time = 20;
+            a.Memory = 1e6;
+            d.Actions.push_back(a);
+            d.Files.push_back({0, 0, "a.cpp", {{0, 19.9}}, 0, 18.0, 0.0});
+            GroupTargets(d, {"//a:lib"});
+            TLayout layout;
+            layout.Bases = 1;
+            TPch base;
+            base.Class = 0;
+            base.Roots = base.Units = {0};
+            layout.Pchs = {base};
+            layout.Assignment = {0};
+            TCalibration calibration;
+            calibration.Classes.resize(1);
+            calibration.Classes[0].Load = 0;
+            Near(Predict(d, layout, calibration).Actions[0].Time, 2, "the backend is the floor of a compile whose includes a PCH removes");
+            d.Files[0].Frontend = 0;
+            Near(Predict(d, layout, calibration).Actions[0].Time, 0.4, "without a frontend trace the floor is the 2% prior");
+        }
+
+        // Strata are cut exactly as SampleFiles cut them, floor(j * n / k).
+        // With five members and two measured they are {0, 1} and {2, 3, 4};
+        // grouping by floor(i * k / n) would make them {0, 1, 2} and {3, 4},
+        // weigh a winner's ratio with members outside its stratum and lose
+        // the unbiased estimate (33 s instead of 60 s for the third member).
+        void StratumImputation() {
+            auto d = Data();
+            TLayout layout;
+            std::vector<std::string> labels;
+            for (int i = 0; i < 5; ++i) {
+                TAction a;
+                a.Time = 10.0 * (i + 1);
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                d.Files.push_back({i, 0, std::to_string(i), {}});
+                labels.push_back("//t:owner");
+            }
+            GroupTargets(d, labels);
+            layout.Assignment = {-1};
+            auto prediction = Predict(d, layout, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            obs[1].Time = 22; // the draw's winner of {0, 1}: ratio 1.1
+            obs[3].Time = 80; // the draw's winner of {2, 3, 4}: ratio 2.0
+            auto fit = Calibrate(d, layout, prediction, obs);
+            const double expected[] = {11, 22, 60, 80, 100};
+            for (int f = 0; f < 5; ++f) {
+                Near(fit.ActionTime[f] * fit.Classes[0].Baseline, expected[f], "strata are cut as the draw cut them");
+            }
+        }
+
+        // The empirical Bayes step compares a target with the compile time
+        // the selector computes for it, backend floor included. A member
+        // whose PCH removes almost its whole frontend is measured at that
+        // floor; the linear model without it would fall below the measurement
+        // and read the difference as a lost saving.
+        void FlooredModel() {
+            auto d = Data();
+            d.Units.resize(2);
+            d.Units[0].Include = "<base>";
+            d.Units[0].Stable = true;
+            d.Units[0].Parse = 10;
+            d.Units[0].Bytes = 1;
+            d.Units[1].Include = "<heavy>";
+            d.Units[1].Stable = true;
+            d.Units[1].Parse = 19.5;
+            d.Units[1].Bytes = 1;
+            TLayout layout;
+            layout.Bases = 1;
+            TPch base;
+            base.Class = 0;
+            base.Roots = {0, 1};
+            base.Units = {0, 1};
+            layout.Pchs = {base};
+            std::vector<std::string> labels;
+            // c0..c2: controls. f: floored, its frontend is 18 of its 20 trace
+            // seconds, so its backend floor is 2 s and it was measured at it.
+            // o0..o2: ordinary users, exactly on the class model (20 - 10 +
+            // 0.02 * 29.5); f: measured at its floor, 2 s.
+            const char* names[] = {"//c0", "//c1", "//c2", "//f", "//o0", "//o1", "//o2"};
+            for (const char* name : names) {
+                const bool control = name[2] == 'c', floored = name[2] == 'f';
+                for (int j = 0; j < 2; ++j) {
+                    TAction a;
+                    a.Time = 20;
+                    a.Memory = 1e6;
+                    d.Actions.push_back(a);
+                    TFile file;
+                    file.Action = int(d.Actions.size()) - 1;
+                    file.Class = 0;
+                    file.Source = std::string(name) + std::to_string(j);
+                    if (!control) { file.Own = {{floored ? 1 : 0, floored ? 19.5 : 10}}; }
+                    file.Frontend = floored ? 18 : 0;
+                    d.Files.push_back(file);
+                    labels.push_back(name);
+                }
+            }
+            GroupTargets(d, labels);
+            layout.Assignment = {-1, -1, -1, 0, 0, 0, 0};
+            auto prediction = Predict(d, layout, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            for (size_t i = 0; i < obs.size(); ++i) {
+                obs[i].Time = prediction.Actions[i].Time;
+                obs[i].Memory = prediction.Actions[i].Memory;
+                if (i >= d.Actions.size()) { obs[i].Bytes = prediction.PchBytes[i - d.Actions.size()]; }
+            }
+            for (size_t f = 0; f < d.Files.size(); ++f) {
+                const bool control = d.Files[f].Source[2] == 'c', floored = d.Files[f].Source[2] == 'f';
+                obs[f].Time = control ? 20 : floored ? 2 : 10.59;
+            }
+            auto fit = Calibrate(d, layout, prediction, obs);
+            Near(fit.Classes[0].Saved, 1, "the class coefficients survive a member measured at its floor");
+            Near(fit.Classes[0].Load, 0.02, "and its load");
+            Near(fit.TargetGain[3], 1, "a member measured at the backend floor is on the model, not below it");
+            for (int t : {4, 5, 6}) { Near(fit.TargetGain[t], 1, "ordinary users keep a multiplier of one"); }
+        }
+
+        // The anchor inverts the same compile-time formula the selector
+        // uses, slowdown clamp included. Under a combined fit that shows a
+        // slowdown, a member parsing none of the PCH's headers owes it only
+        // its load: the clamp cancels that apparent gain, and so must the
+        // anchor, or the S0 layout no longer reproduces what was measured.
+        void SlowdownAnchor() {
+            auto d = Data();
+            d.Units.resize(1);
+            d.Units[0].Include = "<h>";
+            d.Units[0].Stable = true;
+            d.Units[0].Parse = 5;
+            d.Units[0].Bytes = 1;
+            TLayout layout;
+            layout.Bases = 1;
+            TPch base;
+            base.Class = 0;
+            base.Roots = base.Units = {0};
+            layout.Pchs = {base};
+            std::vector<std::string> labels;
+            // c0, c1: controls. p0..p2: two members each, the first parses the
+            // header, the second only loads the PCH; both measured slower
+            // with it than the controls are without one.
+            for (const char* name : {"//c0", "//c1", "//p0", "//p1", "//p2"}) {
+                const bool control = name[2] == 'c';
+                for (int j = 0; j < (control ? 1 : 2); ++j) {
+                    TAction a;
+                    a.Time = 20;
+                    a.Memory = 1e6;
+                    d.Actions.push_back(a);
+                    TFile file;
+                    file.Action = int(d.Actions.size()) - 1;
+                    file.Class = 0;
+                    file.Source = std::string(name) + std::to_string(j);
+                    if (!control && j == 0) { file.Own = {{0, 5}}; }
+                    d.Files.push_back(file);
+                    labels.push_back(name);
+                }
+            }
+            GroupTargets(d, labels);
+            layout.Assignment = {-1, -1, 0, 0, 0};
+            auto prediction = Predict(d, layout, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            for (size_t i = 0; i < obs.size(); ++i) {
+                obs[i].Time = prediction.Actions[i].Time;
+                obs[i].Memory = prediction.Actions[i].Memory;
+                if (i >= d.Actions.size()) { obs[i].Bytes = prediction.PchBytes[i - d.Actions.size()]; }
+            }
+            for (size_t f = 0; f < d.Files.size(); ++f) {
+                if (d.Files[f].Source[2] == 'c') { obs[f].Time = 20; }
+                else { obs[f].Time = d.Files[f].Own.empty() ? 21 : 24; }
+            }
+            auto fit = Calibrate(d, layout, prediction, obs);
+            Check(!fit.Classes[0].Identified && fit.Classes[0].Saved < 0, "a PCH that slowed its users down is fitted as one");
+            auto s0 = Predict(d, layout, fit);
+            for (size_t f = 0; f < d.Files.size(); ++f) {
+                Near(s0.Actions[d.Files[f].Action].Time, obs[f].Time, "the anchor reproduces S0 under a slowdown fit");
+            }
+        }
+
+        // The seconds of a compile outside its traces (process and driver
+        // startup) are never negative. Controls that would fit a negative
+        // intercept leave the class on the ratio alone.
+        void NegativeResidual() {
+            auto d = Data();
+            TLayout layout;
+            std::vector<std::string> labels;
+            const double time[] = {1, 2, 10}, seen[] = {0.3, 0.8, 4.8}; // 0.5 * time - 0.2
+            for (int i = 0; i < 3; ++i) {
+                TAction a;
+                a.Time = time[i];
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                d.Files.push_back({i, 0, std::to_string(i), {}});
+                labels.push_back("//c" + std::to_string(i));
+            }
+            GroupTargets(d, labels);
+            layout.Assignment = {-1, -1, -1};
+            auto prediction = Predict(d, layout, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            for (int i = 0; i < 3; ++i) {
+                obs[i].Time = seen[i];
+                obs[i].Memory = prediction.Actions[i].Memory;
+            }
+            auto fit = Calibrate(d, layout, prediction, obs);
+            Near(fit.Classes[0].Residual, 0, "a negative intercept is noise, not a saving outside the traces");
+            Near(fit.Classes[0].Baseline, 0.4, "the class keeps the median ratio of its controls");
         }
 
         // The base shared with a held-out delta stays in the artifact fits:
@@ -888,9 +1516,11 @@ namespace NPchUpdate::NTwoStep {
                   selected.Pchs[1].Roots == std::vector<int>({1}) &&
                   selected.Pchs[2].Roots == std::vector<int>({2}),
                   "profile clustering yields one delta per heavy-header profile, not label-chunk duplicates");
+            // Thirty-six owners: controls at 0, 12 and 24, base controls at 6, 18 and 30.
             std::vector<int> expected(targets);
             for (int t = 0; t < targets; ++t) {
-                expected[t] = t % 10 == 0 ? -1 : t % 2 ? 2 : 1;
+                const bool bare = t == 0 || t == 12 || t == 24, control = t == 6 || t == 18 || t == 30;
+                expected[t] = bare ? -1 : control ? 0 : t % 2 ? 2 : 1;
             }
             Check(selected.Assignment == expected,
                   "owners land on the delta matching their profile");
@@ -943,7 +1573,7 @@ namespace NPchUpdate::NTwoStep {
             d.Resources.Disk = 13; // base(4) + two of the three deltas (3,3,6)
             auto merged = layout;
             auto report = FitMeasuredDisk(d, merged, {}, {4, 3, 3, 6}, false, [](int, int) { return true; });
-            CompactLayout(merged, false);
+            CompactLayout(merged);
             Check(merged.Assignment == std::vector<int>({1, 1, 2}) && merged.Pchs.size() == 3 &&
                   report.find("\ndelta\t1\t") != std::string::npos,
                   "a near-duplicate delta merges into its sibling; the unique delta survives");
@@ -1001,7 +1631,7 @@ namespace NPchUpdate::NTwoStep {
             d.Resources.Disk = 12; // base0+delta0+base1 fit; the class-1 delta does not
             auto merged = layout;
             FitMeasuredDisk(d, merged, {}, {4, 4, 3, 6}, false, [](int, int) { return true; });
-            CompactLayout(merged, false);
+            CompactLayout(merged);
             Check(merged.Assignment == std::vector<int>({2, 2, 1, 1}) && merged.Pchs.size() == 3,
                   "an evicted delta falls back inside its own compiler class");
             bool compatible = true;
@@ -1127,7 +1757,9 @@ namespace NPchUpdate::NTwoStep {
                       selected.Pchs[1].Units == std::vector<int>({0, 1, 2}),
                   "the umbrella root serializes the nested header transitively");
             for (size_t t = 0; t < selected.Assignment.size(); ++t) {
-                Check(selected.Assignment[t] == (t % 10 == 0 ? -1 : 1),
+                // Thirty owners: controls without PCH at 0, 10 and 20, kept on
+                // the base at 5, 15 and 25.
+                Check(selected.Assignment[t] == (t % 10 == 0 ? -1 : t % 10 == 5 ? 0 : 1),
                       "targets parsing only the nested header still find the umbrella delta");
             }
         }
@@ -1145,6 +1777,15 @@ namespace NPchUpdate::NTwoStep {
         SharedBaseDiskDiagnostics();
         AbsoluteSystemRoot();
         Calibration();
+        TemplateInstantiation();
+        BackendFloor();
+        StratumImputation();
+        FlooredModel();
+        SlowdownAnchor();
+        NegativeResidual();
+        AnchoredTargets();
+        SuperBeneficiaryDelta();
+        EmptyFrozenFamily();
         CoChangedRoots();
         PhysicalDeltaCosts();
         HeldOutParentCalibration();

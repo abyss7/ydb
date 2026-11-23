@@ -45,14 +45,15 @@
 
 namespace NPchUpdate::NTwoStep {
     namespace {
-        constexpr const char* VERSION = "pch-two-step-8";
+        constexpr const char* VERSION = "pch-two-step-9";
+        constexpr const char* ANCHORED_VERSION = "pch-two-step-8";
         constexpr const char* MERGED_OWNER_VERSION = "pch-two-step-7";
         constexpr const char* OWNER_VERSION = "pch-two-step-6";
         constexpr const char* TARGET_VERSION = "pch-two-step-5";
         constexpr const char* PREVIOUS_VERSION = "pch-two-step-4";
         constexpr const char* LEGACY_VERSION = "pch-two-step-3";
         // Bump when extraction or the meaning of cached model features changes.
-        constexpr const char* ANALYSIS_VERSION = "pch-analysis-9";
+        constexpr const char* ANALYSIS_VERSION = "pch-analysis-10";
 
         const char* HELP =
             "pch_update --baseline DIR [--predict | --correct | --apply] [options]\n"
@@ -90,11 +91,23 @@ namespace NPchUpdate::NTwoStep {
         }
 
         // The sampling frame is the frozen baseline, including targets without PCH.
-        std::vector<char> SampleFiles(const TData& d, const std::string& nonce, int percent) {
+        // Calibration controls (TLayout::Controls) take their first member
+        // before any other target: they inform their whole compiler class,
+        // not only their own anchor. A control without PCH, which the class
+        // baseline is read from, also takes an extra member ahead of the
+        // queue; a control kept on the base is an ordinary row of the consumer
+        // fit and takes its turn in it. Extra slots follow baseline compile
+        // work rather than file count (Neyman allocation): fifty generated
+        // stubs of 0.2 s are worth less to the calibration than fifty core
+        // files of 25 s.
+        std::vector<char> SampleFiles(const TData& d, const std::string& nonce, int percent,
+                                      const std::vector<char>& controls = {}) {
             const size_t budget = SampleBudget(d, percent);
             if (budget == d.Files.size()) { return std::vector<char>(budget, true); }
             const auto action = [&](int f) -> const TAction& { return d.Actions[d.Files[f].Action]; };
             const auto& targets = d.Targets;
+            const bool hasControls = controls.size() == targets.size();
+            auto control = [&](int t) { return hasControls && controls[t] != 0; };
             std::vector<int> order(targets.size());
             std::iota(order.begin(), order.end(), 0);
             std::vector<double> work(targets.size());
@@ -102,24 +115,33 @@ namespace NPchUpdate::NTwoStep {
                 for (int f : targets[t].Files) { work[t] += action(f).Time; }
             }
             std::sort(order.begin(), order.end(), [&](int a, int b) {
+                if (control(a) != control(b)) { return control(a); }
                 return work[a] != work[b] ? work[a] > work[b] : targets[a].Label < targets[b].Label;
             });
             std::vector<size_t> quota(targets.size());
             const size_t covered = std::min(budget, targets.size());
             for (size_t i = 0; i < covered; ++i) { quota[order[i]] = 1; }
+            size_t assigned = covered;
+            for (int t : order) {
+                if (assigned >= budget) { break; }
+                if (hasControls && controls[t] == 1 && quota[t] && quota[t] < targets[t].Files.size()) {
+                    ++quota[t];
+                    ++assigned;
+                }
+            }
 
-            // Assign each extra slot by largest file count / (slots + 1).
+            // Assign each extra slot by largest baseline work / (slots + 1).
             // Only the popped target's quota changes before reinsertion.
             auto lowerPriority = [&](int a, int b) {
-                auto left = targets[a].Files.size() * (quota[b] + 1);
-                auto right = targets[b].Files.size() * (quota[a] + 1);
+                auto left = work[a] * (quota[b] + 1);
+                auto right = work[b] * (quota[a] + 1);
                 return left != right ? left < right : targets[a].Label > targets[b].Label;
             };
             std::priority_queue<int, std::vector<int>, decltype(lowerPriority)> queue(lowerPriority);
             for (int t : order) {
                 if (quota[t] && quota[t] < targets[t].Files.size()) { queue.push(t); }
             }
-            for (size_t i = covered; i < budget; ++i) {
+            for (; assigned < budget; ++assigned) {
                 int t = queue.top();
                 queue.pop();
                 if (++quota[t] < targets[t].Files.size()) { queue.push(t); }
@@ -252,6 +274,7 @@ namespace NPchUpdate::NTwoStep {
                 for (const char* name : {"summary.tsv", "summary.txt", "summary.json", "assignments.tsv", "target-members.tsv",
                      "selection-targets.tsv", "selection-choices.tsv", "selection-widths.tsv", "selection-candidates.tsv", "selection-payback.tsv", "compatibility.tsv",
                      "compatibility-targets.tsv", "calibration.tsv", "calibration.txt", "calibration-parameters.tsv", "sampling.tsv", "disk-budget.tsv",
+                     "calibration-targets.tsv", "calibration-units.tsv",
                      "initial-errors.tsv", "initial-action-errors.tsv", "measurement.tsv", "measurement.txt", "measurement.json",
                      "target-errors.tsv", "action-errors.tsv", "assignment-changes.tsv"}) {
                     std::string text;
@@ -273,14 +296,18 @@ namespace NPchUpdate::NTwoStep {
                     "selection-candidates.tsv maps those IDs to root headers, parents and compiler classes.\n"
                     "selection-payback.tsv: predicted parse saving, load, extra compilation, build cost and net work for assigned owners.\n"
                     "no-candidate: none in this shortlist; no-estimated-benefit: none beats no-PCH target cost.\n"
-                    "calibration-control: initial target deliberately left without PCH; disk-fallback/disk-budget: measured eviction to the best open fallback or NONE.\n"
+                    "calibration-control: initial target deliberately left without PCH to measure the class baseline;\n"
+                    "calibration-base-control: initial target deliberately kept on the base to measure a delta's marginal value.\n"
+                    "disk-fallback/disk-budget: measured eviction to the best open fallback or NONE.\n"
                     "no-layout-improvement: seed won global objective; retained-initial-plan: correction retained initial seed.\n"
                     "compatibility-fallback/rejected: target moved to an ancestor/no PCH; see compatibility.tsv and retained probe logs.\n"
                     "Historical checkpoints may lack reasons; unavailable is not a guessed rejection cause.\n"
                     "GB=1000000000 bytes; disk budget covers resident PCH artifacts, not the complete build directory.\n"
                     "Sample percentage applies to C++ objects; every PCH and prerequisite tool is built.\n"
                     "Work sums are not wall time. WAPE=sum(abs(predicted-actual))/sum(actual).\n"
-                    "Holdout MAE is mean absolute error of aggregate target compile seconds, not target wall time.\n"
+                    "Holdout MAE is leave-one-group-out cross-validated error of aggregate target compile seconds, not target wall time.\n"
+                    "calibration.tsv: every measured group trains the final coefficients; controls give baseline and residual;\n"
+                    "anchored_targets are targets whose observed S0 compile pins their predicted level; target_gain is their saved-time multiplier.\n"
                     "Plans have different samples; comparing their measured walls does not establish a speedup.\n"
                     "The final GN build checks integration/linking; tests are built, not executed.\n");
             });
@@ -382,18 +409,22 @@ namespace NPchUpdate::NTwoStep {
         template <class A> void Fields(A& a, TResources& v) { a(v.Workers, v.Ram, v.Disk, v.Bandwidth, v.Pools); }
         template <class A> void Fields(A& a, TAction& v) { a(v.Output, v.Pool, v.Time, v.Memory, v.Io, v.Phony, v.Dependencies, v.DirtyDependencies, v.Changes); }
         template <class A> void Fields(A& a, TUnit& v) { a(v.Include, v.Headers, v.Children, v.Changes, v.Producers, v.Parse, v.Bytes, v.Stable, v.Safe); }
-        template <class A> void Fields(A& a, TFile& v) { a(v.Action, v.Class, v.Source, v.Own, v.Target); }
+        template <class A> void Fields(A& a, TFile& v) { a(v.Action, v.Class, v.Source, v.Own, v.Target, v.Frontend, v.Outer); }
         template <class A> void Fields(A& a, TTarget& v) { a(v.Label, v.Class, v.Files, v.PchEligible); }
         template <class A> void Fields(A& a, TData& v) { a(v.Actions, v.Units, v.Files, v.Targets, v.Classes, v.Scenarios, v.Q, v.Resources, v.ActionMemory); }
         template <class A> void Fields(A& a, TPch& v) { a(v.Class, v.Parent, v.Representative, v.Roots, v.Units); }
-        template <class A> void Fields(A& a, TLayout& v) { a(v.Pchs, v.Bases, v.Assignment); }
+        template <class A> void Fields(A& a, TLayout& v) { a(v.Pchs, v.Bases, v.Assignment, v.Controls); }
         template <class A> void Fields(A& a, TPrediction& v) { a(v.Actions, v.Saved, v.Load, v.PchBytes, v.Cold, v.Incremental, v.Objective, v.Feasible); }
         template <class A> void Fields(A& a, TObservation& v) { a(v.Time, v.Cpu, v.Memory, v.Bytes, v.Start, v.End, v.Invocation); }
         template <class A> void Fields(A& a, TCoefficients& v) {
             a(v.Baseline, v.Saved, v.Load, v.Residual, v.BaseBuild, v.DeltaBuild,
-              v.Size, v.Memory, v.ConsumerMemory, v.Identified);
+              v.Size, v.Memory, v.ConsumerMemory, v.Instantiate, v.Identified);
         }
-        template <class A> void Fields(A& a, TCalibration& v) { a(v.Classes, v.MeasuredBases, v.ActionTime, v.ActionMemory, v.Report); }
+        template <class A> void Fields(A& a, TMeasuredPch& v) { a(v.Pch, v.Parent, v.Bytes, v.Time, v.Memory); }
+        template <class A> void Fields(A& a, TCalibration& v) {
+            a(v.Classes, v.Measured, v.ActionTime, v.ActionMemory, v.ActionFloor, v.TargetGain, v.UnitSize, v.UnitBuild, v.UnitGain,
+              v.Report, v.TargetReport, v.UnitReport);
+        }
         template <class A> void Fields(A& a, TLinkLine& v) { a(v.Output, v.Inputs); }
         template <class A> void Fields(A& a, TLinkInputs& v) { a(v.Lines, v.Targets, v.Libraries); }
         template <class A> void Fields(A& a, TSnapshot& v) {
@@ -505,7 +536,7 @@ namespace NPchUpdate::NTwoStep {
         T Decode(const std::string& text) {
             TBinReader envelope(text);
             const auto version = envelope.Str();
-            if (version != VERSION && version != MERGED_OWNER_VERSION && version != OWNER_VERSION && version != TARGET_VERSION && version != PREVIOUS_VERSION && version != LEGACY_VERSION) {
+            if (version != VERSION && version != ANCHORED_VERSION && version != MERGED_OWNER_VERSION && version != OWNER_VERSION && version != TARGET_VERSION && version != PREVIOUS_VERSION && version != LEGACY_VERSION) {
                 Fail("unsupported two-step snapshot version");
             }
             if constexpr (std::is_same_v<T, TSnapshot> || std::is_same_v<T, TAnalysis>) {
@@ -536,13 +567,40 @@ namespace NPchUpdate::NTwoStep {
             return hash.Hex();
         }
 
+        // A byte stream fed to THasher across arbitrary chunk boundaries. The
+        // hasher pads a partial word on every update, so the stream is fed in
+        // whole words and the digest is that of the whole output.
+        struct TStreamHash {
+            THasher Hash;
+            std::string Pending;
+
+            void Feed(std::string_view chunk) {
+                Pending.append(chunk);
+                const size_t whole = Pending.size() & ~size_t(7);
+                Hash.Update(std::string_view(Pending).substr(0, whole));
+                Pending.erase(0, whole);
+            }
+            std::string Hex() {
+                Hash.Update(Pending);
+                Pending.clear();
+                return Hash.Hex();
+            }
+        };
+
+        // Identity of a source tree: its HEAD and the changes against it. The
+        // diff is hashed as it streams instead of being held whole: it can be
+        // gigabytes (a missing index makes git report every file of the
+        // repository as deleted, binaries included).
         std::string TreeIdentity(const std::string& root, bool analysis = false) {
             TRunOptions run;
             run.Cwd = root;
             std::vector<std::string> diff = {"git", "diff", "--binary", "HEAD", "--"};
             if (analysis) { diff.insert(diff.end(), {".", ":(exclude)build/gn/pch_update/**"}); }
-            return HashHex(RunChecked({"git", "rev-parse", "HEAD"}, run) +
-                           RunChecked(diff, run));
+            TStreamHash hash;
+            hash.Feed(RunChecked({"git", "rev-parse", "HEAD"}, run));
+            run.OnStdout = [&](std::string_view chunk) { hash.Feed(chunk); };
+            RunChecked(diff, run);
+            return hash.Hex();
         }
 
         std::string Program(const std::string& name, const std::string& cwd = {}, bool resolveLinks = true) {
@@ -1172,6 +1230,11 @@ namespace NPchUpdate::NTwoStep {
                 fingerprint.insert(facts.Paths.Real(file.Source));
                 auto& a = d.Actions[file.Action];
                 a.Time = std::max(0.001, facts.CompileUs[f] / 1e6);
+                // The frontend leaves the backend (Execute - Frontend) to a
+                // PCH; what it spends outside the outermost includes is what
+                // -fpch-instantiate-templates can still remove.
+                file.Frontend = std::max<double>(0, facts.FrontendUs[f]) / 1e6;
+                file.Outer = std::max<double>(0, facts.HeaderUs[f]) / 1e6;
                 for (int dep : facts.DepsOfFile[f]) {
                     touch(a, facts.DepNames[dep]);
                     fingerprint.insert(facts.Paths.Real(facts.DepNames[dep]));
@@ -2416,7 +2479,10 @@ namespace NPchUpdate::NTwoStep {
             }
             WriteFile(JoinPath(s.Directory, "compatibility.tsv"), report.str());
             const auto compatibleAssignments = layout.Assignment;
-            const auto remap = CompactLayout(layout, s.Corrected);
+            // Assignments are final: a frozen base without a single assigned
+            // target or surviving delta leaves the plan here, releasing its
+            // bytes and its slot in the exported groups.
+            const auto remap = CompactLayout(layout);
             uint64_t resident = 0;
             for (size_t g = 0; g < remap.size(); ++g) {
                 if (remap[g] < 0) { continue; }
@@ -2679,7 +2745,7 @@ namespace NPchUpdate::NTwoStep {
             ValidateIdentity(s);
             s.Sample = sample;
             Emit(s, Decode<TCompileInputs>(ReadFile(JoinPath(s.Directory, "measurement-inputs.bin"))),
-                 SampleFiles(s.Data, s.Nonce, sample));
+                 SampleFiles(s.Data, s.Nonce, sample, s.Layout.Controls));
             ValidateIdentity(s);
             Summary(s);
             WriteFile(JoinPath(s.Directory, "snapshot.bin"), Encode(s));
@@ -2944,17 +3010,17 @@ namespace NPchUpdate::NTwoStep {
                     if (n && row[4] != "unavailable") { error += n * std::stod(std::string(row[4])); }
                 }
                 const auto text = Format("Calibration: %zu compiler classes identified, %zu combined-only, %zu prior-only\n"
-                    "  Training targets: %zu; holdout targets: %zu; holdout target-work MAE: %s\n"
+                    "  Training targets: %zu (all measured); cross-validated targets: %zu; leave-one-group-out target-work MAE: %s\n"
                     "  Combined-only fits net savings; prior-only cannot identify consumer costs. Details: calibration.tsv\n",
                     identified, combined, priors, training, held, held ? Seconds(error / held).c_str() : "unavailable");
                 WriteFile(JoinPath(s.Directory, "calibration.txt"), text);
                 std::ostringstream parameters;
-                parameters << "class\tidentified\tbaseline_scale\tsaved_scale\tload_scale\tresidual_seconds\tbase_build_scale\tdelta_build_scale"
+                parameters << "class\tidentified\tbaseline_scale\tsaved_scale\tload_scale\tresidual_seconds\tinstantiate_scale\tbase_build_scale\tdelta_build_scale"
                            << "\tsize_scale\tpch_memory_scale\tconsumer_memory_scale\n" << std::setprecision(17);
                 for (size_t cls = 0; cls < calibration.Classes.size(); ++cls) {
                     const auto& c = calibration.Classes[cls];
                     parameters << cls << '\t' << c.Identified << '\t' << c.Baseline << '\t' << c.Saved << '\t' << c.Load << '\t'
-                               << c.Residual << '\t' << c.BaseBuild << '\t' << c.DeltaBuild << '\t' << c.Size << '\t'
+                               << c.Residual << '\t' << c.Instantiate << '\t' << c.BaseBuild << '\t' << c.DeltaBuild << '\t' << c.Size << '\t'
                                << c.Memory << '\t' << c.ConsumerMemory << '\n';
                 }
                 WriteFile(JoinPath(s.Directory, "calibration-parameters.tsv"), parameters.str());
@@ -2986,6 +3052,8 @@ namespace NPchUpdate::NTwoStep {
             WriteFile(JoinPath(output, "initial-errors.tsv"), errors);
             WriteFile(JoinPath(output, "initial-action-errors.tsv"), actionErrors);
             WriteFile(JoinPath(output, "calibration.tsv"), calibration.Report);
+            WriteFile(JoinPath(output, "calibration-targets.tsv"), calibration.TargetReport);
+            WriteFile(JoinPath(output, "calibration-units.tsv"), calibration.UnitReport);
             CalibrationSummary(s, calibration);
             Summary(s);
             WriteFile(JoinPath(output, "snapshot.bin"), Encode(s));
@@ -3070,6 +3138,23 @@ namespace NPchUpdate::NTwoStep {
 
     void IoSelfTest() {
         auto check = [](bool ok, const std::string& message) { if (!ok) { Fail("I/O self-test: " + message); } };
+        // Random bytes in random chunks digest as the whole output.
+        {
+            uint64_t state = 7;
+            auto next = [&] { state = state * 6364136223846793005ULL + 1442695040888963407ULL; return state >> 33; };
+            for (int trial = 0; trial < 300; ++trial) {
+                std::string text(size_t(next() % 400), '\0');
+                for (char& c : text) { c = char(next()); }
+                TStreamHash stream;
+                size_t at = 0;
+                while (at < text.size()) {
+                    const size_t n = std::min(size_t(next() % 70), text.size() - at);
+                    stream.Feed(std::string_view(text).substr(at, n));
+                    at += n;
+                }
+                check(stream.Hex() == HashHex(text), "a stream hashed in chunks digests as a whole");
+            }
+        }
         Progress("self-test progress 1/2");
         Progress("self-test progress 2/2, replaced in place on a terminal");
         Log("progress updates are flushed before the next message");
@@ -3143,11 +3228,25 @@ namespace NPchUpdate::NTwoStep {
                   std::count(small.begin()+5, small.begin()+8, true) == 1 && !small[8] && !small[9],
                   "round up, cover the two highest-work targets when not all fit");
             auto panel = SampleFiles(sampling, "nonce", 70);
-            check(panel[0] && panel[1]+panel[2] == 1 && panel[3]+panel[4] == 1 &&
-                  panel[5] && panel[6]+panel[7] == 1 && panel[8] && panel[9],
-                  "cover all targets and draw one object from each of their 3/2/1/1 cost strata");
+            check(panel[0]+panel[1] == 1 && panel[2]+panel[3]+panel[4] == 1 &&
+                  panel[5] && panel[6] && panel[7] && panel[8] && panel[9],
+                  "cover all targets; extra slots follow baseline work (2/3/1/1 strata), not file count");
             std::reverse(sampling.Targets[0].Files.begin(), sampling.Targets[0].Files.end());
             check(SampleFiles(sampling, "nonce", 70) == panel, "draw stable by object output, not target traversal order");
+            auto forced = SampleFiles(sampling, "nonce", 11, {0, 0, 1, 0});
+            check(forced[8] && !forced[9] && std::count(forced.begin()+5, forced.begin()+8, true) == 1 &&
+                  std::count(forced.begin(), forced.begin()+5, true) == 0,
+                  "a calibration control is measured even when low-work targets do not fit");
+            auto privileged = SampleFiles(sampling, "nonce", 50, {1, 0, 0, 0});
+            check(std::count(privileged.begin(), privileged.begin()+5, true) == 2 && privileged[8] && privileged[9] &&
+                  std::count(privileged.begin()+5, privileged.begin()+8, true) == 1,
+                  "a control takes the first extra member ahead of a heavier target");
+            auto baseControl = SampleFiles(sampling, "nonce", 50, {2, 0, 0, 0});
+            check(std::count(baseControl.begin(), baseControl.begin()+5, true) == 1 && baseControl[8] && baseControl[9] &&
+                  std::count(baseControl.begin()+5, baseControl.begin()+8, true) == 2,
+                  "a control kept on the base takes its turn in the queue like any other owner");
+            check(SampleFiles(sampling, "nonce", 50, {1}) == SampleFiles(sampling, "nonce", 50),
+                  "a control table of another size is not a control table");
             std::vector<int> ledger;
             for (int f = 0; f < 10; ++f) { if (panel[f]) { ledger.push_back(f); } }
             ledger.push_back(10); // initial PCH ID, not part of the corrected object panel
@@ -3471,15 +3570,10 @@ namespace NPchUpdate::NTwoStep {
         catch (const TError&) { rejected = true; }
         check(rejected, "a no-PCH failure cannot be disguised as an incompatible assignment");
         compatibility.Assignment = {1, -1};
-        auto frozenCompatibility = compatibility;
-        CompactLayout(compatibility, false);
+        CompactLayout(compatibility);
         check(compatibility.Bases == 1 && compatibility.Pchs.size() == 1 &&
               compatibility.Pchs[0].Roots == std::vector<int>{11} && compatibility.Assignment == std::vector<int>({0, -1}),
               "compatibility pruning removes unused chains and remaps consumers");
-        CompactLayout(frozenCompatibility, true);
-        check(frozenCompatibility.Bases == 2 && frozenCompatibility.Pchs.size() == 2 &&
-              frozenCompatibility.Pchs[0].Roots == std::vector<int>{10} && frozenCompatibility.Assignment[0] == 1,
-              "correction retains an unused frozen base and its ID");
 
         std::vector<TPch> concurrentPchs(4);
         concurrentPchs[2].Parent = 0;
@@ -4839,6 +4933,15 @@ source_set("pch_group_0_compile") {
             TSnapshot s;
             s.Root = WorktreeRoot();
             s.Tree = TreeIdentity(s.Root);
+            // The streamed identity is the digest of HEAD and the whole diff, as
+            // saved plans recorded it.
+            {
+                TRunOptions git;
+                git.Cwd = s.Root;
+                check(s.Tree == HashHex(RunChecked({"git", "rev-parse", "HEAD"}, git) +
+                                        RunChecked({"git", "diff", "--binary", "HEAD", "--"}, git)),
+                      "the streamed tree identity equals the digest of the whole diff");
+            }
             s.Tool = DigestFile(SelfExe());
             s.Directory = dir;
             s.Nonce = "resume-test";
