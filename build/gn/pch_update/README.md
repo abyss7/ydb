@@ -104,23 +104,28 @@ removed. The next weekly run starts fresh and needs `--disk` again.
 
 | Option | Default |
 | --- | --- |
-| `--workers` | CPU count at run start; shared baseline/MEASURE worker ceiling |
-| `--ram-gb` | 75% of available RAM before baseline preparation, capped by the exposed cgroup-v2 budget; shared baseline/MEASURE budget |
+| `--workers` | The `-j` of the whole run: baseline, MEASURE, compatibility checks and analysis. Never reduced when given. Default: the CPU count at run start, at most what `--ram-gb` admits at `--action-memory-gb`. The PCHs themselves are built at most a quarter of it at a time |
+| `--ram-gb` | 75% of available RAM before baseline preparation, capped by the exposed cgroup-v2 budget; shapes the default of `--workers` only |
 | `--disk` | **required on first predict**: resident PCH budget, e.g. `16G`, `4.5G`, `800M`, `400K`; a bare number means gigabytes |
 | `--mode` | `incremental`; `global` prioritizes cold builds, `incremental` prioritizes historical rebuilds |
 | `--q` | Cold-build weight: `1` for `global`, `0.1` for `incremental`; an explicit value overrides the profile default |
-| `--bandwidth-gbps` | 1 GB/s |
-| `--action-memory-gb` | 1 GB unmeasured-action RSS prior |
-| `--analysis-jobs` | min(24, CPU count); analysis compiler jobs, grouping candidates and prediction scenarios |
+| `--action-memory-gb` | 1 GB; the unmeasured-action RSS prior, and with `--ram-gb` the default worker count |
+| `--analysis-jobs` | `--workers`; analysis compiler jobs, grouping candidates and prediction scenarios |
 | `--sample` | Measurement only (`--correct` or the correction phase of a full run): percent of C++ objects (`10`..`100`, default `100`); all PCHs and required generator tools are built |
 | `--target` | `all` and `tests`; repeat to override |
 
-PCH compatibility builds and leaf-link probes run concurrently as their parent
-PCHs become ready, using the shared `--workers` and RAM-derived ceiling. Analysis
-uses `--analysis-jobs`: grouping candidates run in parallel, then each candidate's
-historical scenarios run in parallel without nested pools. Scenario sums and
-candidate tie-breaking retain their serial order. `--analysis-jobs 1` serializes
-these model computations without changing modeled build resources.
+PCH compatibility builds and leaf-link probes run as their parent PCHs become
+ready, at most a quarter of `--workers` at a time: building a PCH takes several
+times the RSS of an ordinary compile, and every delta of a base is ready the
+moment the base is built. The syntax checks take the full count, a file with its
+PCH mapped read-only being lighter than the compile it comes from. The
+measurement graph gives its PCH rules the same pool. Analysis uses
+`--analysis-jobs`: grouping candidates run in parallel, then each candidate's
+historical scenarios run in parallel. A loop nested in the worker of another
+shares its threads instead of adding its own, so no stage exceeds the count.
+Scenario sums and candidate tie-breaking retain their serial order.
+`--analysis-jobs 1` serializes these model computations without changing the
+modeled build.
 
 `--mode=global` and `--mode global` are equivalent. Explicit `--q` takes precedence
 regardless of argument order. The profile name chooses the optimization objective
@@ -168,19 +173,23 @@ Existing build arguments are retained. A baseline bound to another worktree is
 rejected. `--target NAME` overrides the default `all tests` workload. With no
 history, use `--q 1`. Resource limits remain frozen while a measurement resumes.
 
-Worker, RAM, bandwidth and per-action memory defaults are resolved and saved
-**before** preparing the baseline. Retries and both MEASURE stages inherit those
-values, including when available RAM has changed since the first invocation.
-Existing unfinished plans supply their already frozen resource defaults.
+Worker, RAM and per-action memory defaults are resolved and saved **before**
+preparing the baseline. Retries and both MEASURE stages inherit those values,
+including when available RAM has changed since the first invocation. Existing
+unfinished plans supply their already frozen resource defaults.
 
-The no-PCH model reserves `--action-memory-gb` for each non-phony action. Baseline
-Ninja therefore uses explicit
-`-j min(workers, floor(ram-gb / action-memory-gb))`. MEASURE uses `-j workers`
-and admission against the same RAM budget, with additional PCH memory and later
-calibrated per-action reservations. These are estimated reservations, not OS hard
-RSS limits. GN's named pools are inherited from the baseline and checked against
-the freshly generated measurement graph. Bandwidth admission applies to modeled
-PCH reads/writes; no-PCH actions have no such cost.
+`--workers` is the one limit of a run: the `-j` Ninja gets for the baseline and
+for `measured.ninja`. Nothing reduces a count that was given. A build without PCH
+is what the count was chosen for, and the measurement compiles the same files
+with a PCH mapped read-only. Left unset, the count is every CPU, and no more
+than `--ram-gb / --action-memory-gb` compiles of the prior size at once; a
+count derived that way follows a RAM budget supplied later, a count that was
+given is kept. The
+model schedules on the same count, the dependency graph and GN's named pools,
+inherited from the baseline and checked against the freshly generated
+measurement graph. Nothing else bounds a Ninja build, so RAM and disk bandwidth
+bound neither the model nor the measurement. Per-action RSS is still estimated
+and reported, and calibrates the consumer memory scale.
 
 These settings govern newly executed baseline commands. An incremental baseline
 can retain traces produced earlier under other parallelism or cache conditions;
@@ -356,8 +365,8 @@ recomputed. Results are written atomically after successful completion, so a
 later failure can be retried with `replan` into a new output directory. Failed
 and interrupted probes are not cached as successes.
 
-Preflight compiles PCHs serially and bounds consumer parallelism by the worker
-limit and the largest predicted compiler RSS. The cache occupies additional
+Preflight builds at most a quarter of `--workers` PCHs at a time and checks the
+consumers on the full count. The cache occupies additional
 disk space outside the resident-PCH budget. Preflight timings are not calibration
 data; its artifacts never populate the verification build. Syntax checking does
 not replace the full verification build (code generation and linking can still
@@ -375,10 +384,10 @@ contain only links, while all artifacts live in the baseline. Keep those aliases
 while the migrated entries are in use. Newly created caches need no aliases.
 
 The measurement steps run `build/measured.ninja`, using direct local
-compiler commands and explicit per-action observations. Worker/pool limits are
-enforced by Ninja; the runner reserves predicted RAM and PCH I/O bandwidth
-across processes. `--disk` limits resident PCH artifacts, rather than total
-build-directory size. Memory reservations are estimates, not OS memory limits.
+compiler commands and explicit per-action observations. Ninja alone enforces the
+limits, as in any build of the project: the worker count, GN's named pools and a
+pool of a quarter of the workers for the PCH builds. `--disk` limits resident
+PCH artifacts, rather than total build-directory size.
 Each measurement attempt has its own identity. A retry validates earlier
 observations from the same frozen plan; calibration is allowed only after every
 required measurement has completed successfully and passed output validation.

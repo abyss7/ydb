@@ -1193,29 +1193,27 @@ namespace NPchUpdate::NTwoStep {
         };
     }
 
+    // The schedule Ninja runs, and nothing else: the worker count, the
+    // dependency graph and the named pools of the build. A real build has no
+    // RAM admission and no disk bandwidth budget, so the model has neither.
+    // They used to slow the measurement under reservations of their own and
+    // to price the PCH bytes a consumer reads a second time, beyond the load
+    // the calibration already fits to its time.
     static double MakespanPrepared(const std::vector<TAction>& actions, const TResources& r,
                                    const std::vector<char>& dirty, const TTopology& topology) {
-        if (r.Workers < 1 || r.Ram <= 0 || r.Bandwidth <= 0 || (!dirty.empty() && dirty.size() != actions.size())) {
-            Fail("scheduler: invalid resource limits or dirty mask");
+        if (r.Workers < 1 || (!dirty.empty() && dirty.size() != actions.size())) {
+            Fail("scheduler: invalid worker count or dirty mask");
         }
         const auto& users = topology.Users;
         const auto& order = topology.Order;
-        std::vector<double> time(actions.size()), critical(actions.size()), io(actions.size());
-        double minimumMemory = INF;
+        std::vector<double> time(actions.size()), critical(actions.size());
         std::vector<int> pending(actions.size());
         for (int i : order) {
             const auto& a = actions[i];
             bool active = dirty.empty() || dirty[i];
-            time[i] = active && !a.Phony ? std::max(a.Time, a.Io / r.Bandwidth) : 0;
-            io[i] = time[i] > 0 ? a.Io / time[i] : 0;
-            if (!std::isfinite(time[i]) || time[i] < 0 || a.Memory < 0) {
+            time[i] = active && !a.Phony ? a.Time : 0;
+            if (!std::isfinite(time[i]) || time[i] < 0) {
                 Fail("scheduler: non-finite or negative cost");
-            }
-            if (time[i] > 0 && a.Memory > r.Ram) {
-                return INF;
-            }
-            if (time[i] > 0) {
-                minimumMemory = std::min(minimumMemory, a.Memory);
             }
             pending[i] = int(a.Dependencies.size());
         }
@@ -1237,7 +1235,7 @@ namespace NPchUpdate::NTwoStep {
         using TEvent = std::pair<double, int>;
         std::priority_queue<TEvent, std::vector<TEvent>, std::greater<TEvent>> running;
         std::map<std::string, int> poolUse;
-        double now = 0, memory = 0, bandwidth = 0;
+        double now = 0;
         size_t finished = 0;
         auto complete = [&](int i) {
             ++finished;
@@ -1250,31 +1248,25 @@ namespace NPchUpdate::NTwoStep {
         while (finished < actions.size()) {
             for (auto it = ready.begin(); it != ready.end();) {
                 int i = *it;
-                const auto& a = actions[i];
                 if (time[i] == 0) {
                     ready.erase(it);
                     complete(i);
                     it = ready.begin();
                     continue;
                 }
-                if (running.size() >= size_t(r.Workers) || memory + minimumMemory > r.Ram) {
+                if (running.size() >= size_t(r.Workers)) {
                     break;
                 }
-                auto pool = r.Pools.find(a.Pool);
-                if (!a.Pool.empty() && pool == r.Pools.end()) {
-                    Fail("scheduler: unknown pool " + a.Pool);
+                const auto& pool = r.Pools.find(actions[i].Pool);
+                if (!actions[i].Pool.empty() && pool == r.Pools.end()) {
+                    Fail("scheduler: unknown pool " + actions[i].Pool);
                 }
-                bool fits = running.size() < size_t(r.Workers) && memory + a.Memory <= r.Ram &&
-                    bandwidth + io[i] <= r.Bandwidth * (1 + 1e-9) &&
-                    (pool == r.Pools.end() || poolUse[a.Pool] < pool->second);
-                if (!fits) {
+                if (pool != r.Pools.end() && poolUse[actions[i].Pool] >= pool->second) {
                     ++it;
                     continue;
                 }
                 it = ready.erase(it);
-                memory += a.Memory;
-                bandwidth += io[i];
-                ++poolUse[a.Pool];
+                ++poolUse[actions[i].Pool];
                 running.emplace(now + time[i], i);
             }
             if (running.empty()) {
@@ -1284,13 +1276,9 @@ namespace NPchUpdate::NTwoStep {
             do {
                 int i = running.top().second;
                 running.pop();
-                memory -= actions[i].Memory;
-                bandwidth -= io[i];
                 --poolUse[actions[i].Pool];
                 complete(i);
             } while (!running.empty() && running.top().first <= now);
-            memory = std::max(0.0, memory);
-            bandwidth = std::max(0.0, bandwidth);
         }
         return now;
     }
@@ -2278,7 +2266,7 @@ namespace NPchUpdate::NTwoStep {
         }
         const int selectedWidth = selectedSpec >= 0 ? specs[selectedSpec].Width : -1;
         if (!std::isfinite(score)) {
-            Fail("no layout fits the worker/pool/RAM/disk constraints");
+            Fail("no layout can be scheduled under the worker and pool limits");
         }
         const auto primaryGroups = best.Pchs.size();
         const double scoredBytes = estimatedBytes(best);

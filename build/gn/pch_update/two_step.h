@@ -13,11 +13,11 @@ namespace NPchUpdate::NTwoStep {
     // All times are seconds, storage and memory are bytes. IDs are indices in
     // their respective tables and remain stable throughout a predict/correct cycle.
     struct TResources {
-        int Workers = 1;
-        double Ram = 0;
+        int Workers = 1; // -j: what schedules the build, with the pools below
+        double Ram = 0; // RAM behind --workers where it is not given; never a schedule input
         double Disk = 0; // resident PCH budget
-        double Bandwidth = 0; // concurrent PCH read/write bytes per second
-        std::map<std::string, int> Pools;
+        double Bandwidth = 0; // kept for the snapshot format; schedules nothing
+        std::map<std::string, int> Pools; // the named pools of the build, as Ninja limits them
     };
 
     struct TAction {
@@ -173,7 +173,8 @@ namespace NPchUpdate::NTwoStep {
                                 const std::function<bool(int target, int parent)>& compatible);
     std::vector<int> CompactLayout(TLayout& layout);
 
-    // Returns infinity on resource infeasibility; malformed graphs are errors.
+    // Scoring returns infinity only when its schedule cannot proceed, which a
+    // graph without cycles never does; malformed graphs are errors.
     // Optional observer: no model/checkpoint fields and no additional scoring.
     struct TSelectionDiagnostics {
         std::string Targets; // winning width, one decision per owner
@@ -185,6 +186,10 @@ namespace NPchUpdate::NTwoStep {
 
     void GroupTargets(TData& data, const std::vector<std::string>& owners);
     void ValidateTargets(const TData& data);
+    // Cold wall time of the dirty actions under the worker count and the
+    // named pools: the schedule Ninja runs, and nothing else. Returns
+    // infinity only when nothing can run before everything is done, which a
+    // graph without cycles never does; malformed graphs are errors.
     double Makespan(const std::vector<TAction>& actions, const TResources& resources,
                     const std::vector<char>& dirty = {});
     std::vector<char> Invalidate(const std::vector<TAction>& actions, int scenario);

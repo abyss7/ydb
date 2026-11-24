@@ -63,16 +63,18 @@ namespace NPchUpdate::NTwoStep {
             "  --apply              export, replace old groups, validate/build normal GN global graph\n"
             "  Run from the source worktree. One unfinished run lives in BASELINE/.pch_update/.\n"
             "  Retry to resume; successful apply removes all scratch state and parameters.\n"
-            "  --ram-gb N           shared baseline/MEASURE RAM budget (default: 75% available RAM at run start)\n"
+            "  --workers N          -j for the whole run: baseline, MEASURE, compatibility checks and\n"
+            "                       analysis. Never reduced when given. Default: the CPU count at run\n"
+            "                       start, at most what --ram-gb admits at --action-memory-gb.\n"
+            "                       The PCHs themselves build at most N/4 at once.\n"
+            "  --ram-gb N           RAM behind the default of --workers (default: 75% available RAM at run start)\n"
             "  --disk SIZE          resident PCH budget (required on first predict; e.g. 6G)\n"
-            "  --workers N          baseline/MEASURE worker ceiling (default: CPU count at run start)\n"
-            "  --bandwidth-gbps N   PCH disk bandwidth budget (default: 1)\n"
-            "  --action-memory-gb N unmeasured action RSS prior (default: 1)\n"
+            "  --action-memory-gb N unmeasured action RSS prior (default: 1); with --ram-gb shapes that default\n"
             "  --mode MODE         global or incremental (default: incremental)\n"
             "  --q Q               cold fraction; overrides mode default (global: 1, incremental: 0.1)\n"
             "  --target T          repeat for each target (default: all, tests)\n"
             "  --main-ref REF --gn PATH --ninja PATH\n"
-            "  --analysis-jobs N    parallel analysis jobs (default: min(24, CPUs))\n"
+            "  --analysis-jobs N    parallel analysis jobs (default: --workers)\n"
             "  --verbose           show selection details and full child output (presentation only)\n"
             "  --correct --sample PERCENT   share of C++ objects measured (10..100,\n"
             "                       default 100); PCHs and required generator tools always built\n"
@@ -370,7 +372,7 @@ namespace NPchUpdate::NTwoStep {
             std::string Directory, Nonce, Command, Depfile, CacheMode;
             std::vector<std::string> Outputs;
             int Id = -1;
-            double Memory = 0, Bandwidth = 0, RamLimit = 0, BandwidthLimit = 0;
+            double Memory = 0; // the model's estimate of the action's RSS, for the reports
         };
 
         struct TRecord {
@@ -434,7 +436,7 @@ namespace NPchUpdate::NTwoStep {
         }
         template <class A> void Fields(A& a, TAnalysis& v) { a(v.Version, v.Tree, v.Baseline, v.Snapshot); }
         template <class A> void Fields(A& a, TSelectionCheckpoint& v) { a(v.Key, v.Layout, v.DiskReport); }
-        template <class A> void Fields(A& a, TMeasureConfig& v) { a(v.Directory, v.Nonce, v.Command, v.Depfile, v.CacheMode, v.Outputs, v.Id, v.Memory, v.Bandwidth, v.RamLimit, v.BandwidthLimit); }
+        template <class A> void Fields(A& a, TMeasureConfig& v) { a(v.Directory, v.Nonce, v.Command, v.Depfile, v.CacheMode, v.Outputs, v.Id, v.Memory); }
         template <class A> void Fields(A& a, TRecord& v) { a(v.Nonce, v.Digest, v.Id, v.Status, v.Observation, v.Outputs); }
         struct TLoad;
         template <class A> void Fields(A& a, TRunRecord& v) {
@@ -884,9 +886,21 @@ namespace NPchUpdate::NTwoStep {
             }
         }
 
+        // The digests of many files, in the order of their paths. The reads
+        // are independent and the files are many, every header and source of
+        // the workload: they take the worker count of the run.
+        std::vector<std::string> DigestFiles(const std::vector<std::string>& paths, int workers) {
+            std::vector<std::string> digests(paths.size());
+            ParallelFor(paths.size(), AnalysisThreads(workers), [&](size_t i) { digests[i] = DigestFile(paths[i]); });
+            return digests;
+        }
+
         void ValidateInputs(const TSnapshot& s) {
-            for (const auto& [path, hash] : s.Inputs) {
-                if (DigestFile(path) != hash) { Fail("input changed since prediction: " + path); }
+            std::vector<std::string> paths;
+            for (const auto& [path, hash] : s.Inputs) { paths.push_back(path); }
+            const auto digests = DigestFiles(paths, s.Data.Resources.Workers);
+            for (size_t i = 0; i < paths.size(); ++i) {
+                if (digests[i] != s.Inputs[i].second) { Fail("input changed since prediction: " + paths[i]); }
             }
         }
 
@@ -1366,7 +1380,9 @@ namespace NPchUpdate::NTwoStep {
                 }
             }
             Log("fingerprinting analysis inputs...");
-            for (const auto& path : fingerprint) { s.Inputs.emplace_back(path, DigestFile(path)); }
+            const std::vector<std::string> paths(fingerprint.begin(), fingerprint.end());
+            const auto digests = DigestFiles(paths, d.Resources.Workers);
+            for (size_t i = 0; i < paths.size(); ++i) { s.Inputs.emplace_back(paths[i], digests[i]); }
         }
 
         // The include layers of the former GroupInputs in groups.cpp: system
@@ -1501,6 +1517,21 @@ namespace NPchUpdate::NTwoStep {
             return reached;
         }
 
+        // How many PCHs are built at once. Building a PCH is the one compile
+        // of the plan that does not behave like the ordinary build a worker
+        // count is chosen for: forced template instantiation over a large base
+        // or delta, and the serialization of hundreds of megabytes of AST,
+        // take several times the RSS of a translation unit. The deltas are
+        // released together as soon as their base is built, and a plan holds
+        // dozens of them, more with the probe allowance than in the final
+        // layout, so the full count would start all of them at once. A
+        // quarter builds them in a few waves, the same limit in the
+        // measurement graph: a few dozen builds against tens of thousands of
+        // objects, no measurable cost to the run.
+        size_t PchBuildJobs(int workers) {
+            return std::max(1, workers / 4);
+        }
+
         void Emit(TSnapshot& s, const TCompileInputs& probeInputs, const std::vector<char>& sampledFiles) {
             const std::string build = JoinPath(s.Directory, "build");
             MakeDirs(build);
@@ -1570,15 +1601,18 @@ namespace NPchUpdate::NTwoStep {
                 auto pool = d.Resources.Pools.find(name);
                 if (pool == d.Resources.Pools.end() || pool->second != depth) { Fail("pool changed since baseline: " + name); }
             }
+            // The PCH builds of the graph share one pool of their own, the
+            // same limit as the compatibility queue: several times the RSS of
+            // an ordinary compile each, and every delta of a base is ready
+            // the moment the base is built.
+            constexpr const char* PCH_BUILD_POOL = "pch_update_builds";
+            ninja += std::string("pool ") + PCH_BUILD_POOL + "\n  depth = " + std::to_string(PchBuildJobs(d.Resources.Workers)) + "\n";
             auto measured = [&](int id, TMeasureConfig config) {
                 config.Id = id;
                 config.Directory = s.Directory;
                 config.Nonce = s.Nonce;
                 const auto& prediction = s.Prediction.Actions[id];
                 config.Memory = prediction.Memory;
-                config.RamLimit = d.Resources.Ram;
-                config.BandwidthLimit = d.Resources.Bandwidth;
-                config.Bandwidth = prediction.Io / std::max(0.001, std::max(prediction.Time, prediction.Io / d.Resources.Bandwidth));
                 std::string path = JoinPath(s.Directory, "actions/" + std::to_string(id) + ".bin");
                 auto encoded = Encode(config);
                 s.Commands[id] = HashHex(encoded);
@@ -1703,7 +1737,7 @@ namespace NPchUpdate::NTwoStep {
                 int id = int(d.Actions.size() + g);
                 std::string rule = "pch_" + std::to_string(g);
                 ninja += "rule " + rule + "\n" + RuleBinding("command", measured(id, config)) +
-                    RuleBinding("depfile", config.Depfile) + "  deps = gcc\n";
+                    RuleBinding("depfile", config.Depfile) + RuleBinding("pool", PCH_BUILD_POOL) + "  deps = gcc\n";
                 std::vector<std::string> deps;
                 for (int dep : s.Prediction.Actions[id].Dependencies) { deps.push_back(s.Prediction.Actions[dep].Output); }
                 buildDependencies[id] = s.Prediction.Actions[id].Dependencies;
@@ -1779,71 +1813,6 @@ namespace NPchUpdate::NTwoStep {
             }
         }
 
-        // Cross-process admission enforces the same memory/bandwidth reservations
-        // as the simulator. Ninja itself enforces worker and named-pool limits.
-        class TAdmission {
-        public:
-            explicit TAdmission(const TMeasureConfig& c) {
-                Path_ = JoinPath(c.Directory, "admission");
-                Fd_ = open(Path_.c_str(), O_CREAT | O_RDWR, 0644);
-                if (Fd_ < 0) { Fail("cannot open admission file"); }
-                if (c.Memory > c.RamLimit || c.Bandwidth > c.BandwidthLimit * (1 + 1e-9)) {
-                    Fail("action cannot fit resource limits");
-                }
-                while (true) {
-                    Lock();
-                    auto active = Read();
-                    double memory = 0, bandwidth = 0;
-                    for (const auto& row : active) { memory += row.Memory; bandwidth += row.Bandwidth; }
-                    if (memory + c.Memory <= c.RamLimit && bandwidth + c.Bandwidth <= c.BandwidthLimit * (1 + 1e-9)) {
-                        active.push_back({getpid(), c.Memory, c.Bandwidth});
-                        Write(active);
-                        flock(Fd_, LOCK_UN);
-                        return;
-                    }
-                    flock(Fd_, LOCK_UN);
-                    std::this_thread::sleep_for(std::chrono::milliseconds(20));
-                }
-            }
-            ~TAdmission() {
-                if (Fd_ < 0) { return; }
-                if (flock(Fd_, LOCK_EX) == 0) {
-                    try {
-                        auto active = Read();
-                        active.erase(std::remove_if(active.begin(), active.end(), [](const auto& row) { return row.Pid == getpid(); }), active.end());
-                        Write(active);
-                    } catch (...) {
-                        // The next admission drops dead processes as well.
-                    }
-                    flock(Fd_, LOCK_UN);
-                }
-                close(Fd_);
-            }
-        private:
-            struct TRow { int Pid; double Memory, Bandwidth; };
-            int Fd_ = -1;
-            std::string Path_;
-            void Lock() { if (flock(Fd_, LOCK_EX) != 0) { Fail("cannot lock admission file"); } }
-            std::vector<TRow> Read() {
-                std::istringstream in(ReadFile(Path_));
-                std::vector<TRow> result;
-                TRow row;
-                while (in >> row.Pid >> row.Memory >> row.Bandwidth) {
-                    if (kill(row.Pid, 0) == 0 || errno == EPERM) { result.push_back(row); }
-                }
-                return result;
-            }
-            void Write(const std::vector<TRow>& rows) {
-                std::ostringstream out;
-                out << std::setprecision(17);
-                for (const auto& row : rows) { out << row.Pid << ' ' << row.Memory << ' ' << row.Bandwidth << '\n'; }
-                auto text = out.str();
-                if (ftruncate(Fd_, 0) != 0 || pwrite(Fd_, text.data(), text.size(), 0) != ssize_t(text.size())) {
-                    Fail("cannot save admission reservations");
-                }
-            }
-        };
-
         int Measure(const std::string& path) {
             auto bytes = ReadFile(path);
             auto c = Decode<TMeasureConfig>(bytes);
@@ -1865,13 +1834,14 @@ namespace NPchUpdate::NTwoStep {
             std::string recordPath = JoinPath(c.Directory, "observations/" + std::to_string(c.Id));
             TCycleLock actionLock;
             actionLock.Acquire(recordPath + ".lock");
-            TAdmission admission(c);
             TRecord record;
             record.Id = c.Id;
             record.Nonce = c.Nonce;
             record.Digest = HashHex(bytes);
             record.Observation.Invocation = token;
             TRunOptions options;
+            // Ninja alone limits how many of these run at once: the worker
+            // count and the pools of the graph, as in any build of the project.
             options.Cwd = JoinPath(c.Directory, "build");
             options.CaptureStdout = options.CaptureStderr = false;
             options.Env = {"CCACHE_DISABLE=1", "SCCACHE_DISABLE=1", "DC_RECACHE=1"};
@@ -2046,12 +2016,6 @@ namespace NPchUpdate::NTwoStep {
             std::mutex Mutex_;
             std::map<std::string, std::string> Digests_;
         };
-
-        size_t CompatibilityJobs(const TResources& resources, double memory) {
-            if (memory > resources.Ram) { Fail("compatibility action cannot fit RAM budget"); }
-            return std::max(1, std::min(resources.Workers, int(std::min(
-                double(resources.Workers), std::floor(resources.Ram / std::max(1.0, memory))))));
-        }
 
         // Only ready PCHs occupy workers. Completion publishes the parent's
         // artifacts before releasing its children; exceptions wake every waiter.
@@ -2300,7 +2264,10 @@ namespace NPchUpdate::NTwoStep {
                     memory = std::max(memory, prediction.Actions.at(s.Data.Files[f].Action).Memory);
                 }
             }
-            const size_t jobs = CompatibilityJobs(s.Data.Resources, memory);
+            // The checks compile one file at a time with its PCH mapped
+            // read-only, lighter than the compiles of the ordinary build the
+            // worker count was chosen for: they take the full count.
+            const size_t jobs = std::max(1, s.Data.Resources.Workers);
             std::ostringstream report;
             report << "kind\ttarget_or_group\told_leaf\tnew_leaf_before_compaction\tdiagnostics\n";
             const auto reportHeader = report.str();
@@ -2308,8 +2275,9 @@ namespace NPchUpdate::NTwoStep {
             std::mutex reportMutex;
             size_t completed = 0;
             const auto compatibilityStart = Now();
-            Log(Format("compatibility: %zu PCHs; %zu workers (ceiling %d, RAM %.2f GB, max predicted action %.2f GB)",
-                       layout.Pchs.size(), jobs, s.Data.Resources.Workers, s.Data.Resources.Ram / 1e9, memory / 1e9));
+            const size_t building = PchBuildJobs(s.Data.Resources.Workers);
+            Log(Format("compatibility: %zu PCHs, %zu built at once; %zu check workers (of %d); largest predicted action RSS %.2f GB",
+                       layout.Pchs.size(), building, jobs, s.Data.Resources.Workers, memory / 1e9));
             Detail("compatibility cache: " + RealPath(cacheRoot));
             // Roots dropped by bisection per PCH, for reporting and for the
             // children of a reduced parent (their stored Units must shrink too).
@@ -2317,7 +2285,7 @@ namespace NPchUpdate::NTwoStep {
             // The artifact a plan builds and measures is the artifact GN
             // deploys, pch_only_cflags included.
             const auto pchFlags = MeasurementPchFlags(s);
-            ParallelPchs(layout.Pchs, jobs, [&](size_t g) {
+            ParallelPchs(layout.Pchs, building, [&](size_t g) {
                 auto& pch = layout.Pchs[g];
                 if (pch.Parent >= 0 && !built[pch.Parent]) {
                     std::lock_guard<std::mutex> lock(reportMutex);
@@ -2824,7 +2792,8 @@ namespace NPchUpdate::NTwoStep {
                   << "  Predicted cold: " << Seconds(s.Prediction.Cold) << "; incremental: " << Seconds(s.Prediction.Incremental) << '\n'
                   << "  Objective: " << Seconds(s.Prediction.Objective)
                   << Format(" (%.1f%% cold + %.1f%% incremental)\n", 100 * s.Data.Q, 100 * (1 - s.Data.Q))
-                  << Format("  Build resource model: %d workers, %.2f GB RAM\n", s.Data.Resources.Workers, s.Data.Resources.Ram / 1e9)
+                  << Format("  Build model: -j %d; the PCHs themselves build at most %zu at once\n",
+                            s.Data.Resources.Workers, PchBuildJobs(s.Data.Resources.Workers))
                   << "  Target decisions:";
             for (const auto& [reason, count] : reasons) { human << ' ' << reason << '=' << count; }
             human << "\n  Each assignment covers one GN compile target; generated helper targets are evaluated separately.\n"
@@ -3859,14 +3828,59 @@ namespace NPchUpdate::NTwoStep {
         rejected = false;
         try { ParallelPchs(concurrentPchs, 2, [](size_t) {}); } catch (const TError&) { rejected = true; }
         check(rejected, "invalid PCH dependency fails before launching workers");
-        TResources compatibilityResources;
-        compatibilityResources.Workers = 8;
-        compatibilityResources.Ram = 5e9;
-        check(CompatibilityJobs(compatibilityResources, 2e9) == 2 &&
-              CompatibilityJobs(compatibilityResources, 1e8) == 8, "PCH workers respect RAM and CPU ceilings");
-        rejected = false;
-        try { CompatibilityJobs(compatibilityResources, 6e9); } catch (const TError&) { rejected = true; }
-        check(rejected, "oversized PCH probe cannot start");
+        // The PCH builds take a quarter of the workers, at least one: several
+        // times the RSS of an ordinary compile each, and every delta of a
+        // base is ready the moment the base is built. The rest of the run
+        // takes the count as it is.
+        check(PchBuildJobs(1) == 1 && PchBuildJobs(3) == 1 && PchBuildJobs(4) == 1 && PchBuildJobs(7) == 1 &&
+                  PchBuildJobs(8) == 2 && PchBuildJobs(64) == 16,
+              "PCH builds take a quarter of the workers, at least one");
+        // A nested loop shares the threads of its outer loop: four items on a
+        // budget of 64 leave their four workers 16 threads each, and a loop of
+        // one item runs inline and hands its nested loop the whole budget.
+        {
+            std::atomic<int> active{0}, peak{0};
+            auto work = [&](size_t) {
+                const int now = ++active;
+                for (int seen = peak.load(); now > seen && !peak.compare_exchange_weak(seen, now);) {}
+                std::this_thread::sleep_for(std::chrono::milliseconds(2));
+                --active;
+            };
+            ParallelFor(4, 64, [&](size_t) { ParallelFor(1000, 64, work); });
+            check(peak > 16 && peak <= 64, "a nested loop takes its worker's share of the budget, not one thread");
+            peak = 0;
+            ParallelFor(1, 64, [&](size_t) { ParallelFor(1000, 64, work); });
+            check(peak > 16 && peak <= 64, "a loop of one item runs inline and hands its nested loop the budget");
+            std::atomic<int> ran{0};
+            ParallelFor(0, 64, [&](size_t) { ++ran; });
+            check(ran == 0, "an empty loop starts nothing");
+        }
+        // A plan of another build of the tool is refused by its identity before
+        // any of its files is read: the action configurations are files of the
+        // build that wrote them, in whatever layout it had.
+        {
+            const char* temp = std::getenv("TMPDIR");
+            auto dir = MakeTempDir(temp ? temp : ".", "pch-foreign-");
+            try {
+                TSnapshot foreign;
+                foreign.Directory = dir;
+                foreign.Tool = "another build";
+                MakeDirs(JoinPath(dir, "actions"));
+                WriteFile(JoinPath(dir, "actions/0.bin"), "a configuration in a layout of that build");
+                WriteFile(JoinPath(dir, "run.bin"), "a run record of that build");
+                bool refused = false;
+                try {
+                    Verify(foreign);
+                } catch (const TError& error) {
+                    refused = std::string(error.what()) == "pch_update executable changed since prediction";
+                }
+                check(refused, "a plan of another build is refused by the identity, before its files are read");
+            } catch (...) {
+                RemoveTree(dir);
+                throw;
+            }
+            RemoveTree(dir);
+        }
 
         auto probeRoot = JoinPath(dir, "compatibility-cache");
         {
@@ -3967,7 +3981,6 @@ namespace NPchUpdate::NTwoStep {
         config.Outputs = {"a", "b"};
         config.CacheMode = "not-compiler";
         config.Memory = 1;
-        config.RamLimit = config.BandwidthLimit = 1e9;
         auto path = JoinPath(dir, "action.bin");
         WriteFile(path, Encode(config));
         setenv("PCH_UPDATE_RUN", run.Token.c_str(), 1);
@@ -3995,10 +4008,9 @@ namespace NPchUpdate::NTwoStep {
         s.Data.Resources.Workers = int(CpuCount());
         s.Data.Resources.Ram = DefaultRam();
         s.Data.Resources.Disk = 0;
-        s.Data.Resources.Bandwidth = 1e9;
-        options.Jobs = int(std::min(size_t(24), CpuCount()));
+        s.Data.Resources.Bandwidth = 1e9; // the snapshot format keeps the field; nothing schedules by it
         std::string output, plan;
-        bool targets = false, extractionOverride = false, diskGiven = false;
+        bool targets = false, extractionOverride = false, diskGiven = false, analysisGiven = false, workersGiven = false;
         for (size_t i = fullCycle && args[0] != "run" ? 0 : 1; i < args.size(); ++i) {
             if (args[i] == "--help" || args[i] == "-h") { Report(HELP); return 0; }
             const auto [key, value] = ReadOption(args, i);
@@ -4050,8 +4062,8 @@ namespace NPchUpdate::NTwoStep {
             else if (key == "--gn") { tools.Gn = value; }
             else if (key == "--ninja") { tools.Ninja = value; }
             else if (key == "--target") { if (!targets) { options.Targets.clear(); targets = true; } options.Targets.push_back(value); }
-            else if (key == "--workers") { s.Data.Resources.Workers = integer(); }
-            else if (key == "--analysis-jobs") { options.Jobs = integer(); }
+            else if (key == "--workers") { s.Data.Resources.Workers = integer(); workersGiven = true; }
+            else if (key == "--analysis-jobs") { options.Jobs = integer(); analysisGiven = true; }
             // Ages accept s/m/h/d/w; a bare number means days, 0 never expires.
             else if (key == "--state-age") {
                 char* end = nullptr;
@@ -4069,7 +4081,6 @@ namespace NPchUpdate::NTwoStep {
                 options.StateAge = int64_t(n * scale);
             }
             else if (key == "--ram-gb") { s.Data.Resources.Ram = number() * 1e9; }
-            else if (key == "--bandwidth-gbps") { s.Data.Resources.Bandwidth = number() * 1e9; }
             else if (key == "--action-memory-gb") { s.Data.ActionMemory = number() * 1e9; }
             else if (key == "--sample") {
                 s.Sample = integer();
@@ -4077,12 +4088,22 @@ namespace NPchUpdate::NTwoStep {
             }
             else { Fail("unknown option " + key); }
         }
+        // One worker count for the whole run: the analysis takes it too
+        // unless --analysis-jobs says otherwise. Nothing caps it from above.
+        // Where it is not given it is every CPU, at most what the RAM behind
+        // the run admits at the action memory prior, the ordinary compiles of
+        // the project being what the count is chosen for.
+        if (!workersGiven && s.Data.Resources.Ram > 0 && s.Data.ActionMemory > 0) {
+            const double affordable = std::floor(s.Data.Resources.Ram / s.Data.ActionMemory);
+            s.Data.Resources.Workers = std::max(1, std::min(int(CpuCount()), int(std::max(1.0, affordable))));
+        }
+        if (!analysisGiven) { options.Jobs = std::max(1, s.Data.Resources.Workers); }
         TCycleLock cycleLock;
         std::string cycle;
         if (command == "predict") {
             profile.Apply(s);
             if (options.Baseline.empty() || (!fullCycle && output.empty()) || s.Data.Resources.Ram <= 0 || !diskGiven ||
-                s.Data.Resources.Bandwidth <= 0 || s.Data.ActionMemory <= 0 || s.Data.Q > 1) {
+                s.Data.ActionMemory <= 0 || s.Data.Q > 1) {
                 Fail("--baseline, --disk SIZE, positive resource limits and 0 <= q <= 1 are required; predict also needs --output\n" + std::string(HELP));
             }
             const auto state = StateDirectory(options.Baseline);
@@ -4159,7 +4180,7 @@ namespace NPchUpdate::NTwoStep {
                         cached.Data.Resources.Workers = s.Data.Resources.Workers;
                         cached.Data.Resources.Ram = s.Data.Resources.Ram;
                         cached.Data.Resources.Disk = s.Data.Resources.Disk;
-                        cached.Data.Resources.Bandwidth = s.Data.Resources.Bandwidth;
+                        cached.Data.Resources.Bandwidth = s.Data.Resources.Bandwidth; // the format of the plan, nothing more
                         cached.Data.Q = s.Data.Q;
                         cached.Mode = s.Mode;
                         cached.Data.ActionMemory = s.Data.ActionMemory;
@@ -4288,8 +4309,12 @@ namespace NPchUpdate::NTwoStep {
             return it == state.Options.end() ? fallback : it->second.back();
         }
 
+        // A saved setting, not an option: the worker count beside it was
+        // derived from the RAM, not given, and follows the RAM.
+        constexpr const char* DERIVED_WORKERS = "--workers-from-ram";
+
         void ResolveResourceDefaults(TWorkflow& state) {
-            const std::vector<std::string> keys = {"--workers", "--ram-gb", "--bandwidth-gbps", "--action-memory-gb"};
+            const std::vector<std::string> keys = {"--workers", "--ram-gb", "--action-memory-gb"};
             if (std::all_of(keys.begin(), keys.end(), [&](const auto& key) { return state.Options.count(key); })) { return; }
             TSnapshot previous;
             bool inherited = false;
@@ -4310,18 +4335,56 @@ namespace NPchUpdate::NTwoStep {
             auto set = [&](const std::string& key, double value) {
                 if (!state.Options.count(key)) { state.Options[key] = {Format("%.17g", value)}; }
             };
-            set("--workers", inherited ? previous.Data.Resources.Workers : CpuCount());
+            auto number = [&](const char* key) { return strtod(Setting(state, key).c_str(), nullptr); };
+            // The RAM behind the run and the action memory prior come first:
+            // where no worker count is given, they shape its default.
             if (!state.Options.count("--ram-gb")) {
                 set("--ram-gb", (inherited ? previous.Data.Resources.Ram : DefaultRam()) / 1e9);
             }
-            set("--bandwidth-gbps", inherited ? previous.Data.Resources.Bandwidth / 1e9 : 1);
             set("--action-memory-gb", inherited ? previous.Data.ActionMemory / 1e9 : 1);
+            if (!state.Options.count("--workers")) {
+                if (inherited) {
+                    // The count the unfinished plan was made with. Where it came
+                    // from is not recorded, so it is kept as it was.
+                    set("--workers", previous.Data.Resources.Workers);
+                    state.Options.erase(DERIVED_WORKERS);
+                } else {
+                    // The worker count is the one limit of a run, and a given
+                    // one is never reduced. Left unset, it is what the machine
+                    // sustains for the ordinary compiles of the project: every
+                    // CPU, and no more than the RAM behind the run admits at
+                    // the action memory prior. The mark tells that count from a
+                    // given one: it follows the RAM where the RAM is changed.
+                    const double affordable = std::floor(number("--ram-gb") / std::max(number("--action-memory-gb"), 1e-9));
+                    set("--workers", std::max(1.0, double(std::min(int(CpuCount()), int(std::max(1.0, affordable))))));
+                    state.Options[DERIVED_WORKERS] = {"1"};
+                }
+            }
+        }
+
+        // The request on top of the saved settings; what is returned is the
+        // saved state with its defaults, to tell a change by. A worker count
+        // derived from the RAM follows the RAM: where the RAM or the action
+        // memory is supplied without a count, a count that was derived is
+        // resolved again under them. A count that was given is kept, as any
+        // given setting is.
+        std::map<std::string, std::vector<std::string>> ApplySupplied(
+            TWorkflow& state, const std::map<std::string, std::vector<std::string>>& supplied) {
+            ResolveResourceDefaults(state);
+            auto before = state.Options;
+            for (const auto& [key, values] : supplied) { state.Options[key] = values; }
+            if (supplied.count("--workers")) {
+                state.Options.erase(DERIVED_WORKERS);
+            } else if (state.Options.count(DERIVED_WORKERS) && (supplied.count("--ram-gb") || supplied.count("--action-memory-gb"))) {
+                state.Options.erase("--workers");
+                ResolveResourceDefaults(state);
+            }
+            return before;
         }
 
         struct TWorkflowResources {
-            int Workers = 0, BaselineWorkers = 0;
-            int AnalysisJobs = int(std::min(size_t(24), CpuCount()));
-            double Ram = 0, ActionMemory = 0, Bandwidth = 0;
+            int Workers = 0, AnalysisJobs = 0; // analysis jobs default to the workers
+            double Ram = 0, ActionMemory = 0;
         };
 
         TWorkflowResources WorkflowResources(const TWorkflow& state) {
@@ -4337,20 +4400,18 @@ namespace NPchUpdate::NTwoStep {
             const auto workers = number("--workers");
             if (workers > 1000000 || workers != std::floor(workers)) { Fail("--workers requires an integer between 1 and 1000000"); }
             TWorkflowResources resources;
+            // One worker count for everything the run builds and checks: the
+            // baseline, the measurements, the compatibility checks, the
+            // model. Only the builds of the PCHs themselves are narrower.
+            resources.Workers = int(workers);
+            resources.AnalysisJobs = resources.Workers;
             if (state.Options.count("--analysis-jobs")) {
                 const auto jobs = number("--analysis-jobs");
                 if (jobs > 1000000 || jobs != std::floor(jobs)) { Fail("--analysis-jobs requires an integer between 1 and 1000000"); }
                 resources.AnalysisJobs = int(jobs);
             }
-            resources.Workers = int(workers);
             resources.Ram = number("--ram-gb", 1e9);
             resources.ActionMemory = number("--action-memory-gb", 1e9);
-            resources.Bandwidth = number("--bandwidth-gbps", 1e9);
-            // Each no-PCH action reserves ActionMemory in the model. Without
-            // PCH I/O costs, the same admission budget reduces to a job cap.
-            // This is estimated admission, not an OS RSS limit, just as in MEASURE.
-            resources.BaselineWorkers = int(std::min(workers, std::floor(resources.Ram / resources.ActionMemory + 1e-12)));
-            if (!resources.BaselineWorkers) { Fail("RAM budget cannot admit one no-PCH action; increase --ram-gb or reduce --action-memory-gb"); }
             return resources;
         }
 
@@ -4398,9 +4459,8 @@ namespace NPchUpdate::NTwoStep {
                 RunChecked(command, LiveRun(state.Root));
             }
             const auto resources = WorkflowResources(state);
-            Report(Format("  Baseline resources: -j %d (worker ceiling %d), RAM %.2f GB, estimated action reservation %.2f GB",
-                          resources.BaselineWorkers, resources.Workers, resources.Ram / 1e9, resources.ActionMemory / 1e9));
-            std::vector<std::string> command = {ninja, "-C", baseline, "-j", std::to_string(resources.BaselineWorkers)};
+            Report(Format("  Baseline: -j %d", resources.Workers));
+            std::vector<std::string> command = {ninja, "-C", baseline, "-j", std::to_string(resources.Workers)};
             const auto targets = WorkflowTargets(state);
             command.insert(command.end(), targets.begin(), targets.end());
             const auto tool = DigestFile(SelfExe());
@@ -4610,7 +4670,7 @@ namespace NPchUpdate::NTwoStep {
             TTools tools;
             tools.Gn = s.Gn;
             tools.Ninja = s.Ninja;
-            TWorkDir work(CacheDirectory(JoinPath(StateDirectory(s.Baseline), "cache")), s.Ninja, 8);
+            TWorkDir work(CacheDirectory(JoinPath(StateDirectory(s.Baseline), "cache")), s.Ninja, std::max(1, s.Data.Resources.Workers));
             TFacts facts;
             facts.Root = s.Root;
             if (!CheckBaseline(options, tools, work, facts)) { Fail("baseline changed before export"); }
@@ -5232,9 +5292,9 @@ source_set("pch_group_0_compile") {
             const auto resourceOptions = resourceRequest.Options;
             ResolveResourceDefaults(resourceRequest);
             const auto limits = WorkflowResources(resourceRequest);
-            check(resourceOptions == resourceRequest.Options && limits.Workers == 4 && limits.BaselineWorkers == 2,
-                  "resolved defaults persist and no-PCH RAM admission caps baseline concurrency");
-            check(limits.AnalysisJobs == int(std::min(size_t(24), CpuCount())), "default analysis budget matches prediction command");
+            check(resourceOptions == resourceRequest.Options && limits.Workers == 4,
+                  "a given worker count is kept whole, and resolved defaults persist");
+            check(limits.AnalysisJobs == 4, "analysis concurrency defaults to the worker count");
             auto analysisRequest = resourceRequest;
             analysisRequest.Options["--analysis-jobs"] = {"3"};
             auto resumedAnalysis = Decode<TWorkflow>(Encode(analysisRequest));
@@ -5247,14 +5307,45 @@ source_set("pch_group_0_compile") {
                 try { WorkflowResources(analysisRequest); } catch (const TError&) { rejected = true; }
                 check(rejected, "invalid analysis concurrency fails before workflow execution");
             }
+            // Four no-PCH compiles of the action memory prior, twice what the
+            // RAM admits at once: the model schedules them the way Ninja will,
+            // all four at once on the four workers.
             std::vector<TAction> noPch(4);
             for (auto& action : noPch) { action.Time = 1; action.Memory = limits.ActionMemory; }
             TResources modelResources;
             modelResources.Workers = limits.Workers;
             modelResources.Ram = limits.Ram;
-            modelResources.Bandwidth = limits.Bandwidth;
-            check(Makespan(noPch, modelResources) == 2,
-                  "baseline job cap matches no-PCH model scheduling under the same RAM budget");
+            check(Makespan(noPch, modelResources) == 1, "the model schedules on the worker count alone, as the build does");
+            // Left unset, the count is what the machine sustains for ordinary
+            // compiles: every CPU, and no more than the RAM behind the run
+            // admits at the action memory prior.
+            TWorkflow unset;
+            unset.Options = {{"--ram-gb", {"2"}}, {"--action-memory-gb", {"1"}}};
+            ResolveResourceDefaults(unset);
+            check(WorkflowResources(unset).Workers == std::max(1, std::min(int(CpuCount()), 2)) &&
+                      WorkflowResources(unset).AnalysisJobs == WorkflowResources(unset).Workers,
+                  "an unset worker count takes every CPU, at most what the RAM admits at the action memory");
+            TWorkflow starved;
+            starved.Options = {{"--ram-gb", {"0.5"}}, {"--action-memory-gb", {"1"}}}; // less than one action
+            ResolveResourceDefaults(starved);
+            check(WorkflowResources(starved).Workers == 1, "RAM below the action memory prior leaves one worker, not an error");
+            // The request comes on top of the defaults. A count derived from
+            // the RAM follows a RAM budget supplied with the request; a count
+            // given in the request is kept whole, whatever else it supplies.
+            TWorkflow supplied;
+            const auto before = ApplySupplied(supplied, {{"--ram-gb", {"16"}}});
+            check(before.count(DERIVED_WORKERS) && before.count("--workers") && before.count("--ram-gb") &&
+                      WorkflowResources(supplied).Workers == std::max(1, std::min(int(CpuCount()), 16)) &&
+                      WorkflowResources(supplied).Ram == 16e9,
+                  "a worker count derived from the RAM follows a RAM budget supplied with the request");
+            TWorkflow given;
+            const auto fresh = ApplySupplied(given, {{"--workers", {"3"}}, {"--ram-gb", {"1"}}});
+            const auto saved = given.Options;
+            check(fresh.count("--workers") && WorkflowResources(given).Workers == 3 && !given.Options.count(DERIVED_WORKERS),
+                  "a worker count given with the request is kept whole");
+            const auto earlier = ApplySupplied(given, {{"--ram-gb", {"64"}}});
+            check(earlier == saved && WorkflowResources(given).Workers == 3 && WorkflowResources(given).Ram == 64e9,
+                  "and it stays whole when the RAM budget is supplied on a retry");
             resourceRequest.Cycle = JoinPath(dir, "inherited-resources");
             TSnapshot oldResources;
             oldResources.Directory = JoinPath(resourceRequest.Cycle, "initial");
@@ -5345,7 +5436,6 @@ source_set("pch_group_0_compile") {
                 c.Nonce = s.Nonce;
                 c.Id = i;
                 c.Memory = 1;
-                c.RamLimit = c.BandwidthLimit = 1e9;
                 c.Outputs = {"output" + std::to_string(i)};
                 c.CacheMode = "not-compiler";
                 c.Command = i == 0 ? "printf good > output0" :
@@ -5541,7 +5631,7 @@ source_set("pch_group_0_compile") {
         bool verbose = false;
         std::map<std::string, std::vector<std::string>> supplied;
         const std::set<std::string> allowed = {"--disk", "--mode", "--q", "--sample", "--workers", "--ram-gb",
-            "--bandwidth-gbps", "--action-memory-gb", "--analysis-jobs", "--main-ref", "--target", "--gn", "--ninja"};
+            "--action-memory-gb", "--analysis-jobs", "--main-ref", "--target", "--gn", "--ninja"};
         for (size_t i = 0; i < args.size(); ++i) {
             if (args[i] == "--verbose") { verbose = true; continue; }
             if (args[i] == "--predict" || args[i] == "--correct" || args[i] == "--apply") {
@@ -5635,9 +5725,8 @@ source_set("pch_group_0_compile") {
         // Freeze defaults before baseline work consumes RAM. Materializing old
         // defaults does not count as a user settings change on resume.
         workflow.Options.erase("--measure-max-external-cpu"); // obsolete persisted setting
-        ResolveResourceDefaults(workflow);
-        const auto before = workflow.Options;
-        for (const auto& [key, values] : supplied) { workflow.Options[key] = values; }
+        workflow.Options.erase("--bandwidth-gbps"); // ditto: nothing schedules by bandwidth any more
+        const auto before = ApplySupplied(workflow, supplied);
         if (!workflow.Options.count("--mode")) { workflow.Options["--mode"] = {"incremental"}; }
         (void)ModeQ(Setting(workflow, "--mode"));
         (void)WorkflowResources(workflow); // reject invalid limits before starting a build
@@ -5690,7 +5779,9 @@ source_set("pch_group_0_compile") {
             }
             std::vector<std::string> command = {"predict", "--baseline", baseline, "--output", initial};
             for (const auto& [key, values] : workflow.Options) {
-                if (key == "--sample") { continue; }
+                // The sample is a setting of the correction; the mark of a
+                // derived count is no setting at all.
+                if (key == "--sample" || key == DERIVED_WORKERS) { continue; }
                 for (const auto& value : values) { command.insert(command.end(), {key, value}); }
             }
             TPhase phase("[2/7] Analyze, select and check initial PCHs");

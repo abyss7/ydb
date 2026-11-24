@@ -118,8 +118,8 @@ config("common") {
         labels.append(":" + label)
         files = []
         # Header extraction requires 5s cumulative parsing. Keep ample work
-        # even with an uncontended, RAM-capped -j1 baseline (no contention boost
-        # to trace durations); the measured workload itself can still use PCH.
+        # even on the two-way parallel baseline (no contention boost to trace
+        # durations); the measured workload itself can still use PCH.
         for f in range(12):
             name = "file%d_%d.cpp" % (t, f)
             files.append(name)
@@ -201,7 +201,9 @@ config("common") {
     baseline_builds = [a for a in invocations if "-C" in a and a[a.index("-C") + 1] == str(baseline)
                        and "-t" not in a and "-n" not in a]
     measured_builds = [a for a in invocations if "-f" in a and a[a.index("-f") + 1] == "measured.ninja"]
-    assert baseline_builds and all("-j" in a and a[a.index("-j") + 1] == "1" for a in baseline_builds), baseline_builds
+    # One worker count for the whole run: the given --workers is what the
+    # baseline and the measurement graph are built with, never reduced.
+    assert baseline_builds and all("-j" in a and a[a.index("-j") + 1] == "2" for a in baseline_builds), baseline_builds
     assert measured_builds and all("-j" in a and a[a.index("-j") + 1] == "2" for a in measured_builds), measured_builds
     assert summary["workers"] == "2" and float(summary["ram_bytes"]) == 2e9, summary
     # A real deployment failure preserves the current measurement and restores

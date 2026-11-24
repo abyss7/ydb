@@ -25,7 +25,6 @@ namespace NPchUpdate {
     namespace {
 
         constexpr uint64_t GN_RESULT_TAG = 0x70636875'676e7302ull + JOBS_VERSION;
-        constexpr size_t THREADS = 8;
         // A trace is written right after its object; older than it by more is of another compile.
         constexpr int64_t TRACE_SLACK_NS = 60'000'000'000;
         // The seed of MurmurHash64A in BuildLog::LogEntry::HashCommand of ninja.
@@ -299,11 +298,13 @@ namespace NPchUpdate {
         // the commands `ninja <targets>` would run. Dyndep is not supported.
         class TDirtyScan {
         public:
-            TDirtyScan(const TNinjaManifest& manifest, const std::string& buildDir, const TNinjaLog& log, TNinjaDepsLog deps)
+            TDirtyScan(const TNinjaManifest& manifest, const std::string& buildDir, const TNinjaLog& log, TNinjaDepsLog deps,
+                       size_t threads)
                 : Manifest_(manifest)
                 , BuildDir_(buildDir)
                 , Log_(log)
                 , Deps_(std::move(deps))
+                , Threads_(threads)
             {
                 const auto& edges = Manifest_.Edges();
                 Edges_.resize(edges.size());
@@ -447,11 +448,11 @@ namespace NPchUpdate {
                         stack.insert(stack.end(), s.Order.begin(), s.Order.end());
                         stack.insert(stack.end(), s.Valid.begin(), s.Valid.end());
                     }
-                    ParallelFor(nodes.size(), THREADS, [&](size_t i) {
+                    ParallelFor(nodes.size(), Threads_, [&](size_t i) {
                         TNode& node = Nodes_[nodes[i]];
                         node.Mtime = NinjaStat(JoinPath(BuildDir_, node.Path));
                     });
-                    ParallelFor(edges.size(), THREADS, [&](size_t i) {
+                    ParallelFor(edges.size(), Threads_, [&](size_t i) {
                         Prepare(edges[i]);
                     });
                     for (int32_t e : edges) {
@@ -713,6 +714,7 @@ namespace NPchUpdate {
             std::string BuildDir_;
             const TNinjaLog& Log_;
             TNinjaDepsLog Deps_;
+            size_t Threads_; // the stat calls and edge preparations of the reach, on the worker count of the run
             std::deque<std::string> Extra_;
             std::unordered_map<std::string_view, int32_t> NodeId_;
             std::deque<TNode> Nodes_;
@@ -1298,7 +1300,7 @@ namespace NPchUpdate {
         std::vector<int32_t> commands;
         {
             Detail("checking whether " + targetsText + " need rebuilding...");
-            TDirtyScan scan(manifest, buildDir, ninjaLog, hasDeps ? ReadNinjaDepsLog(depsPath) : TNinjaDepsLog());
+            TDirtyScan scan(manifest, buildDir, ninjaLog, hasDeps ? ReadNinjaDepsLog(depsPath) : TNinjaDepsLog(), AnalysisThreads(work.Jobs()));
             if (scan.Has("build.ninja")) {
                 stale = !scan.Wanted({"build.ninja"}).empty();
             }
@@ -1374,7 +1376,7 @@ namespace NPchUpdate {
         std::vector<TCompileInfo> infos(cxx.size());
         std::vector<char> objBuilt(cxx.size(), 0);
         std::vector<char> traceFound(cxx.size(), 0);
-        ParallelFor(cxx.size(), THREADS, [&](size_t i) {
+        ParallelFor(cxx.size(), AnalysisThreads(work.Jobs()), [&](size_t i) {
             std::vector<std::string> argv = ShellSplit(manifest.Command(cxx[i]));
             size_t compiler = 0;
             while (compiler < argv.size() && argv[compiler] != facts.Compiler) {

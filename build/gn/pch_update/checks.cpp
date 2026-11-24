@@ -129,7 +129,7 @@ namespace NPchUpdate {
         TSymbolProviders loaded;
         for (const auto& symbol : fresh) { loaded[symbol]; }
         std::mutex lock;
-        ParallelFor(results.size(), 8, [&](size_t i) {
+        ParallelFor(results.size(), AnalysisThreads(work.Jobs()), [&](size_t i) {
             auto defined = LoadSymbolsResult(results[i]);
             std::vector<const std::string*> hits;
             for (const auto& symbol : defined) {

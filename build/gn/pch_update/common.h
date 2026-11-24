@@ -184,6 +184,9 @@ namespace NPchUpdate {
     // fn(i) for i in [0, n) on `threads` threads.
     void ParallelFor(size_t n, size_t threads, const std::function<void(size_t)>& fn);
     size_t CpuCount();
+    // Threads for in-process work of a run (digests, traces, flags): its -j,
+    // never more than the CPUs, since more only adds switching.
+    size_t AnalysisThreads(int jobs);
 
     // The words of a POSIX shell command without expansions, as gn writes
     // compile_commands.json: quotes and backslashes.

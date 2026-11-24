@@ -12,6 +12,7 @@ Retains the fixture/log on failure; removes only its own scratch on success.
 import csv
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -257,6 +258,13 @@ shared_library("provider") { sources = [ "provider.cpp" ] }
     pch_commands = [c for c in pch_commands if b"c++-header" in c]
     assert len(pch_commands) == 2 and all(b"-fpch-instantiate-templates" in c for c in pch_commands), pch_commands
     assert not any(b"-relocatable-pch" in c for c in pch_commands), pch_commands
+    # The PCH builds of the measurement graph share a pool of their own, a
+    # quarter of the workers: they take several times the RSS of an ordinary
+    # compile, and every delta is ready the moment its base is built.
+    measured = (cycle / "initial/build/measured.ninja").read_text()
+    assert "pool pch_update_builds\n  depth = 1\n" in measured, measured[:2000]
+    pch_rules = re.findall(r"rule pch_\d+\n(?:  [^\n]*\n)+", measured)
+    assert len(pch_rules) == 2 and all("\n  pool = pch_update_builds\n" in r for r in pch_rules), pch_rules
     check_plan("corrected")
     run(common + ["--apply"])
     commands = json.loads(applied.read_text())

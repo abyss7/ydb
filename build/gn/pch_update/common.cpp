@@ -971,12 +971,40 @@ namespace NPchUpdate {
         return std::string(buffer, n);
     }
 
+    namespace {
+        // The threads a loop nested in the worker of another loop may take.
+        // Zero in a thread that runs no outer loop.
+        thread_local size_t ParallelShare = 0;
+    }
+
+    // `fn` over 0..n on up to `threads` threads (at most one per item). A
+    // loop nested in the worker of another shares its threads instead of
+    // adding its own. The budget of a loop is what its enclosing worker hands
+    // down, or the request itself at the top level; each of its T workers
+    // hands its nested loops budget / T threads, so loops under all of them
+    // together stay within the budget, never T times more. The budget is
+    // counted before it is cut to the number of items: a loop of four items
+    // on a budget of 64 leaves its four workers 16 threads each for nested
+    // work, not one.
     void ParallelFor(size_t n, size_t threads, const std::function<void(size_t)>& fn) {
-        threads = std::max<size_t>(1, std::min(threads, n));
+        if (n == 0) {
+            return;
+        }
+        const size_t budget = ParallelShare ? std::min(std::max<size_t>(1, threads), ParallelShare) : std::max<size_t>(1, threads);
+        threads = std::min(budget, n);
         if (threads == 1) {
-            for (size_t i = 0; i < n; ++i) {
-                fn(i);
+            // Inline in the calling thread: its nested loops get the budget.
+            const size_t saved = ParallelShare;
+            ParallelShare = budget;
+            try {
+                for (size_t i = 0; i < n; ++i) {
+                    fn(i);
+                }
+            } catch (...) {
+                ParallelShare = saved;
+                throw;
             }
+            ParallelShare = saved;
             return;
         }
         std::atomic<size_t> next{0};
@@ -985,6 +1013,7 @@ namespace NPchUpdate {
         std::vector<std::thread> pool;
         for (size_t t = 0; t < threads; ++t) {
             pool.emplace_back([&] {
+                ParallelShare = std::max<size_t>(1, budget / threads);
                 while (true) {
                     size_t i = next.fetch_add(1);
                     if (i >= n) {
@@ -1013,6 +1042,10 @@ namespace NPchUpdate {
     size_t CpuCount() {
         unsigned n = std::thread::hardware_concurrency();
         return n ? n : 1;
+    }
+
+    size_t AnalysisThreads(int jobs) {
+        return std::clamp<size_t>(std::max(1, jobs), 1, CpuCount());
     }
 
     std::vector<std::string> ShellSplit(std::string_view command) {

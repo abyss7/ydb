@@ -103,19 +103,19 @@ namespace NPchUpdate::NTwoStep {
             graph[2].Dependencies = {0, 1};
             graph[2].DirtyDependencies = {0, 1};
             Near(Makespan(graph, r), 7, "parallel prerequisites and link");
-            r.Ram = 10;
-            Near(Makespan(graph, r), 10, "memory admission serializes ready actions");
-            r.Ram = 20;
             r.Pools["link"] = 1;
             graph[0].Pool = graph[1].Pool = "link";
             Near(Makespan(graph, r), 10, "pool admission");
             graph[0].Pool = graph[1].Pool = "";
+            // RAM and bandwidth schedule nothing, as in a Ninja build: more
+            // concurrent memory than the budget admits, and an I/O volume the
+            // bandwidth would stretch over ten seconds, leave the schedule.
+            r.Ram = 10;
+            r.Bandwidth = 1;
             graph[0].Io = graph[1].Io = 30;
-            graph[0].Time = graph[1].Time = 1;
-            r.Bandwidth = 10;
-            Near(Makespan(graph, r), 8, "shared bandwidth and minimum transfer time");
+            Near(Makespan(graph, r), 7, "RAM and bandwidth are no schedule inputs");
             graph[0].Memory = 21;
-            Check(!std::isfinite(Makespan(graph, r)), "oversized action rejected");
+            Check(std::isfinite(Makespan(graph, r)), "an action above the RAM is not infeasible: the build decides");
             graph[0].Memory = 6;
             graph[0].Output = "unrelated-consumer";
             graph[1].Output = "generator.o";

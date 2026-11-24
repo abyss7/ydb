@@ -15,8 +15,6 @@ namespace NPchUpdate {
 
     namespace {
 
-        // In-process work: at most so many threads.
-        constexpr size_t THREADS = 8;
         // Traces summarized at once: their summaries kept in memory.
         constexpr size_t TRACE_CHUNK = 1024;
         constexpr int TOP_HEADERS = 20;
@@ -53,8 +51,11 @@ namespace NPchUpdate {
             });
         }
 
-        size_t Threads() {
-            return std::max<size_t>(1, std::min(THREADS, CpuCount()));
+        // The analysis runs on the worker count of the run, the same -j as the
+        // builds: reading traces, flag classes and header results is work on
+        // small buffers and needs no ceiling of its own.
+        size_t Threads(const TOptions& options) {
+            return AnalysisThreads(options.Jobs);
         }
 
         std::string Trim(std::string_view text) {
@@ -92,9 +93,10 @@ namespace NPchUpdate {
         // The names of `paths` normalized, unique, in the order of the first
         // one: of each path its name in `names`.
         std::vector<int32_t> NormalizeAll(const TPaths& paths, const std::vector<std::string>& raw,
-                                          std::vector<std::string>* names, std::unordered_map<std::string, int32_t>* idOf) {
+                                          std::vector<std::string>* names, std::unordered_map<std::string, int32_t>* idOf,
+                                          size_t threads) {
             std::vector<std::string> normalized(raw.size());
-            ParallelFor(raw.size(), Threads(), [&](size_t i) {
+            ParallelFor(raw.size(), threads, [&](size_t i) {
                 normalized[i] = paths.Normalize(raw[i]);
             });
             std::vector<int32_t> ids(raw.size());
@@ -715,7 +717,7 @@ namespace NPchUpdate {
         TNinjaDeps deps = ReadNinjaDeps(JoinPath(facts.BuildDir, ".ninja_deps"));
         facts.DepNames.clear();
         std::unordered_map<std::string, int32_t> depId;
-        std::vector<int32_t> depOfPath = NormalizeAll(facts.Paths, deps.Paths, &facts.DepNames, &depId);
+        std::vector<int32_t> depOfPath = NormalizeAll(facts.Paths, deps.Paths, &facts.DepNames, &depId, Threads(options));
         TPchRoots roots(facts.Root);
 
         facts.Objs.clear();
@@ -741,12 +743,12 @@ namespace NPchUpdate {
         int64_t wallExecute = 0;
         std::map<std::string, size_t> timingCoverage;
         int64_t outer = 0;
-        Log(Format("reading %zu traces with %zu threads...", traced.size(), Threads()));
+        Log(Format("reading %zu traces with %zu threads...", traced.size(), Threads(options)));
         std::vector<TTraceFacts> chunk;
         for (size_t begin = 0; begin < traced.size(); begin += TRACE_CHUNK) {
             size_t end = std::min(traced.size(), begin + TRACE_CHUNK);
             chunk.assign(end - begin, TTraceFacts());
-            ParallelFor(end - begin, Threads(), [&](size_t i) {
+            ParallelFor(end - begin, Threads(options), [&](size_t i) {
                 auto it = deps.Deps.find(traced[begin + i].first);
                 chunk[i] = ReadTraceFacts(facts, roots, results[begin + i], it == deps.Deps.end() ? nullptr : &it->second,
                                           depId, depOfPath);
@@ -1038,7 +1040,7 @@ namespace NPchUpdate {
         std::vector<TCompileFlags> parsed(n);
         facts.ArgvOf.assign(n, {});
         facts.SourceOf.assign(n, {});
-        ParallelFor(n, Threads(), [&](size_t f) {
+        ParallelFor(n, Threads(options), [&](size_t f) {
             int64_t edge = facts.EdgeOf[f];
             if (edge < 0) {
                 Fail("no edge of the manifest writes " + facts.Objs[f]);
@@ -1242,7 +1244,7 @@ namespace NPchUpdate {
         work.Build(results, "headers alone");
 
         std::vector<THeaderResult> loaded(candidates.size());
-        ParallelFor(candidates.size(), Threads(), [&](size_t i) {
+        ParallelFor(candidates.size(), Threads(options), [&](size_t i) {
             loaded[i] = LoadHeaderResult(results[i]);
         });
 
