@@ -3,6 +3,7 @@
 #include "common.h"
 #include "ninja.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <string>
@@ -277,6 +278,31 @@ namespace NPchUpdate::NTwoStep {
                   "independent cyclic consumers require successive repairs");
         }
 
+        // A generator made of several owners: no single move breaks the cycle
+        // each of its targets closes with the delta holding the generated
+        // header, so they move one at a time. They land on the parent, which
+        // does not hold the header, not on NONE: the base still serves them.
+        void GeneratorCycleKeepsBase() {
+            auto d = Data();
+            d.Resources.Workers = 1;
+            d.Units.resize(2);
+            d.Units[0].Parse = d.Units[1].Parse = 4;
+            d.Units[1].Producers = {0, 1}; // the delta's header comes from both generator targets
+            d.Actions.resize(3);
+            for (int i = 0; i < 3; ++i) {
+                d.Actions[i].Time = 20;
+                d.Files.push_back({i, 0, std::to_string(i), {{0, 4}, {1, 4}}});
+            }
+            GroupTargets(d, {"//a:gen_one", "//a:gen_two", "//b:consumer"});
+            TLayout l;
+            l.Bases = 1;
+            l.Pchs = {{0, -1, 0, {0}, {0}}, {0, 0, 0, {1}, {0, 1}}};
+            l.Assignment = {1, 1, 1};
+            auto p = ScoreCandidate(d, l, {}, 1, 32);
+            Check(p.Feasible && l.Assignment == std::vector<int>{0, 0, 1} && l.Pchs.size() == 2,
+                  "the targets of a multi-target generator keep the base when their delta is cyclic");
+        }
+
         void FrozenBase() {
             auto d = Data();
             d.Units.resize(2);
@@ -358,6 +384,54 @@ namespace NPchUpdate::NTwoStep {
             Check(tooLarge, "fail explicitly when mandatory measured bases exceed the budget");
         }
 
+        // A frozen base is frozen in content, not in cost. Measured, its build
+        // may cost more than the family saves on it: the correction then drops
+        // the family instead of building a base for nothing.
+        void FrozenBasePayback() {
+            auto d = Data();
+            d.Resources.Workers = 1;
+            d.Units.resize(1);
+            d.Units[0].Include = "<base>";
+            d.Units[0].Stable = true;
+            d.Units[0].Parse = 4;
+            d.Units[0].Bytes = 1;
+            TLayout initial;
+            initial.Bases = 1;
+            TPch base;
+            base.Class = 0;
+            base.Roots = base.Units = {0};
+            initial.Pchs = {base};
+            for (int t = 0; t < 4; ++t) {
+                for (int j = 0; j < 2; ++j) {
+                    TAction a;
+                    a.Time = 20;
+                    a.Memory = 1e6;
+                    d.Actions.push_back(a);
+                    d.Files.push_back({int(d.Actions.size()) - 1, 0, std::to_string(10 * t + j), {{0, 1}}});
+                }
+            }
+            TestTargets(d, 2);
+            initial.Assignment.assign(4, 0);
+            auto prediction = Predict(d, initial, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            for (size_t i = 0; i < obs.size(); ++i) {
+                obs[i].Time = prediction.Actions[i].Time;
+                obs[i].Memory = prediction.Actions[i].Memory;
+                if (i >= d.Actions.size()) { obs[i].Bytes = prediction.PchBytes[i - d.Actions.size()]; }
+            }
+            // The base saves its eight members under eight seconds together.
+            obs[d.Actions.size()].Time = 500;
+            auto fit = Calibrate(d, initial, prediction, obs);
+            auto corrected = Select(d, fit, &initial);
+            Check(corrected.Pchs.empty() && corrected.Assignment == std::vector<int>(4, -1),
+                  "a frozen base the family does not pay for leaves the corrected plan");
+            obs[d.Actions.size()].Time = 1;
+            fit = Calibrate(d, initial, prediction, obs);
+            corrected = Select(d, fit, &initial);
+            Check(corrected.Bases == 1 && corrected.Pchs.size() == 1 && corrected.Assignment == std::vector<int>(4, 0),
+                  "a frozen base the family pays for stays");
+        }
+
         void AssignedPayback() {
             auto d = Data();
             d.Resources.Workers = 1;
@@ -367,28 +441,31 @@ namespace NPchUpdate::NTwoStep {
             d.Units[0].Parse = 4;
             d.Units[1].Include = "<child>";
             d.Units[1].Parse = 5;
-            d.Actions.resize(3);
-            d.Files.resize(3);
-            for (int i = 0; i < 3; ++i) {
+            d.Actions.resize(4);
+            d.Files.resize(4);
+            // Four equal owners, the smallest class with a bare control. t0
+            // helps design both headers but stays without PCH: only the other
+            // three pay for what they keep.
+            for (int i = 0; i < 4; ++i) {
                 d.Actions[i].Time = 20;
                 d.Files[i].Action = i;
                 d.Files[i].Class = 0;
-                // t0 helps design both headers but is a no-PCH calibration control.
-                d.Files[i].Own = {{0, i ? 3.0 : 4.0}, {1, i ? 2.5 : 5.0}};
+                d.Files[i].Own = {{0, 2.0}, {1, 1.5}};
             }
             TestTargets(d);
             TSelectionDiagnostics diag;
             auto baseOnly = Select(d, {}, nullptr, 1, &diag);
-            Check(baseOnly.Pchs.size() == 1 && baseOnly.Assignment == std::vector<int>({-1, 0, 0}) &&
-                  diag.Payback.find("\tfamily\t0\t2\t") != std::string::npos &&
+            Check(baseOnly.Pchs.size() == 1 && baseOnly.Assignment == std::vector<int>({-1, 0, 0, 0}) &&
+                  diag.Payback.find("\tfamily\t0\t3\t") != std::string::npos &&
                   diag.Payback.find("\tdelta\t") == std::string::npos,
                   "delta cannot use the control's parsing savings to pay for its build");
-            for (int i : {1,2}) { d.Files[i].Own = {{0, 1}, {1, 3}}; }
-            auto none = Select(d, {});
-            Check(none.Pchs.empty(), "profitable child does not cover the cost of the whole family");
-            for (int i : {1,2}) { d.Files[i].Own = {{0, 1}, {1, 4}}; }
-            auto family = Select(d, {});
-            Check(family.Pchs.size() == 2 && family.Assignment == std::vector<int>({-1, 1, 1}),
+            for (int i = 0; i < 4; ++i) { d.Files[i].Own = {{0, 1.1}, {1, 1.95}}; }
+            auto none = Select(d, {}, nullptr, 1, &diag);
+            Check(none.Pchs.empty() && diag.Payback.find("drop-assignments") != std::string::npos,
+                  "profitable child does not cover the cost of the whole family");
+            for (int i = 0; i < 4; ++i) { d.Files[i].Own = {{0, 1.15}, {1, 4}}; }
+            auto family = Select(d, {}, nullptr, 1, &diag);
+            Check(family.Pchs.size() == 2 && family.Assignment == std::vector<int>({-1, 1, 1, 1}),
                   "a base with no direct consumers is paid for once by its descendants");
         }
 
@@ -1028,6 +1105,76 @@ namespace NPchUpdate::NTwoStep {
                   "a delta of measured super-beneficiaries outbids a larger ordinary one per byte");
         }
 
+        // A leaf whose owners S0 saw far slower than the class model gets a
+        // saved-time multiplier of zero. Zero is a measurement, not the mark
+        // of a unit nobody measured: for an owner S0 did not see the leaf then
+        // saves nothing, where the mark would credit it with the full class
+        // saving of the leaf.
+        void HarmfulLeafGain() {
+            auto d = Data();
+            d.Resources.Workers = 1;
+            d.Units.resize(3);
+            for (int u = 0; u < 3; ++u) {
+                d.Units[u].Include = u ? "<leaf" + std::to_string(u) + ">" : "<base>";
+                d.Units[u].Parse = u ? 5 : 4;
+                d.Units[u].Bytes = 1;
+            }
+            d.Units[0].Stable = true;
+            TLayout layout;
+            layout.Bases = 1;
+            TPch base;
+            base.Class = 0;
+            base.Roots = base.Units = {0};
+            layout.Pchs = {base};
+            for (int u : {1, 2}) {
+                TPch delta;
+                delta.Class = 0;
+                delta.Parent = 0;
+                delta.Roots = {u};
+                delta.Units = {0, u};
+                layout.Pchs.push_back(delta);
+            }
+            // t0..t2: controls at their trace time. t3..t8: on leaf 1, exactly
+            // on the class model. t9..t11: on leaf 2, measured at 60 s. t12: on
+            // leaf 2 too, never measured.
+            const int leaf[] = {-1, -1, -1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2};
+            std::vector<std::string> labels;
+            for (int t = 0; t < 13; ++t) {
+                for (int j = 0; j < 2; ++j) {
+                    TAction a;
+                    a.Time = 20;
+                    a.Memory = 1e6;
+                    d.Actions.push_back(a);
+                    TFile file;
+                    file.Action = int(d.Actions.size()) - 1;
+                    file.Class = 0;
+                    if (leaf[t] >= 0) { file.Own = {{0, 4}, {leaf[t], 5}}; }
+                    d.Files.push_back(file);
+                    labels.push_back("//t" + std::to_string(100 + t));
+                }
+            }
+            GroupTargets(d, labels);
+            layout.Assignment.assign(leaf, leaf + 13);
+            auto prediction = Predict(d, layout, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            for (size_t i = 0; i < obs.size(); ++i) {
+                obs[i].Time = prediction.Actions[i].Time;
+                obs[i].Memory = prediction.Actions[i].Memory;
+                if (i >= d.Actions.size()) { obs[i].Bytes = prediction.PchBytes[i - d.Actions.size()]; }
+            }
+            for (size_t f = 0; f < d.Files.size(); ++f) {
+                const int t = d.Files[f].Target;
+                if (t >= 9) { obs[f].Time = t <= 11 ? 60 : 0; }
+            }
+            auto fit = Calibrate(d, layout, prediction, obs);
+            Check(fit.UnitGain[0].size() == 3 && fit.UnitGain[0][2] == 0 && fit.UnitGain[0][1] > 0,
+                  "a leaf that slowed its owners down is calibrated at a multiplier of zero, a good leaf above zero");
+            const auto& c = fit.Classes[0];
+            const int plain = d.Targets[12].Files[0];
+            Near(Predict(d, layout, fit).Actions[plain].Time, 20 - 4 * c.Saved + 9 * c.Load,
+                 "an owner S0 never measured is credited with nothing from the harmful leaf");
+        }
+
         // A frozen base nobody uses any more is not part of the corrected
         // plan: it takes no budget and is not exported.
         void EmptyFrozenFamily() {
@@ -1475,6 +1622,40 @@ namespace NPchUpdate::NTwoStep {
                   "trimmed base still serves every owner except the calibration control");
         }
 
+        // A base of twenty small dense headers and five large thin ones under
+        // a budget that fits the small ones and one of the large. The disk
+        // price is cut where the bytes of the roots, densest first, reach the
+        // budget: the small ones and the large one stay. A quantile by count
+        // of roots lands among the small ones and drops every large one, with
+        // most of the budget unused.
+        void DiskPricedByBytes() {
+            auto d = Data();
+            d.Units.resize(25);
+            for (int u = 0; u < 25; ++u) {
+                const bool small = u < 20;
+                d.Units[u].Include = small ? "<small" + std::to_string(u) + ">" : "<large" + std::to_string(u) + ">";
+                d.Units[u].Stable = true;
+                d.Units[u].Parse = small ? 0.5 : 3.0 - 0.1 * (u - 20);
+                d.Units[u].Bytes = small ? 100000 : 5000000;
+            }
+            for (int i = 0; i < 8; ++i) {
+                TAction a;
+                a.Time = 60;
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                std::vector<std::pair<int, double>> own;
+                for (int u = 0; u < 25; ++u) { own.emplace_back(u, d.Units[u].Parse); }
+                d.Files.push_back({i, 0, std::to_string(i), std::move(own)});
+            }
+            TestTargets(d);
+            d.Resources.Disk = 40e6; // the small headers and one large one
+            TSelectionDiagnostics diag;
+            auto selected = Select(d, {}, nullptr, 1, &diag);
+            Check(selected.Bases == 1 && selected.Pchs.size() == 1 && selected.Pchs[0].Roots.size() == 21 &&
+                      std::find(selected.Pchs[0].Roots.begin(), selected.Pchs[0].Roots.end(), 20) != selected.Pchs[0].Roots.end(),
+                  "the disk price keeps every small header and the large one that fits the budget with them");
+        }
+
         // Owners with the same heavy-header profile share one delta even when
         // their labels sort far apart: interleaved strangers do not split the
         // profile into chunks, and a mixed delta loses to the false-rebuild
@@ -1757,11 +1938,512 @@ namespace NPchUpdate::NTwoStep {
                       selected.Pchs[1].Units == std::vector<int>({0, 1, 2}),
                   "the umbrella root serializes the nested header transitively");
             for (size_t t = 0; t < selected.Assignment.size(); ++t) {
-                // Thirty owners: controls without PCH at 0, 10 and 20, kept on
-                // the base at 5, 15 and 25.
-                Check(selected.Assignment[t] == (t % 10 == 0 ? -1 : t % 10 == 5 ? 0 : 1),
+                // Thirty owners, the first five a little heavier: they include
+                // the umbrella itself. The controls come from the lighter
+                // twenty-five, without PCH at 5, 13 and 21, kept on the base
+                // at 9, 17 and 25.
+                const bool bare = t == 5 || t == 13 || t == 21, control = t == 9 || t == 17 || t == 25;
+                Check(selected.Assignment[t] == (bare ? -1 : control ? 0 : 1),
                       "targets parsing only the nested header still find the umbrella delta");
             }
+        }
+
+        // A pure umbrella: no own time at all, it only includes headers that
+        // cannot stand alone. The files parse it, so it is a root candidate,
+        // and through it their time in the nested headers reaches a delta.
+        void ZeroOwnUmbrellaRoot() {
+            auto d = Data();
+            d.Units.resize(3);
+            d.Units[0].Include = "<base>";
+            d.Units[0].Stable = true;
+            d.Units[1].Include = ""; // nested: never an injected root
+            d.Units[2].Include = "<umbrella>";
+            d.Units[2].Children = {1};
+            for (int u = 0; u < 3; ++u) {
+                d.Units[u].Parse = u == 2 ? 0 : u ? 8 : 1;
+                d.Units[u].Bytes = 1;
+            }
+            for (int i = 0; i < 8; ++i) {
+                TAction a;
+                a.Time = 10;
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                d.Files.push_back({i, 0, std::to_string(i), {{0, 1}, {1, 8}, {2, 0}}});
+            }
+            TestTargets(d);
+            auto selected = Select(d, {});
+            Check(selected.Bases == 1 && selected.Pchs.size() == 2 && selected.Pchs[1].Roots == std::vector<int>({2}) &&
+                      selected.Pchs[1].Units == std::vector<int>({0, 1, 2}),
+                  "an umbrella the files parse with no own time of its own is still a root");
+        }
+
+        // A header with one change in a hundred commits is base material: the
+        // rebuilds it causes are priced, and they cost next to nothing. A
+        // cold-only objective does not count changes at all. A short history
+        // keeps the strict rule, and a header most commits touch stays out.
+        void ChangedHeaderBaseMaterial() {
+            auto d = Data();
+            d.Q = .5;
+            d.Units.resize(2);
+            d.Units[0].Include = "<base>";
+            d.Units[0].Stable = true;
+            d.Units[0].Parse = 2;
+            d.Units[1].Include = "<rare>";
+            d.Units[1].Parse = 6;
+            d.Units[1].Changes = {0, 3};
+            for (int u = 0; u < 2; ++u) { d.Units[u].Bytes = 1; }
+            for (int i = 0; i < 8; ++i) {
+                TAction a;
+                a.Time = 10;
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                d.Files.push_back({i, 0, std::to_string(i), {{0, 2}, {1, 6}}});
+            }
+            TestTargets(d, 2);
+            auto roots = [](TLayout layout) {
+                CompactLayout(layout);
+                auto result = layout.Pchs.empty() ? std::vector<int>() : layout.Pchs[0].Roots;
+                std::sort(result.begin(), result.end());
+                return result;
+            };
+            d.Scenarios = 100;
+            Check(roots(Select(d, {})) == std::vector<int>({0, 1}), "a header changed in two commits of a hundred is base material");
+            d.Scenarios = 50;
+            Check(roots(Select(d, {})) == std::vector<int>({0}), "the same share of commits is not rare in a short history");
+            d.Scenarios = 100;
+            d.Units[1].Changes = {0, 1, 2, 3, 4};
+            Check(roots(Select(d, {})) == std::vector<int>({0}), "a header most builds rebuild is not base material");
+            d.Q = 1;
+            Check(roots(Select(d, {})) == std::vector<int>({0, 1}), "a cold-only objective does not count rebuilds");
+            // Generated output is never base material, however rarely its
+            // source changed: the history lists it with every commit touching
+            // the source, which makes it look like any other changed header.
+            d.Q = .5;
+            d.Units[1].Changes = {0, 3};
+            d.Units[1].Producers = {0};
+            d.Units[1].Headers = {"<out>/gen/thing.pb.h"};
+            Check(roots(Select(d, {})) == std::vector<int>({0}), "generated output is no base material when its source changed");
+            d.Q = 1;
+            Check(roots(Select(d, {})) == std::vector<int>({0}), "nor under a cold-only objective");
+            d.Q = .5;
+            d.Units[1].Producers.clear();
+            d.Units[1].Headers = {"util/directory/rare.h"};
+            Check(roots(Select(d, {})) == std::vector<int>({0, 1}), "a header of util/ that rarely changes is base material");
+        }
+
+        // Two compiler classes. The main one has a base and two deltas too
+        // large together for the budget, one of a dense and a thin root, the
+        // other a base and a tiny delta of a very high density. The disk price
+        // of the candidate is cut where the bytes of all its roots add up to
+        // the budget, and the main class keeps its dense root. Its densities
+        // used to be cleared when the second class was constructed: the price
+        // read off the tiny delta of that class alone then cut nothing, and
+        // eviction dropped the dense delta for the thinner one.
+        void DensitiesSpanClasses() {
+            auto d = Data();
+            d.Resources.Workers = 1;
+            d.Classes = 2;
+            d.Units.resize(6);
+            // 0: the base of the first class. 1: a dense root of its first
+            // cluster, 3: a thin root of the same. 2: the root of its second
+            // cluster. 4 and 5: the base and a delta of the second class.
+            const char* include[] = {"<base>", "<dense>", "<second>", "<thin>", "<other>", "<tiny>"};
+            const double parse[] = {1, 10, 5, 1, 1, 5};
+            const double bytes[] = {1, 1e6, 1e6, 2e6, 1, 1};
+            for (int u = 0; u < 6; ++u) {
+                d.Units[u].Include = include[u];
+                d.Units[u].Parse = parse[u];
+                d.Units[u].Bytes = bytes[u];
+            }
+            d.Units[0].Stable = d.Units[4].Stable = true;
+            std::vector<std::string> labels;
+            for (int t = 0; t < 40; ++t) {
+                TAction a;
+                a.Time = 20;
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                d.Files.push_back({t, 0, std::to_string(t),
+                                   t < 20 ? std::vector<std::pair<int, double>>{{0, 1}, {1, 10}, {3, 1}}
+                                          : std::vector<std::pair<int, double>>{{0, 1}, {2, 5}}});
+                labels.push_back("//a" + std::to_string(100 + t));
+            }
+            for (int t = 0; t < 4; ++t) {
+                TAction a;
+                a.Time = 20;
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                d.Files.push_back({40 + t, 1, std::to_string(40 + t), {{4, 1}, {5, 5}}});
+                labels.push_back("//b" + std::to_string(t));
+            }
+            GroupTargets(d, labels);
+            d.Resources.Disk = 4e6; // the base of the main class and one dense delta
+            auto selected = Select(d, {});
+            bool dense = false;
+            for (size_t g = 1; g < selected.Pchs.size(); ++g) {
+                if (selected.Pchs[g].Class != 0) { continue; }
+                Check(selected.Pchs[g].Roots == std::vector<int>({1}),
+                      "under the disk price the main class keeps its dense root, without the thin one or the other delta");
+                dense = true;
+            }
+            Check(dense && selected.Bases == 2, "the disk price of a candidate is read off the roots of every class of it");
+        }
+
+        // A base control demoted from its cluster's delta in the interim round
+        // may keep none after the re-pick: rebuilt from the others alone, the
+        // delta no longer pays for it, and it stays on the base as an ordinary
+        // owner. Its role is the one of the final round, none: the sample then
+        // treats it like any other owner.
+        void DemotedControlRole() {
+            auto d = Data();
+            d.Units.resize(3);
+            d.Units[0].Include = "<base>";
+            d.Units[0].Stable = true;
+            d.Units[1].Include = "<shared>";
+            d.Units[1].Parse = 5;
+            d.Units[2].Include = "<controlOnly>";
+            d.Units[2].Parse = 5;
+            std::vector<std::string> labels;
+            // Eight owners of ten files each and one weight: the first is the
+            // bare control, the fifth the base control, the only one the second
+            // header saves anything to.
+            for (int t = 0; t < 8; ++t) {
+                for (int j = 0; j < 10; ++j) {
+                    TAction a;
+                    a.Time = 20;
+                    a.Memory = 1e6;
+                    d.Actions.push_back(a);
+                    std::vector<std::pair<int, double>> own{{0, 1}};
+                    if (t < 4) {
+                        own.emplace_back(1, 5);
+                    } else {
+                        own.emplace_back(2, t == 4 ? 5 : 0.2);
+                    }
+                    d.Files.push_back({int(d.Actions.size()) - 1, 0, std::to_string(d.Actions.size()), std::move(own)});
+                    labels.push_back("//t" + std::to_string(t));
+                }
+            }
+            GroupTargets(d, labels);
+            auto selected = Select(d, {});
+            Check(selected.Bases == 1 && selected.Pchs.size() == 2 && selected.Pchs[1].Roots == std::vector<int>({1}) &&
+                      selected.Controls[0] == 1 && selected.Controls[4] == 0 && selected.Assignment[4] == 0,
+                  "a base control that keeps no delta after the re-pick is no control any more");
+        }
+
+        // A target S0 saw save nothing with any PCH never takes one again. Its
+        // files must not design the delta of its cluster: they bring their load
+        // and no saving, enough to fail a small delta the targets that would
+        // use it do pay for.
+        void ParasiteLeavesClusterAlone() {
+            auto d = Data();
+            d.Resources.Workers = 1;
+            d.Q = .5;
+            d.Units.resize(3);
+            d.Units[0].Include = "<base>";
+            d.Units[0].Stable = true;
+            d.Units[1].Include = "<small>";
+            d.Units[2].Include = "<other>";
+            for (int u = 0; u < 3; ++u) {
+                d.Units[u].Parse = u == 2 ? 5 : u == 1 ? 6 : 1;
+                d.Units[u].Bytes = 1;
+            }
+            std::vector<std::string> labels;
+            // Thirty-one owners of a small header, one parasite parsing it in
+            // three hundred files, thirty-two owners of another one.
+            for (int t = 0; t < 64; ++t) {
+                const int count = t == 31 ? 300 : 1;
+                for (int j = 0; j < count; ++j) {
+                    TAction a;
+                    a.Time = 10;
+                    a.Memory = 1e6;
+                    d.Actions.push_back(a);
+                    const int unit = t < 32 ? 1 : 2;
+                    d.Files.push_back({int(d.Actions.size()) - 1, 0, std::to_string(d.Actions.size()), {{0, 2}, {unit, t == 31 ? 6 : unit == 1 ? 0.5 : 5}}});
+                    labels.push_back("//t" + std::to_string(100 + t));
+                }
+            }
+            GroupTargets(d, labels);
+            TLayout frozen;
+            frozen.Bases = 1;
+            TPch base;
+            base.Class = 0;
+            base.Roots = base.Units = {0};
+            frozen.Pchs = {base};
+            frozen.Assignment.assign(64, 0);
+            TCalibration fit;
+            fit.Classes.resize(1);
+            fit.TargetGain.assign(64, 1.0);
+            fit.TargetGain[31] = 0;
+            auto selected = Select(d, fit, &frozen);
+            int small = -1;
+            for (size_t g = 0; g < selected.Pchs.size(); ++g) {
+                if (selected.Pchs[g].Roots == std::vector<int>({1})) { small = int(g); }
+            }
+            Check(selected.Bases == 1 && selected.Pchs.size() == 3 && small >= 0 &&
+                      std::count(selected.Assignment.begin(), selected.Assignment.begin() + 31, small) == 31 &&
+                      selected.Assignment[31] == -1,
+                  "a delta is designed for the owners that can take it, without the files of a parasite");
+        }
+
+        // Four clusters, three around a heavy header that also pulls in two
+        // nested headers. For the fourth cluster those two are most of what
+        // it shares with the others, and its own lean delta overlaps it less
+        // than any of theirs: by raw overlap it loses their three and never
+        // sees the one built for it. Its own delta is always among its
+        // choices, and the others rank by what they net after their load.
+        void OwnClusterDeltaChosen() {
+            auto d = Data();
+            d.Resources.Workers = 1;
+            d.Units.resize(7);
+            // 0: the base. 1 and 2: nested headers, no roots of their own, the
+            // first common to every cluster. 3, 4, 5: a heavy header per
+            // cluster, pulling both in. 6: a lean umbrella of the first.
+            d.Units[0].Include = "<base>";
+            d.Units[0].Stable = true;
+            d.Units[0].Parse = 1;
+            d.Units[1].Include = "";
+            d.Units[1].Parse = 4;
+            d.Units[2].Include = "";
+            d.Units[2].Parse = 45;
+            for (int u = 3; u <= 5; ++u) {
+                d.Units[u].Include = "<heavy" + std::to_string(u) + ">";
+                d.Units[u].Children = {1, 2};
+                d.Units[u].Parse = 500;
+            }
+            d.Units[6].Include = "<lean>";
+            d.Units[6].Children = {1};
+            d.Units[6].Parse = 1;
+            for (int u = 0; u < 7; ++u) { d.Units[u].Bytes = 1; }
+            std::vector<std::string> labels;
+            for (int t = 0; t < 100; ++t) {
+                TAction a;
+                a.Time = 20;
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                const int group = t / 25;
+                d.Files.push_back({t, 0, std::to_string(t), {{0, 1}, {1, 5}, {2, 45}, {group < 3 ? 3 + group : 6, group < 3 ? 40 : 1}}});
+                labels.push_back("//t" + std::to_string(1000 + t));
+            }
+            GroupTargets(d, labels);
+            // A load ten times the prior: a heavy delta is worth its own
+            // cluster's while and a loss for everybody else.
+            TCalibration fit;
+            fit.Classes.resize(1);
+            fit.Classes[0].Load = .1;
+            fit.Classes[0].DeltaBuild = .1;
+            auto selected = Select(d, fit);
+            Check(selected.Bases == 1 && selected.Pchs.size() == 5, "a base and a delta per cluster");
+            // One hundred owners: without PCH at 0, 20, ..., kept on the base
+            // at 10, 30, ..., the rest on the delta of their cluster.
+            const int root[] = {3, 4, 5, 6};
+            for (int t = 0; t < 100; ++t) {
+                int own = -1;
+                for (size_t g = 1; g < selected.Pchs.size(); ++g) {
+                    if (selected.Pchs[g].Roots == std::vector<int>({root[t / 25]})) { own = int(g); }
+                }
+                Check(own >= 0 && selected.Assignment[t] == (t % 20 == 0 ? -1 : t % 10 == 0 ? 0 : own),
+                      "every cluster takes the delta built for it, whatever it shares with the others");
+            }
+        }
+
+        // Nine clusters around heavy churning headers that all pull in the two
+        // nested headers the tenth cluster parses. For a target of that tenth
+        // cluster each of the nine nets more than its own lean delta, whose
+        // extra header it does not parse: they fill the whole shortlist. Its
+        // own delta is still among its choices, and it is the one that pays:
+        // the others rebuild on every second commit.
+        void LeanDeltaBeyondSiblings() {
+            auto d = Data();
+            d.Resources.Workers = 1;
+            d.Q = .5;
+            d.Scenarios = 2;
+            const int noisy = 9, perCluster = 32, targets = 10 * perCluster;
+            d.Units.resize(3 + noisy + 1);
+            // 0: the base. 1 and 2: nested headers, no roots of their own.
+            // 3..11: a churning header per noisy cluster, pulling both in.
+            // 12: a lean umbrella of the first for the quiet cluster.
+            d.Units[0].Include = "<base>";
+            d.Units[0].Stable = true;
+            d.Units[0].Parse = 1;
+            d.Units[1].Include = "";
+            d.Units[1].Parse = 4;
+            d.Units[2].Include = "";
+            d.Units[2].Parse = 5;
+            for (int u = 0; u < noisy; ++u) {
+                d.Units[3 + u].Include = "<churn" + std::to_string(u) + ">";
+                d.Units[3 + u].Children = {1, 2};
+                d.Units[3 + u].Parse = 4;
+                d.Units[3 + u].Changes = {0};
+            }
+            d.Units.back().Include = "<lean>";
+            d.Units.back().Children = {1};
+            d.Units.back().Parse = 1;
+            for (auto& unit : d.Units) { unit.Bytes = 1; }
+            std::vector<std::string> labels;
+            for (int t = 0; t < targets; ++t) {
+                TAction a;
+                a.Time = 100;
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                const int group = t / perCluster;
+                std::vector<std::pair<int, double>> own{{0, 1}, {1, 5}, {2, 5}};
+                if (group < noisy) {
+                    own.emplace_back(3 + group, 40);
+                } else {
+                    own.emplace_back(int(d.Units.size()) - 1, 1);
+                }
+                d.Files.push_back({t, 0, std::to_string(t), std::move(own)});
+                labels.push_back("//t" + std::to_string(1000 + t));
+            }
+            GroupTargets(d, labels);
+            TCalibration fit;
+            fit.Classes.resize(1);
+            fit.Classes[0].Load = .1;
+            fit.Classes[0].DeltaBuild = .1;
+            auto selected = Select(d, fit);
+            Check(selected.Bases == 1 && selected.Pchs.size() == 11, "a base and a delta per cluster");
+            // Three hundred and twenty owners, all of one weight: six without
+            // PCH and six kept on the base, the rest on the delta of their cluster.
+            std::vector<int> expected(targets, -2);
+            for (size_t k = 0; k < 6; ++k) {
+                expected[k * targets / 6] = -1;
+                if (expected[(2 * k + 1) * targets / 12] == -2) { expected[(2 * k + 1) * targets / 12] = 0; }
+            }
+            const int roots[] = {3, 4, 5, 6, 7, 8, 9, 10, 11, int(d.Units.size()) - 1};
+            for (int t = 0; t < targets; ++t) {
+                int own = -1;
+                for (size_t g = 1; g < selected.Pchs.size(); ++g) {
+                    if (selected.Pchs[g].Roots == std::vector<int>({roots[t / perCluster]})) { own = int(g); }
+                }
+                Check(own >= 0 && selected.Assignment[t] == (expected[t] == -2 ? own : expected[t]),
+                      "the lean delta of the quiet cluster is not crowded out of its own shortlist");
+            }
+        }
+
+        // A lone owner made a bare calibration control kept no PCH at all:
+        // nobody was left to pay for its base, the base left the initial plan,
+        // and the correction, which never builds a base, found no parent for
+        // a delta. A class of fewer than four owners has no bare control: the
+        // owner takes its PCH, S0 measures the artifacts, and the correction
+        // refines on the frozen base.
+        void LoneOwnerClass() {
+            auto d = Data();
+            d.Resources.Workers = 1;
+            d.Units.resize(2);
+            d.Units[0].Include = "<base>";
+            d.Units[0].Stable = true;
+            d.Units[0].Parse = 4;
+            d.Units[0].Bytes = 1;
+            d.Units[1].Include = "<feature>";
+            d.Units[1].Parse = 6;
+            d.Units[1].Bytes = 1;
+            for (int f = 0; f < 20; ++f) {
+                TAction a;
+                a.Time = 20;
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                d.Files.push_back({f, 0, std::to_string(f), {{0, 4}, {1, 6}}});
+            }
+            TestTargets(d, 20);
+            TSelectionDiagnostics diag;
+            auto initial = Select(d, {}, nullptr, 1, &diag);
+            Check(initial.Bases == 1 && initial.Pchs.size() == 2 && initial.Assignment == std::vector<int>({1}) &&
+                      initial.Controls == std::vector<char>({0}) && diag.Targets.find("calibration-control") == std::string::npos,
+                  "a lone owner takes its base and delta instead of staying without PCH as a calibration control");
+            auto prediction = Predict(d, initial, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            for (size_t i = 0; i < obs.size(); ++i) {
+                obs[i].Time = prediction.Actions[i].Time;
+                obs[i].Memory = prediction.Actions[i].Memory;
+                if (i >= d.Actions.size()) { obs[i].Bytes = prediction.PchBytes[i - d.Actions.size()]; }
+            }
+            auto fit = Calibrate(d, initial, prediction, obs);
+            Check(fit.Measured.size() == 2, "S0 builds and measures both artifacts of a small class");
+            auto corrected = Select(d, fit, &initial, 1, &diag);
+            Check(corrected.Bases == 1 && corrected.Pchs.size() == 2 && corrected.Assignment == std::vector<int>({1}) &&
+                      diag.Targets.find("no-candidate") == std::string::npos,
+                  "the correction finds the frozen base of the lone owner and keeps its delta");
+        }
+
+        // Two owners whose base pays off only together: neither is a bare
+        // control, so the base survives the initial plan for both.
+        void PairedOwnersClass() {
+            auto d = Data();
+            d.Resources.Workers = 1;
+            d.Units.resize(1);
+            d.Units[0].Include = "<base>";
+            d.Units[0].Stable = true;
+            d.Units[0].Parse = 10;
+            d.Units[0].Bytes = 1;
+            for (int f = 0; f < 2; ++f) {
+                TAction a;
+                a.Time = 20;
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                d.Files.push_back({f, 0, std::to_string(f), {{0, 10}}});
+            }
+            TestTargets(d);
+            auto initial = Select(d, {});
+            Check(initial.Bases == 1 && initial.Pchs.size() == 1 && initial.Assignment == std::vector<int>({0, 0}) &&
+                      initial.Controls == std::vector<char>({0, 0}),
+                  "two owners keep the base that neither of them pays for alone");
+            auto prediction = Predict(d, initial, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            for (size_t i = 0; i < obs.size(); ++i) {
+                obs[i].Time = prediction.Actions[i].Time;
+                obs[i].Memory = prediction.Actions[i].Memory;
+                if (i >= d.Actions.size()) { obs[i].Bytes = prediction.PchBytes[i - d.Actions.size()]; }
+            }
+            auto fit = Calibrate(d, initial, prediction, obs);
+            auto corrected = Select(d, fit, &initial);
+            Check(corrected.Bases == 1 && corrected.Pchs.size() == 1 && corrected.Assignment == std::vector<int>({0, 0}),
+                  "the correction serves both owners from their frozen base");
+        }
+
+        // Four owners, one of them carrying the class: the bare control comes
+        // from the lighter half of the class, never from its heaviest owner,
+        // whose PCH pays for a base the others cannot afford alone.
+        void HeavyOwnerKeepsBase() {
+            auto d = Data();
+            d.Resources.Workers = 1;
+            d.Units.resize(2);
+            for (int u = 0; u < 2; ++u) {
+                d.Units[u].Include = "<base" + std::to_string(u) + ">";
+                d.Units[u].Stable = true;
+                d.Units[u].Parse = u ? 300 : 100;
+                d.Units[u].Bytes = 1;
+            }
+            std::vector<std::string> labels;
+            for (int f = 0; f < 13; ++f) {
+                TAction a;
+                a.Time = 500;
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                // The heavy owner parses both headers in ten files; each light
+                // owner parses the cheap one in a single file.
+                std::vector<std::pair<int, double>> own{{0, 100}};
+                if (f < 10) {
+                    own.emplace_back(1, 300);
+                }
+                d.Files.push_back({f, 0, std::to_string(f), std::move(own)});
+                labels.push_back("//t" + std::to_string(f < 10 ? 0 : f - 9));
+            }
+            GroupTargets(d, labels);
+            auto initial = Select(d, {});
+            Check(initial.Bases == 1 && initial.Pchs.size() == 1 && initial.Assignment == std::vector<int>({0, -1, 0, 0}) &&
+                      initial.Controls == std::vector<char>({0, 1, 0, 0}),
+                  "the bare control is a light owner: the heaviest one stays to pay for the class base");
+            auto prediction = Predict(d, initial, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            for (size_t i = 0; i < obs.size(); ++i) {
+                obs[i].Time = prediction.Actions[i].Time;
+                obs[i].Memory = prediction.Actions[i].Memory;
+                if (i >= d.Actions.size()) { obs[i].Bytes = prediction.PchBytes[i - d.Actions.size()]; }
+            }
+            auto fit = Calibrate(d, initial, prediction, obs);
+            Check(fit.Measured.size() == 1, "S0 builds and measures the base the heavy owner paid for");
+            auto corrected = Select(d, fit, &initial);
+            Check(corrected.Bases == 1 && corrected.Pchs.size() == 1 && corrected.Assignment == std::vector<int>({0, 0, 0, 0}),
+                  "the correction gives the measured control its base back");
         }
     } // namespace
 
@@ -1772,8 +2454,13 @@ namespace NPchUpdate::NTwoStep {
         Invalidation();
         LibraryDependentLeaves();
         CycleRepair();
+        GeneratorCycleKeepsBase();
         FrozenBase();
+        FrozenBasePayback();
         AssignedPayback();
+        LoneOwnerClass();
+        PairedOwnersClass();
+        HeavyOwnerKeepsBase();
         SharedBaseDiskDiagnostics();
         AbsoluteSystemRoot();
         Calibration();
@@ -1785,16 +2472,25 @@ namespace NPchUpdate::NTwoStep {
         NegativeResidual();
         AnchoredTargets();
         SuperBeneficiaryDelta();
+        HarmfulLeafGain();
         EmptyFrozenFamily();
         CoChangedRoots();
         PhysicalDeltaCosts();
         HeldOutParentCalibration();
         DiskPricedTrimming();
+        DiskPricedByBytes();
+        DensitiesSpanClasses();
         ClusteredAcrossAlphabet();
         SiblingFallbackEviction();
         CrossClassSiblings();
         DuplicateDeltaMerge();
         UmbrellaRootSibling();
+        ZeroOwnUmbrellaRoot();
+        ChangedHeaderBaseMaterial();
+        DemotedControlRole();
+        ParasiteLeavesClusterAlone();
+        OwnClusterDeltaChosen();
+        LeanDeltaBeyondSiblings();
         PickScratchIsolation();
         AtomicTargets();
         IoSelfTest();

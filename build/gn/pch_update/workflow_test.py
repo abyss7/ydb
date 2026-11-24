@@ -117,7 +117,7 @@ config("common") {
         label = "lib%d" % t
         labels.append(":" + label)
         files = []
-        # Header extraction requires 30s cumulative parsing. Keep ample work
+        # Header extraction requires 5s cumulative parsing. Keep ample work
         # even with an uncontended, RAM-capped -j1 baseline (no contention boost
         # to trace durations); the measured workload itself can still use PCH.
         for f in range(12):

@@ -1573,18 +1573,23 @@ namespace NPchUpdate {
         return seen;
     }
 
-    std::vector<std::string> PchOnlyArgv(const TFacts& facts) {
-        std::string path = JoinPath(facts.Root, PCH_FLAGS_GNI);
+    bool TryPchOnlyArgv(const std::string& root, std::vector<std::string>* argv) {
         std::string text;
-        std::vector<std::string> argv;
-        if (TryReadFile(path, &text)) {
-            std::vector<std::pair<std::string, TGnValue>> values = ParseGnFile(text);
-            const TGnValue* value = FindGnValue(values, "pch_only_cflags");
-            if (value) {
-                argv = value->Strings();
-            }
+        if (!TryReadFile(JoinPath(root, PCH_FLAGS_GNI), &text)) {
+            return false;
         }
-        if (argv.empty()) {
+        std::vector<std::pair<std::string, TGnValue>> values = ParseGnFile(text);
+        const TGnValue* value = FindGnValue(values, "pch_only_cflags");
+        if (!value || value->Strings().empty()) {
+            return false;
+        }
+        *argv = value->Strings();
+        return true;
+    }
+
+    std::vector<std::string> PchOnlyArgv(const TFacts& facts) {
+        std::vector<std::string> argv;
+        if (!TryPchOnlyArgv(facts.Root, &argv)) {
             Fail("no pch_only_cflags in " + std::string(PCH_FLAGS_GNI));
         }
         return argv;

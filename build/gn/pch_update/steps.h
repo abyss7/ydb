@@ -61,6 +61,8 @@ namespace NPchUpdate {
     std::set<std::string> Reachable(const TFacts& facts, const std::vector<std::string>& start);
     // pch_only_cflags of pch_flags.gni.
     std::vector<std::string> PchOnlyArgv(const TFacts& facts);
+    // The same under a source root: false when the file or the value is absent.
+    bool TryPchOnlyArgv(const std::string& root, std::vector<std::string>* argv);
 
     // The steps: each reports its lines; false stops the run, nothing written.
     // check, gn labels, traces: the baseline as built, the facts of its files.

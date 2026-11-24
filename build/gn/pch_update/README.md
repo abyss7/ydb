@@ -226,15 +226,19 @@ estimated artifact bytes. Owners of one compiler class are clustered by their
 residual header-parse profile (bucketed signatures, deterministic farthest-point
 seeding) instead of label-alphabet partitions, then refined by two
 expectation/maximization rounds: deltas are re-picked strictly from the files
-actually assigned to them, and each owner takes the cheapest of NONE, the base
-and any delta of its compiler class whose serialized units overlap its profile
-— including deltas whose cluster its label never touched, and deltas rooted at
-an umbrella header that pulls the owner's headers in transitively. A width therefore only bounds the cluster
+actually assigned to them — never those of an owner the measurement saw save
+nothing with any PCH — and each owner takes the cheapest of NONE, the base, the
+delta built for its own cluster and up to eight deltas of its compiler class
+whose serialized units overlap its profile, ranked by that overlap less the load
+of the delta's own content. They include deltas whose cluster its label never
+touched, and deltas rooted at an umbrella header, even one with no parse time of
+its own, that pulls the owner's headers in transitively. A width therefore only bounds the cluster
 count; cluster sizes vary freely. For widths whose layout exceeds the budget
-the selector also builds disk-priced variants (a small lambda grid taken from
-the quantiles of that candidate's own accepted root benefit-per-byte densities):
-every PCH keeps only its dense prefix of roots instead of being evicted
-wholesale later.
+the selector also builds disk-priced variants: a small lambda grid whose prices
+cut the candidate where the estimated bytes of its roots, of every class of it
+and densest first, reach
+60%, 100% and 125% of `--disk`, so every PCH keeps a dense prefix that fills
+the budget instead of being evicted wholesale later.
 Roots enter a PCH in descending benefit-per-byte order, so these prefixes are
 trimmable tails. Selection can evict a delta to its best open fallback — the
 base or a surviving sibling delta of the same compiler class sharing its heavy
@@ -245,32 +249,55 @@ Only the winning width gets a probe reserve: the same selection is fitted to
 **2 × `--disk`** in estimated bytes before compatibility (fixed factor).
 `selection-widths.tsv` reports the width/lambda candidates at 1× and the
 separate winner's probe count and bytes at 2×. A compiler class has at most one
-safe stable base; without a base it cannot produce deltas. Each compiling target
+safe stable base; without a base it cannot produce deltas. *Safe*: compiled
+alone, the header needs nothing beyond the C++ runtime (operator new and
+delete, the ABI, libc++, the unwinder), which every final link supplies; what
+counts is the entity a symbol names, not its signature, so a project function
+taking a `std::string` is a symbol of the project. *Stable*: not written by
+the build (generated output never is, whatever its history says), and either
+unchanged in the history or changed cheaply enough for the objective — never
+counted under a cold-only objective, at most 2% of commits under a history of
+twenty or more; the rebuilds are priced either way.
+Each compiling target
 uses NONE, the base, or the base plus one child.
 
-The initial plan keeps a three-point control in every compiler class so that the
-correction can be measured: `clamp((⌊√n⌋+1)/2, 1, 6)` owners stay without any PCH
-(`calibration-control`: the compiler's speed on this class against the traces, and
-how much it varies between owners) and, in classes of eight owners or more, as many
-owners that would take a delta stay on the base (`calibration-base-control`: what the
-delta adds over it for an owner that would take one). Both sets are spread evenly
-over the label order, which is independent of an owner's headers, and are measured
-first (see sampling). The counts grow with the square root of the class, so a large
-class gives up a few percent of its coverage instead of a tenth of it. Correction
-has no controls: every owner takes its best measured option. Before scoring each width and
+The initial plan keeps a three-point control in every compiler class of four owners
+or more so that the correction can be measured: `clamp((⌊√n⌋+1)/2, 1, 6)` owners
+stay without any PCH (`calibration-control`: the compiler's speed on this class
+against the traces, and how much it varies between owners) and, in classes of eight
+owners or more, as many owners that would take a delta stay on the base
+(`calibration-base-control`: what the delta adds over it for an owner that would
+take one). Both kinds are taken from the lighter half of the class, by the parse
+seconds a PCH can save an owner, so the heaviest owners always remain to pay for
+the shared base. A class of fewer than four owners has no control: a bare control
+pays nothing towards its base, a lone owner would be left without any PCH, and a
+base that leaves the initial plan cannot return in the correction. Within that half
+both sets are spread evenly over the label order, which is independent of an
+owner's headers, and are measured first (see sampling). The counts grow with the
+square root of the class, so a large class gives up a few percent of its coverage
+instead of a tenth of it. Correction has no controls: every owner takes its best
+measured option. Before scoring each width and
 before invoking Clang, reprice candidates on their **assigned GN targets**.
 A delta must save more weighted consumer work over its best open alternative
 than its own build costs. Otherwise its owners take that alternative.
-A family must then pay for its base and surviving children versus NONE. During
-correction a frozen base is mandatory while it has consumers: its cost cancels on
-both sides. A base without a single assigned target or surviving delta leaves a
+A family must then pay for its base and surviving children versus NONE. A frozen
+base is frozen in content only: in the correction its measured build is charged
+like any other, and a family that does not cover it leaves the plan. A base
+without a single assigned target or surviving delta leaves a
 candidate as soon as the candidate is scored, frozen or not: no candidate is
 charged with building it or counted its bytes, it is not exported, and a family
-emptied by an eviction releases its base's bytes at once. Cycle-induced reassignments repeat the test.
+emptied by an eviction releases its base's bytes at once. Cycle-induced reassignments repeat the test; where no single move opens a cycle, its
+owners step to the parent of their leaf one at a time, not to NONE.
 `selection-payback.tsv` records modeled parse savings, load, extra compiles,
 build and net seconds for both decisions (delta and family rows overlap; do not
 add them). After building and checking the
-winning candidates, preflight fits `--disk` using actual PCH file sizes. This
+winning candidates, preflight fits `--disk` using actual PCH file sizes. An
+initial base measured larger than the room the plan leaves for it — the budget
+less what else the plan must keep, every other base (everything else, while
+the whole plan fits by estimate) — is first trimmed to that room: the thin
+tail of its roots, in the order `Pick` accepted them, is dropped instead of
+losing its whole family. A kept root that only compiles with a dropped one
+cancels the trim: the base stays whole and the measured fit decides. This
 measured pass can likewise evict entire initial families or individual children
 (accounting for saved build cost). On delta eviction each owner moves atomically
 to its cheapest compatible open fallback or NONE. This is a greedy work
@@ -290,7 +317,10 @@ remain part of the model.
 Before freezing any initial or corrected prediction, `predict`, `replan` and
 `correct` run a **compatibility preflight** against the completed baseline:
 
-1. Compile each selected PCH chain with its exact compiler class. The PCH
+1. Compile each selected PCH chain with its exact compiler class and the
+   `pch_only_cflags` of `build/gn/pch/global/pch_flags.gni` that change the
+   artifact (`-fpch-instantiate-templates`): the plan measures the sizes, build
+   times and consumer times of the PCH GN deploys. The PCH
    header includes the roots in layer order (sysroot/libc++, contrib,
    util/library, project sources, generated), not selector mass order. A
    chain that fails to compile is bisected by its roots — the smallest
@@ -399,7 +429,9 @@ out of the sample, and keeps what the measurement showed at every level:
   `distclang` estimate or another machine's load cancels. A no-PCH control is
   anchored at its measured compile without PCH.
 * **Per class.** The controls give the baseline ratio and, where their trace times
-  spread enough to tell it apart, the per-compile seconds outside the traces.
+  spread enough to tell it apart, the per-compile seconds outside the traces. A
+  class without a measured control (fewer than four owners, or none in the sample)
+  keeps the prior baseline ratio of 1.
   `saved` and `load` are a weighted least-squares fit on the measured targets with
   a PCH over the data centered by both (no count column to collide with a load
   shared by every group); each target's equation is normalized by the root of its
@@ -431,7 +463,9 @@ out of the sample, and keeps what the measurement showed at every level:
   payback test, and its no-PCH time is what S0 measured less the load. A PCH is
   never credited with slowing a compile beyond that load. One measured far
   faster than its own parse time predicts keeps a multiplier above one and, with
-  it, its delta.
+  it, its delta. The same holds per unit for the leaves: one whose owners S0 saw
+  far slower gets a unit multiplier of zero and saves nothing for the owners S0
+  never measured. Only a negative multiplier means "not measured".
 
 Compilations whose trace shows the frontend are floored at the backend
 (`ExecuteCompiler - Frontend`), which no PCH removes; others keep a 2% prior.
@@ -504,12 +538,16 @@ priors. Exact compiler flags, macros and include order define compatibility
 classes, so some classes may have too few groups to identify separate costs.
 
 `pch_update self-test` checks scheduling, invalidation, frozen-base refinement and
-release of emptied families, calibration rank, cross-validation, anchors and
-empirical-Bayes multipliers, per-unit decomposition, sampling by work with control
-priority, streamed tree identity, snapshot corruption, measurement restart,
+release of emptied families, bare controls of small and lopsided classes,
+parasites and crowded clusters, disk prices by bytes across classes,
+calibration rank, cross-validation, anchors and
+empirical-Bayes multipliers (a harmful leaf at zero), per-unit decomposition, sampling by work with control
+priority, cycle repair to the parent, base material (generated output never) and
+roots without parse time, the C++ runtime symbols a header may need alone,
+streamed tree identity, snapshot corruption, measurement restart,
 missing telemetry and interrupted replacement recovery.
 
-Shared bases require headers without standalone external-symbol requirements.
+Shared bases require headers that alone need nothing beyond the C++ runtime.
 Specialized leaves may include library-dependent headers: compatibility builds
 an empty source with the complete PCH and the consumer's actual compiler flags,
 then checks its remaining strong symbols against every final link of every

@@ -1076,6 +1076,62 @@ namespace NPchUpdate::NTwoStep {
             return result;
         }
 
+        // Whether an undefined symbol of a header compiled alone is supplied by
+        // the C++ runtime of any C++ link: operator new and delete, the Itanium
+        // C++ ABI, the unwinder and libc++. The entity the symbol names must
+        // itself sit in the runtime, which a mangled name tells by its first
+        // component: a project function taking a std::string names std in its
+        // signature, and operator!= is no operator new. Anything else is a
+        // symbol of the project.
+        bool IsRuntimeSymbol(std::string_view s) {
+            for (const auto* prefix : {"_Znw", "_Zna", "_Zdl", "_Zda", "__cxa_", "_Unwind_"}) {
+                if (StartsWith(s, prefix)) { return true; }
+            }
+            if (s == "__gxx_personality_v0" || s == "__clang_call_terminate") { return true; }
+            if (!StartsWith(s, "_Z")) { return false; }
+            s.remove_prefix(2);
+            // A vtable, a VTT, typeinfo or a guard variable names its class.
+            for (const auto* kind : {"TV", "TT", "TI", "TS", "GV"}) {
+                if (StartsWith(s, kind)) {
+                    s.remove_prefix(2);
+                    break;
+                }
+            }
+            // A thunk: its offsets come before the target.
+            if (StartsWith(s, "Th") || StartsWith(s, "Tv")) {
+                const int offsets = s[1] == 'h' ? 1 : 2;
+                for (int k = 0; k < offsets; ++k) {
+                    const auto end = s.find('_');
+                    if (end == std::string_view::npos) { return false; }
+                    s.remove_prefix(end + 1);
+                }
+            }
+            // Internal linkage; a local entity: its enclosing one follows.
+            if (StartsWith(s, "L")) { s.remove_prefix(1); }
+            if (StartsWith(s, "Z")) { s.remove_prefix(1); }
+            // A member: its class follows the qualifiers of the member itself.
+            if (StartsWith(s, "N")) {
+                s.remove_prefix(1);
+                while (!s.empty() && std::string_view("KVrRO").find(s.front()) != std::string_view::npos) { s.remove_prefix(1); }
+            }
+            return StartsWith(s, "St3__1") || StartsWith(s, "10__cxxabiv1") ||
+                   (StartsWith(s, "St") && s.size() > 2 && std::isdigit(static_cast<unsigned char>(s[2])));
+        }
+
+        // What a header still needs when it is compiled alone, as far as the C++
+        // runtime goes. HeaderFacts links a header alone without it and lists
+        // its symbols as unresolved, although every final link of a C++ target
+        // supplies them. A static of a non-trivial type, or the init object of
+        // <iostream>, is no reason to keep a header out of a base; a symbol of
+        // the project still is. Only deltas are link-checked again in
+        // Preflight: for a base this is the only guard.
+        bool RuntimeOnly(const std::vector<std::string>& unresolved) {
+            for (const auto& symbol : unresolved) {
+                if (!IsRuntimeSymbol(symbol)) { return false; }
+            }
+            return true;
+        }
+
         void Extract(TFacts& facts, TSnapshot& s) {
             auto core = BuildModel(facts, 0);
             auto& d = s.Data;
@@ -1281,7 +1337,7 @@ namespace NPchUpdate::NTwoStep {
                     unit.Headers.push_back(name);
                     fingerprint.insert(facts.Paths.Real(name));
                     unit.Stable &= !StartsWith(name, "<out>/");
-                    unit.Safe &= facts.NeedsOfHeader.empty() || facts.NeedsOfHeader[h].empty();
+                    unit.Safe &= facts.NeedsOfHeader.empty() || RuntimeOnly(facts.NeedsOfHeader[h]);
                     if (unit.Include.empty() && !facts.SelfContained.empty() && facts.SelfContained[h]) {
                         unit.Include = Spelling(facts, name);
                     }
@@ -1363,6 +1419,37 @@ namespace NPchUpdate::NTwoStep {
             std::string header = "#pragma once\n";
             for (int root : LayeredRoots(data, pch)) { header += "#include " + data.Units[root].Include + "\n"; }
             return header;
+        }
+
+        // The flags the deployed PCH of a compiler class is built with beyond
+        // the class's own, pch_only_cflags of //build/gn/pch/global, as far
+        // as they change the artifact a measurement sees. With
+        // -fpch-instantiate-templates the PCH instantiates templates itself:
+        // larger, slower to build, and it saves its consumers more than the
+        // same headers without it. A PCH built without it measures another
+        // artifact than the one GN deploys, and passes headers that only
+        // break under it on to the build. Left out: the language (the probe
+        // names its own), a relocatable PCH, valid only for consumers that
+        // resolve its paths against the same sysroot and a plan passes none,
+        // and the home of module files, a path convention of the GN build.
+        std::vector<std::string> MeasurementPchFlags(const TSnapshot& s) {
+            std::vector<std::string> argv, flags;
+            if (!TryPchOnlyArgv(s.Root, &argv)) {
+                return flags;
+            }
+            for (size_t i = 0; i < argv.size(); ++i) {
+                const auto& flag = argv[i];
+                if (flag == "-x" || flag == "-isysroot") {
+                    ++i;
+                } else if (flag == "-relocatable-pch") {
+                    continue;
+                } else if (flag == "-Xclang" && i + 1 < argv.size() && argv[i + 1] == "-fmodule-file-home-is-cwd") {
+                    ++i;
+                } else {
+                    flags.push_back(flag);
+                }
+            }
+            return flags;
         }
 
         std::string Paths(const std::vector<std::string>& paths) {
@@ -1600,6 +1687,8 @@ namespace NPchUpdate::NTwoStep {
                 const auto& file = d.Files[p.Representative];
                 const auto& compile = compiles.at(d.Actions[file.Action].Output);
                 auto argv = CompileFlags(compile.Argv, compile.Source);
+                const auto pchFlags = MeasurementPchFlags(s);
+                argv.insert(argv.end(), pchFlags.begin(), pchFlags.end());
                 std::string source = "pch/" + std::to_string(g) + ".h";
                 std::string output = "pch/" + std::to_string(g) + ".pch";
                 std::string header = PchHeader(d, p);
@@ -2225,6 +2314,9 @@ namespace NPchUpdate::NTwoStep {
             // Roots dropped by bisection per PCH, for reporting and for the
             // children of a reduced parent (their stored Units must shrink too).
             std::vector<std::vector<int>> reduced(layout.Pchs.size());
+            // The artifact a plan builds and measures is the artifact GN
+            // deploys, pch_only_cflags included.
+            const auto pchFlags = MeasurementPchFlags(s);
             ParallelPchs(layout.Pchs, jobs, [&](size_t g) {
                 auto& pch = layout.Pchs[g];
                 if (pch.Parent >= 0 && !built[pch.Parent]) {
@@ -2244,12 +2336,14 @@ namespace NPchUpdate::NTwoStep {
                     key.Str(identity);
                     key.Str(cache.Digest(argv.front()));
                     key.Str(ShellJoin(argv));
+                    key.Str(ShellJoin(pchFlags));
                     key.Str(header);
                     key.Str(parentKey);
                     keys[g] = "pch-" + HashHex(key.Data());
                     const auto dir = cache.Directory(keys[g]);
                     artifacts[g] = JoinPath(dir, "output.pch");
                     auto command = argv;
+                    command.insert(command.end(), pchFlags.begin(), pchFlags.end());
                     if (pch.Parent >= 0) { command.insert(command.end(), {"-include-pch", artifacts[pch.Parent]}); }
                     command.insert(command.end(), {"-x", "c++-header", JoinPath(dir, "input.h"), "-o", artifacts[g]});
                     return cache.Probe(keys[g], s.Baseline, command, header, Run, {},
@@ -2311,6 +2405,104 @@ namespace NPchUpdate::NTwoStep {
                         built[g] = tryProbe(kept);
                     }
                 }
+                // An initial base measured larger than the room the plan leaves
+                // for it would take its whole family to NONE at the measured
+                // fit, and a class without a base is lost to the correction
+                // too, which builds none. Trim it to that room instead: its
+                // roots in the order Pick accepted them, densest first, up to
+                // the last whose artifact still fits, the thin tail dropped.
+                // The include order is the header's own business. A search on
+                // the real bytes finds that root in a few probes from a first
+                // guess by the source bytes each root adds.
+                //
+                // The room is what is left after what the plan must keep, its
+                // bases. A plan usually arrives with spare deltas for the probe
+                // allowance and is over the budget by estimate; its bases still
+                // have to fit, each after the others. A plan whose bases alone
+                // are over the budget by estimate is left to the regular eviction.
+                std::vector<int> tail;
+                double measured = 0, room = 0;
+                bool abandoned = false;
+                if (built[g] && !s.Corrected && int(g) < layout.Bases && pch.Roots.size() - reduced[g].size() > 1) {
+                    const double budget = s.Data.Resources.Disk;
+                    double total = 0, mandatory = 0;
+                    for (size_t h = 0; h < prediction.PchBytes.size(); ++h) {
+                        total += prediction.PchBytes[h];
+                        if (int(h) < layout.Bases) { mandatory += prediction.PchBytes[h]; }
+                    }
+                    const double own = prediction.PchBytes.at(g);
+                    // Everything else counts against the room while the whole plan
+                    // fits by estimate; after that only the other bases do.
+                    const double others = total <= budget ? total - own : mandatory - own;
+                    room = budget - others;
+                    measured = double(FileSize(artifacts[g]));
+                    if (mandatory <= budget && room > 0 && measured > room) {
+                        auto kept = pch.Roots;
+                        for (int r : reduced[g]) { kept.erase(std::find(kept.begin(), kept.end(), r)); }
+                        const std::vector<int> untrimmed = kept;
+                        // Source bytes each root adds beyond the ones before it.
+                        std::vector<double> added;
+                        std::vector<char> seen(s.Data.Units.size());
+                        double source = 0;
+                        for (int r : kept) {
+                            double bytes = 0;
+                            for (int u : UnitClosure(s.Data, {r})) {
+                                if (!seen[u]) {
+                                    seen[u] = 1;
+                                    bytes += s.Data.Units[u].Bytes;
+                                }
+                            }
+                            added.push_back(bytes);
+                            source += bytes;
+                        }
+                        double bytes = 0;
+                        size_t guess = 0;
+                        while (guess + 1 < kept.size() && bytes + added[guess] <= room / measured * source) {
+                            bytes += added[guess];
+                            ++guess;
+                        }
+                        // The largest prefix that fits: none is known to fit, the
+                        // whole set is known not to.
+                        size_t lo = 0, hi = kept.size();
+                        size_t k = std::clamp(guess, size_t(1), hi - 1);
+                        auto fits = [&](const std::vector<int>& prefix) {
+                            return probePch(prefix) && double(FileSize(artifacts[g])) <= room;
+                        };
+                        // Seven halvings tell the last fitting prefix of up to
+                        // 128 roots apart where the guess by source bytes
+                        // misses: a small header instantiating most of the
+                        // artifact sits anywhere in the order. An exact guess
+                        // is done in a probe or two.
+                        for (int probes = 0; probes < 7 && hi - lo > 1 && lo < k && k < hi; ++probes) {
+                            if (fits(std::vector<int>(kept.begin(), kept.begin() + k))) {
+                                lo = k;
+                            } else {
+                                hi = k;
+                            }
+                            k = lo + (hi - lo) / 2;
+                        }
+                        // A base keeps at least its first root: none fitting the
+                        // room is for the measured eviction to say.
+                        tail.assign(kept.begin() + std::max<size_t>(1, lo), kept.end());
+                        kept.resize(std::max<size_t>(1, lo));
+                        if (!tail.empty()) {
+                            // The probes moved the artifact: back to the kept set (cached).
+                            if (probePch(kept)) {
+                                reduced[g].insert(reduced[g].end(), tail.begin(), tail.end());
+                            } else {
+                                // A kept root compiled only with one of the dropped,
+                                // under the flags of its class as the PCH builds:
+                                // the fit of a prefix is no proof that it compiles.
+                                // The trim is not for this base. Back to what did
+                                // compile, cached too and no failed probe recorded:
+                                // the measured fit decides, with its own reason.
+                                tail.clear();
+                                built[g] = probePch(untrimmed);
+                                abandoned = true;
+                            }
+                        }
+                    }
+                }
                 if (built[g]) {
                     const bool selfReduced = !reduced[g].empty();
                     const bool parentReduced = pch.Parent >= 0 && !reduced[pch.Parent].empty();
@@ -2334,15 +2526,29 @@ namespace NPchUpdate::NTwoStep {
                 }
                 {
                     std::string note;
-                    if (!reduced[g].empty()) {
+                    // Only what the bisection found: a tail dropped for the size
+                    // of the artifact has its own line below.
+                    if (reduced[g].size() > tail.size()) {
                         std::vector<std::string> dropped;
-                        for (int r : reduced[g]) { dropped.push_back(s.Data.Units[r].Include); }
-                        note = Format("bisected: dropped %zu root(s) (%s)", reduced[g].size(), Join(dropped, " ").c_str());
+                        // The roots dropped for the size of the artifact stand
+                        // after the ones the bisection found.
+                        for (size_t i = 0; i + tail.size() < reduced[g].size(); ++i) {
+                            dropped.push_back(s.Data.Units[reduced[g][i]].Include);
+                        }
+                        note = Format("bisected: dropped %zu root(s) (%s)", dropped.size(), Join(dropped, " ").c_str());
                         if (built[g] && !failedKey.empty()) {
                             // Why a root was dropped must stay explainable after
                             // the compatibility cache is cleaned up.
                             note += "; last failing probe: " + KeepProbeLog(s, JoinPath(cache.Directory(failedKey), "compiler.log"));
                         }
+                    }
+                    if (!tail.empty() || abandoned) {
+                        std::vector<std::string> dropped;
+                        for (int r : tail) { dropped.push_back(s.Data.Units[r].Include); }
+                        if (!note.empty()) { note += "; "; }
+                        note += Format("measured %.0f bytes where the plan leaves room for %.0f: ", measured, room);
+                        note += abandoned ? "not trimmed, a kept root compiles only with a dropped one"
+                                          : Format("dropped %zu tail root(s) (%s)", tail.size(), Join(dropped, " ").c_str());
                     }
                     // Report the last failing probe's log, not the key of the
                     // final (possibly successful) prefix probe.
@@ -3138,6 +3344,28 @@ namespace NPchUpdate::NTwoStep {
 
     void IoSelfTest() {
         auto check = [](bool ok, const std::string& message) { if (!ok) { Fail("I/O self-test: " + message); } };
+        // A plan builds and measures the PCH GN deploys: with the flags of
+        // pch_flags.gni that change the artifact, without those that only
+        // name its language or where it resolves its paths.
+        {
+            const char* temp = std::getenv("TMPDIR");
+            auto dir = MakeTempDir(temp ? temp : ".", "pch-flags-");
+            try {
+                TSnapshot s;
+                s.Root = dir;
+                check(MeasurementPchFlags(s).empty(), "a tree without pch_flags.gni measures a PCH with the flags of its class alone");
+                MakeDirs(JoinPath(dir, "build/gn/pch/global"));
+                WriteFile(JoinPath(dir, "build/gn/pch/global/pch_flags.gni"),
+                          "pch_only_cflags = [ \"-x\", \"c++-header\", \"-fpch-instantiate-templates\", \"-relocatable-pch\","
+                          " \"-Xclang\", \"-fno-pch-timestamp\", \"-Xclang\", \"-fmodule-file-home-is-cwd\" ]");
+                check(MeasurementPchFlags(s) == std::vector<std::string>({"-fpch-instantiate-templates", "-Xclang", "-fno-pch-timestamp"}),
+                      "a measured PCH carries the flags of pch_flags.gni that change the artifact");
+            } catch (...) {
+                RemoveTree(dir);
+                throw;
+            }
+            RemoveTree(dir);
+        }
         // Random bytes in random chunks digest as the whole output.
         {
             uint64_t state = 7;
@@ -3255,6 +3483,26 @@ namespace NPchUpdate::NTwoStep {
             check(MeasuredActions(3, {}) == std::vector<char>({0, 0, 0}) &&
                   MeasuredActions(3, {0, 2}) == std::vector<char>({1, 0, 1}),
                   "an empty target sample is not interpreted as a full verification");
+            // What a header alone still needs of the C++ runtime is no need at
+            // all: every final link supplies it. A project symbol is.
+            check(RuntimeOnly({}) &&
+                      RuntimeOnly({"_Znwm", "_ZnwmSt11align_val_t", "_Znam", "_ZdlPv", "_ZdlPvm", "_ZdaPv", "__cxa_atexit",
+                                    "__cxa_guard_acquire", "__gxx_personality_v0", "_Unwind_Resume", "__clang_call_terminate",
+                                    "_ZTVN10__cxxabiv117__class_type_infoE", "_ZNSt3__18ios_base4InitC1Ev", "_ZSt4cout",
+                                    "_ZNKSt3__19basic_iosIcNS_11char_traitsIcEEE4clearEj",
+                                    "_ZZNSt3__110this_thread6get_idEvE15__thread_local_id", "_ZThn16_NSt3__16localeC1Ev",
+                                    "_ZGVZNKSt3__16locale5globalEvE4none",
+                                    "_ZTv0_24_NSt3__19basic_ostreamIcNS_11char_traitsIcEEE5flushEv"}),
+                  "the C++ runtime symbols a header alone needs do not make it unsafe");
+            // The entity itself must be the runtime's, not its signature: a
+            // project function taking a std::string is a symbol of the project,
+            // and so is a thunk, a local static or a vtable of its own.
+            check(!RuntimeOnly({"_ZN7example8RegisterERKNSt3__112basic_stringIcNS0_11char_traitsIcEENS0_9allocatorIcEEEE"}) &&
+                      !RuntimeOnly({"_ZneRK7example3KeyS2_"}) && !RuntimeOnly({"Provided"}) &&
+                      !RuntimeOnly({"_ZZN7example3fooEvE5count"}) && !RuntimeOnly({"_ZTV7example3Base"}) &&
+                      !RuntimeOnly({"_ZThn16_NK7example3Base3runEv"}) && !RuntimeOnly({"_Z1fISt6vectorIiEEvv"}) &&
+                      !RuntimeOnly({"_ZL9StaticFuncv"}) && !RuntimeOnly({"_ZN3foo3barEv"}),
+                  "a symbol of the project needed by a header alone keeps it out of a base");
         }
         {
             TSnapshot target;
@@ -4746,6 +4994,145 @@ namespace NPchUpdate::NTwoStep {
             check(s.Layout.Assignment == std::vector<int>({0, 0, 0}) &&
                   ReadFile(JoinPath(s.Directory, "compatibility.tsv")).find("unknown provider") != std::string::npos,
                   "provider cache notices replaced artifacts and rejects unknown symbols");
+            // An initial base measured larger than the room the plan leaves for
+            // it is trimmed to that room instead of taking its whole family to
+            // NONE at the measured fit: the thin tail of its roots goes, in the
+            // order Pick accepted them, whatever layer of the include order
+            // its headers belong to. A plan over the budget by estimate because
+            // of spare deltas still trims, only the bases being mandatory. A
+            // corrected base is frozen: over the budget it is an error, as before.
+            {
+                const auto big = JoinPath(s.Baseline, "big.h");
+                std::string text = "#pragma once\n";
+                for (int i = 0; i < 50000; ++i) { text += "struct Big" + std::to_string(i) + " { int a; double b; };\n"; }
+                WriteFile(big, text);
+                s.Data.Units.resize(5);
+                s.Data.Units[0].Headers = {"util/directory/base.h"}; // layer 2
+                s.Data.Units[4].Include = "\"" + big + "\"";
+                s.Data.Units[4].Headers = {"contrib/libs/big/big.h"}; // layer 1: first in the include order
+                s.Data.Units[4].Parse = .5;
+                s.Data.Units[4].Bytes = 100; // the estimate knows nothing of the content
+                s.Data.Units[4].Stable = true;
+                TLayout topHeavy;
+                topHeavy.Bases = 1;
+                TPch pch;
+                pch.Class = pch.Representative = 0;
+                pch.Roots = pch.Units = {0, 4}; // the dense root first, as Pick accepts them
+                // A spare delta the estimate makes large: the plan is over the
+                // budget by estimate, and its base still has to fit.
+                TPch spare;
+                spare.Class = spare.Representative = 0;
+                spare.Parent = 0;
+                spare.Roots = {3}; // the safe leaf, which the base-only owner saves with below
+                spare.Units = {0, 3};
+                topHeavy.Pchs = {pch, spare};
+                topHeavy.Assignment = {0, 1, 0};
+                const auto spareBytes = s.Data.Units[3].Bytes;
+                s.Data.Units[3].Bytes = 1e6; // far over the budget below, within the RAM model
+                const auto ownerOwn = s.Data.Files[3].Own;
+                s.Data.Files[3].Own = {{0, .5}, {3, .5}};
+                const auto budget = s.Data.Resources.Disk;
+                s.Data.Resources.Disk = 1e6; // far above the base's estimate, far below its artifact
+                s.Layout = topHeavy;
+                Preflight(s, cache);
+                const auto report = ReadFile(JoinPath(s.Directory, "compatibility.tsv"));
+                check(s.Layout.Bases == 1 && s.Layout.Pchs.size() == 2 && s.Layout.Pchs[0].Roots == std::vector<int>({0}) &&
+                          s.Layout.Pchs[0].Units == std::vector<int>({0}) && s.Layout.Pchs[1].Parent == 0 &&
+                          s.Layout.Pchs[1].Roots == std::vector<int>({3}) && s.Layout.Assignment == std::vector<int>({0, 1, 0}),
+                      "an initial base measured over the room the plan leaves it loses its thin tail, not its family");
+                check(report.find("dropped 1 tail root") != std::string::npos &&
+                          report.find("bisected: dropped 0 root") == std::string::npos,
+                      "the tail is reported on its own, not as a bisection that dropped nothing");
+                s.Corrected = true;
+                s.Layout = topHeavy;
+                bool overBudget = false;
+                try { Preflight(s, cache); } catch (const TError&) { overBudget = true; }
+                check(overBudget, "a corrected base is frozen: over the budget is an error, not a trim");
+                s.Corrected = false;
+                s.Data.Units[3].Bytes = spareBytes;
+                s.Data.Files[3].Own = ownerOwn;
+                s.Data.Resources.Disk = budget;
+            }
+            // The trim is abandoned where a kept root compiles only with a
+            // dropped one: that the PCH of a prefix fits is no proof that it
+            // builds under the flags of its class. The base is back whole and
+            // the measured fit decides: it keeps the base and drops the spare
+            // delta for it, or evicts the family with a disk reason. The trim
+            // used to turn a base that built into a rejected one.
+            {
+                const auto budget = s.Data.Resources.Disk;
+                WriteFile(base, "#pragma once\nstruct Derived : Big0 { int x; };\n"); // needs the root the trim drops
+                const auto ownerOwn = s.Data.Files[3].Own;
+                s.Data.Files[3].Own = {{0, .5}, {3, .5}};
+                TLayout dependent;
+                dependent.Bases = 1;
+                TPch pch;
+                pch.Class = pch.Representative = 0;
+                pch.Roots = pch.Units = {0, 4};
+                TPch spare;
+                spare.Class = spare.Representative = 0;
+                spare.Parent = 0;
+                spare.Roots = {3};
+                spare.Units = {0, 3};
+                dependent.Pchs = {pch, spare};
+                dependent.Assignment = {0, 1, 0};
+                const auto spareBytes = s.Data.Units[3].Bytes;
+                s.Data.Units[3].Bytes = 3e6; // the spare delta alone leaves the base less room than it takes
+                s.Data.Resources.Disk = 30e6; // the whole base and the delta fit
+                s.Layout = dependent;
+                Preflight(s, cache);
+                check(s.Layout.Bases == 1 && s.Layout.Pchs.size() == 2 && s.Layout.Pchs[0].Roots == std::vector<int>({0, 4}) &&
+                          s.Layout.Assignment == std::vector<int>({0, 1, 0}) &&
+                          ReadFile(JoinPath(s.Directory, "compatibility.tsv")).find("not trimmed, a kept root compiles only with a dropped one") != std::string::npos,
+                      "a base whose kept root needs a dropped one is back whole, and the measured fit keeps it with its delta");
+                s.Layout = dependent;
+                s.Data.Resources.Disk = 20e6; // the base alone does not fit
+                Preflight(s, cache);
+                check(s.Layout.Pchs.empty() && s.Layout.Assignment == std::vector<int>(3, -1) &&
+                          ReadFile(JoinPath(s.Directory, "disk-budget.tsv")).find("family") != std::string::npos,
+                      "the same base over the budget is evicted for its bytes, not rejected for a compile that never failed");
+                s.Data.Units[3].Bytes = spareBytes;
+                s.Data.Files[3].Own = ownerOwn;
+                s.Data.Resources.Disk = budget;
+                WriteFile(base, "#pragma once\nstruct Base {};\n");
+            }
+            // A small header instantiating most of the artifact can sit
+            // anywhere in the order of the roots. The guess by source bytes
+            // then lands far past the boundary, and only enough halvings find
+            // the last prefix that fits: here ten of twenty thin roots before
+            // the eleventh, a large one.
+            {
+                const auto budget = s.Data.Resources.Disk;
+                s.Data.Units.resize(23);
+                const int thin[] = {0, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22};
+                for (int u = 5; u < 23; ++u) {
+                    const auto path = JoinPath(s.Baseline, "thin" + std::to_string(u) + ".h");
+                    WriteFile(path, "#pragma once\nstruct Thin" + std::to_string(u) + " {};\n");
+                    s.Data.Units[u].Include = "\"" + path + "\"";
+                    s.Data.Units[u].Parse = .01;
+                    s.Data.Units[u].Bytes = 100;
+                    s.Data.Units[u].Stable = true;
+                }
+                TLayout wide;
+                wide.Bases = 1;
+                TPch pch;
+                pch.Class = pch.Representative = 0;
+                for (int i = 0; i < 10; ++i) { pch.Roots.push_back(thin[i]); }
+                pch.Roots.push_back(4); // the large one, small to the estimate
+                for (int i = 10; i < 20; ++i) { pch.Roots.push_back(thin[i]); }
+                pch.Units = pch.Roots;
+                std::sort(pch.Units.begin(), pch.Units.end());
+                wide.Pchs = {pch};
+                wide.Assignment.assign(s.Data.Targets.size(), 0);
+                s.Data.Resources.Disk = 1e6; // ten thin roots fit, the large one does not
+                s.Layout = wide;
+                Preflight(s, cache);
+                check(s.Layout.Pchs.size() == 1 && s.Layout.Pchs[0].Roots.size() == 10 &&
+                          std::find(s.Layout.Pchs[0].Roots.begin(), s.Layout.Pchs[0].Roots.end(), 4) == s.Layout.Pchs[0].Roots.end() &&
+                          ReadFile(JoinPath(s.Directory, "compatibility.tsv")).find("dropped 11 tail root(s)") != std::string::npos,
+                      "the search for the last prefix that fits does not stop three halvings short of it");
+                s.Data.Resources.Disk = budget;
+            }
             candidate.Bases = 0;
             candidate.Pchs.erase(candidate.Pchs.begin());
             candidate.Pchs[0].Parent = -1;

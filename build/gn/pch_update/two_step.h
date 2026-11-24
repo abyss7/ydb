@@ -40,6 +40,9 @@ namespace NPchUpdate::NTwoStep {
         std::vector<int> Producers;
         double Parse = 0;
         double Bytes = 0; // header source bytes, serialized once by a PCH
+        // Unchanged in the history and not generated. A header that did
+        // change may still be base material when the change is cheap for the
+        // objective: Pick decides.
         bool Stable = false;
         bool Safe = true;
     };
@@ -87,6 +90,7 @@ namespace NPchUpdate::NTwoStep {
         std::vector<int> Assignment; // target -> leaf, -1 means no PCH
         // Initial plan only: 1 = calibration control without PCH, 2 = control
         // kept on the base to measure the deltas' marginal value. Empty otherwise.
+        // A class of fewer than four owners has none.
         std::vector<char> Controls;
     };
 
@@ -152,7 +156,8 @@ namespace NPchUpdate::NTwoStep {
         std::vector<double> TargetGain;
         // Per compiler class, per unit: PCH bytes per source byte, build
         // seconds per parse second (zero: class prior) and saved-time
-        // multiplier (zero: none). Empty tables mean uncalibrated.
+        // multiplier (negative: none, zero: a leaf that helped nobody). Empty
+        // tables mean uncalibrated.
         std::vector<std::vector<double>> UnitSize;
         std::vector<std::vector<double>> UnitBuild;
         std::vector<std::vector<double>> UnitGain;

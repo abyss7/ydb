@@ -15,6 +15,15 @@ namespace NPchUpdate::NTwoStep {
     namespace {
         constexpr double INF = std::numeric_limits<double>::infinity();
 
+        // How many sibling deltas a target weighs as alternatives to its own
+        // leaf. A class of many clusters has more than three that share a
+        // common header; the best of them for the target may be the fourth.
+        constexpr int SiblingLimit = 8;
+
+        // An accepted root of a PCH: what it gains per estimated byte, and
+        // those bytes. What the disk prices of a candidate are cut from.
+        using TDensity = std::pair<double, double>;
+
         struct TDependencyCycle : TError {
             TDependencyCycle(const std::string& message, std::vector<int> nodes)
                 : TError(message), Nodes(std::move(nodes)) {}
@@ -196,9 +205,11 @@ namespace NPchUpdate::NTwoStep {
                 c.Saved *= Gain(f);
                 return c;
             }
+            // Negative: no measurement of this unit, the class coefficients
+            // stand. Zero is a leaf that helped its owners nothing.
             double UnitGain(int cls, int u) const {
                 return cls >= 0 && size_t(cls) < C.UnitGain.size() && size_t(u) < C.UnitGain[cls].size() &&
-                       C.UnitGain[cls][u] > 0 ? C.UnitGain[cls][u] : 1.0;
+                       C.UnitGain[cls][u] >= 0 ? C.UnitGain[cls][u] : 1.0;
             }
             double SizeWeight(int cls, int u) const {
                 return cls >= 0 && size_t(cls) < C.UnitSize.size() && size_t(u) < C.UnitSize[cls].size() &&
@@ -291,6 +302,29 @@ namespace NPchUpdate::NTwoStep {
             }
         };
 
+        // Shared base material: safe for every link and not written by the build.
+        // A header that changed in the history is base material still when the
+        // change costs the objective nothing (cold-only) or next to nothing: a
+        // rare commit, and only where the history is long enough to call it rare.
+        // Pick prices the rebuilds of what it accepts; what stays out is a header
+        // most commits touch, which reprices every rebuild of the whole accepted
+        // body. One changed commit in a thousand used to keep a header of util/
+        // out of every base together with the whole cone of headers including it.
+        // Generated output is never base material, changed or not: the history
+        // lists a generated header with every commit touching its source, so
+        // to a changed header it would look like any other. A base holding it
+        // would order the code generation into every compile of the class.
+        bool BaseMaterial(const TData& d, const TUnit& unit) {
+            if (!unit.Safe || !unit.Producers.empty()) { return false; }
+            for (const auto& header : unit.Headers) {
+                if (StartsWith(header, "<out>/")) { return false; }
+            }
+            if (unit.Stable) { return true; }
+            if (unit.Changes.empty()) { return false; }
+            if (d.Q >= 1) { return true; }
+            return d.Scenarios >= 20 && unit.Changes.size() * 50 <= size_t(d.Scenarios);
+        }
+
         // Fast local surrogate. Full graph simulations are reserved for the
         // layout shortlist below; no worker-count multiplier on PCH readiness.
         // diskPrice (lambda) is the marginal consumer seconds one resident PCH
@@ -301,7 +335,7 @@ namespace NPchUpdate::NTwoStep {
         TPch Pick(const TData& d, const TCalibration& calibration, int cls,
                   const std::vector<int>& files, const TPch* base, bool stable,
                   std::map<int, std::vector<int>>& closures, double diskPrice = 0,
-                  std::vector<double>* densities = nullptr) {
+                  std::vector<TDensity>* densities = nullptr) {
             TConsumerModel m{d, calibration};
             TPch p;
             p.Class = cls;
@@ -321,13 +355,13 @@ namespace NPchUpdate::NTwoStep {
                 sizeOf[u] = m.SizeWeight(cls, int(u));
                 buildOf[u] = m.BuildWeight(cls, int(u), base == nullptr);
             }
-            std::vector<double> mass(d.Units.size());
+            // A root is any self-contained unit the files parse, by its own
+            // time or only through what it includes. An umbrella made of
+            // nothing but includes has no own time of its own, and still
+            // serializes the headers below it that cannot stand alone.
+            std::vector<char> parsed(d.Units.size(), 0);
             for (int f : files) {
-                double frequency = d.Q + (1 - d.Q) *
-                    double(d.Actions[d.Files[f].Action].Changes.size()) / std::max(1, d.Scenarios);
-                for (auto [u, own] : d.Files[f].Own) {
-                    mass[u] += own * frequency;
-                }
+                for (const auto& own : d.Files[f].Own) { parsed[own.first] = 1; }
             }
             std::vector<int> candidates;
             for (size_t u = 0; u < d.Units.size(); ++u) {
@@ -344,7 +378,7 @@ namespace NPchUpdate::NTwoStep {
                 // Injecting one into a PCH leaks state into later headers.
                 auto name = include.size() > 2 ? include.substr(1, include.size() - 2) : std::string();
                 bool fragment = name.ends_with(".inc") || name.ends_with(".def");
-                if (!include.empty() && !absolute && !fragment && mass[u] > 0) {
+                if (!include.empty() && !absolute && !fragment && parsed[u]) {
                     candidates.push_back(int(u));
                 }
             }
@@ -442,7 +476,7 @@ namespace NPchUpdate::NTwoStep {
                     // Shared bases stay conservative. Specialized leaves may
                     // require libraries: Preflight checks the actual PCH against
                     // every final link of each assigned owner before accepting it.
-                    e.Valid &= !stable || (d.Units[u].Safe && d.Units[u].Stable);
+                    e.Valid &= !stable || BaseMaterial(d, d.Units[u]);
                     if (!selected[u]) {
                         e.Work += d.Units[u].Parse;
                         e.Build += d.Units[u].Parse * buildOf[u];
@@ -550,7 +584,7 @@ namespace NPchUpdate::NTwoStep {
                 }
                 p.Roots.push_back(root);
                 if (densities) {
-                    densities->push_back(e.Gain / artifactBytes(e));
+                    densities->emplace_back(e.Gain / artifactBytes(e), artifactBytes(e));
                 }
                 const auto& closure = closures.at(root);
                 for (int u : closure) {
@@ -683,30 +717,48 @@ namespace NPchUpdate::NTwoStep {
             return postings;
         }
 
-        // Deltas of one compiler class overlapping a residual profile, most
-        // shared mass first: candidates to absorb a target when its own leaf
-        // is evicted or rejected, instead of falling all the way to the base
-        // or NONE. Never crosses compiler classes: a PCH of another class
-        // cannot serve these files.
+        // Deltas of one compiler class overlapping a residual profile, the
+        // best net gain first: the parse seconds a target shares with a delta
+        // less what loading the delta's own content costs on top of the base.
+        // Rank on the raw overlap alone and a bloated delta of another
+        // subsystem that pulls in a common header transitively crowds out the
+        // compact one that was built for the target. Candidates to absorb a
+        // target when its own leaf is evicted or rejected, instead of falling
+        // all the way to the base or NONE. Never crosses compiler classes: a
+        // PCH of another class cannot serve these files.
         std::vector<int> SiblingDeltas(const TLayout& l, const std::map<int, std::vector<int>>& postings,
-                                       int cls, const TProfile& profile, int exclude, int limit) {
+                                       const TConsumerModel& m, int cls, int t, const TProfile& profile, int exclude, int limit) {
             std::map<int, double> overlap;
-            for (const auto& [u, m] : profile) {
+            for (const auto& [u, mass] : profile) {
                 auto it = postings.find(u);
                 if (it == postings.end()) {
                     continue;
                 }
                 for (int g : it->second) {
                     if (g != exclude && l.Pchs[g].Class == cls) {
-                        overlap[g] += m;
+                        overlap[g] += mass;
                     }
                 }
             }
+            const auto c = m.Coefficients(cls);
+            // Saved parse seconds per second of load under the class coefficients.
+            const double loadPerSaved = c.Saved > 0 ? std::max(0.0, c.Load) / c.Saved : 0.02;
+            // The profile sums the weighted parse seconds of every file of the
+            // target, and every one of them pays the load of a delta it takes:
+            // the same scale for both, whatever the target's size or churn.
+            double frequency = 0;
+            for (int f : m.D.Targets[t].Files) {
+                const auto& a = m.D.Actions[m.D.Files[f].Action];
+                frequency += m.D.Q + (1 - m.D.Q) * a.Changes.size() / std::max(1, m.D.Scenarios);
+            }
             std::vector<std::pair<double, int>> ranked;
-            for (const auto& [g, m] : overlap) {
-                if (m > 0) {
-                    ranked.emplace_back(m, g);
+            for (const auto& [g, mass] : overlap) {
+                if (mass <= 0) {
+                    continue;
                 }
+                double own = 0;
+                m.ForOwn(l.Pchs[g], &l.Pchs[l.Pchs[g].Parent].Units, [&](int u) { own += m.D.Units[u].Parse; });
+                ranked.emplace_back(mass - loadPerSaved * own * frequency, g);
             }
             std::sort(ranked.begin(), ranked.end(), [](const auto& a, const auto& b) {
                 return a.first != b.first ? a.first > b.first : a.second < b.second;
@@ -829,7 +881,7 @@ namespace NPchUpdate::NTwoStep {
 
         // Price a delta against each assigned owner's better fallback. Only
         // surviving children contribute to the subsequent family-vs-NONE test.
-        void CheckPayback(const TData& d, TLayout& l, const TCalibration& c, bool frozen,
+        void CheckPayback(const TData& d, TLayout& l, const TCalibration& c,
                           const std::string& source, int pass, const std::vector<int>& ids,
                           std::vector<std::string>* reasons, std::ostream* report) {
             TWorkCosts costs{d, l, c};
@@ -888,7 +940,7 @@ namespace NPchUpdate::NTwoStep {
                 };
                 consider(parent);
                 const auto profile = ResidualProfile(d, int(t), maskOf(parent));
-                for (int sibling : SiblingDeltas(l, postings, d.Targets[t].Class, profile, g, 3)) {
+                for (int sibling : SiblingDeltas(l, postings, costs.M, d.Targets[t].Class, t, profile, g, SiblingLimit)) {
                     if (sibling >= l.Bases) {
                         consider(sibling);
                     }
@@ -1012,10 +1064,11 @@ namespace NPchUpdate::NTwoStep {
             for (int g = 0; g < l.Bases; ++g) {
                 auto& family = groups[g];
                 if (family.Owners.empty()) { continue; }
-                double base = costs.Build(g);
-                // Frozen bases are built even under NONE. Report their cost
-                // but charge only avoidable builds for the admission decision.
-                if (!admit(g, family.VsNone, base + family.ChildBuild, frozen ? base : 0, family.Owners.size())) {
+                // A frozen base is frozen in content only. Its build is priced
+                // like any other, by what the measurement says it costs: a
+                // family that does not cover it against NONE is a loss in the
+                // final build, whatever the prior that admitted it in S0.
+                if (!admit(g, family.VsNone, costs.Build(g) + family.ChildBuild, 0, family.Owners.size())) {
                     for (int t : family.Owners) { assign(t, -1, "family-no-payback"); }
                 }
             }
@@ -1418,7 +1471,7 @@ namespace NPchUpdate::NTwoStep {
             };
             consider(base);
             const auto profile = ResidualProfile(d, t, baseMask[base]);
-            for (int sibling : SiblingDeltas(l, postings, l.Pchs[g].Class, profile, g, 3)) {
+            for (int sibling : SiblingDeltas(l, postings, costs.M, l.Pchs[g].Class, t, profile, g, SiblingLimit)) {
                 if (sibling >= l.Bases) { consider(sibling); }
             }
             std::sort(list.begin(), list.end(), [](const TFallback& a, const TFallback& b) {
@@ -1682,6 +1735,19 @@ namespace NPchUpdate::NTwoStep {
                 double cheapestLoss = INF;
                 TPrediction best;
                 TConsumerModel model{d, c};
+                // Expected consumer work of one owner under one leaf (NONE: -1).
+                auto cost = [&](int t, int g) {
+                    const auto& units = g >= 0 ? layout.Pchs[g].Units : std::vector<int>();
+                    const double load = g >= 0 ? model.Load(units) : 0;
+                    double total = 0;
+                    for (int i : d.Targets[t].Files) {
+                        const auto& f = d.Files[i];
+                        const auto& a = d.Actions[f.Action];
+                        const double freq = d.Q + (1 - d.Q) * a.Changes.size() / std::max(1, d.Scenarios);
+                        total += freq * model.Time(f, g >= 0 ? model.Saved(f, units) : 0, load);
+                    }
+                    return total;
+                };
                 for (int t : targets) {
                     const int old = layout.Assignment[t];
                     for (int g = layout.Pchs[old].Parent;; g = layout.Pchs[g].Parent) {
@@ -1701,26 +1767,22 @@ namespace NPchUpdate::NTwoStep {
                         }
                         if (g < 0) { break; }
                     }
-                    // Several cycles may preclude scoring any single move.
-                    // Drop one witnessed edge with the least estimated consumer
-                    // benefit, then diagnose the remaining graph. Each such
-                    // step removes one assignment permanently, so it terminates.
-                    const auto& leaf = layout.Pchs[old];
-                    const double load = model.Load(leaf.Units);
-                    double loss = 0;
-                    for (int i : d.Targets[t].Files) {
-                        const auto& f = d.Files[i];
-                        const auto& a = d.Actions[f.Action];
-                        const double freq = d.Q + (1 - d.Q) * a.Changes.size() / std::max(1, d.Scenarios);
-                        loss += freq * (model.Time(f, 0, 0) - model.Time(f, model.Saved(f, leaf.Units), load));
-                    }
+                    // Several cycles may preclude scoring any single move: the
+                    // other members of a generator keep each of its targets on
+                    // the cycle. Move one witnessed owner to the parent of its
+                    // leaf, NONE off a base: the least estimated loss among
+                    // them, and it keeps what the parent saves. A cycle through
+                    // the parent itself comes back and is cut the same way one
+                    // level down. Each step moves one assignment down its
+                    // chain, so it terminates.
+                    const double loss = cost(t, layout.Pchs[old].Parent) - cost(t, old);
                     if (provisional < 0 || loss < cheapestLoss) { provisional = t; cheapestLoss = loss; }
                 }
                 const int t = bestTarget >= 0 ? bestTarget : provisional;
-                const int g = bestTarget >= 0 ? bestGroup : -1;
+                const int g = bestTarget >= 0 ? bestGroup : layout.Pchs[layout.Assignment[t]].Parent;
                 Log(Format("selection width=%d: cycle repair %s PCH %d -> %d (%s)", width,
                            d.Targets[t].Label.c_str(), layout.Assignment[t], g,
-                           bestTarget >= 0 ? "best acyclic local move" : "multiple cycles; least estimated loss on witnessed cycle"));
+                           bestTarget >= 0 ? "best acyclic local move" : "multiple cycles; least estimated loss on witnessed cycle, to the parent"));
                 layout.Assignment[t] = g;
                 if (bestTarget >= 0) { return best; }
             }
@@ -1748,7 +1810,7 @@ namespace NPchUpdate::NTwoStep {
         };
         TLayout bases;
         bases.Assignment.assign(d.Targets.size(), -1);
-        std::vector<double> baseDensities;
+        std::vector<TDensity> baseDensities;
         if (frozen) {
             bases.Bases = frozen->Bases;
             bases.Pchs.assign(frozen->Pchs.begin(), frozen->Pchs.begin() + frozen->Bases);
@@ -1773,7 +1835,7 @@ namespace NPchUpdate::NTwoStep {
             std::ostringstream payback;
             payback.precision(17);
             for (int pass = 1;; ++pass) {
-                CheckPayback(d, l, c, frozen != nullptr, source, pass, ids, diagnostics ? &reasons : nullptr,
+                CheckPayback(d, l, c, source, pass, ids, diagnostics ? &reasons : nullptr,
                              diagnostics && factor == 1 ? &payback : nullptr);
                 std::vector<uint64_t> estimates;
                 TConsumerModel model{d, c};
@@ -1858,7 +1920,7 @@ namespace NPchUpdate::NTwoStep {
         // label happens to sort into.
         auto construct = [&](const TCandidateSpec& spec, TCandidate& observed,
                              std::map<int, std::vector<int>>& candidateClosures,
-                             std::vector<double>* densities) {
+                             std::vector<TDensity>* densities) {
             TLayout candidate;
             if (frozen || spec.Lambda == 0) {
                 candidate = bases;
@@ -1912,22 +1974,64 @@ namespace NPchUpdate::NTwoStep {
                 // without PCH (the class baseline: compiler speed, the ratio
                 // of the traces to it and its spread) and as many owners that
                 // would take a delta stay on the base (what a delta adds over
-                // it). Both are spread evenly over the label order, which says
+                // it). Both are spread evenly over a label order, which says
                 // nothing of an owner's headers, and the sample measures them
                 // first. The counts grow with sqrt(n): a large class gives up
                 // a few percent of its coverage, not a tenth of it.
                 std::vector<char> role(targets.size(), 0);
                 if (!frozen) {
                     const size_t n = targets.size();
-                    const size_t controls = std::clamp((size_t(std::sqrt(double(n))) + 1) / 2, size_t(1), size_t(6));
+                    // A bare control pays nothing towards the payback of its
+                    // class base, and a base that leaves the initial plan is
+                    // gone for the correction too, which never builds one. A
+                    // class of fewer than four owners therefore has no bare
+                    // control: a lone owner would be left without any PCH at
+                    // all, and one of two or three owners may well hold up
+                    // their common base by itself. Such a class is too small
+                    // to identify saved and load apart anyway, and its owners
+                    // are still measured under their PCH and anchored.
+                    const size_t controls = n < 4 ? 0 : std::clamp((size_t(std::sqrt(double(n))) + 1) / 2, size_t(1), size_t(6));
+                    // Both kinds of control are drawn from the lighter half of
+                    // the class, by the parse seconds a PCH can take off an
+                    // owner: the heaviest owners always stay to pay for their
+                    // base, wherever they sort. Owners of equal work form one
+                    // pool, as before.
+                    std::vector<size_t> light;
+                    if (controls) {
+                        std::vector<double> work(targets.size(), 0);
+                        for (size_t i = 0; i < targets.size(); ++i) {
+                            for (int f : d.Targets[targets[i]].Files) {
+                                const auto& file = d.Files[f];
+                                const double frequency = d.Q + (1 - d.Q) * double(d.Actions[file.Action].Changes.size()) / std::max(1, d.Scenarios);
+                                for (const auto& own : file.Own) { work[i] += own.second * frequency; }
+                            }
+                        }
+                        std::vector<double> sorted = work;
+                        const auto middle = sorted.begin() + sorted.size() / 2;
+                        std::nth_element(sorted.begin(), middle, sorted.end());
+                        for (size_t i = 0; i < targets.size(); ++i) {
+                            if (work[i] <= *middle) { light.push_back(i); }
+                        }
+                    }
                     for (size_t k = 0; k < controls; ++k) {
-                        role[k * n / controls] = 1;
+                        role[light[k * light.size() / controls]] = 1;
                         if (n >= 8) {
-                            const size_t at = (2 * k + 1) * n / (2 * controls);
-                            if (!role[at]) { role[at] = 2; }
+                            const size_t at = (2 * k + 1) * light.size() / (2 * controls);
+                            if (!role[light[at]]) { role[light[at]] = 2; }
                         }
                     }
                 }
+                // A target the measurement saw save nothing with any PCH (a
+                // multiplier of zero) never takes one. Its files in the bucket
+                // of a cluster would only add their load and extra compiles
+                // to the delta the others have to pay for: a big one makes a
+                // small cluster's delta fail where its real members would
+                // have paid for it.
+                auto takesPch = [&](int t) { return size_t(t) >= c.TargetGain.size() || c.TargetGain[t] > 0; };
+                // The delta a target designs with, its cluster's, and after the
+                // rebuild the one it was on: always among its choices, whatever
+                // its overlap with the others ranks.
+                std::vector<int> ownDelta(targets.size(), -1);
                 // Expectation: every target takes the cheapest of NONE, the
                 // base and the deltas whose roots overlap its profile. Only
                 // the final round records diagnostics: an earlier round's
@@ -1939,10 +2043,11 @@ namespace NPchUpdate::NTwoStep {
                     for (size_t i = 0; i < targets.size(); ++i) {
                         int t = targets[i];
                         std::vector<int> choices{parent};
-                        for (int g : SiblingDeltas(candidate, postings, cls, profiles[i], -1, 3)) {
-                            if (candidate.Pchs[g].Class == cls && std::find(choices.begin(), choices.end(), g) == choices.end()) {
-                                choices.push_back(g);
-                            }
+                        for (int g : SiblingDeltas(candidate, postings, costs.M, cls, t, profiles[i], -1, SiblingLimit)) {
+                            if (std::find(choices.begin(), choices.end(), g) == choices.end()) { choices.push_back(g); }
+                        }
+                        if (ownDelta[i] >= int(classStart) && std::find(choices.begin(), choices.end(), ownDelta[i]) == choices.end()) {
+                            choices.push_back(ownDelta[i]);
                         }
                         double cost = costs.Target(t, -1);
                         const double withoutPch = cost;
@@ -1964,7 +2069,9 @@ namespace NPchUpdate::NTwoStep {
                         // take one.
                         const bool demoted = role[i] == 2 && chosen >= int(classStart);
                         candidate.Assignment[t] = demoted ? parent : chosen;
-                        if (role[i] == 1 || demoted) { observed.Roles[t] = role[i]; }
+                        // The role of the final round alone: one demoted in the
+                        // interim round may keep its delta after the re-pick.
+                        if (record && (role[i] == 1 || demoted)) { observed.Roles[t] = role[i]; }
                         if (diagnostics && record) {
                             observed.Reasons[t] = role[i] == 1 ? "calibration-control" : demoted ? "calibration-base-control" :
                                 candidate.Assignment[t] >= 0 ? "selected" : choices.empty() ? "no-candidate" : "no-estimated-benefit";
@@ -1972,13 +2079,20 @@ namespace NPchUpdate::NTwoStep {
                     }
                 };
                 // Maximization: rebuild each delta strictly from the files
-                // currently on it; deltas with no members disappear.
+                // currently on it; deltas with no members disappear. The first
+                // round builds from the clusters, the second from the deltas
+                // the expectation assigned. The densities of the final round
+                // alone describe the candidate: the roots of an interim delta
+                // that did not survive are no artifact of it.
                 auto maximize = [&](bool fromClusters) {
                     std::vector<std::vector<int>> buckets;
+                    std::vector<int> origin; // the cluster, or the delta, a bucket rebuilds
                     if (fromClusters) {
                         buckets.assign(clusters, {});
+                        origin.resize(clusters);
+                        std::iota(origin.begin(), origin.end(), 0);
                         for (size_t i = 0; i < targets.size(); ++i) {
-                            if (clusterOf[i] >= 0) {
+                            if (clusterOf[i] >= 0 && takesPch(targets[i])) {
                                 const auto& members = d.Targets[targets[i]].Files;
                                 auto& files = buckets[clusterOf[i]];
                                 files.insert(files.end(), members.begin(), members.end());
@@ -1996,16 +2110,29 @@ namespace NPchUpdate::NTwoStep {
                         }
                         for (auto& [g, files] : byDelta) {
                             buckets.push_back(std::move(files));
+                            origin.push_back(g);
                         }
                     }
                     candidate.Pchs.resize(classStart);
-                    for (const auto& files : buckets) {
-                        if (files.empty()) { continue; }
-                        auto p = Pick(d, c, cls, files, &candidate.Pchs[parent], false, candidateClosures, spec.Lambda, densities);
+                    std::map<int, int> rebuilt;
+                    for (size_t b = 0; b < buckets.size(); ++b) {
+                        if (buckets[b].empty()) { continue; }
+                        // The interim deltas of a two-round class are no artifact
+                        // of the candidate: their densities would only crowd
+                        // the grid. The vector is one per candidate, shared by
+                        // every class of it, so it is never cleared here.
+                        auto p = Pick(d, c, cls, buckets[b], &candidate.Pchs[parent], false, candidateClosures, spec.Lambda,
+                                      fromClusters && clusters ? nullptr : densities);
                         if (!p.Roots.empty()) {
                             p.Parent = parent;
+                            rebuilt[origin[b]] = int(candidate.Pchs.size());
                             candidate.Pchs.push_back(std::move(p));
                         }
+                    }
+                    for (size_t i = 0; i < targets.size(); ++i) {
+                        const int from = fromClusters ? clusterOf[i] : candidate.Assignment[targets[i]];
+                        const auto found = rebuilt.find(from);
+                        ownDelta[i] = found == rebuilt.end() ? -1 : found->second;
                     }
                 };
                 maximize(true);
@@ -2065,7 +2192,7 @@ namespace NPchUpdate::NTwoStep {
         {
             // Wave one: free-disk candidates at every width. The collected
             // accept densities feed the disk-price grid of the second wave.
-            std::vector<std::vector<double>> densities(specs.size());
+            std::vector<std::vector<TDensity>> densities(specs.size());
             ParallelFor(specs.size(), analysisJobs, [&](size_t i) {
                 // A parallel candidate owns its mutable closure cache. With one
                 // worker keep reusing the cache, as the serial selector did.
@@ -2086,25 +2213,44 @@ namespace NPchUpdate::NTwoStep {
             // candidate untrimmed or burn a narrow one to the ground. Each
             // price shrinks every artifact of that candidate to its dense
             // prefix instead of evicting whole groups later.
+            //
+            // A cut is where the estimated bytes of the candidate's roots,
+            // densest first, stop fitting a share of the budget: the price
+            // that keeps exactly that prefix. The whole budget is the cut of
+            // a knapsack; 60% leaves a margin to the prior that estimated
+            // the bytes; 125% leaves the rest to the measured fit. By count
+            // of roots instead, a quantile lands wherever a crowd of small
+            // dense headers ends and drops every large one, most of the
+            // budget unused.
             auto personalGrid = [&](size_t i) {
-                std::vector<double> pool = densities[i];
+                std::vector<TDensity> pool = densities[i];
                 if (!frozen) {
                     // The bases are rebuilt under the same price in wave two.
                     pool.insert(pool.end(), baseDensities.begin(), baseDensities.end());
                 }
-                std::sort(pool.begin(), pool.end(), std::greater<double>());
+                std::sort(pool.begin(), pool.end(), [](const TDensity& a, const TDensity& b) {
+                    return a.first != b.first ? a.first > b.first : a.second < b.second;
+                });
                 std::vector<double> grid;
-                for (double quantile : {0.4, 0.7, 0.9}) {
-                    if (pool.empty()) { break; }
-                    // A quantile snapped to an accepted root's own density must
-                    // not reject that root by the strict admission inequality.
-                    double lambda = pool[std::min(pool.size() - 1, size_t(double(pool.size()) * quantile))];
-                    if (lambda > 0) {
-                        lambda *= 1 - 1e-9;
+                for (double share : {0.6, 1.0, 1.25}) {
+                    double bytes = 0, lambda = 0;
+                    bool cut = false;
+                    for (const auto& [density, size] : pool) {
+                        if (bytes + size > share * d.Resources.Disk) {
+                            cut = true;
+                            break;
+                        }
+                        bytes += size;
+                        lambda = density;
                     }
-                    if (lambda > 0 && (grid.empty() || lambda > grid.back())) {
-                        grid.push_back(lambda);
-                    }
+                    // Nothing to cut: the first root alone is over the share,
+                    // or the whole candidate is under it.
+                    if (!cut || lambda <= 0) { continue; }
+                    // A price snapped to the cut root's own density must not
+                    // reject that root by the strict admission inequality.
+                    lambda *= 1 - 1e-9;
+                    // Shares grow, so each cut is at a lower price than the one before.
+                    if (grid.empty() || lambda < grid.back()) { grid.push_back(lambda); }
                 }
                 return grid;
             };
@@ -2320,10 +2466,13 @@ namespace NPchUpdate::NTwoStep {
                    "target\tclass\ts0_leaf\tmembers\tmeasured\ts0_compile_seconds\ttrace_seconds\tgain\n";
         units << "# Header units a measurement calibrated individually; a table of the class prior applies to the others.\n"
                   "# pch_bytes_per_source_byte: 0 keeps the class size scale; build_seconds_per_parse_second: 0 the class build\n"
-                  "# scale; saved_multiplier: 0 none (saving as the class coefficients say), otherwise a factor on the unit's own time.\n"
+                  "# scale; saved_multiplier: -1 none (saving as the class coefficients say), 0 a leaf that helped its owners nothing, otherwise a factor on the unit's own time.\n"
                   "unit\tclass\tinclude\tpch_bytes_per_source_byte\tbuild_seconds_per_parse_second\tsaved_multiplier\n";
         auto nonZero = [](const std::vector<double>& values) {
             return size_t(std::count_if(values.begin(), values.end(), [](double x) { return x > 0; }));
+        };
+        auto calibrated = [](const std::vector<double>& values) {
+            return size_t(std::count_if(values.begin(), values.end(), [](double x) { return x >= 0; }));
         };
         for (int cls = 0; cls < d.Classes; ++cls) {
             auto& c = out.Classes[cls];
@@ -2767,7 +2916,9 @@ namespace NPchUpdate::NTwoStep {
                 }
                 const auto gainX = Ridge(gainRows, gainTargets, UnitRidge);
                 if (!gainX.empty()) {
-                    out.UnitGain[cls].assign(d.Units.size(), 0);
+                    // -1 marks the units no measured leaf owns; a clamped zero
+                    // is a leaf that slowed its owners down, not a missing value.
+                    out.UnitGain[cls].assign(d.Units.size(), -1.0);
                     for (const auto& [u, x] : gainX) { out.UnitGain[cls][u] = std::clamp(x, 0.0, 3.0); }
                 }
             }
@@ -2835,8 +2986,8 @@ namespace NPchUpdate::NTwoStep {
             for (size_t u = 0; u < d.Units.size(); ++u) {
                 const double size = u < out.UnitSize[cls].size() ? out.UnitSize[cls][u] : 0;
                 const double build = u < out.UnitBuild[cls].size() ? out.UnitBuild[cls][u] : 0;
-                const double gain = u < out.UnitGain[cls].size() ? out.UnitGain[cls][u] : 0;
-                if (size <= 0 && build <= 0 && gain <= 0) { continue; }
+                const double gain = u < out.UnitGain[cls].size() ? out.UnitGain[cls][u] : -1;
+                if (size <= 0 && build <= 0 && gain < 0) { continue; }
                 units << u << '\t' << cls << '\t' << d.Units[u].Include << '\t' << size << '\t' << build << '\t' << gain << '\n';
             }
             report << cls << '\t' << (final.Status > 0 ? "identified" : final.Status == -1 ? "combined-only" : "prior-only")
@@ -2852,7 +3003,7 @@ namespace NPchUpdate::NTwoStep {
                    << '\t' << (memory.empty() ? "unmeasured" : std::to_string(c.Memory))
                    << '\t' << c.Baseline << '\t' << c.Saved << '\t' << c.Load << '\t' << c.Residual << '\t' << c.Instantiate
                    << '\t' << ratios.size() << '\t' << sigma << '\t' << anchored
-                   << '\t' << nonZero(out.UnitSize[cls]) << '\t' << nonZero(out.UnitBuild[cls]) << '\t' << nonZero(out.UnitGain[cls]) << '\n';
+                   << '\t' << nonZero(out.UnitSize[cls]) << '\t' << nonZero(out.UnitBuild[cls]) << '\t' << calibrated(out.UnitGain[cls]) << '\n';
         }
         size_t measured = 0;
         for (const auto& o : observations) { measured += o.Time > 0; }

@@ -23,8 +23,11 @@ namespace NPchUpdate {
         constexpr int TOP_CHANGED = 10;
         constexpr int TOP_CLASSES = 10;
         constexpr int64_t HISTORY_WEEKS = 4;
-        // us of parse in all the files: the headers parsed less are not compiled alone
-        constexpr int64_t HEADER_MIN_PARSE = 30000000;
+        // us of parse in all the files: the headers parsed less are not
+        // compiled alone, so they can be no root of a PCH. Low enough for a
+        // subsystem header a few dozen files parse to root a delta; a probe
+        // of a header is cached in the work dir, so the wider net is paid once.
+        constexpr int64_t HEADER_MIN_PARSE = 5000000;
 
         // Flags of a compile that make no other flag class (the ones with a
         // value as one token: -Ifoo, -Wfoo...); FLAG_ARGS have their value next.

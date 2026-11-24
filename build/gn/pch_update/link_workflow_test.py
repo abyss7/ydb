@@ -2,7 +2,7 @@
 
 Usage: python3 link_workflow_test.py /path/to/pch_update /path/to/clang++
 Requires GN, Ninja, readelf, nm and lld. Creates a temporary Git repository
-with one fixture commit, four build targets and a tiny header. Uses fixed
+with one fixture commit, five build targets and a tiny header. Uses fixed
 baseline trace/log costs to exercise selection above the production threshold;
 a compiler proxy adds a small fixed no-PCH cost for calibration. Compilation,
 GN generation, symbol discovery, compatibility, export and links are real.
@@ -76,7 +76,7 @@ def main():
         "        commands = (build / 'compile_commands.json').read_text()\n"
         "        pathlib.Path(" + repr(str(applied)) + ").write_text(commands)\n"
         "        env = dict(os.environ, LD_LIBRARY_PATH=str(build) + os.pathsep + os.environ.get('LD_LIBRARY_PATH', ''))\n"
-        "        for name in ('aaa_control', 'allowed', 'denied'):\n"
+        "        for name in ('aaa_control', 'allowed', 'bbb_plain', 'denied'):\n"
         "            subprocess.run([str(build / name)], cwd=build, env=env, check=True)\n")
     proxy.chmod(0o755)
 
@@ -143,8 +143,10 @@ struct Value { int x; };
 shared_library("provider") { sources = [ "provider.cpp" ] }
 '''
     consumers = set()
-    # Target0 is intentionally held out from initial PCH assignment by Select.
-    for name in ("aaa_control", "allowed", "denied"):
+    # aaa_control is intentionally held out from initial PCH assignment by
+    # Select: a class of four equal owners has one bare calibration control,
+    # the first in label order. A smaller class has none.
+    for name in ("aaa_control", "allowed", "bbb_plain", "denied"):
         files = [name + "0.cpp", name + "1.cpp"]
         consumers.update(files)
         for i, path in enumerate(files):
@@ -164,7 +166,7 @@ shared_library("provider") { sources = [ "provider.cpp" ] }
   }
 }
 ''' % (name, json.dumps(files), json.dumps([":provider"] if name != "denied" else []), name, name)
-    build += 'group("all") { deps = [ ":aaa_control", ":allowed", ":denied" ] }\n'
+    build += 'group("all") { deps = [ ":aaa_control", ":allowed", ":bbb_plain", ":denied" ] }\n'
     build += 'group("tests") { deps = [ ":all" ] }\n'
     write("BUILD.gn", build)
     # User-authorized fixture-only commit; no references to the working repo's
@@ -182,12 +184,12 @@ shared_library("provider") { sources = [ "provider.cpp" ] }
     assert not (baseline / "libprovider.so.TOC").read_bytes().startswith(b"\x7fELF")
     manifest = (baseline / "obj/allowed.ninja").read_text()
     assert "libprovider.so.TOC" in manifest and "solibs =" in manifest, manifest
-    for name in ("aaa_control", "allowed", "denied"):
+    for name in ("aaa_control", "allowed", "bbb_plain", "denied"):
         run([baseline / name], cwd=baseline)
 
-    # Deterministic model INPUTS, not measured performance: each of six source
+    # Deterministic model INPUTS, not measured performance: each of eight source
     # files spends 6s in base.h and 10s in header.h (both exceed the aggregate
-    # 30s header-probe threshold). No expensive C++ needed.
+    # 5s header-probe threshold). No expensive C++ needed.
     objects = set()
     for row in json.loads((baseline / "compile_commands.json").read_text()):
         name = Path(row["file"]).name
@@ -205,7 +207,7 @@ shared_library("provider") { sources = [ "provider.cpp" ] }
             {"pid": 1, "tid": 1, "ph": "X", "name": "ExecuteCompiler", "ts": 0, "dur": 18000000},
             {"pid": 1, "tid": 1, "ph": "X", "name": "Total Frontend", "ts": 0, "dur": 17000000},
         ]}))
-    assert len(objects) == 6, objects
+    assert len(objects) == 8, objects
     ninja_log = baseline / ".ninja_log"
     rows = []
     for line in ninja_log.read_text().splitlines():
@@ -214,7 +216,7 @@ shared_library("provider") { sources = [ "provider.cpp" ] }
             fields[1] = str(int(fields[0]) + 18000)
         rows.append("\t".join(fields))
     ninja_log.write_text("\n".join(rows) + "\n")
-    print("fixture costs: six TUs, 6s base + 10s leaf / 18s compile (synthetic model input)", flush=True)
+    print("fixture costs: eight TUs, 6s base + 10s leaf / 18s compile (synthetic model input)", flush=True)
 
     common = [binary, "--baseline", baseline, "--gn", gn, "--ninja", proxy]
     run(common + ["--predict", "--disk", "1G", "--q", "1", "--main-ref", "HEAD",
@@ -247,6 +249,14 @@ shared_library("provider") { sources = [ "provider.cpp" ] }
     assert Path((baseline / "pch-report/latest.txt").read_text().strip()) == report
     assert not (cycle / "initial/build/measured.ninja").exists()
     run(common + ["--correct", "--sample", "20"])
+    # The PCHs of the measurement are the PCHs GN deploys: built with the
+    # flags of pch_flags.gni that change the artifact, template instantiation
+    # here, so the measured sizes, build times and consumer times are theirs.
+    # The commands live in the action configs the frozen Ninja rules refer to.
+    pch_commands = [path.read_bytes() for path in (cycle / "initial/actions").glob("*.bin")]
+    pch_commands = [c for c in pch_commands if b"c++-header" in c]
+    assert len(pch_commands) == 2 and all(b"-fpch-instantiate-templates" in c for c in pch_commands), pch_commands
+    assert not any(b"-relocatable-pch" in c for c in pch_commands), pch_commands
     check_plan("corrected")
     run(common + ["--apply"])
     commands = json.loads(applied.read_text())
