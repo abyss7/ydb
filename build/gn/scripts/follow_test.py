@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch
 
 import follow
 import follow_bench
-from follow import Follower, Git, State, Stop
+from follow import Follower, FollowWork, Git, State, Stop
 
 
 class FollowHistoryTest(unittest.TestCase):
@@ -46,15 +46,28 @@ class FollowHistoryTest(unittest.TestCase):
     def sync(self):
         return self.commit("gn: sync %s: upstream change" % self.u[:11])
 
-    def follower(self):
+    def follower(self, migrate=False, **settings):
         # All build/generator/bench stages are mocked; only a disposable Git
         # repository is used. The real follow/current/step/commit flow is kept.
         f = Follower.__new__(Follower)
-        f.args = types.SimpleNamespace(upstream="upstream", fetch=False, skip_bench=False,
-                                       max_commits=1, env=[], push=None, only_head=False)
+        options = dict(upstream="upstream", fetch=False, skip_bench=False, bench=False,
+                       max_commits=1, env=[], push=None, only_head=False, run=True,
+                       branch=None, state=os.path.join(self.tmp.name, "state"))
+        f.args = types.SimpleNamespace(**dict(options, **settings))
         f.root, f.git = self.root, self.git
         f.env = dict(os.environ)
-        f.state = State(os.path.join(self.tmp.name, "state"))
+        f.state = State(f.args.state)
+        f.work = FollowWork(self.git, os.path.join(self.root, ".git", "gn-follow", "work.json"))
+        if migrate:
+            old = self.git.ref("HEAD")
+            target, work_ref = f.work.target, f.work.ref
+            self.git.out("update-ref", work_ref, old)
+            self.git.out("symbolic-ref", "HEAD", work_ref)
+            self.git.out("update-ref", target, self.base, old)
+            f.work.data = dict(target=target, base=self.base, upstream=f.args.upstream, state=f.args.state)
+            f.work.save()
+        f.work.start(f.args)
+        f.base, f.published_base, f.work_ref = f.work.gn_base, f.work.data["base"], f.work.ref
         f.say = Mock()
         f.regen = Mock()
         f.gn_gen = Mock()
@@ -63,6 +76,15 @@ class FollowHistoryTest(unittest.TestCase):
         f.bench = Mock(return_value=[])
         f.bootstrap = Mock()
         return f
+
+    def add_upstream(self, path):
+        head = self.git.head_ref()[len("refs/heads/"):]
+        self.git.out("switch", "-q", "upstream")
+        follow.write_text(os.path.join(self.root, path), path + "\n")
+        self.git.out("add", "--", path)
+        tip = self.commit("Add " + path)
+        self.git.out("switch", "-q", head)
+        return tip
 
     def test_unmanaged_history(self):
         self.assertIsNone(self.git.follow_step())
@@ -102,12 +124,10 @@ class FollowHistoryTest(unittest.TestCase):
     def test_old_upstream_ref_does_not_hide_pending_step(self):
         self.merge()
         self.git.out("branch", "old-upstream", self.base)
-        f = self.follower()
-        f.args.upstream = "old-upstream"
+        f = self.follower(migrate=True, upstream="old-upstream")
         f.state.restore(self.git, f.args.upstream, persist=True)
         self.assertEqual(f.current(), (self.u, True))
-        sync = self.sync()
-        f.state.append({"status": "done", "upstream": self.u, "result": sync})
+        f.step(self.u, True)
         self.assertIsNone(f.current())
 
     def test_diverged_upstream_is_rejected(self):
@@ -121,13 +141,13 @@ class FollowHistoryTest(unittest.TestCase):
         with self.assertRaises(Stop):
             f.state.restore(self.git, f.args.upstream, persist=True)
 
-    def test_fresh_pending_step_runs_locally_and_creates_empty_sync(self):
+    def test_migrated_merge_is_verified_without_publishing_the_unchecked_commit(self):
         merge = self.merge()
         self.commit("fix follow script")
-        f = self.follower()
+        f = self.follower(migrate=True)
         # Also covers retrying after the old script's bootstrap STOP.
         f.state.append({"status": "stopped", "stage": "idempotence", "upstream": "bootstrap-old"})
-        self.assertEqual(f.follow(), 0)
+        self.assertEqual(f.follow(), self.git.ref("HEAD"))
         f.bootstrap.assert_not_called()
         f.review.assert_called_once()
         self.assertFalse(f.regen.call_args.kwargs["idempotence"])
@@ -138,47 +158,50 @@ class FollowHistoryTest(unittest.TestCase):
         self.assertTrue(self.git.subject("HEAD").startswith("gn: sync " + self.u[:11] + ":"))
         self.assertEqual(self.git.out("rev-parse", "HEAD^{tree}"),
                          self.git.out("rev-parse", merge + "^{tree}"))
+        self.assertEqual(self.git.out("show", "-s", "--format=%P", "HEAD").split(), [self.base, self.u])
+        self.assertFalse(self.git.ancestor(merge, "HEAD"))
+        self.assertEqual(self.git.ref("front"), self.base)
         self.assertIsNone(f.current())
-        self.assertEqual(f.follow(), 0)
+        f.follow()
         f.build.assert_called_once()
 
     def test_recovery_keeps_uncommitted_fixes(self):
         self.merge()
         with open(os.path.join(self.root, "source.cpp"), "a") as out:
             out.write("// local fix\n")
-        f = self.follower()
+        f = self.follower(migrate=True)
         f.follow()
         self.assertIn("// local fix", self.git.out("show", "HEAD:source.cpp"))
         self.assertFalse(self.git.dirty())
 
-    def test_docs_step_also_creates_empty_sync(self):
-        merge = self.merge()
+    def test_docs_only_change_does_not_rebuild_verified_base(self):
+        self.git.out("branch", "-f", "upstream", self.base)
+        docs = self.add_upstream(".github/example.md")
         f = self.follower()
         f.state.append({"status": "bootstrap", "upstream": self.base})
-        with patch("follow.classify", return_value={"files": 1, "review": [], "info": [], "build": False}):
-            f.follow()
+        result = f.follow()
         f.regen.assert_not_called()
         f.build.assert_not_called()
-        self.assertNotEqual(self.git.out("rev-parse", "HEAD"), merge)
-        self.assertIsNotNone(self.git.follow_step()[1])
+        self.assertEqual(self.git.follow_step(), (docs, result))
 
     def test_fresh_docs_merge_still_builds_locally(self):
         self.merge()
-        f = self.follower()
+        f = self.follower(migrate=True)
         with patch("follow.classify", return_value={"files": 1, "review": [], "info": [], "build": False}):
             f.follow()
         f.regen.assert_called_once()
         f.build.assert_called_once()
 
-    def test_legacy_bench_stop_without_sync_preserves_local_progress(self):
-        self.merge()
-        f = self.follower()
+    def test_legacy_bench_stop_without_verified_sha_rebuilds(self):
+        old = self.merge()
+        f = self.follower(migrate=True, bench=True)
         f.state.append({"status": "bootstrap", "upstream": self.base})
         f.state.append({"status": "stopped", "stage": "bench", "upstream": self.u})
         f.follow()
-        f.regen.assert_not_called()
+        f.regen.assert_called_once()
+        f.build.assert_called_once()
         f.bench.assert_called_once()
-        self.assertIsNone(self.git.follow_step()[1])
+        self.assertFalse(self.git.ancestor(old, "HEAD"))
         self.assertIsNone(f.current())
 
     def test_fresh_synced_step_still_bootstraps_locally(self):
@@ -193,37 +216,45 @@ class FollowHistoryTest(unittest.TestCase):
 
     def test_existing_journal_is_not_reinterpreted_from_history(self):
         self.merge()
+        sync = self.sync()
         f = self.follower()
         f.state.append({"status": "bootstrap", "upstream": self.base})
-        f.state.append({"status": "done", "upstream": self.u})
+        f.state.append({"status": "done", "upstream": self.u, "result": sync})
         with patch.object(self.git, "follow_step", side_effect=AssertionError("unexpected history scan")):
             f.follow()
             self.assertIsNone(f.current())
         f.regen.assert_not_called()
 
     def test_bench_stop_resumes_without_another_sync(self):
-        self.merge()
-        sync = self.sync()
-        f = self.follower()
+        f = self.follower(bench=True)
         f.state.append({"status": "bootstrap", "upstream": self.base})
-        f.state.append({"status": "stopped", "stage": "bench", "upstream": self.u})
+        f.bench.side_effect = Stop("bench", "measuring failed")
+        with self.assertRaises(Stop):
+            f.follow()
+        sync = self.git.ref("HEAD")
+        self.assertEqual(f.state.last_stop()["result"], sync)
+        self.assertEqual(self.git.ref("front"), self.base)
         self.assertEqual(f.current(), (self.u, True))
-        f.follow()
-        f.regen.assert_not_called()
+        f.bench.reset_mock(side_effect=True)
+        f.bench.return_value = ["GN-Bench-Ninja: sample"]
+        result = f.follow()
+        f.regen.assert_called_once()
+        f.build.assert_called_once()
         f.bench.assert_called_once()
-        self.assertEqual(self.git.out("rev-parse", "HEAD"), sync)
+        self.assertEqual(self.git.out("rev-parse", result + "^{tree}"), self.git.out("rev-parse", sync + "^{tree}"))
+        self.assertIn("GN-Bench-Ninja: sample", self.git.out("show", "-s", "--format=%B", result))
+        self.assertFalse(self.git.ancestor(sync, result))
         self.assertIsNone(f.current())
 
     def test_bootstrap_does_not_create_an_empty_commit(self):
-        self.merge()
         f = self.follower()
         before = self.git.out("rev-parse", "HEAD")
-        f.commit("gn: regen at " + self.u[:11], {})
+        f.commit("gn: regen at " + self.u[:11], {}, (before,))
         self.assertEqual(self.git.out("rev-parse", "HEAD"), before)
 
     def test_restore_preview_does_not_write_journal(self):
         self.merge()
-        f = self.follower()
+        f = self.follower(migrate=True)
         restored = f.state.restore(self.git, "upstream")
         self.assertEqual(restored["status"], "recovered")
         self.assertNotIn(self.u, f.state.done())
@@ -233,11 +264,13 @@ class FollowHistoryTest(unittest.TestCase):
 
     def test_restore_is_persisted_once_and_not_reparsed(self):
         self.merge()
+        self.sync()
         f = self.follower()
+        f.bootstrap = types.MethodType(Follower.bootstrap, f)
         with patch.object(self.git, "follow_step", wraps=self.git.follow_step) as scan:
             f.follow()
             f.follow()
-        scan.assert_called_once()
+        self.assertEqual(sum(call.args == (f.base,) for call in scan.call_args_list), 1)
         records = State(f.state.path).records()
         self.assertEqual(sum(bool(r.get("from_history")) for r in records), 1)
         self.assertIn(self.u, State(f.state.path).done())
@@ -267,13 +300,10 @@ class FollowHistoryTest(unittest.TestCase):
 
     def test_restored_anchor_does_not_hide_a_newer_merge(self):
         self.merge()
+        self.sync()
         f = self.follower()
         f.state.restore(self.git, "upstream", persist=True)
-        self.sync()
-        f.state.append({"status": "done", "upstream": self.u})
-        self.git.out("checkout", "-q", "upstream")
-        next_u = self.commit("next upstream")
-        self.git.out("checkout", "-q", "front")
+        next_u = self.add_upstream("next.cpp")
         self.git.out("merge", "-q", "--no-ff", "-m", "Merge %s: next upstream" % next_u[:11], next_u)
         self.assertEqual(f.current(), (next_u, True))
 
@@ -299,21 +329,168 @@ class FollowHistoryTest(unittest.TestCase):
         self.git.out("commit", "-q", "-m", "second upstream change")
         tip = self.git.out("rev-parse", "HEAD")
         self.git.out("checkout", "-q", "front")
-        f = self.follower()
-        f.args.only_head, f.args.max_commits = True, None
+        f = self.follower(only_head=True, max_commits=None)
         f.state.append({"status": "bootstrap", "upstream": self.base})
         with patch("follow.classify", wraps=follow.classify) as classify:
-            self.assertEqual(f.follow(), 0)
+            result = f.follow()
         classify.assert_called_once()
         self.assertEqual(classify.call_args.args[4], self.base)     # the whole range, not U^1
         f.regen.assert_called_once()
         self.assertEqual(self.git.out("rev-list", "--count", "--merges", "HEAD"), "1")
-        merge = self.git.out("rev-parse", "HEAD^")
-        self.assertEqual(self.git.out("rev-parse", merge + "^2"), tip)
+        self.assertEqual(self.git.out("rev-parse", result + "^2"), tip)
         self.assertTrue(self.git.subject("HEAD").startswith("gn: sync " + tip[:11] + ":"))
         rec = [r for r in f.state.records() if r["upstream"] == tip and r["status"] == "done"][0]
         self.assertEqual((rec["mode"], rec["skipped"]), ("only-head", 2))
         self.assertIsNone(f.current())
+
+    def test_failed_later_step_does_not_publish_and_resume_keeps_batch_limit(self):
+        second = self.add_upstream("second.cpp")
+        self.add_upstream("third.cpp")
+        f = self.follower(max_commits=2)
+        f.state.append({"status": "bootstrap", "upstream": self.base})
+        f.build.side_effect = [None, Stop("build", "failed")]
+        with self.assertRaisesRegex(Stop, "failed"):
+            f.follow()
+        unchecked = self.git.ref("HEAD")
+        self.assertEqual(self.git.ref("front"), self.base)
+        self.assertEqual(self.git.head_ref(), f.work_ref)
+        f.work = FollowWork(self.git, f.work.path)
+        f.args.max_commits = None
+        follow.load_run_settings(Mock(), f.args, self.git, os.path.join(self.root, ".git"), f.work)
+        self.assertEqual(f.args.max_commits, 2)
+        f.build.reset_mock(side_effect=True)
+        result = f.follow()
+        f.build.assert_called_once()
+        self.assertEqual(self.git.ref(result + "^2"), second)
+        self.assertFalse(self.git.ancestor(unchecked, result))
+        self.assertEqual(self.git.ref("front"), self.base)
+        source = os.path.join(self.root, "source.cpp")
+        before = os.stat(source).st_mtime_ns
+        f.work.publish(result)
+        self.assertEqual(os.stat(source).st_mtime_ns, before)
+        self.assertEqual(self.git.ref("front"), result)
+        self.assertEqual(self.git.head_ref(), "refs/heads/front")
+        self.assertFalse(self.git.ref(f.work_ref))
+        self.assertFalse(os.path.exists(f.work.path))
+
+    def test_conflict_keeps_index_and_resumes_on_work_branch(self):
+        source = os.path.join(self.root, "source.cpp")
+        follow.write_text(source, "// GN\n")
+        self.git.out("add", "--", "source.cpp")
+        base = self.commit("GN version")
+        f = self.follower()
+        f.state.append({"status": "bootstrap", "upstream": self.base})
+        with self.assertRaisesRegex(Stop, "left conflicts"):
+            f.follow()
+        self.assertEqual(self.git.ref("front"), base)
+        self.assertEqual(self.git.merge_head(), self.u)
+        self.assertEqual(self.git.unmerged(), ["source.cpp"])
+        follow.write_text(source, "// resolved\n")
+        self.git.out("add", "--", "source.cpp")
+        f.work.start(f.args)
+        result = f.follow()
+        self.assertEqual(self.git.out("show", result + ":source.cpp"), "// resolved")
+        self.assertEqual(self.git.ref("front"), base)
+
+    def test_interrupt_leaves_work_and_does_not_move_target(self):
+        f = self.follower()
+        f.state.append({"status": "bootstrap", "upstream": self.base})
+        f.build.side_effect = KeyboardInterrupt
+        with self.assertRaises(KeyboardInterrupt):
+            f.follow()
+        self.assertEqual(self.git.ref("front"), self.base)
+        self.assertEqual(self.git.head_ref(), f.work_ref)
+        self.assertTrue(os.path.exists(f.work.path))
+        f.build.reset_mock(side_effect=True)
+        result = f.follow()
+        f.work.publish(result)
+        self.assertEqual(self.git.ref("front"), result)
+
+    def test_publish_does_not_overwrite_a_changed_target(self):
+        f = self.follower()
+        f.state.append({"status": "bootstrap", "upstream": self.base})
+        result = f.follow()
+        self.git.out("update-ref", "refs/heads/front", self.u, self.base)
+        with self.assertRaisesRegex(Stop, "changed since"):
+            f.work.publish(result)
+        self.assertEqual(self.git.ref("front"), self.u)
+        self.assertEqual(self.git.ref(f.work_ref), result)
+
+    def test_push_targets_only_the_published_branch(self):
+        remote = os.path.join(self.tmp.name, "remote.git")
+        self.git.out("init", "-q", "--bare", remote)
+        f = self.follower()
+        f.state.append({"status": "bootstrap", "upstream": self.base})
+        result = f.follow()
+        f.work.publish(result, remote)
+        refs = Git(remote).lines("for-each-ref", "--format=%(refname) %(objectname)", "refs/heads")
+        self.assertEqual(refs, ["refs/heads/front " + result])
+
+    def test_unregistered_unfinished_merge_is_not_used_as_published_base(self):
+        merge = self.merge()
+        with self.assertRaisesRegex(Stop, "unfinished merge"):
+            self.follower()
+        self.assertEqual(self.git.ref("front"), merge)
+
+    def track_gn(self, tip):
+        self.git.out("branch", "infra", tip)
+        self.git.out("branch", "--set-upstream-to=infra", "front")
+
+    def infrastructure_update(self):
+        self.git.out("switch", "-q", "-c", "gn-infra", self.base)
+        follow.write_text(os.path.join(self.root, "tool.py"), "updated infrastructure\n")
+        self.git.out("add", "--", "tool.py")
+        infra = self.commit("Update build infrastructure")
+        self.git.out("switch", "-q", "front")
+        return infra
+
+    def test_gn_tracking_update_without_source_updates_is_checked_before_publication(self):
+        self.git.out("branch", "-f", "upstream", self.base)
+        infra = self.infrastructure_update()
+        self.track_gn(infra)
+        f = self.follower()
+        self.assertEqual(f.base, infra)
+        self.assertEqual(self.git.ref("HEAD"), infra)
+        self.assertEqual(self.git.ref("front"), self.base)
+        f.state.append({"status": "bootstrap", "upstream": self.base, "result": self.base})
+        f.bootstrap = types.MethodType(Follower.bootstrap, f)
+        f.build.side_effect = Stop("build", "infrastructure build failed")
+        with self.assertRaisesRegex(Stop, "infrastructure build failed"):
+            f.follow()
+        self.assertEqual(self.git.ref("front"), self.base)
+        f.build.reset_mock(side_effect=True)
+        result = f.follow()
+        f.build.assert_called_once()
+        self.assertEqual(result, infra)
+        f.work.publish(result)
+        self.assertEqual(self.git.ref("front"), infra)
+
+    def test_migrated_step_keeps_infrastructure_ancestry_without_raw_merge(self):
+        infra = self.infrastructure_update()
+        dirty_merge = self.merge()
+        f = self.follower(migrate=True)
+        f.work.data["gn_base"] = f.base = infra
+        f.work.save()
+        follow.write_text(os.path.join(self.root, "tool.py"), "updated infrastructure\n")
+        result = f.follow()
+        f.bootstrap.assert_not_called()
+        f.build.assert_called_once()
+        self.assertEqual(self.git.ref(result + "^1"), infra)
+        self.assertEqual(self.git.ref(result + "^2"), self.u)
+        self.assertEqual(self.git.out("show", result + ":tool.py"), "updated infrastructure")
+        self.assertFalse(self.git.ancestor(dirty_merge, result))
+        self.assertEqual(self.git.ref("front"), self.base)
+        f.work.publish(result)
+        self.assertEqual(self.git.ref("front"), result)
+
+    def test_divergent_gn_tracking_branch_is_not_applied(self):
+        infra = self.infrastructure_update()
+        self.track_gn(infra)
+        local = self.commit("Local GN fix")
+        with self.assertRaisesRegex(Stop, "diverged"):
+            self.follower()
+        self.assertEqual(self.git.ref("front"), local)
+        self.assertFalse(self.git.ref("refs/heads/follow-work/front"))
 
 
 class TargetTest(unittest.TestCase):

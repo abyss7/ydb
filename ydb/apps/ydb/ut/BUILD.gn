@@ -27,6 +27,7 @@ unittest_executable("ut") {
     "export.cpp",
     "import.cpp",
     "mock_env.cpp",
+    "read_table.cpp",
     "run_ydb.cpp",
     "sql_resource_pool.cpp",
     "supported_codecs.cpp",

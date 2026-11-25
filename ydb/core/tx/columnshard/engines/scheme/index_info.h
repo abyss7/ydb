@@ -409,7 +409,6 @@ public:
         return result;
     }
 
-
     [[nodiscard]] TConclusionStatus ReuseIndexChunks(std::vector<std::shared_ptr<IPortionDataChunk>> chunks, const ui32 indexId,
         const std::shared_ptr<IStoragesManager>& operators, const ui32 recordsCount, const TString& specialTier, TSecondaryData& result) const;
 

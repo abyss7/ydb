@@ -17,7 +17,6 @@ library("actors") {
     # "//ydb/core/kqp/common/simple",
     # "//ydb/core/tx/tx_proxy",  # peerdir only
     "//ydb/services/workload_manager/common",
-    # "//ydb/services/workload_manager/service:ids",
     "//ydb/services/workload_manager/tables",
   ]
 
@@ -45,7 +44,6 @@ library("scheme_actors") {
     "//ydb/core/tx/tx_proxy:public",
     "//ydb/library/table_creator",
     "//ydb/services/workload_manager/common",
-    "//ydb/services/workload_manager/service:ids",
   ]
 
   sources = [ "scheme_actors.cpp" ]

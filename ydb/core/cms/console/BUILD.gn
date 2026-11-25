@@ -49,6 +49,7 @@ library("console") {
     # "//ydb/library/wilson_ids",
     "//ydb/library/yaml_config",
     "//ydb/public/api/grpc/draft",
+    # "//yql/essentials/public/issue",
   ]
 
   sources = [

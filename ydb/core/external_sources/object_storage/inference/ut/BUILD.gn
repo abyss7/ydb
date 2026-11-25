@@ -16,7 +16,7 @@ gtest_executable("ut") {
   link_select = [
     "YqlServicePolicy=stub",
     "allocator=tcmalloc",
-    "minikql_codegen=no_llvm",
+    "minikql_codegen=llvm16",
     "retro_spans=spans",
     "topic_rpc=persqueue_v1",
     "wasm=wasm_default",

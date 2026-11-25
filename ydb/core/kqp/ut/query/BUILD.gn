@@ -3,6 +3,7 @@ unittest_executable("query") {
     "//contrib/libs/fmt",
     "//library/cpp/iterator",
     "//library/cpp/json",
+    "//library/cpp/testing/unittest",
     "//ydb/core/base",
     "//ydb/core/cms/console",
     "//ydb/core/kqp",  # peerdir only
@@ -51,6 +52,7 @@ unittest_executable("query") {
     "kqp_limits_ut.cpp",
     "kqp_params_ut.cpp",
     "kqp_path_aliases_ut.cpp",
+    "kqp_prepared_query_properties_ut.cpp",
     "kqp_query_event_log_ut.cpp",
     "kqp_query_ut.cpp",
     "kqp_relative_path_prefix_ut.cpp",

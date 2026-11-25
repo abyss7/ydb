@@ -50,6 +50,7 @@ unittest_executable("ut") {
     "memory_stats_ut.cpp",
     "mon_auth_ut.cpp",
     "path_ut.cpp",
+    "scan_admission_ut.cpp",
     "state_storage_follower_ids_ut.cpp",
     "table_index_ut.cpp",
   ]

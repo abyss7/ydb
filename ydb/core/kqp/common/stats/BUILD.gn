@@ -1,0 +1,14 @@
+library("stats") {
+  public_deps = [ "//ydb/core/protos" ]
+
+  deps = [
+    "//ydb/library/yql/dq/actors/protos",
+    "//ydb/public/api/protos",
+  ]
+
+  sources = [
+    "progress.cpp",
+    "query_stats.cpp",
+    "ru_calc.cpp",
+  ]
+}

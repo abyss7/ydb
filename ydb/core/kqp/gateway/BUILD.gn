@@ -33,9 +33,8 @@ library("gateway") {
     # "//ydb/core/kqp/tracing",
     # "//ydb/core/persqueue/public/schema",
     "//ydb/core/protos",
-    # "//ydb/core/statistics",
-    "//ydb/core/statistics/service",  # peerdir only
-    "//ydb/core/statistics/service:service_id",
+    "//ydb/core/statistics",
+    "//ydb/core/statistics/service",
     "//ydb/core/sys_view/common",
     # "//ydb/core/tablet",
     # "//ydb/core/tx/schemeshard",

@@ -30,6 +30,7 @@ library("tablet") {
     "//library/cpp/svnversion",
     # "//library/cpp/time_provider",
     # "//library/cpp/yson",  # peerdir only
+    # "//ydb/core/base/services",
     "//ydb/core/blobstorage/base",
     "//ydb/core/graph/shard/protos",
     # "//ydb/core/mind",

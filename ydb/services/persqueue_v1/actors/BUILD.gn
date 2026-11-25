@@ -1,13 +1,14 @@
 library("actors") {
   public_deps = [
     # "//contrib/libs/protobuf",
+    # "//library/cpp/containers/absl",
     # "//library/cpp/containers/disjoint_interval_tree",
     # "//ydb/core/base",
     "//ydb/core/client/server",
     "//ydb/core/grpc_services",
     # "//ydb/core/grpc_services/base",
     # "//ydb/core/jaeger_tracing",
-    # "//ydb/core/kqp/common/events",
+    "//ydb/core/kqp/common/events",
     # "//ydb/core/kqp/common/simple",
     # "//ydb/core/persqueue",
     "//ydb/core/persqueue/common",
@@ -15,6 +16,7 @@ library("actors") {
     # "//ydb/core/persqueue/events",
     "//ydb/core/persqueue/public",
     "//ydb/core/persqueue/public/counters",
+    # "//ydb/core/persqueue/public/describer",
     "//ydb/core/persqueue/public:utils",
     "//ydb/core/persqueue/writer",
     "//ydb/core/persqueue/writer:partition_chooser",
@@ -38,6 +40,7 @@ library("actors") {
   ]
 
   deps = [
+    "//contrib/libs/fmt",
     # "//library/cpp/json",
     # "//library/cpp/protobuf/util",
     # "//library/cpp/random_provider",

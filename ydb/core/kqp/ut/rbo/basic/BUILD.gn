@@ -5,7 +5,6 @@ unittest_executable("basic") {
     "//library/cpp/testing/unittest",
     "//library/cpp/time_provider",
     "//ydb/core/kqp",  # peerdir only
-    "//ydb/core/kqp/common",
     "//ydb/core/kqp/common/events",
     "//ydb/core/kqp/common/simple",
     "//ydb/core/kqp/executer_actor",

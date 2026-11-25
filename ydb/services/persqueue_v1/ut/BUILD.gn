@@ -22,6 +22,7 @@ unittest_executable("ut") {
     "//ydb/core/testlib",
     "//ydb/core/testlib/basics",
     "//ydb/core/testlib/default",  # peerdir only
+    "//ydb/core/tx/scheme_cache",
     "//ydb/library/aclib",
     "//ydb/library/persqueue",
     "//ydb/library/persqueue/tests",
@@ -42,6 +43,7 @@ unittest_executable("ut") {
     "//ydb/public/sdk/cpp/src/client/table",
     "//ydb/public/sdk/cpp/src/client/topic",
     "//ydb/public/sdk/cpp/src/client/topic/ut/ut_utils",  # peerdir only
+    "//ydb/public/sdk/cpp/src/client/topic/ut/ut_utils:test_setup",
     "//ydb/public/sdk/cpp/src/client/types",
     "//ydb/public/sdk/cpp/src/library/persqueue/obfuscate",
     "//ydb/services/persqueue_v1",  # peerdir only
@@ -60,6 +62,7 @@ unittest_executable("ut") {
     "persqueue_v1_gaps_ut.cpp",
     "rate_limiter_test_setup.cpp",
     "read_init_auth_actor_ut.cpp",
+    "read_init_auth_ut.cpp",
     "read_session_multi_topic_ut.cpp",
     "topic_deferred_publish_ut.cpp",
     "topic_service_ut.cpp",

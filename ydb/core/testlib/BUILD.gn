@@ -111,7 +111,7 @@ library("testlib") {
     "//ydb/core/persqueue/public/write_sessions_quoter",
     "//ydb/core/security/ldap_auth_provider",
     "//ydb/core/statistics/aggregator",
-    # "//ydb/core/statistics/service:service_id",
+    "//ydb/core/statistics/service",
     "//ydb/core/sys_view/processor",
     "//ydb/core/sys_view/service",
     "//ydb/core/test_tablet",

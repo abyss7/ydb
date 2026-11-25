@@ -7,7 +7,6 @@ unittest_executable("explain") {
     "//library/cpp/time_provider",
     "//library/cpp/xml/document",
     "//ydb/core/kqp",  # peerdir only
-    "//ydb/core/kqp/common",
     "//ydb/core/kqp/common/events",
     "//ydb/core/kqp/common/simple",
     "//ydb/core/kqp/executer_actor",

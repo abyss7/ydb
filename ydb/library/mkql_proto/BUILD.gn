@@ -13,7 +13,6 @@ library("mkql_proto") {
     "//yql/essentials/parser/pg_catalog",
     "//yql/essentials/parser/pg_wrapper/interface",
     "//yql/essentials/parser/pg_wrapper/interface/type_desc",
-    # "//yql/essentials/providers/common/codec",  # peerdir only
     "//yql/essentials/public/decimal",
     "//yql/essentials/types/binary_json",
     "//yql/essentials/types/dynumber",

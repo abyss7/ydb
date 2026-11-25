@@ -73,7 +73,7 @@ library("server") {
     # "//ydb/public/lib/deprecated/kicli",
     # "//ydb/public/sdk/cpp/src/client/resources",
     # "//ydb/services/persqueue_v1",  # link slot
-    # "//yql/essentials/minikql",
+    "//yql/essentials/minikql",
     # "//yql/essentials/minikql/invoke_builtins",
     # "//yql/essentials/public/issue",
   ]

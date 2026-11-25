@@ -1,0 +1,11 @@
+library("mkql") {
+  public_deps = [
+    "//ydb/core/scheme_types",
+    "//ydb/library/mkql_proto/protos",
+    "//yql/essentials/minikql",
+  ]
+
+  deps = [ "//yql/essentials/parser/pg_wrapper/interface/type_desc" ]
+
+  sources = [ "type_info.cpp" ]
+}

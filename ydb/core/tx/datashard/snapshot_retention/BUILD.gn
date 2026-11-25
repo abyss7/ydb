@@ -1,7 +1,5 @@
 library("snapshot_retention") {
-  public_deps = [
-    "//ydb/core/tx/long_tx_service/public",
-  ]
+  public_deps = [ "//ydb/core/tx/long_tx_service/public" ]
 
   deps = [ "//ydb/core/protos" ]
 

@@ -14,9 +14,11 @@ library("query_data") {
     # "//ydb/core/base",
     "//ydb/core/kqp/common",
     "//ydb/core/kqp/common/result_set_format",  # peerdir only
+    # "//ydb/core/kqp/common/result_set_format/settings",  # peerdir only
     # "//ydb/core/kqp/expr_nodes",  # peerdir only
     "//ydb/core/kqp/provider",
     "//ydb/core/protos/schemeshard",
+    # "//ydb/core/scheme/mkql",  # peerdir only
     # "//ydb/library/actors/core",
     "//ydb/library/mkql_proto",
     "//ydb/library/services",

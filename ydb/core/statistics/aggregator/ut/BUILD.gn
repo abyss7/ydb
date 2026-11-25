@@ -12,7 +12,7 @@ unittest_executable("ut") {
     "//ydb/core/scheme_types",
     "//ydb/core/statistics",
     "//ydb/core/statistics/aggregator",
-    "//ydb/core/statistics/service:service_id",
+    "//ydb/core/statistics/service",
     "//ydb/core/statistics:ut_common",
     "//ydb/core/testlib",
     "//ydb/core/testlib/actors",

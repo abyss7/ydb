@@ -1,6 +1,6 @@
 library("compile_cache") {
   public_deps = [
-    "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime/common",
     "//ydb/core/protos",
     # "//ydb/library/aclib",
     # "//ydb/library/actors/core",
@@ -10,7 +10,7 @@ library("compile_cache") {
     # "//library/cpp/json",
     "//library/cpp/protobuf/interop",
     # "//ydb/core/base",
-    # "//ydb/core/kqp/common/events",
+    "//ydb/core/kqp/common/events",
     # "//ydb/core/kqp/common/simple",
     # "//ydb/core/node_whiteboard",
     # "//ydb/core/sys_view/auth",
@@ -27,13 +27,14 @@ library("compile_cache") {
 
 library("nodes") {
   public_deps = [
-    "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime/common",
     "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
     # "//ydb/core/base",  # peerdir only
+    "//ydb/core/kqp/common/events",  # peerdir only
     "//ydb/core/mind:tenant_node_enumeration",  # peerdir only
     # "//ydb/core/node_whiteboard",
     "//ydb/core/sys_view/common",
@@ -46,13 +47,14 @@ library("nodes") {
 
 library("query_stats") {
   public_deps = [
-    "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime/common",
     "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
     # "//ydb/core/base",
+    "//ydb/core/kqp/common/events",  # peerdir only
     "//ydb/core/sys_view/common",
     # "//ydb/core/sys_view/service",
     # "//ydb/library/actors/interconnect",
@@ -67,13 +69,14 @@ library("query_stats") {
 
 library("resource_pool_classifiers") {
   public_deps = [
-    "//ydb/core/kqp/runtime",
+    # "//ydb/core/kqp/runtime/common",
     "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
     # "//ydb/core/base",  # peerdir only
+    "//ydb/core/kqp/runtime",  # peerdir only
     # "//ydb/core/node_whiteboard",
     "//ydb/core/sys_view/common",
     # "//ydb/library/actors/interconnect",
@@ -90,7 +93,7 @@ library("resource_pool_classifiers") {
 
 library("resource_pools") {
   public_deps = [
-    "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime/common",
     "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
@@ -99,6 +102,7 @@ library("resource_pools") {
     # "//library/cpp/json",
     # "//library/cpp/protobuf/json",
     # "//ydb/core/base",  # peerdir only
+    "//ydb/core/kqp/common/events",  # peerdir only
     "//ydb/core/mind:tenant_node_enumeration",  # peerdir only
     "//ydb/core/sys_view/common",
     # "//ydb/library/actors/interconnect",
@@ -112,14 +116,14 @@ library("resource_pools") {
 
 library("sessions") {
   public_deps = [
-    "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime/common",
     "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
     # "//ydb/core/base",  # peerdir only
-    # "//ydb/core/kqp/common/events",
+    "//ydb/core/kqp/common/events",
     # "//ydb/core/kqp/common/simple",
     "//ydb/core/mind:tenant_node_enumeration",  # peerdir only
     # "//ydb/core/node_whiteboard",
@@ -133,7 +137,7 @@ library("sessions") {
 
 library("streaming_queries") {
   public_deps = [
-    "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime/common",
     # "//ydb/core/scheme",
     # "//ydb/library/actors/core",
   ]
@@ -142,6 +146,7 @@ library("streaming_queries") {
     "//contrib/libs/fmt",
     "//library/cpp/protobuf/json",
     "//ydb/core/kqp/common/events",
+    # "//ydb/core/kqp/common/simple",
     "//ydb/core/kqp/gateway/behaviour/streaming_query/common",
     "//ydb/core/kqp/script_executions/common",
     "//ydb/core/sys_view/common",
@@ -154,7 +159,7 @@ library("streaming_queries") {
 
 library("sys_view") {
   public_deps = [
-    "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime/common",
     "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
@@ -169,7 +174,7 @@ library("sys_view") {
     ":streaming_queries",
     ":tablets",
     # "//ydb/core/base",  # peerdir only
-    "//ydb/core/kqp/compute_actor:events",
+    "//ydb/core/kqp/common/events",
     "//ydb/core/sys_view/auth",
     # "//ydb/core/sys_view/common",
     "//ydb/core/sys_view/partition_stats",
@@ -187,13 +192,14 @@ library("sys_view") {
 
 library("tablets") {
   public_deps = [
-    "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime/common",
     "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
     # "//ydb/core/base",
+    "//ydb/core/kqp/common/events",  # peerdir only
     # "//ydb/core/mind/hive",
     "//ydb/core/sys_view/common",
     # "//ydb/library/yql/dq/actors/compute",

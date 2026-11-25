@@ -1,7 +1,8 @@
 # yamake2gn: keep  -- hand-written, do not regenerate
 
-avx2_source_set("avx2") {
-  deps = [ "//yql/essentials/minikql" ]
+source_set("avx2") {
+  deps += [ "//yql/essentials/minikql" ]
+  defines = [ "TUPLE_LAYOUT_AVX2" ]
 
   sources = [ "tuple_avx2.cpp" ]
 }

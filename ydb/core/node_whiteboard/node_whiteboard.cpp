@@ -8,6 +8,9 @@ TEvWhiteboard::TEvBSGroupStateUpdate::TEvBSGroupStateUpdate(const TIntrusivePtr<
     Record.SetGroupID(groupInfo->GroupID.GetRawId());
     Record.SetGroupGeneration(groupInfo->GroupGeneration);
     Record.SetErasureSpecies(groupInfo->Type.ErasureSpeciesName(groupInfo->Type.GetErasure()));
+    if (groupInfo->Group && groupInfo->Group->HasDDisk()) {
+        Record.SetDDisk(groupInfo->Group->GetDDisk());
+    }
     if (ui32 numVDisks = groupInfo->GetTotalVDisksNum()) {
         for (ui32 i = 0; i < numVDisks; ++i) {
             VDiskIDFromVDiskID(groupInfo->GetVDiskId(i), Record.AddVDiskIds());

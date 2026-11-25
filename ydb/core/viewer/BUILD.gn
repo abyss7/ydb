@@ -48,7 +48,7 @@ library("viewer") {
     # "//ydb/core/grpc_services/local_rpc",
     # "//ydb/core/health_check",  # peerdir only
     # "//ydb/core/kqp/common",
-    # "//ydb/core/kqp/executer_actor",
+    # "//ydb/core/kqp/common/simple",
     "//ydb/core/kqp/gateway",  # peerdir only
     "//ydb/core/kqp/proxy_service",  # peerdir only
     # "//ydb/core/mon",
@@ -81,6 +81,7 @@ library("viewer") {
     # "//ydb/services/lib/sharding",
     "//ydb/services/persqueue_v1",  # link slot
     # "//ydb/services/replication",
+    # "//yql/essentials/minikql",
     # "//yql/essentials/public/issue",
   ]
 

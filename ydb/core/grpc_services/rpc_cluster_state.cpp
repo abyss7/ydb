@@ -28,6 +28,9 @@
 #include <ydb/core/blobstorage/nodewarden/node_warden_events.h>
 #include <google/protobuf/util/json_util.h>
 
+#include <ydb/core/kqp/common/events/events.h>
+#include <ydb/core/kqp/common/simple/services.h>
+
 namespace NKikimr {
 namespace NGRpcService {
 

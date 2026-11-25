@@ -3,7 +3,6 @@ LIBRARY()
 SRCS(
     service.cpp
 )
-# gn: ids headers service_id.h
 
 PEERDIR(
     ydb/core/base
@@ -28,4 +27,3 @@ PEERDIR(
 YQL_LAST_ABI_VERSION()
 
 END()
-

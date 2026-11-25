@@ -9,10 +9,12 @@ unittest_executable("ut") {
     "//library/cpp/svnversion",  # peerdir only
     "//library/cpp/testing/unittest",
     "//ydb/core/base",
+    "//ydb/core/base/services",
     "//ydb/core/blobstorage/base",
     "//ydb/core/cms/console",
     "//ydb/core/config/init",
     "//ydb/core/driver_lib/run",
+    "//ydb/core/node_whiteboard",
     "//ydb/core/protos",
     "//ydb/core/sys_view/common",
     "//ydb/core/sys_view/service",
@@ -49,6 +51,7 @@ unittest_executable("ut") {
     "//ydb/core/tablet/tablet_req_rebuildhistory_ut.cpp",
     "//ydb/core/tablet/tablet_resolver_ut.cpp",
     "//ydb/core/tablet/tablet_state_ut.cpp",
+    "node_whiteboard_ut.cpp",
   ]
 
   include_dirs = [ "//ydb/core/tablet" ]

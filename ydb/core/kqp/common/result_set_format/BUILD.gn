@@ -1,19 +1,20 @@
 library("result_set_format") {
   public_deps = [
-    "//contrib/libs/apache/arrow",
+    # "//ydb/core/kqp/common/result_set_format/settings",
     "//ydb/library/yql/dq/runtime",
-    "//ydb/public/api/protos",
-    # "//yql/essentials/utils",
   ]
 
   deps = [
+    "//contrib/libs/apache/arrow",
     "//ydb/core/formats/arrow",
     "//ydb/library/mkql_proto",
     # "//ydb/library/mkql_proto/protos",  # peerdir only
     # "//ydb/library/yql/dq/proto",  # peerdir only
+    "//ydb/public/api/protos",  # peerdir only
     # "//ydb/public/lib/scheme_types",
     # "//yql/essentials/minikql",
     # "//yql/essentials/public/udf",  # peerdir only
+    # "//yql/essentials/utils",
   ]
 
   sources = [ "kqp_result_set_builders.cpp" ]

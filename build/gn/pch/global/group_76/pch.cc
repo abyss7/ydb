@@ -70,7 +70,6 @@
 #include "ydb/library/yaml_config/yaml_config.h"
 #include "ydb/core/base/appdata_fwd.h"
 #include "ydb/core/protos/netclassifier.pb.h"
-#include "ydb/core/kqp/common/result_set_format/kqp_result_set_format_settings.h"
 #include "ydb/core/kqp/counters/kqp_counters.h"
 #include "ydb/core/kqp/common/events/events.h"
 #include "ydb/core/protos/blobstorage_vdisk_config.pb.h"

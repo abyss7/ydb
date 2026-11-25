@@ -6,7 +6,6 @@ unittest_executable("ut") {
     "//ydb/core/protos",
     "//ydb/core/statistics",
     "//ydb/core/statistics/service",
-    "//ydb/core/statistics/service:service_id",
     "//ydb/core/statistics:ut_common",
     "//ydb/core/testlib",
     "//ydb/core/testlib/actors",

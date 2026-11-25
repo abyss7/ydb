@@ -24,6 +24,7 @@ unittest_executable("ut") {
     "//ydb/library/actors/interconnect",
     "//ydb/public/lib/scheme_types",
     "//ydb/services/workload_manager",
+    "//ydb/services/workload_manager/service",
     "//ydb/services/workload_manager/ut/common",
     "//yql/essentials/ast",  # peerdir only
     "//yql/essentials/minikql",

@@ -42,6 +42,7 @@ library("lib") {
     "//yql/essentials/providers/common/proto",
     "//yt/cpp/mapreduce/client",  # peerdir only
     "//yt/yql/providers/yt/lib/hash",
+    "//yt/yql/providers/yt/lib/qlfilter",
     "//yt/yql/providers/yt/lib/res_pull",
     "//yt/yql/providers/yt/lib/yson_helpers",
   ]

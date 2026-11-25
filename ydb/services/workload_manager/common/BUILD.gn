@@ -18,5 +18,6 @@ library("common") {
     "cpu_quota_manager.cpp",
     "events.cpp",
     "helpers.cpp",
+    "service_id.cpp",
   ]
 }

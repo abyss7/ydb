@@ -10,6 +10,7 @@ library("combinatory") {
   deps = [
     # "//contrib/libs/apache/arrow",
     # "//library/cpp/monlib/dynamic_counters",
+    # "//library/cpp/time_provider",
     # "//ydb/core/base",
     # "//ydb/core/formats/arrow",
     "//ydb/core/kqp/ut/olap/helpers",

@@ -4,16 +4,15 @@ library("common") {
   public_deps = [
     # "//library/cpp/testing/unittest",
     "//ydb/core/fq/libs/row_dispatcher/format_handler/parsers",
-    "//ydb/core/testlib/actors",
-    "//ydb/library/testlib/common",
+    # "//ydb/library/actors/testlib",
     "//yql/essentials/minikql/computation",
   ]
 
   deps = [
+    # "//library/cpp/testing/common",
     # "//ydb/core/base",
     # "//ydb/core/fq/libs/row_dispatcher/events",
     # "//ydb/core/fq/libs/row_dispatcher/format_handler/common",  # peerdir only
-    # "//ydb/core/testlib",  # peerdir only
     "//ydb/core/testlib/basics",
     # "//ydb/library/yql/dq/actors",  # peerdir only
     "//ydb/library/yql/dq/common",

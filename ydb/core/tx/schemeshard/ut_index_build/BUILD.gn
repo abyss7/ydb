@@ -23,16 +23,19 @@ unittest_executable("ut_index_build") {
     "//ydb/core/tx/sequenceproxy:public",
     "//ydb/core/tx/tx_proxy:public",
     "//ydb/core/wrappers:ut_helpers",
+    "//ydb/core/ydb_convert",
     "//ydb/library/aws_init",
     "//ydb/public/api/protos",
     "//ydb/public/lib/deprecated/kicli",
     "//ydb/public/sdk/cpp/src/client/table",
+    "//yql/essentials/ast",
   ]
 
   sources = [
     "ut_calc_progress_percent.cpp",
     "ut_fulltext_build.cpp",
     "ut_index_build.cpp",
+    "ut_index_build_info.cpp",
     "ut_index_shadow_data_repair.cpp",
     "ut_json_index_build.cpp",
     "ut_schemeshard_build_index_helpers.cpp",

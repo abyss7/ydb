@@ -1,0 +1,7 @@
+library("compatibility") {
+  public_deps = [ "//ydb/public/sdk/cpp/src/client/types/status" ]
+
+  deps = [ "//ydb/public/api/protos" ]
+
+  sources = [ "compatibility.cpp" ]
+}

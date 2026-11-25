@@ -1,5 +1,6 @@
 library("alloc") {
   public_deps = [
+    "//contrib/libs/apache/arrow",
     # "//yql/essentials/core/pg_settings",
     "//yql/essentials/minikql/aligned_page_pool",
     "//yql/essentials/parser/pg_wrapper/interface",
@@ -9,8 +10,8 @@ library("alloc") {
   ]
 
   deps = [
+    # ":minikql",
     ":terminator",
-    "//contrib/libs/apache/arrow",
   ]
 
   sources = [

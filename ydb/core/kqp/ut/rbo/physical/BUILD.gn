@@ -7,7 +7,6 @@ unittest_executable("physical") {
     "//library/cpp/testing/unittest",
     "//library/cpp/time_provider",
     "//ydb/core/kqp",  # peerdir only
-    "//ydb/core/kqp/common",
     "//ydb/core/kqp/common/events",
     "//ydb/core/kqp/common/simple",
     "//ydb/core/kqp/counters",
@@ -26,6 +25,7 @@ unittest_executable("physical") {
     "//ydb/library/yql/udfs/statistics_internal",  # peerdir only
     "//ydb/public/lib/ut_helpers",
     "//ydb/public/lib/ydb_cli/common",
+    "//yql/essentials/ast",
     "//yql/essentials/core",
     "//yql/essentials/core/pg_settings",
     "//yql/essentials/minikql",

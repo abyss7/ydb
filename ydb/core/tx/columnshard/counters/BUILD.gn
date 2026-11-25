@@ -5,7 +5,7 @@ library("counters") {
     # "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/time_provider",
     "//ydb/core/base",
-    "//ydb/core/kqp/compute_actor:events_stats",
+    "//ydb/core/kqp/common/events",
     "//ydb/core/protos",
     # "//ydb/core/tablet",
     # "//ydb/core/tablet_flat",

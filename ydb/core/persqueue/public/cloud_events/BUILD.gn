@@ -11,7 +11,7 @@ library("cloud_events") {
   deps = [
     # "//contrib/libs/protobuf",
     # "//library/cpp/json",
-    # "//library/cpp/logger/global",
+    "//library/cpp/logger/global",
     # "//library/cpp/yt/coding",
     # "//ydb/core/audit",
     "//ydb/core/persqueue/public/cloud_events/proto",

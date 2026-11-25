@@ -1,0 +1,7 @@
+group("settings") {
+  public_deps = [
+    "//contrib/libs/apache/arrow",
+    "//ydb/public/api/protos",
+    # "//yql/essentials/utils",
+  ]
+}

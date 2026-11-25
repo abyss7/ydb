@@ -25,6 +25,7 @@
 
 #include <cstdint>
 #include <util/generic/string.h>
+#include <util/stream/output.h>
 #include <util/string/cast.h>
 #include <type_traits>
 #include <utility>
@@ -48,12 +49,15 @@
 #include "src/core/lib/gprpp/time.h"
 #include "src/core/lib/gprpp/type_list.h"
 #include "src/core/lib/promise/poll.h"
-#include "src/core/lib/resource_quota/arena.h"
 #include "src/core/lib/slice/slice.h"
 #include "src/core/lib/transport/custom_metadata.h"
 #include "src/core/lib/transport/metadata_compression_traits.h"
 #include "src/core/lib/transport/parsed_metadata.h"
 #include "src/core/lib/transport/simple_slice_based_metadata.h"
+
+// Declare the specialization before metadata logging can instantiate Out.
+template <>
+void Out<grpc_status_code>(IOutputStream& os, grpc_status_code status);
 
 namespace grpc_core {
 
@@ -539,14 +543,17 @@ namespace metadata_detail {
 // The string is expected to be readable, but not necessarily parsable.
 class DebugStringBuilder {
  public:
-  // Add one key/value pair to the output.
-  void Add(y_absl::string_view key, y_absl::string_view value);
+  // Add one key/value pair to the output if it is allow listed.
+  // Redact only the value if it is not allow listed.
+  void AddAfterRedaction(y_absl::string_view key, y_absl::string_view value);
 
   // Finalize the output and return the string.
   // Subsequent Add calls are UB.
   TString TakeOutput() { return std::move(out_); }
 
  private:
+  bool IsAllowListed(y_absl::string_view key) const;
+  void Add(y_absl::string_view key, y_absl::string_view value);
   TString out_;
 };
 
@@ -1049,26 +1056,23 @@ class TransportSizeEncoder {
 // Handle unknown (non-trait-based) fields in the metadata map.
 class UnknownMap {
  public:
-  explicit UnknownMap(Arena* arena) : unknown_(arena) {}
-
-  using BackingType = ChunkedVector<std::pair<Slice, Slice>, 10>;
+  using BackingType = std::vector<std::pair<Slice, Slice>>;
 
   void Append(y_absl::string_view key, Slice value);
   void Remove(y_absl::string_view key);
   y_absl::optional<y_absl::string_view> GetStringValue(y_absl::string_view key,
                                                    TString* backing) const;
 
-  BackingType::ConstForwardIterator begin() const { return unknown_.cbegin(); }
-  BackingType::ConstForwardIterator end() const { return unknown_.cend(); }
+  BackingType::const_iterator begin() const { return unknown_.cbegin(); }
+  BackingType::const_iterator end() const { return unknown_.cend(); }
 
   bool empty() const { return unknown_.empty(); }
   size_t size() const { return unknown_.size(); }
-  void Clear() { unknown_.Clear(); }
-  Arena* arena() const { return unknown_.arena(); }
+  void Clear() { unknown_.clear(); }
 
  private:
   // Backing store for added metadata.
-  ChunkedVector<std::pair<Slice, Slice>, 10> unknown_;
+  BackingType unknown_;
 };
 
 // Given a factory template Factory, construct a type that derives from
@@ -1221,7 +1225,7 @@ MetadataValueAsSlice(typename Which::ValueType value) {
 template <class Derived, typename... Traits>
 class MetadataMap {
  public:
-  explicit MetadataMap(Arena* arena);
+  MetadataMap() = default;
   ~MetadataMap();
 
   // Given a compressor factory - template taking <MetadataTrait,
@@ -1282,7 +1286,7 @@ class MetadataMap {
   TString DebugString() const {
     metadata_detail::DebugStringBuilder builder;
     Log([&builder](y_absl::string_view key, y_absl::string_view value) {
-      builder.Add(key, value);
+      builder.AddAfterRedaction(key, value);
     });
     return builder.TakeOutput();
   }
@@ -1445,9 +1449,6 @@ inline bool IsStatusOk(const MetadataMap<Derived, Args...>& m) {
 }
 
 template <typename Derived, typename... Traits>
-MetadataMap<Derived, Traits...>::MetadataMap(Arena* arena) : unknown_(arena) {}
-
-template <typename Derived, typename... Traits>
 MetadataMap<Derived, Traits...>::MetadataMap(MetadataMap&& other) noexcept
     : table_(std::move(other.table_)), unknown_(std::move(other.unknown_)) {}
 
@@ -1480,7 +1481,7 @@ size_t MetadataMap<Derived, Traits...>::TransportSize() const {
 
 template <typename Derived, typename... Traits>
 Derived MetadataMap<Derived, Traits...>::Copy() const {
-  Derived out(unknown_.arena());
+  Derived out;
   metadata_detail::CopySink<Derived> sink(&out);
   ForEach(&sink);
   return out;

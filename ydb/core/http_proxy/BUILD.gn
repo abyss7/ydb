@@ -36,6 +36,7 @@ library("http_proxy") {
     "//ydb/public/sdk/cpp/src/client/datastreams",
     "//ydb/public/sdk/cpp/src/client/driver",
     # "//ydb/public/sdk/cpp/src/client/types",
+    # "//ydb/public/sdk/cpp/src/client/types/core_facility",
     # "//ydb/public/sdk/cpp/src/client/types/credentials",
     # "//ydb/public/sdk/cpp/src/library/grpc/client",
     # "//ydb/services/datastreams/codes",
@@ -65,7 +66,6 @@ library("http_proxy") {
     # "//ydb/public/sdk/cpp/src/client/topic",
     "//ydb/public/sdk/cpp/src/client/topic/codecs",  # peerdir only
     "//ydb/public/sdk/cpp/src/client/topic/impl",
-    # "//ydb/public/sdk/cpp/src/client/types/core_facility",
     "//ydb/services/datastreams",
     # "//ydb/services/persqueue_v1/actors",
     "//ydb/services/sqs_topic",

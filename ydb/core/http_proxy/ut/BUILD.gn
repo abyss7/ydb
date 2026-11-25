@@ -63,6 +63,7 @@ unittest_executable("ut") {
 
   sources = [
     "http_ut.cpp",
+    "iam_core_facility_ut.cpp",
     "json_proto_conversion_ut.cpp",
     "sqs_xml_receipt_ut.cpp",
     "utils_ut.cpp",

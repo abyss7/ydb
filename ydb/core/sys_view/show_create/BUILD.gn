@@ -1,6 +1,6 @@
 library("show_create") {
   public_deps = [
-    "//ydb/core/kqp/runtime",
+    # "//ydb/core/kqp/runtime/common",
     "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
@@ -8,6 +8,8 @@ library("show_create") {
   deps = [
     # "//library/cpp/json",
     # "//ydb/core/base",  # peerdir only
+    "//ydb/core/kqp/common/events",  # peerdir only
+    "//ydb/core/kqp/common/simple",
     # "//ydb/core/scheme",
     "//ydb/core/sys_view/common",
     "//ydb/core/sys_view/show_create/formatters",

@@ -20,6 +20,7 @@ unittest_executable("ut_read_iterator") {
     "//ydb/core/tx",  # peerdir only
     "//ydb/core/tx/data_events",
     "//ydb/core/tx/datashard",
+    "//ydb/core/tx/datashard/hnsw_index",
     "//ydb/core/tx/datashard/ut_common",
     "//ydb/core/tx/long_tx_service/public",
     "//ydb/core/tx/tx_proxy",

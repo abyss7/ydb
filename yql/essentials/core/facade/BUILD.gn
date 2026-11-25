@@ -29,6 +29,7 @@ library("facade") {
     # "//library/cpp/yson/node",
     "//yql/essentials/core/extract_predicate",
     "//yql/essentials/core/langver",
+    "//yql/essentials/core/project_settings/convert",
     "//yql/essentials/core/qplayer/udf_resolver",
     "//yql/essentials/core/qplayer/url_lister",
     # "//yql/essentials/core/type_ann",

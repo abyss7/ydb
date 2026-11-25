@@ -16,9 +16,10 @@ library("engine") {
   ]
 
   deps = [
+    # "//library/cpp/containers/absl",
     # "//library/cpp/containers/stack_vector",  # peerdir only
     # "//ydb/core/base",
-    "//ydb/core/kqp/common:types",
+    "//ydb/core/scheme/mkql",
     # "//ydb/core/tablet",
     "//ydb/library/actors/core",
     # "//ydb/public/lib/scheme_types",

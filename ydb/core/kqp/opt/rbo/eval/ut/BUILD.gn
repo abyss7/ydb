@@ -1,0 +1,27 @@
+unittest_executable("ut") {
+  deps = [
+    "//library/cpp/testing/unittest",
+    "//ydb/core/kqp/opt/rbo/eval",
+    "//yql/essentials/ast",
+    "//yql/essentials/minikql",
+    "//yql/essentials/minikql/comp_nodes",
+    "//yql/essentials/minikql/comp_nodes/llvm16",  # peerdir only
+    "//yql/essentials/minikql/computation",
+    "//yql/essentials/minikql/invoke_builtins",
+    "//yql/essentials/minikql/runtime_settings",
+    "//yql/essentials/minikql:terminator",
+    "//yql/essentials/parser/pg_wrapper",  # peerdir only
+    "//yql/essentials/public/udf/service/exception_policy",  # peerdir only
+    "//yql/essentials/utils",
+  ]
+
+  sources = [ "kqp_eval_ut.cpp" ]
+
+  link_select = [
+    "YqlServicePolicy=exception_policy",
+    "allocator=tcmalloc",
+    "minikql_codegen=llvm16",
+    "yql_pg_runtime=pg_wrapper",
+    "yql_pg_sql_translator=pg_dummy",
+  ]
+}

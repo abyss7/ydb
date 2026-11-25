@@ -87,8 +87,7 @@ library("tx_proxy") {
     # "//ydb/core/formats",  # peerdir only
     # "//ydb/core/grpc_services/local_rpc",  # peerdir only
     # "//ydb/core/io_formats/arrow/scheme",  # peerdir only
-    "//ydb/core/kqp/common",
-    # "//ydb/core/kqp/executer_actor",
+    # "//ydb/core/kqp/common/simple",
     # "//ydb/core/kqp/predictor",  # peerdir only
     "//ydb/core/protos/schemeshard",
     # "//ydb/core/scheme",

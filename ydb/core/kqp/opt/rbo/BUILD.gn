@@ -8,6 +8,7 @@ library("rbo") {
     # "//ydb/core/kqp/opt/cbo",
     "//ydb/core/kqp/opt/cbo/solver",
     "//ydb/core/kqp/opt/logical",
+    "//ydb/core/kqp/opt/rbo/eval",
     "//ydb/core/kqp/opt/rbo/html_log",
     "//ydb/core/kqp/opt:helpers",
     # "//ydb/core/kqp/query_plan",
@@ -38,13 +39,18 @@ library("rbo") {
     "//yql/essentials/core/peephole_opt",
     "//yql/essentials/core/services",  # peerdir only
     "//yql/essentials/core/services:pipeline",
+    # "//yql/essentials/public/decimal",
     # "//yql/essentials/public/issue",
+    # "//yql/essentials/public/udf",
+    "//yql/essentials/types/uuid",
+    # "//yql/essentials/utils",
   ]
 
   sources = [
     "analysis/logical_liveness.cpp",
     "copy_logical_subtree.cpp",
     "explain/kqp_connection_explain.cpp",
+    "explain/kqp_explain_context.cpp",
     "explain/kqp_expression_explain.cpp",
     "explain/kqp_operator_explain.cpp",
     "explain/kqp_plan_to_json.cpp",

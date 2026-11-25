@@ -10,6 +10,7 @@ unittest_executable("ut") {
     "//ydb/core/blobstorage/ddisk",
     "//ydb/core/blobstorage/nodewarden",
     "//ydb/core/blobstorage/pdisk",
+    "//ydb/core/blobstorage/syncer",
     "//ydb/core/blobstorage/vdisk/common",
     "//ydb/core/blobstorage/vdisk/localrecovery",
     "//ydb/core/cms/console",

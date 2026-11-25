@@ -34,7 +34,7 @@ SRCS(
 )
 # gn: background_controller headers background_controller.h
 # gn: write_actor headers write_actor.h
-# gn: ev_ids headers columnshard_ev_ids.h columnshard_private_ev_ids.h
+# gn: ev_ids headers columnshard_ev_ids.h
 
 GENERATE_ENUM_SERIALIZATION(columnshard.h)
 GENERATE_ENUM_SERIALIZATION(columnshard_impl.h)
@@ -46,7 +46,7 @@ PEERDIR(
     ydb/core/cms/console/events
     ydb/core/control/lib
     ydb/core/formats
-    ydb/core/kqp
+    ydb/core/kqp/common/events
     ydb/core/protos
     ydb/core/tablet
     ydb/core/tablet_flat
@@ -66,13 +66,13 @@ PEERDIR(
     ydb/core/tx/columnshard/engines/reader/abstract
     ydb/core/tx/columnshard/engines/writer
     ydb/core/tx/columnshard/export  # gn: plugin
+    ydb/core/tx/columnshard/flow_control_manager
     ydb/core/tx/columnshard/loading
     ydb/core/tx/columnshard/local_db_backup
     ydb/core/tx/columnshard/maintenance/cut_history
     ydb/core/tx/columnshard/normalizer  # gn: plugin
     ydb/core/tx/columnshard/operations
     ydb/core/tx/columnshard/overload_manager
-    ydb/core/tx/columnshard/flow_control_manager
     ydb/core/tx/columnshard/resource_subscriber
     ydb/core/tx/columnshard/splitter
     ydb/core/tx/columnshard/subscriber

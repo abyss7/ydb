@@ -36,8 +36,7 @@ library("basics") {
     # "//ydb/core/node_whiteboard",
     "//ydb/core/quoter",
     "//ydb/core/quoter/public",
-    "//ydb/core/statistics/service",  # peerdir only
-    "//ydb/core/statistics/service:service_id",
+    "//ydb/core/statistics/service",
     "//ydb/core/sys_view/service",
     # "//ydb/core/tx",
     "//ydb/core/tx/columnshard",

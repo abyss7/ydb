@@ -55,6 +55,8 @@ library("provider") {
         "//yt/yql/providers/yt/lib/graph_reorder",
         "//yt/yql/providers/yt/lib/key_filter",
         "//yt/yql/providers/yt/lib/mkql_helpers",
+        "//yt/yql/providers/yt/lib/nile",
+        "//yt/yql/providers/yt/lib/qlfilter",
         "//yt/yql/providers/yt/lib/res_pull",
         "//yt/yql/providers/yt/lib/schema",
         "//yt/yql/providers/yt/lib/skiff",

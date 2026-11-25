@@ -26,6 +26,7 @@ library("yql_facade_run") {
     # "//yql/essentials/core/langver",  # peerdir only
     # "//yql/essentials/core/peephole_opt",
     # "//yql/essentials/core/pg_ext",
+    # "//yql/essentials/core/project_settings/convert",
     # "//yql/essentials/core/qplayer/storage/file",
     # "//yql/essentials/core/services",  # peerdir only
     # "//yql/essentials/core/services/mounts",

@@ -1,7 +1,0 @@
-library("task_scheduler") {
-  public_deps = [
-    # "//library/cpp/deprecated/atomic",
-  ]
-
-  sources = [ "task_scheduler.cpp" ]
-}

@@ -168,6 +168,7 @@ library("client") {
         "queue_client/helpers.cpp",
         "queue_client/partition_reader.cpp",
         "queue_client/producer_client.cpp",
+        "queue_client/queue_export.cpp",
         "queue_client/queue_rowset.cpp",
         "scheduler/operation_cache.cpp",
         "scheduler/operation_id_or_alias.cpp",

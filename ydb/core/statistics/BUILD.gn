@@ -1,4 +1,4 @@
-group("statistics") {
+library("statistics") {
   public_deps = [
     "//ydb/core/base",
     "//ydb/core/protos",
@@ -13,6 +13,8 @@ group("statistics") {
     # "//yql/essentials/core/histogram",  # peerdir only
     # "//yql/essentials/core/minsketch",  # peerdir only
   ]
+
+  sources = [ "service_id.cpp" ]
 }
 
 library("ut_common") {
@@ -36,7 +38,7 @@ library("ut_common") {
     "//ydb/core/grpc_services",  # peerdir only
     # "//ydb/core/grpc_services/base",
     # "//ydb/core/grpc_services/local_rpc",
-    "//ydb/core/statistics/service:service_id",
+    # "//ydb/core/statistics/service",
     # "//ydb/core/tx/scheme_cache",
     # "//ydb/core/tx/schemeshard",
     # "//ydb/core/tx/tx_proxy:public",

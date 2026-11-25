@@ -53,7 +53,6 @@
 #include "contrib/libs/apache/arrow/cpp/src/arrow/type.h"
 #include "ydb/core/protos/index_builder.pb.h"
 #include "ydb/core/protos/pqdata_transaction.pb.h"
-#include "ydb/core/kqp/common/result_set_format/kqp_result_set_format_settings.h"
 #include "ydb/public/api/protos/ydb_federation_discovery.pb.h"
 #include "ydb/core/protos/console_tenant.pb.h"
 #include "ydb/core/tx/tx_proxy/proxy.h"

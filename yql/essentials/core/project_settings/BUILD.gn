@@ -1,5 +1,8 @@
 library("project_settings") {
-  public_deps = [ "//library/cpp/yson/node" ]
+  public_deps = [
+    "//library/cpp/yson/node",
+    # "//yql/essentials/public/langver",
+  ]
 
   sources = [ "yql_project_settings.cpp" ]
 }

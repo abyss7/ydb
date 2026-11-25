@@ -1,0 +1,14 @@
+library("eval") {
+  public_deps = [
+    "//contrib/restricted/abseil-cpp",
+    "//yql/essentials/ast",
+    # "//yql/essentials/public/udf",
+  ]
+
+  deps = [
+    # "//yql/essentials/public/decimal",  # peerdir only
+    # "//yql/essentials/utils",
+  ]
+
+  sources = [ "kqp_eval.cpp" ]
+}

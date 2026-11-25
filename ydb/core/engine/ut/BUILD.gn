@@ -2,6 +2,7 @@ unittest_executable("ut") {
   deps = [
     "//contrib/libs/protobuf",
     "//library/cpp/testing/unittest",
+    "//ydb/core/base",
     "//ydb/core/engine",
     "//ydb/core/engine/minikql",
     "//ydb/core/kqp/ut/common",
@@ -10,6 +11,7 @@ unittest_executable("ut") {
     "//ydb/core/tablet_flat",
     "//ydb/core/tablet_flat/test/libs/table",
     "//ydb/library/aclib",
+    "//ydb/library/actors/core",
     "//ydb/library/mkql_proto/ut/helpers",
     "//yql/essentials/minikql",
     "//yql/essentials/minikql/comp_nodes",

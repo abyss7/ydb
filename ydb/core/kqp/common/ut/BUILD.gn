@@ -8,17 +8,12 @@ unittest_executable("ut") {
     "//ydb/core/kqp/ut/common",  # peerdir only
     "//ydb/core/scheme",
     "//ydb/core/scheme_types",
-    "//yql/essentials/minikql",
-    "//yql/essentials/minikql/invoke_builtins",
+    "//yql/essentials/minikql",  # peerdir only
     "//yql/essentials/minikql/invoke_builtins/llvm16",  # peerdir only
-    "//yql/essentials/minikql/runtime_settings",
-    "//yql/essentials/minikql:alloc",
-    "//yql/essentials/public/udf",
     "//yql/essentials/sql/pg_dummy",  # peerdir only
   ]
 
   sources = [
-    "dynamic_function_registry_ut.cpp",
     "kqp_query_request_ut.cpp",
     "kqp_shard_meta_ut.cpp",
     "kqp_tli_ut.cpp",

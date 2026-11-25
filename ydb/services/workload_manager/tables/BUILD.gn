@@ -7,7 +7,6 @@ library("tables") {
     "//ydb/library/query_actor",
     "//ydb/library/table_creator",
     "//ydb/services/workload_manager/common",
-    # "//ydb/services/workload_manager/service:ids",
   ]
 
   sources = [ "table_queries.cpp" ]

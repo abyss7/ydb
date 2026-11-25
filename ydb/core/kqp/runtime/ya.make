@@ -59,6 +59,7 @@ PEERDIR(
     ydb/core/kqp/common
     ydb/core/kqp/common/buffer
     ydb/core/kqp/common/result_set_format
+    ydb/core/kqp/common/result_set_format/settings
     ydb/core/kqp/runtime/common
     ydb/core/kqp/runtime/streaming
     ydb/core/kqp/topics
@@ -68,6 +69,7 @@ PEERDIR(
     ydb/core/persqueue/public
     ydb/core/protos
     ydb/core/scheme
+    ydb/core/scheme/mkql
     ydb/core/tx/scheme_board
     ydb/core/ydb_convert
     ydb/library/aclib
@@ -84,6 +86,7 @@ PEERDIR(
     ydb/library/yql/dq/runtime
     ydb/library/yverify_stream
     ydb/public/sdk/cpp/src/client/params
+    ydb/services/workload_manager/common
     yql/essentials/minikql/comp_nodes
     yql/essentials/minikql/computation/llvm16  # gn: public dep
     yql/essentials/utils

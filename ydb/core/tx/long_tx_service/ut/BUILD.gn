@@ -4,8 +4,10 @@ unittest_executable("ut") {
     "//ydb/core/base",
     "//ydb/core/protos",
     "//ydb/core/testlib",
+    "//ydb/core/testlib/actors",
     "//ydb/core/testlib/basics",
     "//ydb/core/testlib/default",  # peerdir only
+    "//ydb/core/tx",
     "//ydb/core/tx/long_tx_service",
     "//ydb/core/tx/long_tx_service/public",
     "//ydb/core/tx/scheme_board",

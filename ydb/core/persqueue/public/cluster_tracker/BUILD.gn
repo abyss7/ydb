@@ -8,7 +8,7 @@ library("cluster_tracker") {
 
   deps = [
     # "//ydb/core/grpc_services/cancelation",  # peerdir only
-    # "//ydb/core/kqp/common",
+    "//ydb/core/kqp/common",
     # "//ydb/core/persqueue/events",  # peerdir only
     "//ydb/core/persqueue/public",
     "//ydb/public/sdk/cpp/src/client/result",

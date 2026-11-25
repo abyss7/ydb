@@ -12,8 +12,6 @@ config("public_config") {
 config("private_config") {
     defines = [
         "ENABLE_HTTP_CLIENT_CURL",
-        "ENABLE_OTLP_GRPC_SSL_MTLS_PREVIEW",
-        "ENABLE_OTLP_RETRY_PREVIEW",
         "OPENTELEMETRY_PROTO_API=",
     ]
 }
@@ -133,6 +131,7 @@ contrib_library("opentelemetry-cpp") {
         "sdk/src/metrics/view/instrument_selector_factory.cc",
         "sdk/src/metrics/view/meter_selector_factory.cc",
         "sdk/src/metrics/view/predicate.cc",
+        "sdk/src/metrics/view/predicate_factory.cc",
         "sdk/src/metrics/view/view_factory.cc",
         "sdk/src/metrics/view/view_registry.cc",
         "sdk/src/metrics/view/view_registry_factory.cc",

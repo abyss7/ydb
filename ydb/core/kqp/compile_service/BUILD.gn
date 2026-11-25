@@ -1,12 +1,10 @@
 library("compile_service") {
   public_deps = [
-    # "//ydb/core/base",
     "//ydb/core/kqp/common",
     # "//ydb/core/kqp/common/simple",
+    # "//ydb/core/kqp/common/warmup",
     "//ydb/core/kqp/federated_query",
     "//ydb/core/kqp/gateway:interface",
-    "//ydb/core/protos",
-    # "//ydb/library/actors/core",
   ]
 
   deps = [
@@ -17,6 +15,7 @@ library("compile_service") {
     "//library/cpp/protobuf/json",
     "//library/cpp/string_utils/base64",
     "//ydb/core/actorlib_impl",
+    # "//ydb/core/base",
     # "//ydb/core/client/minikql_compile",
     # "//ydb/core/cms/console/events",
     "//ydb/core/kqp/common/compilation",  # peerdir only
@@ -32,6 +31,7 @@ library("compile_service") {
     "//ydb/core/path_aliasing",
     "//ydb/core/ydb_convert",
     # "//ydb/library/aclib",
+    # "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",  # peerdir only
     # "//ydb/library/actors/wilson",
     "//ydb/library/query_actor",

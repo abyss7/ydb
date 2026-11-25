@@ -17,9 +17,9 @@ library("table_queries") {
     # "//ydb/core/base",  # peerdir only
     # "//ydb/core/fq/libs/checkpointing/events",
     "//ydb/core/fq/libs/common",
-    "//ydb/core/grpc_services",
     "//ydb/core/kqp/common",
     # "//ydb/core/kqp/common/simple",
+    "//ydb/core/kqp/common/stats",
     # "//ydb/core/kqp/executer_actor",
     "//ydb/core/kqp/federated_query",
     "//ydb/core/kqp/script_executions/common",

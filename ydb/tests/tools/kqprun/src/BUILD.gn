@@ -27,8 +27,11 @@ library("src") {
     # "//library/cpp/colorizer",
     # "//library/cpp/protobuf/json",
     # "//library/cpp/threading/future",
+    # "//ydb/core/base",
     # "//ydb/core/blob_depot",
     # "//ydb/core/client/server",
+    # "//ydb/core/cms/console",
+    # "//ydb/core/cms/console/events",
     # "//ydb/core/grpc_services",
     # "//ydb/core/kqp/common/events",
     # "//ydb/core/kqp/common/simple",
@@ -37,11 +40,17 @@ library("src") {
     # "//ydb/core/kqp/script_executions/common",
     "//ydb/core/kqp/script_executions/table_queries",
     # "//ydb/core/testlib",
+    # "//ydb/core/testlib/actors",
     # "//ydb/core/testlib/basics",
+    # "//ydb/core/tx/cdc_aggregator/public",
+    "//ydb/core/tx/cdc_aggregator/service",
+    "//ydb/core/tx/replication/service",
     # "//ydb/core/util",  # peerdir only
     # "//ydb/library/actors/wilson",
     "//ydb/library/aws_init",
+    # "//ydb/library/yaml_config",
     # "//ydb/public/sdk/cpp/src/client/query",
+    "//ydb/services/dynamic_config",
     "//ydb/services/keyvalue",
     "//ydb/services/persqueue_v1",
     "//ydb/services/workload_manager/actors",
@@ -52,6 +61,7 @@ library("src") {
   sources = [
     "actors.cpp",
     "kqp_runner.cpp",
+    "managed_config.cpp",
     "ydb_setup.cpp",
   ]
 

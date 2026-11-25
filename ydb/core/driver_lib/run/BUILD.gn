@@ -39,6 +39,7 @@ library("_self") {
   ]
 
   deps = [
+    # "//contrib/libs/apache/arrow",
     # "//contrib/libs/protobuf",
     # "//library/cpp/containers/absl",
     # "//library/cpp/getopt/small",  # peerdir only
@@ -94,7 +95,9 @@ library("_self") {
     "//ydb/core/kesus/tablet",
     "//ydb/core/keyvalue",
     "//ydb/core/kqp",  # peerdir only
+    "//ydb/core/kqp/common/dynamic_function_registry",
     # "//ydb/core/kqp/common/simple",
+    # "//ydb/core/kqp/common/warmup",
     "//ydb/core/kqp/compile_service",
     "//ydb/core/kqp/federated_query/actors",  # peerdir only
     "//ydb/core/kqp/proxy_service",
@@ -134,8 +137,7 @@ library("_self") {
     "//ydb/core/security/ldap_auth_provider",
     "//ydb/core/security/token_manager",
     "//ydb/core/statistics/aggregator",
-    "//ydb/core/statistics/service",  # peerdir only
-    "//ydb/core/statistics/service:service_id",
+    "//ydb/core/statistics/service",
     "//ydb/core/subsystems/actor_system_monitoring",
     "//ydb/core/subsystems/inmemory_metrics_monitoring",
     "//ydb/core/subsystems/inmemory_metrics_monitoring/metric_chart",
@@ -237,6 +239,7 @@ library("_self") {
     # "//yql/essentials/minikql/comp_nodes",
     # "//yql/essentials/minikql/comp_nodes/llvm16",  # link slot
     "//yql/essentials/minikql/invoke_builtins",
+    # "//yql/essentials/minikql:alloc",
     # "//yql/essentials/parser/pg_wrapper/interface",
     # "//yql/essentials/public/udf/service/exception_policy",  # link slot
     # "//yt/yql/providers/yt/codec/codegen",  # peerdir only
@@ -304,7 +307,6 @@ group("run") {
     # "//ydb/core/kqp/script_executions/finalization",  # peerdir only
     # "//ydb/core/mind/hive",  # peerdir only
     # "//ydb/core/retro_tracing_impl/spans",  # link slot
-    "//ydb/core/statistics/service",  # peerdir only
     # "//ydb/core/tx/general_cache",  # peerdir only
     # "//ydb/core/tx/limiter/grouped_memory/service",  # peerdir only
     "//ydb/core/tx/tx_proxy",  # peerdir only

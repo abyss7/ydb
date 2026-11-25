@@ -2,6 +2,7 @@ library("proxy_service") {
   public_deps = [
     "//ydb/core/base",
     "//ydb/core/kqp/common",
+    # "//ydb/core/kqp/common/simple",
     # "//ydb/core/kqp/counters",
     "//ydb/core/kqp/federated_query",
     # "//ydb/core/kqp/tracing",
@@ -27,7 +28,7 @@ library("proxy_service") {
     "//ydb/core/grpc_services",
     # "//ydb/core/grpc_services/base",
     # "//ydb/core/kqp/common/events",
-    # "//ydb/core/kqp/common/simple",
+    # "//ydb/core/kqp/common/warmup",
     "//ydb/core/kqp/compile_service",
     "//ydb/core/kqp/compute_actor",
     "//ydb/core/kqp/executer_actor",

@@ -8,6 +8,8 @@ config("actors_private_config") {
 library("actors") {
   public_deps = [
     # "//contrib/libs/apache/arrow",
+    # "//library/cpp/monlib/dynamic_counters",
+    # "//library/cpp/time_provider",
     "//ydb/core/fq/libs/protos",
     "//ydb/library/actors/core",
     "//ydb/library/yql/dq/actors/compute",
@@ -73,6 +75,8 @@ library("actors") {
     "yql_s3_source_queue.cpp",
     "yql_s3_write_actor.cpp",
   ]
+
+  serialize_enum_headers = [ "yql_s3_actor_stats_interface.h" ]
 
   configs = [ ":actors_private_config" ]
 }

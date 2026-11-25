@@ -14,7 +14,7 @@ unittest_executable("tracing") {
     "//ydb/core/kqp/ut/common",
     "//ydb/core/protos",
     "//ydb/core/statistics",
-    "//ydb/core/statistics/service:service_id",
+    "//ydb/core/statistics/service",
     "//ydb/core/testlib",
     "//ydb/core/testlib/default",  # peerdir only
     "//ydb/core/tx/datashard/ut_common",

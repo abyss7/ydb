@@ -1,8 +1,7 @@
 library("service") {
   public_deps = [
-    ":service_id",
     "//ydb/core/base",
-    # "//ydb/core/statistics",
+    "//ydb/core/statistics",
     "//ydb/core/tx/scheme_cache",
     "//ydb/core/util",
     # "//ydb/library/actors/core",
@@ -31,24 +30,4 @@ library("service") {
     "http_request.cpp",
     "service_impl.cpp",
   ]
-}
-
-library("service_id") {
-  public_deps = [
-    # "//ydb/library/actors/core",
-  ]
-
-  deps = [
-    # "//library/cpp/monlib/service/pages",
-    "//ydb/core/base",
-    # "//ydb/core/cms/console",
-    "//ydb/core/mon",
-    "//ydb/core/protos",
-    # "//ydb/core/statistics",
-    # "//ydb/core/statistics/database",
-    "//ydb/core/tx/scheme_cache",
-    "//ydb/library/services",
-  ]
-
-  sources = [ "service.cpp" ]
 }

@@ -1,0 +1,26 @@
+unittest_executable("ut") {
+  deps = [
+    "//library/cpp/testing/unittest",
+    "//ydb/core/kqp/common/dynamic_function_registry",
+    "//yql/essentials/minikql",
+    "//yql/essentials/minikql/invoke_builtins",
+    "//yql/essentials/minikql/invoke_builtins/llvm16",  # peerdir only
+    "//yql/essentials/minikql/runtime_settings",
+    "//yql/essentials/minikql:alloc",
+    "//yql/essentials/public/udf",
+    "//yql/essentials/public/udf/service/exception_policy",  # peerdir only
+    "//yql/essentials/sql/pg_dummy",  # peerdir only
+  ]
+
+  sources = [ "dynamic_function_registry_ut.cpp" ]
+
+  include_dirs = [ "//ydb/core/kqp/common/dynamic_function_registry" ]
+
+  link_select = [
+    "YqlServicePolicy=exception_policy",
+    "allocator=tcmalloc",
+    "minikql_codegen=llvm16",
+    "yql_pg_runtime=pg_dummy",
+    "yql_pg_sql_translator=pg_dummy",
+  ]
+}

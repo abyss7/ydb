@@ -59,6 +59,7 @@ unittest_executable("ut_rw") {
     "ut_backup.cpp",
     "ut_blob_cache.cpp",
     "ut_blob_cache_write_fill.cpp",
+    "ut_columnshard_index_portions_by_last_key.cpp",
     "ut_columnshard_loaded_key_ranges.cpp",
     "ut_columnshard_read_write.cpp",
     "ut_flow_control_manager.cpp",

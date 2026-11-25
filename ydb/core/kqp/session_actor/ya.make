@@ -15,18 +15,20 @@ SRCS(
 # gn: worker_common peerdir ydb/core/kqp/query_data
 
 PEERDIR(
-    ydb/core/kqp/tracing
     ydb/core/docapi
     ydb/core/engine
     ydb/core/kqp/common
     ydb/core/kqp/common/compilation
+    ydb/core/kqp/common/simple
     ydb/core/kqp/topics
     ydb/core/kqp/query_data
     ydb/core/kqp/federated_query
+    ydb/core/kqp/tracing
     ydb/core/path_aliasing
-    ydb/library/security
-    ydb/public/sdk/cpp/src/library/operation_id
     ydb/core/tx/schemeshard
+    ydb/library/security
+    ydb/library/yql/dq/actors/protos
+    ydb/public/sdk/cpp/src/library/operation_id
     ydb/services/workload_manager/service
 )
 

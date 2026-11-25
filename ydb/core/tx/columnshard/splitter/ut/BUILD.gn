@@ -17,7 +17,6 @@ unittest_executable("ut") {
     "//ydb/core/tx/columnshard/engines/reader/common_reader/iterator",  # peerdir only
     "//ydb/core/tx/columnshard/engines/scheme/column",
     "//ydb/core/tx/columnshard/engines/storage/indexes/count_min_sketch",  # peerdir only
-    "//ydb/core/tx/columnshard/engines/storage/indexes/max",  # peerdir only
     "//ydb/core/tx/columnshard/engines/storage/indexes/min_max",  # peerdir only
     "//ydb/core/tx/columnshard/engines/storage/optimizer/abstract",  # peerdir only
     "//ydb/core/tx/columnshard/splitter",

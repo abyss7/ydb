@@ -19,7 +19,6 @@ group("interface") {
   public_deps = [
     # "//library/cpp/json",
     # "//library/cpp/lwtrace",
-    # "//ydb/core/kqp/common",
     "//ydb/core/kqp/common/simple",
     "//ydb/core/kqp/counters",
     "//ydb/core/protos",

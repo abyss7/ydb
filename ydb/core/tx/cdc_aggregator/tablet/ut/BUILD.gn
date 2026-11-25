@@ -1,16 +1,25 @@
 unittest_executable("ut") {
   deps = [
     "//library/cpp/testing/unittest",
+    "//ydb/core/persqueue/events",
+    "//ydb/core/protos",
     "//ydb/core/scheme",
     "//ydb/core/tablet",
+    "//ydb/core/tablet_flat",
     "//ydb/core/testlib",
     "//ydb/core/testlib/basics",
     "//ydb/core/testlib/default",  # peerdir only
     "//ydb/core/tx/cdc_aggregator/public",
     "//ydb/core/tx/cdc_aggregator/tablet",
+    "//ydb/core/tx/scheme_cache",
+    "//ydb/library/actors/core",
+    "//ydb/public/lib/base",
   ]
 
-  sources = [ "tablet_ut.cpp" ]
+  sources = [
+    "cdc_aggregator_heartbeat_broadcaster_ut.cpp",
+    "tablet_ut.cpp",
+  ]
 
   include_dirs = [ "//ydb/core/tx/cdc_aggregator/tablet" ]
 

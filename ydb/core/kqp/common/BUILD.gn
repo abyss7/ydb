@@ -1,6 +1,5 @@
 library("common") {
   public_deps = [
-    ":types",
     "//contrib/libs/openssl",
     # "//contrib/libs/protobuf",
     "//library/cpp/lwtrace",
@@ -14,13 +13,12 @@ library("common") {
     "//ydb/core/kqp/common/events",
     "//ydb/core/kqp/common/shutdown",
     "//ydb/core/kqp/common/simple",
+    # "//ydb/core/kqp/common/stats",
     # "//ydb/core/kqp/counters",
-    # "//ydb/core/kqp/executer_actor",
     "//ydb/core/kqp/expr_nodes",
     # "//ydb/core/kqp/gateway:interface",
     "//ydb/core/kqp/provider",
     "//ydb/core/protos",
-    # "//ydb/core/resource_pools",
     "//ydb/core/scheme",
     # "//ydb/core/scheme_types",
     # "//ydb/core/tx/data_events",
@@ -44,7 +42,6 @@ library("common") {
   deps = [
     "//library/cpp/json",  # peerdir only
     "//library/cpp/protobuf/json",  # peerdir only
-    # "//library/cpp/threading/hot_swap",
     # "//ydb/core/kqp/common/compile_cache",  # peerdir only
     # "//ydb/core/kqp/script_executions/common",  # peerdir only
     "//ydb/core/kqp/topics",  # peerdir only
@@ -66,20 +63,16 @@ library("common") {
 
   sources = [
     "control.cpp",
-    "dynamic_function_registry.cpp",
     "kqp.cpp",
     "kqp_batch_operations.cpp",
-    "kqp_event_impl.cpp",
     "kqp_expr_helpers.cpp",
     "kqp_lwtrace_probes.cpp",
     "kqp_resolve.cpp",
     "kqp_row_builder.cpp",
-    "kqp_ru_calc.cpp",
     "kqp_shard_meta.cpp",
     "kqp_timeouts.cpp",
     "kqp_tx.cpp",
     "kqp_tx_manager.cpp",
-    "kqp_user_request_context.cpp",
     "kqp_yql.cpp",
   ]
 
@@ -88,16 +81,4 @@ library("common") {
     "kqp_tx_info.h",
     "kqp_yql.h",
   ]
-}
-
-library("types") {
-  public_deps = [
-    "//ydb/core/scheme_types",
-    "//ydb/library/mkql_proto/protos",
-    "//yql/essentials/minikql",
-  ]
-
-  deps = [ "//yql/essentials/parser/pg_wrapper/interface/type_desc" ]
-
-  sources = [ "kqp_types.cpp" ]
 }

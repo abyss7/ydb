@@ -1,14 +1,17 @@
 library("auth") {
   public_deps = [
     # "//ydb/core/base",
-    "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime/common",
     "//ydb/core/protos",
     "//ydb/core/sys_view/common",
     # "//ydb/library/actors/core",
     "//ydb/library/login/protos",
   ]
 
-  deps = [ "//ydb/core/ydb_convert" ]
+  deps = [
+    "//ydb/core/kqp/common/events",  # peerdir only
+    "//ydb/core/ydb_convert",
+  ]
 
   sources = [
     "group_members.cpp",

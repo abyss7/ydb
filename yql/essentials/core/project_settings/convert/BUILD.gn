@@ -1,0 +1,13 @@
+library("convert") {
+  public_deps = [ "//yql/essentials/core/project_settings" ]
+
+  deps = [
+    "//library/cpp/json/yson",
+    # "//library/cpp/yson/node",
+    "//yql/essentials/core/project_settings/proto",
+    "//yql/essentials/public/langver",  # peerdir only
+    "//yql/essentials/utils",
+  ]
+
+  sources = [ "convert.cpp" ]
+}

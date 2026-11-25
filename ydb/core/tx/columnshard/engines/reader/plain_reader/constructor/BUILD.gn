@@ -5,6 +5,6 @@ group("constructor") {
   ]
 
   deps = [
-    # "//ydb/core/kqp/compute_actor",  # peerdir only
+    # "//ydb/core/kqp/common/events",  # peerdir only
   ]
 }

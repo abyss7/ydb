@@ -2,6 +2,7 @@
 
 source_set("sse42") {
   deps += [ "//yql/essentials/minikql" ]
+  defines = [ "TUPLE_LAYOUT_SSE42" ]
 
   sources = [ "tuple_sse42.cpp" ]
 }

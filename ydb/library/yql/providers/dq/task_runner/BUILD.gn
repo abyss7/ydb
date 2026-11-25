@@ -1,6 +1,5 @@
 library("task_runner") {
   public_deps = [
-    # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/library/yql/dq/common",
     "//ydb/library/yql/dq/runtime",
     "//ydb/library/yql/providers/dq/api/protos",
@@ -10,28 +9,20 @@ library("task_runner") {
   ]
 
   deps = [
-    "//library/cpp/svnversion",
-    "//library/cpp/threading/task_scheduler",
     # "//library/cpp/yson/node",
     # "//ydb/library/yql/dq/proto",  # peerdir only
-    "//ydb/library/yql/providers/dq/common",
     # "//ydb/library/yql/providers/dq/counters",
     # "//yql/essentials/minikql/aligned_page_pool",
     # "//yql/essentials/minikql/invoke_builtins",
-    # "//yql/essentials/minikql/runtime_settings",
     # "//yql/essentials/protos",  # peerdir only
     # "//yql/essentials/providers/common/proto",  # peerdir only
     # "//yql/essentials/utils",
     # "//yql/essentials/utils/backtrace",
-    "//yql/essentials/utils/failure_injector",
     "//yql/essentials/utils/log",
   ]
 
   sources = [
-    "file_cache.cpp",
     "tasks_runner_local.cpp",
-    "tasks_runner_pipe.cpp",
-    "tasks_runner_pipe_process.cpp",
     "tasks_runner_proxy.cpp",
   ]
 }

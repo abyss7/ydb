@@ -3,16 +3,17 @@ unittest_executable("ut") {
     "//library/cpp/testing/unittest",
     "//ydb/core/testlib/basics",
     "//ydb/core/testlib/default",  # peerdir only
-    "//ydb/core/tx/datashard",  # peerdir only
+    "//ydb/core/tx/datashard",
     "//ydb/core/tx/datashard/hnsw_index",
     "//ydb/library/yql/udfs/common/knn",
   ]
 
-  sources = [ "hnsw_index_build_actor_ut.cpp" ]
-
-  include_dirs = [
-    "//ydb/core/tx/datashard",  # peerdir only
+  sources = [
+    "hnsw_index_build_actor_ut.cpp",
+    "hnsw_index_build_unit_ut.cpp",
   ]
+
+  include_dirs = [ "//ydb/core/tx/datashard" ]
 
   link_select = [
     "YqlServicePolicy=exception_policy",

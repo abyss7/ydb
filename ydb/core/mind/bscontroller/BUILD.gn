@@ -5,6 +5,7 @@ library("bscontroller") {
     "//ydb/core/blobstorage/base",
     "//ydb/core/blobstorage/groupinfo",
     "//ydb/core/blobstorage/nodewarden",
+    # "//ydb/core/blobstorage/syncer",
     # "//ydb/core/mind",
     "//ydb/core/protos",
     # "//ydb/core/scheme",
@@ -27,7 +28,6 @@ library("bscontroller") {
     # "//ydb/core/blob_depot",
     # "//ydb/core/blobstorage",  # peerdir only
     # "//ydb/core/blobstorage/pdisk",
-    # "//ydb/core/blobstorage/syncer",
     # "//ydb/core/cms/console",
     # "//ydb/core/debug_tools",
     "//ydb/core/driver_lib/version",
@@ -72,7 +72,6 @@ library("bscontroller") {
     "get_group.cpp",
     "group_metrics_exchange.cpp",
     "group_state.cpp",
-    "group_state_actor.cpp",
     "grouper.cpp",
     "init_scheme.cpp",
     "layout_helpers.cpp",

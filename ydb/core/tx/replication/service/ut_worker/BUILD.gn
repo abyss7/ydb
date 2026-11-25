@@ -1,7 +1,10 @@
 unittest_executable("ut_worker") {
   deps = [
     "//library/cpp/testing/unittest",
+    "//ydb/core/fq/libs/row_dispatcher/purecalc_compilation",  # peerdir only
+    "//ydb/core/scheme",
     "//ydb/core/testlib/actors",
+    "//ydb/core/testlib/basics",  # peerdir only
     "//ydb/core/tx/replication/common",
     "//ydb/core/tx/replication/service",
     "//ydb/core/tx/replication/ut_helpers",

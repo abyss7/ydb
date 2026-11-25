@@ -1,7 +1,6 @@
 library("compute_actor") {
   public_deps = [
     ":events",
-    ":events_stats",
     # "//contrib/libs/apache/arrow",
     # "//ydb/core/base",
     # "//ydb/core/kqp/common",
@@ -39,6 +38,7 @@ library("compute_actor") {
     # "//ydb/core/actorlib_impl",
     # "//ydb/core/engine/minikql",
     "//ydb/core/grpc_services",
+    # "//ydb/core/kqp/common/events",  # peerdir only
     "//ydb/core/kqp/federated_query/actors/lookup_actor",
     # "//ydb/core/kqp/node_service",
     "//ydb/core/kqp/node_service:state",
@@ -79,19 +79,7 @@ library("compute_actor") {
 }
 
 library("events") {
-  public_deps = [
-    ":events_stats",
-    # "//contrib/libs/apache/arrow",
-    "//ydb/core/formats/arrow",
-    "//ydb/core/kqp/common",
-    "//ydb/core/protos",
-    # "//ydb/core/scheme",
-    "//ydb/library/formats/arrow/validation",
-  ]
+  public_deps = [ "//ydb/core/kqp/common/events" ]
 
   sources = [ "kqp_compute_events.cpp" ]
-}
-
-library("events_stats") {
-  sources = [ "kqp_compute_events_stats.cpp" ]
 }

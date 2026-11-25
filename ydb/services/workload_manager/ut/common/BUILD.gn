@@ -17,8 +17,8 @@ library("common") {
 
   deps = [
     # "//ydb/core/base",
-    # "//ydb/core/kqp/common",
     # "//ydb/core/kqp/common/events",
+    # "//ydb/core/kqp/common/simple",
     # "//ydb/core/kqp/executer_actor",
     # "//ydb/core/kqp/query_data",
     # "//ydb/core/node_whiteboard",

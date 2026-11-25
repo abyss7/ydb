@@ -3,20 +3,17 @@ library("interface") {
     "//library/cpp/monlib/dynamic_counters",
     "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
+    # "//ydb/library/yql/dq/actors/compute",
+    # "//ydb/library/yql/dq/actors/task_runner",
     # "//ydb/library/yql/dq/common",
-    "//ydb/library/yql/providers/dq/api/grpc",
     "//ydb/library/yql/providers/dq/api/protos",
-    # "//yql/essentials/providers/common/metrics",
+    # "//ydb/library/yql/providers/dq/task_runner",
+    # "//yql/essentials/minikql",
     "//yql/essentials/utils/log",
-  ]
-
-  deps = [
-    "//ydb/library/yql/providers/dq/common:attrs",  # peerdir only
   ]
 
   sources = [
     "counters.cpp",
     "events.cpp",
-    "worker_info.cpp",
   ]
 }

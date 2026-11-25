@@ -22,7 +22,7 @@ library("rm_service") {
     "//ydb/core/actorlib_impl",
     # "//ydb/core/base",
     # "//ydb/core/cms/console/events",
-    # "//ydb/core/kqp/compile_service",
+    # "//ydb/core/kqp/common/warmup",
     # "//ydb/core/mind",
     # "//ydb/core/mon",
     # "//ydb/core/node_whiteboard",

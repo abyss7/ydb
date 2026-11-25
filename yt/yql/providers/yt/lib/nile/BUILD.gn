@@ -1,0 +1,8 @@
+library("nile") {
+  deps = [
+    "//library/cpp/yson/node",
+    "//yql/essentials/providers/common/proto",
+  ]
+
+  sources = [ "operation_permission.cpp" ]
+}

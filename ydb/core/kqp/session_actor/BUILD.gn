@@ -18,6 +18,7 @@ library("session_actor") {
     # "//ydb/library/actors/wilson",
     # "//ydb/library/wilson_ids",
     # "//ydb/library/yql/dq/actors/compute",
+    "//ydb/library/yql/dq/actors/protos",
     # "//ydb/library/yql/dq/runtime",
   ]
 
@@ -55,7 +56,7 @@ library("session_actor") {
     "//ydb/library/ydb_issue",
     "//ydb/library/yql/utils/actor_log",
     # "//ydb/public/sdk/cpp/src/library/operation_id",
-    # "//ydb/services/workload_manager",
+    "//ydb/services/workload_manager",
     # "//ydb/services/workload_manager/service",
     # "//yql/essentials/public/issue",
   ]

@@ -1,9 +1,5 @@
 ==================== yamake2gn report: accepted problems
 
-ERROR: PCH of build/gn/pch that applies to nothing (build/gn/pch/per_target/targets.gni, build/gn/pch/global/groups.gni):
-  per_target //ydb/core/tx/columnshard/maintenance/cut_history/ut:ut no file build/gn/pch/per_target/ydb/core/tx/columnshard/maintenance/cut_history/ut/ut.h
-  unused build/gn/pch/per_target/ydb/core/tx/columnshard/ut_cut_history/ut_cut_history.h in no PCH mode
-
 ERROR: programs and tests depending on a module of no GN target (the dep is commented, the link fails):
   ydb/core/fq/libs/wasm_services/ut //ydb/udfs/wasm/echo/contract
   ydb/core/fq/libs/wasm_services/ut //ydb/udfs/wasm/profile/contract

@@ -12,7 +12,10 @@ unittest_executable("ut") {
     "//ydb/core/protos",
     "//ydb/core/scheme",
     "//ydb/core/tablet",  # peerdir only
-    "//ydb/core/tablet_flat",  # peerdir only
+    "//ydb/core/tablet_flat",
+    "//ydb/core/tablet_flat/protos",
+    "//ydb/core/tablet_flat/test/libs/rows",
+    "//ydb/core/tablet_flat/test/libs/table",
     "//ydb/core/testlib/basics",
     "//ydb/core/testlib/default",  # peerdir only
     "//ydb/core/tx/columnshard",
@@ -24,7 +27,6 @@ unittest_executable("ut") {
     "//ydb/core/tx/columnshard/engines",
     "//ydb/core/tx/columnshard/engines/portions",
     "//ydb/core/tx/columnshard/engines/predicate",
-    "//ydb/core/tx/columnshard/engines/protos",
     "//ydb/core/tx/columnshard/engines/reader/actor",
     "//ydb/core/tx/columnshard/engines/reader/common_reader/constructor",
     "//ydb/core/tx/columnshard/engines/reader/common_reader/iterator",
@@ -34,7 +36,6 @@ unittest_executable("ut") {
     "//ydb/core/tx/columnshard/engines/storage/indexes/bits_storage",
     "//ydb/core/tx/columnshard/engines/storage/indexes/bloom",
     "//ydb/core/tx/columnshard/engines/storage/indexes/bloom_ngramm",
-    "//ydb/core/tx/columnshard/engines/storage/indexes/max",
     "//ydb/core/tx/columnshard/engines/storage/indexes/min_max",
     "//ydb/core/tx/columnshard/engines/storage/indexes/portions:extractor",
     "//ydb/core/tx/columnshard/engines/storage/optimizer/abstract",
@@ -52,7 +53,9 @@ unittest_executable("ut") {
     "//yql/essentials/core/arrow_kernels/request",
     "//yql/essentials/minikql/comp_nodes",
     "//yql/essentials/minikql/invoke_builtins",
+    "//yql/essentials/public/udf",
     "//yql/essentials/sql/pg_dummy",  # peerdir only
+    "//yql/essentials/types/dynumber",
     "//yql/essentials/udfs/common/json2",  # peerdir only
   ]
 
@@ -63,6 +66,9 @@ unittest_executable("ut") {
     "ut_cleanup_tables.cpp",
     "ut_index_blob_size_limit.cpp",
     "ut_index_info_schema_diff.cpp",
+    "ut_index_key_order.cpp",
+    "ut_index_portions_by_last_key.cpp",
+    "ut_insert_write_id.cpp",
     "ut_loaded_key_ranges.cpp",
     "ut_minmax_index.cpp",
     "ut_portion_blob_validation.cpp",

@@ -19,7 +19,7 @@ unittest_executable("rbo") {
     "//library/cpp/testing/unittest",
     "//library/cpp/time_provider",
     "//ydb/core/kqp",  # peerdir only
-    "//ydb/core/kqp/common",
+    "//ydb/core/kqp/common/simple",
     "//ydb/core/kqp/opt/rbo",
     "//ydb/core/kqp/provider",
     "//ydb/core/kqp/ut/common",
@@ -41,6 +41,7 @@ unittest_executable("rbo") {
   ]
 
   sources = [
+    "kqp_rbo_cbo_filters_ut.cpp",
     "kqp_rbo_copy_ut.cpp",
     "kqp_rbo_global_ut.cpp",
   ]

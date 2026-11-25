@@ -10,6 +10,7 @@ library("logical") {
   deps = [
     "//ydb/core/base",
     # "//ydb/core/kqp/common",
+    # "//ydb/core/kqp/common/simple",
     "//ydb/core/kqp/opt/cbo/solver",
     "//ydb/core/kqp/opt/physical",
     "//ydb/core/kqp/tracing",

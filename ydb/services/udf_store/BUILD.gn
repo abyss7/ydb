@@ -3,7 +3,7 @@ library("udf_store") {
     # "//library/cpp/digest/md5",
     # "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/keyvalue",
-    # "//ydb/core/kqp/common",
+    # "//ydb/core/kqp/common/dynamic_function_registry",
     "//ydb/core/protos",
     "//ydb/core/tablet",
     # "//ydb/core/tx/scheme_cache",

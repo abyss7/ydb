@@ -1,7 +1,0 @@
-library("events") {
-  deps = [
-    # "//ydb/library/actors/core",  # peerdir only
-  ]
-
-  sources = [ "empty.cpp" ]
-}

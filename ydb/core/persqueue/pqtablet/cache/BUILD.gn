@@ -1,18 +1,18 @@
 library("cache") {
   public_deps = [
+    # "//library/cpp/cache",
+    # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/base",
     # "//ydb/core/keyvalue",
     "//ydb/core/persqueue/common",
     "//ydb/core/persqueue/events",
     # "//ydb/core/persqueue/pqtablet/blob",
+    "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
-    # "//library/cpp/cache",
-    # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/mon",
-    "//ydb/core/protos",
     # "//ydb/public/api/grpc/draft",  # peerdir only
   ]
 

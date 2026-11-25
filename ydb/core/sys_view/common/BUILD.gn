@@ -2,8 +2,8 @@ library("common") {
   public_deps = [
     # "//library/cpp/deprecated/atomic",
     # "//ydb/core/base",
-    "//ydb/core/kqp/compute_actor:events",
-    # "//ydb/core/kqp/runtime",
+    # "//ydb/core/kqp/common/events",
+    # "//ydb/core/kqp/runtime/common",
     "//ydb/core/mind:tenant_node_enumeration",
     "//ydb/core/protos",
     # "//ydb/core/scheme",

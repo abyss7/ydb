@@ -22,6 +22,7 @@ library("host") {
     "//ydb/core/grpc_services",
     # "//ydb/core/kqp/common",
     # "//ydb/core/kqp/common/compile_cache",  # peerdir only
+    # "//ydb/core/kqp/common/simple",
     # "//ydb/core/kqp/gateway/utils",  # peerdir only
     "//ydb/core/kqp/opt",
     # "//ydb/core/kqp/opt/cbo/solver",

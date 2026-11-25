@@ -5,8 +5,10 @@ config("simple_private_config") {
 
 library("simple") {
   public_deps = [
+    # "//contrib/libs/protobuf",
     "//ydb/core/base",
     "//ydb/core/protos",
+    # "//ydb/core/resource_pools",
     "//ydb/library/aclib",
     # "//ydb/library/actors/core",
     "//ydb/public/api/protos",
@@ -14,7 +16,6 @@ library("simple") {
   ]
 
   deps = [
-    # "//contrib/libs/protobuf",
     # "//library/cpp/cgiparam",
     # "//library/cpp/random_provider",
     "//library/cpp/string_utils/base64",
@@ -33,6 +34,7 @@ library("simple") {
     "session_id.cpp",
     "settings.cpp",
     "temp_tables.cpp",
+    "user_request_context.cpp",
   ]
 
   configs = [ ":simple_private_config" ]

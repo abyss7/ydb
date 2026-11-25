@@ -4,7 +4,7 @@ unittest_executable("ut_orchestration") {
     "//library/cpp/testing/unittest",
     "//ydb/core/base",
     "//ydb/core/cms/console",
-    "//ydb/core/kqp/common",
+    "//ydb/core/kqp/common/dynamic_function_registry",
     "//ydb/core/testlib",
     "//ydb/core/testlib/basics",
     "//ydb/core/testlib/default",  # peerdir only

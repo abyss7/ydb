@@ -19,11 +19,14 @@ config("private_config") {
 }
 
 rodata_source_set("dat") {
-    sources = [ "icudt78_dat.rodata" ]
+    sources = [ "icudt79_dat.rodata" ]
 }
 
 contrib_library("icu") {
-    deps = [ ":dat" ]
+    deps = [
+        ":dat",
+        "//library/cpp/sanitizer/include",
+    ]
 
     sources = [
         "common/appendable.cpp",

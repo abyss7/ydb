@@ -2,8 +2,7 @@ unittest_executable("ut") {
   public_deps = [
     "//library/cpp/testing/unittest",
     "//ydb/core/fq/libs/row_dispatcher/format_handler/parsers",
-    "//ydb/core/testlib/actors",
-    "//ydb/library/testlib/common",
+    "//ydb/library/actors/testlib",
     "//yql/essentials/minikql/computation",
   ]
 
@@ -17,11 +16,13 @@ unittest_executable("ut") {
     "//ydb/library/yql/dq/actors/compute",
     "//ydb/library/yql/dq/common",
     "//yql/essentials/minikql",
+    "//yql/essentials/public/udf/service/exception_policy",  # peerdir only
     "//yql/essentials/sql/pg_dummy",  # peerdir only
   ]
 
   sources = [
     "format_handler_ut.cpp",
+    "json_parser_compatibility_ut.cpp",
     "memory_quota_ut.cpp",
     "topic_filter_ut.cpp",
     "topic_parser_ut.cpp",
@@ -35,9 +36,9 @@ unittest_executable("ut") {
     "minikql_codegen=llvm16",
     "retro_spans=spans",
     "topic_rpc=persqueue_v1",
-    "wasm=engine",
+    "wasm=wasm_default",
     "yql_pg_runtime=pg_dummy",
     "yql_pg_sql_translator=pg_dummy",
-    "yt_codegen=llvm16",
+    "yt_codegen=no_llvm",
   ]
 }

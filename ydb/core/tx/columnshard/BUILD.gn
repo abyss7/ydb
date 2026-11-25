@@ -106,9 +106,7 @@ library("columnshard") {
     # "//ydb/core/engine/minikql",
     # "//ydb/core/formats",  # peerdir only
     # "//ydb/core/grpc_services/cancelation/protos",  # peerdir only
-    "//ydb/core/kqp",  # peerdir only
-    # "//ydb/core/kqp/compute_actor",  # peerdir only
-    # "//ydb/core/kqp/compute_actor:events",
+    # "//ydb/core/kqp/common/events",
     # "//ydb/core/mon",
     "//ydb/core/tx/columnshard/backup:async_jobs",
     "//ydb/core/tx/columnshard/backup:iscan",

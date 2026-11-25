@@ -187,7 +187,9 @@ public:
             TString DataInfo;
         };
 
-        virtual TPartsState GetDataState(const TLogoBlobID& id, const TPartsData& partsData, char separator) const = 0;
+        // maxRestores limits ErasureRestore calls; zero means unlimited.
+        virtual TPartsState GetDataState(const TLogoBlobID& id, const TPartsData& partsData, char separator,
+            ui32 maxRestores = 0) const = 0;
     };
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -358,6 +360,18 @@ public:
     }
     bool IsFailRealmIncluded(ui32 failRealmIdx) const {
         return IsIncluded(GetFailRealmState(failRealmIdx));
+    }
+    bool IsFailRealmReadable(ui32 failRealmIdx) const {
+        return IsReadable(GetFailRealmState(failRealmIdx));
+    }
+    bool IsWriteTargetRealm(ui32 failRealmIdx) const {
+        EMirror3dcFailRealmState role = GetFailRealmState(failRealmIdx);
+        if (!IsRecovering(role)) {
+            return IsIncluded(role);
+        }
+        // A single-realm write always fits in Included. Other recovery layouts need R.
+        auto layouts = GetMirror3dcGroupLayouts(GetMirror3dcState().State);
+        return layouts && layouts->Write != EMirror3dcLayout::LAYOUT_2;
     }
     bool IsFailRealmExcluded(ui32 failRealmIdx) const {
         return IsExcluded(GetFailRealmState(failRealmIdx));

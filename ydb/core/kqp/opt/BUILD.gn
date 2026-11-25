@@ -11,8 +11,8 @@ library("helpers") {
     # "//ydb/core/kqp/gateway/actors",
     "//ydb/core/kqp/opt/cbo",
     "//ydb/core/kqp/provider",
-    # "//ydb/core/statistics",
-    "//ydb/core/statistics/service:service_id",
+    "//ydb/core/statistics",
+    # "//ydb/core/statistics/service",
     "//ydb/library/yql/dq/opt",
     # "//yql/essentials/ast",
     # "//yql/essentials/core",
@@ -21,6 +21,7 @@ library("helpers") {
   ]
 
   deps = [
+    # "//ydb/core/kqp/common/simple",
     "//ydb/core/kqp/tracing",
     # "//yql/essentials/providers/common/provider",
   ]
@@ -50,6 +51,7 @@ library("opt") {
     "//library/cpp/protobuf/json",
     # "//ydb/core/base",
     # "//ydb/core/kqp/common/compile_cache",  # peerdir only
+    # "//ydb/core/kqp/common/simple",
     "//ydb/core/kqp/gateway/actors",
     # "//ydb/core/kqp/gateway:interface",
     # "//ydb/core/kqp/opt/cbo",
@@ -61,7 +63,7 @@ library("opt") {
     "//ydb/core/kqp/tracing",
     "//ydb/core/protos",
     # "//ydb/core/statistics",
-    "//ydb/core/statistics/service:service_id",
+    # "//ydb/core/statistics/service",
     "//ydb/library/formats/arrow/protos",
     "//ydb/library/json_index",
     # "//ydb/library/mkql_proto",

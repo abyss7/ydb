@@ -1,0 +1,10 @@
+library("dynamic_function_registry") {
+  public_deps = [ "//yql/essentials/minikql" ]
+
+  deps = [
+    "//library/cpp/threading/hot_swap",
+    # "//yql/essentials/public/udf",
+  ]
+
+  sources = [ "dynamic_function_registry.cpp" ]
+}

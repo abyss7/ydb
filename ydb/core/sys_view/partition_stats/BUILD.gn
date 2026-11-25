@@ -1,12 +1,13 @@
 library("partition_stats") {
   public_deps = [
-    "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime/common",
     "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
     # "//ydb/core/base",
+    "//ydb/core/kqp/common/events",  # peerdir only
     "//ydb/core/mind:tenant_node_enumeration",  # peerdir only
     "//ydb/core/sys_view/common",
     # "//ydb/library/yql/dq/actors/compute",

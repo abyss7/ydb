@@ -16,7 +16,6 @@ unittest_executable("ut") {
     "//ydb/core/tx/columnshard/data_sharing/manager",  # peerdir only
     "//ydb/core/tx/columnshard/engines",
     "//ydb/core/tx/columnshard/engines/portions",
-    "//ydb/core/tx/columnshard/engines/protos",
     "//ydb/core/tx/columnshard/engines/reader/abstract",
     "//ydb/core/tx/columnshard/engines/reader/common",
     "//ydb/core/tx/columnshard/engines/reader/common_reader/iterator",
@@ -60,6 +59,6 @@ unittest_executable("ut") {
     "wasm=engine",
     "yql_pg_runtime=pg_dummy",
     "yql_pg_sql_translator=pg_dummy",
-    "yt_codegen=no_llvm",
+    "yt_codegen=llvm16",
   ]
 }

@@ -1,12 +1,13 @@
 library("storage") {
   public_deps = [
-    "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime/common",
     "//ydb/core/protos",
     # "//ydb/library/actors/core",
   ]
 
   deps = [
     # "//ydb/core/base",
+    "//ydb/core/kqp/common/events",  # peerdir only
     "//ydb/core/sys_view/common",
     # "//ydb/library/actors/interconnect",
     # "//ydb/library/yql/dq/actors/compute",
