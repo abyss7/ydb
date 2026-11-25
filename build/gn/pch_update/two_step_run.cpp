@@ -45,7 +45,8 @@
 
 namespace NPchUpdate::NTwoStep {
     namespace {
-        constexpr const char* VERSION = "pch-two-step-9";
+        constexpr const char* VERSION = "pch-two-step-10";
+        constexpr const char* CONTROLS_VERSION = "pch-two-step-9";
         constexpr const char* ANCHORED_VERSION = "pch-two-step-8";
         constexpr const char* MERGED_OWNER_VERSION = "pch-two-step-7";
         constexpr const char* OWNER_VERSION = "pch-two-step-6";
@@ -53,7 +54,7 @@ namespace NPchUpdate::NTwoStep {
         constexpr const char* PREVIOUS_VERSION = "pch-two-step-4";
         constexpr const char* LEGACY_VERSION = "pch-two-step-3";
         // Bump when extraction or the meaning of cached model features changes.
-        constexpr const char* ANALYSIS_VERSION = "pch-analysis-10";
+        constexpr const char* ANALYSIS_VERSION = "pch-analysis-11";
 
         const char* HELP =
             "pch_update --baseline DIR [--predict | --correct | --apply] [options]\n"
@@ -223,6 +224,8 @@ namespace NPchUpdate::NTwoStep {
             TPrediction Prediction;
             std::vector<std::string> Commands; // digests of small action configs
             bool Corrected = false;
+            // The correction kept the initial plan: no candidate beat it after the checks (corrected plans only).
+            bool RetainedInitial = false;
             // Percentage of C++ objects measured; PCH actions are
             // always measured. 100 measures every action, links included.
             int Sample = 100;
@@ -303,6 +306,8 @@ namespace NPchUpdate::NTwoStep {
                     "disk-fallback/disk-budget: measured eviction to the best open fallback or NONE.\n"
                     "no-layout-improvement: seed won global objective; retained-initial-plan: correction retained initial seed.\n"
                     "compatibility-fallback/rejected: target moved to an ancestor/no PCH; see compatibility.tsv and retained probe logs.\n"
+                    "final-payback-parent/none: owner stepped down by the payback of the final assignments (final-payback.tsv).\n"
+                    "selection-widths.tsv: none = the build without PCH; seed = the initial plan on the correction's model; cold and incremental per candidate.\n"
                     "Historical checkpoints may lack reasons; unavailable is not a guessed rejection cause.\n"
                     "GB=1000000000 bytes; disk budget covers resident PCH artifacts, not the complete build directory.\n"
                     "Sample percentage applies to C++ objects; every PCH and prerequisite tool is built.\n"
@@ -415,7 +420,7 @@ namespace NPchUpdate::NTwoStep {
         template <class A> void Fields(A& a, TTarget& v) { a(v.Label, v.Class, v.Files, v.PchEligible); }
         template <class A> void Fields(A& a, TData& v) { a(v.Actions, v.Units, v.Files, v.Targets, v.Classes, v.Scenarios, v.Q, v.Resources, v.ActionMemory); }
         template <class A> void Fields(A& a, TPch& v) { a(v.Class, v.Parent, v.Representative, v.Roots, v.Units); }
-        template <class A> void Fields(A& a, TLayout& v) { a(v.Pchs, v.Bases, v.Assignment, v.Controls); }
+        template <class A> void Fields(A& a, TLayout& v) { a(v.Pchs, v.Bases, v.Frozen, v.Assignment, v.Controls); }
         template <class A> void Fields(A& a, TPrediction& v) { a(v.Actions, v.Saved, v.Load, v.PchBytes, v.Cold, v.Incremental, v.Objective, v.Feasible); }
         template <class A> void Fields(A& a, TObservation& v) { a(v.Time, v.Cpu, v.Memory, v.Bytes, v.Start, v.End, v.Invocation); }
         template <class A> void Fields(A& a, TCoefficients& v) {
@@ -425,12 +430,12 @@ namespace NPchUpdate::NTwoStep {
         template <class A> void Fields(A& a, TMeasuredPch& v) { a(v.Pch, v.Parent, v.Bytes, v.Time, v.Memory); }
         template <class A> void Fields(A& a, TCalibration& v) {
             a(v.Classes, v.Measured, v.ActionTime, v.ActionMemory, v.ActionFloor, v.TargetGain, v.UnitSize, v.UnitBuild, v.UnitGain,
-              v.Report, v.TargetReport, v.UnitReport);
+              v.GlobalUnitSize, v.GlobalUnitBuild, v.GlobalBaseBuild, v.GlobalDeltaBuild, v.Report, v.TargetReport, v.UnitReport);
         }
         template <class A> void Fields(A& a, TLinkLine& v) { a(v.Output, v.Inputs); }
         template <class A> void Fields(A& a, TLinkInputs& v) { a(v.Lines, v.Targets, v.Libraries); }
         template <class A> void Fields(A& a, TSnapshot& v) {
-            a(v.Root, v.Baseline, v.Directory, v.Args, v.Gn, v.Ninja, v.Nonce, v.Tree, v.Tool, v.Targets, v.GnSwitches, v.Inputs, v.Flags, v.Data, v.Layout, v.Prediction, v.Commands, v.Corrected, v.Sample, v.Measured);
+            a(v.Root, v.Baseline, v.Directory, v.Args, v.Gn, v.Ninja, v.Nonce, v.Tree, v.Tool, v.Targets, v.GnSwitches, v.Inputs, v.Flags, v.Data, v.Layout, v.Prediction, v.Commands, v.Corrected, v.RetainedInitial, v.Sample, v.Measured);
             if (a.HasProfile) { a(v.Mode); }
             a(v.LinkInputs);
         }
@@ -538,13 +543,17 @@ namespace NPchUpdate::NTwoStep {
         T Decode(const std::string& text) {
             TBinReader envelope(text);
             const auto version = envelope.Str();
-            if (version != VERSION && version != ANCHORED_VERSION && version != MERGED_OWNER_VERSION && version != OWNER_VERSION && version != TARGET_VERSION && version != PREVIOUS_VERSION && version != LEGACY_VERSION) {
+            if (version != VERSION && version != CONTROLS_VERSION && version != ANCHORED_VERSION && version != MERGED_OWNER_VERSION && version != OWNER_VERSION && version != TARGET_VERSION && version != PREVIOUS_VERSION && version != LEGACY_VERSION) {
                 Fail("unsupported two-step snapshot version");
             }
             if constexpr (std::is_same_v<T, TSnapshot> || std::is_same_v<T, TAnalysis>) {
                 if (version != VERSION) {
                     Fail("plan/analysis schema changed (GN target assignments); run predict again (old results are preserved)");
                 }
+            }
+            if constexpr (std::is_same_v<T, TSelectionCheckpoint>) {
+                // A layout of another schema would decode into another layout.
+                if (version != VERSION) { Fail("selection checkpoint schema changed; the layout is recomputed"); }
             }
             std::string hash(envelope.Str());
             auto body = envelope.Str();
@@ -951,6 +960,7 @@ namespace NPchUpdate::NTwoStep {
             a.Snapshot.Prediction = {};
             a.Snapshot.Commands.clear();
             a.Snapshot.Corrected = false;
+            a.Snapshot.RetainedInitial = false;
             WriteFile(JoinPath(s.Directory, "analysis.bin"), Encode(a));
         }
 
@@ -975,6 +985,7 @@ namespace NPchUpdate::NTwoStep {
             s.Prediction = {};
             s.Commands.clear();
             s.Corrected = false;
+            s.RetainedInitial = false;
             s.Tree = TreeIdentity(s.Root);
             s.Tool = DigestFile(SelfExe());
             s.Nonce = HashHex(s.Nonce + std::to_string(Now()));
@@ -2208,6 +2219,9 @@ namespace NPchUpdate::NTwoStep {
                     Fail("invalid two-level PCH hierarchy; run predict again");
                 }
             }
+            if (layout.Frozen < 0 || layout.Frozen > layout.Bases) {
+                Fail("invalid frozen base count; run predict again");
+            }
             TCompatibilityCache cache(cacheRoot);
             // Use validated records on both cache hits and fresh probes. These
             // include headers exposed by a PCH that baseline depfiles cannot see.
@@ -2331,7 +2345,7 @@ namespace NPchUpdate::NTwoStep {
                     return ok;
                 };
                 built[g] = tryProbe(roots);
-                if (!built[g] && roots.size() > 1 && !(s.Corrected && int(g) < layout.Bases)) {
+                if (!built[g] && roots.size() > 1 && int(g) >= layout.Frozen) {
                     // A single incompatible root must not void the whole
                     // family: a rejected base resets its class's every delta
                     // to NONE. Find the smallest failing prefix of the layered
@@ -2391,7 +2405,7 @@ namespace NPchUpdate::NTwoStep {
                 std::vector<int> tail;
                 double measured = 0, room = 0;
                 bool abandoned = false;
-                if (built[g] && !s.Corrected && int(g) < layout.Bases && pch.Roots.size() - reduced[g].size() > 1) {
+                if (built[g] && int(g) < layout.Bases && int(g) >= layout.Frozen && pch.Roots.size() - reduced[g].size() > 1) {
                     const double budget = s.Data.Resources.Disk;
                     double total = 0, mandatory = 0;
                     for (size_t h = 0; h < prediction.PchBytes.size(); ++h) {
@@ -2548,7 +2562,7 @@ namespace NPchUpdate::NTwoStep {
                                     ++completed, layout.Pchs.size(), built[g] ? "OK" : "rejected", g,
                                     Seconds((Now() - compatibilityStart) / 1e9).c_str()));
                 }
-                if (!built[g] && s.Corrected && int(g) < layout.Bases) {
+                if (!built[g] && int(g) < layout.Frozen) {
                     Fail("frozen base failed compatibility checking; see " + JoinPath(cache.Directory(keys[g]), "compiler.log"));
                 }
             });
@@ -2627,12 +2641,36 @@ namespace NPchUpdate::NTwoStep {
                 if (n <= 0) { Fail("missing compatibility artifact: " + artifacts[g]); }
                 bytes[g] = n;
             }
-            auto diskReport = FitMeasuredDisk(s.Data, layout, calibration, bytes, s.Corrected, [&](int t, int parent) {
+            auto diskReport = FitMeasuredDisk(s.Data, layout, calibration, bytes, layout.Frozen, [&](int t, int parent) {
                 const auto& files = s.Data.Targets[t].Files;
                 std::vector<char> ok(files.size());
                 ParallelFor(files.size(), jobs, [&](size_t i) { ok[i] = checkFile(files[i], parent, false); });
                 return std::all_of(ok.begin(), ok.end(), [](char pass) { return pass; });
             });
+            // Payback of what the checks and the fit left: an owner the fit
+            // moved to a base that saves it nothing, a family whose paying
+            // owners have left, is priced again on its final leaf. It steps
+            // down to its parent or to NONE, never up to a leaf nobody
+            // checked it with; a step that does not compile ends at NONE.
+            const auto afterFit = layout.Assignment;
+            const auto payback = FinalPayback(s.Data, layout, calibration);
+            size_t stepped = 0;
+            for (size_t t = 0; t < s.Data.Targets.size(); ++t) {
+                if (layout.Assignment[t] == afterFit[t]) { continue; }
+                ++stepped;
+                const int g = layout.Assignment[t];
+                for (int f : s.Data.Targets[t].Files) {
+                    if (!checkFile(f, g, false)) {
+                        layout.Assignment[t] = -1;
+                        break;
+                    }
+                }
+            }
+            if (stepped) {
+                Log(Format("final payback: %zu owners step down to a parent or to NONE after the compatibility checks and the measured fit", stepped));
+                WriteFile(JoinPath(s.Directory, "final-payback.tsv"),
+                          "source\tpass\tkind\tcandidate_leaf\tassigned_targets\tparse_saved_s\tload_s\textra_compile_s\tbuild_s\tmandatory_build_s\tnet_s\tdecision\n" + payback);
+            }
             // Replace the original leaf's generated-input record with that of the
             // final parent (or NONE). Never install a speculative fallback probe.
             ParallelFor(s.Data.Files.size(), jobs, [&](size_t f) {
@@ -2671,9 +2709,10 @@ namespace NPchUpdate::NTwoStep {
                 std::ostringstream targets;
                 targets << "target\treason\tselected_leaf\tcompatible_leaf_before_compaction\tfinal_leaf\tdiagnostics\n";
                 for (size_t t = 0; t < s.Data.Targets.size(); ++t) {
-                    const std::string reason = beforeBudget[t] != compatibleAssignments[t] ?
-                        (compatibleAssignments[t] < 0 ? "disk-budget" : "disk-fallback") : original[t] == compatibleAssignments[t] ? "unchanged" :
-                        compatibleAssignments[t] < 0 ? "compatibility-rejected" : "compatibility-fallback";
+                    const std::string reason = layout.Assignment[t] != afterFit[t] ?
+                        (layout.Assignment[t] < 0 ? "final-payback-none" : "final-payback-parent") : beforeBudget[t] != afterFit[t] ?
+                        (afterFit[t] < 0 ? "disk-budget" : "disk-fallback") : original[t] == afterFit[t] ? "unchanged" :
+                        afterFit[t] < 0 ? "compatibility-rejected" : "compatibility-fallback";
                     targets << s.Data.Targets[t].Label << '\t' << reason << '\t' << original[t] << '\t'
                             << compatibleAssignments[t] << '\t' << layout.Assignment[t] << '\t';
                     if (original[t] >= 0 && !built[original[t]]) { targets << "selected PCH or its parent did not compile; "; }
@@ -2799,6 +2838,9 @@ namespace NPchUpdate::NTwoStep {
             human << "\n  Each assignment covers one GN compile target; generated helper targets are evaluated separately.\n"
                   << "  Disk budget covers resident PCHs, not the whole build directory. GB = 1,000,000,000 bytes.\n"
                   << "  Predictions model the sampled history; a full-build speedup has not been measured.\n";
+            if (s.RetainedInitial) {
+                human << "  Retained initial plan: no corrected candidate scored better after the compatibility checks and the measured fit.\n";
+            }
             human << (s.Corrected ? "  Calibrated where identifiable; other parameters retain priors (see calibration.tsv).\n" :
                 "  Initial PCH size, RSS and load costs are priors; measurements follow.\n");
             Diagnostic([&] {
@@ -3212,6 +3254,7 @@ namespace NPchUpdate::NTwoStep {
             auto observations = ReadObservations(s, errors, actionErrors);
             MeasurementSummary(s, observations, errors, actionErrors);
             auto calibration = Calibrate(s.Data, s.Layout, s.Prediction, observations);
+            const TLayout measuredInitial = s.Layout;
             if (!Exists(output)) { NewDirectory(output, s.Root, s.Baseline); }
             auto layout = SelectCheckpoint(s, output, calibration, &s.Layout, {}, analysisJobs);
             s.Directory = RealPath(output);
@@ -3220,8 +3263,30 @@ namespace NPchUpdate::NTwoStep {
             s.Layout = std::move(layout);
             SaveAnalysis(s);
             std::vector<uint64_t> bytes;
-            const auto probeInputs = Preflight(s, workDir, calibration, analysisJobs, &bytes);
+            auto probeInputs = Preflight(s, workDir, calibration, analysisJobs, &bytes);
             s.Prediction = Predict(s.Data, s.Layout, calibration, analysisJobs, bytes);
+            // The correction earns its second measurement only by beating the
+            // plan it started from on the model the first one taught. A
+            // candidate won its objective before the compatibility checks and
+            // the measured fit took their share of it; priced after them, on
+            // the same calibrated model as the initial plan, it may not.
+            double initialObjective = -1;
+            // The artifacts of the initial plan were measured: the fit and the
+            // score of it take their sizes, as the corrected plan's do.
+            std::vector<uint64_t> initialBytes;
+            if (s.Prediction.PchBytes.size() == measuredInitial.Pchs.size()) {
+                for (double bytes : s.Prediction.PchBytes) { initialBytes.push_back(uint64_t(bytes)); }
+            }
+            auto initialOnModel = ScoredLayout(s.Data, measuredInitial, calibration, analysisJobs, &initialObjective,
+                                               initialBytes.size() == measuredInitial.Pchs.size() ? &initialBytes : nullptr);
+            s.RetainedInitial = initialObjective > 0 && s.Prediction.Objective > initialObjective;
+            if (s.RetainedInitial) {
+                Report(Format("  Corrected plan scores %s after the compatibility checks and the measured fit; the initial plan scores %s on the same model: retaining the initial plan.",
+                    Seconds(s.Prediction.Objective).c_str(), Seconds(initialObjective).c_str()));
+                s.Layout = std::move(initialOnModel);
+                probeInputs = Preflight(s, workDir, calibration, analysisJobs, &bytes);
+                s.Prediction = Predict(s.Data, s.Layout, calibration, analysisJobs, bytes);
+            }
             Emit(s, probeInputs, FrozenSampleFiles(s.Data, s.Sample, s.Measured));
             ValidateIdentity(s);
             WriteFile(JoinPath(output, "initial-errors.tsv"), errors);
@@ -3255,7 +3320,9 @@ namespace NPchUpdate::NTwoStep {
                 WriteFile(JoinPath(output, "assignment-changes.tsv"), changes.str());
                 Report(Format("  Initial → corrected: %zu → %zu PCHs; targets gained PCH: %zu, lost PCH: %zu, changed PCH contents: %zu",
                     initial.Layout.Pchs.size(), s.Layout.Pchs.size(), gained, lost, changed));
-                if (initial.Prediction.Objective > 0) {
+                if (s.RetainedInitial) {
+                    Report("  The initial plan is retained: no corrected candidate scored better than it after the checks, on the calibrated model.");
+                } else if (initial.Prediction.Objective > 0) {
                     Report(Format("  Objective forecast change: %+.2f%%; model and layout both changed — not a measured speedup.",
                         100 * (s.Prediction.Objective / initial.Prediction.Objective - 1)));
                 }
@@ -4834,7 +4901,8 @@ namespace NPchUpdate::NTwoStep {
                 gn.insert(gn.end(), s.GnSwitches.begin(), s.GnSwitches.end());
                 RunChecked(gn, LiveRun(s.Root));
                 CheckDeployment(s, build);
-                std::vector<std::string> command = {s.Ninja, "-C", build};
+                // The parallelism every forecast and measurement of this run used.
+                std::vector<std::string> command = {s.Ninja, "-C", build, "-j", std::to_string(s.Data.Resources.Workers)};
                 command.insert(command.end(), s.Targets.begin(), s.Targets.end());
                 RunChecked(command, LiveRun(s.Root));
                 // Commit marker precedes clearing the transaction journal. A
@@ -5105,6 +5173,7 @@ namespace NPchUpdate::NTwoStep {
                       "the tail is reported on its own, not as a bisection that dropped nothing");
                 s.Corrected = true;
                 s.Layout = topHeavy;
+                s.Layout.Frozen = s.Layout.Bases; // the bases of a corrected plan are the initial plan's
                 bool overBudget = false;
                 try { Preflight(s, cache); } catch (const TError&) { overBudget = true; }
                 check(overBudget, "a corrected base is frozen: over the budget is an error, not a trim");

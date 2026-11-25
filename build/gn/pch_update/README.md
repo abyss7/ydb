@@ -2,8 +2,9 @@
 
 `pch_update` selects compatible base/delta PCH chains, measures the initial build,
 reselects the deltas and their consumers once, measures the corrected build and
-installs the groups in the ordinary GN global-PCH build. The base contents and compiler
-classes remain fixed while the correction selects, and what the first measurement
+installs the groups in the ordinary GN global-PCH build. The bases the initial plan
+built keep their contents while the correction selects, a class the initial plan
+left without a base gets one, and what the first measurement
 showed is kept at every level: targets are anchored at their observed compile, the
 class coefficients come from all measured groups, and every built base and delta
 teaches its own header units. This is a bounded two-step workflow,
@@ -36,7 +37,10 @@ pch_update --baseline /path/to/no-pch-build \
 Run from the source worktree (or a subdirectory). The normal command runs
 baseline preparation → analysis/selection → initial measurement → correction →
 corrected measurement → GN export/replacement/validation. It stops on failure;
-repeat the same invocation to continue. There is exactly one correction.
+repeat the same invocation to continue. There is exactly one correction, and it is
+kept only if it beats the initial plan on the calibrated model once the
+compatibility checks and the measured disk fit have taken their share; otherwise
+the initial plan is retained (`retained-initial-plan`) and measured as the result.
 
 | Stage | Command | Work |
 | --- | --- | --- |
@@ -220,7 +224,8 @@ CPU load is not monitored or corrected automatically.
 `--apply` emits exact owner labels and ordered compiler classes, resolves generated
 headers through public codegen targets and represents parent PCH dependencies in
 GN. Before building, it checks every assigned consumer and every PCH producer
-against the actual global graph. The normal GN workload is then built, including
+against the actual global graph. The normal GN workload is then built with the
+run's worker count, including
 bootstrap-tool work. A journal and backup restore the old global tree on failure
 or recover an interrupted replacement on the next invocation. User edits made
 during a suspended replacement are detected rather than overwritten.
@@ -247,7 +252,9 @@ the selector also builds disk-priced variants: a small lambda grid whose prices
 cut the candidate where the estimated bytes of its roots, of every class of it
 and densest first, reach
 60%, 100% and 125% of `--disk`, so every PCH keeps a dense prefix that fills
-the budget instead of being evicted wholesale later.
+the budget instead of being evicted wholesale later. In the correction the bytes
+the frozen bases hold are counted first: a share is of what they leave, not of
+the whole budget.
 Roots enter a PCH in descending benefit-per-byte order, so these prefixes are
 trimmable tails. Selection can evict a delta to its best open fallback — the
 base or a surviving sibling delta of the same compiler class sharing its heavy
@@ -257,7 +264,10 @@ on marginal work lost per freed byte; a shared base is charged only once.
 Only the winning width gets a probe reserve: the same selection is fitted to
 **2 × `--disk`** in estimated bytes before compatibility (fixed factor).
 `selection-widths.tsv` reports the width/lambda candidates at 1× and the
-separate winner's probe count and bytes at 2×. A compiler class has at most one
+separate winner's probe count and bytes at 2×, each with its cold and incremental
+makespan, after two reference rows: `none`, the build without PCH, and in the
+correction `seed`, the initial plan on the same calibrated model after payback and
+the estimated fit. A compiler class has at most one
 safe stable base; without a base it cannot produce deltas. *Safe*: compiled
 alone, the header needs nothing beyond the C++ runtime (operator new and
 delete, the ABI, libc++, the unwinder), which every final link supplies; what
@@ -276,13 +286,14 @@ stay without any PCH (`calibration-control`: the compiler's speed on this class
 against the traces, and how much it varies between owners) and, in classes of eight
 owners or more, as many owners that would take a delta stay on the base
 (`calibration-base-control`: what the delta adds over it for an owner that would
-take one). Both kinds are taken from the lighter half of the class, by the parse
-seconds a PCH can save an owner, so the heaviest owners always remain to pay for
-the shared base. A class of fewer than four owners has no control: a bare control
-pays nothing towards its base, a lone owner would be left without any PCH, and a
-base that leaves the initial plan cannot return in the correction. Within that half
-both sets are spread evenly over the label order, which is independent of an
-owner's headers, and are measured first (see sampling). The counts grow with the
+take one). Both kinds are spread evenly over a label order, which is independent
+of an owner's headers, and are measured first (see sampling). Any owner is pool
+but one carrying more than a third of the class, by the parse seconds a PCH can
+save it: such an owner holds up the shared base and keeps its PCH. The lighter
+half of the class alone was a biased sample, and the largest class read as
+compiling three times slower than its traces. A class of fewer than four owners
+has no control: a bare control pays nothing towards its base and a lone owner
+would be measured without any PCH. The counts grow with the
 square root of the class, so a large class gives up a few percent of its coverage
 instead of a tenth of it. Correction has no controls: every owner takes its best
 measured option. Before scoring each width and
@@ -310,9 +321,17 @@ cancels the trim: the base stays whole and the measured fit decides. This
 measured pass can likewise evict entire initial families or individual children
 (accounting for saved build cost). On delta eviction each owner moves atomically
 to its cheapest compatible open fallback or NONE. This is a greedy work
-estimate, not an optimum for build wall time.
-Corrected bases are frozen; if mandatory bases alone exceed the cap, planning
-fails. Temporary probe storage can exceed the final cap. Scheduling of the
+estimate, not an optimum for build wall time. The assignments as the checks and
+the fit left them are then priced once more: a family that no longer pays for its
+base leaves, and an owner leaves a delta that no longer pays for its parent or for
+NONE — never for a sibling nobody checked it with; a step that does not compile
+ends at NONE (`final-payback.tsv`, reasons `final-payback-parent` and
+`final-payback-none`).
+The bases of the initial plan are frozen in the correction: their content is
+fixed and no fit evicts them; if they alone exceed the cap, planning fails. A base
+the correction builds for a class the initial plan left without one is bisected,
+trimmed and evicted like an initial base, and its class is priced under the same
+lambda grid as the deltas. Temporary probe storage can exceed the final cap. Scheduling of the
 retained plan uses probe artifact bytes; `--apply` rechecks the MEASURE bytes.
 Absolute-path includes are not injected as PCH roots: directly including a
 sysroot header can lose Clang's system-header classification and break consumer
@@ -335,8 +354,10 @@ Before freezing any initial or corrected prediction, `predict`, `replan` and
    chain that fails to compile is bisected by its roots — the smallest
    breaking prefix of that order is dropped and the remainder retried — so
    one incompatible header no longer voids a whole delta or, with it, the
-   base family and every sibling delta. Frozen corrected bases are never
-   reduced; their failure aborts correction.
+   base family and every sibling delta. The bases of the initial plan are never
+   reduced in the correction; their failure aborts it. A base the correction
+   built for a class the initial plan left without one is bisected like any
+   other.
 2. Check every C++ member of each assigned target with `-fsyntax-only` and its PCH.
 3. If any member fails, move the **whole target** to the parent PCH and recheck
    every member, then try all members without PCH. Only a universally successful
@@ -439,8 +460,14 @@ out of the sample, and keeps what the measurement showed at every level:
   anchored at its measured compile without PCH.
 * **Per class.** The controls give the baseline ratio and, where their trace times
   spread enough to tell it apart, the per-compile seconds outside the traces. A
-  class without a measured control (fewer than four owners, or none in the sample)
-  keeps the prior baseline ratio of 1.
+  class with fewer than three measured controls (fewer than four owners, or none in
+  the sample) does not start from the prior ratio of 1 with no overhead at all:
+  every control of every class measures the same machine against the same traces,
+  so a common line — the median ratio of the controls that trace in ten seconds or
+  more, and the median seconds the shorter ones leave outside the traces — is its
+  starting point, moved by the ratio of the class's own controls to that line and
+  shrunk by their number. The ratio of 1 read a host compiling short files for
+  twice their traces as a PCH that saved nothing.
   `saved` and `load` are a weighted least-squares fit on the measured targets with
   a PCH over the data centered by both (no count column to collide with a load
   shared by every group); each target's equation is normalized by the root of its
@@ -450,12 +477,27 @@ out of the sample, and keeps what the measurement showed at every level:
   `-fpch-instantiate-templates` removes outside the includes (`instantiate`); it
   is accepted only when identified next to the others. Leave-one-group-out error is
   a diagnostic only: the working coefficients are fitted on every measured group.
+  A member measured at its backend floor has nothing left to show the fit and is
+  left out of it; the anchor and the multiplier below still see it. Where the two
+  are not identifiable, one combined saving stands: the median scale of the
+  measured targets relative to the class baseline — a PCH takes parse seconds off
+  a compile at the rate the class compiles them — each target weighing as its
+  combined gain stands to the noise of its compile, and moved from the prior scale
+  of 1 by the share of information the targets carry. The plain median of the row
+  ratios divided a host's speed against the traces by the gain of a 2 MB base on a
+  1200 s owner and clamped the class at three times its baseline, pricing every
+  new delta of such a class as saving three times its parse seconds.
 * **Per unit.** Every base and delta S0 built is one observation over its own
   units. A weak ridge decomposition assigns each unit its PCH bytes per source
   byte and its build seconds per parse second (a lone group's units move by the
   same share; units shared by groups split the evidence), so `Pick` sees which
   headers inflated a delta and the second selection fits `--disk` before
-  compiling. The strata are cut exactly as the draw cut them. An artifact with
+  compiling. The artifacts of every class are decomposed together as well: the
+  bytes a header adds and the seconds it takes to serialize are the header's, so
+  a unit a class never measured itself takes what any class measured before the
+  scale of whatever small artifact that class did measure (`class` `global` in
+  `calibration-units.tsv`), and a class that measured no base or no delta builds
+  at the rate of the classes that did. The strata are cut exactly as the draw cut them. An artifact with
   exactly the units, roots and parent chain S0 built reuses its measured size,
   build time and RSS outright, and the consumer memory scale is read from the
   measured artifacts. A leaf that is unusually heavy to deserialize shows in its
@@ -486,7 +528,14 @@ build; `summary.tsv` says so.
 `correct` checks source, tool, configuration, action and output identity before
 using any measurements. It compares the frozen initial ledger with observations,
 reports unidentifiable parameters and cross-validated error, and
-emits a new independent build directory. The corrected configuration remains
+emits a new independent build directory. A candidate wins its objective before the
+compatibility checks and the measured disk fit; once they have taken their share,
+the corrected plan is compared with the initial plan on the same calibrated model,
+each after its disk fit (the initial plan's with the measured sizes of its artifacts;
+the `seed` row of `selection-widths.tsv` shows it under the estimated fit). A
+correction that does not beat it is not kept: the initial plan is retained, reported
+as `retained-initial-plan`, and measured as the result of the cycle. The corrected
+configuration remains
 a prediction. It can optionally be measured with `verify --plan` too, but cannot
 be corrected again within this cycle.
 
@@ -525,6 +574,8 @@ separate input and is not modified by the tool build.
   freed bytes, estimated marginal work loss,
   and counts of targets reassigned to their best open fallback
   (base or a surviving sibling delta) or NONE.
+- `final-payback.tsv`: written when the payback of the final assignments moves an
+  owner (initial and corrected plans); the rows are those of `selection-payback.tsv`.
 - `BASELINE/pch-disk-budget.tsv`: latest completed prediction phase's copy of
   the report above; survives successful cleanup of `.pch_update/`. A corrected
   prediction replaces the initial report. No extra compilations are performed
@@ -543,17 +594,22 @@ Order-only edges affect scheduling but not dirty propagation. Validation edges
 are additional roots. Changed restat outputs are conservatively assumed to
 propagate. Header selection greedily considers all eligible roots, followed by
 full graph scoring; it is heuristic. Initial size, RSS and loading costs are explicit
-priors. Exact compiler flags, macros and include order define compatibility
+priors: 6.2 PCH bytes per header source byte and 1.1 / 1.75 build seconds per parse
+second for a base / a delta are the medians of the classes of a full run and the
+bytes-weighted ratio of its artifacts, with `-fpch-instantiate-templates`. Exact compiler flags, macros and include order define compatibility
 classes, so some classes may have too few groups to identify separate costs.
 
 `pch_update self-test` checks scheduling, invalidation, frozen-base refinement and
 release of emptied families, bare controls of small and lopsided classes,
 parasites and crowded clusters, disk prices by bytes across classes,
 calibration rank, cross-validation, anchors and
-empirical-Bayes multipliers (a harmful leaf at zero), per-unit decomposition, sampling by work with control
-priority, cycle repair to the parent, base material (generated output never) and
+empirical-Bayes multipliers (a harmful leaf at zero), the common line of the
+controls for a class without enough of its own, a combined saving that a 2 MB base
+on a large owner cannot clamp, pooled unit sizes across classes, sampling by work with control
+priority, controls spread over the class, cycle repair to the parent, base material (generated output never) and
 roots without parse time, the C++ runtime symbols a header may need alone,
-streamed tree identity, snapshot corruption, measurement restart,
+bases the correction builds for classes without one and the disk price that counts
+the frozen bases first, the final payback that only steps down, streamed tree identity, snapshot corruption, measurement restart,
 missing telemetry and interrupted replacement recovery.
 
 Shared bases require headers that alone need nothing beyond the C++ runtime.

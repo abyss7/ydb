@@ -218,6 +218,11 @@ config("common") {
     assert b"compiler_flags" in groups
     assert b"//:fixture_codegen" in groups, "cheap generated header lost its public producer dependency"
     assert not state.exists() and not Path(str(state) + ".cleanup").exists(), "successful apply left scratch"
+    invocations = [json.loads(line) for line in ninja_calls.read_text().splitlines()]
+    deployed_builds = [a for a in invocations if "-C" in a and a[a.index("-C") + 1].endswith("/.pch_update/current/global")]
+    # The final GN build runs at the run's worker count too: without an explicit
+    # -j, Ninja took every core of a host the forecasts never modelled.
+    assert deployed_builds and all("-j" in a and a[a.index("-j") + 1] == "2" for a in deployed_builds), deployed_builds
     run(common, expected=1)  # parameters do not persist between weekly runs
     run(common + ["--apply"], expected=1)
     with (root / "heavy.h").open("a") as header:

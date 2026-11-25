@@ -87,6 +87,11 @@ namespace NPchUpdate::NTwoStep {
     struct TLayout {
         std::vector<TPch> Pchs; // bases first, then deltas
         int Bases = 0;
+        // The first Frozen bases come from the initial plan. Their content is
+        // fixed and neither fit evicts them. A base at or after Frozen is one
+        // the correction built for a class the initial plan left without, and
+        // it competes for the disk like an initial base. Zero in the initial plan.
+        int Frozen = 0;
         std::vector<int> Assignment; // target -> leaf, -1 means no PCH
         // Initial plan only: 1 = calibration control without PCH, 2 = control
         // kept on the base to measure the deltas' marginal value. Empty otherwise.
@@ -99,9 +104,13 @@ namespace NPchUpdate::NTwoStep {
         double Saved = 1;
         double Load = 0.02;
         double Residual = 0;
-        double BaseBuild = 1;
-        double DeltaBuild = 1;
-        double Size = 3.9; // PCH bytes per header source byte, calibrated from artifacts
+        // Priors of an unmeasured class: the medians of the classes a full
+        // run did measure, the size the bytes-weighted ratio of its artifacts
+        // (template instantiation makes a PCH half again the bytes the old
+        // 3.9 estimated, and a budget fitted to it was over by that much).
+        double BaseBuild = 1.1;
+        double DeltaBuild = 1.75;
+        double Size = 6.2; // PCH bytes per header source byte, calibrated from artifacts
         double Memory = 1;
         double ConsumerMemory = 1;
         // Extra saved fraction per unit of (Frontend - Outer) / Outer: what
@@ -161,6 +170,16 @@ namespace NPchUpdate::NTwoStep {
         std::vector<std::vector<double>> UnitSize;
         std::vector<std::vector<double>> UnitBuild;
         std::vector<std::vector<double>> UnitGain;
+        // Every measured artifact of every class, decomposed together: a
+        // unit's PCH bytes per source byte and its build-time multiplier
+        // (zero: no artifact measured it). A class that never measured a unit
+        // takes these before the scale of its own small artifacts.
+        std::vector<double> GlobalUnitSize;
+        std::vector<double> GlobalUnitBuild;
+        // Build seconds per parse second over the classes that measured each;
+        // the fallback of a class that measured neither (zero: the prior stands).
+        double GlobalBaseBuild = 0;
+        double GlobalDeltaBuild = 0;
         std::string Report;
         std::string TargetReport; // per measured PCH target: anchor and multiplier
         std::string UnitReport; // per calibrated unit: size, build and gain weights
@@ -168,10 +187,22 @@ namespace NPchUpdate::NTwoStep {
 
     // Use verified artifact sizes. Keep original IDs until the caller remaps
     // both the layout and the generated prerequisites of each surviving action.
+    // The first `frozenBases` bases are never evicted.
     std::string FitMeasuredDisk(const TData& data, TLayout& layout, const TCalibration& calibration,
-                                const std::vector<uint64_t>& bytes, bool frozen,
+                                const std::vector<uint64_t>& bytes, int frozenBases,
                                 const std::function<bool(int target, int parent)>& compatible);
     std::vector<int> CompactLayout(TLayout& layout);
+    // The assignments as the compatibility checks and the measured fit left
+    // them, priced once more: a family that no longer pays for its base
+    // leaves, an owner steps down to its parent or to NONE, never to a leaf
+    // nobody checked it with. Returns the payback rows.
+    std::string FinalPayback(const TData& data, TLayout& layout, const TCalibration& calibration);
+    // What a layout is worth under a calibration: payback, the fit at the
+    // final budget with every base of it frozen, the score. The fit and the
+    // score take the `measured` sizes of the artifacts when they are given
+    // for every PCH of the layout, estimates otherwise.
+    TLayout ScoredLayout(const TData& data, const TLayout& layout, const TCalibration& calibration,
+                         size_t analysisJobs, double* objective, const std::vector<uint64_t>* measured = nullptr);
 
     // Scoring returns infinity only when its schedule cannot proceed, which a
     // graph without cycles never does; malformed graphs are errors.
@@ -198,12 +229,15 @@ namespace NPchUpdate::NTwoStep {
     TPrediction Predict(const TData& data, const TLayout& layout, const TCalibration& calibration,
                         size_t analysisJobs = 1, const std::vector<uint64_t>& measuredBytes = {});
     // Score a fixed set of PCHs, repairing cyclic GN target assignments in place.
+    // With `measured`: the sizes of the artifacts the plan built, not estimates.
     TPrediction ScoreCandidate(const TData& data, TLayout& layout, const TCalibration& calibration,
-                               size_t analysisJobs, int width);
+                               size_t analysisJobs, int width, const std::vector<uint64_t>* measured = nullptr);
     // Without `frozen`: bases, deltas and assignments from scratch, with the
-    // calibration controls of TLayout::Controls. With `frozen`: the bases stay
-    // as they are, and a frozen base leaves a candidate as soon as that
-    // candidate is scored without an assigned target or a surviving delta.
+    // calibration controls of TLayout::Controls. With `frozen`: the first
+    // TLayout::Frozen bases stay as they are, a base is built for each class
+    // the plan left without one, and a frozen base leaves a candidate as soon
+    // as that candidate is scored without an assigned target or a surviving
+    // delta.
     TLayout Select(const TData& data, const TCalibration& calibration, const TLayout* frozen = nullptr,
                    size_t analysisJobs = 1,
                    TSelectionDiagnostics* diagnostics = nullptr);
