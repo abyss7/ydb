@@ -366,7 +366,9 @@ Before freezing any initial or corrected prediction, `predict`, `replan` and
    A frozen base is kept as it is as long as an assigned target or a surviving
    delta needs it, and failure to compile one aborts correction; one that the
    compatibility fallbacks or the measured disk fit leave without either goes
-   with the unused chains.
+   with the unused chains. The PCHs a plan leaves were built and weighed like
+   the rest: their sizes stay with the plan, and the next selection estimates
+   their classes from them instead of the prior.
 
 This catches cases where a PCH compiles alone but introduces declarations that
 make a consumer ambiguous (for example `llvm::Module` in `Minidump.cpp`).
@@ -487,8 +489,20 @@ out of the sample, and keeps what the measurement showed at every level:
   ratios divided a host's speed against the traces by the gain of a 2 MB base on a
   1200 s owner and clamped the class at three times its baseline, pricing every
   new delta of such a class as saving three times its parse seconds.
-* **Per unit.** Every base and delta S0 built is one observation over its own
-  units. A weak ridge decomposition assigns each unit its PCH bytes per source
+* **Per class, size.** A class's size scale is its artifacts' PCH bytes per
+  source byte, fitted by volume over every artifact it has, moved towards the
+  scale of every class together, and that one towards the prior, by the bytes
+  behind each: a 2 MB base reading 3 counts for little next to the artifacts of
+  a run reading 6, where it used to count for everything and every new delta of
+  its class was estimated at half its size. A class that weighed nothing takes
+  the common scale (`size` and `size_evidence_bytes` per class,
+  `global_size_scale` in the header line of `calibration.tsv`). The units an
+  artifact measured itself keep their own weights.
+* **Per unit.** Every base and delta S0 built, and every PCH a plan built,
+  weighed and left (evicted by the measured fit or emptied by the checks), is
+  one observation over its own units, each weighing as its bytes; nothing timed
+  a probe's build, so it has no say in the build weights. A weak ridge
+  decomposition assigns each unit its PCH bytes per source
   byte and its build seconds per parse second (a lone group's units move by the
   same share; units shared by groups split the evidence), so `Pick` sees which
   headers inflated a delta and the second selection fits `--disk` before
@@ -605,7 +619,8 @@ parasites and crowded clusters, disk prices by bytes across classes,
 calibration rank, cross-validation, anchors and
 empirical-Bayes multipliers (a harmful leaf at zero), the common line of the
 controls for a class without enough of its own, a combined saving that a 2 MB base
-on a large owner cannot clamp, pooled unit sizes across classes, sampling by work with control
+on a large owner cannot clamp, a class scale moved to the common one by the bytes behind it,
+the sizes of the probes a plan evicted, pooled unit sizes across classes, sampling by work with control
 priority, controls spread over the class, cycle repair to the parent, base material (generated output never) and
 roots without parse time, the C++ runtime symbols a header may need alone,
 bases the correction builds for classes without one and the disk price that counts

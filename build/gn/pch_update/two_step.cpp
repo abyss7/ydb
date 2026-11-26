@@ -224,6 +224,10 @@ namespace NPchUpdate::NTwoStep {
                 }
                 return Coefficients(cls).Size;
             }
+            // The seconds a header takes to serialize per parse second are the
+            // header's: what its own class measured, else the role's common
+            // scale by the header's share of it that any class measured. A
+            // role no class timed leaves the class scale to carry that share.
             double BuildWeight(int cls, int u, bool base) const {
                 const auto c = Coefficients(cls);
                 const double scale = base ? c.BaseBuild : c.DeltaBuild;
@@ -232,7 +236,8 @@ namespace NPchUpdate::NTwoStep {
                     return C.UnitBuild[cls][u];
                 }
                 if (size_t(u) < C.GlobalUnitBuild.size() && C.GlobalUnitBuild[u] > 0) {
-                    return scale * C.GlobalUnitBuild[u];
+                    const double common = base ? C.GlobalBaseBuild : C.GlobalDeltaBuild;
+                    return (common > 0 ? common : scale) * C.GlobalUnitBuild[u];
                 }
                 return scale;
             }
@@ -896,9 +901,12 @@ namespace NPchUpdate::NTwoStep {
         // surviving children contribute to the subsequent family-vs-NONE test.
         // `onlyDown`: an owner leaves a delta for its parent or for NONE alone.
         // After the compatibility checks no other leaf is known to compile it.
+        // `compatible`: whether a fallback compiles an owner; a parent that
+        // does not is no fallback, and the delta is priced against NONE alone.
         void CheckPayback(const TData& d, TLayout& l, const TCalibration& c,
                           const std::string& source, int pass, const std::vector<int>& ids,
-                          std::vector<std::string>* reasons, std::ostream* report, bool onlyDown = false) {
+                          std::vector<std::string>* reasons, std::ostream* report, bool onlyDown = false,
+                          const std::function<bool(int, int)>& compatible = {}) {
             TWorkCosts costs{d, l, c};
             struct TGroup {
                 std::vector<int> Owners; // members that keep this family alive
@@ -1039,16 +1047,38 @@ namespace NPchUpdate::NTwoStep {
                 }
                 const int parent = l.Pchs[g].Parent;
                 auto& family = groups[parent];
-                TConsumerBalance vsNone, fallback;
-                for (int t : owners) {
-                    vsNone.Add(benefit(t, g));
-                    if (const TAlternative* alternative = bestOpen(t, g)) {
-                        fallback.Add(alternative->Balance);
-                    }
-                }
-                auto marginal = vsNone;
-                marginal.Add(fallback, -1);
                 const double build = costs.Build(g);
+                TConsumerBalance vsNone, marginal;
+                auto priceOwners = [&] {
+                    vsNone = {};
+                    TConsumerBalance fallback;
+                    for (int t : owners) {
+                        vsNone.Add(benefit(t, g));
+                        if (const TAlternative* alternative = bestOpen(t, g)) {
+                            fallback.Add(alternative->Balance);
+                        }
+                    }
+                    marginal = vsNone;
+                    marginal.Add(fallback, -1);
+                };
+                priceOwners();
+                if (compatible && marginal.Net() - build <= 0) {
+                    // Probe fallbacks lazily: a delta that already pays over
+                    // its parent pays all the more against NONE, and never
+                    // needs a compiler check on its parent.
+                    bool changed = false;
+                    for (int t : owners) {
+                        while (const TAlternative* alternative = bestOpen(t, g)) {
+                            if (compatible(t, alternative->Group)) { break; }
+                            const int rejected = alternative->Group;
+                            auto& list = alternatives[t];
+                            list.erase(std::remove_if(list.begin(), list.end(),
+                                [&](const TAlternative& a) { return a.Group == rejected; }), list.end());
+                            changed = true;
+                        }
+                    }
+                    if (changed) { priceOwners(); }
+                }
                 if (admit(g, marginal, build, 0, owners.size())) {
                     kept[g] = true;
                     family.ChildBuild += build;
@@ -1624,12 +1654,13 @@ namespace NPchUpdate::NTwoStep {
         return report.str();
     }
 
-    std::string FinalPayback(const TData& d, TLayout& l, const TCalibration& c) {
+    std::string FinalPayback(const TData& d, TLayout& l, const TCalibration& c,
+                             const std::function<bool(int, int)>& compatible) {
         std::vector<int> ids(l.Pchs.size());
         std::iota(ids.begin(), ids.end(), 0);
         std::ostringstream report;
         report.precision(17);
-        CheckPayback(d, l, c, "final", 1, ids, nullptr, &report, true);
+        CheckPayback(d, l, c, "final", 1, ids, nullptr, &report, true, compatible);
         return report.str();
     }
 
@@ -1639,7 +1670,8 @@ namespace NPchUpdate::NTwoStep {
         scored.Frozen = scored.Bases;
         std::vector<int> ids(scored.Pchs.size());
         std::iota(ids.begin(), ids.end(), 0);
-        CheckPayback(d, scored, c, "scored", 1, ids, nullptr, nullptr);
+        // Only down: after the checks no sibling leaf is known to compile an owner.
+        CheckPayback(d, scored, c, "scored", 1, ids, nullptr, nullptr, true);
         // The artifacts a plan built were measured: their sizes are known,
         // and only what was never built is estimated.
         const bool known = measured && measured->size() == scored.Pchs.size();
@@ -2458,7 +2490,7 @@ namespace NPchUpdate::NTwoStep {
     // empirical Bayes into what its leaf's headers explain (projected on the
     // units) and its own multiplier, both shrunk by the controls' noise.
     TCalibration Calibrate(const TData& d, const TLayout& l, const TPrediction& p,
-                           const std::vector<TObservation>& observations) {
+                           const std::vector<TObservation>& observations, const std::vector<TMeasuredPch>& probes) {
         ValidateTargets(d);
         if (l.Assignment.size() != d.Targets.size()) { Fail("calibration: assignment size mismatch"); }
         if (observations.size() != p.Actions.size()) {
@@ -2491,6 +2523,77 @@ namespace NPchUpdate::NTwoStep {
             measuredOf[g] = int(out.Measured.size());
             out.Measured.push_back(std::move(m));
         }
+        // The probes a plan built, weighed and left: evicted by the measured
+        // fit or emptied by the checks, they are the bases and deltas of
+        // exactly the classes the plan drops, and the next selection would
+        // estimate those classes from the prior. Their sizes are the
+        // artifacts' own; their builds were not timed. One per content: what
+        // the measurement weighed in its own right is already in Measured.
+        auto sameArtifact = [](const TMeasuredPch& a, const TMeasuredPch& b) {
+            if ((a.Pch.Parent >= 0) != (b.Pch.Parent >= 0) || !SameContent(a.Pch, b.Pch)) { return false; }
+            return a.Pch.Parent < 0 || SameContent(a.Parent, b.Parent);
+        };
+        for (const auto& probe : probes) {
+            if (!(probe.Bytes > 0) || probe.Pch.Units.empty() || probe.Pch.Class < 0 || probe.Pch.Class >= d.Classes) { continue; }
+            bool known = false;
+            for (const auto& m : out.Measured) { known = known || sameArtifact(probe, m); }
+            for (const auto& other : out.Probes) { known = known || sameArtifact(probe, other); }
+            if (!known) { out.Probes.push_back(probe); }
+        }
+        // One observation of size per artifact a class has: the build the
+        // measurement timed, or the probe it only weighed.
+        struct TArtifact {
+            const TPch* Pch = nullptr;
+            const TPch* Parent = nullptr; // the content of the parent; none for a base
+            double Bytes = 0;
+            bool Timed = true; // false for a probe: Time and Memory say nothing
+            double Time = 0, Memory = 0;
+        };
+        std::vector<std::vector<TArtifact>> artifacts(d.Classes);
+        auto artifact = [&](const TMeasuredPch& m) {
+            if (m.Pch.Class < 0 || m.Pch.Class >= d.Classes) { return; }
+            artifacts[m.Pch.Class].push_back({&m.Pch, m.Pch.Parent >= 0 ? &m.Parent : nullptr, m.Bytes, m.Time > 0, m.Time, m.Memory});
+        };
+        for (const auto& m : out.Measured) { artifact(m); }
+        for (const auto& m : out.Probes) { artifact(m); }
+        // A class's scale is its artifacts' PCH bytes per source byte,
+        // fitted by volume. A 2 MB base says 3 where the artifacts of a run
+        // say 6: the fewer the bytes behind it, the more of it is what that
+        // one artifact happened to contain. Every class's scale is therefore
+        // moved towards the classes' common one, and that one towards the
+        // prior, by the bytes behind each: past some hundred megabytes a class
+        // is its own evidence. What a class measured of a unit itself is kept
+        // apart from this, below.
+        constexpr double SizeEvidence = 100e6;
+        auto weighed = [](double own, double bytes, double common) {
+            return std::exp((bytes * std::log(own) + SizeEvidence * std::log(common)) / (bytes + SizeEvidence));
+        };
+        std::vector<double> sizeOf(d.Classes, 0.0), sizeBytes(d.Classes, 0.0);
+        double sourceAll = 0, artifactAll = 0;
+        size_t weighedAll = 0;
+        {
+            TConsumerModel view{d, out};
+            for (int cls = 0; cls < d.Classes; ++cls) {
+                double numerator = 0, denominator = 0;
+                for (const auto& a : artifacts[cls]) {
+                    double volume = 0;
+                    view.ForOwn(*a.Pch, a.Parent ? &a.Parent->Units : nullptr, [&](int u) { volume += d.Units[u].Bytes; });
+                    if (!(volume > 0)) { continue; }
+                    // Artifact bytes add up over a layout, so the ratio is
+                    // fitted by total bytes instead of a per-artifact median.
+                    numerator += a.Bytes * volume;
+                    denominator += volume * volume;
+                    sizeBytes[cls] += a.Bytes;
+                    sourceAll += volume;
+                    artifactAll += a.Bytes;
+                    ++weighedAll;
+                }
+                sizeOf[cls] = denominator > 0 ? std::clamp(numerator / denominator, 0.05, 20.0) : 0.0;
+            }
+        }
+        out.GlobalSize = sourceAll > 0 ? weighed(std::clamp(artifactAll / sourceAll, 0.05, 20.0), artifactAll, TCoefficients().Size)
+                                       : TCoefficients().Size;
+        const double meanArtifact = weighedAll ? artifactAll / double(weighedAll) : 0.0;
         out.Classes.resize(d.Classes);
         out.UnitSize.assign(d.Classes, {});
         out.UnitBuild.assign(d.Classes, {});
@@ -2580,23 +2683,25 @@ namespace NPchUpdate::NTwoStep {
                     }
                 }
             }
-            for (int iteration = 0; iteration < 3 && !controls.empty(); ++iteration) {
+            for (int iteration = 0; iteration < 8 && !controls.empty(); ++iteration) {
                 std::vector<double> ratios, outside;
                 for (const auto& [time, observed] : controls) {
                     if (time >= 10) { ratios.push_back((observed - lineResidual) / time); }
-                    if (time < 5) { outside.push_back(observed - lineBaseline * time); }
                 }
                 if (ratios.empty()) {
                     for (const auto& [time, observed] : controls) { ratios.push_back((observed - lineResidual) / time); }
                 }
                 lineBaseline = std::clamp(Median(ratios), 1e-3, 20.0);
+                for (const auto& [time, observed] : controls) {
+                    if (time < 5) { outside.push_back(observed - lineBaseline * time); }
+                }
                 if (!outside.empty()) { lineResidual = std::clamp(Median(outside), 0.0, 5.0); }
             }
         }
         std::ostringstream report;
         report << "class\tstatus\ttraining_targets\tcv_targets\tcv_target_MAE_s\tbase_build\tdelta_build\tsize\tmemory"
                   "\tbaseline\tsaved\tload\tresidual\tinstantiate\tcontrols\tcontrol_sigma\tanchored_targets"
-                  "\tunit_size_units\tunit_build_units\tunit_gain_units\n";
+                  "\tunit_size_units\tunit_build_units\tunit_gain_units\tsize_evidence_bytes\tprobe_artifacts\n";
         std::ostringstream targets, units;
         targets << "# One row per measured target with a PCH. s0_compile_seconds: Horvitz-Thompson estimate of the target's\n"
                    "# whole compile under its S0 leaf (sampled strata imputed by their observed-to-trace ratio); trace_seconds:\n"
@@ -2640,22 +2745,12 @@ namespace NPchUpdate::NTwoStep {
             if (ratios.size() >= 3) {
                 c.Baseline = Ratio(ratios, 1, 1e-3);
                 c.Residual = 0;
-            } else {
-                c.Baseline = lineBaseline;
-                c.Residual = lineResidual;
-                std::vector<double> shift;
-                for (int t : controls) {
-                    const auto& s = samples[t];
-                    const double expected = lineBaseline * s.Whole + lineResidual * double(s.Count);
-                    if (expected > 0 && s.Estimate > 0) { shift.push_back(s.Estimate / expected); }
-                }
-                if (!shift.empty()) {
-                    const double ratio = 1 + double(shift.size()) / (shift.size() + 2) * (Median(shift) - 1);
-                    c.Baseline = lineBaseline * ratio;
-                    c.Residual = lineResidual * ratio;
-                }
-            }
-            {
+                // With a spread of trace times the baseline and the per-compile
+                // seconds outside the traces (driver, startup) are one linear
+                // model of a no-PCH compile, fitted on the controls' members.
+                // Only a class with controls enough to speak for itself is
+                // fitted: a line through the files of one or two controls is
+                // their noise, and would undo the start from the common line.
                 std::vector<double> a(6, 0.0);
                 size_t members = 0;
                 for (int t : controls) {
@@ -2678,9 +2773,24 @@ namespace NPchUpdate::NTwoStep {
                 // (process and driver startup): never negative. A negative
                 // slope is noise on a fast control; the ratio stands alone.
                 if (members >= 3 && Solve(a, 2, 1e-3, solution) && solution[0] >= 1e-3 && solution[0] <= 20 &&
-                    solution[1] >= 0 && solution[1] <= 1) {
+                    solution[1] >= 0 && solution[1] <= 5) {
                     c.Baseline = solution[0];
                     c.Residual = solution[1];
+                }
+            } else {
+                c.Baseline = lineBaseline;
+                c.Residual = lineResidual;
+                std::vector<double> shift;
+                for (int t : controls) {
+                    const auto& s = samples[t];
+                    // The whole target, measured or sampled: every file pays the seconds outside the traces.
+                    const double expected = lineBaseline * s.Whole + lineResidual * double(d.Targets[t].Files.size());
+                    if (expected > 0 && s.Estimate > 0) { shift.push_back(s.Estimate / expected); }
+                }
+                if (!shift.empty()) {
+                    const double ratio = 1 + double(shift.size()) / (shift.size() + 2) * (Median(shift) - 1);
+                    c.Baseline = lineBaseline * ratio;
+                    c.Residual = lineResidual * ratio;
                 }
             }
             // How much a whole control target deviates from that model (a
@@ -2704,69 +2814,55 @@ namespace NPchUpdate::NTwoStep {
             for (double v : deviations) { square += v * v; }
             const double nu = deviations.empty() ? 0.15 : std::clamp(std::sqrt(square / deviations.size()), 0.02, 1.0);
             std::vector<double> baseBuild, deltaBuild, memory, consumerMemory;
-            double sizeNumerator = 0, sizeDenominator = 0;
-            std::vector<int> groups;
-            for (size_t g = 0; g < l.Pchs.size(); ++g) {
-                if (l.Pchs[g].Class == cls && measuredOf[g] >= 0) { groups.push_back(int(g)); }
-            }
-            auto own = [&](int g, auto&& fn) {
-                const auto& pch = l.Pchs[g];
-                view.ForOwn(pch, pch.Parent >= 0 ? &l.Pchs[pch.Parent].Units : nullptr, fn);
+            size_t probesOf = 0;
+            auto own = [&](const TArtifact& a, auto&& fn) {
+                view.ForOwn(*a.Pch, a.Parent ? &a.Parent->Units : nullptr, fn);
             };
-            for (int g : groups) {
-                const auto& obs = out.Measured[measuredOf[g]];
-                const int parent = l.Pchs[g].Parent;
-                const double parentParse = parent >= 0 ? Parse(d, l.Pchs[parent].Units) : 0;
-                const double volume = Volume(d, l.Pchs[g].Units);
-                const double parentVolume = parent >= 0 ? Volume(d, l.Pchs[parent].Units) : 0;
-                const double ownParse = Parse(d, l.Pchs[g].Units) - parentParse;
-                const double ownVolume = volume - parentVolume;
-                if (ownParse > 0) {
-                    (parent >= 0 ? deltaBuild : baseBuild).push_back(
-                        std::max(0.001, obs.Time - parentParse * 0.02 * c.Baseline) / ownParse);
+            for (const auto& a : artifacts[cls]) {
+                const double parentParse = a.Parent ? Parse(d, a.Parent->Units) : 0;
+                const double volume = Volume(d, a.Pch->Units);
+                const double ownParse = Parse(d, a.Pch->Units) - parentParse;
+                probesOf += !a.Timed;
+                if (a.Timed && ownParse > 0) {
+                    (a.Parent ? deltaBuild : baseBuild).push_back(std::max(0.001, a.Time - parentParse * 0.02 * c.Baseline) / ownParse);
                 }
-                // Artifact bytes add up over the layout, so the ratio is fitted
-                // by total bytes instead of a per-artifact median.
-                if (ownVolume > 0) {
-                    sizeNumerator += obs.Bytes * ownVolume;
-                    sizeDenominator += ownVolume * ownVolume;
-                }
-                memory.push_back(obs.Memory / (d.ActionMemory + volume));
+                if (a.Timed) { memory.push_back(a.Memory / (d.ActionMemory + volume)); }
             }
             // Zero until the classes that measured each are known: the
             // fallback below is theirs, not the prior's.
             c.BaseBuild = Ratio(baseBuild, 0.0);
             c.DeltaBuild = Ratio(deltaBuild, 0.0);
-            if (sizeDenominator > 0) {
-                c.Size = std::clamp(sizeNumerator / sizeDenominator, 0.05, 20.0);
-            }
+            c.Size = sizeOf[cls] > 0 ? weighed(sizeOf[cls], sizeBytes[cls], out.GlobalSize) : out.GlobalSize;
             c.Memory = Ratio(memory);
             // Unit decomposition of the same artifacts: which headers made a
             // group as large and as slow as it was. A group is one observation
             // over its own units: the ridge moves a lone group's units by the
             // same share and splits the evidence of units several groups share.
+            // An artifact weighs as its bytes in the decomposition of size, the
+            // ratio of a small one being the noisier; a probe that nothing
+            // timed has no say in the decomposition of build time.
             {
                 std::vector<std::map<int, double>> sizeRows, buildRows;
                 std::vector<double> sizeTargets, buildTargets;
                 std::map<int, double> buildPrior;
-                for (int g : groups) {
-                    const auto& obs = out.Measured[measuredOf[g]];
-                    const bool isBase = l.Pchs[g].Parent < 0;
+                for (const auto& a : artifacts[cls]) {
+                    const bool isBase = a.Parent == nullptr;
                     const double scale = isBase ? c.BaseBuild : c.DeltaBuild;
+                    const double parentParse = isBase ? 0 : Parse(d, a.Parent->Units);
                     double bytes = 0, work = 0;
-                    own(g, [&](int u) { bytes += d.Units[u].Bytes; work += d.Units[u].Parse * scale; });
-                    if (bytes > 0) {
+                    own(a, [&](int u) { bytes += d.Units[u].Bytes; work += d.Units[u].Parse * scale; });
+                    if (bytes > 0 && meanArtifact > 0) {
+                        const double weight = std::clamp(std::sqrt(a.Bytes / meanArtifact), 0.05, 20.0);
                         std::map<int, double> row;
-                        own(g, [&](int u) { row[u] = d.Units[u].Bytes / bytes; });
+                        own(a, [&](int u) { row[u] = weight * d.Units[u].Bytes / bytes; });
                         sizeRows.push_back(std::move(row));
-                        sizeTargets.push_back(obs.Bytes / (c.Size * bytes));
+                        sizeTargets.push_back(weight * a.Bytes / (c.Size * bytes));
                     }
-                    const double parentParse = isBase ? 0 : Parse(d, l.Pchs[l.Pchs[g].Parent].Units);
-                    if (work > 0) {
+                    if (a.Timed && work > 0) {
                         std::map<int, double> row;
-                        own(g, [&](int u) { row[u] = d.Units[u].Parse * scale / work; buildPrior.emplace(u, scale); });
+                        own(a, [&](int u) { row[u] = d.Units[u].Parse * scale / work; buildPrior.emplace(u, scale); });
                         buildRows.push_back(std::move(row));
-                        buildTargets.push_back(std::max(0.001, obs.Time - parentParse * 0.02 * c.Baseline) / work);
+                        buildTargets.push_back(std::max(0.001, a.Time - parentParse * 0.02 * c.Baseline) / work);
                     }
                 }
                 const auto sizeX = Ridge(sizeRows, sizeTargets, UnitRidge);
@@ -2787,6 +2883,7 @@ namespace NPchUpdate::NTwoStep {
             struct TRow {
                 int Target = 0, Group = 0;
                 double Y = 0, Saved = 0, Templates = 0, Load = 0, Weight = 1;
+                double Base = 0; // trace seconds of the files of the row
                 std::vector<int> Files;
             };
             std::vector<TRow> rows;
@@ -2812,6 +2909,7 @@ namespace NPchUpdate::NTwoStep {
                     row.Y += observations[action].Time - c.Baseline * d.Actions[action].Time - c.Residual;
                     row.Saved += saved;
                     row.Templates += saved * TConsumerModel::Templates(d.Files[f]);
+                    row.Base += d.Actions[action].Time;
                     square += d.Actions[action].Time * d.Actions[action].Time;
                     row.Files.push_back(f);
                 }
@@ -2828,7 +2926,10 @@ namespace NPchUpdate::NTwoStep {
                 double bytes = artifactBytes(g);
                 if (l.Pchs[g].Parent >= 0) { bytes += artifactBytes(l.Pchs[g].Parent); }
                 consumerMemory.push_back(s.Memory / (s.Count * (d.ActionMemory + bytes)));
-                rows.push_back(std::move(row));
+                // A target measured only at its backend floor shows the fit no
+                // saving at all: an empty equation would count as a target in
+                // every shrinkage and as a zero in every scale of the fit.
+                if (!row.Files.empty()) { rows.push_back(std::move(row)); }
             }
             double maxTemplates = 0;
             for (const auto& file : d.Files) {
@@ -2928,8 +3029,12 @@ namespace NPchUpdate::NTwoStep {
                 for (const auto& row : data) {
                     const double gain = row.Saved - 0.02 * row.Load;
                     if (gain <= 0.001 || c.Baseline <= 0) { continue; }
-                    const auto& s = samples[row.Target];
-                    const double level = sigma * s.Whole, sample = nu * s.Estimate / std::sqrt(double(s.Count));
+                    // The noise of a row at the scale of its own files: the
+                    // target's offset over their seconds, and each file's own
+                    // over the root of their squares. Taken from the whole
+                    // target, it grew with every file a sample or the floor
+                    // left out, and the row's information fell with it.
+                    const double level = sigma * row.Base, sample = nu * std::sqrt(row.Weight > 0 ? 1 / row.Weight : 0);
                     rows.emplace_back(-row.Y / gain / c.Baseline, gain * gain / std::max(1e-12, level * level + sample * sample));
                 }
                 if (rows.empty()) { return TFit{c.Baseline, 0.02 * c.Baseline, 0, -2}; }
@@ -3014,14 +3119,17 @@ namespace NPchUpdate::NTwoStep {
                 double Saved = 0, Delta = 0, Noise = 0, Implied = 1, Remainder = 0;
                 std::vector<int> Files;
             };
+            // Every measured PCH target takes part, whether its files left the
+            // fit an equation or all sat on the floor: the model prices them
+            // with the floor, so their saving counts here.
             std::vector<TEffect> effects;
             if (c.Saved > 0) {
-                for (const auto& row : rows) {
-                    const auto& s = samples[row.Target];
-                    const int g = row.Group;
+                for (int t : users) {
+                    const auto& s = samples[t];
+                    const int g = l.Assignment[t];
                     const double load = view.Load(l.Pchs[g].Units);
                     double model = 0, saved = 0;
-                    for (int f : d.Targets[row.Target].Files) {
+                    for (int f : d.Targets[t].Files) {
                         const int action = d.Files[f].Action;
                         const double effective = std::max(0.0, 1 + c.Instantiate * TConsumerModel::Templates(d.Files[f])) *
                             Saved(d.Files[f], l.Pchs[g].Units);
@@ -3036,10 +3144,12 @@ namespace NPchUpdate::NTwoStep {
                     // Without saved parse a deviation is not the PCH's doing.
                     if (!(s.Whole > 0) || sav < 0.02 * c.Baseline * s.Whole) { continue; }
                     TEffect e;
-                    e.Target = row.Target;
+                    e.Target = t;
                     e.Group = g;
                     e.Saved = saved;
-                    e.Files = row.Files;
+                    for (int f : d.Targets[t].Files) {
+                        if (observations[d.Files[f].Action].Time > 0) { e.Files.push_back(f); }
+                    }
                     e.Delta = (model - s.Estimate) / sav;
                     const double level = sigma * s.Whole, sample = nu * s.Estimate / std::sqrt(double(s.Count));
                     e.Noise = (level * level + sample * sample) / (sav * sav);
@@ -3090,7 +3200,8 @@ namespace NPchUpdate::NTwoStep {
                     const int g = group.Group;
                     const auto& members = group.Members;
                     std::vector<int> ownUnits;
-                    own(g, [&](int u) { ownUnits.push_back(u); });
+                    view.ForOwn(l.Pchs[g], l.Pchs[g].Parent >= 0 ? &l.Pchs[l.Pchs[g].Parent].Units : nullptr,
+                                [&](int u) { ownUnits.push_back(u); });
                     std::map<int, double> row;
                     double total = 0;
                     for (const auto* e : members) {
@@ -3194,73 +3305,88 @@ namespace NPchUpdate::NTwoStep {
             }
             report << '\t' << (baseBuild.empty() ? "unmeasured" : std::to_string(c.BaseBuild))
                    << '\t' << (deltaBuild.empty() ? "unmeasured" : std::to_string(c.DeltaBuild))
-                   << '\t' << (sizeDenominator > 0 ? std::to_string(c.Size) : "unmeasured")
+                   << '\t' << c.Size
                    << '\t' << (memory.empty() ? "unmeasured" : std::to_string(c.Memory))
                    << '\t' << c.Baseline << '\t' << c.Saved << '\t' << c.Load << '\t' << c.Residual << '\t' << c.Instantiate
                    << '\t' << ratios.size() << '\t' << sigma << '\t' << anchored
-                   << '\t' << nonZero(out.UnitSize[cls]) << '\t' << nonZero(out.UnitBuild[cls]) << '\t' << calibrated(out.UnitGain[cls]) << '\n';
+                   << '\t' << nonZero(out.UnitSize[cls]) << '\t' << nonZero(out.UnitBuild[cls]) << '\t' << calibrated(out.UnitGain[cls])
+                   << '\t' << sizeBytes[cls] << '\t' << probesOf << '\n';
         }
         // Across classes. The bytes a header adds to a PCH and the seconds it
         // takes to serialize are the header's and the compiler's; one flag
-        // set does not change them. Every measured artifact of every class is
-        // one observation over its own units, decomposed together: a unit a
-        // class never measured itself (the project headers of a new delta
-        // for a class whose initial plan held a 2 MB base) takes the pooled
-        // estimate instead of the scale that little artifact suggested.
+        // set does not change them. Every artifact every class weighed,
+        // measured or only probed, is one observation over its own units,
+        // decomposed together: a unit a class never measured itself (the
+        // project headers of a new delta for a class whose initial plan held
+        // a 2 MB base) takes the pooled estimate instead of the scale that
+        // little artifact suggested. Bytes are divided by the bytes of the
+        // artifact, each weighing as its size; build seconds by the common
+        // scale of the role, base or delta. Against the scale of the class
+        // itself they divided to one on every header: a class with a single
+        // base has that base for its whole scale, and divides it by itself.
         {
             TConsumerModel view{d, out};
             struct TOwn {
-                bool Base = true;
-                double Scale = 0, Source = 0, Parse = 0, Artifact = 0, Time = 0;
-                std::map<int, double> Bytes, Work; // unit -> source bytes, unit -> build-prior seconds
+                bool Base = true, Timed = true;
+                double Source = 0, Parse = 0, Artifact = 0, Time = 0, Weight = 1;
+                std::map<int, double> Bytes, Own; // unit -> source bytes, unit -> parse seconds
             };
             std::vector<TOwn> own;
-            for (const auto& m : out.Measured) {
+            auto weigh = [&](const TMeasuredPch& m, bool timed) {
                 const auto& coefficients = Coeff(out, m.Pch.Class);
                 TOwn o;
                 o.Base = m.Pch.Parent < 0;
-                o.Scale = o.Base ? coefficients.BaseBuild : coefficients.DeltaBuild;
+                o.Timed = timed;
                 const auto* parent = o.Base ? nullptr : &m.Parent.Units;
                 view.ForOwn(m.Pch, parent, [&](int u) {
                     o.Bytes[u] += d.Units[u].Bytes;
-                    o.Work[u] += d.Units[u].Parse * o.Scale;
+                    o.Own[u] += d.Units[u].Parse;
                     o.Source += d.Units[u].Bytes;
                     o.Parse += d.Units[u].Parse;
                 });
                 o.Artifact = m.Bytes;
+                o.Weight = meanArtifact > 0 ? std::clamp(std::sqrt(m.Bytes / meanArtifact), 0.05, 20.0) : 1.0;
                 o.Time = std::max(0.001, m.Time - (parent ? Parse(d, *parent) * 0.02 * coefficients.Baseline : 0));
-                if (o.Source > 0 && o.Parse > 0 && o.Scale > 0) { own.push_back(std::move(o)); }
-            }
+                if (o.Source > 0 && o.Parse > 0) { own.push_back(std::move(o)); }
+            };
+            for (const auto& m : out.Measured) { weigh(m, true); }
+            for (const auto& m : out.Probes) { weigh(m, false); }
             double source = 0, artifact = 0;
             std::vector<double> baseTimes, deltaTimes;
             for (const auto& o : own) {
                 source += o.Source;
                 artifact += o.Artifact;
-                (o.Base ? baseTimes : deltaTimes).push_back(o.Time / o.Parse);
+                if (o.Timed) { (o.Base ? baseTimes : deltaTimes).push_back(o.Time / o.Parse); }
             }
             const double size = source > 0 ? std::clamp(artifact / source, 0.05, 20.0) : 0.0;
             out.GlobalBaseBuild = Ratio(baseTimes, 0.0);
             out.GlobalDeltaBuild = Ratio(deltaTimes, 0.0);
-            if (size > 0 && !own.empty()) {
-                std::vector<std::map<int, double>> sizeRows, buildRows;
-                std::vector<double> sizeTargets, buildTargets;
-                for (const auto& o : own) {
-                    double bytes = 0, seconds = 0;
-                    for (const auto& [u, b] : o.Bytes) { bytes += b; }
-                    for (const auto& [u, w] : o.Work) { seconds += w; }
-                    std::map<int, double> sizeRow, buildRow;
-                    for (const auto& [u, b] : o.Bytes) { sizeRow[u] = b / bytes; }
-                    for (const auto& [u, w] : o.Work) { buildRow[u] = w / seconds; }
-                    sizeRows.push_back(std::move(sizeRow));
-                    buildRows.push_back(std::move(buildRow));
-                    sizeTargets.push_back(o.Artifact / o.Source / size);
-                    buildTargets.push_back(o.Time / seconds);
-                }
+            std::vector<std::map<int, double>> sizeRows, buildRows;
+            std::vector<double> sizeTargets, buildTargets;
+            for (const auto& o : own) {
+                double bytes = 0;
+                for (const auto& [u, b] : o.Bytes) { bytes += b; }
+                std::map<int, double> sizeRow;
+                for (const auto& [u, b] : o.Bytes) { sizeRow[u] = o.Weight * b / bytes; }
+                sizeRows.push_back(std::move(sizeRow));
+                sizeTargets.push_back(o.Weight * o.Artifact / o.Source / size);
+                if (!o.Timed || !(o.Parse > 0)) { continue; }
+                const double common = o.Base ? out.GlobalBaseBuild : out.GlobalDeltaBuild;
+                if (!(common > 0)) { continue; } // no class timed this role
+                std::map<int, double> buildRow;
+                for (const auto& [u, parse] : o.Own) { buildRow[u] = parse / o.Parse; }
+                buildRows.push_back(std::move(buildRow));
+                buildTargets.push_back(o.Time / (o.Parse * common));
+            }
+            if (size > 0) {
                 const auto sizeX = Ridge(sizeRows, sizeTargets, UnitRidge);
-                const auto buildX = Ridge(buildRows, buildTargets, UnitRidge);
                 out.GlobalUnitSize.assign(d.Units.size(), 0.0);
-                out.GlobalUnitBuild.assign(d.Units.size(), 0.0);
                 for (const auto& [u, x] : sizeX) { out.GlobalUnitSize[u] = size * std::clamp(x, 0.05, 20.0); }
+            }
+            if (!buildRows.empty()) {
+                // A header's share of the role's common seconds per parse second.
+                const auto buildX = Ridge(buildRows, buildTargets, UnitRidge);
+                out.GlobalUnitBuild.assign(d.Units.size(), 0.0);
                 for (const auto& [u, x] : buildX) { out.GlobalUnitBuild[u] = std::clamp(x, 0.01, 100.0); }
             }
             // A class that measured a role of artifact in no group of its own
@@ -3272,7 +3398,8 @@ namespace NPchUpdate::NTwoStep {
             report << "# line_baseline\t" << lineBaseline << "\tline_residual\t" << lineResidual
                    << "\tglobal_size\t" << size << "\tglobal_base_build\t" << out.GlobalBaseBuild
                    << "\tglobal_delta_build\t" << out.GlobalDeltaBuild << "\tglobal_size_units\t" << nonZero(out.GlobalUnitSize)
-                   << "\tglobal_build_units\t" << nonZero(out.GlobalUnitBuild) << '\n';
+                   << "\tglobal_build_units\t" << nonZero(out.GlobalUnitBuild)
+                   << "\tglobal_size_scale\t" << out.GlobalSize << "\tprobe_artifacts\t" << out.Probes.size() << '\n';
             for (size_t u = 0; u < d.Units.size(); ++u) {
                 if (out.GlobalUnitSize.size() > u && (out.GlobalUnitSize[u] > 0 || out.GlobalUnitBuild[u] > 0)) {
                     units << u << "\tglobal\t" << d.Units[u].Include << '\t' << out.GlobalUnitSize[u] << '\t' << out.GlobalUnitBuild[u] << "\t-1\n";

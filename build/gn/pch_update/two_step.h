@@ -142,7 +142,8 @@ namespace NPchUpdate::NTwoStep {
 
     // A PCH built and measured in S0. Identity is content, never an ID: a
     // later layout reuses the observation only for the same own units, roots
-    // and parent chain.
+    // and parent chain. Time and memory are zero for a probe: a PCH the plan
+    // built, weighed and then left, whose build nothing timed.
     struct TMeasuredPch {
         TPch Pch;
         TPch Parent; // default for a base
@@ -154,6 +155,15 @@ namespace NPchUpdate::NTwoStep {
     struct TCalibration {
         std::vector<TCoefficients> Classes;
         std::vector<TMeasuredPch> Measured;
+        // The probes a plan built and left that the measurement did not weigh
+        // in its own right: sizes without build times.
+        std::vector<TMeasuredPch> Probes;
+        // PCH bytes per header source byte of every measured and probed
+        // artifact of every class together, moved towards the prior by the
+        // bytes behind it (zero: nothing was weighed). A class's own scale
+        // is moved towards it by the bytes the class weighed; a class that
+        // weighed nothing takes it as it is.
+        double GlobalSize = 0;
         // Per action. Compilations of measured targets carry the anchored
         // baseline (the trace time that reproduces the observed S0 compile
         // under the initial leaf); other actions the observation or the model.
@@ -195,8 +205,11 @@ namespace NPchUpdate::NTwoStep {
     // The assignments as the compatibility checks and the measured fit left
     // them, priced once more: a family that no longer pays for its base
     // leaves, an owner steps down to its parent or to NONE, never to a leaf
-    // nobody checked it with. Returns the payback rows.
-    std::string FinalPayback(const TData& data, TLayout& layout, const TCalibration& calibration);
+    // nobody checked it with. `compatible(target, parent)` says whether the
+    // parent compiles the owner; a parent that does not is no fallback, and
+    // the owner keeps a delta that pays against NONE alone. Returns the payback rows.
+    std::string FinalPayback(const TData& data, TLayout& layout, const TCalibration& calibration,
+                             const std::function<bool(int, int)>& compatible = {});
     // What a layout is worth under a calibration: payback, the fit at the
     // final budget with every base of it frozen, the score. The fit and the
     // score take the `measured` sizes of the artifacts when they are given
@@ -244,9 +257,10 @@ namespace NPchUpdate::NTwoStep {
     // What a measurement of `layout` teaches the next selection: class
     // coefficients, every built artifact by content, per-target anchors and
     // multipliers, per-unit weights. Observations cover every action of
-    // `prediction` (zero time: not measured).
+    // `prediction` (zero time: not measured). `probes` are the PCHs a plan
+    // built, weighed and left: their sizes count, their builds were not timed.
     TCalibration Calibrate(const TData& data, const TLayout& layout, const TPrediction& prediction,
-                           const std::vector<TObservation>& observations);
+                           const std::vector<TObservation>& observations, const std::vector<TMeasuredPch>& probes = {});
 
     int Command(const std::vector<std::string>& args);
     int SelfTest();

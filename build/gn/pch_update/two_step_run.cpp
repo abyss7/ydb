@@ -45,7 +45,8 @@
 
 namespace NPchUpdate::NTwoStep {
     namespace {
-        constexpr const char* VERSION = "pch-two-step-10";
+        constexpr const char* VERSION = "pch-two-step-11";
+        constexpr const char* OPEN_CLASSES_VERSION = "pch-two-step-10";
         constexpr const char* CONTROLS_VERSION = "pch-two-step-9";
         constexpr const char* ANCHORED_VERSION = "pch-two-step-8";
         constexpr const char* MERGED_OWNER_VERSION = "pch-two-step-7";
@@ -226,6 +227,8 @@ namespace NPchUpdate::NTwoStep {
             bool Corrected = false;
             // The correction kept the initial plan: no candidate beat it after the checks (corrected plans only).
             bool RetainedInitial = false;
+            // The PCHs a plan built, weighed and left before the measurement: their sizes teach the next selection.
+            std::vector<TMeasuredPch> ProbeSizes;
             // Percentage of C++ objects measured; PCH actions are
             // always measured. 100 measures every action, links included.
             int Sample = 100;
@@ -279,7 +282,7 @@ namespace NPchUpdate::NTwoStep {
                 for (const char* name : {"summary.tsv", "summary.txt", "summary.json", "assignments.tsv", "target-members.tsv",
                      "selection-targets.tsv", "selection-choices.tsv", "selection-widths.tsv", "selection-candidates.tsv", "selection-payback.tsv", "compatibility.tsv",
                      "compatibility-targets.tsv", "calibration.tsv", "calibration.txt", "calibration-parameters.tsv", "sampling.tsv", "disk-budget.tsv",
-                     "calibration-targets.tsv", "calibration-units.tsv",
+                     "final-payback.tsv", "calibration-targets.tsv", "calibration-units.tsv",
                      "initial-errors.tsv", "initial-action-errors.tsv", "measurement.tsv", "measurement.txt", "measurement.json",
                      "target-errors.tsv", "action-errors.tsv", "assignment-changes.tsv"}) {
                     std::string text;
@@ -429,13 +432,13 @@ namespace NPchUpdate::NTwoStep {
         }
         template <class A> void Fields(A& a, TMeasuredPch& v) { a(v.Pch, v.Parent, v.Bytes, v.Time, v.Memory); }
         template <class A> void Fields(A& a, TCalibration& v) {
-            a(v.Classes, v.Measured, v.ActionTime, v.ActionMemory, v.ActionFloor, v.TargetGain, v.UnitSize, v.UnitBuild, v.UnitGain,
-              v.GlobalUnitSize, v.GlobalUnitBuild, v.GlobalBaseBuild, v.GlobalDeltaBuild, v.Report, v.TargetReport, v.UnitReport);
+            a(v.Classes, v.Measured, v.Probes, v.ActionTime, v.ActionMemory, v.ActionFloor, v.TargetGain, v.UnitSize, v.UnitBuild, v.UnitGain,
+              v.GlobalUnitSize, v.GlobalUnitBuild, v.GlobalBaseBuild, v.GlobalDeltaBuild, v.GlobalSize, v.Report, v.TargetReport, v.UnitReport);
         }
         template <class A> void Fields(A& a, TLinkLine& v) { a(v.Output, v.Inputs); }
         template <class A> void Fields(A& a, TLinkInputs& v) { a(v.Lines, v.Targets, v.Libraries); }
         template <class A> void Fields(A& a, TSnapshot& v) {
-            a(v.Root, v.Baseline, v.Directory, v.Args, v.Gn, v.Ninja, v.Nonce, v.Tree, v.Tool, v.Targets, v.GnSwitches, v.Inputs, v.Flags, v.Data, v.Layout, v.Prediction, v.Commands, v.Corrected, v.RetainedInitial, v.Sample, v.Measured);
+            a(v.Root, v.Baseline, v.Directory, v.Args, v.Gn, v.Ninja, v.Nonce, v.Tree, v.Tool, v.Targets, v.GnSwitches, v.Inputs, v.Flags, v.Data, v.Layout, v.Prediction, v.Commands, v.Corrected, v.RetainedInitial, v.Sample, v.Measured, v.ProbeSizes);
             if (a.HasProfile) { a(v.Mode); }
             a(v.LinkInputs);
         }
@@ -543,7 +546,7 @@ namespace NPchUpdate::NTwoStep {
         T Decode(const std::string& text) {
             TBinReader envelope(text);
             const auto version = envelope.Str();
-            if (version != VERSION && version != CONTROLS_VERSION && version != ANCHORED_VERSION && version != MERGED_OWNER_VERSION && version != OWNER_VERSION && version != TARGET_VERSION && version != PREVIOUS_VERSION && version != LEGACY_VERSION) {
+            if (version != VERSION && version != OPEN_CLASSES_VERSION && version != CONTROLS_VERSION && version != ANCHORED_VERSION && version != MERGED_OWNER_VERSION && version != OWNER_VERSION && version != TARGET_VERSION && version != PREVIOUS_VERSION && version != LEGACY_VERSION) {
                 Fail("unsupported two-step snapshot version");
             }
             if constexpr (std::is_same_v<T, TSnapshot> || std::is_same_v<T, TAnalysis>) {
@@ -961,6 +964,7 @@ namespace NPchUpdate::NTwoStep {
             a.Snapshot.Commands.clear();
             a.Snapshot.Corrected = false;
             a.Snapshot.RetainedInitial = false;
+            a.Snapshot.ProbeSizes.clear();
             WriteFile(JoinPath(s.Directory, "analysis.bin"), Encode(a));
         }
 
@@ -986,6 +990,7 @@ namespace NPchUpdate::NTwoStep {
             s.Commands.clear();
             s.Corrected = false;
             s.RetainedInitial = false;
+            s.ProbeSizes.clear();
             s.Tree = TreeIdentity(s.Root);
             s.Tool = DigestFile(SelfExe());
             s.Nonce = HashHex(s.Nonce + std::to_string(Now()));
@@ -2198,6 +2203,7 @@ namespace NPchUpdate::NTwoStep {
         TCompileInputs Preflight(TSnapshot& s, const std::string& workDir, const TCalibration& calibration = {},
                                  size_t analysisJobs = 1, std::vector<uint64_t>* retainedBytes = nullptr) {
             if (retainedBytes) { retainedBytes->clear(); }
+            s.ProbeSizes.clear();
             auto& layout = s.Layout;
             TCompileInputs inputs(s.Data.Actions.size() + layout.Pchs.size());
             const auto cacheRoot = JoinPath(workDir, CompatibilityCacheName());
@@ -2651,21 +2657,19 @@ namespace NPchUpdate::NTwoStep {
             // moved to a base that saves it nothing, a family whose paying
             // owners have left, is priced again on its final leaf. It steps
             // down to its parent or to NONE, never up to a leaf nobody
-            // checked it with; a step that does not compile ends at NONE.
+            // checked it with. A parent is a fallback only if it compiles the
+            // owner: one that does not is no fallback at all, and the owner
+            // keeps a delta that pays against NONE alone instead of losing it
+            // on the way to a base it cannot use.
             const auto afterFit = layout.Assignment;
-            const auto payback = FinalPayback(s.Data, layout, calibration);
+            const auto payback = FinalPayback(s.Data, layout, calibration, [&](int t, int parent) {
+                const auto& files = s.Data.Targets[t].Files;
+                std::vector<char> ok(files.size());
+                ParallelFor(files.size(), jobs, [&](size_t i) { ok[i] = checkFile(files[i], parent, false); });
+                return std::all_of(ok.begin(), ok.end(), [](char pass) { return pass; });
+            });
             size_t stepped = 0;
-            for (size_t t = 0; t < s.Data.Targets.size(); ++t) {
-                if (layout.Assignment[t] == afterFit[t]) { continue; }
-                ++stepped;
-                const int g = layout.Assignment[t];
-                for (int f : s.Data.Targets[t].Files) {
-                    if (!checkFile(f, g, false)) {
-                        layout.Assignment[t] = -1;
-                        break;
-                    }
-                }
-            }
+            for (size_t t = 0; t < s.Data.Targets.size(); ++t) { stepped += layout.Assignment[t] != afterFit[t]; }
             if (stepped) {
                 Log(Format("final payback: %zu owners step down to a parent or to NONE after the compatibility checks and the measured fit", stepped));
                 WriteFile(JoinPath(s.Directory, "final-payback.tsv"),
@@ -2691,6 +2695,26 @@ namespace NPchUpdate::NTwoStep {
             }
             WriteFile(JoinPath(s.Directory, "compatibility.tsv"), report.str());
             const auto compatibleAssignments = layout.Assignment;
+            // The probes the plan leaves were built and weighed like the
+            // rest: the bases and deltas of exactly the classes it drops.
+            // Their sizes are the artifacts' own and cost nothing more; the
+            // next selection estimates those classes from them instead of the
+            // prior. Nothing else of theirs was measured, and they are gone
+            // with the unused chains below.
+            {
+                std::vector<char> kept(layout.Pchs.size(), 0);
+                for (int g : layout.Assignment) {
+                    for (; g >= 0 && !kept[g]; g = layout.Pchs[g].Parent) { kept[g] = 1; }
+                }
+                for (size_t g = 0; g < layout.Pchs.size(); ++g) {
+                    if (!built[g] || kept[g]) { continue; }
+                    TMeasuredPch probe;
+                    probe.Pch = layout.Pchs[g];
+                    probe.Parent = layout.Pchs[g].Parent >= 0 ? layout.Pchs[layout.Pchs[g].Parent] : TPch{};
+                    probe.Bytes = double(bytes[g]);
+                    s.ProbeSizes.push_back(std::move(probe));
+                }
+            }
             // Assignments are final: a frozen base without a single assigned
             // target or surviving delta leaves the plan here, releasing its
             // bytes and its slot in the exported groups.
@@ -2709,8 +2733,10 @@ namespace NPchUpdate::NTwoStep {
                 std::ostringstream targets;
                 targets << "target\treason\tselected_leaf\tcompatible_leaf_before_compaction\tfinal_leaf\tdiagnostics\n";
                 for (size_t t = 0; t < s.Data.Targets.size(); ++t) {
-                    const std::string reason = layout.Assignment[t] != afterFit[t] ?
-                        (layout.Assignment[t] < 0 ? "final-payback-none" : "final-payback-parent") : beforeBudget[t] != afterFit[t] ?
+                    // Reasons are read in the space of IDs before the compaction;
+                    // the final leaf alone is in the space after it.
+                    const std::string reason = compatibleAssignments[t] != afterFit[t] ?
+                        (compatibleAssignments[t] < 0 ? "final-payback-none" : "final-payback-parent") : beforeBudget[t] != afterFit[t] ?
                         (afterFit[t] < 0 ? "disk-budget" : "disk-fallback") : original[t] == afterFit[t] ? "unchanged" :
                         afterFit[t] < 0 ? "compatibility-rejected" : "compatibility-fallback";
                     targets << s.Data.Targets[t].Label << '\t' << reason << '\t' << original[t] << '\t'
@@ -3230,7 +3256,14 @@ namespace NPchUpdate::NTwoStep {
                     "  Training targets: %zu (all measured); cross-validated targets: %zu; leave-one-group-out target-work MAE: %s\n"
                     "  Combined-only fits net savings; prior-only cannot identify consumer costs. Details: calibration.tsv\n",
                     identified, combined, priors, training, held, held ? Seconds(error / held).c_str() : "unavailable");
-                WriteFile(JoinPath(s.Directory, "calibration.txt"), text);
+                std::string summary = text;
+                if (!calibration.Probes.empty()) {
+                    double bytes = 0;
+                    for (const auto& probe : calibration.Probes) { bytes += probe.Bytes; }
+                    summary += Format("  Plus %zu PCHs the plan built, weighed and left (%.2f GB): their sizes, without build times, are in the class, unit and global scales.\n",
+                        calibration.Probes.size(), bytes / 1e9);
+                }
+                WriteFile(JoinPath(s.Directory, "calibration.txt"), summary);
                 std::ostringstream parameters;
                 parameters << "class\tidentified\tbaseline_scale\tsaved_scale\tload_scale\tresidual_seconds\tinstantiate_scale\tbase_build_scale\tdelta_build_scale"
                            << "\tsize_scale\tpch_memory_scale\tconsumer_memory_scale\n" << std::setprecision(17);
@@ -3241,8 +3274,17 @@ namespace NPchUpdate::NTwoStep {
                                << c.Memory << '\t' << c.ConsumerMemory << '\n';
                 }
                 WriteFile(JoinPath(s.Directory, "calibration-parameters.tsv"), parameters.str());
-                Report(text);
+                Report(summary);
             });
+        }
+
+        // The sizes a prediction recorded for the artifacts of a layout, when
+        // the prediction is that layout's own: none otherwise.
+        std::vector<uint64_t> RecordedSizes(const TPrediction& prediction, const TLayout& layout) {
+            std::vector<uint64_t> bytes;
+            if (prediction.PchBytes.size() != layout.Pchs.size()) { return bytes; }
+            for (double size : prediction.PchBytes) { bytes.push_back(uint64_t(size)); }
+            return bytes;
         }
 
         int CorrectPlan(TSnapshot& s, const std::string& plan, const std::string& output, const std::string& workDir,
@@ -3253,8 +3295,12 @@ namespace NPchUpdate::NTwoStep {
             std::string errors, actionErrors;
             auto observations = ReadObservations(s, errors, actionErrors);
             MeasurementSummary(s, observations, errors, actionErrors);
-            auto calibration = Calibrate(s.Data, s.Layout, s.Prediction, observations);
+            auto calibration = Calibrate(s.Data, s.Layout, s.Prediction, observations, s.ProbeSizes);
             const TLayout measuredInitial = s.Layout;
+            // Taken now: the prediction at hand is the initial plan's own, with
+            // the measured sizes of its artifacts. A moment later it is the
+            // corrected plan's.
+            const std::vector<uint64_t> initialBytes = RecordedSizes(s.Prediction, measuredInitial);
             if (!Exists(output)) { NewDirectory(output, s.Root, s.Baseline); }
             auto layout = SelectCheckpoint(s, output, calibration, &s.Layout, {}, analysisJobs);
             s.Directory = RealPath(output);
@@ -3273,12 +3319,8 @@ namespace NPchUpdate::NTwoStep {
             double initialObjective = -1;
             // The artifacts of the initial plan were measured: the fit and the
             // score of it take their sizes, as the corrected plan's do.
-            std::vector<uint64_t> initialBytes;
-            if (s.Prediction.PchBytes.size() == measuredInitial.Pchs.size()) {
-                for (double bytes : s.Prediction.PchBytes) { initialBytes.push_back(uint64_t(bytes)); }
-            }
             auto initialOnModel = ScoredLayout(s.Data, measuredInitial, calibration, analysisJobs, &initialObjective,
-                                               initialBytes.size() == measuredInitial.Pchs.size() ? &initialBytes : nullptr);
+                                               initialBytes.empty() ? nullptr : &initialBytes);
             s.RetainedInitial = initialObjective > 0 && s.Prediction.Objective > initialObjective;
             if (s.RetainedInitial) {
                 Report(Format("  Corrected plan scores %s after the compatibility checks and the measured fit; the initial plan scores %s on the same model: retaining the initial plan.",
@@ -5095,10 +5137,25 @@ namespace NPchUpdate::NTwoStep {
             s.Data.Resources.Disk = fullBudget;
             s.Data.Resources.Disk = measured[0];
             s.Layout = candidate;
+            s.ProbeSizes.clear();
             Preflight(s, cache);
             check(s.Layout.Assignment == std::vector<int>({0, 0, 0}) && s.Layout.Pchs.size() == 1 &&
                   ReadFile(JoinPath(s.Directory, "disk-budget.tsv")).find("retained_bytes=" + std::to_string(measured[0])) != std::string::npos,
                   "one real measured base fits exactly; evict the real leaf and verify the owner's parent");
+            // Both leaves were built and weighed before the fit evicted them:
+            // their sizes stay with the plan for the calibration, with the
+            // content they were built with and of the parent they were built
+            // on, and they survive the snapshot.
+            check(s.ProbeSizes.size() == 2 && s.ProbeSizes[0].Bytes > 0 && s.ProbeSizes[1].Bytes > 0 &&
+                      s.ProbeSizes[0].Pch.Class == 0 && s.ProbeSizes[0].Pch.Parent == 0 && s.ProbeSizes[1].Pch.Parent == 0 &&
+                      s.ProbeSizes[0].Parent.Units == s.Layout.Pchs[0].Units && s.ProbeSizes[1].Parent.Units == s.Layout.Pchs[0].Units &&
+                      s.ProbeSizes[0].Pch.Roots == std::vector<int>({1}) && s.ProbeSizes[1].Pch.Roots == std::vector<int>({3}) &&
+                      std::find(s.ProbeSizes[0].Pch.Units.begin(), s.ProbeSizes[0].Pch.Units.end(), 2) == s.ProbeSizes[0].Pch.Units.end(),
+                  "the probes the measured fit evicted keep their sizes and the content they were built with");
+            const auto reloaded = Decode<TSnapshot>(Encode(s));
+            check(reloaded.ProbeSizes.size() == 2 && reloaded.ProbeSizes[0].Bytes == s.ProbeSizes[0].Bytes &&
+                      reloaded.ProbeSizes[1].Pch.Units == s.ProbeSizes[1].Pch.Units && reloaded.ProbeSizes[1].Parent.Units == s.ProbeSizes[1].Parent.Units,
+                  "the probe sizes survive the snapshot");
             s.Data.Resources.Disk = fullBudget;
             s.Layout = candidate;
             auto helper = s.LinkInputs.Targets.at("file1.o").front();

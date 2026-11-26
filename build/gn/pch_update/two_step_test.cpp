@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <string>
 #include <tuple>
+#include <utility>
 
 namespace NPchUpdate::NTwoStep {
     namespace {
@@ -2628,7 +2629,9 @@ namespace NPchUpdate::NTwoStep {
             obs[d.Actions.size()].Bytes = 8;
             obs[d.Actions.size() + 1].Bytes = 2;
             auto fit = Calibrate(d, layout, prediction, obs);
-            Near(fit.Classes[1].Size, 2, "a class measures the scale of its own artifact");
+            Near(fit.UnitSize[1][1], 2, "the units a class measured itself keep what it measured");
+            Check(std::abs(fit.Classes[1].Size - TCoefficients().Size) < 1e-6,
+                  "with next to no bytes behind it a class's scale is the common one, not its artifact's: " + std::to_string(fit.Classes[1].Size));
             Check(std::abs(fit.GlobalUnitSize[0] - 8) < 1e-6 && std::abs(fit.GlobalUnitSize[1] - 2) < 1e-6,
                   "the artifacts of every class decompose together");
             TLayout wide = layout;
@@ -2691,10 +2694,10 @@ namespace NPchUpdate::NTwoStep {
                   "a base the correction built competes for the disk; only the initial plan's bases must fit");
         }
 
-        // Priced again on its final leaf, an owner leaves a delta that no
-        // longer pays for its parent or for NONE, never for a sibling nobody
-        // checked it with.
-        void FinalPaybackStepsDown() {
+        // The layout of the payback test: a base, a thin delta of one parse
+        // second and a wide one of ten; eight thin owners on the thin delta and
+        // eight wide ones on the wide one.
+        std::pair<TData, TLayout> ThinAndWide() {
             auto d = Data();
             d.Units.resize(3);
             for (int u = 0; u < 3; ++u) {
@@ -2732,8 +2735,16 @@ namespace NPchUpdate::NTwoStep {
                 layout.Pchs.push_back(delta);
             }
             layout.Assignment = {1, 2}; // the thin owner on the thin delta, the wide one on the wide one
-            const auto report = FinalPayback(d, layout, {});
-            Check(layout.Assignment == std::vector<int>({0, 2}) && report.find("drop-assignments") != std::string::npos,
+            return {std::move(d), std::move(layout)};
+        }
+
+        // Priced again on its final leaf, an owner leaves a delta that no
+        // longer pays for its parent or for NONE, never for a sibling nobody
+        // checked it with.
+        void FinalPaybackStepsDown() {
+            auto dw = ThinAndWide();
+            const auto report = FinalPayback(dw.first, dw.second, {});
+            Check(dw.second.Assignment == std::vector<int>({0, 2}) && report.find("drop-assignments") != std::string::npos,
                   "an owner whose delta no longer pays steps down to its parent, not over to a sibling");
         }
 
@@ -2979,6 +2990,585 @@ namespace NPchUpdate::NTwoStep {
                       selected.Assignment[0] == 1 && selected.Assignment[1] == -1 && selected.Assignment[4] == 0,
                   "an owner carrying more than a third of the class keeps its PCH: " + describe(selected));
         }
+
+        // The probes a plan built, weighed and left are the bases and deltas
+        // of exactly the classes it drops. Their sizes teach the next
+        // selection what those classes cost; nothing timed their builds, and
+        // a probe the measurement weighed in its own right is no second
+        // observation.
+        void EvictedProbeFeedsTheCalibration() {
+            auto d = Data();
+            d.Classes = 2;
+            d.Units.resize(3);
+            d.Units[0].Include = "<base>";
+            d.Units[0].Stable = true;
+            d.Units[0].Parse = 1;
+            d.Units[0].Bytes = 2e8;
+            d.Units[1].Include = "<kept>";
+            d.Units[1].Parse = 4;
+            d.Units[1].Bytes = 3e8;
+            d.Units[2].Include = "<evicted>";
+            d.Units[2].Parse = 10;
+            d.Units[2].Bytes = 1e9;
+            TAction a;
+            a.Time = 20;
+            a.Memory = 1e6;
+            d.Actions.push_back(a);
+            d.Files.push_back({0, 0, "owner", {{0, 1}, {1, 4}}});
+            TestTargets(d);
+            TLayout layout;
+            layout.Bases = 1;
+            TPch base;
+            base.Class = 0;
+            base.Roots = base.Units = {0, 1};
+            layout.Pchs = {base};
+            layout.Assignment = {0};
+            auto prediction = Predict(d, layout, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            for (size_t i = 0; i < obs.size(); ++i) {
+                obs[i].Time = prediction.Actions[i].Time;
+                obs[i].Memory = prediction.Actions[i].Memory;
+                if (i >= d.Actions.size()) { obs[i].Bytes = prediction.PchBytes[i - d.Actions.size()]; }
+            }
+            obs[d.Actions.size()].Bytes = 3e9; // the base: six PCH bytes per source byte
+            // The delta the plan built next to the base and then left: the
+            // base's units and one root of its own, twice their volume, at
+            // sixteen PCH bytes per source byte.
+            TMeasuredPch probe;
+            probe.Pch.Class = 0;
+            probe.Pch.Parent = 0;
+            probe.Pch.Roots = {2};
+            probe.Pch.Units = {0, 1, 2};
+            probe.Parent = base;
+            probe.Bytes = 1.6e10;
+            const auto without = Calibrate(d, layout, prediction, obs);
+            const auto fit = Calibrate(d, layout, prediction, obs, {probe, probe});
+            Check(fit.Measured.size() == 1 && fit.Probes.size() == 1, "one observation per content: the measured build and the probe");
+            Near(fit.UnitSize[0][2], 16, "the root only the evicted delta had is calibrated by its probe");
+            Near(fit.GlobalUnitSize[2], 16, "and so in the pool of every class");
+            Check(fit.Classes[0].Size > without.Classes[0].Size && fit.GlobalSize > without.GlobalSize,
+                  "the probe's size counts for its class and for the common scale: " + std::to_string(fit.Classes[0].Size) + " " +
+                  std::to_string(without.Classes[0].Size));
+            Near(fit.Classes[0].DeltaBuild, TCoefficients().DeltaBuild, "nothing timed the probe's build: the delta scale stays the prior");
+            Near(fit.GlobalDeltaBuild, 0, "and no class measured a delta");
+            Near(fit.Classes[0].Memory, without.Classes[0].Memory, "the memory scale is the measured build's alone");
+            Check(fit.UnitBuild[0].size() <= 2 || fit.UnitBuild[0][2] == 0, "the probe's root gets no build weight of its class");
+            Check(fit.GlobalUnitBuild.size() <= 2 || fit.GlobalUnitBuild[2] == 0, "and none in the pool of every class");
+            TLayout next = layout;
+            TPch delta;
+            delta.Class = 0;
+            delta.Parent = 0;
+            delta.Roots = {2};
+            delta.Units = {0, 1, 2};
+            next.Pchs = {base, delta};
+            next.Assignment = {1};
+            Check(std::abs(Predict(d, next, fit).PchBytes[1] / 1.6e10 - 1) < 1e-9,
+                  "a new delta of the class is estimated from what the probe weighed of its root: " + std::to_string(Predict(d, next, fit).PchBytes[1]));
+            TMeasuredPch same;
+            same.Pch = base;
+            same.Bytes = 3e9;
+            Check(Calibrate(d, layout, prediction, obs, {same, probe}).Probes.size() == 1,
+                  "a probe the measurement weighed in its own right is no second observation");
+            // A sibling leaf read the same root at ten bytes a byte, in an
+            // artifact of 10 GB next to the probe's 16 GB: the class takes the
+            // reading its bytes weigh, (16 x 1.6 + 10 x 1.0) / 2.6, not the
+            // plain 13 of two observations.
+            d.Units.resize(4);
+            d.Units[3].Include = "<tiny>";
+            d.Units[3].Parse = 1;
+            d.Units[3].Bytes = 1;
+            TMeasuredPch sibling = probe;
+            sibling.Pch.Roots = {2, 3};
+            sibling.Pch.Units = {0, 1, 2, 3};
+            sibling.Bytes = 1e10;
+            const auto pair = Calibrate(d, layout, prediction, obs, {probe, sibling});
+            Check(std::abs(pair.UnitSize[0][2] - (16 * 1.6 + 10 * 1.0) / 2.6) < 0.01,
+                  "within a class an artifact weighs as its bytes too: " + std::to_string(pair.UnitSize[0][2]));
+        }
+
+        // A class's scale is its artifacts' PCH bytes per source byte, as far
+        // as the bytes behind it go: it is moved towards the common scale of
+        // every class, and that one towards the prior, by the bytes behind
+        // each. A hundred megabytes reading 3 weigh as much as the prior: the
+        // class's scale is the geometric mean of its own and the common one.
+        // The units the artifact measured keep what it measured of them, and
+        // the headers the class never measured take the shrunk scale.
+        void SmallSampleScaleShrinks() {
+            auto d = Data();
+            d.Classes = 3;
+            d.Units.resize(3);
+            d.Units[0].Include = "<small>";
+            d.Units[0].Stable = true;
+            d.Units[1].Include = "<large>";
+            d.Units[1].Stable = true;
+            d.Units[2].Include = "<unmeasured>";
+            d.Units[0].Bytes = 1e8 / 3; // 100 MB of PCH at three bytes per source byte
+            d.Units[1].Bytes = 112.5e6; // 900 MB at eight
+            d.Units[2].Bytes = 1;
+            for (int u = 0; u < 3; ++u) { d.Units[u].Parse = 1; }
+            for (int f = 0; f < 2; ++f) {
+                TAction a;
+                a.Time = 20;
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                d.Files.push_back({f, f, std::to_string(f), {{f, 1}}});
+            }
+            TestTargets(d);
+            TLayout layout;
+            layout.Bases = 2;
+            TPch small;
+            small.Class = 0;
+            small.Roots = small.Units = {0};
+            TPch large;
+            large.Class = 1;
+            large.Roots = large.Units = {1};
+            layout.Pchs = {small, large};
+            layout.Assignment = {0, 1};
+            auto prediction = Predict(d, layout, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            for (size_t i = 0; i < obs.size(); ++i) {
+                obs[i].Time = prediction.Actions[i].Time;
+                obs[i].Memory = prediction.Actions[i].Memory;
+                if (i >= d.Actions.size()) { obs[i].Bytes = prediction.PchBytes[i - d.Actions.size()]; }
+            }
+            obs[d.Actions.size()].Bytes = 1e8;
+            obs[d.Actions.size() + 1].Bytes = 9e8;
+            const auto fit = Calibrate(d, layout, prediction, obs);
+            const auto ratio = [](double value, double expected) { return value / expected - 1; };
+            // Forty-eight sevenths over all, ten elevenths of the way from the prior of 6.2.
+            Check(std::abs(ratio(fit.GlobalSize, std::pow(48.0 / 7, 10.0 / 11) * std::pow(TCoefficients().Size, 1.0 / 11))) < 1e-12,
+                  "the common scale is every artifact's ratio, moved towards the prior by the bytes behind it: " + std::to_string(fit.GlobalSize));
+            Near(fit.Classes[2].Size, fit.GlobalSize, "a class that weighed nothing takes the common scale");
+            Check(std::abs(ratio(fit.Classes[0].Size, std::sqrt(3 * fit.GlobalSize))) < 1e-12,
+                  "a hundred megabytes weigh as much as the prior: the scale is the geometric mean of its own and the common one: " + std::to_string(fit.Classes[0].Size));
+            Check(std::abs(ratio(fit.Classes[1].Size, fit.GlobalSize * std::pow(8 / fit.GlobalSize, 0.9))) < 1e-12,
+                  "nine hundred megabytes: nine parts in ten the class's own: " + std::to_string(fit.Classes[1].Size));
+            Near(fit.UnitSize[0][0], 3, "the units the small artifact measured keep what it measured");
+            Near(fit.UnitSize[1][1], 8, "and so the large one's");
+            TLayout next = layout;
+            TPch delta;
+            delta.Class = 0;
+            delta.Parent = 0;
+            delta.Roots = {2};
+            delta.Units = {0, 2};
+            next.Pchs = {small, large, delta};
+            next.Assignment = {2, 1};
+            Near(Predict(d, next, fit).PchBytes[2], fit.Classes[0].Size, "a header the small class never measured takes the shrunk scale, not the base's");
+            auto nothing = obs;
+            for (auto& o : nothing) { o = {}; }
+            const auto prior = Calibrate(d, layout, prediction, nothing);
+            Near(prior.GlobalSize, TCoefficients().Size, "with nothing weighed the common scale is the prior");
+            Near(prior.Classes[0].Size, TCoefficients().Size, "and so is every class's");
+        }
+
+        // An artifact weighs as its bytes when the headers are decomposed
+        // together: the ratio of a 100 MB probe is the noisier next to one of
+        // 400 MB that weighed the same header.
+        void ProbesWeighAsTheirBytes() {
+            auto d = Data();
+            d.Classes = 2;
+            d.Units.resize(1);
+            d.Units[0].Include = "<shared>";
+            d.Units[0].Stable = true;
+            d.Units[0].Parse = 1;
+            d.Units[0].Bytes = 1e8;
+            TAction a;
+            a.Time = 20;
+            a.Memory = 1e6;
+            d.Actions.push_back(a);
+            d.Files.push_back({0, 1, "owner", {{0, 1}}});
+            TestTargets(d);
+            TLayout layout;
+            layout.Bases = 1;
+            TPch base;
+            base.Class = 1;
+            base.Roots = base.Units = {0};
+            layout.Pchs = {base};
+            layout.Assignment = {0};
+            auto prediction = Predict(d, layout, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            for (size_t i = 0; i < obs.size(); ++i) {
+                obs[i].Time = prediction.Actions[i].Time;
+                obs[i].Memory = prediction.Actions[i].Memory;
+                if (i >= d.Actions.size()) { obs[i].Bytes = prediction.PchBytes[i - d.Actions.size()]; }
+            }
+            obs[d.Actions.size()].Bytes = 4e8; // four PCH bytes per source byte, 400 MB of them
+            TMeasuredPch probe;
+            probe.Pch.Class = 0;
+            probe.Pch.Roots = probe.Pch.Units = {0};
+            probe.Bytes = 1e8; // the same header under another flag set: one, 100 MB
+            const auto fit = Calibrate(d, layout, prediction, obs, {probe});
+            Near(fit.UnitSize[0][0], 1, "the class of the probe measures the header at its own ratio");
+            Near(fit.UnitSize[1][0], 4, "and the class of the measured build at its");
+            // (4 x 4 + 1 x 1) / (4 + 1), not the plain 2.5 of two observations.
+            Check(std::abs(fit.GlobalUnitSize[0] - 3.4) < 1e-3,
+                  "the pooled weight of the header follows the bytes behind each: " + std::to_string(fit.GlobalUnitSize[0]));
+        }
+
+        // Nothing timed a probe's build. In a class that measured a delta of
+        // its own, the root only the evicted delta had gets a size and no
+        // build weight: the zero of an untimed build read as a time would
+        // price every new delta with that root a hundred times too cheap.
+        void ProbeBuildIsNotTimed() {
+            auto d = Data();
+            d.Classes = 1;
+            d.Units.resize(4);
+            d.Units[0].Include = "<base>";
+            d.Units[0].Stable = true;
+            d.Units[0].Parse = 1;
+            d.Units[0].Bytes = 2e8;
+            d.Units[1].Include = "<kept>";
+            d.Units[1].Parse = 4;
+            d.Units[1].Bytes = 3e8;
+            for (int u = 2; u < 4; ++u) {
+                d.Units[u].Include = "<leaf" + std::to_string(u) + ">";
+                d.Units[u].Parse = 10;
+                d.Units[u].Bytes = 1e9;
+            }
+            TAction a;
+            a.Time = 20;
+            a.Memory = 1e6;
+            d.Actions.push_back(a);
+            d.Files.push_back({0, 0, "owner", {{0, 1}, {1, 4}, {2, 10}}});
+            TestTargets(d);
+            TLayout layout;
+            layout.Bases = 1;
+            TPch base;
+            base.Class = 0;
+            base.Roots = base.Units = {0, 1};
+            TPch kept;
+            kept.Class = 0;
+            kept.Parent = 0;
+            kept.Roots = {2};
+            kept.Units = {0, 1, 2};
+            layout.Pchs = {base, kept};
+            layout.Assignment = {1};
+            auto prediction = Predict(d, layout, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            for (size_t i = 0; i < obs.size(); ++i) {
+                obs[i].Time = prediction.Actions[i].Time;
+                obs[i].Memory = prediction.Actions[i].Memory;
+                if (i >= d.Actions.size()) { obs[i].Bytes = prediction.PchBytes[i - d.Actions.size()]; }
+            }
+            obs[d.Actions.size()].Bytes = 3e9;
+            obs[d.Actions.size() + 1].Bytes = 1.6e10;
+            obs[d.Actions.size() + 1].Time = 5; // the measured delta: five seconds for ten of parse
+            TMeasuredPch probe;
+            probe.Pch = kept;
+            probe.Pch.Roots = {3};
+            probe.Pch.Units = {0, 1, 3};
+            probe.Parent = base;
+            probe.Bytes = 1.6e10;
+            const auto fit = Calibrate(d, layout, prediction, obs, {probe});
+            Check(fit.Measured.size() == 2 && fit.Probes.size() == 1, "the base and the kept delta were timed, the evicted one only weighed");
+            Check(fit.Classes[0].DeltaBuild > 0.4 && fit.Classes[0].DeltaBuild < 0.6,
+                  "the class measures the build of its kept delta: " + std::to_string(fit.Classes[0].DeltaBuild));
+            Check(!fit.UnitBuild[0].empty() && fit.UnitBuild[0][2] > 0, "the kept delta's root has a build weight");
+            Check(fit.UnitBuild[0][3] == 0, "the evicted delta's root has none: " + std::to_string(fit.UnitBuild[0][3]));
+            Check(fit.GlobalUnitBuild.size() <= 3 || fit.GlobalUnitBuild[3] == 0,
+                  "nor in the pool of every class: " + std::to_string(fit.GlobalUnitBuild.size() > 3 ? fit.GlobalUnitBuild[3] : 0.0));
+            Check(fit.UnitSize[0][3] > 0 && (fit.GlobalUnitSize.size() <= 3 || fit.GlobalUnitSize[3] > 0), "and a size from both");
+        }
+
+        // The seconds a header takes to serialize are the header's. Three
+        // classes, a base each, every base two headers of one parse second:
+        // the shared one, and one of the two others. The bases took 3, 5 and
+        // 4 seconds, so against the common scale of two seconds a header the
+        // slow class measured alone comes out half again as heavy, and a class
+        // that measured nothing builds it at that pace. Against the scale of
+        // its own class every header divided to one.
+        void GlobalBuildWeightsFollowTheHeaders() {
+            auto d = Data();
+            d.Classes = 4;
+            d.Units.resize(3);
+            const char* names[] = {"<shared>", "<first>", "<second>"};
+            for (int u = 0; u < 3; ++u) {
+                d.Units[u].Include = names[u];
+                d.Units[u].Stable = true;
+                d.Units[u].Parse = 1;
+                d.Units[u].Bytes = 1e6;
+            }
+            const int bases[3][2] = {{0, 1}, {0, 2}, {1, 2}};
+            const double seconds[3] = {3, 5, 4};
+            std::vector<std::string> labels;
+            for (int c = 0; c < 3; ++c) {
+                TAction a;
+                a.Time = 20;
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                d.Files.push_back({c, c, std::to_string(c), {{bases[c][0], 1}, {bases[c][1], 1}}});
+                labels.push_back("//c" + std::to_string(c));
+            }
+            GroupTargets(d, labels);
+            TLayout layout;
+            layout.Bases = 4;
+            layout.Pchs.resize(4);
+            for (int c = 0; c < 4; ++c) {
+                layout.Pchs[c].Class = c;
+                layout.Pchs[c].Units = c < 3 ? std::vector<int>({bases[c][0], bases[c][1]}) : std::vector<int>({2});
+                layout.Pchs[c].Roots = {layout.Pchs[c].Units.back()};
+            }
+            layout.Assignment = {0, 1, 2};
+            auto prediction = Predict(d, layout, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            for (size_t i = 0; i < obs.size(); ++i) {
+                obs[i].Time = prediction.Actions[i].Time;
+                obs[i].Memory = prediction.Actions[i].Memory;
+                if (i >= d.Actions.size()) { obs[i].Bytes = prediction.PchBytes[i - d.Actions.size()]; }
+            }
+            for (int c = 0; c < 3; ++c) { obs[d.Actions.size() + c].Time = seconds[c]; }
+            obs[d.Actions.size() + 3].Time = 0; // the fourth base was never built
+            obs[d.Actions.size() + 3].Bytes = 0;
+            const auto fit = Calibrate(d, layout, prediction, obs);
+            Near(fit.Classes[0].BaseBuild, 1.5, "a class measures the build of its own base");
+            Near(fit.Classes[1].BaseBuild, 2.5, "and so the second");
+            Near(fit.GlobalBaseBuild, 2, "the common scale of a role is the classes' median");
+            Check(std::abs(fit.GlobalUnitBuild[0] - 1) < 1e-6 && std::abs(fit.GlobalUnitBuild[1] - 0.5) < 1e-6 &&
+                      std::abs(fit.GlobalUnitBuild[2] - 1.5) < 1e-6,
+                  "against the common scale of the role a header shows how heavy it is: " + std::to_string(fit.GlobalUnitBuild[0]) + " " +
+                  std::to_string(fit.GlobalUnitBuild[1]) + " " + std::to_string(fit.GlobalUnitBuild[2]));
+            Near(Predict(d, layout, fit).Actions[d.Actions.size() + 3].Time, 3,
+                 "a class that measured nothing builds a measured header at the common scale by the header's share");
+        }
+
+        // Controls for the common line: twenty of a hundred trace seconds at
+        // ninety-four and ten of one second at 4.9, so that the line is 0.9
+        // with four seconds outside the traces whatever one other class adds.
+        void LineControls(TData& d, int cls, std::vector<std::string>& labels) {
+            for (int i = 0; i < 30; ++i) {
+                TAction a;
+                a.Time = i < 20 ? 100 : 1;
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                d.Files.push_back({int(d.Actions.size()) - 1, cls, "line" + std::to_string(i), {}});
+                labels.push_back("//line" + std::to_string(i));
+            }
+        }
+
+        // One control is no line. Its four files span a second to a hundred,
+        // and a line through them fits exactly; fitted, it would replace the
+        // start from the common line with the noise of one target. The line
+        // is fitted for a class with controls enough to speak for itself alone.
+        void OneControlIsNoLine() {
+            auto d = Data();
+            d.Classes = 2;
+            std::vector<std::string> labels;
+            const double trace[4] = {1, 10, 50, 100};
+            for (int i = 0; i < 4; ++i) {
+                TAction a;
+                a.Time = trace[i];
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                d.Files.push_back({int(d.Actions.size()) - 1, 0, "one" + std::to_string(i), {}});
+                labels.push_back("//one");
+            }
+            LineControls(d, 1, labels);
+            GroupTargets(d, labels);
+            TLayout layout;
+            layout.Assignment.assign(d.Targets.size(), -1);
+            auto prediction = Predict(d, layout, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            for (size_t i = 0; i < obs.size(); ++i) {
+                obs[i].Time = prediction.Actions[i].Time;
+                obs[i].Memory = prediction.Actions[i].Memory;
+            }
+            for (int i = 0; i < 4; ++i) { obs[i].Time = 0.5 * trace[i] + 0.4; }
+            for (int i = 0; i < 30; ++i) { obs[4 + i].Time = i < 20 ? 94 : 4.9; }
+            const auto fit = Calibrate(d, layout, prediction, obs);
+            const auto& line = fit.Classes[1];
+            Check(std::abs(line.Baseline - 0.9) < 1e-9 && std::abs(line.Residual - 4) < 1e-9,
+                  "the common line is the controls': " + std::to_string(line.Baseline) + " " + std::to_string(line.Residual));
+            // 82.1 observed where the line expects 160.9: a third of the way there, both coefficients.
+            const double moved = 1 + (82.1 / 160.9 - 1) / 3;
+            const auto& one = fit.Classes[0];
+            Check(std::abs(one.Baseline - 0.9 * moved) < 1e-9 && std::abs(one.Residual - 4 * moved) < 1e-9,
+                  "one control moves the common line and is not fitted a line of its own: " + std::to_string(one.Baseline) + " " + std::to_string(one.Residual));
+        }
+
+        // A sampled control is a whole target all the same: every file pays
+        // the seconds outside the traces, the measured and the imputed alike.
+        void SampledControlCountsEveryFile() {
+            auto d = Data();
+            d.Classes = 2;
+            std::vector<std::string> labels;
+            const double trace[2] = {10, 100};
+            for (int i = 0; i < 2; ++i) {
+                TAction a;
+                a.Time = trace[i];
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                d.Files.push_back({int(d.Actions.size()) - 1, 0, "pair" + std::to_string(i), {}});
+                labels.push_back("//pair");
+            }
+            LineControls(d, 1, labels);
+            GroupTargets(d, labels);
+            TLayout layout;
+            layout.Assignment.assign(d.Targets.size(), -1);
+            auto prediction = Predict(d, layout, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            for (size_t i = 0; i < obs.size(); ++i) {
+                obs[i].Time = prediction.Actions[i].Time;
+                obs[i].Memory = prediction.Actions[i].Memory;
+            }
+            obs[0].Time = 13; // the short file, on the line
+            obs[1].Time = 0;  // the long one is not measured
+            for (int i = 0; i < 30; ++i) { obs[2 + i].Time = i < 20 ? 94 : 4.9; }
+            const auto fit = Calibrate(d, layout, prediction, obs);
+            // The short file's ratio imputes the long one: 143 observed where
+            // the line expects 107, the seconds outside the traces counted twice.
+            const double moved = 1 + (143.0 / 107.0 - 1) / 3;
+            Check(std::abs(fit.Classes[0].Baseline - 0.9 * moved) < 1e-9 && std::abs(fit.Classes[0].Residual - 4 * moved) < 1e-9,
+                  "every file of a sampled control pays the seconds outside the traces: " + std::to_string(fit.Classes[0].Baseline) + " " +
+                  std::to_string(fit.Classes[0].Residual));
+        }
+
+        // A target measured only at its backend floor leaves the fit nothing:
+        // whether it is there or not, the coefficients are the same. An empty
+        // equation counted as a target in the shrinkage and as a zero among
+        // the residuals the robust fit is scaled by.
+        void FloorTargetLeavesTheFitAlone() {
+            auto data = [&](bool withFloor) {
+                auto d = Data();
+                d.Units.resize(2);
+                d.Units[0].Include = "<base>";
+                d.Units[0].Stable = true;
+                d.Units[0].Parse = 1;
+                d.Units[1].Include = "<leaf>";
+                for (int u = 0; u < 2; ++u) { d.Units[u].Bytes = 1; }
+                const double parse[4] = {5, 10, 15, 10}, noise[4] = {0.7, -0.5, 0.3, 0};
+                const int owners = withFloor ? 4 : 3;
+                std::vector<std::string> labels;
+                for (int t = 0; t < owners; ++t) {
+                    for (int j = 0; j < 3; ++j) {
+                        TAction a;
+                        a.Time = 20;
+                        a.Memory = 1e6;
+                        d.Actions.push_back(a);
+                        d.Files.push_back({int(d.Actions.size()) - 1, 0, std::to_string(t) + "_" + std::to_string(j), {{0, 1}, {1, parse[t]}}});
+                        d.Files.back().Frontend = 19; // the backend keeps a second of the trace
+                        labels.push_back("//owner" + std::to_string(t));
+                    }
+                }
+                for (int t = 0; t < 3; ++t) {
+                    TAction a;
+                    a.Time = 20;
+                    a.Memory = 1e6;
+                    d.Actions.push_back(a);
+                    d.Files.push_back({int(d.Actions.size()) - 1, 0, "control" + std::to_string(t), {{0, 1}}});
+                    labels.push_back("//control" + std::to_string(t));
+                }
+                GroupTargets(d, labels);
+                TLayout layout;
+                layout.Bases = 1;
+                TPch base;
+                base.Class = 0;
+                base.Roots = base.Units = {0};
+                TPch delta;
+                delta.Class = 0;
+                delta.Parent = 0;
+                delta.Roots = {1};
+                delta.Units = {0, 1};
+                layout.Pchs = {base, delta};
+                layout.Assignment.assign(3, -1); // the controls, first in label order
+                layout.Assignment.resize(d.Targets.size(), 1);
+                auto prediction = Predict(d, layout, {});
+                std::vector<TObservation> obs(prediction.Actions.size());
+                for (size_t i = 0; i < obs.size(); ++i) {
+                    obs[i].Time = prediction.Actions[i].Time;
+                    obs[i].Memory = prediction.Actions[i].Memory;
+                }
+                for (int t = 0; t < owners; ++t) {
+                    // A tenth more saved than the model expects, and a noise of its own; the fourth at the floor.
+                    const double time = withFloor && t == 3 ? 0.5 : 20 - 1.1 * parse[t] - 0.5 + noise[t];
+                    for (int j = 0; j < 3; ++j) { obs[3 * t + j].Time = time; }
+                }
+                for (int t = 0; t < 3; ++t) { obs[3 * owners + t].Time = 20; }
+                TCalibration fit = Calibrate(d, layout, prediction, obs);
+                return fit;
+            };
+            const auto with = data(true), without = data(false);
+            Check(with.Classes[0].Identified && without.Classes[0].Identified, "three controls and three targets identify the class");
+            Near(with.Classes[0].Saved, without.Classes[0].Saved, "a target on the floor leaves the fit as it found it");
+            Near(with.Classes[0].Load, without.Classes[0].Load, "and its load");
+        }
+
+        // A target of five files of which one was measured: the row is that
+        // file's, and its noise is that file's own. Taken from the whole
+        // target, the noise was five times the saving's scale, and a real
+        // saving in the measured file moved the class by a quarter of what it
+        // shows.
+        void SampledRowWeighsAsItsFiles() {
+            auto d = Data();
+            d.Units.resize(2);
+            d.Units[0].Include = "<base>";
+            d.Units[0].Stable = true;
+            d.Units[0].Parse = 1;
+            d.Units[1].Include = "<leaf>";
+            d.Units[1].Parse = 60;
+            for (int u = 0; u < 2; ++u) { d.Units[u].Bytes = 1; }
+            std::vector<std::string> labels;
+            for (int j = 0; j < 5; ++j) {
+                TAction a;
+                a.Time = 240;
+                a.Memory = 1e6;
+                d.Actions.push_back(a);
+                d.Files.push_back({j, 0, std::to_string(j), {{0, 1}, {1, 60}}});
+                labels.push_back("//owner");
+            }
+            GroupTargets(d, labels);
+            TLayout layout;
+            layout.Bases = 1;
+            TPch base;
+            base.Class = 0;
+            base.Roots = base.Units = {0};
+            TPch delta;
+            delta.Class = 0;
+            delta.Parent = 0;
+            delta.Roots = {1};
+            delta.Units = {0, 1};
+            layout.Pchs = {base, delta};
+            layout.Assignment = {1};
+            auto prediction = Predict(d, layout, {});
+            std::vector<TObservation> obs(prediction.Actions.size());
+            for (size_t i = 0; i < obs.size(); ++i) {
+                obs[i].Time = prediction.Actions[i].Time;
+                obs[i].Memory = prediction.Actions[i].Memory;
+            }
+            obs[0].Time = 120; // twice the saving the model expects
+            for (int j = 1; j < 5; ++j) { obs[j].Time = 0; }
+            const auto fit = Calibrate(d, layout, prediction, obs);
+            Check(!fit.Classes[0].Identified && fit.Classes[0].Saved > 1.2 && fit.Classes[0].Saved < 1.32,
+                  "the noise of a sampled row is the noise of its own files: " + std::to_string(fit.Classes[0].Saved));
+        }
+
+        // A parent that does not compile an owner is no fallback: priced
+        // against NONE alone, the delta stays where it pays there.
+        void IncompatibleParentIsNoFallback() {
+            auto dw = ThinAndWide();
+            const auto layout = dw.second;
+            auto onBase = layout;
+            FinalPayback(dw.first, onBase, {});
+            Check(onBase.Assignment == std::vector<int>({0, 2}), "with its parent for a fallback the thin owner steps down");
+            auto kept = layout;
+            const auto report = FinalPayback(dw.first, kept, {}, [](int t, int parent) { return t >= 8 || parent != 0; });
+            Check(kept.Assignment == std::vector<int>({1, 2}) && report.find("keep") != std::string::npos,
+                  "a parent that does not compile the owner leaves the delta priced against NONE, where it pays");
+            auto nothing = layout;
+            auto unprofitable = dw.first;
+            unprofitable.Units[1].Parse = 30;
+            FinalPayback(unprofitable, nothing, {}, [](int, int parent) { return parent != 0; });
+            Check(nothing.Assignment == std::vector<int>({-1, 2}), "and a delta that pays neither way sends the owner to NONE");
+        }
+
+        // A layout scored after the checks steps its owners down only: to a
+        // sibling delta nobody checked them with, never.
+        void ScoredLayoutStepsDownOnly() {
+            auto dw = ThinAndWide();
+            double objective = -1;
+            const auto scored = ScoredLayout(dw.first, dw.second, {}, 1, &objective);
+            Check(scored.Assignment == std::vector<int>({0, 1}),
+                  "a scored layout moves an owner to its parent, not over to a sibling: " + std::to_string(scored.Assignment[0]));
+        }
     } // namespace
 
     int SelfTest() {
@@ -3005,6 +3595,17 @@ namespace NPchUpdate::NTwoStep {
         UnmeasuredClassBuildsLikeTheOthers();
         FewControlsMoveTheCommonLine();
         ControlsSpanTheClass();
+        EvictedProbeFeedsTheCalibration();
+        SmallSampleScaleShrinks();
+        ProbesWeighAsTheirBytes();
+        ProbeBuildIsNotTimed();
+        GlobalBuildWeightsFollowTheHeaders();
+        OneControlIsNoLine();
+        SampledControlCountsEveryFile();
+        FloorTargetLeavesTheFitAlone();
+        SampledRowWeighsAsItsFiles();
+        IncompatibleParentIsNoFallback();
+        ScoredLayoutStepsDownOnly();
         SharedBaseDiskDiagnostics();
         AbsoluteSystemRoot();
         Calibration();
