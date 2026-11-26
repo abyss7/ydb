@@ -820,6 +820,7 @@ group("tests") {
         "//ydb/library/yql/providers/s3/range_helpers/ut",
         "//ydb/library/yql/providers/solomon/actors/ut",
         "//ydb/library/yql/providers/solomon/common/ut",
+        "//ydb/library/yql/providers/solomon/provider/ut",
         "//ydb/library/yql/providers/ydb_external/actors/ut",
         "//ydb/library/yql/providers/ydb_external/provider/ut",
         "//ydb/library/yql/providers/yt/gateway/clients/message_stream/ut",

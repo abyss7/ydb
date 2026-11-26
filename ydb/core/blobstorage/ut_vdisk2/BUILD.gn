@@ -10,6 +10,7 @@ unittest_executable("ut_vdisk2") {
     "//ydb/core/blobstorage/vdisk/common",
     "//ydb/core/blobstorage/vdisk/huge",
     "//ydb/core/blobstorage/vdisk/hullop",
+    "//ydb/core/blobstorage/vdisk/ingress",
     "//ydb/core/cms/console",
     "//ydb/core/driver_lib/version",  # peerdir only
     "//ydb/core/tx/scheme_board",  # peerdir only

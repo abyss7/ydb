@@ -3,16 +3,21 @@ unittest_executable("ut_read_table") {
     "//library/cpp/getopt",  # peerdir only
     "//library/cpp/regex/pcre",  # peerdir only
     "//library/cpp/svnversion",  # peerdir only
+    "//ydb/core/formats",
+    "//ydb/core/grpc_services/local_rpc",
     "//ydb/core/kqp/ut/common",  # peerdir only
     "//ydb/core/testlib/actors",
     "//ydb/core/testlib/default",  # peerdir only
     "//ydb/core/tx",  # peerdir only
     "//ydb/core/tx/datashard",
     "//ydb/core/tx/datashard/ut_common",
+    "//ydb/core/tx/schemeshard",
     "//ydb/core/tx/tx_proxy",
     "//ydb/core/tx/tx_proxy:public",
+    "//ydb/library/ut",
     "//ydb/public/lib/yson_value",  # peerdir only
     "//ydb/public/sdk/cpp/src/client/result",
+    "//yql/essentials/minikql",
     "//yql/essentials/public/udf/service/exception_policy",  # peerdir only
   ]
 

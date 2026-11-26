@@ -5,6 +5,7 @@
 #include "types.h"
 #include "schema.h"
 #include "mon_main.h"
+#include "wakeup_timer.h"
 
 #include <ydb/core/blobstorage/base/utility.h>
 #include <ydb/core/control/lib/immediate_control_board_impl.h>
@@ -39,12 +40,15 @@ namespace NKikimr::NBlobDepot {
                 EvUploadResult,
                 EvDeleteResult,
                 EvScanFound,
-                EvScanContinue,
                 EvDeleteThrottleWakeup,
                 EvPutThrottleWakeup,
                 EvMoveDataContinue,
                 EvMoveDataBlobCopied,
+                EvRunCooling,
                 EvResumeS3Scan,
+                EvCoolingTimer,
+                EvS3ProbeWakeup,
+                EvS3ProbeFinished,
             };
         };
 
@@ -104,6 +108,8 @@ namespace NKikimr::NBlobDepot {
 
         // EnableCollectByCompleteDeletionBlock, taken once at tablet start
         bool CollectByCompleteDeletionBlock = false;
+
+        bool IsDataCoolingEnabled() const { return bool(CoolingIndex); }
 
         struct TAgent {
             struct TConnection {
@@ -279,18 +285,20 @@ namespace NKikimr::NBlobDepot {
         void StartOperation() {
             JsonHandler.Setup(SelfId(), Executor()->Generation());
             InitChannelKinds();
+            InitDataCooling();
+            InitS3Manager();
             DoGroupMetricsExchange();
             ProcessRegisterAgentQ();
             KickSpaceMonitor();
             StartDataLoad();
             UpdateThroughputs();
-            InitS3Manager();
             TabletCounters->Simple()[NKikimrBlobDepot::COUNTER_MODE_STARTING] = 0;
             TabletCounters->Simple()[NKikimrBlobDepot::COUNTER_MODE_LOADING_KEYS] = 1;
         }
 
         void StartDataLoad();
         void OnDataLoadComplete();
+        void InitDataCooling();
 
         void OnDetach(const TActorContext&) override {
             YDB_LOG_DEBUG_COMP(BLOB_DEPOT, "OnDetach",
@@ -459,6 +467,8 @@ namespace NKikimr::NBlobDepot {
 
         class TData;
         std::unique_ptr<TData> Data;
+        class TCoolingIndex;
+        std::unique_ptr<TCoolingIndex> CoolingIndex;
 
         void Handle(TEvBlobDepot::TEvCommitBlobSeq::TPtr ev);
         void Handle(TEvBlobDepot::TEvDiscardSpoiledBlobSeq::TPtr ev);

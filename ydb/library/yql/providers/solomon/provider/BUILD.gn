@@ -2,12 +2,14 @@ library("provider") {
   public_deps = [
     # "//library/cpp/threading/future",
     "//ydb/library/yql/providers/common/token_accessor/client",
+    "//ydb/library/yql/providers/solomon/proto",
     # "//yql/essentials/core",
     # "//yql/essentials/core/dq_integration",
     "//yql/essentials/providers/common/config",
     "//yql/essentials/providers/common/gateway",
     "//yql/essentials/providers/common/proto",
     "//yql/essentials/providers/common/structured_token",
+    "//yql/essentials/providers/common/transform",
   ]
 
   deps = [
@@ -23,7 +25,6 @@ library("provider") {
     "//ydb/library/yql/providers/solomon/actors",
     "//ydb/library/yql/providers/solomon/common",
     "//ydb/library/yql/providers/solomon/expr_nodes",
-    "//ydb/library/yql/providers/solomon/proto",
     # "//ydb/library/yql/providers/solomon/scheme",
     "//ydb/library/yql/providers/solomon/solomon_accessor/client",
     # "//ydb/public/sdk/cpp/src/client/types/credentials",  # peerdir only
@@ -34,7 +35,6 @@ library("provider") {
     "//yql/essentials/providers/common/mkql",
     "//yql/essentials/providers/common/provider",
     # "//yql/essentials/providers/common/schema/expr",
-    "//yql/essentials/providers/common/transform",
     "//yql/essentials/providers/result/expr_nodes",
     # "//yql/essentials/utils/log",
     "//yt/yql/providers/ytflow/expr_nodes",

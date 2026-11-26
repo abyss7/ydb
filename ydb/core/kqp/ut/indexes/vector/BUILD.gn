@@ -3,10 +3,13 @@ unittest_executable("vector") {
     "//library/cpp/json",
     "//library/cpp/threading/local_executor",  # peerdir only
     "//ydb/core/client/minikql_compile",
+    "//ydb/core/cms/console",
     "//ydb/core/kqp",  # peerdir only
     "//ydb/core/kqp/common",
+    "//ydb/core/kqp/common/simple",
     "//ydb/core/kqp/gateway",
     "//ydb/core/kqp/host",
+    "//ydb/core/kqp/provider",
     "//ydb/core/kqp/ut/common",
     "//ydb/core/kqp/ut/indexes/common",
     "//ydb/core/protos/schemeshard",
@@ -25,7 +28,10 @@ unittest_executable("vector") {
     "//yql/essentials/sql/pg_dummy",  # peerdir only
   ]
 
-  sources = [ "kqp_indexes_vector_ut.cpp" ]
+  sources = [
+    "kqp_indexes_hnsw_ut.cpp",
+    "kqp_indexes_vector_ut.cpp",
+  ]
 
   include_dirs = [
     "//ydb/core/kqp",  # peerdir only

@@ -1,6 +1,9 @@
 unittest_executable("knn") {
   deps = [
     "//ydb/core/kqp",  # peerdir only
+    "//ydb/core/kqp/opt/physical",
+    "//ydb/core/kqp/opt:helpers",
+    "//ydb/core/kqp/provider",
     "//ydb/core/kqp/ut/common",
     "//ydb/core/tx/datashard",
     "//ydb/library/yql/udfs/common/knn",  # peerdir only

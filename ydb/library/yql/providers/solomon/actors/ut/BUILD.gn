@@ -12,6 +12,7 @@ unittest_executable("ut") {
     "//ydb/library/yql/dq/actors/protos",
     "//ydb/library/yql/providers/common/ut_helpers",
     "//ydb/library/yql/providers/solomon/actors",
+    "//ydb/library/yql/providers/solomon/common",
     "//ydb/library/yql/providers/solomon/events",
     "//yql/essentials/minikql",
     "//yql/essentials/minikql/comp_nodes/llvm16",  # peerdir only

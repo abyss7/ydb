@@ -6,7 +6,6 @@ unittest_executable("ut_blob_depot") {
     "//ydb/core/blob_depot",
     "//ydb/core/blobstorage/ut_blobstorage/lib",
     "//ydb/core/control/lib",
-    "//ydb/core/mind/bscontroller:group_mapper",
     "//ydb/core/protos",
     "//ydb/core/tablet_flat",
     "//ydb/core/testlib",

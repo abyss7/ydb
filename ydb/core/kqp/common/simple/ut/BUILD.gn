@@ -1,5 +1,6 @@
 unittest_executable("ut") {
   deps = [
+    "//contrib/libs/protobuf",
     "//library/cpp/string_utils/base64",
     "//library/cpp/string_utils/quote",
     "//library/cpp/testing/unittest",
@@ -9,6 +10,7 @@ unittest_executable("ut") {
 
   sources = [
     "mvcc_version_ut.cpp",
+    "query_id_ut.cpp",
     "session_id_ut.cpp",
   ]
 

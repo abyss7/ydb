@@ -1,14 +1,15 @@
 library("syncer") {
   public_deps = [
+    # "//library/cpp/monlib/dynamic_counters",
     "//ydb/core/base",
     # "//ydb/core/blobstorage",
     "//ydb/core/blobstorage/base",
     "//ydb/core/blobstorage/groupinfo",
     # "//ydb/core/blobstorage/vdisk/common",
+    # "//ydb/core/control/lib",
   ]
 
   deps = [
-    # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/blobstorage/nodewarden",
     "//ydb/core/util",
     # "//ydb/library/actors/core",
@@ -16,6 +17,7 @@ library("syncer") {
 
   sources = [
     "group_state.cpp",
+    "group_state_barrier.cpp",
     "mirror3dc_repair.cpp",
     "syncer.cpp",
   ]

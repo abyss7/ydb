@@ -76,7 +76,7 @@ library("grpc_services") {
     "//ydb/core/kesus/tablet",
     "//ydb/core/keyvalue",
     "//ydb/core/kqp/executer_actor:shards_resolver",
-    "//ydb/core/kqp/query_plan",
+    "//ydb/core/kqp/query_plan",  # peerdir only
     # "//ydb/core/kqp/script_executions/common",  # peerdir only
     # "//ydb/core/local_indexes/bloom",
     # "//ydb/core/mind",

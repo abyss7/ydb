@@ -17,6 +17,7 @@ library("simple") {
 
   deps = [
     # "//library/cpp/cgiparam",
+    # "//library/cpp/json",
     # "//library/cpp/random_provider",
     "//library/cpp/string_utils/base64",
     "//library/cpp/uri",
