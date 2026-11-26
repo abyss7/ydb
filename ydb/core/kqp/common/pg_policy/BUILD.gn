@@ -1,0 +1,11 @@
+library("pg_policy") {
+  public_deps = [ "//yql/essentials/core" ]
+
+  deps = [
+    # "//yql/essentials/core/services",  # peerdir only
+    "//yql/essentials/core/services:pipeline",
+    "//yql/essentials/core/type_ann",
+  ]
+
+  sources = [ "pg_policy.cpp" ]
+}

@@ -1,5 +1,6 @@
 unittest_executable("ut_move_pdisk") {
   deps = [
+    "//ydb/core/base",
     "//ydb/core/blobstorage/base",
     "//ydb/core/blobstorage/nodewarden",
     "//ydb/core/blobstorage/ut_blobstorage/lib",

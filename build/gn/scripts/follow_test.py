@@ -160,7 +160,7 @@ class FollowHistoryTest(unittest.TestCase):
                          self.git.out("rev-parse", merge + "^{tree}"))
         self.assertEqual(self.git.out("show", "-s", "--format=%P", "HEAD").split(), [self.base, self.u])
         self.assertFalse(self.git.ancestor(merge, "HEAD"))
-        self.assertEqual(self.git.ref("front"), self.base)
+        self.assertEqual(self.git.ref("front"), self.git.ref("HEAD"))
         self.assertIsNone(f.current())
         f.follow()
         f.build.assert_called_once()
@@ -343,7 +343,7 @@ class FollowHistoryTest(unittest.TestCase):
         self.assertEqual((rec["mode"], rec["skipped"]), ("only-head", 2))
         self.assertIsNone(f.current())
 
-    def test_failed_later_step_does_not_publish_and_resume_keeps_batch_limit(self):
+    def test_failed_later_step_keeps_checkpoint_and_resume_keeps_batch_limit(self):
         second = self.add_upstream("second.cpp")
         self.add_upstream("third.cpp")
         f = self.follower(max_commits=2)
@@ -352,7 +352,8 @@ class FollowHistoryTest(unittest.TestCase):
         with self.assertRaisesRegex(Stop, "failed"):
             f.follow()
         unchecked = self.git.ref("HEAD")
-        self.assertEqual(self.git.ref("front"), self.base)
+        self.assertEqual(self.git.ref("front"), self.git.ref(unchecked + "^1"))
+        self.assertEqual(self.git.ref("front^2"), self.u)
         self.assertEqual(self.git.head_ref(), f.work_ref)
         f.work = FollowWork(self.git, f.work.path)
         f.args.max_commits = None
@@ -363,7 +364,7 @@ class FollowHistoryTest(unittest.TestCase):
         f.build.assert_called_once()
         self.assertEqual(self.git.ref(result + "^2"), second)
         self.assertFalse(self.git.ancestor(unchecked, result))
-        self.assertEqual(self.git.ref("front"), self.base)
+        self.assertEqual(self.git.ref("front"), result)
         source = os.path.join(self.root, "source.cpp")
         before = os.stat(source).st_mtime_ns
         f.work.publish(result)
@@ -390,7 +391,7 @@ class FollowHistoryTest(unittest.TestCase):
         f.work.start(f.args)
         result = f.follow()
         self.assertEqual(self.git.out("show", result + ":source.cpp"), "// resolved")
-        self.assertEqual(self.git.ref("front"), base)
+        self.assertEqual(self.git.ref("front"), result)
 
     def test_interrupt_leaves_work_and_does_not_move_target(self):
         f = self.follower()
@@ -409,12 +410,15 @@ class FollowHistoryTest(unittest.TestCase):
     def test_publish_does_not_overwrite_a_changed_target(self):
         f = self.follower()
         f.state.append({"status": "bootstrap", "upstream": self.base})
-        result = f.follow()
-        self.git.out("update-ref", "refs/heads/front", self.u, self.base)
+
+        def change_target(*args):
+            self.git.out("update-ref", "refs/heads/front", self.u, self.base)
+
+        f.build.side_effect = change_target
         with self.assertRaisesRegex(Stop, "changed since"):
-            f.work.publish(result)
+            f.follow()
         self.assertEqual(self.git.ref("front"), self.u)
-        self.assertEqual(self.git.ref(f.work_ref), result)
+        self.assertEqual(self.git.ref(f.work_ref + "^2"), self.u)
 
     def test_push_targets_only_the_published_branch(self):
         remote = os.path.join(self.tmp.name, "remote.git")
@@ -479,18 +483,64 @@ class FollowHistoryTest(unittest.TestCase):
         self.assertEqual(self.git.ref(result + "^2"), self.u)
         self.assertEqual(self.git.out("show", result + ":tool.py"), "updated infrastructure")
         self.assertFalse(self.git.ancestor(dirty_merge, result))
-        self.assertEqual(self.git.ref("front"), self.base)
+        self.assertEqual(self.git.ref("front"), result)
         f.work.publish(result)
         self.assertEqual(self.git.ref("front"), result)
 
-    def test_divergent_gn_tracking_branch_is_not_applied(self):
+    def test_rebases_published_sync_onto_tracking_with_source_parent(self):
+        f = self.follower()
+        f.state.append({"status": "bootstrap", "upstream": self.base})
+        f.step(self.u, False)  # a verified but unpublished step from the old script
+        local = self.git.ref("HEAD")
         infra = self.infrastructure_update()
         self.track_gn(infra)
-        local = self.commit("Local GN fix")
-        with self.assertRaisesRegex(Stop, "diverged"):
-            self.follower()
+        self.git.out("switch", "-q", f.work_ref[len("refs/heads/"):])
+        f.build.reset_mock()
+        result = f.follow()
+        self.assertEqual(self.git.ref("front"), result)
+        self.assertEqual(self.git.ref(result + "^1"), infra)
+        self.assertEqual(self.git.ref(result + "^2"), self.u)
+        self.assertFalse(self.git.ancestor(local, result))
+        f.build.assert_not_called()
+
+    def test_retroactive_publication_leaves_unfinished_step_alone(self):
+        second = self.add_upstream("second.cpp")
+        f = self.follower(max_commits=2)
+        f.state.append({"status": "bootstrap", "upstream": self.base})
+        f.step(self.u, False)
+        local = self.git.ref("HEAD")
+        f.merge(second, {})
+        pending = self.git.ref("HEAD")
+        path = os.path.join(self.root, "second.cpp")
+        follow.write_text(path, "// keep this fix\n")
+        f.build.side_effect = Stop("build", "unfinished")
+        with self.assertRaisesRegex(Stop, "unfinished"):
+            f.follow()
         self.assertEqual(self.git.ref("front"), local)
-        self.assertFalse(self.git.ref("refs/heads/follow-work/front"))
+        self.assertEqual(self.git.ref("HEAD"), pending)
+        self.assertEqual(follow.read_text(path), "// keep this fix\n")
+
+    def test_tracking_conflict_warns_and_keeps_latest_checkpoint(self):
+        infra = self.infrastructure_update()
+        self.track_gn(self.base)
+        f = self.follower()
+        f.state.append({"status": "bootstrap", "upstream": self.base})
+        path = os.path.join(self.root, "tool.py")
+        f.regen.side_effect = lambda *args, **kw: follow.write_text(path, "local infrastructure\n")
+
+        def fetch(args):
+            self.assertEqual(self.git.ref("front"), self.git.ref("HEAD"))
+            self.git.out("update-ref", infra_ref, infra, self.base)
+
+        infra_ref = "refs/heads/infra"
+        with patch.object(f.work, "fetch", side_effect=fetch):
+            result = f.follow()
+        self.assertEqual(self.git.ref("front"), result)
+        self.assertEqual(self.git.ref(result + "^2"), self.u)
+        self.assertFalse(self.git.ancestor(infra, result))
+        self.assertEqual(follow.read_text(path), "local infrastructure\n")
+        self.assertFalse(self.git.operations())
+        self.assertTrue(any("was not applied" in args[0] for args, _ in f.say.call_args_list))
 
 
 class TargetTest(unittest.TestCase):

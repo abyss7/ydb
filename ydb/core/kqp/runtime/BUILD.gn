@@ -4,7 +4,6 @@ library("runtime") {
     # "//library/cpp/cache",
     # "//library/cpp/containers/stack_vector",
     # "//library/cpp/monlib/dynamic_counters",
-    # "//library/cpp/time_provider",
     "//ydb/core/base",
     "//ydb/core/engine/minikql",
     # "//ydb/core/formats/arrow",
@@ -16,7 +15,6 @@ library("runtime") {
     "//ydb/core/kqp/rm_service",
     "//ydb/core/kqp/runtime/common",
     "//ydb/core/protos",
-    # "//ydb/core/resource_pools",
     "//ydb/core/scheme",
     # "//ydb/core/tablet_flat",
     # "//ydb/core/tx/data_events",
@@ -48,12 +46,14 @@ library("runtime") {
     "//ydb/core/kqp/common",
     "//ydb/core/kqp/common/result_set_format",
     # "//ydb/core/kqp/common/simple",
+    # "//ydb/core/kqp/runtime/scheduler",  # peerdir only
     "//ydb/core/kqp/runtime/streaming",
     "//ydb/core/kqp/topics",  # peerdir only
     "//ydb/core/kqp/tracing",
     # "//ydb/core/mon",
     # "//ydb/core/persqueue/events",
     "//ydb/core/persqueue/public",
+    # "//ydb/core/resource_pools",
     "//ydb/core/scheme/mkql",
     "//ydb/core/scheme/protos",
     # "//ydb/core/tx",
@@ -73,6 +73,7 @@ library("runtime") {
     # "//ydb/library/query_actor",  # peerdir only
     # "//ydb/library/wilson_ids",
     # "//ydb/library/yql/dq/actors",  # peerdir only
+    # "//ydb/library/yql/dq/actors/common",  # peerdir only
     # "//ydb/library/yql/dq/actors/spilling",  # peerdir only
     "//ydb/library/yql/dq/proto",
     # "//ydb/library/yql/dq/runtime",
@@ -80,8 +81,7 @@ library("runtime") {
     # "//ydb/library/yverify_stream",  # peerdir only
     "//ydb/public/api/protos",
     # "//ydb/public/sdk/cpp/src/client/params",  # peerdir only
-    # "//ydb/services/workload_manager",
-    "//ydb/services/workload_manager/common",
+    "//ydb/services/workload_manager/common",  # peerdir only
     # "//yql/essentials/minikql",
     "//yql/essentials/minikql/comp_nodes",
     # "//yql/essentials/minikql/runtime_settings",
@@ -90,7 +90,6 @@ library("runtime") {
     # "//yql/essentials/public/issue",
     # "//yql/essentials/public/udf",
     # "//yql/essentials/public/udf/arrow",
-    "//yt/yt/core",
   ]
 
   sources = [
@@ -120,13 +119,5 @@ library("runtime") {
     "kqp_write_actor.cpp",
     "kqp_write_actor_settings.cpp",
     "kqp_write_table.cpp",
-    "scheduler/kqp_compute_scheduler_service.cpp",
-    "scheduler/kqp_schedulable_base.cpp",
-    "scheduler/kqp_schedulable_memory.cpp",
-    "scheduler/kqp_schedulable_read.cpp",
-    "scheduler/kqp_schedulable_task.cpp",
-    "scheduler/kqp_schedulable_work_factory.cpp",
-    "scheduler/tree/dynamic.cpp",
-    "scheduler/tree/snapshot.cpp",
   ]
 }

@@ -9,7 +9,8 @@ unittest_executable("ut_read_iterator") {
     "//ydb/core/formats/arrow",
     "//ydb/core/grpc_services/local_rpc",
     "//ydb/core/kqp/common/simple",
-    "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime",  # peerdir only
+    "//ydb/core/kqp/runtime/scheduler",
     "//ydb/core/kqp/ut/common",
     "//ydb/core/memory_controller",
     "//ydb/core/protos",

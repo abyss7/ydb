@@ -10,6 +10,7 @@ library("query_data") {
   ]
 
   deps = [
+    # "//library/cpp/protobuf/util",  # peerdir only
     # "//ydb/core/actorlib_impl",  # peerdir only
     # "//ydb/core/base",
     "//ydb/core/kqp/common",

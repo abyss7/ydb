@@ -1,3 +1,10 @@
 library("lockfree_bucket") {
-  sources = [ "lockfree_bucket.cpp" ]
+  public_deps = [
+    # "//library/cpp/time_provider",
+  ]
+
+  sources = [
+    "light_bucket.cpp",
+    "lockfree_bucket.cpp",
+  ]
 }

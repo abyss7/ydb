@@ -1,13 +1,22 @@
 unittest_executable("ut_blob_depot") {
   deps = [
+    "//library/cpp/testing/unittest",
     "//ydb/core/base",
+    "//ydb/core/base/services",
     "//ydb/core/blob_depot",
     "//ydb/core/blobstorage/ut_blobstorage/lib",
     "//ydb/core/control/lib",
+    "//ydb/core/mind/bscontroller:group_mapper",
     "//ydb/core/protos",
+    "//ydb/core/tablet_flat",
     "//ydb/core/testlib",
     "//ydb/core/wrappers",
+    "//ydb/core/wrappers:ut_helpers",
     "//ydb/library/actors/core",
+    "//ydb/library/actors/http",
+    "//ydb/library/aws_init",
+    "//yql/essentials/minikql",
+    "//yql/essentials/minikql/invoke_builtins",
   ]
 
   sources = [

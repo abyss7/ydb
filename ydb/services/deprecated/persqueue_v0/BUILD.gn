@@ -18,6 +18,7 @@ library("persqueue_v0") {
     # "//ydb/core/persqueue/public/cluster_tracker",
     "//ydb/core/persqueue/public/counters",
     "//ydb/core/persqueue/public/write_meta",
+    # "//ydb/core/persqueue/public:utils",
     # "//ydb/core/persqueue/writer",
     # "//ydb/core/persqueue/writer:partition_chooser",
     "//ydb/core/protos",

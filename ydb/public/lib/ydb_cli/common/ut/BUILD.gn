@@ -28,6 +28,7 @@ unittest_executable("ut") {
     "//ydb/public/lib/ydb_cli/common/recursive_remove_ut.cpp",
     "//ydb/public/lib/ydb_cli/common/scheme_query_utils_ut.cpp",
     "//ydb/public/lib/ydb_cli/common/sys_ut.cpp",
+    "//ydb/public/lib/ydb_cli/common/yt_ut.cpp",
     "build_info_ut.cpp",
     "markdown_ut.cpp",
     "print_utils_ut.cpp",

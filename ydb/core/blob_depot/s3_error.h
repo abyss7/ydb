@@ -6,15 +6,26 @@
 
 namespace NKikimr::NBlobDepot {
 
+    inline bool IsS3SlowDownCode(TStringBuf code) {
+        return code == "SlowDown" || code == "TooManyRequests";
+    }
+
     inline bool IsS3SlowDown(const Aws::S3::S3Error& error) {
         return error.GetErrorType() == Aws::S3::S3Errors::SLOW_DOWN
-            || error.GetExceptionName() == "SlowDown"
-            || error.GetExceptionName() == "TooManyRequests"
+            || IsS3SlowDownCode(error.GetExceptionName())
             || error.GetResponseCode() == Aws::Http::HttpResponseCode::TOO_MANY_REQUESTS;
     }
 
-    inline bool IsS3SlowDownCode(TStringBuf code) {
-        return code == "SlowDown" || code == "TooManyRequests";
+    inline bool IsS3MissingKey(TStringBuf code) {
+        return code == "NoSuchKey";
+    }
+
+    inline bool IsS3MissingKey(const Aws::S3::S3Error& error) {
+        return error.GetErrorType() == Aws::S3::S3Errors::NO_SUCH_KEY || IsS3MissingKey(error.GetExceptionName());
+    }
+
+    inline bool IsS3MissingBucket(const Aws::S3::S3Error& error) {
+        return error.GetErrorType() == Aws::S3::S3Errors::NO_SUCH_BUCKET || error.GetExceptionName() == "NoSuchBucket";
     }
 
 } // namespace NKikimr::NBlobDepot

@@ -3,6 +3,7 @@ LIBRARY()
 # gn: into ydb/core/tx/columnshard
 
 SRCS(
+    deferred_portion_loader.cpp
     stages.cpp
 )
 

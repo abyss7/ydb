@@ -21,7 +21,7 @@ library("memory_controller") {
     "//ydb/library/services",
     # "//yql/essentials/minikql",  # peerdir only
     # "//yql/essentials/minikql/aligned_page_pool",
-    # "//yql/essentials/public/udf/arrow",
+    "//yql/essentials/public/udf/arrow",
     # "//yql/essentials/utils/memory_profiling",  # peerdir only
   ]
 

@@ -188,7 +188,6 @@
 #include "yql/essentials/providers/result/expr_nodes/yql_res_expr_nodes.h"
 #include "contrib/libs/apache/arrow/cpp/src/arrow/compute/api_aggregate.h"
 #include "ydb/core/base/table_index.h"
-#include "ydb/library/yql/dq/actors/compute/dq_schedulable.h"
 #include "ydb/core/tablet/tablet_setup.h"
 #include "yql/essentials/minikql/mkql_stats_registry.h"
 #include "ydb/core/tx/columnshard/engines/defs.h"

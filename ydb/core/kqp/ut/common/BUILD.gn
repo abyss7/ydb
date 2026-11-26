@@ -35,7 +35,7 @@ library("common") {
     "//ydb/core/formats/arrow/program/olap_kernels",  # peerdir only
     # "//ydb/core/fq/libs/checkpointing",
     # "//ydb/core/kqp/counters",
-    # "//ydb/core/kqp/provider",
+    "//ydb/core/kqp/provider",
     # "//ydb/core/tx/columnshard/engines/scheme",
     # "//ydb/core/tx/datashard",
     # "//ydb/core/tx/schemeshard",

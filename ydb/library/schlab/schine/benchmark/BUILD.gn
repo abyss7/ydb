@@ -1,0 +1,7 @@
+linked_executable("forseti_bench") {
+  deps = [ "//ydb/library/schlab/schine" ]
+
+  sources = [ "main.cpp" ]
+
+  link_select = [ "allocator=tcmalloc" ]
+}

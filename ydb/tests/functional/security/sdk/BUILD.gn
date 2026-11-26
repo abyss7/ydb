@@ -1,0 +1,28 @@
+unittest_executable("sdk") {
+  deps = [
+    "//library/cpp/json",
+    "//library/cpp/testing/unittest",
+    "//ydb/public/sdk/cpp/src/client/discovery",
+    "//ydb/public/sdk/cpp/src/client/driver",
+    "//ydb/public/sdk/cpp/src/client/table",
+    "//ydb/public/sdk/cpp/src/client/types/credentials/oidc",
+  ]
+
+  data_deps = [ "//ydb/apps/ydbd" ]
+
+  sources = [ "oidc_provider_ut.cpp" ]
+
+  data = [
+    "//ydb/tests/functional/security/oidc/recipe/docker-compose.yml",
+    "//ydb/tests/functional/security/oidc/recipe/keycloak.d/",
+    "//ydb/tests/functional/security/oidc/recipe/test-env.json",
+    "//ydb/tests/functional/security/oidc/recipe/ydb-config.yaml",
+  ]
+
+  test_depends_unbuilt = [
+    "//library/recipes/docker_compose/bin",
+    "//ydb/tests/functional/security/oidc/recipe",
+  ]
+
+  link_select = [ "allocator=tcmalloc" ]
+}

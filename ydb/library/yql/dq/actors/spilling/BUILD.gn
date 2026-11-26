@@ -1,9 +1,9 @@
 library("spilling") {
   public_deps = [
-    "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/threading/future",
     "//ydb/library/actors/core",
     # "//ydb/library/yql/dq/actors",
+    # "//ydb/library/yql/dq/actors/spilling/counters",
     "//ydb/library/yql/dq/common",
     # "//ydb/library/yql/dq/runtime",
     # "//yql/essentials/minikql/computation",
@@ -22,7 +22,6 @@ library("spilling") {
     "compute_storage.cpp",
     "compute_storage_actor.cpp",
     "spilling.cpp",
-    "spilling_counters.cpp",
     "spilling_file.cpp",
   ]
 }

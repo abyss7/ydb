@@ -152,7 +152,7 @@ library("schemeshard") {
     "//ydb/public/sdk/cpp/src/client/topic",
     # "//ydb/public/sdk/cpp/src/client/types/credentials",  # peerdir only
     # "//ydb/services/bg_tasks",  # peerdir only
-    # "//yql/essentials/core/histogram",
+    "//yql/essentials/core/histogram",
     # "//yql/essentials/minikql/computation",
     # "//yql/essentials/minikql:alloc",
     "//yql/essentials/providers/common/proto",

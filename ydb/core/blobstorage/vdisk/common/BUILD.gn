@@ -1,7 +1,6 @@
 library("common") {
   public_deps = [
     ":guids",
-    # "//library/cpp/bucket_quoter",
     "//library/cpp/monlib/dynamic_counters",
     # "//library/cpp/monlib/dynamic_counters/percentile",
     # "//library/cpp/monlib/metrics",
@@ -21,7 +20,7 @@ library("common") {
     "//ydb/core/protos",
     "//ydb/core/util",
     # "//ydb/library/actors/interconnect",
-    # "//ydb/library/lockfree_bucket",
+    "//ydb/library/lockfree_bucket",
     # "//ydb/library/pdisk_io:device_type",
   ]
 
@@ -35,6 +34,7 @@ library("common") {
     # "//ydb/core/control",
     # "//ydb/library/actors/core",
     "//ydb/library/actors/protos",
+    # "//ydb/library/actors/util",
   ]
 
   sources = [
@@ -58,6 +58,7 @@ library("common") {
     "vdisk_performance_params.cpp",
     "vdisk_recoverylogwriter.cpp",
     "vdisk_response.cpp",
+    "vdisk_sector_sealing.cpp",
   ]
 }
 

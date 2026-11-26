@@ -41,6 +41,7 @@ PEERDIR(
     ydb/core/kqp/query_compiler
     ydb/core/kqp/query_data
     ydb/core/kqp/rm_service
+    ydb/core/kqp/runtime/scheduler
     ydb/core/kqp/topics
     ydb/core/kqp/tracing
     ydb/core/protos

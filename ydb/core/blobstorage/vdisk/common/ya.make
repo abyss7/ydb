@@ -4,11 +4,13 @@ PEERDIR(
     ydb/core/blobstorage/contracts
     ydb/library/actors/protos
     library/cpp/monlib/service/pages
+    library/cpp/time_provider
     ydb/core/base
     ydb/core/blobstorage/base
     ydb/core/blobstorage/vdisk/hulldb/base  # gn: :base_types
     ydb/core/blobstorage/vdisk/protos
     ydb/core/protos
+    ydb/library/lockfree_bucket
 )
 
 SRCS(
@@ -63,6 +65,8 @@ SRCS(
     vdisk_pdisk_error.h
     vdisk_pdiskctx.h
     vdisk_private_events.h
+    vdisk_sector_sealing.cpp
+    vdisk_sector_sealing.h
     vdisk_recoverylogwriter.cpp
     vdisk_recoverylogwriter.h
     vdisk_response.cpp

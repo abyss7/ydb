@@ -1,5 +1,6 @@
 unittest_executable("ut") {
   deps = [
+    "//contrib/libs/protobuf",
     "//library/cpp/testing/hook",
     "//library/cpp/testing/unittest",
     "//ydb/core/base",
@@ -20,8 +21,10 @@ unittest_executable("ut") {
 
   sources = [
     "//ydb/core/blob_depot/closed_interval_set_ut.cpp",
+    "//ydb/core/blob_depot/config_ut.cpp",
     "//ydb/core/blob_depot/given_id_range_ut.cpp",
     "//ydb/core/blob_depot/s3_limits_ut.cpp",
+    "//ydb/core/blob_depot/value_chain_ut.cpp",
     "agent_disconnect_ut.cpp",
     "s3_router_ut.cpp",
   ]

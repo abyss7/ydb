@@ -38,7 +38,8 @@ library("proxy_service") {
     "//ydb/core/kqp/gateway/behaviour/streaming_query",
     "//ydb/core/kqp/node_service",
     # "//ydb/core/kqp/rm_service",
-    # "//ydb/core/kqp/runtime",
+    # "//ydb/core/kqp/runtime/scheduler",
+    "//ydb/core/kqp/runtime/scheduler/service",
     "//ydb/core/kqp/script_executions/common",
     "//ydb/core/kqp/script_executions/finalization",
     "//ydb/core/kqp/script_executions/table_queries",
@@ -60,6 +61,7 @@ library("proxy_service") {
     "//ydb/library/security",
     "//ydb/library/table_creator",  # peerdir only
     "//ydb/library/ydb_issue",
+    # "//ydb/library/yql/dq/actors/common",
     # "//ydb/library/yql/dq/actors/compute",
     # "//ydb/library/yql/dq/actors/spilling",
     # "//ydb/library/yql/dq/runtime",

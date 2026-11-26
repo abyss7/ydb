@@ -42,7 +42,7 @@ library("ut_helpers") {
     # "//ydb/core/kqp/provider",
     "//ydb/core/kqp/proxy_service",
     "//ydb/core/kqp/rm_service",
-    # "//ydb/core/kqp/runtime",
+    # "//ydb/core/kqp/runtime/scheduler",
     # "//ydb/core/metering",
     # "//ydb/core/persqueue/events",
     "//ydb/core/test_tablet",

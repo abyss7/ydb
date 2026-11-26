@@ -128,6 +128,28 @@ class IntoModuleTest(unittest.TestCase):
                          {"x.cpp": ("b", None), "y.cpp": ("c", None)})
 
 
+class PeerdirPolicyTest(unittest.TestCase):
+    def test_incoming_policy_does_not_block_conversion_or_add_dependencies(self):
+        with tempfile.TemporaryDirectory() as root:
+            directory = os.path.join(root, "a")
+            os.makedirs(directory)
+            path = os.path.join(directory, "ya.make")
+            for kind, source in (("LIBRARY", "a.cpp"), ("PROTO_LIBRARY", "a.proto")):
+                with self.subTest(kind=kind):
+                    with open(path, "w") as f:
+                        f.write(
+                            f"{kind}()\n"
+                            f"SRCS({source})\n"
+                            "PEERDIR(existing/dep)\n"
+                            "PEERDIR_FROM_POLICY(ALLOW allowed/consumer)\n"
+                            "PEERDIR_FROM_POLICY(DENY .*)\n"
+                            "END()\n"
+                        )
+                    mod = yamake2gn.parse_yamake(path, "a", root)
+                    self.assertTrue(yamake2gn.is_trivial(mod), yamake2gn.nontrivial_macros(mod))
+                    self.assertEqual(mod.peerdirs, ["existing/dep"])
+
+
 class WriteBuildgnsTest(unittest.TestCase):
     """write_buildgns() formats and writes only what it did not write before."""
 

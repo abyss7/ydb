@@ -120,7 +120,6 @@
 #include "ydb/core/tx/data_events/common/modification_type.h"
 #include "ydb/core/scheme/scheme_types_proto.h"
 #include "ydb/core/tx/schemeshard/dedicated_pipe_pool.h"
-#include "ydb/library/yql/dq/actors/compute/dq_schedulable.h"
 #include "ydb/core/protos/schemeshard/operations.pb.h"
 #include "ydb/core/util/pb.h"
 #include "ydb/core/tx/schemeshard/olap/common/common.h"

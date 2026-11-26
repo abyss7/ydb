@@ -1,5 +1,6 @@
 library("common") {
   public_deps = [
+    # "//library/cpp/time_provider",
     "//ydb/library/actors/core",
     "//ydb/library/yql/dq/actors/protos",
     "//ydb/library/yql/dq/common",

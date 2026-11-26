@@ -32,6 +32,7 @@ library("basics") {
     "//ydb/core/client/server",
     "//ydb/core/cms/console",
     "//ydb/core/control",
+    # "//ydb/core/kqp/counters",  # peerdir only
     "//ydb/core/mind",
     # "//ydb/core/node_whiteboard",
     "//ydb/core/quoter",

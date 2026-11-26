@@ -1,10 +1,14 @@
 unittest_executable("ut") {
   deps = [
     "//library/cpp/testing/unittest",
+    "//ydb/library/schlab/schine",
     "//ydb/library/schlab/schoot",
   ]
 
-  sources = [ "schlab_ut.cpp" ]
+  sources = [
+    "scheduler_ut.cpp",
+    "schlab_ut.cpp",
+  ]
 
   link_select = [ "allocator=tcmalloc" ]
 }

@@ -11,7 +11,7 @@ library("ycsb") {
     # "//contrib/libs/protobuf",
     "//library/cpp/histogram/hdr",
     # "//library/cpp/monlib/service/pages",
-    # "//ydb/core/kqp/common/events",
+    "//ydb/core/kqp/common/events",
     # "//ydb/core/kqp/common/simple",
     # "//ydb/core/load_test/common",
     # "//ydb/core/tablet",

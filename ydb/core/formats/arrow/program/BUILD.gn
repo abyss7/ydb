@@ -8,6 +8,7 @@ library("program") {
     "//ydb/core/formats/arrow/accessor/composite",
     # "//ydb/core/formats/arrow/accessor/dictionary",
     "//ydb/core/formats/arrow/accessor/sub_columns",
+    "//ydb/core/formats/arrow/program/index_check",
     # "//ydb/library/accessor",
     "//ydb/library/arrow_kernels",
     # "//ydb/library/conclusion",

@@ -17,10 +17,12 @@ library("provider") {
     ]
 
     deps = [
+        "//library/cpp/protobuf/util",
         "//library/cpp/resource",
         "//ydb/core/docapi",
         "//ydb/core/external_sources",
         "//ydb/core/fq/libs/result_formatter",
+        "//ydb/core/kqp/common/pg_policy",
         "//ydb/core/kqp/common/result_set_format",  # kqp_query_data.cpp
         "//ydb/core/kqp/common/simple",
         "//ydb/core/kqp/expr_nodes",

@@ -1,6 +1,7 @@
 library("aws_init") {
+  public_deps = [ "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-core" ]
+
   deps = [
-    "//contrib/libs/aws-sdk-cpp/aws-cpp-sdk-core",
     # "//contrib/libs/curl",
   ]
 

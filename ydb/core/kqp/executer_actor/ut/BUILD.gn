@@ -15,11 +15,14 @@ unittest_executable("ut") {
     "//ydb/core/kqp/provider",
     "//ydb/core/kqp/query_data",
     "//ydb/core/kqp/rm_service",
-    "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime/scheduler",
     "//ydb/core/kqp/ut/common",
+    "//ydb/core/testlib/actors",
+    "//ydb/core/tx/datashard",
     "//ydb/core/tx/datashard/ut_common",
     "//ydb/library/aclib",
     "//ydb/library/ut",
+    "//ydb/library/yql/dq/actors/compute",
     "//ydb/public/lib/ydb_cli/common",
     "//ydb/public/sdk/cpp/src/client/result",
     "//ydb/public/sdk/cpp/src/client/types",
@@ -33,6 +36,7 @@ unittest_executable("ut") {
     "//ydb/core/kqp/executer_actor/kqp_tasks_graph_ut.cpp",
     "//ydb/core/kqp/executer_actor/max_tasks_graph_ut.cpp",
     "kqp_compute_actor_creation_ut.cpp",
+    "kqp_planner_ut.cpp",
   ]
 
   include_dirs = [ "//ydb/core/kqp/executer_actor" ]

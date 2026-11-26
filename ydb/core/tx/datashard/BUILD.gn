@@ -13,9 +13,9 @@ library("datashard") {
     "//ydb/core/backup/common",
     # "//ydb/core/base",
     "//ydb/core/change_exchange",
-    # "//ydb/core/engine",
+    "//ydb/core/engine",
     "//ydb/core/engine/minikql",
-    "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime/scheduler",
     "//ydb/core/protos",
     # "//ydb/core/scheme",
     # "//ydb/core/scheme_types",
@@ -101,7 +101,7 @@ library("datashard") {
     # "//ydb/public/sdk/cpp/src/client/value",
     "//ydb/services/lib/sharding",
     "//yql/essentials/core/minsketch",  # peerdir only
-    # "//yql/essentials/minikql",
+    "//yql/essentials/minikql",
     # "//yql/essentials/parser/pg_wrapper",
     # "//yql/essentials/parser/pg_wrapper/interface",  # peerdir only
     # "//yql/essentials/parser/pg_wrapper/interface/type_desc",

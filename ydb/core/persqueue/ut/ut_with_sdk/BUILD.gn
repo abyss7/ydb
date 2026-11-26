@@ -8,6 +8,7 @@ unittest_executable("ut_with_sdk") {
     "//library/cpp/testing/unittest",
     "//library/cpp/threading/future",
     "//library/cpp/time_provider",
+    "//ydb/core/client/server",
     "//ydb/core/persqueue",  # peerdir only
     "//ydb/core/persqueue/common/proxy",
     "//ydb/core/persqueue/events",
@@ -22,6 +23,7 @@ unittest_executable("ut_with_sdk") {
     "//ydb/core/testlib/default",  # peerdir only
     "//ydb/core/tx",
     "//ydb/core/tx/schemeshard/ut_helpers",
+    "//ydb/library/grpc/server",
     "//ydb/public/api/grpc",
     "//ydb/public/api/grpc/draft",
     "//ydb/public/sdk/cpp/src/client/persqueue_public/ut/ut_utils",
@@ -31,6 +33,8 @@ unittest_executable("ut_with_sdk") {
     "//ydb/public/sdk/cpp/src/client/topic/ut/ut_utils",  # peerdir only
     "//ydb/public/sdk/cpp/src/client/topic/ut/ut_utils:test_setup",
     "//ydb/public/sdk/cpp/src/library/kafka",
+    "//ydb/services/deprecated/persqueue_v0",
+    "//ydb/services/deprecated/persqueue_v0/api/grpc",
   ]
 
   sources = [

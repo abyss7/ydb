@@ -100,8 +100,9 @@ struct TPartitionActorInfo {
         , NodeId(0)
         , ReadingFinished(false)
     {
-        AFL_ENSURE(partition.DiscoveryConverter != nullptr)
-            ("partition", partition.Partition)("assign_id", partition.AssignId);
+        YDB_LOG_ENSURE(partition.DiscoveryConverter != nullptr,
+            {"partition", partition.Partition},
+            {"assignId", partition.AssignId});
     }
 
     bool IsLastOffsetCommitted() const {

@@ -25,7 +25,7 @@ library("bscontroller") {
     # "//library/cpp/streams/zstd",
     "//ydb/core/audit",
     # "//ydb/core/base/services",  # peerdir only
-    # "//ydb/core/blob_depot",
+    "//ydb/core/blob_depot",
     # "//ydb/core/blobstorage",  # peerdir only
     # "//ydb/core/blobstorage/pdisk",
     # "//ydb/core/cms/console",

@@ -5,6 +5,7 @@ unittest_executable("ut_backup_collection") {
     "//ydb/core/protos/schemeshard",
     "//ydb/core/tablet_flat",
     "//ydb/core/testlib/actors",
+    "//ydb/core/testlib/audit_helpers",
     "//ydb/core/tx/datashard",
     "//ydb/core/tx/replication/service",
     "//ydb/core/tx/schemeshard",

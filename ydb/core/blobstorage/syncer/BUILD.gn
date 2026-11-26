@@ -8,6 +8,7 @@ library("syncer") {
   ]
 
   deps = [
+    # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/blobstorage/nodewarden",
     "//ydb/core/util",
     # "//ydb/library/actors/core",

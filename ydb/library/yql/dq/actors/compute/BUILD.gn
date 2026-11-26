@@ -3,7 +3,6 @@ library("compute") {
     # "//contrib/libs/protobuf",
     "//library/cpp/html/escape",
     # "//library/cpp/monlib/dynamic_counters",
-    # "//library/cpp/time_provider",
     "//ydb/library/actors/core",
     # "//ydb/library/actors/interconnect",
     "//ydb/library/actors/wilson",
@@ -34,6 +33,7 @@ library("compute") {
   ]
 
   deps = [
+    # "//library/cpp/time_provider",  # peerdir only
     # "//ydb/core/quoter/public",
     # "//ydb/library/actors/wilson/protos",  # peerdir only
     # "//ydb/library/ydb_issue/proto",  # peerdir only

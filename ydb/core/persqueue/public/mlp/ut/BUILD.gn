@@ -22,6 +22,7 @@ unittest_executable("ut") {
     "//ydb/core/persqueue/public/mlp/mlp_describer_ut.cpp",
     "//ydb/core/persqueue/public/mlp/mlp_purger_ut.cpp",
     "//ydb/core/persqueue/public/mlp/mlp_reader_ut.cpp",
+    "//ydb/core/persqueue/public/mlp/mlp_write_mode_ut.cpp",
     "//ydb/core/persqueue/public/mlp/mlp_writer_ut.cpp",
   ]
 

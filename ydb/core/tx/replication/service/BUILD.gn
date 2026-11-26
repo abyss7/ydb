@@ -19,10 +19,7 @@ library("service") {
     # "//contrib/libs/zstd",
     "//library/cpp/openssl/crypto",
     # "//library/cpp/string_utils/base64",
-    # "//ydb/core/fq/libs/row_dispatcher/events",  # peerdir only
-    "//ydb/core/fq/libs/row_dispatcher/purecalc_compilation",
     "//ydb/core/io_formats/cell_maker",
-    # "//ydb/core/transfer",
     "//ydb/core/tx/datashard",
     "//ydb/core/tx/replication/ydb_proxy/local_proxy",  # peerdir only
     "//ydb/core/tx/scheme_cache",

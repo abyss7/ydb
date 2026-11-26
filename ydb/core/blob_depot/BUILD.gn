@@ -15,6 +15,7 @@ library("blob_depot") {
     "//ydb/core/tablet",
     "//ydb/core/tablet_flat",
     "//ydb/core/util",
+    # "//ydb/core/wrappers/events",
     # "//ydb/library/actors/core",
   ]
 
@@ -22,8 +23,8 @@ library("blob_depot") {
     # "//library/cpp/random_provider",
     # "//ydb/core/base/services",
     "//ydb/core/wrappers",
-    # "//ydb/core/wrappers/events",
     # "//ydb/library/actors/http",
+    # "//ydb/library/aws_init",
     "//ydb/public/api/protos",
   ]
 
@@ -32,6 +33,7 @@ library("blob_depot") {
     "assimilator.cpp",
     "blob_depot.cpp",
     "blocks.cpp",
+    "config.cpp",
     "coro_tx.cpp",
     "data.cpp",
     "data_decommit.cpp",
@@ -52,6 +54,7 @@ library("blob_depot") {
     "op_load.cpp",
     "s3.cpp",
     "s3_delete.cpp",
+    "s3_retire.cpp",
     "s3_router.cpp",
     "s3_scan.cpp",
     "s3_upload.cpp",

@@ -2,6 +2,7 @@ library("async_io") {
   public_deps = [
     "//ydb/library/actors/core",
     "//ydb/library/actors/util",
+    # "//ydb/library/yql/dq/actors/common",
     "//ydb/library/yql/dq/actors/compute",
     "//ydb/library/yql/dq/runtime/streaming",
     "//ydb/library/yql/providers/abstract/message_stream",

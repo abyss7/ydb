@@ -4,6 +4,7 @@ unittest_executable("ut_restart_pdisk") {
     "//ydb/core/blobstorage/nodewarden",
     "//ydb/core/blobstorage/pdisk",
     "//ydb/core/blobstorage/ut_blobstorage/lib",
+    "//ydb/core/blobstorage/vdisk/common",
     "//ydb/library/pdisk_io",
   ]
 

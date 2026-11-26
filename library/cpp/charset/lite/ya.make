@@ -14,6 +14,11 @@ SRCS(
     ci_string.h
 )
 
+PEERDIR_FROM_POLICY(
+    ALLOW
+    contrib
+)
+
 END()
 
 RECURSE_FOR_TESTS(

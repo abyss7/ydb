@@ -31,6 +31,7 @@ library("utils") {
   public_deps = [
     "//ydb/core/base",
     "//ydb/core/protos",
+    "//ydb/public/api/protos",
   ]
 
   deps = [

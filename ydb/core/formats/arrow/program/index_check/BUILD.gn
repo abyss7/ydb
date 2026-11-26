@@ -1,0 +1,7 @@
+library("index_check") {
+  public_deps = [
+    # "//ydb/library/accessor",
+  ]
+
+  serialize_enum_headers = [ "index_check.h" ]
+}

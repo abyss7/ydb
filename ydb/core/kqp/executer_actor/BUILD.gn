@@ -50,6 +50,7 @@ library("executer_actor") {
     # "//ydb/core/kqp/query_compiler",  # peerdir only
     "//ydb/core/kqp/query_data",  # peerdir only
     "//ydb/core/kqp/runtime",
+    # "//ydb/core/kqp/runtime/scheduler",
     "//ydb/core/kqp/script_executions/common",
     "//ydb/core/kqp/session_actor:worker_common",
     "//ydb/core/kqp/topics",  # peerdir only

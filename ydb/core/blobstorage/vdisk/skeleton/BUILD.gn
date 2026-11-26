@@ -52,6 +52,7 @@ library("skeleton") {
     "blobstorage_syncfull.cpp",
     "blobstorage_syncfullhandler.cpp",
     "skeleton_block_and_get.cpp",
+    "skeleton_burst_counter_publisher.cpp",
     "skeleton_compactionstate.cpp",
     "skeleton_fresh_admission.cpp",
     "skeleton_loggedrec.cpp",

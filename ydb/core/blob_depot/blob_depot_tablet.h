@@ -44,6 +44,7 @@ namespace NKikimr::NBlobDepot {
                 EvPutThrottleWakeup,
                 EvMoveDataContinue,
                 EvMoveDataBlobCopied,
+                EvResumeS3Scan,
             };
         };
 
@@ -240,9 +241,7 @@ namespace NKikimr::NBlobDepot {
 
         void ProcessRegisterAgentQ();
 
-        bool ReadyForAgentQueries() const {
-            return Configured && (!Config.GetIsDecommittingGroup() || DecommitState >= EDecommitState::BlocksFinished);
-        }
+        bool ReadyForAgentQueries() const;
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -438,6 +437,7 @@ namespace NKikimr::NBlobDepot {
         // Configuration
 
         bool Configured = false;
+        bool RestartingForConfigChange = false;
         NKikimrBlobDepot::TBlobDepotConfig Config;
 
         void Handle(TEvBlobDepot::TEvApplyConfig::TPtr ev);

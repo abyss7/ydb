@@ -8,6 +8,7 @@ unittest_executable("ut_incremental_restore_reboots") {
     "//ydb/core/tx/schemeshard",
     "//ydb/core/tx/schemeshard/ut_helpers",
     "//ydb/public/lib/value",
+    "//yql/essentials/ast",
     "//yql/essentials/sql/pg_dummy",  # peerdir only
   ]
 

@@ -2,7 +2,7 @@ library("service") {
   public_deps = [
     # "//library/cpp/monlib/dynamic_counters",
     # "//ydb/core/cms/console/events",
-    "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime/scheduler",
     "//ydb/core/tx/conveyor/usage",
     "//ydb/core/tx/conveyor_composite/common/config",
     "//ydb/core/tx/conveyor_composite/usage",
@@ -11,7 +11,7 @@ library("service") {
     # "//ydb/library/conclusion",
     "//ydb/library/services",
     "//ydb/library/signals",
-    # "//ydb/library/yql/dq/actors/compute",
+    # "//ydb/library/yql/dq/actors/common",
   ]
 
   deps = [

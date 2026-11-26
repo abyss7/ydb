@@ -37,6 +37,7 @@ library("lib") {
   deps = [
     # "//library/cpp/digest/md5",  # peerdir only
     "//ydb/core/blobstorage/pdisk",  # peerdir only
+    # "//ydb/core/kqp/counters",  # peerdir only
     # "//yql/essentials/minikql/comp_nodes/llvm16",  # link slot
     # "//yql/essentials/public/udf/service/exception_policy",  # link slot
     # "//yql/essentials/sql/pg_dummy",  # link slot

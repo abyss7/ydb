@@ -13,7 +13,8 @@ library("service") {
     # "//ydb/core/base",
     # "//ydb/core/cms/console/events",
     # "//ydb/core/kqp/common",  # peerdir only
-    # "//ydb/core/kqp/runtime",
+    # "//ydb/core/kqp/runtime",  # peerdir only
+    # "//ydb/core/kqp/runtime/scheduler",
     "//ydb/core/mind:tenant_node_enumeration",
     "//ydb/core/protos",
     # "//ydb/library/aclib",  # peerdir only

@@ -576,7 +576,7 @@ pch_targets = [
   "//ydb/core/tx/schemeshard/olap/options:options",
   "//ydb/core/tx/schemeshard/olap/schema:schema",
   "//ydb/core/tx/schemeshard/olap/statistics:statistics",
-  "//ydb/core/tx/schemeshard/ut_auditsettings:ut_auditsettings",
+  "//ydb/core/tx/schemeshard/ut_audit:ut_audit",
   "//ydb/core/tx/schemeshard/ut_background_cleaning:ut_background_cleaning",
   "//ydb/core/tx/schemeshard/ut_backup:ut_backup",
   "//ydb/core/tx/schemeshard/ut_backup_collection:ut_backup_collection",

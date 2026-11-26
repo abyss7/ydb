@@ -9960,7 +9960,7 @@ pch_groups = [
     name = "group_85"
     parent = "group_43"
     targets = [
-      "//ydb/core/tx/schemeshard/ut_auditsettings:ut_auditsettings",
+      "//ydb/core/tx/schemeshard/ut_audit:ut_audit",
       "//ydb/core/tx/schemeshard/ut_backup_collection_reboots:ut_backup_collection_reboots",
       "//ydb/core/tx/schemeshard/ut_base_reboots:ut_base_reboots",
       "//ydb/core/tx/schemeshard/ut_bsvolume:ut_bsvolume",

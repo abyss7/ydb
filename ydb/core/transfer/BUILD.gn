@@ -6,6 +6,7 @@ library("transfer") {
     "//ydb/core/kqp/runtime",
     "//ydb/core/protos",
     # "//ydb/core/scheme_types",
+    # "//ydb/core/tx/replication/common",
     "//ydb/core/tx/replication/service",
     "//ydb/core/tx/replication/ydb_proxy",
     "//ydb/core/tx/scheme_cache",
@@ -21,7 +22,7 @@ library("transfer") {
   ]
 
   deps = [
-    # "//ydb/core/fq/libs/row_dispatcher/purecalc_compilation",
+    "//ydb/core/fq/libs/row_dispatcher/purecalc_compilation",
     # "//ydb/core/fq/libs/row_dispatcher/purecalc_no_pg_wrapper",  # peerdir only
     # "//ydb/core/scheme",
     "//ydb/core/tx/tx_proxy",

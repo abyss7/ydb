@@ -7,7 +7,7 @@ unittest_executable("ut") {
     "//ydb/core/fq/libs/control_plane_proxy",
     "//ydb/core/fq/libs/control_plane_proxy/events",
     "//ydb/core/fq/libs/control_plane_proxy:actors",
-    "//ydb/core/fq/libs/control_plane_storage",
+    "//ydb/core/fq/libs/control_plane_storage",  # peerdir only
     "//ydb/core/fq/libs/control_plane_storage/events",
     "//ydb/core/fq/libs/control_plane_storage:service_id",
     "//ydb/core/fq/libs/quota_manager",

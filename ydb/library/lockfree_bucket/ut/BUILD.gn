@@ -4,7 +4,10 @@ unittest_executable("ut") {
     "//ydb/library/lockfree_bucket",
   ]
 
-  sources = [ "main.cpp" ]
+  sources = [
+    "light_bucket_ut.cpp",
+    "main.cpp",
+  ]
 
   link_select = [ "allocator=tcmalloc" ]
 }

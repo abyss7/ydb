@@ -1,0 +1,3 @@
+library("sql_meta") {
+  serialize_enum_headers = [ "statement_kind.h" ]
+}

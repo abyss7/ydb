@@ -47,7 +47,9 @@ dstool
 │     ├─ create                         Create virtual group backed by BlobDepot
 │     ├─ cancel                         Cancel virtual group 
 │     │                                 creation/decommission
-│     └─ reconfigure                    Create virtual group backed by BlobDepot
+│     ├─ cleanup                        Manage S3 cleanup for a retired group
+│     └─ reconfigure                    Reconfigure a virtual group backed by 
+│                                       BlobDepot
 ├─ pool
 │  ├─ list                              List pools
 │  ├─ set                               Set storage pool settings that are not 

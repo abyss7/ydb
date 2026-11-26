@@ -9,7 +9,8 @@ unittest_executable("ut") {
     "//ydb/core/cms/console",
     "//ydb/core/kqp/common/simple",
     "//ydb/core/kqp/predictor",
-    "//ydb/core/kqp/runtime",
+    "//ydb/core/kqp/runtime/scheduler",
+    "//ydb/core/kqp/runtime/scheduler/service",
     "//ydb/core/protos",
     "//ydb/core/tablet",  # peerdir only
     "//ydb/core/tablet_flat",  # peerdir only

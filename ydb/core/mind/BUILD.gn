@@ -20,22 +20,8 @@ library("mind") {
     # "//library/cpp/monlib/service/pages",
     # "//library/cpp/random_provider",
     "//ydb/core/actorlib_impl",
-    # "//ydb/core/blobstorage",  # peerdir only
-    # "//ydb/core/blobstorage/crypto",  # peerdir only
-    # "//ydb/core/blobstorage/dsproxy/mock",  # peerdir only
-    # "//ydb/core/blobstorage/groupinfo",  # peerdir only
-    # "//ydb/core/blobstorage/incrhuge",  # peerdir only
-    # "//ydb/core/blobstorage/pdisk",  # peerdir only
-    # "//ydb/core/control",  # peerdir only
-    # "//ydb/core/kesus/tablet",  # peerdir only
-    # "//ydb/core/keyvalue",  # peerdir only
-    # "//ydb/core/mind/bscontroller",  # peerdir only
     "//ydb/core/mon",
-    # "//ydb/core/nbs/cloud/blockstore/libs/storage/dbs_controller",  # peerdir only
     # "//ydb/core/node_whiteboard",
-    # "//ydb/core/sys_view/processor",  # peerdir only
-    # "//ydb/core/test_tablet",  # peerdir only
-    # "//ydb/core/tx/replication/controller",  # peerdir only
     "//ydb/core/tx/scheme_board",
     # "//ydb/core/tx/scheme_cache",
     "//ydb/core/tx/schemeshard",

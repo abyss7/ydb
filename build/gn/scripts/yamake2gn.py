@@ -75,6 +75,7 @@ TRIVIAL_MACROS = MODULE_MACROS | {
     "GRPC",   # -> generate_grpc_services (Module.grpc)
     "YQL_ABI_VERSION",   # -> yql_abi_version
     "CHECK_DEPENDENT_DIRS", # TODO: temporary ignore
+    "PEERDIR_FROM_POLICY",  # Ya-only rules for incoming PEERDIRs; creates no dependencies
     "STYLE_CPP",   # a clang-format check run as a test: nothing to build
     "NO_LINT",     # opts out of the style checks: nothing to build
     "PROVIDES",  # -> link_slot_provides
@@ -107,6 +108,7 @@ PROTO_IGNORE_MACROS = {
     "PY_NAMESPACE", "NO_OPTIMIZE_PY_PROTOS", "NO_MYPY", "LICENSE", "LICENSE_TEXTS",
     "WITHOUT_LICENSE_TEXTS", "VERSION", "SUBSCRIBER", "MAVEN_GROUP_ID",
     "ORIGINAL_SOURCE", "NO_COMPILER_WARNINGS", "ADDINCL", "YQL_LAST_ABI_VERSION",
+    "PEERDIR_FROM_POLICY",
     "ENABLE",   # of yt/gradle.inc: java/gradle only
     "CPP_PROTO_PLUGIN0", "CPP_PROTO_PLUGIN",   # -> extra_plugins
 }

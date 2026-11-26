@@ -1,5 +1,6 @@
 unittest_executable("operations") {
   deps = [
+    "//library/cpp/json",
     "//library/cpp/testing/unittest",
     "//ydb/core/base",
     "//ydb/core/cms/console/events",
@@ -21,6 +22,7 @@ unittest_executable("operations") {
 
   sources = [
     "cache_blobs_after_write_ut.cpp",
+    "compact_ut.cpp",
     "delete_ut.cpp",
     "write_ut.cpp",
   ]

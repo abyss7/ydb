@@ -1,0 +1,5 @@
+library("counters") {
+  public_deps = [ "//library/cpp/monlib/dynamic_counters" ]
+
+  sources = [ "spilling_counters.cpp" ]
+}

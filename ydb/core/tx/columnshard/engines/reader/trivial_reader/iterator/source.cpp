@@ -11,11 +11,11 @@
 #include <ydb/core/tx/columnshard/engines/reader/common_reader/iterator/default_fetching.h>
 #include <ydb/core/tx/columnshard/engines/reader/common_reader/iterator/dictionary_fetching.h>
 #include <ydb/core/tx/columnshard/engines/reader/common_reader/iterator/fetch_steps.h>
+#include <ydb/core/tx/columnshard/engines/reader/common_reader/iterator/index_fetching.h>
 #include <ydb/core/tx/columnshard/engines/reader/common_reader/iterator/sub_columns_fetching.h>
 #include <ydb/core/tx/columnshard/engines/reader/tracing/data_source_probes.h>
 #include <ydb/core/tx/columnshard/engines/scheme/indexes/abstract/abstract.h>
 #include <ydb/core/tx/columnshard/engines/scheme/indexes/abstract/checker.h>
-#include <ydb/core/tx/columnshard/engines/scheme/indexes/abstract/fetcher.h>
 #include <ydb/core/tx/columnshard/engines/storage/indexes/portions/meta.h>
 #include <ydb/core/tx/columnshard/engines/storage/indexes/skip_index/index_info_ext.h>
 #include <ydb/core/tx/columnshard/engines/storage/indexes/skip_index/meta.h>

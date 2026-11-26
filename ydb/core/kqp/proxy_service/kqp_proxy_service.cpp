@@ -35,10 +35,10 @@
 #include <ydb/core/kqp/rm_service/kqp_rm_memory_quota.h>
 #include <ydb/core/kqp/rm_service/kqp_rm_service.h>
 #include <ydb/core/kqp/runtime/scheduler/kqp_compute_scheduler_service.h>
+#include <ydb/core/kqp/runtime/scheduler/service/service.h>
 #include <ydb/core/kqp/script_executions/finalization/kqp_finalize_script_service.h>
 #include <ydb/core/kqp/script_executions/table_queries/kqp_script_executions.h>
-#include <ydb/core/kqp/session_actor/kqp_session_actor.h> // TODO: do we still need this for GN?
-#include <ydb/library/yql/dq/actors/compute/dq_schedulable.h>
+#include <ydb/core/kqp/session_actor/kqp_session_actor.h>
 #include <ydb/library/yql/providers/common/http_gateway/yql_http_pool_cap_pusher.h>
 #include <ydb/core/kqp/session_actor/kqp_worker_common.h>
 #include <ydb/core/mon/mon.h>
@@ -58,8 +58,8 @@
 #include <ydb/library/actors/interconnect/interconnect.h>
 #include <ydb/library/security/util.h>
 #include <ydb/library/ydb_issue/issue_helpers.h>
+#include <ydb/library/yql/dq/actors/common/dq_schedulable.h>
 #include <ydb/library/yql/dq/actors/compute/dq_checkpoints.h>
-#include <ydb/library/yql/dq/actors/compute/dq_schedulable.h>
 #include <ydb/library/yql/dq/actors/spilling/spilling.h>
 #include <ydb/library/yql/dq/actors/spilling/spilling_file.h>
 #include <ydb/library/yql/dq/runtime/dq_channel_service.h>

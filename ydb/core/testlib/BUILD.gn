@@ -96,7 +96,7 @@ library("testlib") {
     "//ydb/core/kqp",  # peerdir only
     "//ydb/core/kqp/proxy_service",
     "//ydb/core/kqp/rm_service",
-    # "//ydb/core/kqp/runtime",
+    # "//ydb/core/kqp/runtime/scheduler",
     # "//ydb/core/kqp/script_executions/finalization",
     # "//ydb/core/kqp/ut/common",
     "//ydb/core/metering",

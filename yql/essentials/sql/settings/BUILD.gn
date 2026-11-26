@@ -6,6 +6,7 @@ library("settings") {
     "//yql/essentials/parser/lexer_common",
     # "//yql/essentials/public/issue",
     "//yql/essentials/public/langver",
+    "//yql/essentials/public/sql_meta",
     "//yql/essentials/public/udf_meta",
     # "//yql/essentials/sql/settings/flags",
   ]

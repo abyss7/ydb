@@ -35,14 +35,6 @@ SRCS(
     kqp_write_actor.cpp
     kqp_write_actor_settings.cpp
     kqp_write_table.cpp
-    scheduler/kqp_compute_scheduler_service.cpp
-    scheduler/kqp_schedulable_base.cpp
-    scheduler/kqp_schedulable_memory.cpp
-    scheduler/kqp_schedulable_read.cpp
-    scheduler/kqp_schedulable_task.cpp
-    scheduler/kqp_schedulable_work_factory.cpp
-    scheduler/tree/dynamic.cpp
-    scheduler/tree/snapshot.cpp
 )
 
 PEERDIR(
@@ -61,6 +53,7 @@ PEERDIR(
     ydb/core/kqp/common/result_set_format
     ydb/core/kqp/common/result_set_format/settings
     ydb/core/kqp/runtime/common
+    ydb/core/kqp/runtime/scheduler
     ydb/core/kqp/runtime/streaming
     ydb/core/kqp/topics
     ydb/core/kqp/tracing
@@ -79,6 +72,7 @@ PEERDIR(
     ydb/library/mkql_proto
     ydb/library/query_actor
     ydb/library/yql/dq/actors
+    ydb/library/yql/dq/actors/common
     ydb/library/yql/dq/actors/compute
     ydb/library/yql/dq/actors/protos
     ydb/library/yql/dq/actors/spilling
@@ -97,6 +91,7 @@ END()
 
 RECURSE(
     common
+    scheduler
     streaming
 )
 

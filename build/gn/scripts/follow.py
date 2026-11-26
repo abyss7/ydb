@@ -71,13 +71,13 @@ from the dir of this script, yamake2gn.py from the work tree.
 
 Start it on the GN branch in a clean work tree (e.g. cd ~/g/ydb/gn-main).
 Resume in the same work tree. The saved run is in <git dir>/gn-follow/work.json.
-Its upstream and run limits are reused on resume. Use --max-commits to
-publish a bounded batch rather than wait for the entire upstream queue.
+Its upstream and run limits are reused on resume. Each checked step advances
+the local GN branch, including checked steps recovered from the journal.
 On success it switches back to the GN branch and deletes the local work branch.
-An ahead tracking branch of the GN branch (e.g. abyss7/gn/main) is adopted
-and checked on the work branch first. It is separate from --upstream, the
-source branch (e.g. origin/main). --fetch fetches both; an active run keeps
-its saved GN base. A divergent GN tracking branch requires reconciliation.
+At a clean checkpoint, local GN commits are rebased onto the GN tracking
+branch (e.g. abyss7/gn/main). Conflicts leave the local checkpoint in place.
+--fetch refreshes both the tracking branch and the source --upstream
+(e.g. origin/main) before the run and after each checked source step.
 --push, if requested, pushes only the final verified commit to the GN branch:
 
     build/gn/scripts/follow.py                               # the status of main
@@ -390,6 +390,28 @@ class Git:
             self.out("update-ref", "-m", message.splitlines()[0], head_ref, result, old)
         return result
 
+    def rebase_gn(self, local, upstream):
+        """Replay first-parent deltas without redoing source merges or losing their parents."""
+        tip = upstream
+        for commit in self.lines("rev-list", "--first-parent", "--reverse", upstream + ".." + local):
+            parents, name, email, date, message = self.run(
+                "show", "-s", "--format=format:%P%x00%an%x00%ae%x00%aI%x00%B", commit).stdout.split("\0", 4)
+            if not parents:
+                return None, "no common history"
+            first, *other = parents.split()
+            merged = self.run("merge-tree", "--write-tree", "--name-only", "--no-messages",
+                              "--merge-base=" + first, tip, commit, check=False)
+            if merged.returncode == 1:
+                return None, "conflicts in %s:\n%s" % (self.short(commit),
+                                                      listing(merged.stdout.splitlines()[1:], 12))
+            if merged.returncode:
+                raise RuntimeError("git merge-tree: " + merged.stderr.strip())
+            args = [arg for parent in (tip, *other) for arg in ("-p", parent)]
+            env = dict(os.environ, GIT_AUTHOR_NAME=name, GIT_AUTHOR_EMAIL=email, GIT_AUTHOR_DATE=date)
+            tip = self.run("commit-tree", merged.stdout.strip(), *args, "-F", "-",
+                           input=message, env=env).stdout.strip()
+        return tip, None
+
 
 class FollowWork:
     """The work tree and index stay in place; only the local branch refs move."""
@@ -410,6 +432,10 @@ class FollowWork:
     def gn_base(self):
         return self.data.get("gn_base", self.data["base"])
 
+    @property
+    def checkpoint(self):
+        return self.data.get("checkpoint", self.data["base"])
+
     def tracking(self):
         """(remote, remote ref, local tracking ref) of the published GN branch."""
         if self.target.startswith("refs/heads/"):
@@ -421,20 +447,24 @@ class FollowWork:
                 return tuple(fields)
         return None
 
-    def tracking_base(self, base):
+    def tracking_tip(self):
         tracking = self.tracking()
         if not tracking:
-            return base
+            return None
         ref = tracking[2]
         tip = self.git.ref(ref)
         if not tip:
             raise Stop("conflict", "fetch the GN tracking branch first: " + ref)
-        if self.git.ancestor(tip, base):
-            return base
-        if not self.git.ancestor(base, tip):
-            raise Stop("conflict", "%s and %s have diverged; reconcile them on a work branch first"
-                       % (self.target, ref))
         return tip
+
+    def fetch(self, args):
+        if not args.fetch:
+            return
+        tracking = self.tracking()
+        if tracking and tracking[0] != ".":
+            remote, branch, local = tracking
+            self.git.out("fetch", "-q", "--no-tags", "--", remote, branch + ":" + local)
+        fetch_upstream(self.git, args.upstream, True)
 
     def save(self):
         write_text(self.path + ".tmp", json.dumps(self.data, sort_keys=True) + "\n")
@@ -460,7 +490,8 @@ class FollowWork:
             base = self.git.ref(target)
             if not base:
                 raise Stop("conflict", "the GN branch has no starting commit")
-            gn_base = self.tracking_base(base)
+            tip = self.tracking_tip()
+            gn_base = tip if tip and self.git.ancestor(base, tip) else base
             step = self.git.follow_step(gn_base)
             if step and not step[1]:
                 raise Stop("conflict", "the selected GN base is on an unfinished merge; first restore its last "
@@ -473,12 +504,12 @@ class FollowWork:
                        % (self.data["upstream"], self.data["state"]))
         if "result" in self.data:
             return          # all checks were done before a previous publication attempt
-        if self.git.ref(target) != self.data["base"]:
-            raise Stop("conflict", "%s moved since the run started; the work branch is unchanged" % target)
         if here == target:
+            if self.git.ref(target) != self.checkpoint:
+                raise Stop("conflict", "%s moved since the last checkpoint" % target)
             self.require_clean()
             work_tip = self.git.ref(self.ref)
-            if work_tip and work_tip != self.gn_base:
+            if work_tip and work_tip not in (self.gn_base, self.checkpoint):
                 raise Stop("conflict", "switch back to %s to resume" % self.ref[len("refs/heads/"):])
             short = self.ref[len("refs/heads/"):]
             if work_tip:
@@ -489,11 +520,27 @@ class FollowWork:
             raise Stop("conflict", "resume in the saved work branch " + self.ref)
         if set(self.git.operations()) - {"MERGE_HEAD"}:
             raise Stop("conflict", "finish the Git operation in the work branch before resuming")
-        if not self.git.ancestor(self.data["base"], "HEAD"):
+        if "rebase" not in self.data and not self.git.ancestor(self.checkpoint, "HEAD"):
             raise Stop("conflict", "the work branch is no longer based on the published GN commit")
         if "only_head" not in self.data or args.bench and not self.data.get("bench"):
             self.data.update(only_head=args.only_head, max_commits=args.max_commits, bench=args.bench)
             self.save()
+
+    def advance(self, result, rebased=False):
+        old, target = self.checkpoint, self.target
+        target_tip = self.git.ref(target)
+        if target_tip == result:
+            return  # may have stopped between the ref update and saving the checkpoint
+        work_tip = self.git.ref(self.ref)
+        if target_tip != old or self.git.head_ref() != self.ref:
+            raise Stop("conflict", "%s changed since the last checkpoint; not publishing" % target)
+        if not self.git.ancestor(result, work_tip) or (not rebased and not self.git.ancestor(old, result)):
+            raise Stop("conflict", "the result is not a verified advance of the GN branch")
+        fields = self.git.run("worktree", "list", "--porcelain", "-z").stdout.split("\0")
+        if "branch " + target in fields:
+            raise Stop("conflict", "%s is checked out in another work tree; not publishing" % target)
+        self.git.run("update-ref", "-m", "follow: publish checkpoint", "--stdin",
+                     input="verify %s %s\nupdate %s %s %s\n" % (self.ref, work_tip, target, result, old))
 
     def publish(self, result=None, push=None):
         self.require_clean()
@@ -510,15 +557,7 @@ class FollowWork:
         if here not in (self.ref, target) or self.git.ref("HEAD") != result \
                 or (work_tip and work_tip != result):
             raise Stop("conflict", "the work tree or work branch changed after verification; not publishing")
-        target_tip = self.git.ref(target)
-        if target_tip != result:
-            if target_tip != base or here != self.ref or not self.git.ancestor(base, result):
-                raise Stop("conflict", "%s changed since the run started; not publishing" % target)
-            fields = self.git.run("worktree", "list", "--porcelain", "-z").stdout.split("\0")
-            if "branch " + target in fields:
-                raise Stop("conflict", "%s is checked out in another work tree; not publishing" % target)
-            self.git.run("update-ref", "-m", "follow: publish verified run", "--stdin",
-                         input="verify %s %s\nupdate %s %s %s\n" % (self.ref, result, target, result, base))
+        self.advance(result)
         if here != target:
             self.git.out("switch", "-q", "--no-guess", target[len("refs/heads/"):])
         if self.git.head_ref() != target or self.git.ref(target) != result:
@@ -527,7 +566,11 @@ class FollowWork:
             self.git.out("update-ref", "-d", self.ref, result)
         os.remove(self.path)
         if self.data.get("push") and result != base:
-            self.git.out("push", "-q", "--", self.data["push"], result + ":" + target)
+            tip = self.tracking_tip()
+            if not tip or self.git.ancestor(tip, result):
+                self.git.out("push", "-q", "--", self.data["push"], result + ":" + target)
+            else:
+                print("  not pushing: GN tracking changes were not applied")
 
 
 # ---- journal ------------------------------------------------------------------
@@ -1040,7 +1083,8 @@ class Follower:
         self.out = os.path.realpath(args.out) if args.out else None
         self.git = Git(self.root)
         self.state = State(os.path.realpath(args.state))
-        self.base, self.published_base, self.work_ref = work.gn_base, work.data["base"], work.ref
+        self.work = work
+        self.base, self.published_base, self.work_ref = work.gn_base, work.checkpoint, work.ref
         self.env = dict(os.environ)
         for kv in args.env:
             name, _, value = kv.partition("=")
@@ -1421,7 +1465,7 @@ class Follower:
         self.say("%s %s" % (short, rec["subject"][:90]))
         since = self.step_since(step, u)
         base = self.state.verified_result(self.git, self.base)
-        checked_base = self.base == self.published_base or self.state.verified_result(
+        checked_base = self.git.ancestor(self.base, self.published_base) or self.state.verified_result(
             self.git, self.base, require_check=True)
         if self.args.only_head:
             rec["mode"] = "only-head"
@@ -1529,8 +1573,71 @@ class Follower:
             pending = pending[-1:]
         return (pending[0], False) if pending else None
 
-    def follow(self):
+    def advance_checkpoint(self):
+        result = self.state.verified_result(self.git, self.base, require_check=True) or self.work.checkpoint
+        self.work.advance(result)
+        if result != self.work.checkpoint:
+            self.work.data["checkpoint"] = result
+            self.work.save()
+            self.say("  published %s @ %s" % (self.work.target, self.git.short(result)))
+
+    def completed_steps(self):
+        checked = self.state.verified_result(self.git, self.base)
+        return self.work.data.get("rebased_steps", 0) + int(self.git.out(
+            "rev-list", "--first-parent", "--count", "--extended-regexp",
+            "--grep=^gn: sync [0-9a-f]{7,40}:", self.base + ".." + checked))
+
+    def finish_rebase(self):
+        old, candidate, steps = self.work.data["rebase"]
+        head = self.git.ref("HEAD")
+        if head not in (old, candidate) or self.git.ref(self.work.target) not in (old, candidate):
+            raise Stop("conflict", "a branch moved while applying the saved GN rebase")
+        self.work.require_clean()
+        if head == old:
+            self.git.out("reset", "--keep", candidate)  # only the clean temporary branch
+        self.work.advance(candidate, rebased=True)
+        self.work.data.update(checkpoint=candidate, gn_base=candidate, rebased_steps=steps)
+        del self.work.data["rebase"]
+        self.work.save()
+        self.base = self.published_base = candidate
+        self.say("  rebased %s @ %s" % (self.work.target, self.git.short(candidate)))
+
+    def rebase_tracking(self):
+        old = self.work.checkpoint
+        if self.git.ref("HEAD") != old or self.git.operations() or self.git.dirty():
+            tracking = self.work.tracking()
+            tip = self.git.ref(tracking[2]) if tracking else None
+            if tip:
+                count = int(self.git.out("rev-list", "--count", old + ".." + tip))
+                if count:
+                    self.say("  GN upstream: %d new %s. Will try to rebase after this step succeeds."
+                             % (count, "commit" if count == 1 else "commits"))
+            return
+        tip = self.work.tracking_tip()
+        if not tip or self.git.ancestor(tip, old):
+            return
+        step = self.git.follow_step(tip)
+        if step and not step[1]:
+            self.say("  warning: GN tracking changes were not applied: unfinished source merge")
+            return
+        candidate, reason = self.git.rebase_gn(old, tip)
+        if reason:
+            self.say("  warning: GN tracking %s was not applied; kept %s: %s"
+                     % (self.git.short(tip), self.git.short(old), reason))
+            return
+        self.work.data["rebase"] = (old, candidate, self.completed_steps())
+        self.work.save()             # resume if interrupted while moving the two refs
+        self.finish_rebase()
+
+    def follow(self, refresh_on_resume=False):
         self.require_work_branch()
+        if "rebase" in self.work.data:
+            self.finish_rebase()
+        self.advance_checkpoint()
+        if refresh_on_resume:
+            self.work.fetch(self.args)
+            if not self.git.ref(self.args.upstream):
+                raise Stop("conflict", "source upstream is not fetched: " + self.args.upstream)
         restored = self.state.restore(self.git, self.args.upstream, persist=True, rev=self.base)
         if restored:
             self.say("journal: restored %s step %s from history" %
@@ -1540,7 +1647,7 @@ class Follower:
         if stop and stop["stage"] == "bench" and not (self.args.bench or skip):
             raise Stop("bench", "the previous bench did not finish; resume with --bench "
                        "or explicitly --skip-bench for an upstream step")
-        incoming = self.base != self.published_base
+        incoming = not self.git.ancestor(self.base, self.published_base)
         if not self.state.bootstrapped() or (incoming and not self.state.verified_result(
                 self.git, self.base, require_check=True)):
             # A migrated work branch can already contain an unfinished merge
@@ -1552,9 +1659,9 @@ class Follower:
                 base_step = step if self.git.ref("HEAD") == self.base else self.git.follow_step(self.base)
                 if step == base_step:
                     self.bootstrap()
-        checked = self.state.verified_result(self.git, self.base)
-        steps = int(self.git.out("rev-list", "--first-parent", "--count", "--extended-regexp",
-                                 "--grep=^gn: sync [0-9a-f]{7,40}:", self.base + ".." + checked))
+                    self.advance_checkpoint()
+        self.rebase_tracking()
+        steps = self.completed_steps()
         while self.args.max_commits is None or steps < self.args.max_commits:
             try:
                 cur = self.current()
@@ -1566,6 +1673,9 @@ class Follower:
                 break
             self.step(*cur, skip_bench=cur[0] == skip)
             steps += 1
+            self.advance_checkpoint()
+            self.work.fetch(self.args)
+            self.rebase_tracking()
         return self.state.verified_result(self.git, self.base)
 
 
@@ -1833,15 +1943,11 @@ def load_run_settings(ap, args, git, git_dir, work):
         args.max_commits = saved["max_commits"]
     if args.run:
         args.bench = args.bench or saved.get("bench", False)
-    if args.fetch:
-        if "/" not in args.upstream:
-            ap.error("--fetch needs an upstream like <remote>/<branch>: %s" % args.upstream)
-        tracking = work.tracking()
-        if tracking and tracking[0] != ".":
-            remote, branch, local = tracking
-            git.out("fetch", "-q", "--no-tags", "--", remote, branch + ":" + local)
-        fetch_upstream(git, args.upstream, True)
-    require_ref(ap, git.root, args.upstream)
+    if args.fetch and "/" not in args.upstream:
+        ap.error("--fetch needs an upstream like <remote>/<branch>: %s" % args.upstream)
+    if not args.run or not saved:
+        work.fetch(args)
+        require_ref(ap, git.root, args.upstream)
 
 
 def lock_run(stack, path):
@@ -1956,12 +2062,13 @@ def main():
             log = stack.enter_context(open(os.path.join(args.state, "run.log"), "a"))
             sys.stdout, sys.stderr = Tee(term, log), Tee(err, log)
             print("\n%s follow.py %s" % (time.strftime("%Y-%m-%d %H:%M:%S"), " ".join(sys.argv[1:])))
+            resuming = bool(work.data)
             work.start(args)
             if "result" in work.data:
                 work.publish()
             else:
                 f = Follower(args, term, work)
-                work.publish(f.follow(), args.push)
+                work.publish(f.follow(refresh_on_resume=resuming), args.push)
             print("exit: 0")
             return 0
         except Stop as s:
