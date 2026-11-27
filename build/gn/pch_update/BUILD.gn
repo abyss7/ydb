@@ -1,23 +1,22 @@
 executable("pch_update") {
     sources = [
         "baseline.cpp",
-        "checks.cpp",
         "common.cpp",
         "dia.cpp",
         "elf.cpp",
+        "export.cpp",
+        "extract.cpp",
         "facts.cpp",
         "gni.cpp",
-        "groups.cpp",
         "job_run.cpp",
         "jobs.cpp",
         "main.cpp",
-        "model.cpp",
         "ninja.cpp",
+        "preflight.cpp",
+        "selector.cpp",
+        "self_test.cpp",
         "trace.cpp",
-        "two_step.cpp",
-        "two_step_run.cpp",
-        "two_step_test.cpp",
-        "write.cpp",
+        "workflow.cpp",
     ]
     # Executable defaults already provide platform_deps and libcxx.
     deps += [

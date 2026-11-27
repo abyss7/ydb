@@ -162,15 +162,67 @@ namespace NPchUpdate {
                     }
                     return;
                 }
-                // `+=` and `-=` give an entry as `=` does, of the operand.
+                char op = '=';
                 if (Peek() == '=' && Peek(1) != '=') {
                     Pos_ += 1;
                 } else if ((Peek() == '+' || Peek() == '-') && Peek(1) == '=') {
+                    op = Peek();
                     Pos_ += 2;
                 } else {
                     Error(Format("expected '=' after %.*s", int(name.size()), name.data()));
                 }
-                out->emplace_back(std::string(name), ParseExpression());
+                TGnValue rhs = ParseExpression();
+                if (op != '=') {
+                    auto same = [](auto&& self, const TGnValue& a, const TGnValue& b) -> bool {
+                        if (a.Kind != b.Kind || a.Kind == TGnValue::Other) { return false; }
+                        if (a.Kind == TGnValue::None) { return true; }
+                        if (a.Kind == TGnValue::String) { return a.Text == b.Text; }
+                        if (a.Kind == TGnValue::Bool) { return a.BoolValue == b.BoolValue; }
+                        if (a.Kind == TGnValue::Integer) { return a.IntValue == b.IntValue; }
+                        if (a.Kind == TGnValue::List) {
+                            if (a.Items.size() != b.Items.size()) { return false; }
+                            for (size_t k = 0; k < a.Items.size(); ++k) {
+                                if (!self(self, a.Items[k], b.Items[k])) { return false; }
+                            }
+                            return true;
+                        }
+                        if (a.Members.size() != b.Members.size()) { return false; }
+                        for (size_t k = 0; k < a.Members.size(); ++k) {
+                            if (a.Members[k].first != b.Members[k].first || !self(self, a.Members[k].second, b.Members[k].second)) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    };
+                    for (size_t i = out->size(); i > 0; --i) {
+                        if ((*out)[i - 1].first != name) { continue; }
+                        TGnValue& prev = (*out)[i - 1].second;
+                        if (prev.Kind == TGnValue::List && rhs.Kind == TGnValue::List) {
+                            if (op == '+') {
+                                prev.Items.insert(prev.Items.end(), rhs.Items.begin(), rhs.Items.end());
+                            } else {
+                                std::vector<TGnValue> kept;
+                                for (TGnValue& item : prev.Items) {
+                                    bool drop = false;
+                                    for (const TGnValue& rem : rhs.Items) {
+                                        if (same(same, item, rem)) { drop = true; break; }
+                                    }
+                                    if (!drop) { kept.push_back(std::move(item)); }
+                                }
+                                prev.Items = std::move(kept);
+                            }
+                        } else if (op == '+' && prev.Kind == TGnValue::String && rhs.Kind == TGnValue::String) {
+                            prev.Text += rhs.Text;
+                        } else if (prev.Kind == TGnValue::Integer && rhs.Kind == TGnValue::Integer) {
+                            prev.IntValue = op == '+' ? prev.IntValue + rhs.IntValue : prev.IntValue - rhs.IntValue;
+                        } else {
+                            prev = {};
+                            prev.Kind = TGnValue::Other;
+                        }
+                        return;
+                    }
+                }
+                out->emplace_back(std::string(name), std::move(rhs));
             }
 
             // After `if`: (...) { ... } [else if (...) { ... }] [else { ... }].
@@ -402,11 +454,11 @@ namespace NPchUpdate {
         return TGnParser(text).ParseFile();
     }
 
-    // The first: a name assigned twice (or with += after =) has its first value.
+    // The last: a later '=' overrides an earlier one; '+=' and '-=' fold above.
     const TGnValue* FindGnValue(const std::vector<std::pair<std::string, TGnValue>>& values, std::string_view name) {
-        for (const auto& [key, value] : values) {
-            if (key == name) {
-                return &value;
+        for (size_t i = values.size(); i > 0; --i) {
+            if (values[i - 1].first == name) {
+                return &values[i - 1].second;
             }
         }
         return nullptr;

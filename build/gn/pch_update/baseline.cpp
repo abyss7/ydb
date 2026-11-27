@@ -784,6 +784,7 @@ namespace NPchUpdate {
 
         // Pids of the ninja processes building in `buildDir`.
         std::vector<int> RunningNinja(const std::string& buildDir) {
+            const std::string targetDir = RealPath(buildDir);
             std::vector<int> out;
             for (const std::string& pid : ListDir("/proc")) {
                 if (pid.empty() || !std::all_of(pid.begin(), pid.end(), [](char c) {
@@ -800,7 +801,7 @@ namespace NPchUpdate {
                 for (std::string_view a : Split(cmdline, '\0')) {
                     argv.emplace_back(a);
                 }
-                if (BaseName(argv[0]) != "ninja") {
+                if (!StartsWith(BaseName(argv[0]), "ninja")) {
                     continue;
                 }
                 char buffer[4096];
@@ -816,7 +817,7 @@ namespace NPchUpdate {
                         dir = JoinPath(dir, argv[k].substr(2));
                     }
                 }
-                if (RealPath(dir) == buildDir) {
+                if (RealPath(dir) == targetDir) {
                     out.push_back(atoi(pid.c_str()));
                 }
             }
@@ -1088,26 +1089,46 @@ namespace NPchUpdate {
         auto under = [&](const std::string& dir) {
             return !dir.empty() && p.size() > dir.size() && p[dir.size()] == '/' && StartsWith(p, dir);
         };
-        for (const std::string& root : SourceRoots) {
-            if (under(root)) {
-                return p.substr(root.size() + 1);
-            }
+        if (!BuildDir.empty() && p == BuildDir) {
+            return "<out>";
         }
         if (under(BuildDir)) {
             return "<out>/" + p.substr(BuildDir.size() + 1);
         }
-        if (under(Sysroot)) {
-            return "<sysroot>/" + p.substr(Sysroot.size() + 1);
+        for (const std::string& root : SourceRoots) {
+            if (!root.empty() && p == root) {
+                return ".";
+            }
+            if (under(root)) {
+                return p.substr(root.size() + 1);
+            }
+        }
+        if (!Sysroot.empty() && Sysroot != "/") {
+            if (p == Sysroot) {
+                return "<sysroot>";
+            }
+            if (under(Sysroot)) {
+                return "<sysroot>/" + p.substr(Sysroot.size() + 1);
+            }
         }
         return p;
     }
 
     std::string TPaths::Real(std::string_view name) const {
+        if (name == "<out>") {
+            return BuildDir;
+        }
         if (StartsWith(name, "<out>/")) {
             return JoinPath(BuildDir, name.substr(6));
         }
+        if (name == "<sysroot>") {
+            return Sysroot;
+        }
         if (StartsWith(name, "<sysroot>/")) {
             return JoinPath(Sysroot, name.substr(10));
+        }
+        if (name == ".") {
+            return SourceRoot;
         }
         return IsAbs(name) ? std::string(name) : JoinPath(SourceRoot, name);
     }
@@ -1541,8 +1562,11 @@ namespace NPchUpdate {
     std::string GnDir(const TFacts& facts, const std::string& dir) {
         std::string n = facts.Paths.Normalize(dir);
         const auto& roots = facts.Paths.SourceRoots;
-        if (std::find(roots.begin(), roots.end(), n) != roots.end()) {
+        if (n == "." || std::find(roots.begin(), roots.end(), n) != roots.end()) {
             return "//";
+        }
+        if (n == "<out>") {
+            return "$root_build_dir";
         }
         if (StartsWith(n, "<out>/")) {
             return "$root_build_dir/" + n.substr(6);
