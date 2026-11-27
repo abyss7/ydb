@@ -14,6 +14,7 @@ library("dsproxy") {
     # "//ydb/core/blobstorage",
     "//ydb/core/blobstorage/backpressure",
     "//ydb/core/blobstorage/base",
+    "//ydb/core/blobstorage/bridge",
     "//ydb/core/blobstorage/common",
     # "//ydb/core/blobstorage/crypto",
     "//ydb/core/blobstorage/groupinfo",

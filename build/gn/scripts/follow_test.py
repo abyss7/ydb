@@ -51,7 +51,7 @@ class FollowHistoryTest(unittest.TestCase):
         # repository is used. The real follow/current/step/commit flow is kept.
         f = Follower.__new__(Follower)
         options = dict(upstream="upstream", fetch=False, skip_bench=False, bench=False,
-                       max_commits=1, env=[], push=None, only_head=False, run=True,
+                       max_commits=1, env=[], push=None, only_head=False, finish_current=False, run=True,
                        branch=None, state=os.path.join(self.tmp.name, "state"))
         f.args = types.SimpleNamespace(**dict(options, **settings))
         f.root, f.git = self.root, self.git
@@ -372,6 +372,29 @@ class FollowHistoryTest(unittest.TestCase):
         self.assertEqual(self.git.ref("front"), result)
         self.assertEqual(self.git.head_ref(), "refs/heads/front")
         self.assertFalse(self.git.ref(f.work_ref))
+        self.assertFalse(os.path.exists(f.work.path))
+
+    def test_finish_current_publishes_only_the_stopped_step(self):
+        next_commit = self.add_upstream("second.cpp")
+        f = self.follower(max_commits=None)
+        f.state.append({"status": "bootstrap", "upstream": self.base})
+        f.build.side_effect = Stop("build", "failed")
+        with self.assertRaisesRegex(Stop, "failed"):
+            f.follow()
+        f.build.reset_mock(side_effect=True)
+        f.args.finish_current = True
+        f.work.publish(f.follow(refresh_on_resume=True))
+        f.build.assert_called_once()
+        self.assertEqual(self.git.ref("front^2"), self.u)
+        self.assertFalse(self.git.ancestor(next_commit, "front"))
+        self.assertEqual(self.git.head_ref(), "refs/heads/front")
+
+    def test_finish_current_at_clean_checkpoint_leaves_pending_commit_alone(self):
+        f = self.follower(max_commits=None, finish_current=True)
+        f.state.append({"status": "bootstrap", "upstream": self.base})
+        f.work.publish(f.follow())
+        f.build.assert_not_called()
+        self.assertEqual(self.git.ref("front"), self.base)
         self.assertFalse(os.path.exists(f.work.path))
 
     def test_conflict_keeps_index_and_resumes_on_work_branch(self):

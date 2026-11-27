@@ -47,6 +47,7 @@ library("blob_depot") {
     "garbage_collection.cpp",
     "given_id_range.cpp",
     "group_metrics_exchange.cpp",
+    "hot_write_admission.cpp",
     "mon_main.cpp",
     "move_data.cpp",
     "op_apply_config.cpp",

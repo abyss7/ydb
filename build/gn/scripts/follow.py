@@ -84,6 +84,7 @@ branch (e.g. abyss7/gn/main). Conflicts leave the local checkpoint in place.
     build/gn/scripts/follow.py --branch stable-25.1          # the status of another branch
     build/gn/scripts/follow.py --max-commits 3               # the status, the 3 commits marked
     build/gn/scripts/follow.py --run --max-commits 3         # go on for 3 commits
+    build/gn/scripts/follow.py --run --finish-current        # finish the saved step, publish and stop
     build/gn/scripts/follow.py --run --bench                 # go on, measuring every step
     build/gn/scripts/follow.py --run --skip-bench            # after a STOP bench: go on without it
     build/gn/scripts/follow.py --run --only-head             # one merge of the head, no per-commit steps
@@ -1067,12 +1068,10 @@ def fetch_upstream(git, upstream, enabled):
         git.out("fetch", "-q", remote, branch)
 
 
-def pending_commits(git, state, upstream):
-    """(last followed commit, merge in progress, first-parent commits after it)."""
-    last = state.last_merged(git, upstream)
-    pending = [] if git.ancestor(upstream, last) else \
+def pending_commits(git, last, upstream):
+    """First-parent commits after the last followed commit."""
+    return [] if git.ancestor(upstream, last) else \
         git.lines("rev-list", "--first-parent", "--reverse", last + ".." + upstream)
-    return last, git.merge_head(), pending
 
 
 class Follower:
@@ -1549,8 +1548,8 @@ class Follower:
         return stop["upstream"]
 
     def current(self):
-        """(U, merged) of the step to do, or None when the upstream is reached."""
-        last, merge, pending = pending_commits(self.git, self.state, self.args.upstream)
+        """(U, merged) of the step to do, or None if no step should be taken."""
+        merge = self.git.merge_head()
         if merge:
             self.require_upstream(merge)
             self.finish_merge(merge)
@@ -1566,9 +1565,13 @@ class Follower:
             if self.git.ancestor(u, previous):
                 raise Stop("conflict", "unexpected commits after the last checked step")
             return u, True
+        last = self.state.last_merged(self.git, self.args.upstream)
         if self.git.dirty():
             raise Stop("conflict", "the work tree has changes, but the step of %s is done:\n%s"
                        % (last, listing(self.git.dirty(), 30)))
+        if self.args.finish_current:
+            return None
+        pending = pending_commits(self.git, last, self.args.upstream)
         if self.args.only_head:
             pending = pending[-1:]
         return (pending[0], False) if pending else None
@@ -1662,14 +1665,15 @@ class Follower:
                     self.advance_checkpoint()
         self.rebase_tracking()
         steps = self.completed_steps()
-        while self.args.max_commits is None or steps < self.args.max_commits:
+        limit = steps + 1 if self.args.finish_current else self.args.max_commits
+        while limit is None or steps < limit:
             try:
                 cur = self.current()
             except Stop as s:
                 self.record_stop(self.git.merge_head() or "HEAD", {"seconds": {}}, s)
                 raise
             if cur is None:
-                self.say("the upstream is reached")
+                self.say("no unfinished step" if self.args.finish_current else "the upstream is reached")
                 break
             self.step(*cur, skip_bench=cur[0] == skip)
             steps += 1
@@ -1734,7 +1738,8 @@ def status(args, work):
     fetch_head = fetch_head if os.path.isabs(fetch_head) else os.path.join(root, fetch_head)
     fetched = time.strftime("%Y-%m-%d %H:%M", time.localtime(os.path.getmtime(fetch_head))) \
         if os.path.exists(fetch_head) else "never"
-    last, mh, pending = pending_commits(git, state, args.upstream)
+    last, mh = state.last_merged(git, args.upstream), git.merge_head()
+    pending = pending_commits(git, last, args.upstream)
     say("Upstream:   %s @ %s (fetched %s; --fetch to update)" % (args.upstream, git.short(args.upstream), fetched))
     say("            last merged: %s %s" % (git.short(last), git.subject(last)[:70]))
 
@@ -1925,6 +1930,11 @@ def require_ref(ap, root, ref):
 def load_run_settings(ap, args, git, git_dir, work):
     """Resolve one worktree's state and restore its run options before touching the journal."""
     saved = work.data
+    if args.finish_current:
+        if not args.run or not saved:
+            ap.error("--finish-current needs --run and a saved run to finish")
+        if args.max_commits is not None:
+            ap.error("--finish-current takes no new commits: drop --max-commits")
     upstream = resolve_upstream(ap, args)
     if saved and (args.upstream or args.branch) and upstream != saved["upstream"]:
         ap.error("the saved run follows %s; resume it first" % saved["upstream"])
@@ -1983,6 +1993,9 @@ def main():
                          "has its own state)")
     ap.add_argument("--upstream", metavar="REF", help="the ref to follow instead of origin/<branch>")
     ap.add_argument("--run", action="store_true", help="do the work; without it only the status is shown")
+    ap.add_argument("--finish-current", action="store_true",
+                    help="with --run: finish the saved run's in-progress step, if any, "
+                         "and publish the GN branch without starting another source commit")
     ap.add_argument("--only-head", action="store_true",
                     help="with --run: skip the intermediate commits, one step to the head of the branch")
     ap.add_argument("--max-commits", type=lambda v: v if v == "all" else int(v), metavar="N|all",

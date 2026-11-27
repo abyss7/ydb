@@ -111,6 +111,7 @@ library("schemeshard") {
     "//ydb/core/split",
     # "//ydb/core/statistics/service",
     "//ydb/core/sys_view/partition_stats",
+    # "//ydb/core/tablet_flat/base",
     # "//ydb/core/test_tablet",
     "//ydb/core/tx/columnshard/bg_tasks/abstract",
     # "//ydb/core/tx/columnshard/blobs_action/common",

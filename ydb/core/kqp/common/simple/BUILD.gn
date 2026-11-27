@@ -9,6 +9,8 @@ library("simple") {
     "//ydb/core/base",
     "//ydb/core/protos",
     # "//ydb/core/resource_pools",
+    # "//ydb/core/scheme",
+    # "//ydb/core/tablet_flat/base",
     "//ydb/library/aclib",
     # "//ydb/library/actors/core",
     "//ydb/public/api/protos",

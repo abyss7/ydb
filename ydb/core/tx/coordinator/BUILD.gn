@@ -9,6 +9,7 @@ library("coordinator") {
     "//ydb/core/tx",
     "//ydb/core/tx/coordinator/public",
     # "//ydb/library/actors/core",
+    # "//ydb/library/actors/struct_log",
   ]
 
   deps = [

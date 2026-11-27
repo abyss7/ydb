@@ -68,7 +68,7 @@ library("_self") {
     "//ydb/core/blobstorage/subsystem",
     "//ydb/core/blobstorage/vdisk/common",
     "//ydb/core/client/minikql_compile",
-    # "//ydb/core/client/scheme_cache_lib",  # peerdir only
+    "//ydb/core/client/scheme_cache_lib",
     "//ydb/core/cms",
     # "//ydb/core/cms/console",
     "//ydb/core/cms/console/validators",
@@ -296,7 +296,6 @@ group("run") {
     ":main",
     # "//library/cpp/getopt/small",  # peerdir only
     # "//ydb/core/blobstorage",  # peerdir only
-    # "//ydb/core/client/scheme_cache_lib",  # peerdir only
     # "//ydb/core/driver_lib/cli_utils",  # peerdir only
     "//ydb/core/graph/service",  # peerdir only
     "//ydb/core/graph/shard",  # peerdir only

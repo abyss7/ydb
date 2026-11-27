@@ -22,6 +22,7 @@ library("datashard") {
     # "//ydb/core/statistics",
     "//ydb/core/tablet",
     "//ydb/core/tablet_flat",
+    "//ydb/core/tablet_flat/base",
     "//ydb/core/tx",
     "//ydb/core/tx/balance_coverage",
     "//ydb/core/tx/data_events",

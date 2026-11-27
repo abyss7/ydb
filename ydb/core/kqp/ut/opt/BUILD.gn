@@ -38,6 +38,7 @@ unittest_executable("opt") {
     "kqp_not_null_ut.cpp",
     "kqp_partitions_by_keys_sort_ut.cpp",
     "kqp_peephole_ut.cpp",
+    "kqp_pg_map_join_ut.cpp",
     "kqp_ranges_ut.cpp",
     "kqp_returning_ut.cpp",
     "kqp_sort_ut.cpp",

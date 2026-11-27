@@ -27,7 +27,7 @@ library("ydb_convert") {
     "//ydb/core/persqueue/public:utils",
     "//ydb/core/protos/schemeshard",
     "//ydb/core/scheme/protos",
-    # "//ydb/core/tablet_flat",
+    # "//ydb/core/tablet_flat/base",
     # "//ydb/core/tx/columnshard/engines/storage/indexes/helper",
     # "//ydb/core/tx/columnshard/engines/storage/indexes/min_max/misc",
     # "//ydb/core/util",  # peerdir only

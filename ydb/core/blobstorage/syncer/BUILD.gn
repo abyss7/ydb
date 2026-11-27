@@ -10,6 +10,7 @@ library("syncer") {
   ]
 
   deps = [
+    "//ydb/core/blobstorage/bridge",
     # "//ydb/core/blobstorage/nodewarden",
     "//ydb/core/util",
     # "//ydb/library/actors/core",

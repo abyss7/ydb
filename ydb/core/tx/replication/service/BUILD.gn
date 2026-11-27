@@ -8,7 +8,7 @@ library("service") {
     "//ydb/core/protos",
     # "//ydb/core/scheme",
     # "//ydb/core/scheme_types",
-    # "//ydb/core/tablet_flat",
+    # "//ydb/core/tablet_flat/base",
     "//ydb/core/tx/replication/common",
     # "//ydb/core/tx/replication/ydb_proxy",
     "//ydb/core/wrappers",
@@ -20,6 +20,7 @@ library("service") {
     "//library/cpp/openssl/crypto",
     # "//library/cpp/string_utils/base64",
     "//ydb/core/io_formats/cell_maker",
+    # "//ydb/core/tablet_flat",  # peerdir only
     "//ydb/core/tx/datashard",
     "//ydb/core/tx/replication/ydb_proxy/local_proxy",  # peerdir only
     "//ydb/core/tx/scheme_cache",

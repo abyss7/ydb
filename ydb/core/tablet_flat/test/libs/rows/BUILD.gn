@@ -3,6 +3,7 @@ library("rows") {
     # "//library/cpp/containers/stack_vector",
     # "//ydb/core/scheme",
     "//ydb/core/tablet_flat",
+    # "//ydb/core/tablet_flat/base",
   ]
 
   sources = [ "all.cpp" ]

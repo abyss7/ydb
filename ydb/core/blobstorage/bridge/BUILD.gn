@@ -1,0 +1,12 @@
+library("bridge") {
+  public_deps = [
+    "//ydb/core/base",
+    # "//ydb/core/blobstorage",
+  ]
+
+  deps = [
+    "//ydb/library/actors/async",
+  ]
+
+  sources = [ "keep_check.cpp" ]
+}

@@ -1,0 +1,7 @@
+library("base") {
+  public_deps = [
+    # "//ydb/core/base",
+  ]
+
+  serialize_enum_headers = [ "flat_row_eggs.h" ]
+}

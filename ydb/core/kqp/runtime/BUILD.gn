@@ -16,7 +16,7 @@ library("runtime") {
     "//ydb/core/kqp/runtime/common",
     "//ydb/core/protos",
     "//ydb/core/scheme",
-    # "//ydb/core/tablet_flat",
+    # "//ydb/core/tablet_flat/base",
     # "//ydb/core/tx/data_events",
     # "//ydb/core/tx/datashard",
     "//ydb/core/tx/scheme_cache",

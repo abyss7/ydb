@@ -37,7 +37,7 @@ library("host") {
     "//ydb/core/path_aliasing",  # peerdir only
     "//ydb/core/protos",
     "//ydb/core/protos/schemeshard",
-    # "//ydb/core/tablet_flat",
+    # "//ydb/core/tablet_flat/base",
     # "//ydb/core/tx/columnshard/engines/storage/indexes/helper",
     # "//ydb/core/tx/columnshard/engines/storage/indexes/min_max/misc",
     "//ydb/core/tx/long_tx_service/public",  # peerdir only

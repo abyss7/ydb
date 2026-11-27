@@ -73,6 +73,7 @@ library("testlib") {
     # "//ydb/core/blobstorage/base",
     # "//ydb/core/client",  # peerdir only
     "//ydb/core/client/metadata",
+    "//ydb/core/client/scheme_cache_lib",
     "//ydb/core/driver_lib/run",
     # "//ydb/core/driver_lib/version",  # peerdir only
     # "//ydb/core/engine",

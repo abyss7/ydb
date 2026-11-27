@@ -36,6 +36,11 @@ PEERDIR(
     yql/essentials/providers/result/expr_nodes
 )
 
+PEERDIR_FROM_POLICY(
+    ALLOW
+    toloka/analytics/programs/yql_parser
+)
+
 END()
 
 RECURSE(

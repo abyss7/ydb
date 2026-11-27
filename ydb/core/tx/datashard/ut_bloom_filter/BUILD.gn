@@ -5,7 +5,7 @@ unittest_executable("ut_bloom_filter") {
     "//library/cpp/svnversion",  # peerdir only
     "//ydb/core/grpc_services/local_rpc",
     "//ydb/core/kqp/ut/common",  # peerdir only
-    "//ydb/core/tablet_flat",
+    "//ydb/core/tablet_flat/base",
     "//ydb/core/testlib/default",  # peerdir only
     "//ydb/core/tx",  # peerdir only
     "//ydb/core/tx/datashard",  # peerdir only
